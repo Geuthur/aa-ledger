@@ -1,0 +1,74 @@
+/* Line System */
+.li-circle{
+	list-style-type: circle;
+	margin-left: 25px;
+}
+
+/* Line System */
+.li-none{
+	margin-left: 25px;
+}
+
+/* CSS-Regeln für den Text links von der Linie */
+.line-container {
+	position: relative;
+	width: 100%;
+	text-align: left;
+}
+
+.line-text {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: -30px; /* Positionieren Sie den Text über der Linie */
+	z-index: 2; /* Text über der Linie */
+}
+
+.custom-line {
+	height: 3px; /* Dicke der Linie in Pixeln */
+	border: none;
+	background-color: linear-gradient(to right, rgb(0 170 255) 0%, transparent 80%, transparent 100%); /* Übergangseffekt am rechten Rand */
+	z-index: 1; /* Linie unter dem Text */
+}
+
+.white {
+	background-color: linear-gradient(to right, rgb(171 171 171) 0%, transparent 80%, transparent 100%); /* Übergangseffekt am rechten Rand */
+}
+
+#container {
+    overflow: hidden;
+}
+
+fieldset.howto {
+    overflow: hidden; /* Sicherstellen, dass der fieldset-Inhalt das Inhaltsverzeichnis nicht überlappt */
+    margin-top: 20px; /* Abstand nach oben */
+}
+
+#fieldcontents {
+    float: left; /* Fieldset-Inhalt links positionieren */
+    width: calc(100% - 240px); /* Breite abzüglich der Breite des Inhaltsverzeichnisses und des Abstands */
+}
+
+#fieldcontents img {
+    max-width: 100%; /* Bilder im fieldset auf die volle Breite begrenzen */
+}
+
+/* Style the Image Used to Trigger the Modal */
+.zoom {
+    opacity: 0.7;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.zoom:hover {
+	opacity: 1;
+	transform: scale(1.1);
+}
+
+/* Custom CSS for tab mouseover */
+.nav-tabs .nav-link:hover {
+	opacity: 0.8;
+	color: white; /* Change text color on hover */
+	border-color: white; /* Change border color on hover */
+}

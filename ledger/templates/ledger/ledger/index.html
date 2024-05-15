@@ -1,0 +1,57 @@
+{% extends 'ledger/base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% block vow_menu %}{% include 'ledger/ledger/menu.html' %}{% endblock %}
+
+{% block vow_block %}
+    <div class="panel panel-primary">
+        <div class="container-fluid">
+            <div id="container">
+                <br>
+                <div class="line-container">
+                    <div class="line-text"><h4>Ledger Guide</h4></div>
+                    <hr class="custom-line">
+                </div>
+                Character Ledger shows all Ratting / ESS Payout / Mining entrys per Month / Day     <br>
+                You can switch between Months to show what you have already done and how much it was.     <br>
+                <img class="zoom zoom-size" src="/static/ledger/guides/ledger-1.png" data-bs-toggle="modal" data-bs-target="#modalvow" data-src="/static/ledger/guides/ledger-1.png"><br>
+                <br>
+                If you want more information about the Income you can use the Information Button on the Right side. <br>
+                <img class="zoom zoom-size" src="/static/ledger/guides/ledger-2.png" data-bs-toggle="modal" data-bs-target="#modalvow" data-src="/static/ledger/guides/ledger-2.png"><br>
+                <br><br>
+                <div class="line-container">
+                    <div class="line-text"><h4>FAQ</h4></div>
+                    <hr class="custom-line">
+                </div>
+                Q: I don't see my Character on the Char Ledger. <br>
+                A: Maybe your Character isn't in the System, Please add it! <br>
+                <img class="zoom zoom-size" src="/static/ledger/guides/ledger-3.png" data-bs-toggle="modal" data-bs-target="#modalvow" data-src="/static/ledger/guides/ledger-3.png"><br>
+                <br>
+                Q: Why is the ESS Stolen Amount not correctly<br>
+                A: The ESS Stolen information are updated from 'Corporation Ledger' so it can be wrong, cause it has a 3 hours update period<br>
+                <br>
+                Q: I don't see any ESS Payout<br>
+                A: This can happen if your Corporation hasn't add The Corporation to the Ledger<br>
+                <br>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_javascript %}
+{% include "ledger/modals/modal-full.html" %}
+{% include 'ledger/bundles/ledger-css.html' %}
+<script src="/static/ledger/js/img.js"></script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.zoom-size {
+    max-width: 300px;
+    max-height: 300px;
+}
+</style>
+{% endblock %}
+
+{% block extra_script %}
+{% endblock %}

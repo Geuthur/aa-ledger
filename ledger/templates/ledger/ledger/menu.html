@@ -1,0 +1,32 @@
+{% load i18n %}
+{% load navactive %}
+
+{% if perms.ledger.basic_access %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'ledger:ledger_corp_index' %}">Corporation Ledger</a>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'ledger:ledger_char_index' %}">Character Ledger</a>
+</li>
+
+<li class="nav-item">
+    <span class="nav-link">|</span>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'ledger:ledger_add_char' %}">Add Char</a>
+</li>
+{% endif %}
+
+{% if perms.ledger.corp_audit_admin_access %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'ledger:ledger_add_corp' %}">Add Corporation</a>
+</li>
+{% endif %}
+
+{% if perms.ledger.char_audit_admin_access %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'ledger:ledger_fetch_memberaudit' %}">Add All Memberaudit Chars</a>
+</li>
+{% endif %}

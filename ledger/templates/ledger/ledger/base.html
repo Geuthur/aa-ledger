@@ -1,0 +1,41 @@
+{% extends 'allianceauth/base-bs5.html' %}
+{% load i18n %}
+{% load vow %}
+{% block main_css %}
+{% endblock main_css %}
+{% block extra_css %}
+{% endblock extra_css %}
+
+{% block page_title %}Ledger{% endblock %}
+
+{% block header_nav_brand %}
+    Ledger
+{% endblock header_nav_brand %}
+
+{% block header_nav_collapse_left %}
+
+{% block vow_menu %}{% include 'ledger/ledger/menu.html' %}{% endblock %}
+
+{% endblock header_nav_collapse_left %}
+
+{% block content %}
+
+{% include 'ledger/bundles/ledger-css.html' %}
+{% include 'bundles/datatables-css-bs5.html' %}
+
+<div class="allianceauth-ledger-plugin card">
+    {% block page_topic %}<h1 class="page-header text-center">Ledger</h1>{% endblock page_topic %}
+    <br>
+    <div class="container-fluid" id="vow_block">
+    {% block vow_block %}{% endblock %}
+    </div>
+    <br>
+</div>
+
+{% endblock %}
+
+{% block extra_javascript %}
+{% endblock %}
+
+{% block extra_script %}
+{% endblock %}
