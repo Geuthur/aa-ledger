@@ -2,24 +2,83 @@
 
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Geuthur/aa-ledger/master.svg)](https://results.pre-commit.ci/latest/github/Geuthur/aa-ledger/master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Tests](https://github.com/Geuthur/aa-ledger/actions/workflows/autotester.yml/badge.svg)](https://github.com/Geuthur/aa-ledger/actions/workflows/autotester.yml)
 
-## Includes:
+## Includes
 
 - Graphical Overview
 - Ratting,Mining,Trading
 - Character Ledger
 - Corporation Ledger
 
-## Upcoming:
+## Upcoming
 
 - Corp Tax
 - Events Calender
 
-## Devs:
+## Installation
 
-- Geuthur
+### Step 1 - Install the Package
 
-## Highlights:
+Make sure you're in your virtual environment (venv) of your Alliance Auth then install the pakage.
+
+```shell
+pip install aa-ledger
+```
+
+### Step 2 - Configure Alliance Auth
+
+- Add `'ledger',` to your `INSTALLED_APPS` in your projects `local.py`
+
+### Step 3 - Add the Scheduled Tasks
+
+To set up the Scheduled Tasks add following code to your `local.py`
+
+```python
+CELERYBEAT_SCHEDULE["ledger_character_audit_update_all"] = {
+    "task": "ledger.tasks.update_all_characters",
+    "schedule": crontab(hour="*/1"),
+}
+CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
+    "task": "ledger.tasks.update_all_corps",
+    "schedule": crontab(hour="*/1"),
+}
+```
+
+Optional you can set own Logger for the Ledger\
+You need to set up `LOGGER_USE = True` in `local.py` and add the following code same as above
+
+```python
+LOGGING_LEDGER = {
+    "handlers": {
+        "ledger_file": {
+            "level": "DEBUG",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(BASE_DIR, "log/ledger.log"),
+            "formatter": "verbose",
+            "maxBytes": 1024 * 1024 * 5,
+            "backupCount": 5,
+        },
+    },
+    "loggers": {
+        "ledger": {
+            "handlers": ["ledger_file", "console"],
+            "level": "DEBUG",
+        },
+    },
+}
+LOGGING["handlers"].update(LOGGING_LEDGER["handlers"])
+LOGGING["loggers"].update(LOGGING_LEDGER["loggers"])
+```
+
+### Step 4 - Migration to AA
+
+```shell
+python manage.py collectstatic
+python manage.py migrate
+```
+
+## Highlights
 
 ![Screenshot 2024-05-14 121014](https://github.com/Geuthur/aa-ledger/assets/761682/d0604260-b672-4bf5-a16a-d1b90557744d)
 
