@@ -5,16 +5,17 @@
 [![Tests](https://github.com/Geuthur/aa-ledger/actions/workflows/autotester.yml/badge.svg)](https://github.com/Geuthur/aa-ledger/actions/workflows/autotester.yml)
 
 - [AA Ledger](#aa-ledger)
-    - [Features](#features)
-    - [Upcoming](#upcoming)
-    - [Installation](#features)
-        - [Step 1 - Install the Package](#step1)
-        - [Step 2 - Configure Alliance Auth](#step2)
-        - [Step 3 - Add the Scheduled Tasks](#step3)
-        - [Step 4 - Migration to AA](#step4)
-        - [Step 5 - Setting up Permissions](#step5)
-        - [Step 6 - (Optional) Setting up Compatibilies](#step6)
-    - [Highlights](#highlights)
+  - [Features](#features)
+  - [Upcoming](#upcoming)
+  - [Installation](#features)
+    - [Step 1 - Install the Package](#step1)
+    - [Step 2 - Configure Alliance Auth](#step2)
+    - [Step 3 - Add the Scheduled Tasks](#step3)
+    - [Step 4 - Migration to AA](#step4)
+    - [Step 5 - Setting up Permissions](#step5)
+    - [Step 6 - (Optional) Setting up Compatibilies](#step6)
+  - [Highlights](#highlights)
+
 ## Features<a name="features"></a>
 
 - Graphical Overview
@@ -88,6 +89,7 @@ The Following Settings can be setting up in the `local.py`
 - LEDGER_CORPSTATS_TWO:     `True / False`
 
 If you set up LEDGER_LOGGER_USE to `True` you need to add the following code below:
+
 ```python
 LOGGING_LEDGER = {
     "handlers": {
