@@ -2,7 +2,7 @@
 
 import logging
 
-from ledger.app_settings import LOGGER_USE
+from ledger.app_settings import LEDGER_LOGGER_USE
 
 
 def get_extension_logger(name):
@@ -16,7 +16,7 @@ def get_extension_logger(name):
     :return: an extensions child logger
     """
 
-    logger_name = "ledger" if LOGGER_USE else "extensions"
+    logger_name = "ledger" if LEDGER_LOGGER_USE else "extensions"
 
     if not isinstance(name, str):
         raise TypeError(

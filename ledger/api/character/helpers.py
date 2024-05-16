@@ -121,9 +121,9 @@ def _billboard_char_ledger(models: list, mining_data, monthly, year: int, month:
                     else w.date.month == month and w.date.day == range_
                 ):
                     if w.ref_type == "ess_escrow_transfer":
-                        total_ess_payout += (w.amount / app_settings.CORP_TAX) * (
-                            100 - app_settings.CORP_TAX
-                        )
+                        total_ess_payout += (
+                            w.amount / app_settings.LEDGER_CORP_TAX
+                        ) * (100 - app_settings.LEDGER_CORP_TAX)
 
             date_billboard.append(  # pylint disable:duplicate-code
                 date.replace(day=range_).strftime("%Y-%m-%d")

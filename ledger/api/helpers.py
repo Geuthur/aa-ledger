@@ -11,7 +11,7 @@ from allianceauth.eveonline.models import EveCharacter
 from ledger import app_settings, models
 from ledger.hooks import get_extension_logger
 
-if app_settings.CORPSTATS_TWO:
+if app_settings.LEDGERR_CORPSTATS_TWO:
     from corpstats.models import CorpMember
 else:
     from allianceauth.corputils.models import CorpMember

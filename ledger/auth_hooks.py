@@ -17,7 +17,7 @@ class LedgerMenuItem(MenuItemHook):
         # setup menu entry for sidebar
         MenuItemHook.__init__(
             self,
-            _(f"{app_settings.APP_NAME} - Ledger"),
+            _(f"{app_settings.LEDGER_APP_NAME} - Ledger"),
             "fas fa-book fa-fw",
             "ledger:ledger_index",
             navactive=["ledger:"],

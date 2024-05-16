@@ -11,7 +11,7 @@ from allianceauth.eveonline.models import EveCharacter
 
 from ledger import app_settings
 
-if app_settings.MEMBERAUDIT_USE:
+if app_settings.LEDGER_MEMBERAUDIT_USE:
     from memberaudit.models import CharacterMiningLedgerEntry as CharacterMiningLedger
     from memberaudit.models import CharacterWalletJournalEntry
 else:
@@ -22,7 +22,7 @@ else:
 
 from ledger.api import schema
 from ledger.api.helpers import get_alts_queryset, get_main_character
-from ledger.app_settings import CORP_TAX
+from ledger.app_settings import LEDGER_CORP_TAX
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 from ledger.view_helpers.core import (
@@ -238,13 +238,16 @@ class LedgerTemplateApiEndpoints:
 
                 # Calculate ESS Payout Char
                 amount["ess"]["total_amount"] = Decimal(
-                    (amount["ess"]["total_amount"] / CORP_TAX) * (100 - CORP_TAX)
+                    (amount["ess"]["total_amount"] / LEDGER_CORP_TAX)
+                    * (100 - LEDGER_CORP_TAX)
                 )
                 amount["ess"]["total_amount_day"] = Decimal(
-                    (amount["ess"]["total_amount_day"] / CORP_TAX) * (100 - CORP_TAX)
+                    (amount["ess"]["total_amount_day"] / LEDGER_CORP_TAX)
+                    * (100 - LEDGER_CORP_TAX)
                 )
                 amount["ess"]["total_amount_hour"] = Decimal(
-                    (amount["ess"]["total_amount_hour"] / CORP_TAX) * (100 - CORP_TAX)
+                    (amount["ess"]["total_amount_hour"] / LEDGER_CORP_TAX)
+                    * (100 - LEDGER_CORP_TAX)
                 )
 
                 # Sum Total Amounts

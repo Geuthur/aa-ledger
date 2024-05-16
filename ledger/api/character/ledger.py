@@ -14,7 +14,7 @@ from ledger.api.helpers import Paginator, get_alts_queryset, get_main_character
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 from ledger.view_helpers.core import events_filter
 
-if app_settings.MEMBERAUDIT_USE:
+if app_settings.LEDGER_MEMBERAUDIT_USE:
     from memberaudit.models import CharacterMiningLedgerEntry as CharacterMiningLedger
     from memberaudit.models import CharacterWalletJournalEntry
 else:
@@ -29,7 +29,7 @@ logger = get_extension_logger(__name__)
 
 SR_CHAR = (
     "character__eve_character"
-    if app_settings.MEMBERAUDIT_USE
+    if app_settings.LEDGER_MEMBERAUDIT_USE
     else "character__character"
 )
 
@@ -108,7 +108,7 @@ class LedgerApiEndpoints:
             monthly = True
             filters = (
                 Q(character__eve_character__in=characters)
-                if app_settings.MEMBERAUDIT_USE
+                if app_settings.LEDGER_MEMBERAUDIT_USE
                 else Q(character__character__in=characters)
             )
             filter_date = Q(date__year=year)
@@ -182,7 +182,7 @@ class LedgerApiEndpoints:
                 # Mining
                 filter_mining = (
                     Q(character__eve_character__character_id=char_id)
-                    if app_settings.MEMBERAUDIT_USE
+                    if app_settings.LEDGER_MEMBERAUDIT_USE
                     else Q(character__character__character_id=char_id)
                 )
 
@@ -231,8 +231,8 @@ class LedgerApiEndpoints:
                 )
 
                 amount_ess["total_amount"] = Decimal(
-                    (amount_ess["total_amount"] / app_settings.CORP_TAX)
-                    * (100 - app_settings.CORP_TAX)
+                    (amount_ess["total_amount"] / app_settings.LEDGER_CORP_TAX)
+                    * (100 - app_settings.LEDGER_CORP_TAX)
                 )
                 total_amount_others = (
                     amount_contracts["total_amount"]
