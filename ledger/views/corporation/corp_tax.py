@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from ledger import app_settings
 
-if app_settings.CORPSTATS_TWO:
+if app_settings.LEDGERR_CORPSTATS_TWO:
     from corpstats.models import CorpMember
 else:
     from allianceauth.corputils.models import CorpMember

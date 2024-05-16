@@ -67,7 +67,7 @@ class CharacterAudit(models.Model):
 
     def is_active(self):
         time_ref = timezone.now() - datetime.timedelta(
-            days=app_settings.CHAR_MAX_INACTIVE_DAYS
+            days=app_settings.LEDGER_CHAR_MAX_INACTIVE_DAYS
         )
         try:
             is_active = True
