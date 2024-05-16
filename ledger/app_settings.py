@@ -34,7 +34,7 @@ LEDGER_LOGGER_USE = clean_setting("LEDGER_LOGGER_USE", False)
 LEDGER_MEMBERAUDIT_USE = clean_setting("LEDGER_MEMBERAUDIT_USE", False)
 
 # Switch between AA-Corp Stats and CorpStats Two APP
-LEDGERR_CORPSTATS_TWO = clean_setting("LEDGERR_CORPSTATS_TWO", False)
+LEDGER_CORPSTATS_TWO = clean_setting("LEDGER_CORPSTATS_TWO", False)
 
 # Max Time to set Char Inactive
 LEDGER_CHAR_MAX_INACTIVE_DAYS = clean_setting("LEDGER_CHAR_MAX_INACTIVE_DAYS", 3)

@@ -11,7 +11,7 @@ from allianceauth.eveonline.models import EveCharacter
 from ledger import app_settings, models
 from ledger.hooks import get_extension_logger
 
-if app_settings.LEDGERR_CORPSTATS_TWO:
+if app_settings.LEDGER_CORPSTATS_TWO:
     from corpstats.models import CorpMember
 else:
     from allianceauth.corputils.models import CorpMember
@@ -156,9 +156,10 @@ def get_main_and_alts_all(corporations: list, char_ids=False, corp_members=True)
                 ]
             )
         )
-        for char in corp:
-            if char.character_id not in chars:
-                mains[char.character_id] = {"main": char, "alts": []}
+        if corp:
+            for char in corp:
+                if char.character_id not in chars:
+                    mains[char.character_id] = {"main": char, "alts": []}
 
     # Sort Names Alphabetic
     mains = sorted(mains.items(), key=lambda item: item[1]["main"].character_name)
