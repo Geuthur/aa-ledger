@@ -27,13 +27,10 @@ class General(models.Model):
     """A model defining commonly used properties and methods for Voices of War."""
 
     class Meta:
-        abstract = True
+        managed = False
         default_permissions = ()
         permissions = (
-            (
-                "basic_access",
-                "Can access this app.",
-            ),
+            ("basic_access", "Can access this app, Ledger."),
             ("moderator_access", "Has access to moderation tools"),
             ("admin_access", "Has access to all Administration tools"),
         )
