@@ -1,24 +1,35 @@
-# Ledger module for AllianceAuth.
+# Ledger module for AllianceAuth.<a name="aa-ledger"></a>
 
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Geuthur/aa-ledger/master.svg)](https://results.pre-commit.ci/latest/github/Geuthur/aa-ledger/master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Tests](https://github.com/Geuthur/aa-ledger/actions/workflows/autotester.yml/badge.svg)](https://github.com/Geuthur/aa-ledger/actions/workflows/autotester.yml)
 
-## Includes
+- [AA Ledger](#aa-ledger)
+    - [Features](#features)
+    - [Upcoming](#upcoming)
+    - [Installation](#features)
+        - [Step 1 - Install the Package](#step1)
+        - [Step 2 - Configure Alliance Auth](#step2)
+        - [Step 3 - Add the Scheduled Tasks](#step3)
+        - [Step 4 - Migration to AA](#step4)
+        - [Step 5 - Setting up Permissions](#step5)
+        - [Step 6 - (Optional) Setting up Compatibilies](#step6)
+    - [Highlights](#highlights)
+## Features<a name="features"></a>
 
 - Graphical Overview
 - Ratting,Mining,Trading
 - Character Ledger
 - Corporation Ledger
 
-## Upcoming
+## Upcoming<a name="upcoming"></a>
 
-- Corp Tax
+- Corp Tax System (Tracks specific amount that transfer'd to specific division)
 - Events Calender
 
-## Installation
+## Installation<a name="installation"></a>
 
-### Step 1 - Install the Package
+### Step 1 - Install the Package<a name="step1"></a>
 
 Make sure you're in your virtual environment (venv) of your Alliance Auth then install the pakage.
 
@@ -26,11 +37,15 @@ Make sure you're in your virtual environment (venv) of your Alliance Auth then i
 pip install aa-ledger
 ```
 
-### Step 2 - Configure Alliance Auth
+### Step 2 - Configure Alliance Auth<a name="step2"></a>
 
-- Add `'ledger',` to your `INSTALLED_APPS` in your projects `local.py`
+Configure your Alliance Auth settings (`local.py`) as follows:
 
-### Step 3 - Add the Scheduled Tasks
+- Add `'allianceauth.corputils',` to `INSTALLED_APPS`
+- Add `'eveuniverse',` to `INSTALLED_APPS`
+- Add `'ledger',` to `INSTALLED_APPS`
+
+### Step 3 - Add the Scheduled Tasks<a name="step3"></a>
 
 To set up the Scheduled Tasks add following code to your `local.py`
 
@@ -45,9 +60,34 @@ CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
 }
 ```
 
-Optional you can set own Logger for the Ledger\
-You need to set up `LOGGER_USE = True` in `local.py` and add the following code same as above
+### Step 4 - Migration to AA<a name="step4"></a>
 
+```shell
+python manage.py collectstatic
+python manage.py migrate
+```
+
+### Step 5 - Setting up Permissions<a name="step5"></a>
+
+With the Following IDs you can set up the permissions for the Ledger
+
+| ID                        | Description                            |                                                                                         |
+| :------------------------ | :------------------------------------- | :-------------------------------------------------------------------------------------- |
+| `basic_access`            | Can access the Ledger module           | All Members with the Permission can access the Ledger.                                  |
+| `moderator_access`        | Has access to moderation tools         | Not Implemented yet.                                                                    |
+| `admin_access`            | Has access to all Administration tools | Not Implemented yet.                                                                    |
+| `char_audit_admin_access` | Can Manage Character Audit Module      | Can Manage Character Audit Module, Like Add Memeberaudit Chars, View Character Journals |
+| `corp_audit_admin_access` | Can Manage Corporation Audit Module    | Can Manage Corporation Audit Module, Like Add Corp, View Corporation Journals           |
+
+### Step 6 - (Optional) Setting up Compatibilies<a name="step6"></a>
+
+The Following Settings can be setting up in the `local.py`
+
+- LEDGER_LOGGER_USE:        `True / False`
+- LEDGER_MEMBERAUDIT_USE:   `True / False`
+- LEDGER_CORPSTATS_TWO:     `True / False`
+
+If you set up LEDGER_LOGGER_USE to `True` you need to add the following code below:
 ```python
 LOGGING_LEDGER = {
     "handlers": {
@@ -71,14 +111,7 @@ LOGGING["handlers"].update(LOGGING_LEDGER["handlers"])
 LOGGING["loggers"].update(LOGGING_LEDGER["loggers"])
 ```
 
-### Step 4 - Migration to AA
-
-```shell
-python manage.py collectstatic
-python manage.py migrate
-```
-
-## Highlights
+## Highlights<a name="highlights"></a>
 
 ![Screenshot 2024-05-14 121014](https://github.com/Geuthur/aa-ledger/assets/761682/d0604260-b672-4bf5-a16a-d1b90557744d)
 
@@ -88,6 +121,8 @@ python manage.py migrate
 
 ![Screenshot 2024-05-14 121001](https://github.com/Geuthur/aa-ledger/assets/761682/463b9921-150c-42c1-8c3e-eee0f5cfc2bb)
 
-> \[!CAUTION\]
+> \[!NOTE\]
 > Contributing
-> Make sure you have signed the License Agreement by logging in at https://developers.eveonline.com before submitting any pull requests. All bug fixes or features must not include extra superfluous formatting changes.
+> You want to improve the project?
+> Just Make a [Pull Request](https://github.com/Geuthur/aa-ledger/pulls) with the Guidelines.
+> We Using pre-commit
