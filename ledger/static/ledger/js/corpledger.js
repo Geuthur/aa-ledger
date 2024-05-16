@@ -248,7 +248,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                 });
                             }
                         } else {
-                            chart_2.unload();
                             $('#ChartYearContainer').hide(); // Container verstecken, wenn keine Daten vorhanden sind
                         }
 
