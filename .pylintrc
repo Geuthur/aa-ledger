@@ -21,9 +21,6 @@ disable=
     missing-function-docstring,
     missing-class-docstring,
 
-    # ignore django model things...
-    no-member,
-
     # handled by isort
     wrong-import-position,
     ungrouped-imports,
@@ -31,7 +28,7 @@ disable=
     # handled by black
     format,
 
-    # Fix it later
+    # Restructure Code Later....
     too-many-locals,
     too-many-branches,
     too-many-statements,

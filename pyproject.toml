@@ -8,7 +8,9 @@ requires = [
 name = "aa-ledger"
 readme = "README.md"
 license = { file = "LICENSE" }
-authors = [{ name = "Geuthur", email = "devgeuthur@gmail.com" }]
+authors = [
+    { name = "Geuthur", email = "devgeuthur@gmail.com" },
+]
 requires-python = ">=3.8"
 classifiers = [
     "Environment :: Web Environment",
@@ -38,16 +40,14 @@ dependencies = [
     "django-eveuniverse>=1.3",
     "django-ninja",
 ]
-[project.optional-dependencies]
-tests-allianceauth-latest = [
+optional-dependencies.tests-allianceauth-latest = [
     "coverage",
     "django-webtest",
 ]
-[project.urls]
-Changelog = "https://github.com/Geuthur/aa-ledger/blob/master/CHANGELOG.md"
-Homepage = "https://github.com/Geuthur/aa-ledger"
-Source = "https://github.com/Geuthur/aa-ledger"
-Tracker = "https://github.com/Geuthur/aa-ledger/issues"
+urls.Changelog = "https://github.com/Geuthur/aa-ledger/blob/master/CHANGELOG.md"
+urls.Homepage = "https://github.com/Geuthur/aa-ledger"
+urls.Source = "https://github.com/Geuthur/aa-ledger"
+urls.Tracker = "https://github.com/Geuthur/aa-ledger/issues"
 
 [tool.hatch.build]
 include = [
@@ -69,5 +69,13 @@ sections = [
     "FIRSTPARTY",
     "LOCALFOLDER",
 ]
-known_allianceauth = ["allianceauth", "app_utils"]
-known_django = ["django", "django_webtest", "esi", "eveuniverse"]
+known_allianceauth = [
+    "allianceauth",
+    "app_utils",
+]
+known_django = [
+    "django",
+    "django_webtest",
+    "esi",
+    "eveuniverse",
+]
