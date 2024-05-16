@@ -2,7 +2,7 @@
 
 from ledger.app_settings import LEDGER_APP_NAME
 
-__version__ = "0.3.2b1"
+__version__ = "0.3.3"
 __title__ = "Ledger"
 
 USER_AGENT_TEXT = f"{LEDGER_APP_NAME} v{__version__}"
