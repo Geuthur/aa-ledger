@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var url = '/ledger/api/account/0/ledger/year/' + selectedYear + '/month/' + selectedMonth;
 
         // DataTable neu laden mit den Daten des ausgewählten Monats
-        currentMonthTable.ajax.url(url).load();
+        MonthTable.ajax.url(url).load();
         $('#currentMonthLink').text('Month - ' + monthText);
     });
 
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Initialize DataTable for current_month
-    var currentMonthTable = $('#ratting').DataTable({
+    var MonthTable = $('#ratting').DataTable({
         ajax: {
             url: '/ledger/api/account/0/ledger/year/' + currentYear + '/month/' + selectedMonth + '',
             dataSrc: function (data) {
@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Check if the clicked tab is the one containing the year DataTable
         if (targetTabId === '#tab-all_month' && !yearTableInitialized) {
             // Initialisiere DataTable für den Hauptinhalt
-            currentMonthTable = $('#ratting_year').DataTable({
+            var YearTable = $('#ratting_year').DataTable({
                 ajax: {
                     url: '/ledger/api/account/0/ledger/year/' + currentYear + '/month/0',
                     dataSrc: function (data) {
