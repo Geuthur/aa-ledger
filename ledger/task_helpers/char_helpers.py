@@ -48,6 +48,7 @@ def get_token(character_id: int, scopes: list) -> "Token":
     return False
 
 
+# pylint: disable=too-many-locals
 def update_character_wallet(character_id, force_refresh=False):
     audit_char = CharacterAudit.objects.get(character__character_id=character_id)
     logger.debug(

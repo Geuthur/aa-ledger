@@ -23,6 +23,8 @@ logger = get_extension_logger(__name__)
 now = timezone.now()
 
 
+# TODO refactor this class
+# pylint: disable=too-many-locals, too-many-branches, too-many-statements
 @login_required
 @permission_required("ledger.basic_access")
 def index_steuer(request):

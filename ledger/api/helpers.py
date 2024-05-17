@@ -112,6 +112,7 @@ def get_main_and_alts_all(corporations: list, char_ids=False, corp_members=True)
 
     mains = {}
 
+    # pylint: disable=no-member
     users = (
         UserProfile.objects.select_related("main_character")
         .all()
