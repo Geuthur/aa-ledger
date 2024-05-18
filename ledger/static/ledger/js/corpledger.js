@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var url = '/ledger/api/corporation/0/ledger/year/' + selectedYear + '/month/' + selectedMonth;
 
         // DataTable neu laden mit den Daten des ausgewählten Monats
-        currentMonthTable.ajax.url(url).load();
+        MonthTable.ajax.url(url).load();
         $('#currentMonthLink').text('Month - ' + monthText);
     });
 
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Initialize DataTable for current_month
-    var currentMonthTable = $('#ratting').DataTable({
+    var MonthTable = $('#ratting').DataTable({
         ajax: {
             url: '/ledger/api/corporation/0/ledger/year/' + currentYear + '/month/' + selectedMonth + '',
             dataSrc: function (data) {
@@ -207,7 +207,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (targetTabId === '#tab-all_month' && !yearTableInitialized) {
 
             // Initialisiere DataTable für den Hauptinhalt
-            $('#ratting_year').DataTable({
+            // eslint-disable-next-line no-undef
+            YearTable = $('#ratting_year').DataTable({
                 ajax: {
                     url: '/ledger/api/corporation/0/ledger/year/' + currentYear + '/month/0',
                     dataSrc: function (data) {
@@ -345,10 +346,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     var totalAmountAllChars = parseFloat(total_amount);
                     var totalEssAmountAllChars = parseFloat(total_amount_ess);
                     var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
-                    $('#foot .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
-                    $('#foot .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
-                    $('#foot .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
-                    $('#foot .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
+                    $('#foot-year .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
+                    $('#foot-year .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
+                    $('#foot-year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
+                    $('#foot-year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                     'aria-label="{{ data.main_name }}"' +
                     'data-ajax_url="/voicesofwar/api/corporation/0/ledger/template/year/' + currentYear + '/month/' + selectedMonth + '" ' +
                     'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>');

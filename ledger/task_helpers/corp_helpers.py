@@ -143,6 +143,7 @@ def update_corp_wallet_division(corp_id, force_refresh=False):
     return ("Finished wallet divs for: %s", audit_corp.corporation.corporation_name)
 
 
+# pylint: disable=too-many-locals
 def update_corp_wallet_journal(corp_id, wallet_division, force_refresh=False):
     audit_corp = CorporationAudit.objects.get(corporation__corporation_id=corp_id)
 
