@@ -80,7 +80,7 @@ class LedgerApiEndpoints:
             return output
 
         @api.get(
-            "corporation/{corporation_id}/ledger/year/{year}/month/{month}",
+            "corporation/{corporation_id}/ledger/year/{year}/month/{month}/",
             response={200: List[schema.CorporationLedger], 403: str},
             tags=self.tags,
         )
