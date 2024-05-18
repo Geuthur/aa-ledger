@@ -36,7 +36,7 @@ def update_all_characters(runs: int = 0):
     for char in characters:
         update_character.apply_async(args=[char.character.character_id])
         runs = runs + 1
-    logger.info("Queued %s Audit Updates", runs)
+    logger.info("Queued %s Char Audit Updates", runs)
 
 
 @shared_task(bind=True, base=QueueOnce)
