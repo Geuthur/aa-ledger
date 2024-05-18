@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var monthText = getMonthName(selectedMonth);
 
         // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
-        var url = '/ledger/api/corporation/0/ledger/year/' + selectedYear + '/month/' + selectedMonth;
+        var url = '/ledger/api/corporation/0/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
 
         // DataTable neu laden mit den Daten des ausgewählten Monats
         MonthTable.ajax.url(url).load();
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize DataTable for current_month
     var MonthTable = $('#ratting').DataTable({
         ajax: {
-            url: '/ledger/api/corporation/0/ledger/year/' + currentYear + '/month/' + selectedMonth + '',
+            url: '/ledger/api/corporation/0/ledger/year/' + currentYear + '/month/' + selectedMonth + '/',
             dataSrc: function (data) {
                 // Zusätzliche Daten im DataTable-Objekt speichern
                 total_amount = data.items[0].total.total_amount;
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             'data-bs-toggle="modal" ' +
                             'data-bs-target="#modalViewCharacterContainer" ' +
                             'aria-label="' + row.main_name + '" ' +
-                            'data-ajax_url="/ledger/api/corporation/'+ row.main_id + '/ledger/template/year/' + currentYear + '/month/' + selectedMonth + '" ' +
+                            'data-ajax_url="/ledger/api/corporation/'+ row.main_id + '/ledger/template/year/' + currentYear + '/month/' + selectedMonth + '/" ' +
                             'title="' + row.main_name + '">' +
                             '<span class="fas fa-info"></span>' +
                             '</button>';
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
             $('#foot .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
             $('#foot .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                 'aria-label="{{ data.main_name }}"' +
-                'data-ajax_url="/ledger/api/corporation/0/ledger/template/year/' + currentYear + '/month/' + selectedMonth + '" ' +
+                'data-ajax_url="/ledger/api/corporation/0/ledger/template/year/' + currentYear + '/month/' + selectedMonth + '/" ' +
                 'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>');
         },
     });
@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // eslint-disable-next-line no-undef
             YearTable = $('#ratting_year').DataTable({
                 ajax: {
-                    url: '/ledger/api/corporation/0/ledger/year/' + currentYear + '/month/0',
+                    url: '/ledger/api/corporation/0/ledger/year/' + currentYear + '/month/0/',
                     dataSrc: function (data) {
                         // Zusätzliche Daten im DataTable-Objekt speichern
                         total_amount = data.items[0].total.total_amount;
@@ -331,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 'data-bs-toggle="modal" ' +
                                 'data-bs-target="#modalViewCharacterContainer" ' +
                                 'aria-label="' + row.main_name + '" ' +
-                                'data-ajax_url="/voicesofwar/api/corporation/'+ row.main_id + '/ledger/template/year/' + currentYear + '/month/' + selectedMonth + '" ' +
+                                'data-ajax_url="/ledger/api/corporation/'+ row.main_id + '/ledger/template/year/' + currentYear + '/month/0/" ' +
                                 'title="' + row.main_name + '">' +
                                 '<span class="fas fa-info"></span>' +
                                 '</button>';
@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     $('#foot-year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
                     $('#foot-year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                     'aria-label="{{ data.main_name }}"' +
-                    'data-ajax_url="/voicesofwar/api/corporation/0/ledger/template/year/' + currentYear + '/month/' + selectedMonth + '" ' +
+                    'data-ajax_url="/ledger/api/corporation/0/ledger/template/year/' + currentYear + '/month/0/" ' +
                     'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>');
                 },
             });
