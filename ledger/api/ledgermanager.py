@@ -304,7 +304,7 @@ class JournalProcess:
 
         corporation_journal = (
             CorporationWalletJournalEntry.objects.filter(filters, filter_date)
-            .prefetch_related(
+            .select_related(
                 "division",
                 "division__corporation",
                 "division__corporation__corporation",
