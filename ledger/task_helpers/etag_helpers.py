@@ -74,6 +74,7 @@ def stringify_params(operation):
     return ", ".join(out)
 
 
+# pylint: disable=too-many-statements, too-many-branches
 def etag_results(operation, token, force_refresh=False):
     _start_tm = time.perf_counter()
     results = []

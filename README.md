@@ -30,6 +30,10 @@
 
 ## Installation<a name="installation"></a>
 
+> \[!NOTE\]
+> AA Ledger needs at least Alliance Auth v4.0.0
+> Please make sure to update your Alliance Auth before you install this APP
+
 ### Step 1 - Install the Package<a name="step1"></a>
 
 Make sure you're in your virtual environment (venv) of your Alliance Auth then install the pakage.
@@ -84,9 +88,13 @@ With the Following IDs you can set up the permissions for the Ledger
 
 The Following Settings can be setting up in the `local.py`
 
-- LEDGER_LOGGER_USE:        `True / False`
-- LEDGER_MEMBERAUDIT_USE:   `True / False`
-- LEDGER_CORPSTATS_TWO:     `True / False`
+- LEDGER_APP_NAME:          `"YOURNAME"`   - Set the name of the APP
+
+- LEDGER_LOGGER_USE:        `True / False` - Set to use own Logger File
+
+- LEDGER_MEMBERAUDIT_USE:   `True / False` - Set to use the Memberaudit Journal to Fetch Statistics
+
+- LEDGER_CORPSTATS_TWO:     `True / False` - Set to use Corp Stats Two APP to Fetch Members that are not registred
 
 If you set up LEDGER_LOGGER_USE to `True` you need to add the following code below:
 
@@ -94,7 +102,7 @@ If you set up LEDGER_LOGGER_USE to `True` you need to add the following code bel
 LOGGING_LEDGER = {
     "handlers": {
         "ledger_file": {
-            "level": "DEBUG",
+            "level": "INFO",
             "class": "logging.handlers.RotatingFileHandler",
             "filename": os.path.join(BASE_DIR, "log/ledger.log"),
             "formatter": "verbose",
@@ -105,7 +113,7 @@ LOGGING_LEDGER = {
     "loggers": {
         "ledger": {
             "handlers": ["ledger_file", "console"],
-            "level": "DEBUG",
+            "level": "INFO",
         },
     },
 }
