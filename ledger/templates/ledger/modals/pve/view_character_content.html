@@ -43,7 +43,7 @@
                         <hr>
                         <div class="row description-row">
                             <div class="col-sm-6">Mining:</div>
-                            <div class='col-sm-6'><span style="color: green">{{ character.mining|format_currency }}</span> ISK</div>
+                            <div class='col-sm-6'><span style="color: green">{{ character.mining.total_amount|format_currency }}</span> ISK</div>
                         </div>
                         {% endif %}
                         {% if character.transaction %}
