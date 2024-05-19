@@ -51,7 +51,7 @@ def get_models_and_string():
         return (
             CharacterMiningLedger,
             CharacterWalletJournalEntry,
-            "character__character",
+            "character__eve_character",
         )
     from ledger.models.characteraudit import (
         CharacterMiningLedger,
@@ -61,7 +61,7 @@ def get_models_and_string():
     return (
         CharacterMiningLedger,
         CharacterWalletJournalEntry,
-        "character__eve_character",
+        "character__character",
     )
 
 
