@@ -6,8 +6,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from django.core.cache import cache
-from django.db.models import DecimalField, F, Q, Sum
-from django.db.models.functions import Coalesce
+from django.db.models import Q
 
 from ledger.app_settings import STORAGE_BASE_KEY
 from ledger.decorators import custom_cache_timeout
@@ -74,45 +73,6 @@ def calculate_ess_stolen(total_amount, ess_amount):
         total_ess_gain = format(result, ".2f")
 
     return total_ess_stolen, total_ess_gain
-
-
-def calculate_journal(entries, filter_data, exclude=False):
-    """
-    Berechnet den Gesamtbetrag (Summe) für Einträge in einem Journal.
-
-    :param entries: Eine Tabelle von Datenbankeinträgen (corporation journal oder character journal).
-    :type entries: QuerySet
-    :param filter_data: Ein Filter, der auf die Einträge angewendet wird.
-    :type filter_data: Q Filter
-    :return: Der Gesamtbetrag (Summe) der Einträge.
-    :rtype: float
-    """
-
-    current_date = datetime.now()
-
-    total_amount_entries = entries.filter(filter_data)
-
-    if exclude:
-        total_amount_entries = total_amount_entries.exclude(first_party__id__in=exclude)
-
-    total_amount_aggregated = total_amount_entries.aggregate(
-        total_amount=Coalesce(Sum(F("amount")), 0, output_field=DecimalField()),
-        total_amount_day=Coalesce(
-            Sum(F("amount"), filter=Q(date__day=current_date.day)),
-            0,
-            output_field=DecimalField(),
-        ),
-        total_amount_hour=Coalesce(
-            Sum(
-                F("amount"),
-                filter=Q(date__day=current_date.day, date__hour=current_date.hour),
-            ),
-            0,
-            output_field=DecimalField(),
-        ),
-    )
-
-    return total_amount_aggregated
 
 
 def _storage_key(identifier: str) -> str:

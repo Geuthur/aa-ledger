@@ -6,25 +6,14 @@ from django.db.models import DecimalField, F, Q, Sum
 from django.db.models.functions import Coalesce
 
 from ledger import app_settings
-from ledger.models.corporationaudit import CorporationWalletJournalEntry
-
-if app_settings.LEDGER_MEMBERAUDIT_USE:
-    from memberaudit.models import CharacterMiningLedgerEntry as CharacterMiningLedger
-    from memberaudit.models import CharacterWalletJournalEntry
-
-    SR_CHAR = "character__character"
-else:
-    from ledger.models.characteraudit import (
-        CharacterMiningLedger,
-        CharacterWalletJournalEntry,
-    )
-
-    SR_CHAR = "character__eve_character"
-
+from ledger.api.helpers import get_models_and_string
 from ledger.hooks import get_extension_logger
+from ledger.models.corporationaudit import CorporationWalletJournalEntry
 from ledger.view_helpers.core import events_filter
 
 logger = get_extension_logger(__name__)
+
+CharacterMiningLedger, CharacterWalletJournalEntry, SR_CHAR = get_models_and_string()
 
 
 class LedgerDataCore:
