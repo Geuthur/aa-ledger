@@ -9,12 +9,13 @@ from allianceauth.authentication.models import UserProfile
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger import app_settings, models
-from ledger.hooks import get_extension_logger
 
 if app_settings.LEDGER_CORPSTATS_TWO:
     from corpstats.models import CorpMember
 else:
     from allianceauth.corputils.models import CorpMember
+
+from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
 
@@ -37,6 +38,31 @@ class Paginator(LimitOffsetPagination):
             "items": queryset[offset : offset + limit],
             "count": self._items_count(queryset),
         }
+
+
+# pylint: disable=import-outside-toplevel
+def get_models_and_string():
+    if app_settings.LEDGER_MEMBERAUDIT_USE:
+        from memberaudit.models import (
+            CharacterMiningLedgerEntry as CharacterMiningLedger,
+        )
+        from memberaudit.models import CharacterWalletJournalEntry
+
+        return (
+            CharacterMiningLedger,
+            CharacterWalletJournalEntry,
+            "character__character",
+        )
+    from ledger.models.characteraudit import (
+        CharacterMiningLedger,
+        CharacterWalletJournalEntry,
+    )
+
+    return (
+        CharacterMiningLedger,
+        CharacterWalletJournalEntry,
+        "character__eve_character",
+    )
 
 
 def get_main_character(request, character_id):

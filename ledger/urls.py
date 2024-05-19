@@ -30,13 +30,13 @@ urlpatterns = [
     # -- Corporation Audit
     path("corporation/add/", add_corp, name="ledger_add_corp"),
     # -- PvE
-    path("ledger/index", ledger_index, name="ledger_index"),
+    path("index", ledger_index, name="ledger_index"),
     # -- -- Steuer
     path("steuer/index", index_steuer, name="steuer_index"),
     # -- -- Corporation Ledger
-    path("ledger/corp_index", ratting_index, name="ledger_corp_index"),
+    path("corp_index", ratting_index, name="ledger_corp_index"),
     # -- -- Char Ledger
-    path("ledger/char_index", ratting_char_index, name="ledger_char_index"),
+    path("char_index", ratting_char_index, name="ledger_char_index"),
     # -- -- Events
     path("events/", events_index, name="events_index"),
     path("events/admin/", events_admin, name="event_admin"),

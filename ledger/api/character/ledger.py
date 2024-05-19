@@ -101,7 +101,7 @@ class LedgerApiEndpoints:
             return output
 
         @api.get(
-            "account/{character_id}/ledger/year/{year}/month/{month}",
+            "account/{character_id}/ledger/year/{year}/month/{month}/",
             response={200: List[schema.CharacterLedger], 403: str},
             tags=self.tags,
         )
