@@ -31,7 +31,6 @@ class TemplateFilterCore:
         self.filter_ess = self.filter & Q(ref_type="ess_escrow_transfer")
         self.filter_mining = Q(character__eve_character__character_id__in=self.char_id)
 
-
 class TemplateFilterCost(TemplateFilterCore):
     """TemplateFilter class to store the filter data."""
 
@@ -65,7 +64,6 @@ class TemplateFilterTrading(TemplateFilterCost):
             amount__gt=0,
         )
         self.filter_donation = self.filter & Q(ref_type="player_donation")
-
 
 class TemplateFilter(TemplateFilterTrading):
     """TemplateFilterAll class to store all filter data."""
