@@ -1,0 +1,29 @@
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+
+<!-- Modal for viewing requests -->
+<div class="modal fade" id="modal{{ name }}Container" tabindex="-1" role="dialog" aria-labelledby="modalDialogLabel">
+    <div class="modal-dialog modal-xl" role="document" id="modal{{ name }}Content">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">
+                    &times;
+                </span></button>
+                <h4 class="modal-title" id="modalTitle">Loading...</h4>
+            </div>
+
+            <div class="modal-body">
+                {% if NIGHT_MODE %}
+                    <img src="{% static 'ledger/images/Spinner-1s-64px-dark.gif' %}">
+                {% else %}
+                    <img src="{% static 'ledger/images/Spinner-1s-64px-light.gif' %}">
+                {% endif %}
+            </div>
+
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>

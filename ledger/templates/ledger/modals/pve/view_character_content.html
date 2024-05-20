@@ -1,0 +1,291 @@
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load vow %}
+<div class="modal-content">
+    <button type="button" class="btn-close py-3 px-3" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true"></button>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modalTitle"><img src="{{ character.main_id|portrait }}" class="img-circle" alt="{{ data.main_name }}"> {{character.main_name}} - {{character.date}}</h4>
+    </div>
+    <div class="card-body">
+        <div class="row description-row">
+            <h4 id="character-title"></h4>
+        </div>
+        {% if character %}
+        <div>
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" href="#tab-summary" data-bs-toggle="tab">Summary</button>
+                </li>
+                <li>
+                    <button class="nav-link" href="#tab-daily" data-bs-toggle="tab">Daily</button>
+                </li>
+                <li>
+                    <button class="nav-link" href="#tab-hourly" data-bs-toggle="tab">Hourly</button>
+                </li>
+            </ul>
+            <div class="border border-secondary rounded-bottom tab-content px-2">
+                <div class="tab-pane panel panel-default active" id="tab-summary">
+                    <div class="card-body modal-tab">
+                        <div class="row description-row">
+                            <div class="col-sm-6">Ratting:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.bounty.total_amount|format_currency }}</span> ISK</div>
+                        </div>
+                        <div class="row description-row">
+                            <div class="col-sm-6">ESS:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.ess.total_amount|format_currency }}</span> ISK</div>
+                        </div>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Stolen ESS:</div>
+                            <div class='col-sm-6'><span style="color: red">{{ character.stolen.total_amount|format_currency }}</span> ISK</div>
+                        </div>
+                        {% if character.mining %}
+                        <hr>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Mining:</div>
+                            <div class='col-sm-6'><span style="color: green">{{ character.mining.total_amount|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                        {% if character.transaction %}
+                        <hr>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Trading:</div>
+                            <div class='col-sm-6'><span style="color: green">{{ character.transaction.total_amount|format_currency }}</span> ISK</div>
+                        </div>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Trading Cost:</div>
+                            <div class='col-sm-6'><span style="color: red">{{ character.market_cost.total_amount|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                        {% if character.contract %}
+                        <hr>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Contracts:</div>
+                            <div class='col-sm-6'><span style="color: green">{{ character.contract.total_amount|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                        {% if character.donation %}
+                        <hr>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Donations:<br>
+                            <span style="color: #FFBF00"><!--<i class="fas fa-exclamation-triangle"></i> Excluded from summary <i class="fas fa-exclamation-triangle"></i>--></span>
+                            </div>
+                            <div class='col-sm-6'>
+                                <span style="color: green">
+                                    {{ character.donation.total_amount|format_currency }}
+                                </span> ISK
+                                    <br><span style="color: #3483eb"><!--<i class="fas fa-info-circle"></i> Exluded registered chars <i class="fas fa-info-circle"></i>--></span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if character.production_cost %}
+                        <hr>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Production Cost:</div>
+                            <div class='col-sm-6'><span style="color: red">{{ character.production_cost.total_amount|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                        <hr>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Summary:</div>
+                            <div class='col-sm-6'><span style="color: green">{{ character.summary.total_amount|format_currency }}</span> ISK</div>
+                        </div>
+                    </div>
+                </div>
+                <!--##############################DAILY#######################-->
+                <div class="tab-pane panel panel-default" id="tab-daily">
+                    <div class="card-body modal-tab">
+                        {% if character.bounty.total_amount_day %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Current Day - Ratting:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.bounty.total_amount_day|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Ratting per Day:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.bounty.average_day|format_currency }}</span> ISK</div>
+                        </div>
+                        <hr>
+
+                        {% if character.ess.total_amount_day %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Current Day - ESS:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.ess.total_amount_day|format_currency }}</span> ISK</div>
+                        </div>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Current Day - Stolen ESS:</div>
+                            <div class='col-sm-4'><span style="color: red">{{ character.stolen.average_day|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. ESS per Day:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.ess.average_day|format_currency }}</span> ISK</div>
+                        </div>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Stolen per Day:</div>
+                            <div class='col-sm-4'><span style="color: red">{{ character.stolen.average_day|format_currency }}</span> ISK</div>
+                        </div>
+                        {% if character.mining %}
+                        <hr>
+                        {% if character.mining.total_amount_day %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Current Day - Mining:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.mining.total_amount_day|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Mining per Day:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.mining.average_day|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+
+                        {% if character.transaction %}
+                        <hr>
+                        {% if character.transaction.total_amount_day %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Current Day - Trading:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.transaction.total_amount_day|format_currency }}</span> ISK</div>
+                        </div>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Current Day - Trading Cost:</div>
+                            <div class='col-sm-4'><span style="color: red">{{ character.market_cost.total_amount_day|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Trading per Day:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.transaction.average_day|format_currency }}</span> ISK</div>
+                        </div>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Trading Cost per Day:</div>
+                            <div class='col-sm-4'><span style="color: red">{{ character.market_cost.average_day|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+
+                        {% if character.contract %}
+                        <hr>
+                        {% if character.contract.total_amount_day %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Current Day - Contracts:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.contract.total_amount_day|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Contracts per Day:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.contract.average_day|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+
+                        {% if character.donation %}
+                        <hr>
+                        {% if character.donation.total_amount_day %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Current Day - Donations:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.donation.total_amount_day|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Donations per Day:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.donation.average_day|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+
+                        {% if character.production_cost %}
+                        <hr>
+                        {% if character.production_cost.total_amount_day %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Current Day - Production Cost:</div>
+                            <div class='col-sm-4'><span style="color: red">{{ character.production_cost.total_amount_day|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Production Cost per Day:</div>
+                            <div class='col-sm-4'><span style="color: red">{{ character.production_cost.average_day|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                        {% if character.date %}
+                        <hr>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Summary Day</div>
+                            <div class='col-sm-6'><span style="color: green">{{ character.summary.total_amount_day|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <!--############################## HOURLY #######################-->
+                <div class="tab-pane panel panel-default" id="tab-hourly">
+                    <div class="card-body modal-tab">
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Ratting per Hour:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.bounty.average_hour|format_currency }}</span> ISK</div>
+                        </div>
+                        <hr>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. ESS per Hour:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.bounty.average_hour|format_currency }}</span> ISK</div>
+                        </div>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Stolen per Hour:</div>
+                            <div class='col-sm-4'><span style="color: red">{{ character.stolen.average_hour|format_currency }}</span> ISK</div>
+                        </div>
+
+                        {% if character.mining %}
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Mining per Hour:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.mining.average_hour|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+
+                        {% if character.transaction %}
+                        <hr>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Trading per Hour:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.transaction.average_hour|format_currency }}</span> ISK</div>
+                        </div>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Trading Cost per Hour:</div>
+                            <div class='col-sm-4'><span style="color: red">{{ character.market_cost.average_hour|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+
+                        {% if character.contract %}
+                        <hr>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Contracts per Hour:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.contract.average_hour|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+
+                        {% if character.donation %}
+                        <hr>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Donations per Hour:</div>
+                            <div class='col-sm-4'><span style="color: green">{{ character.donation.average_hour|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+
+                        {% if character.production_cost %}
+                        <hr>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Avg. Production Cost per Hour:</div>
+                            <div class='col-sm-4'><span style="color: red">{{ character.production_cost.average_hour|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                        {% if character.date %}
+                        <hr>
+                        <div class="row description-row">
+                            <div class="col-sm-6">Summary Hour</div>
+                            <div class='col-sm-6'><span style="color: green">{{ character.summary.total_amount_hour|format_currency }}</span> ISK</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        No ratting data found...
+        {% endif %}
+    </div>
+
+    <div class="modal-footer">
+        </div>
+</div>

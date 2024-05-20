@@ -1,0 +1,83 @@
+{% extends 'ledger/ledger/base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load static %}
+{% load vow %}
+
+{% block page_title %}Corporation Ledger{% endblock %}
+{% block page_topic %}<h1 class="page-header text-center">{% translate "Corporation Ledger" %}</h1>{% endblock page_topic %}
+
+{% block vow_block %}
+<div class="container-fluid">
+    <div class="rounded-top" style="--bs-bg-opacity: .5;">
+        <ul class="nav nav-tabs rounded-top bg-primary" id="ledger-ratting" role="tablist">
+            <li class="nav-item">
+                <a id="currentMonthLink" class="nav-link active" href="#tab-current_month" data-bs-toggle="tab" role="tab" data-bs-target="#tab-current_month">
+                    Month - {{ value|current_month }}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a id="currentYearLink" class="nav-link" href="#tab-all_month" data-bs-toggle="tab" role="tab" data-bs-target="#tab-all_month">
+                    Year - {{ value|current_year }}
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content rounded-bottom">
+            <div class="tab-content">
+                {% include 'ledger/ledger/corpledger/month.html' %}
+                {% include 'ledger/ledger/corpledger/year.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tab Session -->
+{% include 'ledger/modals/modal_dialog.html' with name="ViewCharacter" %}
+{% endblock %}
+{% block extra_css %}
+<style>
+@media all {
+    #ratting th, #ratting_year th,
+    #ratting td, #ratting_year td {
+        padding: 0.75rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+    }
+
+    #ratting thead th, #ratting_year thead th {
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    #ratting tbody td:nth-child(5), #ratting_year tbody td:nth-child(5) {
+        text-align: right;
+    }
+
+    #ratting tfoot th:nth-child(5), #ratting_year tfoot th:nth-child(5) {
+        text-align: right;
+    }
+
+    #ratting tr, #ratting_year tr {
+        border-bottom: 1px solid #dee2e6;
+    }
+
+}
+</style>
+{% endblock %}
+{% block extra_javascript %}
+<link rel="stylesheet" type="text/css" href="{% static 'ledger/css/billboards_dark.css' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" integrity="sha512-vc58qvvBdrDR4etbxMdlTt4GBQk1qjvyORR2nrsPsFPyrs+/u5c3+1Ct6upOgdZoIl7eq6k3a1UPDSNAQi/32A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/3.11.3/billboard.min.js" integrity="sha512-rW9pOtBGPL12EGH9SeJmQWtVRvMImYHFGcYmTG/f9UIEO8I/nl2BxUQ41+t0ieqRdTF3PawVUVBXC7Jnb3AGnA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% include 'bundles/datatables-js-bs5.html' %}
+<script type="application/javascript">
+    $('#modalViewCharacterContainer').on('show.bs.modal', function (event) {
+        let button = $(event.relatedTarget)
+        let ajax_url = button.data('ajax_url');
+
+        $("#modalViewCharacterContent").load(ajax_url)
+    });
+</script>
+<script type="text/javascript" src="{% static 'ledger/js/corpledger.js' %}"></script>
+{% endblock extra_javascript %}
+{% block extra_script %}
+{% endblock extra_script %}

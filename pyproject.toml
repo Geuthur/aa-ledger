@@ -1,0 +1,81 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [
+    "hatchling",
+]
+
+[project]
+name = "aa-ledger"
+description = "EVE Online - Character/Corporation Ledger"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Geuthur", email = "devgeuthur@gmail.com" },
+]
+requires-python = ">=3.8"
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 4.0",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+dynamic = [
+    "version",
+]
+dependencies = [
+    "allianceauth>=4",
+    "allianceauth-app-utils>=1.19",
+    "dacite",
+    "django-eveuniverse>=1.3",
+    "django-ninja",
+]
+optional-dependencies.tests-allianceauth-latest = [
+    "coverage",
+    "django-webtest",
+]
+urls.Changelog = "https://github.com/Geuthur/aa-ledger/blob/master/CHANGELOG.md"
+urls.Homepage = "https://github.com/Geuthur/aa-ledger"
+urls.Source = "https://github.com/Geuthur/aa-ledger"
+urls.Tracker = "https://github.com/Geuthur/aa-ledger/issues"
+
+[tool.hatch.build]
+include = [
+    "/ledger",
+]
+
+[tool.hatch.version]
+path = "ledger/__init__.py"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+sections = [
+    "FUTURE",
+    "STDLIB",
+    "THIRDPARTY",
+    "DJANGO",
+    "ALLIANCEAUTH",
+    "FIRSTPARTY",
+    "LOCALFOLDER",
+]
+known_allianceauth = [
+    "allianceauth",
+    "app_utils",
+]
+known_django = [
+    "django",
+    "django_webtest",
+    "esi",
+    "eveuniverse",
+]
