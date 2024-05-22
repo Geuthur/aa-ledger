@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "aa-ledger"
-description = "EVE Online - Character/Corporation Ledger"
+description = "Character/Corporation Ledger"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
@@ -34,7 +34,7 @@ dynamic = [
     "version",
 ]
 dependencies = [
-    "allianceauth>=4",
+    "allianceauth<5.0.0,>=4",
     "allianceauth-app-utils>=1.19",
     "dacite",
     "django-eveuniverse>=1.3",
