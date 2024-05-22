@@ -8,8 +8,8 @@ from django.db.models import QuerySet
 from allianceauth.authentication.models import UserProfile
 from allianceauth.eveonline.models import EveCharacter
 
-from ledger.errors import LedgerImportError
 from ledger import app_settings, models
+from ledger.errors import LedgerImportError
 
 if app_settings.LEDGER_CORPSTATS_TWO:
     from corpstats.models import CorpMember
