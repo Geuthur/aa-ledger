@@ -157,7 +157,7 @@ class JournalProcess:
 
             # Core Filters
             filters = {
-                "ledger": Q(second_party_id=char_id), # Fetch All Entries
+                "ledger": Q(second_party_id=char_id),  # Fetch All Entries
                 "market": Q(second_party_id=char_id, ref_type="market_transaction"),
                 "contracts": Q(
                     second_party_id=char_id,
@@ -250,27 +250,26 @@ class JournalProcess:
         entries_filter = Q(second_party_id__in=chars) | Q(first_party_id__in=chars)
 
         # Filter the entries for the current day/month
-        character_journal = (
-            CharacterWalletJournalEntry.objects.filter(filters, filter_date)
-            .select_related("first_party", "second_party", SR_CHAR)
-        )
+        character_journal = CharacterWalletJournalEntry.objects.filter(
+            filters, filter_date
+        ).select_related("first_party", "second_party", SR_CHAR)
 
-        corporation_journal = (
-            CorporationWalletJournalEntry.objects.filter(entries_filter, filter_date)
-            .select_related(
-                "division",
-                "division__corporation",
-                "division__corporation__corporation",
-                "first_party",
-                "second_party",
-            )
+        corporation_journal = CorporationWalletJournalEntry.objects.filter(
+            entries_filter, filter_date
+        ).select_related(
+            "division",
+            "division__corporation",
+            "division__corporation__corporation",
+            "first_party",
+            "second_party",
         )
 
         # Exclude Events to avoid wrong stats
         corporation_journal = events_filter(corporation_journal)
         mining_journal = (
-            CharacterMiningLedger.objects.filter(filters, filter_date)
-            .select_related(SR_CHAR)
+            CharacterMiningLedger.objects.filter(filters, filter_date).select_related(
+                SR_CHAR
+            )
         ).annotate_pricing()
 
         self.process_character_chars(
@@ -305,15 +304,14 @@ class JournalProcess:
         if not self.month == 0:
             filter_date &= Q(date__month=self.month)
 
-        corporation_journal = (
-            CorporationWalletJournalEntry.objects.filter(filters, filter_date)
-            .select_related(
-                "division",
-                "division__corporation",
-                "division__corporation__corporation",
-                "first_party",
-                "second_party",
-            )
+        corporation_journal = CorporationWalletJournalEntry.objects.filter(
+            filters, filter_date
+        ).select_related(
+            "division",
+            "division__corporation",
+            "division__corporation__corporation",
+            "first_party",
+            "second_party",
         )
         self.process_corporation_chars(corporation_journal)
 
