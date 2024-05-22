@@ -157,7 +157,7 @@ class JournalProcess:
 
             # Core Filters
             filters = {
-                "ledger": Q(second_party_id=char_id),
+                "ledger": Q(second_party_id=char_id), # Fetch All Entries
                 "market": Q(second_party_id=char_id, ref_type="market_transaction"),
                 "contracts": Q(
                     second_party_id=char_id,
@@ -253,13 +253,17 @@ class JournalProcess:
         character_journal = (
             CharacterWalletJournalEntry.objects.filter(filters, filter_date)
             .select_related("first_party", "second_party", SR_CHAR)
-            .order_by("-date")
         )
 
         corporation_journal = (
             CorporationWalletJournalEntry.objects.filter(entries_filter, filter_date)
-            .select_related("first_party", "second_party")
-            .order_by("-date")
+            .select_related(
+                "division",
+                "division__corporation",
+                "division__corporation__corporation",
+                "first_party",
+                "second_party",
+            )
         )
 
         # Exclude Events to avoid wrong stats
@@ -267,7 +271,6 @@ class JournalProcess:
         mining_journal = (
             CharacterMiningLedger.objects.filter(filters, filter_date)
             .select_related(SR_CHAR)
-            .order_by("-date")
         ).annotate_pricing()
 
         self.process_character_chars(
@@ -311,7 +314,6 @@ class JournalProcess:
                 "first_party",
                 "second_party",
             )
-            .order_by("-date")
         )
         self.process_corporation_chars(corporation_journal)
 
