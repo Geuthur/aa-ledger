@@ -19,8 +19,7 @@ CharacterMiningLedger, CharacterWalletJournalEntry, SR_CHAR = get_models_and_str
 class LedgerDataCore:
     """LedgerDataCore class to store the core data."""
 
-    def __init__(self, models):
-        self.ess_entries, self.entries, self.mining_data = models
+    def __init__(self):
         self.total_bounty = 0
         self.total_ess_payout = 0
         self.total_miscellaneous = 0
@@ -30,13 +29,18 @@ class LedgerDataCore:
 class LedgerData(LedgerDataCore):
     """LedgerData class to store the data."""
 
-    def __init__(self, models):
-        super().__init__(models)
+    def __init__(self):
+        super().__init__()
         self.total_cost = 0
         self.total_production_cost = 0
         self.total_market = 0
+class LedgerModels:
+    """LedgerModels class to store the models."""
 
-
+    def __init__(self, character_journal = None, corporation_journal = None, mining_journal = None):
+        self.char_journal = character_journal
+        self.corp_journal = corporation_journal
+        self.mining_journal = mining_journal
 class LedgerDate:
     """LedgerDate class to store the date data."""
 
@@ -280,7 +284,8 @@ class JournalProcess:
         models = corporation_journal, character_journal, mining_journal
         # Create the Ledger
         date_data = LedgerDate(self.year, self.month)
-        ledger = BillboardLedger(models, date_data, corp=False)
+        models = LedgerModels(character_journal=character_journal, corporation_journal=corporation_journal, mining_journal=mining_journal)
+        ledger = BillboardLedger(date_data, models, corp=False)
         billboard_dict = ledger.billboard_char_ledger()
 
         output = []
@@ -315,11 +320,11 @@ class JournalProcess:
         )
         self.process_corporation_chars(corporation_journal)
 
-        # Use Only Corporation Ledger
-        models = corporation_journal, None, None
         # Create the Ledger
         date_data = LedgerDate(self.year, self.month)
-        ledger = BillboardLedger(models, date_data, corp=True)
+        models = LedgerModels(corporation_journal=corporation_journal)
+        ledger = BillboardLedger(date_data, models, corp=True)
+        
         billboard_dict = ledger.billboard_corp_ledger(
             self.corporation_dict, self.summary_total.total_amount
         )
@@ -339,10 +344,10 @@ class JournalProcess:
 
 
 class BillboardLedger:
-    def __init__(self, models, date_data, corp=False):
+    def __init__(self, date_data, models: LedgerModels, corp=False):
         self.is_corp = corp
+        self.data = LedgerData()
         self.models = models
-        self.data = LedgerData(models)
         self.date = date_data
         self.sum = LedgerSum()
         self.billboard_dict = {
@@ -409,43 +414,49 @@ class BillboardLedger:
         }
         # Calculate the totals for Character Billboard
         if not self.is_corp:
-            mining_query = self.data.mining_data.filter(filters["date"]).values(
+            # Calculate the total mining
+            mining_query = self.models.mining_journal.filter(filters["date"]).values(
                 "total", "date"
-            )
-            mining_aggregated = mining_query.aggregate(total_amount=Sum(F("total")))
-            total_amount_mining = mining_aggregated["total_amount"] or 0
-            # Calculate the total bounty, ESS payout, and miscellaneous amounts
+            ).aggregate(total_amount=Sum(F("total")))
+            total_amount_mining = mining_query["total_amount"] or 0
+            # Calculate the total bounty
             self.data.total_bounty = self.aggregate_journal(
-                self.data.entries.filter(filters["bounty"], filters["date"])
+                self.models.char_journal.filter(filters["bounty"], filters["date"])
             )
+            # Calculate the total ESS payout
+            self.data.total_ess_payout = (
+                self.aggregate_journal(
+                    self.models.corp_journal.filter(filters["ess"], filters["date"])
+                )
+                / app_settings.LEDGER_CORP_TAX
+            ) * (100 - app_settings.LEDGER_CORP_TAX)
             # Calculate the total market escrow, transaction tax, market provider tax, and broker's fee
             self.data.total_market = self.aggregate_journal(
-                self.data.entries.filter(filters["market_cost"], filters["date"])
+                self.models.char_journal.filter(filters["market_cost"], filters["date"])
             )
             # Calculate the total production cost
             self.data.total_production_cost = self.aggregate_journal(
-                self.data.entries.filter(filters["production_cost"], filters["date"])
+                self.models.char_journal.filter(filters["production_cost"], filters["date"])
             )
             # Calculate the total miscellaneous
             self.data.total_miscellaneous = self.aggregate_journal(
-                self.data.entries.filter(filters["miscellaneous"], filters["date"])
+                self.models.char_journal.filter(filters["miscellaneous"], filters["date"])
             )
             self.data.total_isk = self.aggregate_journal(
-                self.data.entries.filter(Q(amount__gt=0))
+                self.models.char_journal.filter(Q(amount__gt=0))
             )
             self.data.total_cost = self.aggregate_journal(
-                self.data.entries.filter(Q(amount__lt=0))
+                self.models.char_journal.filter(Q(amount__lt=0))
             )
         # Calculate the totals for Corporation Billboard
         if self.is_corp:
             self.data.total_ess_payout = (
                 self.aggregate_journal(
-                    self.data.ess_entries.filter(filters["ess"], filters["date"])
+                    self.models.corp_journal.filter(filters["ess"], filters["date"])
                 )
-                / app_settings.LEDGER_CORP_TAX
-            ) * (100 - app_settings.LEDGER_CORP_TAX)
+            )
             self.data.total_bounty = self.aggregate_journal(
-                self.data.ess_entries.filter(filters["bounty"], filters["date"])
+                self.models.corp_journal.filter(filters["bounty"], filters["date"])
             )
 
         # Add the totals to the respective lists
