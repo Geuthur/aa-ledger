@@ -21,3 +21,6 @@ class ESSError(Exception):
 
 class CustomError(Exception):
     pass
+
+class LedgerImportError(Exception):
+    pass

@@ -8,6 +8,7 @@ from django.db.models import QuerySet
 from allianceauth.authentication.models import UserProfile
 from allianceauth.eveonline.models import EveCharacter
 
+from ledger.errors import LedgerImportError
 from ledger import app_settings, models
 
 if app_settings.LEDGER_CORPSTATS_TWO:
@@ -43,16 +44,21 @@ class Paginator(LimitOffsetPagination):
 # pylint: disable=import-outside-toplevel
 def get_models_and_string():
     if app_settings.LEDGER_MEMBERAUDIT_USE:
-        from memberaudit.models import (
-            CharacterMiningLedgerEntry as CharacterMiningLedger,
-        )
-        from memberaudit.models import CharacterWalletJournalEntry
+        try:
+            from memberaudit.models import (
+                CharacterMiningLedgerEntry as CharacterMiningLedger,
+            )
+            from memberaudit.models import CharacterWalletJournalEntry
 
-        return (
-            CharacterMiningLedger,
-            CharacterWalletJournalEntry,
-            "character__eve_character",
-        )
+            return (
+                CharacterMiningLedger,
+                CharacterWalletJournalEntry,
+                "character__eve_character",
+            )
+        except Exception as exc:
+            logger.error("Memberaudit is enabled but not installed")
+            raise LedgerImportError("Memberaudit is enabled but not installed") from exc
+
     from ledger.models.characteraudit import (
         CharacterMiningLedger,
         CharacterWalletJournalEntry,
