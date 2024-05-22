@@ -1,5 +1,11 @@
 # Changelog
 
+## \[0.3.8\] - 2024-05-22
+
+### Fixed Critical
+
+- TemplateTag Missing
+
 ## \[0.3.0-0.3.7\] - 2024-05-20
 
 ### Added
