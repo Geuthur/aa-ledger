@@ -1,9 +1,9 @@
 {% extends 'ledger/base.html' %}
-{% load i18n %}
-{% load humanize %}
-{% block vow_menu %}{% include 'ledger/ledger/menu.html' %}{% endblock %}
+    {% load i18n %}
+    {% load humanize %}
 
 {% block vow_block %}
+{{ memberaudit }}
     <div class="panel panel-primary">
         <div class="container-fluid">
             <div id="container">

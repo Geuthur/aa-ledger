@@ -1,4 +1,4 @@
-{% extends 'ledger/ledger/base.html' %}
+{% extends 'ledger/base.html' %}
 {% load i18n %}
 {% load humanize %}
 {% load static %}
@@ -24,8 +24,8 @@
         </ul>
         <div class="tab-content rounded-bottom">
             <div class="tab-content">
-                {% include 'ledger/ledger/charledger/month.html' %}
-                {% include 'ledger/ledger/charledger/year.html' %}
+                {% include 'ledger/charledger/month.html' %}
+                {% include 'ledger/charledger/year.html' %}
             </div>
         </div>
     </div>

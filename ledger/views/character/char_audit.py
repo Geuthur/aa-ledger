@@ -29,7 +29,7 @@ def add_char(request, token):
     )
     msg = "Char successfully added/updated to Ledger"
     messages.info(request, msg)
-    return render(request, "ledger/ledger/index.html")
+    return render(request, "ledger/index.html")
 
 
 @login_required
@@ -83,4 +83,4 @@ def fetch_memberaudit(request):
         msg = "An error occurred: Please inform your Admin."
         messages.error(request, msg)
 
-    return render(request, "ledger/ledger/index.html")
+    return render(request, "ledger/index.html")

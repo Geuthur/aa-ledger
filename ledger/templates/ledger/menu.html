@@ -13,10 +13,11 @@
 <li class="nav-item">
     <span class="nav-link">|</span>
 </li>
-
+{% if not memberaudit %}
 <li class="nav-item">
     <a class="nav-link" href="{% url 'ledger:ledger_add_char' %}">Add Char</a>
 </li>
+{% endif %}
 {% endif %}
 
 {% if perms.ledger.corp_audit_admin_access %}
@@ -25,7 +26,7 @@
 </li>
 {% endif %}
 
-{% if perms.ledger.char_audit_admin_access %}
+{% if perms.ledger.char_audit_admin_access and memberaudit%}
 <li class="nav-item">
     <a class="nav-link" href="{% url 'ledger:ledger_fetch_memberaudit' %}">Add All Memberaudit Chars</a>
 </li>

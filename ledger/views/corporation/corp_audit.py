@@ -33,4 +33,4 @@ def add_corp(request, token):
     )
     msg = f"{char.corporation_name} successfully added/updated to Ledger"
     messages.info(request, msg)
-    return render(request, "ledger/ledger/index.html")
+    return render(request, "ledger/index.html")
