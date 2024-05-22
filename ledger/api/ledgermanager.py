@@ -19,10 +19,10 @@ CharacterMiningLedger, CharacterWalletJournalEntry, SR_CHAR = get_models_and_str
 class LedgerDataCore:
     """LedgerDataCore class to store the core data."""
 
-    def __init__(self, models):
-        self.ess_entries, self.entries, self.mining_data = models
+    def __init__(self):
         self.total_bounty = 0
         self.total_ess_payout = 0
+        self.total_mining = 0
         self.total_miscellaneous = 0
         self.total_isk = 0
 
@@ -30,11 +30,42 @@ class LedgerDataCore:
 class LedgerData(LedgerDataCore):
     """LedgerData class to store the data."""
 
-    def __init__(self, models):
-        super().__init__(models)
+    def __init__(self):
+        super().__init__()
         self.total_cost = 0
         self.total_production_cost = 0
         self.total_market = 0
+
+    def reset_values(self):
+        self.total_bounty = 0
+        self.total_ess_payout = 0
+        self.total_mining = 0
+        self.total_miscellaneous = 0
+        self.total_isk = 0
+        self.total_cost = 0
+        self.total_production_cost = 0
+        self.total_market = 0
+
+
+class LedgerModels:
+    """LedgerModels class to store the models."""
+
+    def __init__(
+        self, character_journal=None, corporation_journal=None, mining_journal=None
+    ):
+        self.char_journal = character_journal
+        self.corp_journal = corporation_journal
+        self.mining_journal = mining_journal
+
+    def to_values(self, journal):
+        logger.debug(type(journal))
+        return journal.values(
+            "amount", "ref_type", "first_party_id", "second_party_id", "date"
+        )
+
+    def to_values_mining(self, journal):
+        logger.debug(type(journal))
+        return journal.values("total", "date")
 
 
 class LedgerDate:
@@ -280,7 +311,12 @@ class JournalProcess:
         models = corporation_journal, character_journal, mining_journal
         # Create the Ledger
         date_data = LedgerDate(self.year, self.month)
-        ledger = BillboardLedger(models, date_data, corp=False)
+        models = LedgerModels(
+            character_journal=character_journal,
+            corporation_journal=corporation_journal,
+            mining_journal=mining_journal,
+        )
+        ledger = BillboardLedger(date_data, models, corp=False)
         billboard_dict = ledger.billboard_char_ledger()
 
         output = []
@@ -315,11 +351,11 @@ class JournalProcess:
         )
         self.process_corporation_chars(corporation_journal)
 
-        # Use Only Corporation Ledger
-        models = corporation_journal, None, None
         # Create the Ledger
         date_data = LedgerDate(self.year, self.month)
-        ledger = BillboardLedger(models, date_data, corp=True)
+        models = LedgerModels(corporation_journal=corporation_journal)
+        ledger = BillboardLedger(date_data, models, corp=True)
+
         billboard_dict = ledger.billboard_corp_ledger(
             self.corporation_dict, self.summary_total.total_amount
         )
@@ -339,10 +375,10 @@ class JournalProcess:
 
 
 class BillboardLedger:
-    def __init__(self, models, date_data, corp=False):
+    def __init__(self, date_data: LedgerDate, models: LedgerModels, corp=False):
         self.is_corp = corp
+        self.data = LedgerData()
         self.models = models
-        self.data = LedgerData(models)
         self.date = date_data
         self.sum = LedgerSum()
         self.billboard_dict = {
@@ -353,107 +389,96 @@ class BillboardLedger:
         }
         self.date_billboard = ["x"]
 
-    def set_filters(self, filter_date):
-        if self.is_corp:
-            return Q(date__year=self.date.year, date__month=filter_date)
-        return Q(
-            date__year=self.date.year,
-            date__month=self.date.month,
-            date__day=filter_date,
-        )
+    def aggregate_corp(self, journal, range_):
+        """Aggregate the journal entries for the corporation."""
+        for entry in journal:
+            if entry["date"].year == self.date.year:
+                if (self.date.month == 0 and entry["date"].month == range_) or (
+                    self.date.month != 0 and entry["date"].day == range_
+                ):
+                    if self.is_corp:
+                        if entry["ref_type"] == "bounty_prizes":
+                            self.data.total_bounty += entry["amount"]
+                    if entry["ref_type"] == "ess_escrow_transfer":
+                        self.data.total_ess_payout += entry["amount"]
 
-    def aggregate_journal(self, journal):
-        result = journal.aggregate(
-            total_amount=Coalesce(Sum(F("amount")), 0, output_field=DecimalField())
-        )
-        return result["total_amount"]
+    def aggregate_char(self, journal, range_):
+        """Aggregate the journal entries for the character."""
+        for entry in journal:
+            if entry["date"].year == self.date.year:
+                if (self.date.month == 0 and entry["date"].month == range_) or (
+                    self.date.month != 0 and entry["date"].day == range_
+                ):
+                    # Bounty Filter
+                    if entry["ref_type"] == "bounty_prizes":
+                        self.data.total_bounty += entry["amount"]
+                    # Misc Filter
+                    # TODO Add player_donation to the Billboard
+                    if (
+                        entry["ref_type"]
+                        in [
+                            "market_transaction",
+                            "contract_price_payment_corp",
+                            "contract_reward",
+                            "contract_price",
+                        ]
+                        and entry["amount"] > 0
+                    ):
+                        self.data.total_miscellaneous += entry["amount"]
+                    # Total ISK
+                    if entry["amount"] > 0:
+                        self.data.total_isk += entry["amount"]
+                    else:
+                        self.data.total_cost += entry["amount"]
+                    # Total Market
+                    if entry["ref_type"] in [
+                        "market_escrow",
+                        "transaction_tax",
+                        "market_provider_tax",
+                        "brokers_fee",
+                    ]:
+                        self.data.total_market += entry["amount"]
+                    # Production Cost
+                    if entry["ref_type"] in ["industry_job_tax", "manufacturing"]:
+                        self.data.total_production_cost += entry["amount"]
 
-    def process_day(self, range_):
+    def aggregate_mining(self, journal, range_):
+        """Aggregate the journal entries for the mining."""
+        for entry in journal:
+            if entry["date"].year == self.date.year:
+                if (self.date.month == 0 and entry["date"].month == range_) or (
+                    self.date.month != 0 and entry["date"].day == range_
+                ):
+                    self.data.total_mining += entry["total"]
+
+    # pylint: disable=too-many-branches
+    def process_day(
+        self, range_, corp_journal=None, char_journal=None, mining_journal=None
+    ):
+        """Process the day for the journal entries."""
         date = datetime.now()
+
+        # Reset the values
+        self.data.reset_values()
+
         if self.date.monthly:
             date = date.replace(day=1)
-            # Core
-        filters = {
-            "date": (
-                Q(date__year=self.date.year, date__month=range_)
-                if self.date.monthly
-                else Q(
-                    date__year=self.date.year,
-                    date__month=self.date.month,
-                    date__day=range_,
-                )
-            ),
-            "miscellaneous": Q(
-                ref_type__in=[
-                    "market_transaction",
-                    "contract_price_payment_corp",
-                    "contract_reward",
-                    "contract_price",
-                ],
-                amount__gt=0,
-            ),
-            "market_cost": Q(
-                ref_type__in=[
-                    "market_escrow",
-                    "transaction_tax",
-                    "market_provider_tax",
-                    "brokers_fee",
-                ],
-                amount__lt=0,
-            ),
-            "production_cost": Q(
-                ref_type__in=["industry_job_tax", "manufacturing"], amount__lt=0
-            ),
-            "bounty": Q(ref_type="bounty_prizes"),
-            "ess": Q(ref_type="ess_escrow_transfer"),
-        }
-        # Calculate the totals for Character Billboard
-        if not self.is_corp:
-            mining_query = self.data.mining_data.filter(filters["date"]).values(
-                "total", "date"
-            )
-            mining_aggregated = mining_query.aggregate(total_amount=Sum(F("total")))
-            total_amount_mining = mining_aggregated["total_amount"] or 0
-            # Calculate the total bounty, ESS payout, and miscellaneous amounts
-            self.data.total_bounty = self.aggregate_journal(
-                self.data.entries.filter(filters["bounty"], filters["date"])
-            )
-            # Calculate the total market escrow, transaction tax, market provider tax, and broker's fee
-            self.data.total_market = self.aggregate_journal(
-                self.data.entries.filter(filters["market_cost"], filters["date"])
-            )
-            # Calculate the total production cost
-            self.data.total_production_cost = self.aggregate_journal(
-                self.data.entries.filter(filters["production_cost"], filters["date"])
-            )
-            # Calculate the total miscellaneous
-            self.data.total_miscellaneous = self.aggregate_journal(
-                self.data.entries.filter(filters["miscellaneous"], filters["date"])
-            )
-            self.data.total_isk = self.aggregate_journal(
-                self.data.entries.filter(Q(amount__gt=0))
-            )
-            self.data.total_cost = self.aggregate_journal(
-                self.data.entries.filter(Q(amount__lt=0))
-            )
-        # Calculate the totals for Corporation Billboard
-        if self.is_corp:
-            self.data.total_ess_payout = (
-                self.aggregate_journal(
-                    self.data.ess_entries.filter(filters["ess"], filters["date"])
-                )
-                / app_settings.LEDGER_CORP_TAX
-            ) * (100 - app_settings.LEDGER_CORP_TAX)
-            self.data.total_bounty = self.aggregate_journal(
-                self.data.ess_entries.filter(filters["bounty"], filters["date"])
-            )
+
+        logger.debug(self.date.month)
+
+        if corp_journal:
+            self.aggregate_corp(corp_journal, range_)
+        if char_journal:
+            self.aggregate_char(char_journal, range_)
+        if mining_journal:
+            self.aggregate_mining(mining_journal, range_)
 
         # Add the totals to the respective lists
         self.sum.sum_amount.append(int(self.data.total_bounty))
         self.sum.sum_amount_ess.append(int(self.data.total_ess_payout))
         if not self.is_corp:
             self.sum.sum_amount_misc.append(int(self.data.total_miscellaneous))
-            self.sum.sum_amount_mining.append(int(total_amount_mining))
+            self.sum.sum_amount_mining.append(int(self.data.total_mining))
         # Add the date to the date list
         self.date_billboard.append(
             date.replace(day=range_).strftime("%Y-%m-%d")
@@ -557,11 +582,17 @@ class BillboardLedger:
 
     # Create the Billboard Char Ledger
     def billboard_char_ledger(self):
-        for range_ in self.date.day_checks:
-            try:
-                self.process_day(range_)
-            except ValueError:
-                continue
+        corp_journal_values = self.models.corp_journal.values(
+            "amount", "ref_type", "first_party_id", "second_party_id", "date"
+        )
+        char_journal_values = self.models.char_journal.values(
+            "amount", "ref_type", "first_party_id", "second_party_id", "date"
+        )
+        mining_journal_values = self.models.mining_journal.values("total", "date")
+        for day in self.date.day_checks:
+            self.process_day(
+                day, corp_journal_values, char_journal_values, mining_journal_values
+            )
 
         self.calculate_total_sum()
 
@@ -576,11 +607,11 @@ class BillboardLedger:
 
     # Create the Billboard Corp Ledger
     def billboard_corp_ledger(self, corporation_dict, summary_dict_all):
-        for range_ in self.date.day_checks:
-            try:
-                self.process_day(range_)
-            except ValueError:
-                continue
+        corp_journal_values = self.models.corp_journal.values(
+            "amount", "ref_type", "first_party_id", "second_party_id", "date"
+        )
+        for day in self.date.day_checks:
+            self.process_day(day, corp_journal_values)
 
         self.calculate_total_sum()
 

@@ -90,6 +90,8 @@ The Following Settings can be setting up in the `local.py`
 
 - LEDGER_APP_NAME:          `"YOURNAME"`   - Set the name of the APP
 
+- LEDGER_CORP_TAX:          `15`   - Set Tax Value for ESS Payout Calculation
+
 - LEDGER_LOGGER_USE:        `True / False` - Set to use own Logger File
 
 - LEDGER_MEMBERAUDIT_USE:   `True / False` - Set to use the Memberaudit Journal to Fetch Statistics

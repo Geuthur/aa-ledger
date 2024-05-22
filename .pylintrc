@@ -27,3 +27,6 @@ disable=
 
     # handled by black
     format,
+
+[DESIGN]
+max-attributes=10
