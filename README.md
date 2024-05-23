@@ -50,16 +50,11 @@ Configure your Alliance Auth settings (`local.py`) as follows:
 - Add `'eveuniverse',` to `INSTALLED_APPS`
 - Add `'ledger',` to `INSTALLED_APPS`
 
-### Step 3 - Add the Scheduled Tasks and Settings<a name="step3"></a>
+### Step 3 - Add the Scheduled Tasks<a name="step3"></a>
 
-To set up the Scheduled Tasks and Settings add following code to your `local.py`
-
-> \[!NOTE\]
-> Ensure if you set LEDGER_MEMBERAUDIT_USE to True that you have memberaudit isntalled in `INSTALLED_APPS`
+To set up the Scheduled Tasks add following code to your `local.py`
 
 ```python
-LEDGER_MEMBERAUDIT_USE = False
-
 CELERYBEAT_SCHEDULE["ledger_character_audit_update_all"] = {
     "task": "ledger.tasks.update_all_characters",
     "schedule": crontab(hour="*/1"),
@@ -93,13 +88,15 @@ With the Following IDs you can set up the permissions for the Ledger
 
 The Following Settings can be setting up in the `local.py`
 
-- LEDGER_APP_NAME:          `"YOURNAME"`   - Set the name of the APP
+- LEDGER_APP_NAME:          `"YOURNAME"`     - Set the name of the APP
 
-- LEDGER_CORP_TAX:          `15`   - Set Tax Value for ESS Payout Calculation
+- LEDGER_CORP_TAX:          `15`             - Set Tax Value for ESS Payout Calculation
 
-- LEDGER_LOGGER_USE:        `True / False` - Set to use own Logger File
+- LEDGER_MEMBERAUDIT_USE:   `True / False`   - Set to use the Memberaudit Journal to Fetch Statistics
 
-- LEDGER_CORPSTATS_TWO:     `True / False` - Set to use Corp Stats Two APP to Fetch Members that are not registred
+- LEDGER_LOGGER_USE:        `True / False`   - Set to use own Logger File
+
+- LEDGER_CORPSTATS_TWO:     `True / False`   - Set to use Corp Stats Two APP to Fetch Members that are not registred
 
 If you set up LEDGER_LOGGER_USE to `True` you need to add the following code below:
 
