@@ -53,7 +53,6 @@ def get_models_and_string():
             return (
                 CharacterMiningLedger,
                 CharacterWalletJournalEntry,
-                "character__eve_character",
             )
         except Exception as exc:
             logger.error("Memberaudit is enabled but not installed")
@@ -67,7 +66,6 @@ def get_models_and_string():
     return (
         CharacterMiningLedger,
         CharacterWalletJournalEntry,
-        "character__character",
     )
 
 
