@@ -1,5 +1,39 @@
 # Changelog
 
+## \[0.5.0a1\] - 2024-xx-xx
+
+### Added
+
+- Create Function for ESS Payout Calculation on CharacterLedger
+- Create Core Manager to Handling Ledger Stuff
+- Create FilterClass for all Filters and removed old ones
+
+### Fixed
+
+- Mining Amount not display on Detailed Information
+
+### Changed
+
+- Moved Billboard Manager to own py
+
+### Removed
+
+- reset_values function in LedgerTotal class
+
+## Full Changelog
+
+https://github.com/geuthur/aa-ledger/compare/v0.4.2...v0.5.0
+
+## \[0.4.2\] - 2024-05-23
+
+### Fixed
+
+- Memberaudit Table Join was wrong
+
+## Full Changelog
+
+https://github.com/geuthur/aa-ledger/compare/v0.4.1...v0.4.2
+
 ## \[0.4.1\] - 2024-05-23
 
 ### Fixed
@@ -10,6 +44,10 @@
 - ESS Payout not calcluate Tax on Character Ledger
 - Wallet Charts not shown correctly
 - Create Test View for Settings
+
+## Full Changelog
+
+https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 
 ## \[0.4.0\] - 2024-05-22
 
