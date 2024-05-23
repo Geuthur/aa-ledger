@@ -54,6 +54,11 @@ Configure your Alliance Auth settings (`local.py`) as follows:
 
 To set up the Scheduled Tasks add following code to your `local.py`
 
+> \[!NOTE\]
+> Ensure if you set LEDGER_MEMBERAUDIT_USE to True that you have memberaudit isntalled in `INSTALLED_APPS`
+
+LEDGER_MEMBERAUDIT_USE:   `False / True`
+
 ```python
 CELERYBEAT_SCHEDULE["ledger_character_audit_update_all"] = {
     "task": "ledger.tasks.update_all_characters",
@@ -93,8 +98,6 @@ The Following Settings can be setting up in the `local.py`
 - LEDGER_CORP_TAX:          `15`   - Set Tax Value for ESS Payout Calculation
 
 - LEDGER_LOGGER_USE:        `True / False` - Set to use own Logger File
-
-- LEDGER_MEMBERAUDIT_USE:   `True / False` - Set to use the Memberaudit Journal to Fetch Statistics
 
 - LEDGER_CORPSTATS_TWO:     `True / False` - Set to use Corp Stats Two APP to Fetch Members that are not registred
 
