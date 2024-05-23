@@ -41,6 +41,10 @@ class Paginator(LimitOffsetPagination):
         }
 
 
+def convert_ess_payout(ess: int) -> float:
+    return (ess / app_settings.LEDGER_CORP_TAX) * (100 - app_settings.LEDGER_CORP_TAX)
+
+
 # pylint: disable=import-outside-toplevel
 def get_models_and_string():
     if app_settings.LEDGER_MEMBERAUDIT_USE:
