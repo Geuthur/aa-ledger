@@ -6,7 +6,7 @@ from django.shortcuts import render
 
 from ledger.api import schema
 from ledger.api.helpers import get_corporations
-from ledger.api.templatemanager import TemplateData, TemplateProcess
+from ledger.api.managers.template_manager import TemplateData, TemplateProcess
 from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)

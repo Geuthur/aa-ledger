@@ -10,6 +10,7 @@ from ledger.api.helpers import (
     get_main_character,
     get_models_and_string,
 )
+from ledger.api.managers.core_manager import LedgerFilter
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 from ledger.view_helpers.core import calculate_days_year, events_filter
@@ -17,66 +18,6 @@ from ledger.view_helpers.core import calculate_days_year, events_filter
 CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
 
 logger = get_extension_logger(__name__)
-
-
-class TemplateFilterCore:
-    """TemplateFilter class to store the filter data."""
-
-    def __init__(self, char_id):
-        self.char_id = char_id
-        self.filter = Q(second_party_id__in=self.char_id) | Q(
-            first_party_id__in=self.char_id
-        )
-        self.filter_bounty = self.filter & Q(ref_type="bounty_prizes")
-        self.filter_ess = self.filter & Q(ref_type="ess_escrow_transfer")
-        self.filter_mining = (
-            Q(character__eve_character_id__in=char_id)
-            if app_settings.LEDGER_MEMBERAUDIT_USE
-            else Q(character__character__character_id__in=char_id)
-        )
-
-
-class TemplateFilterCost(TemplateFilterCore):
-    """TemplateFilter class to store the filter data."""
-
-    def __init__(self, char_id):
-        super().__init__(char_id)
-        self.my_filter_market_cost = self.filter & Q(
-            ref_type__in=[
-                "transaction_tax",
-                "market_provider_tax",
-                "brokers_fee",
-            ]
-        )
-        self.filter_production = self.filter & Q(
-            ref_type__in=["industry_job_tax", "manufacturing"]
-        )
-
-
-class TemplateFilterTrading(TemplateFilterCost):
-    """TemplateFilter class to store the filter data."""
-
-    # pylint: disable=duplicate-code
-    def __init__(self, char_id):
-        super().__init__(char_id)
-        self.filter_market = self.filter & Q(ref_type="market_transaction")
-        self.filter_contract = self.filter & Q(
-            ref_type__in=[
-                "contract_price_payment_corp",
-                "contract_reward",
-                "contract_price",
-            ],
-            amount__gt=0,
-        )
-        self.filter_donation = self.filter & Q(ref_type="player_donation")
-
-
-class TemplateFilter(TemplateFilterTrading):
-    """TemplateFilterAll class to store all filter data."""
-
-    def __init__(self, char_id):
-        super().__init__(char_id)  # Call the __init__ method of the base class
-        self.char_id = char_id
 
 
 class TemplateData:
@@ -304,7 +245,7 @@ class TemplateProcess:
             # Each Chars from a Main Character
             chars = [alt.character_id for alt in alts] + [main.character_id]
 
-            filters = TemplateFilter(chars)
+            filters = LedgerFilter(chars)
 
             amounts = {
                 # Calculate Income
@@ -417,7 +358,7 @@ class TemplateProcess:
         char_id = char.character_id
 
         # Create the filters
-        filters = TemplateFilter([char_id])
+        filters = LedgerFilter([char_id])
 
         # Set the models
         character_journal, corporation_journal, mining_journal = models

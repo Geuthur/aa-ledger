@@ -6,7 +6,7 @@ from ninja.pagination import paginate
 
 from ledger.api import schema
 from ledger.api.helpers import Paginator, get_corporations, get_main_and_alts_all
-from ledger.api.ledgermanager import JournalProcess
+from ledger.api.managers.ledger_manager import JournalProcess
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 
