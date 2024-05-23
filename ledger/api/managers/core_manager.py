@@ -84,12 +84,15 @@ class LedgerTotal:
 class LedgerFilterCore:
     """LedgerFilter class to store the filter data."""
 
-    def __init__(self, char_id):
+    def __init__(self, char_id: list):
         self.char_id = char_id
+
+        # Party Filters
         self.filter_first_party = Q(first_party_id__in=self.char_id)
         self.filter_second_party = Q(second_party_id__in=self.char_id)
+        self.filter_partys = self.filter_first_party | self.filter_second_party
 
-        self.filter = self.filter_first_party | self.filter_second_party
+        # Main Filters
         self.filter_bounty = self.filter_second_party & Q(ref_type="bounty_prizes")
         self.filter_ess = self.filter_second_party & Q(ref_type="ess_escrow_transfer")
         self.filter_mining = (
@@ -104,14 +107,14 @@ class LedgerFilterCost(LedgerFilterCore):
 
     def __init__(self, char_id):
         super().__init__(char_id)
-        self.my_filter_market_cost = self.filter & Q(
+        self.my_filter_market_cost = self.filter_partys & Q(
             ref_type__in=[
                 "transaction_tax",
                 "market_provider_tax",
                 "brokers_fee",
             ]
         )
-        self.filter_production = self.filter & Q(
+        self.filter_production = self.filter_partys & Q(
             ref_type__in=["industry_job_tax", "manufacturing"]
         )
 
@@ -122,8 +125,8 @@ class LedgerFilterTrading(LedgerFilterCost):
     # pylint: disable=duplicate-code
     def __init__(self, char_id):
         super().__init__(char_id)
-        self.filter_market = self.filter & Q(ref_type="market_transaction")
-        self.filter_contract = self.filter & Q(
+        self.filter_market = self.filter_partys & Q(ref_type="market_transaction")
+        self.filter_contract = self.filter_partys & Q(
             ref_type__in=[
                 "contract_price_payment_corp",
                 "contract_reward",
@@ -131,7 +134,7 @@ class LedgerFilterTrading(LedgerFilterCost):
             ],
             amount__gt=0,
         )
-        self.filter_donation = self.filter & Q(ref_type="player_donation")
+        self.filter_donation = self.filter_partys & Q(ref_type="player_donation")
 
 
 class LedgerFilter(LedgerFilterTrading):
