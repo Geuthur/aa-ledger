@@ -14,8 +14,12 @@ logger = get_extension_logger(__name__)
 @login_required
 @permission_required("ledger.basic_access")
 def ledger_index(request):
+    try:
+        memberaudit = settings.LEDGER_MEMBERAUDIT_USE
+    except AttributeError:
+        memberaudit = False
     context = {
-        "memberaudit": settings.LEDGER_MEMBERAUDIT_USE,
+        "memberaudit": memberaudit,
     }
     return render(request, "ledger/index.html", context=context)
 
@@ -23,8 +27,12 @@ def ledger_index(request):
 @login_required
 @permission_required("ledger.basic_access")
 def ratting_index(request):
+    try:
+        memberaudit = settings.LEDGER_MEMBERAUDIT_USE
+    except AttributeError:
+        memberaudit = False
     context = {
-        "memberaudit": settings.LEDGER_MEMBERAUDIT_USE,
+        "memberaudit": memberaudit,
     }
     return render(request, "ledger/corpledger/corp_ledger.html", context=context)
 
@@ -32,7 +40,11 @@ def ratting_index(request):
 @login_required
 @permission_required("ledger.basic_access")
 def ratting_char_index(request):
+    try:
+        memberaudit = settings.LEDGER_MEMBERAUDIT_USE
+    except AttributeError:
+        memberaudit = False
     context = {
-        "memberaudit": settings.LEDGER_MEMBERAUDIT_USE,
+        "memberaudit": memberaudit,
     }
     return render(request, "ledger/charledger/char_ledger.html", context=context)
