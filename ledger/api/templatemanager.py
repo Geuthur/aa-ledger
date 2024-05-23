@@ -30,10 +30,11 @@ class TemplateFilterCore:
         self.filter_bounty = self.filter & Q(ref_type="bounty_prizes")
         self.filter_ess = self.filter & Q(ref_type="ess_escrow_transfer")
         self.filter_mining = (
-                    Q(character__character_id=char_id)
-                    if app_settings.LEDGER_MEMBERAUDIT_USE
-                    else Q(character__character__character_id__in=char_id)
-                )
+            Q(character__character_id=char_id)
+            if app_settings.LEDGER_MEMBERAUDIT_USE
+            else Q(character__character__character_id__in=char_id)
+        )
+
 
 class TemplateFilterCost(TemplateFilterCore):
     """TemplateFilter class to store the filter data."""
@@ -207,10 +208,9 @@ class TemplateProcess:
         entries_filter = Q(second_party_id__in=chars) | Q(first_party_id__in=chars)
 
         # Filter the entries for the current day/month
-        character_journal = (
-            CharacterWalletJournalEntry.objects.filter(filters, filter_date)
-            .select_related("first_party", "second_party")
-        )
+        character_journal = CharacterWalletJournalEntry.objects.filter(
+            filters, filter_date
+        ).select_related("first_party", "second_party")
 
         corporation_journal = (
             CorporationWalletJournalEntry.objects.filter(entries_filter, filter_date)
