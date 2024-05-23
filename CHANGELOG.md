@@ -22,7 +22,7 @@
 
 ## Full Changelog
 
-https://github.com/geuthur/aa-ledger/compare/v0.4.2...v0.5.0
+https://github.com/geuthur/aa-ledger/compare/v0.4.2...v0.5.0a1
 
 ## \[0.4.2\] - 2024-05-23
 
