@@ -57,9 +57,9 @@ To set up the Scheduled Tasks and Settings add following code to your `local.py`
 > \[!NOTE\]
 > Ensure if you set LEDGER_MEMBERAUDIT_USE to True that you have memberaudit isntalled in `INSTALLED_APPS`
 
-LEDGER_MEMBERAUDIT_USE:   `False / True`
-
 ```python
+LEDGER_MEMBERAUDIT_USE = False
+
 CELERYBEAT_SCHEDULE["ledger_character_audit_update_all"] = {
     "task": "ledger.tasks.update_all_characters",
     "schedule": crontab(hour="*/1"),
