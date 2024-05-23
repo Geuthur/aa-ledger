@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Current Day Display on Year Tab
+- Detailed Informationen show Empty Fields
 - LEDGER_MEMBER_AUDIT Error if not set in local.py
 - ESS Payout not calcluate Tax on Character Ledger
 - Wallet Charts not shown correctly
