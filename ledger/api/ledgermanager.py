@@ -400,7 +400,11 @@ class BillboardLedger:
                         if entry["ref_type"] == "bounty_prizes":
                             self.data.total_bounty += entry["amount"]
                     if entry["ref_type"] == "ess_escrow_transfer":
-                        self.data.total_ess_payout += entry["amount"]
+                        if self.is_corp:
+                            self.data.total_ess_payout += entry["amount"]
+                        else:
+                            self.data.total_ess_payout += ((entry["amount"] / app_settings.LEDGER_CORP_TAX)
+                                * (100 - app_settings.LEDGER_CORP_TAX))
 
     def aggregate_char(self, journal, range_):
         """Aggregate the journal entries for the character."""
