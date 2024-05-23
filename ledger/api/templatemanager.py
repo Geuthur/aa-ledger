@@ -14,7 +14,7 @@ from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 from ledger.view_helpers.core import calculate_days_year, events_filter
 
-CharacterMiningLedger, CharacterWalletJournalEntry, SR_CHAR = get_models_and_string()
+CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
 
 logger = get_extension_logger(__name__)
 
@@ -29,8 +29,11 @@ class TemplateFilterCore:
         )
         self.filter_bounty = self.filter & Q(ref_type="bounty_prizes")
         self.filter_ess = self.filter & Q(ref_type="ess_escrow_transfer")
-        self.filter_mining = Q(character__eve_character__character_id__in=self.char_id)
-
+        self.filter_mining = (
+                    Q(character__character_id=char_id)
+                    if app_settings.LEDGER_MEMBERAUDIT_USE
+                    else Q(character__character__character_id__in=char_id)
+                )
 
 class TemplateFilterCost(TemplateFilterCore):
     """TemplateFilter class to store the filter data."""
@@ -206,8 +209,7 @@ class TemplateProcess:
         # Filter the entries for the current day/month
         character_journal = (
             CharacterWalletJournalEntry.objects.filter(filters, filter_date)
-            .select_related("first_party", "second_party", SR_CHAR)
-            .order_by("-date")
+            .select_related("first_party", "second_party")
         )
 
         corporation_journal = (
@@ -220,8 +222,6 @@ class TemplateProcess:
         corporation_journal = events_filter(corporation_journal)
         mining_journal = (
             CharacterMiningLedger.objects.filter(filters, filter_date)
-            .select_related(SR_CHAR)
-            .order_by("-date")
         ).annotate_pricing()
 
         self._process_characters(character_journal, corporation_journal, mining_journal)
