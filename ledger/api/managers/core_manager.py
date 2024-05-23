@@ -25,16 +25,6 @@ class LedgerData(LedgerDataCore):
         self.total_production_cost = 0
         self.total_market = 0
 
-    def reset_values(self):
-        self.total_bounty = 0
-        self.total_ess_payout = 0
-        self.total_mining = 0
-        self.total_miscellaneous = 0
-        self.total_isk = 0
-        self.total_cost = 0
-        self.total_production_cost = 0
-        self.total_market = 0
-
 
 class LedgerModels:
     """LedgerModels class to store the models."""
