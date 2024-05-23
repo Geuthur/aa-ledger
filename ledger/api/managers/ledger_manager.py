@@ -1,10 +1,7 @@
-from decimal import Decimal
-
 from django.db.models import DecimalField, F, Q, Sum
 from django.db.models.functions import Coalesce
 
-from ledger import app_settings
-from ledger.api.helpers import get_models_and_string
+from ledger.api.helpers import convert_ess_payout, get_models_and_string
 from ledger.api.managers.billboard_manager import BillboardLedger
 from ledger.api.managers.core_manager import (
     LedgerDate,
@@ -127,10 +124,8 @@ class JournalProcess:
                 ),
             }
 
-            amounts["ess"] = Decimal(
-                (amounts["ess"] / app_settings.LEDGER_CORP_TAX)
-                * (100 - app_settings.LEDGER_CORP_TAX)
-            )
+            # Convert the ESS Payout for Character
+            amounts["ess"] = convert_ess_payout(amounts["ess"])
 
             total_amount_others = (
                 amounts["contracts"] + amounts["transactions"] + amounts["donations"]
@@ -158,26 +153,20 @@ class JournalProcess:
             self.calc_summary_total(totals)
 
     def character_ledger(self):
-        # Switch between CharacterJournal and MemberAudit CharacterJournal
-        filters = (
-            Q(character__eve_character__in=self.chars)
-            if app_settings.LEDGER_MEMBERAUDIT_USE
-            else Q(character__character__in=self.chars)
-        )
+        # Get the Character IDs
+        chars = [char.character_id for char in self.chars]
+
+        # Get the Filter Settings
+        filters = LedgerFilter(chars)
+
         # Filter the entries for the Year/Month
         filter_date = Q(date__year=self.year)
         if not self.month == 0:
             filter_date &= Q(date__month=self.month)
 
-        # Get the Character IDs
-        chars = [char.character_id for char in self.chars]
-
-        # Filter the entries for the Characters
-        entries_filter = Q(second_party_id__in=chars) | Q(first_party_id__in=chars)
-
         # Get the Corporation Journal
         corporation_journal = CorporationWalletJournalEntry.objects.filter(
-            entries_filter, filter_date
+            filters.filter_second_party, filter_date
         ).select_related(
             "division",
             "division__corporation",
@@ -190,12 +179,12 @@ class JournalProcess:
 
         # Get the Mining Journal
         mining_journal = (
-            CharacterMiningLedger.objects.filter(filters, filter_date)
+            CharacterMiningLedger.objects.filter(filters.filter_mining, filter_date)
         ).annotate_pricing()
 
         # Filter for the Character Journal
         character_journal = CharacterWalletJournalEntry.objects.filter(
-            filters, filter_date
+            filters.filter_partys, filter_date
         ).select_related("first_party", "second_party")
 
         # Create the Dicts for each Character
@@ -228,16 +217,16 @@ class JournalProcess:
 
         return output
 
-    def corporation_ledger(self, corporations, chars_list):
-        filters = Q(division__corporation__corporation__corporation_id__in=corporations)
-        filters &= Q(second_party_id__in=chars_list)
-        filter_date = Q(date__year=self.year)
+    def corporation_ledger(self, chars_list: list):
+        # Get the Filter Settings
+        filters = LedgerFilter(chars_list)
 
+        filter_date = Q(date__year=self.year)
         if not self.month == 0:
             filter_date &= Q(date__month=self.month)
 
         corporation_journal = CorporationWalletJournalEntry.objects.filter(
-            filters, filter_date
+            filters.filter_second_party, filter_date
         ).select_related(
             "division",
             "division__corporation",

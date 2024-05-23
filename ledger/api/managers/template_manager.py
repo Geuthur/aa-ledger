@@ -3,8 +3,8 @@ from datetime import datetime
 from django.db.models import DecimalField, F, Q, Sum
 from django.db.models.functions import Coalesce
 
-from ledger import app_settings
 from ledger.api.helpers import (
+    convert_ess_payout,
     get_alts_queryset,
     get_main_and_alts_all,
     get_main_character,
@@ -135,26 +135,24 @@ class TemplateProcess:
         Create the character template.
         return: dict
         """
-        filters = (
-            Q(character__eve_character__in=self.chars)
-            if app_settings.LEDGER_MEMBERAUDIT_USE
-            else Q(character__character__in=self.chars)
-        )
+        # Create Char List
+        chars = [char.character_id for char in self.chars]
+
+        filters = LedgerFilter(chars)
+
         filter_date = Q(date__year=self.data.year)
         if not self.data.month == 0:
             filter_date &= Q(date__month=self.data.month)
 
-        chars = [char.character_id for char in self.chars]
-
-        entries_filter = Q(second_party_id__in=chars) | Q(first_party_id__in=chars)
-
         # Filter the entries for the current day/month
         character_journal = CharacterWalletJournalEntry.objects.filter(
-            filters, filter_date
+            filters.filter_partys, filter_date
         ).select_related("first_party", "second_party")
 
         corporation_journal = (
-            CorporationWalletJournalEntry.objects.filter(entries_filter, filter_date)
+            CorporationWalletJournalEntry.objects.filter(
+                filters.filter_partys, filter_date
+            )
             .select_related("first_party", "second_party")
             .order_by("-date")
         )
@@ -162,7 +160,7 @@ class TemplateProcess:
         # Exclude Events to avoid wrong stats
         corporation_journal = events_filter(corporation_journal)
         mining_journal = (
-            CharacterMiningLedger.objects.filter(filters, filter_date)
+            CharacterMiningLedger.objects.filter(filters.filter_mining, filter_date)
         ).annotate_pricing()
 
         self._process_characters(character_journal, corporation_journal, mining_journal)
@@ -176,13 +174,15 @@ class TemplateProcess:
 
         mains, chars = get_main_and_alts_all(self.chars, char_ids=True)
 
-        filters = Q(second_party_id__in=chars)
+        filters = LedgerFilter(chars)
         filter_date = Q(date__year=self.data.year)
         if not self.data.month == 0:
             filter_date &= Q(date__month=self.data.month)
 
         corporation_journal = (
-            CorporationWalletJournalEntry.objects.filter(filters, filter_date)
+            CorporationWalletJournalEntry.objects.filter(
+                filters.filter_second_party, filter_date
+            )
             .select_related("first_party", "second_party", "division")
             .values("amount", "date", "second_party_id", "ref_type")
             .order_by("-date")
@@ -402,10 +402,9 @@ class TemplateProcess:
                 character_journal.filter(filters.my_filter_market_cost)
             ),
         }
-
-        # Apply formula to amounts["ess"]["total_amount"]
-        amounts["ess"]["total_amount"] = (
-            amounts["ess"]["total_amount"] / app_settings.LEDGER_CORP_TAX
-        ) * (100 - app_settings.LEDGER_CORP_TAX)
+        # Convert ESS Payout for Character Ledger
+        amounts["ess"]["total_amount"] = convert_ess_payout(
+            amounts["ess"]["total_amount"]
+        )
 
         return amounts

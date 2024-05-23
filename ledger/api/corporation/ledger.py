@@ -103,6 +103,6 @@ class LedgerApiEndpoints:
 
             # Create the Ledger
             ledger = JournalProcess(characters, year, month)
-            output = ledger.corporation_ledger(corporations, chars_list)
+            output = ledger.corporation_ledger(chars_list)
 
             return output
