@@ -455,12 +455,14 @@ class BillboardLedger:
 
     def aggregate_mining(self, journal, range_):
         """Aggregate the journal entries for the mining."""
+        total_mining = 0
         for entry in journal:
             if entry["date"].year == self.date.year:
                 if (self.date.month == 0 and entry["date"].month == range_) or (
                     self.date.month != 0 and entry["date"].day == range_
                 ):
-                    self.data.total_mining += entry["total"]
+                    total_mining += entry["total"]
+        return total_mining
 
     # pylint: disable=too-many-branches
     def process_day(
@@ -495,7 +497,8 @@ class BillboardLedger:
             self.data.total_production_cost += total_production_cost
 
         if mining_journal:
-            self.aggregate_mining(mining_journal, range_)
+            total_mining = self.aggregate_mining(mining_journal, range_)
+            self.data.total_mining = total_mining
 
         # Add the totals to the respective lists
         self.sum.sum_amount.append(int(self.data.total_bounty))
