@@ -13,7 +13,7 @@ from ledger.view_helpers.core import events_filter
 
 logger = get_extension_logger(__name__)
 
-CharacterMiningLedger, CharacterWalletJournalEntry, SR_CHAR = get_models_and_string()
+CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
 
 
 class LedgerDataCore:
@@ -56,16 +56,6 @@ class LedgerModels:
         self.char_journal = character_journal
         self.corp_journal = corporation_journal
         self.mining_journal = mining_journal
-
-    def to_values(self, journal):
-        logger.debug(type(journal))
-        return journal.values(
-            "amount", "ref_type", "first_party_id", "second_party_id", "date"
-        )
-
-    def to_values_mining(self, journal):
-        logger.debug(type(journal))
-        return journal.values("total", "date")
 
 
 class LedgerDate:
@@ -283,7 +273,7 @@ class JournalProcess:
         # Filter the entries for the current day/month
         character_journal = CharacterWalletJournalEntry.objects.filter(
             filters, filter_date
-        ).select_related("first_party", "second_party", SR_CHAR)
+        ).select_related("first_party", "second_party")
 
         corporation_journal = CorporationWalletJournalEntry.objects.filter(
             entries_filter, filter_date
@@ -298,9 +288,7 @@ class JournalProcess:
         # Exclude Events to avoid wrong stats
         corporation_journal = events_filter(corporation_journal)
         mining_journal = (
-            CharacterMiningLedger.objects.filter(filters, filter_date).select_related(
-                SR_CHAR
-            )
+            CharacterMiningLedger.objects.filter(filters, filter_date)
         ).annotate_pricing()
 
         self.process_character_chars(
@@ -484,8 +472,6 @@ class BillboardLedger:
         if self.date.monthly:
             date = date.replace(day=1)
 
-        logger.debug(self.date.month)
-
         if corp_journal:
             total_bounty, total_ess = self.aggregate_corp(corp_journal, range_)
             self.data.total_bounty = total_bounty
@@ -499,7 +485,7 @@ class BillboardLedger:
                 total_market,
                 total_production_cost,
             ) = self.aggregate_char(char_journal, range_)
-            
+
             self.data.total_bounty = total_bounty
             self.data.total_miscellaneous = total_miscellaneous
             # Wallet Charts
@@ -591,12 +577,12 @@ class BillboardLedger:
         )
         wallet_chart_data = [
             # Earns
-            ["Earns", int(self.data.total_isk)],
+            ["Income", int(self.data.total_isk)],
             # ["Ratting", int(total_sum_ratting)],  ["Mining", int(total_sum_mining)], ["Misc.", int(total_sum_misc)],
             # Costs
             ["Market Cost", int(abs(self.data.total_market))],
             ["Production Cost", int(abs(self.data.total_production_cost))],
-            ["Misc. Costs", int(misc_cost)],
+            ["Misc. Cost", int(misc_cost)],
         ]
         logger.error(self.data.total_cost)
         logger.error(self.data.total_production_cost)
