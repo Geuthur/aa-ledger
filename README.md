@@ -10,7 +10,7 @@
   - [Installation](#features)
     - [Step 1 - Install the Package](#step1)
     - [Step 2 - Configure Alliance Auth](#step2)
-    - [Step 3 - Add the Scheduled Tasks](#step3)
+    - [Step 3 - Add the Scheduled Tasks and Settings](#step3)
     - [Step 4 - Migration to AA](#step4)
     - [Step 5 - Setting up Permissions](#step5)
     - [Step 6 - (Optional) Setting up Compatibilies](#step6)
@@ -50,9 +50,9 @@ Configure your Alliance Auth settings (`local.py`) as follows:
 - Add `'eveuniverse',` to `INSTALLED_APPS`
 - Add `'ledger',` to `INSTALLED_APPS`
 
-### Step 3 - Add the Scheduled Tasks<a name="step3"></a>
+### Step 3 - Add the Scheduled Tasks and Settings<a name="step3"></a>
 
-To set up the Scheduled Tasks add following code to your `local.py`
+To set up the Scheduled Tasks and Settings add following code to your `local.py`
 
 > \[!NOTE\]
 > Ensure if you set LEDGER_MEMBERAUDIT_USE to True that you have memberaudit isntalled in `INSTALLED_APPS`
