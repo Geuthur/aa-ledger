@@ -1,5 +1,16 @@
 # Changelog
 
+## \[0.4.1\] - 2024-05-23
+
+### Fixed
+
+- Current Day Display on Year Tab
+- Detailed Informationen show Empty Fields
+- LEDGER_MEMBER_AUDIT Error if not set in local.py
+- ESS Payout not calcluate Tax on Character Ledger
+- Wallet Charts not shown correctly
+- Create Test View for Settings
+
 ## \[0.4.0\] - 2024-05-22
 
 ### Added

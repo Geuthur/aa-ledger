@@ -14,7 +14,7 @@ from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 from ledger.view_helpers.core import calculate_days_year, events_filter
 
-CharacterMiningLedger, CharacterWalletJournalEntry, SR_CHAR = get_models_and_string()
+CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
 
 logger = get_extension_logger(__name__)
 
@@ -29,7 +29,11 @@ class TemplateFilterCore:
         )
         self.filter_bounty = self.filter & Q(ref_type="bounty_prizes")
         self.filter_ess = self.filter & Q(ref_type="ess_escrow_transfer")
-        self.filter_mining = Q(character__eve_character__character_id__in=self.char_id)
+        self.filter_mining = (
+            Q(character__character_id=char_id)
+            if app_settings.LEDGER_MEMBERAUDIT_USE
+            else Q(character__character__character_id__in=char_id)
+        )
 
 
 class TemplateFilterCost(TemplateFilterCore):
@@ -204,11 +208,9 @@ class TemplateProcess:
         entries_filter = Q(second_party_id__in=chars) | Q(first_party_id__in=chars)
 
         # Filter the entries for the current day/month
-        character_journal = (
-            CharacterWalletJournalEntry.objects.filter(filters, filter_date)
-            .select_related("first_party", "second_party", SR_CHAR)
-            .order_by("-date")
-        )
+        character_journal = CharacterWalletJournalEntry.objects.filter(
+            filters, filter_date
+        ).select_related("first_party", "second_party")
 
         corporation_journal = (
             CorporationWalletJournalEntry.objects.filter(entries_filter, filter_date)
@@ -220,8 +222,6 @@ class TemplateProcess:
         corporation_journal = events_filter(corporation_journal)
         mining_journal = (
             CharacterMiningLedger.objects.filter(filters, filter_date)
-            .select_related(SR_CHAR)
-            .order_by("-date")
         ).annotate_pricing()
 
         self._process_characters(character_journal, corporation_journal, mining_journal)
@@ -347,6 +347,8 @@ class TemplateProcess:
                 output_field=DecimalField(),
             ),
         )
+        if self.data.month == 0:
+            result["total_amount_day"] = 0
         return result
 
     # Update Core Dict
@@ -386,14 +388,12 @@ class TemplateProcess:
                         "total_amount": round(amounts[key]["total_amount"], 2),
                         "total_amount_day": (
                             round(amounts[key]["total_amount_day"], 2)
-                            if amounts[key]["total_amount_day"] is not None
-                            else None
                         ),
                         "total_amount_hour": (
                             round(amounts[key]["total_amount_hour"], 2)
                             if key != "mining"
-                            and amounts[key]["total_amount_hour"] is not None
-                            else None
+                            # Bad Fix but it works..
+                            else round(amounts[key]["total_amount_day"], 2)
                         ),
                         "average_day": round(
                             amounts[key]["total_amount"] / current_day, 2

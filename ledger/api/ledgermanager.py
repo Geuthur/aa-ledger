@@ -13,7 +13,7 @@ from ledger.view_helpers.core import events_filter
 
 logger = get_extension_logger(__name__)
 
-CharacterMiningLedger, CharacterWalletJournalEntry, SR_CHAR = get_models_and_string()
+CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
 
 
 class LedgerDataCore:
@@ -56,16 +56,6 @@ class LedgerModels:
         self.char_journal = character_journal
         self.corp_journal = corporation_journal
         self.mining_journal = mining_journal
-
-    def to_values(self, journal):
-        logger.debug(type(journal))
-        return journal.values(
-            "amount", "ref_type", "first_party_id", "second_party_id", "date"
-        )
-
-    def to_values_mining(self, journal):
-        logger.debug(type(journal))
-        return journal.values("total", "date")
 
 
 class LedgerDate:
@@ -283,7 +273,7 @@ class JournalProcess:
         # Filter the entries for the current day/month
         character_journal = CharacterWalletJournalEntry.objects.filter(
             filters, filter_date
-        ).select_related("first_party", "second_party", SR_CHAR)
+        ).select_related("first_party", "second_party")
 
         corporation_journal = CorporationWalletJournalEntry.objects.filter(
             entries_filter, filter_date
@@ -298,9 +288,7 @@ class JournalProcess:
         # Exclude Events to avoid wrong stats
         corporation_journal = events_filter(corporation_journal)
         mining_journal = (
-            CharacterMiningLedger.objects.filter(filters, filter_date).select_related(
-                SR_CHAR
-            )
+            CharacterMiningLedger.objects.filter(filters, filter_date)
         ).annotate_pricing()
 
         self.process_character_chars(
@@ -391,6 +379,8 @@ class BillboardLedger:
 
     def aggregate_corp(self, journal, range_):
         """Aggregate the journal entries for the corporation."""
+        total_bounty = 0
+        total_ess_payout = 0
         for entry in journal:
             if entry["date"].year == self.date.year:
                 if (self.date.month == 0 and entry["date"].month == range_) or (
@@ -398,12 +388,25 @@ class BillboardLedger:
                 ):
                     if self.is_corp:
                         if entry["ref_type"] == "bounty_prizes":
-                            self.data.total_bounty += entry["amount"]
+                            total_bounty += entry["amount"]
                     if entry["ref_type"] == "ess_escrow_transfer":
-                        self.data.total_ess_payout += entry["amount"]
+                        if self.is_corp:
+                            total_ess_payout += entry["amount"]
+                        else:
+                            total_ess_payout += (
+                                entry["amount"] / app_settings.LEDGER_CORP_TAX
+                            ) * (100 - app_settings.LEDGER_CORP_TAX)
+        return total_bounty, total_ess_payout
 
     def aggregate_char(self, journal, range_):
         """Aggregate the journal entries for the character."""
+        total_bounty = 0
+        total_miscellaneous = 0
+        total_isk = 0
+        total_cost = 0
+        total_market = 0
+        total_production_cost = 0
+
         for entry in journal:
             if entry["date"].year == self.date.year:
                 if (self.date.month == 0 and entry["date"].month == range_) or (
@@ -411,7 +414,7 @@ class BillboardLedger:
                 ):
                     # Bounty Filter
                     if entry["ref_type"] == "bounty_prizes":
-                        self.data.total_bounty += entry["amount"]
+                        total_bounty += entry["amount"]
                     # Misc Filter
                     # TODO Add player_donation to the Billboard
                     if (
@@ -424,12 +427,12 @@ class BillboardLedger:
                         ]
                         and entry["amount"] > 0
                     ):
-                        self.data.total_miscellaneous += entry["amount"]
+                        total_miscellaneous += entry["amount"]
                     # Total ISK
                     if entry["amount"] > 0:
-                        self.data.total_isk += entry["amount"]
+                        total_isk += entry["amount"]
                     else:
-                        self.data.total_cost += entry["amount"]
+                        total_cost += entry["amount"]
                     # Total Market
                     if entry["ref_type"] in [
                         "market_escrow",
@@ -437,19 +440,29 @@ class BillboardLedger:
                         "market_provider_tax",
                         "brokers_fee",
                     ]:
-                        self.data.total_market += entry["amount"]
+                        total_market += entry["amount"]
                     # Production Cost
                     if entry["ref_type"] in ["industry_job_tax", "manufacturing"]:
-                        self.data.total_production_cost += entry["amount"]
+                        total_production_cost += entry["amount"]
+        return (
+            total_bounty,
+            total_miscellaneous,
+            total_isk,
+            total_cost,
+            total_market,
+            total_production_cost,
+        )
 
     def aggregate_mining(self, journal, range_):
         """Aggregate the journal entries for the mining."""
+        total_mining = 0
         for entry in journal:
             if entry["date"].year == self.date.year:
                 if (self.date.month == 0 and entry["date"].month == range_) or (
                     self.date.month != 0 and entry["date"].day == range_
                 ):
-                    self.data.total_mining += entry["total"]
+                    total_mining += entry["total"]
+        return total_mining
 
     # pylint: disable=too-many-branches
     def process_day(
@@ -458,20 +471,34 @@ class BillboardLedger:
         """Process the day for the journal entries."""
         date = datetime.now()
 
-        # Reset the values
-        self.data.reset_values()
-
         if self.date.monthly:
             date = date.replace(day=1)
 
-        logger.debug(self.date.month)
-
         if corp_journal:
-            self.aggregate_corp(corp_journal, range_)
+            total_bounty, total_ess = self.aggregate_corp(corp_journal, range_)
+            self.data.total_bounty = total_bounty
+            self.data.total_ess_payout = total_ess
         if char_journal:
-            self.aggregate_char(char_journal, range_)
+            (
+                total_bounty,
+                total_miscellaneous,
+                total_isk,
+                total_cost,
+                total_market,
+                total_production_cost,
+            ) = self.aggregate_char(char_journal, range_)
+
+            self.data.total_bounty = total_bounty
+            self.data.total_miscellaneous = total_miscellaneous
+            # Wallet Charts
+            self.data.total_isk += total_isk
+            self.data.total_cost += total_cost
+            self.data.total_market += total_market
+            self.data.total_production_cost += total_production_cost
+
         if mining_journal:
-            self.aggregate_mining(mining_journal, range_)
+            total_mining = self.aggregate_mining(mining_journal, range_)
+            self.data.total_mining = total_mining
 
         # Add the totals to the respective lists
         self.sum.sum_amount.append(int(self.data.total_bounty))
@@ -553,13 +580,18 @@ class BillboardLedger:
         )
         wallet_chart_data = [
             # Earns
-            ["Earns", int(self.data.total_isk)],
+            ["Income", int(self.data.total_isk)],
             # ["Ratting", int(total_sum_ratting)],  ["Mining", int(total_sum_mining)], ["Misc.", int(total_sum_misc)],
             # Costs
             ["Market Cost", int(abs(self.data.total_market))],
             ["Production Cost", int(abs(self.data.total_production_cost))],
-            ["Misc. Costs", int(misc_cost)],
+            ["Misc. Cost", int(misc_cost)],
         ]
+        logger.error(self.data.total_cost)
+        logger.error(self.data.total_production_cost)
+        logger.error(self.data.total_market)
+        logger.error(wallet_chart_data)
+
         self.billboard_dict["walletcharts"] = (
             wallet_chart_data
             if any(item[1] != 0 for item in wallet_chart_data)
