@@ -587,10 +587,6 @@ class BillboardLedger:
             ["Production Cost", int(abs(self.data.total_production_cost))],
             ["Misc. Cost", int(misc_cost)],
         ]
-        logger.error(self.data.total_cost)
-        logger.error(self.data.total_production_cost)
-        logger.error(self.data.total_market)
-        logger.error(wallet_chart_data)
 
         self.billboard_dict["walletcharts"] = (
             wallet_chart_data

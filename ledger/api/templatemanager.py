@@ -30,7 +30,7 @@ class TemplateFilterCore:
         self.filter_bounty = self.filter & Q(ref_type="bounty_prizes")
         self.filter_ess = self.filter & Q(ref_type="ess_escrow_transfer")
         self.filter_mining = (
-            Q(character__character_id=char_id)
+            Q(character__eve_character_id__in=char_id)
             if app_settings.LEDGER_MEMBERAUDIT_USE
             else Q(character__character__character_id__in=char_id)
         )
@@ -225,7 +225,6 @@ class TemplateProcess:
         ).annotate_pricing()
 
         self._process_characters(character_journal, corporation_journal, mining_journal)
-        logger.debug(self.template_dict)
         return self.template_dict
 
     def corporation_template(self):
