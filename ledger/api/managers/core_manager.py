@@ -93,9 +93,9 @@ class LedgerFilterCore:
         self.filter_bounty = self.filter_second_party & Q(ref_type="bounty_prizes")
         self.filter_ess = self.filter_second_party & Q(ref_type="ess_escrow_transfer")
         self.filter_mining = (
-            Q(character__eve_character_id__in=char_id)
+            Q(character__eve_character__character_id__in=self.char_id)
             if app_settings.LEDGER_MEMBERAUDIT_USE
-            else Q(character__character__character_id__in=char_id)
+            else Q(character__character__character_id__in=self.char_id)
         )
 
 
