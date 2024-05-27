@@ -1,6 +1,6 @@
 from unittest.mock import Mock, patch
 
-from django.contrib.auth.models import AnonymousUser
+from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
 
 from app_utils.testdata_factories import UserMainFactory
@@ -23,6 +23,9 @@ class AddCharTest(TestCase):
         # Erstellen Sie eine Anfrage und ein Token Mock-Objekt
         request_factory = RequestFactory()
         cls.request = request_factory.get("ledger:add_char")
+        middleware = SessionMiddleware()
+        middleware.process_request(cls.request)
+        cls.request.session.save()
         cls.request.user = cls.user
         cls.token = Mock()
 
