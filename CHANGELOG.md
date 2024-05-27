@@ -1,6 +1,17 @@
 # Changelog
 
-## \[0.5.0a1\] - 2024-xx-xx
+## \[0.5.0b1\] - 2024-05-27
+
+### Fixed
+
+- Summary on Character Ledger not include Mining Amount
+- Donations on Memberside not added to Detailed Information
+
+## Full Changelog
+
+https://github.com/geuthur/aa-ledger/compare/v0.5.0a1...v0.5.0b1
+
+## \[0.5.0a1\] - 2024-05-25
 
 ### Added
 

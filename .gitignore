@@ -9,3 +9,4 @@ node_modules/
 .coverage
 .env
 .pypirc
+/coverage.xml

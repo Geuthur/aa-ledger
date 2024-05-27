@@ -130,7 +130,12 @@ class JournalProcess:
             total_amount_others = (
                 amounts["contracts"] + amounts["transactions"] + amounts["donations"]
             )
-            combined_amount = amounts["bounty"] + amounts["ess"] + total_amount_others
+            combined_amount = (
+                amounts["bounty"]
+                + amounts["ess"]
+                + amounts["mining"]["total_amount"]
+                + total_amount_others
+            )
 
             if amounts["bounty"] > 0 or total_amount_others > 0:
                 self.character_dict[char_id] = {

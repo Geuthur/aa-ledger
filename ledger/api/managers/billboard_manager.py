@@ -1,14 +1,19 @@
 import math
+from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 
 from ledger import app_settings
-from ledger.api.managers.core_manager import (
-    LedgerData,
-    LedgerDate,
-    LedgerModels,
-    LedgerSum,
-)
+from ledger.api.managers.core_manager import LedgerData, LedgerDate, LedgerModels
+
+
+@dataclass
+class LedgerSum:
+    sum_amount: list = field(default_factory=lambda: ["Ratting"])
+    sum_amount_ess: list = field(default_factory=lambda: ["ESS Payout"])
+    sum_amount_misc: list = field(default_factory=lambda: ["Miscellaneous"])
+    sum_amount_mining: list = field(default_factory=lambda: ["Mining"])
+    total_sum: int = None
 
 
 class BillboardLedger:

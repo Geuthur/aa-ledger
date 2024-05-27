@@ -141,9 +141,6 @@ def get_main_and_alts_all(corporations: list, char_ids=False, corp_members=True)
     - `Dict`: Mains and Alts Queryset
     - `List`: Character IDS
     """
-
-    # TODO users profile filter corporation über main char und alt chars corp ids
-
     mains = {}
 
     # pylint: disable=no-member
@@ -164,7 +161,6 @@ def get_main_and_alts_all(corporations: list, char_ids=False, corp_members=True)
                         character__character_id=main.character_id
                     )
                 )
-
                 if main.corporation_id in corporations:
                     mains[main.character_id] = {
                         "main": main,
@@ -216,22 +212,10 @@ def get_main_and_alts_all(corporations: list, char_ids=False, corp_members=True)
     return mains
 
 
-def get_corporations(request, character_id):  # pylint: disable=unused-argument
-    main_char = EveCharacter.objects.select_related(
-        "character_ownership",
-        "character_ownership__user__profile",
-        "character_ownership__user__profile__main_character",
-    ).get(character_id=character_id)
+def get_corporations(request):  # pylint: disable=unused-argument
     try:
-        main_char = main_char.character_ownership.user.profile.main_character
-    except ObjectDoesNotExist:
-        pass
-
-    try:
-        linked_characters = (
-            main_char.character_ownership.user.character_ownerships.all().values_list(
-                "character_id", flat=True
-            )
+        linked_characters = request.user.profile.main_character.character_ownership.user.character_ownerships.all().values_list(
+            "character_id", flat=True
         )
         chars = EveCharacter.objects.filter(id__in=linked_characters)
 
@@ -242,10 +226,4 @@ def get_corporations(request, character_id):  # pylint: disable=unused-argument
 
         return corporations
     except ObjectDoesNotExist:
-        char = EveCharacter.objects.filter(pk=main_char.pk)
-        corporations = set()
-
-        for char in chars:
-            corporations.add(char.corporation_id)
-
-        return corporations
+        return []
