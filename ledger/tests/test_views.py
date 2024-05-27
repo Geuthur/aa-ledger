@@ -35,5 +35,5 @@ class TestViews(TestCase):
     def test_ledger_view(self):
         request = self.factory.get(reverse("ledger:ledger_char_index"))
         request.user = self.user
-        response = ledger_index(request)
+        response = ratting_char_index(request)
         self.assertEqual(response.status_code, HTTPStatus.OK)
