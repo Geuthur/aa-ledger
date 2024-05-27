@@ -16,15 +16,11 @@ class TestViews(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.factory = RequestFactory()
-        cls.user = UserMainFactory()
-
-        content_type = ContentType.objects.get_for_model(General)
-        permission = Permission.objects.create(
-            codename="basic_access",
-            name="Can access basic features",
-            content_type=content_type,
+        cls.user = UserMainFactory(
+            permissions=[
+                "ledger.basic_access",
+            ]
         )
-        cls.user.user_permissions.add(permission)
 
     def test_view(self):
         request = self.factory.get(reverse("ledger:index"))
