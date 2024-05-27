@@ -8,7 +8,7 @@ from django.urls import reverse
 from app_utils.testdata_factories import UserMainFactory
 
 from ledger.models import General
-from ledger.views.pve import ledger_index
+from ledger.views.pve import ledger_index, ratting_char_index
 
 
 class TestViews(TestCase):
@@ -31,4 +31,9 @@ class TestViews(TestCase):
         request.user = self.user
         response = ledger_index(request)
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertEqual(response.url, reverse("ledger:ledger_char_index"))
+
+    def test_ledger_view(self):
+        request = self.factory.get(reverse("ledger:ledger_char_index"))
+        request.user = self.user
+        response = ledger_index(request)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
