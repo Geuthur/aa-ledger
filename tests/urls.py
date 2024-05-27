@@ -2,8 +2,7 @@ from django.urls import path
 
 import allianceauth.urls
 
-from . import views
-from . import test_views
+from . import test_views, views
 
 urlpatterns = allianceauth.urls.urlpatterns
 
