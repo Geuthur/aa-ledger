@@ -21,7 +21,7 @@ class AddCharTest(TestCase):
     def test_add_char(self):
         self.client.force_login(self.user)
 
-        response = self.client.get(reverse("ledger:add_char"))
+        response = self.client.get(reverse("ledger:ledger_add_char"), follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "ledger/index.html")
@@ -39,7 +39,9 @@ class FetchMemberAuditTest(TestCase):
     def test_fetch_memberaudit(self):
         self.client.force_login(self.user)
 
-        response = self.client.get(reverse("ledger:ledger_fetch_memberaudit"))
+        response = self.client.get(
+            reverse("ledger:ledger_fetch_memberaudit"), follow=True
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "ledger/index.html")
