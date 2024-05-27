@@ -60,7 +60,7 @@ if os.environ.get("USE_MYSQL", True) is True:
     }
 
 # Add any additional apps to this list.
-INSTALLED_APPS += [PACKAGE, "eveuniverse"]
+INSTALLED_APPS += [PACKAGE, "eveuniverse", "allianceauth.corputils"]
 
 # By default, apps are prevented from having public views for security reasons.
 # If you want to allow specific apps to have public views,
