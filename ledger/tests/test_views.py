@@ -19,5 +19,5 @@ class TestViews(TestCase):
         request = self.factory.get(reverse("ledger:index"))
         request.user = self.user
         response = ledger_index(request)
-        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertEqual(response.url, reverse("ledger:ledger_char_index"))
