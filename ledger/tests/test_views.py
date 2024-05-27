@@ -19,8 +19,10 @@ class TestViews(TestCase):
         cls.user = UserMainFactory()
 
         content_type = ContentType.objects.get_for_model(General)
-        permission = Permission.objects.get(
-            codename="basic_access", content_type=content_type
+        permission = Permission.objects.create(
+            codename="basic_access",
+            name="Can access basic features",
+            content_type=content_type,
         )
         cls.user.user_permissions.add(permission)
 
