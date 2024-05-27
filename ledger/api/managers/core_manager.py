@@ -117,7 +117,9 @@ class LedgerFilterTrading(LedgerFilterCost):
             ],
             amount__gt=0,
         )
-        self.filter_donation = self.filter_partys & Q(ref_type="player_donation")
+        self.filter_donation = self.filter_partys & Q(
+            ref_type="player_donation", amount__gt=0
+        )
 
 
 @dataclass
