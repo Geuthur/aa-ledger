@@ -17,6 +17,7 @@ classifiers = [
     "Environment :: Web Environment",
     "Framework :: Django",
     "Framework :: Django :: 4.0",
+    "Framework :: Django :: 4.2",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
@@ -34,9 +35,8 @@ dynamic = [
     "version",
 ]
 dependencies = [
-    "allianceauth<5,>=4",
+    "allianceauth>=4",
     "allianceauth-app-utils>=1.19",
-    "dacite",
     "django-eveuniverse>=1.3",
     "django-ninja",
 ]
