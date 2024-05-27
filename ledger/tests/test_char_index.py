@@ -14,9 +14,9 @@ class AddCharTest(TestCase):
         self.request.user = AnonymousUser()
         self.token = Mock()
 
-    @patch("ledger.views.CharacterAudit.objects.update_or_create")
-    @patch("ledger.views.EveCharacter.objects.get_character_by_id")
-    @patch("ledger.views.update_character.apply_async")
+    @patch("ledger.models.characteraudit.CharacterAudit.objects.update_or_create")
+    @patch("allianceauth.eveonline.models.EveCharacter.objects.get_character_by_id")
+    @patch("ledger.tasks.update_character.apply_async")
     @patch("django.contrib.messages.info")
     def test_add_char(
         self,
@@ -55,8 +55,8 @@ class FetchMemberAuditTest(TestCase):
         self.request.user = AnonymousUser()
         self.character = Mock()
 
-    @patch("ledger.views.CharacterAudit.objects.get_or_create")
-    @patch("ledger.views.update_character.apply_async")
+    @patch("ledger.models.characteraudit.CharacterAudit.objects.get_or_create")
+    @patch("ledger.task.update_character.apply_async")
     @patch("django.contrib.messages.info")
     @patch("django.contrib.messages.error")
     @patch("memberaudit.models.Character.objects.filter")
