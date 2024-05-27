@@ -1,9 +1,20 @@
-from django.conf import settings
-from django.shortcuts import render
+from http import HTTPStatus
+
+from django.test import RequestFactory, TestCase
+from django.urls import reverse
+
+from ledger.views.pve import ledger_index
 
 
-def test_view(request):
-    context = {
-        "memberaudit": settings.LEDGER_MEMBERAUDIT_USE,
-    }
-    return render(request, "ledger/corpledger/corp_ledger.html", context=context)
+class TestViews(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.factory = RequestFactory()
+
+    def test_view(self):
+        request = self.factory.get(reverse("ledger:index"))
+        request.user = self.user
+        response = ledger_index(request)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.url, reverse("freight:ledger_char_index"))
