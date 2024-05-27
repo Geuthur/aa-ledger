@@ -24,7 +24,7 @@ CSRF_TRUSTED_ORIGINS = [SITE_URL]
 
 DISCORD_BOT_TOKEN = "My_Dummy_Token"
 # These are required for Django to function properly. Don't touch.
-ROOT_URLCONF = "tests.urls"
+ROOT_URLCONF = "testauth.urls"
 WSGI_APPLICATION = "testauth.wsgi.application"
 SECRET_KEY = "DUMMY"
 
@@ -60,7 +60,7 @@ if os.environ.get("USE_MYSQL", True) is True:
     }
 
 # Add any additional apps to this list.
-INSTALLED_APPS += [PACKAGE, "eveuniverse", "allianceauth.corputils"]
+INSTALLED_APPS += [PACKAGE, "allianceauth.corputils", "eveuniverse", "memberaudit"]
 
 # By default, apps are prevented from having public views for security reasons.
 # If you want to allow specific apps to have public views,
@@ -115,3 +115,11 @@ DEFAULT_FROM_EMAIL = ""
 #######################################
 # Add any custom settings below here. #
 #######################################
+CELERYBEAT_SCHEDULE["ledger_character_audit_update_all"] = {
+    "task": "ledger.tasks.update_all_characters",
+    "schedule": crontab(hour="*/1"),
+}
+CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
+    "task": "ledger.tasks.update_all_corps",
+    "schedule": crontab(hour="*/1"),
+}

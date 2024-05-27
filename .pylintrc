@@ -4,6 +4,8 @@
 ignore-paths=
     tests/,
     (.*)/tests/,
+    testauth/,
+    (.*)/testauth/,
     (.*)/migrations/
 
 [MESSAGES CONTROL]
