@@ -57,13 +57,9 @@ jobs:
         # MySQL versions to test against
         database:
           # https://endoflife.date/mysql
-          - mysql:8.0     # [LTS] Maintained until: 30 Apr 2026
-          - mysql:8.1     # Latest official release
+          - mysql:8.4     # [LTS] Maintained until: April 2032
           # https://endoflife.date/mariadb and https://mariadb.com/kb/en/mariadb-server-release-dates/
-          - mariadb:10.5  # Maintained until: 24 June 2025
-          - mariadb:10.6  # [LTS] Maintained until: July 2026
           - mariadb:10.11 # [LTS] Maintained until: February 2028
-          - mariadb:11.1  # Maintained until: August 2024
 
 #    continue-on-error: ${{ matrix.python-version == '3.12' }}
 
