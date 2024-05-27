@@ -38,8 +38,7 @@ class LedgerTemplateApiEndpoints:
                 )
                 return 403, "Permission Denied!"
 
-            character_id = request.user.profile.main_character.character_id
-            corporations = get_corporations(request, character_id)
+            corporations = get_corporations(request)
 
             # Create the Ledger
             ledger_data = TemplateData(request, main_id, year, month)

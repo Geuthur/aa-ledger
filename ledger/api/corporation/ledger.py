@@ -91,8 +91,7 @@ class LedgerApiEndpoints:
             corporations = [corporation_id]
 
             if corporation_id == 0:
-                character_id = request.user.profile.main_character.character_id
-                corporations = get_corporations(request, character_id)
+                corporations = get_corporations(request)
 
             if not perms:
                 logging.error("Permission Denied for %s to view wallets!", request.user)
