@@ -17,7 +17,7 @@ class AddCharTest(TestCase):
     @patch("ledger.views.CharacterAudit.objects.update_or_create")
     @patch("ledger.views.EveCharacter.objects.get_character_by_id")
     @patch("ledger.views.update_character.apply_async")
-    @patch("ledger.views.messages.info")
+    @patch("django.contrib.messages.info")
     def test_add_char(
         self,
         mock_info,
@@ -57,8 +57,8 @@ class FetchMemberAuditTest(TestCase):
 
     @patch("ledger.views.CharacterAudit.objects.get_or_create")
     @patch("ledger.views.update_character.apply_async")
-    @patch("ledger.views.messages.info")
-    @patch("ledger.views.messages.error")
+    @patch("django.contrib.messages.info")
+    @patch("django.contrib.messages.error")
     @patch("memberaudit.models.Character.objects.filter")
     def test_fetch_memberaudit(
         self, mock_filter, mock_error, mock_info, mock_apply_async, mock_get_or_create
