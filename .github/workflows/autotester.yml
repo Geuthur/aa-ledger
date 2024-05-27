@@ -2,6 +2,11 @@ name: Tests
 
 on:
   push:
+    paths-ignore:
+      - "**.css"
+      - "**.js"
+      - "**.md"
+
     branches:
       - '**'
 
@@ -9,6 +14,11 @@ on:
       - '**'
 
   pull_request:
+    paths-ignore:
+      - "**.css"
+      - "**.js"
+      - "**.md"
+
     branches:
       - '**'
 
