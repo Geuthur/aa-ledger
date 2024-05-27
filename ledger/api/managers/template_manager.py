@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 
 from django.db.models import DecimalField, F, Q, Sum
@@ -20,61 +21,67 @@ CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
 logger = get_extension_logger(__name__)
 
 
+@dataclass
 class TemplateData:
     """TemplateData class to store the data."""
 
-    def __init__(self, request, request_id, year, month):
-        self.request = request
-        self.request_id = request_id
-        self.year = year
-        self.month = month
-        self.current_date = datetime.now()
+    request: any
+    request_id: int
+    year: int
+    month: int
+    current_date: datetime = datetime.now()
+
+    def __post_init__(self):
         self.current_date = self.current_date.replace(year=self.year)
-        if not self.month == 0:
+        if self.month != 0:
             self.current_date = self.current_date.replace(month=self.month)
 
 
+@dataclass
 class TemplateTotalCore:
-    def __init__(self):
-        self.ess = 0
-        self.mining = 0
-        self.contract = 0
-        self.transaction = 0
-        self.donation = 0
-        self.production_cost = 0
-        self.market_cost = 0
+    """TemplateTotalCore class to store the core data."""
+
+    bounty: int = 0
+    ess: int = 0
+    mining: int = 0
+    contract: int = 0
+    transaction: int = 0
+    donation: int = 0
+    production_cost: int = 0
+    market_cost: int = 0
 
 
+@dataclass
 class TemplateTotalDay:
-    def __init__(self):
-        self.ess_day = 0
-        self.mining_day = 0
-        self.contract_day = 0
-        self.transaction_day = 0
-        self.donation_day = 0
-        self.production_cost_day = 0
-        self.market_cost_day = 0
+    """TemplateTotalDay class to store the daily data."""
+
+    bounty_day: int = 0
+    ess_day: int = 0
+    mining_day: int = 0
+    contract_day: int = 0
+    transaction_day: int = 0
+    donation_day: int = 0
+    production_cost_day: int = 0
+    market_cost_day: int = 0
 
 
+@dataclass
 class TemplateTotalHour:
-    def __init__(self):
-        self.ess_hour = 0
-        self.mining_hour = 0
-        self.contract_hour = 0
-        self.transaction_hour = 0
-        self.donation_hour = 0
-        self.production_cost_hour = 0
-        self.market_cost_hour = 0
+    """TemplateTotalHour class to store the hourly data."""
+
+    bounty_hour: int = 0
+    ess_hour: int = 0
+    mining_hour: int = 0
+    contract_hour: int = 0
+    transaction_hour: int = 0
+    donation_hour: int = 0
+    production_cost_hour: int = 0
+    market_cost_hour: int = 0
 
 
+@dataclass
 class TemplateTotal(TemplateTotalCore, TemplateTotalDay, TemplateTotalHour):
-    def __init__(self):
-        self.bounty = 0
-        self.bounty_day = 0
-        self.bounty_hour = 0
-        TemplateTotalCore.__init__(self)
-        TemplateTotalDay.__init__(self)
-        TemplateTotalHour.__init__(self)
+    """TemplateTotal class to store the data."""
 
     def to_dict(self):
         return {

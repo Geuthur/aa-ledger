@@ -1,3 +1,4 @@
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 
 from django.db.models import Q
@@ -5,25 +6,20 @@ from django.db.models import Q
 from ledger import app_settings
 
 
+@dataclass
 class LedgerDataCore:
-    """LedgerDataCore class to store the core data."""
-
-    def __init__(self):
-        self.total_bounty = 0
-        self.total_ess_payout = 0
-        self.total_mining = 0
-        self.total_miscellaneous = 0
-        self.total_isk = 0
+    total_bounty: int = 0
+    total_ess_payout: int = 0
+    total_mining: int = 0
+    total_miscellaneous: int = 0
+    total_isk: int = 0
 
 
+@dataclass
 class LedgerData(LedgerDataCore):
-    """LedgerData class to store the data."""
-
-    def __init__(self):
-        super().__init__()
-        self.total_cost = 0
-        self.total_production_cost = 0
-        self.total_market = 0
+    total_cost: int = 0
+    total_production_cost: int = 0
+    total_market: int = 0
 
 
 class LedgerModels:
@@ -37,62 +33,48 @@ class LedgerModels:
         self.mining_journal = mining_journal
 
 
+@dataclass
 class LedgerDate:
-    """LedgerDate class to store the date data."""
+    year: int
+    month: int
+    monthly: bool = field(init=False)
+    current_date: datetime = field(default_factory=datetime.now, init=False)
+    range_data: int = field(init=False)
+    day_checks: list = field(init=False)
 
-    def __init__(self, year, month):
-        self.year = year
-        self.month = month
-        self.monthly = month == 0
-        self.current_date = datetime.now()
+    def __post_init__(self):
+        self.monthly = self.month == 0
         self.range_data = 12 if self.monthly else 31
         self.day_checks = list(range(1, self.range_data + 1))
 
 
-class LedgerSum:
-    """LedgerSum class to store the sum amounts."""
-
-    def __init__(self):
-        self.sum_amount = ["Ratting"]
-        self.sum_amount_ess = ["ESS Payout"]
-        self.sum_amount_misc = ["Miscellaneous"]
-        self.sum_amount_mining = ["Mining"]
-        self.total_sum = None
-
-
+@dataclass
 class LedgerTotal:
-    """LedgerTotal class to store the total amounts."""
-
-    def __init__(self):
-        self.total_amount = 0
-        self.total_amount_ess = 0
-        self.total_amount_all = 0
-        self.total_amount_mining = 0
-        self.total_amount_others = 0
+    total_amount: int = 0
+    total_amount_ess: int = 0
+    total_amount_all: int = 0
+    total_amount_mining: int = 0
+    total_amount_others: int = 0
 
     def to_dict(self):
-        """Return the SummaryTotal as a dictionary."""
-        return {
-            "total_amount": self.total_amount,
-            "total_amount_ess": self.total_amount_ess,
-            "total_amount_all": self.total_amount_all,
-            "total_amount_mining": self.total_amount_mining,
-            "total_amount_others": self.total_amount_others,
-        }
+        return asdict(self)
 
 
+@dataclass
 class LedgerFilterCore:
-    """LedgerFilter class to store the filter data."""
+    char_id: list
 
-    def __init__(self, char_id: list):
-        self.char_id = char_id
+    filter_first_party: Q = field(init=False)
+    filter_second_party: Q = field(init=False)
+    filter_partys: Q = field(init=False)
+    filter_bounty: Q = field(init=False)
+    filter_ess: Q = field(init=False)
+    filter_mining: Q = field(init=False)
 
-        # Party Filters
+    def __post_init__(self):
         self.filter_first_party = Q(first_party_id__in=self.char_id)
         self.filter_second_party = Q(second_party_id__in=self.char_id)
         self.filter_partys = self.filter_first_party | self.filter_second_party
-
-        # Main Filters
         self.filter_bounty = self.filter_second_party & Q(ref_type="bounty_prizes")
         self.filter_ess = self.filter_second_party & Q(ref_type="ess_escrow_transfer")
         self.filter_mining = (
@@ -102,6 +84,7 @@ class LedgerFilterCore:
         )
 
 
+@dataclass
 class LedgerFilterCost(LedgerFilterCore):
     """LedgerFilter class to store the filter data."""
 
@@ -119,10 +102,10 @@ class LedgerFilterCost(LedgerFilterCore):
         )
 
 
+@dataclass
 class LedgerFilterTrading(LedgerFilterCost):
     """LedgerFilter class to store the filter data."""
 
-    # pylint: disable=duplicate-code
     def __init__(self, char_id):
         super().__init__(char_id)
         self.filter_market = self.filter_partys & Q(ref_type="market_transaction")
@@ -137,9 +120,10 @@ class LedgerFilterTrading(LedgerFilterCost):
         self.filter_donation = self.filter_partys & Q(ref_type="player_donation")
 
 
+@dataclass
 class LedgerFilter(LedgerFilterTrading):
     """LedgerFilterAll class to store all filter data."""
 
     def __init__(self, char_id):
-        super().__init__(char_id)  # Call the __init__ method of the base class
+        super().__init__(char_id)
         self.char_id = char_id
