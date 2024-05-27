@@ -2,7 +2,7 @@ from django.conf import settings
 from django.shortcuts import render
 
 
-def test_settings(request):
+def test_views(request):
     context = {
         "memberaudit": settings.LEDGER_MEMBERAUDIT_USE,
     }
