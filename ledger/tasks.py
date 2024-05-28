@@ -4,6 +4,7 @@
 import datetime
 
 # Third Party
+# pylint: disable=no-name-in-module
 from celery import shared_task
 
 from django.utils import timezone
