@@ -9,7 +9,7 @@ from app_utils.testing import create_user_from_evecharacter
 
 from ledger.models.characteraudit import CharacterAudit
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.views.character.char_audit import add_char
+from ledger.views.character.char_audit import add_char, fetch_memberaudit
 
 MODULE_PATH = "ledger.views.character.char_audit"
 
@@ -49,3 +49,17 @@ class AddCharTest(TestCase):
         self.assertTrue(
             CharacterAudit.objects.get(character=self.character_ownership.character)
         )
+
+    def test_fetch_memberaudit(self):
+        token = Mock(spec=Token)
+        token.character_id = self.character_ownership.character.character_id
+        request = self.factory.get(reverse("ledger:ledger_fetch_memberaudit"))
+        request.user = self.user
+        request.token = token
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        # given
+        response = fetch_memberaudit(request)
+        # then
+        # localy it is 302 but github actions its 200
+        self.assertEqual(response.status_code, 200)
