@@ -116,7 +116,4 @@ jobs:
       - name: Run Tox
         env:
           TOX_ENV: allianceauth-latest
-          DB_HOST: 127.0.0.1
-          DB_USER: root
-          DB_PASSWORD: temp_password_aa_tox_tests
         run: tox -v -e ${{ env.TOX_ENV }}
