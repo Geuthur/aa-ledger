@@ -17,7 +17,7 @@ STATICFILES_DIRS = [
     f"{PACKAGE}/static",
 ]
 
-SITE_URL = "http://127.0.0.1:8000"
+SITE_URL = "http://0.0.0.0:8000"
 CSRF_TRUSTED_ORIGINS = [SITE_URL]
 
 DISCORD_BOT_TOKEN = "My_Dummy_Token"
@@ -81,7 +81,7 @@ APPS_WITH_PUBLIC_VIEWS = []
 # Other apps may require more (see their docs).
 ESI_SSO_CLIENT_ID = "dummy"
 ESI_SSO_CLIENT_SECRET = "dummy"
-ESI_SSO_CALLBACK_URL = "http://127.0.0.1:8000"
+ESI_SSO_CALLBACK_URL = "http://0.0.0.0:8000"
 
 
 # ------------------------------------------------------------------------------------ #
