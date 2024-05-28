@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from app_utils.testdata_factories import UserMainFactory
 
-from ledger.models import General
+from ledger.models.general import General
 from ledger.views.pve import ledger_index, ratting_char_index, ratting_index
 
 
