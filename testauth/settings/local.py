@@ -40,20 +40,17 @@ DEBUG = False
 NOTIFICATIONS_REFRESH_TIME = 30
 NOTIFICATIONS_MAX_PER_USER = 50
 
-if os.environ.get("USE_MYSQL", True) is True:
-    DATABASES["default"] = {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "tox_allianceauth",
-        "USER": os.environ.get("DB_USER", "user"),
-        "PASSWORD": os.environ.get("DB_PASSWORD", "password"),
-        "HOST": os.environ.get("DB_HOST", ""),
-        "PORT": os.environ.get("DB_PORT", ""),
-        "OPTIONS": {"charset": "utf8mb4"},
-        "TEST": {
-            "CHARSET": "utf8mb4",
-            "NAME": "test_tox_allianceauth",
-        },
-    }
+# Enter credentials to use MySQL/MariaDB. Comment out to use sqlite3
+DATABASES["default"] = {
+    "ENGINE": "django.db.backends.mysql",
+    "NAME": "aa_dev",
+    "USER": "admin",
+    "PASSWORD": "admin",
+    "HOST": "127.0.0.1",
+    "PORT": "3306",
+    "OPTIONS": {"charset": "utf8mb4"},
+    "TEST": {"CHARSET": "utf8mb4"},
+}
 
 # Add any additional apps to this list.
 INSTALLED_APPS += [PACKAGE, "allianceauth.corputils", "eveuniverse", "memberaudit"]
