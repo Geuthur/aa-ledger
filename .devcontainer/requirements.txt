@@ -1,0 +1,11 @@
+ipython
+bpython
+tox
+coverage
+factory_boy
+django-debug-toolbar
+
+aa-corpstats-two
+allianceauth-corptools
+django-eveuniverse
+aa-memberaudit

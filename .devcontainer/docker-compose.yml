@@ -1,0 +1,116 @@
+version: '3.8'
+
+x-allianceauth-base: &allianceauth-base
+  restart: always
+  network_mode: service:auth_mysql # needed for forwarding ports in devcontainer.json
+  env_file:
+    - .env
+  build:
+    context: ..
+    dockerfile: .devcontainer/Dockerfile
+    args:
+      AA_DOCKER_TAG: ${AA_DOCKER_TAG?err}
+  volumes:
+    - ./local.py:/home/allianceauth/myauth/myauth/settings/local.py
+    - ./celery.py:/home/allianceauth/myauth/myauth/celery.py
+    - ./urls.py:/home/allianceauth/myauth/myauth/urls.py
+    - ./memory_check.sh:/memory_check.sh
+    - ./templates:/home/allianceauth/myauth/myauth/templates/
+    - ..:/workspace:cached
+  depends_on:
+    - redis
+    - auth_mysql
+  working_dir: /home/allianceauth/myauth/
+  stop_grace_period: 10m
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "50Mb"
+      max-file: "5"
+
+x-allianceauth-health-check: &allianceauth-health-checks
+  healthcheck:
+    test: [ "CMD", "/memory_check.sh", "500000000" ]
+    interval: 60s
+    timeout: 10s
+    retries: 3
+    start_period: 5m
+  labels:
+    - "autoheal=true"
+
+services:
+  auth_mysql:
+    image: mariadb:10.11
+    command:
+      [
+        mysqld,
+        --character-set-server=utf8mb4,
+        --collation-server=utf8mb4_unicode_ci,
+        --default-authentication-plugin=mysql_native_password
+      ]
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      - ./setup.sql:/docker-entrypoint-initdb.d/setup.sql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${AA_DB_ROOT_PASSWORD?err}
+      - MARIADB_MYSQL_LOCALHOST_USER=1
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "healthcheck.sh",
+          "--su=mysql",
+          "--connect",
+          "--innodb_initialized"
+        ]
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10Mb"
+        max-file: "5"
+
+  redis:
+    image: redis:7
+    command: redis-server
+    restart: always
+    volumes:
+      - "redis-data:/data"
+      - ./redis_healthcheck.sh:/usr/local/bin/redis_healthcheck.sh
+    healthcheck:
+      test: [ "CMD", "bash", "/usr/local/bin/redis_healthcheck.sh" ]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10Mb"
+        max-file: "5"
+
+  allianceauth_gunicorn:
+    # forwards happens in devcontainer.json
+    # ports:
+    #   - 8000:8000
+    <<: [ *allianceauth-base ]
+    entrypoint: [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
+
+  allianceauth_beat:
+    <<: [ *allianceauth-base ]
+    entrypoint: [ "celery", "-A", "myauth", "beat" ]
+
+  allianceauth_worker:
+    <<: [ *allianceauth-base, *allianceauth-health-checks ]
+    entrypoint:
+      [
+        "celery",
+        "-A",
+        "myauth",
+        "worker",
+        "--pool=threads",
+        "--concurrency=10",
+        "-n",
+        "worker_%n"
+      ]
+    deploy:
+      replicas: 1
+
+volumes:
+  redis-data:
