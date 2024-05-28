@@ -117,3 +117,24 @@ jobs:
         env:
           TOX_ENV: allianceauth-latest
         run: tox -v -e ${{ env.TOX_ENV }}
+
+      # Upload coverage to Codecov
+      - name: Upload Coverage
+        if: ${{
+              (
+                github.event_name == 'pull_request'
+                || (
+                  github.event_name == 'push'
+                  && github.ref == 'refs/heads/master'
+                )
+              )
+              && (
+                matrix.python-version == '3.10'
+                && matrix.database == 'mariadb:10.11'
+              )
+            }}
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          verbose: true
