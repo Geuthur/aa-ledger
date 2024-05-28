@@ -4,6 +4,7 @@ Core Helpers
 
 from functools import wraps
 
+# pylint: disable=no-name-in-module
 from celery import signature
 from celery_once import AlreadyQueued
 
