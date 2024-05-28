@@ -40,8 +40,8 @@ class AddCharTest(TestCase):
         # when
         response = orig_view(request, token)
         # then
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response, reverse("ledger:ledger_index"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("ledger:ledger_index"))
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(mock_update_character.apply_async.called)
         self.assertTrue(
