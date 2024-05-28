@@ -84,18 +84,21 @@ jobs:
           - 3306:3306
         options: --tmpfs /var/lib/mysql
 
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps port 6379 on service container to the host
+          - 6379:6379
+
     steps:
       # Checkout the repository
       - name: Checkout
         uses: actions/checkout@v4
-
-      # Install redis
-      - name: Install redis
-        run: sudo apt-get install -y redis-tools redis-server
-
-      # Verify that redis is up
-      - name: Verify that redis is up
-        run: redis-cli ping
 
       # Set up Python
       - name: Setup Python ${{ matrix.python-version }}
