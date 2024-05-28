@@ -61,5 +61,4 @@ class AddCharTest(TestCase):
         # given
         response = fetch_memberaudit(request)
         # then
-        # localy it is 302 but github actions its 200
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
