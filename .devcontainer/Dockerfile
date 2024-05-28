@@ -9,7 +9,7 @@ RUN cd /home/allianceauth
 COPY .devcontainer/requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
-COPY . /workspace
-RUN pip install -e /workspace
+COPY . /workspaces
+RUN pip install -e /workspaces
 
 RUN allianceauth update myauth

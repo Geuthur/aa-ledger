@@ -13,9 +13,7 @@ DATABASES["default"] = {
     "PASSWORD": os.environ.get("AA_DB_PASSWORD"),
     "HOST": os.environ.get("AA_DB_HOST"),
     "PORT": os.environ.get("AA_DB_PORT", "3306"),
-    "OPTIONS": {
-        "charset": os.environ.get("AA_DB_CHARSET", "utf8mb4")
-    }
+    "OPTIONS": {"charset": os.environ.get("AA_DB_CHARSET", "utf8mb4")},
 }
 
 # Register an application at https://developers.eveonline.com for Authentication
@@ -71,7 +69,6 @@ INSTALLED_APPS += [
     # 'allianceauth.permissions_tool',
     # 'allianceauth.srp',
     # 'allianceauth.timerboard',
-
     # https://allianceauth.readthedocs.io/en/latest/features/services/index.html
     # 'allianceauth.services.modules.discord',
     # 'allianceauth.services.modules.discourse',
@@ -84,16 +81,13 @@ INSTALLED_APPS += [
     # 'allianceauth.services.modules.smf',
     # 'allianceauth.services.modules.teamspeak3',
     # 'allianceauth.services.modules.xenforo',
-
-    'ledger',
-
-    'eveuniverse',
-    'corpstats',
-    'corptools',
-    'memberaudit',
-
+    "ledger",
+    "eveuniverse",
+    "corpstats",
+    "corptools",
+    "memberaudit",
     "debug_toolbar",
-    'taskmonitor',
+    "taskmonitor",
 ]
 
 #######################################
@@ -106,20 +100,20 @@ DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": lambda request: True,
 }
 
-CELERYBEAT_SCHEDULE['memberaudit_run_regular_updates'] = {
-    'task': 'memberaudit.tasks.run_regular_updates',
-    'schedule': crontab(minute=0, hour='*/1'),
+CELERYBEAT_SCHEDULE["memberaudit_run_regular_updates"] = {
+    "task": "memberaudit.tasks.run_regular_updates",
+    "schedule": crontab(minute=0, hour="*/1"),
 }
 
-CELERYBEAT_SCHEDULE['moonmining_run_regular_updates'] = {
-    'task': 'moonmining.tasks.run_regular_updates',
-    'schedule': crontab(minute='*/10'),
+CELERYBEAT_SCHEDULE["moonmining_run_regular_updates"] = {
+    "task": "moonmining.tasks.run_regular_updates",
+    "schedule": crontab(minute="*/10"),
 }
-CELERYBEAT_SCHEDULE['moonmining_run_report_updates'] = {
-    'task': 'moonmining.tasks.run_report_updates',
-    'schedule': crontab(minute=30, hour='*/1'),
+CELERYBEAT_SCHEDULE["moonmining_run_report_updates"] = {
+    "task": "moonmining.tasks.run_report_updates",
+    "schedule": crontab(minute=30, hour="*/1"),
 }
-CELERYBEAT_SCHEDULE['moonmining_run_value_updates'] = {
-    'task': 'moonmining.tasks.run_calculated_properties_update',
-    'schedule': crontab(minute=30, hour=3)
+CELERYBEAT_SCHEDULE["moonmining_run_value_updates"] = {
+    "task": "moonmining.tasks.run_calculated_properties_update",
+    "schedule": crontab(minute=30, hour=3),
 }

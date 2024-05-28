@@ -16,7 +16,7 @@ x-allianceauth-base: &allianceauth-base
     - ./urls.py:/home/allianceauth/myauth/myauth/urls.py
     - ./memory_check.sh:/memory_check.sh
     - ./templates:/home/allianceauth/myauth/myauth/templates/
-    - ..:/workspace:cached
+    - ..:/workspaces:cached
   depends_on:
     - redis
     - auth_mysql
