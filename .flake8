@@ -1,4 +1,4 @@
 [flake8]
-exclude = .git, *migrations*, .tox, dist, *.devcontainer*
+exclude = .git, *migrations*, .tox, dist, *.devcontainer*, *testauth*
 ignore = F401, E501, W503, E203
 max-line-length = 80

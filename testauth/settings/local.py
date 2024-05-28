@@ -2,8 +2,6 @@
 Test settings
 """
 
-# flake8: noqa
-
 ########################################################
 # local.py settings
 # Every setting in base.py can be overloaded by redefining it here.
@@ -38,8 +36,6 @@ SITE_NAME = "testauth"
 # Change this to enable/disable debug mode, which displays
 # useful error messages but can leak sensitive data.
 DEBUG = False
-
-LOGGING = False
 
 NOTIFICATIONS_REFRESH_TIME = 30
 NOTIFICATIONS_MAX_PER_USER = 50
@@ -115,6 +111,13 @@ DEFAULT_FROM_EMAIL = ""
 #######################################
 # Add any custom settings below here. #
 #######################################
+
+# workarounds to suppress warnings
+LOGGING = None
+STATICFILES_DIRS = []
+ANALYTICS_DISABLED = True
+
+
 CELERYBEAT_SCHEDULE["ledger_character_audit_update_all"] = {
     "task": "ledger.tasks.update_all_characters",
     "schedule": crontab(hour="*/1"),
