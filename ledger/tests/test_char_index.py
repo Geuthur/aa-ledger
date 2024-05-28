@@ -49,6 +49,9 @@ class AddCharTest(TestCase):
         # when
         response = orig_view(request, token)
         # then
+        print(response)
+        print(mock_update_character)
+        print(request)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("ledger:ledger_index"))
         self.assertTrue(mock_messages.info.called)
@@ -68,7 +71,7 @@ class AddCharTest(TestCase):
         middleware = SessionMiddleware(Mock())
         middleware.process_request(request)
         # given
-        orig_view = fetch_memberaudit.__wrapped__
+        orig_view = fetch_memberaudit.__wrapped__.__wrapped__
         # when
         response = orig_view(request)
         # then
