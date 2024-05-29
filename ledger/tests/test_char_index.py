@@ -20,17 +20,6 @@ MODULE_PATH = "ledger.views.character.char_audit"
 
 
 class CharAuditTest(TestCase):
-    def setUp(self):
-        self.character = EveCharacter.objects.create(
-            character_id=1004,
-            character_name="Test Character",
-            corporation_id=1004,
-            corporation_name="Test Corp",
-            alliance_id=1004,
-            alliance_name="Test Alliance",
-        )
-        self.char_audit = CharacterAudit.objects.create(character=self.character)
-
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -102,6 +91,29 @@ class CharAuditTest(TestCase):
         char_audit = Mock()
         char_audit.last_update_wallet = timezone.now()
         mock_char_audit.return_value = (char_audit, False)
+
+        self.client.force_login(self.user)
+        request = self.factory.get(reverse("ledger:ledger_fetch_memberaudit"))
+        request.user = self.user
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        # when
+        response = fetch_memberaudit(request)
+        # then
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("ledger:ledger_index"))
+        self.assertTrue(mock_messages.info.called)
+        mock_messages.info.assert_called_with(request, "No Updates initialized.")
+        self.assertFalse(mock_update_character.apply_async.called)
+
+    @patch(MODULE_PATH + ".messages")
+    @patch(MODULE_PATH + ".update_character")
+    @patch(MODULE_PATH + ".CharacterAudit.objects.get_or_create")
+    def test_fetch_memberaudit_no_char_audit(
+        self, mock_char_audit, mock_update_character, mock_messages
+    ):
+        # Set last_update_wallet to now to prevent update
+        mock_char_audit.return_value = (None, False)
 
         self.client.force_login(self.user)
         request = self.factory.get(reverse("ledger:ledger_fetch_memberaudit"))
