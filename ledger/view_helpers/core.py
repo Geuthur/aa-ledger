@@ -2,8 +2,8 @@
 Core View Helper
 """
 
-from datetime import datetime
 from decimal import Decimal
+from typing import Tuple
 
 from django.core.cache import cache
 from django.db.models import Q
@@ -11,68 +11,28 @@ from django.db.models import Q
 from ledger.app_settings import STORAGE_BASE_KEY
 from ledger.decorators import custom_cache_timeout
 from ledger.hooks import get_extension_logger
-from ledger.models import Events
+from ledger.models.events import Events
 
 logger = get_extension_logger(__name__)
 
-filter_market = {"ref_type": "market_transaction"}
-filter_market_cost = {
-    "ref_type__in": ["transaction_tax", "market_provider_tax", "brokers_fee"]
-}
-filter_production = {"ref_type__in": ["industry_job_tax", "manufacturing"]}
-filter_contracts = {"ref_type__in": ["contract_price_payment_corp", "contract_reward"]}
-filter_donations = {"ref_type": "player_donation"}
-filter_ess = {"ref_type": "ess_escrow_transfer"}
-filter_bounty = {"ref_type": "bounty_prizes"}
 
-
-def calculate_days_year():
-    current_date = datetime.now()
-    # Initialisiere die Gesamtanzahl der Tage
-    total_days = 365
-
-    # Iteriere durch die Monate rückwärts vom Vormonat
-    for month in range(current_date.month, 0, -1):
-        # Berechne den Vormonat unter Berücksichtigung von Sonderfällen
-        prev_month = month if month != 1 else 12
-
-        # Bestimme die Anzahl der Tage im aktuellen Monat
-        days_in_month = (
-            current_date.replace(month=month, day=1)
-            - current_date.replace(month=prev_month, day=1)
-        ).days
-
-        # Addiere die Anzahl der Tage zum Gesamttage
-        total_days += days_in_month
-
-    # Berücksichtige die Tage im aktuellen Monat
-    total_days += current_date.day
-
-    return total_days
-
-
-def calculate_ess_stolen(total_amount, ess_amount):
+def calculate_ess_stolen(total_amount: int, ess_amount: int) -> Tuple[int, int]:
     total_ess_stolen = 0
     total_ess_gain = 0
 
-    try:
-        total_ess_gain = ess_amount / total_amount
-    except Exception:  # pylint: disable=broad-exception-caught
-        return total_ess_stolen, total_ess_gain
+    total_ess_gain = ess_amount / total_amount
     total_ess_gain = total_ess_gain * 100
-    total_ess_gain_diff = Decimal(66.667) - total_ess_gain
 
+    total_ess_gain_diff = Decimal(66.667) - int(total_ess_gain)
     if (
         abs(total_ess_gain_diff) < Decimal("0.9") or total_ess_gain_diff < 0
     ):  # Hier können Sie den Schwellenwert nach Bedarf anpassen
-        total_ess_gain = Decimal("0")
+        total_ess_gain = 0
     else:
-        result = total_ess_gain_diff
-        total_ess_stolen = int(ess_amount * (result / 100))
+        total_ess_stolen = ess_amount * (total_ess_gain_diff / 100)
+        total_ess_gain = total_ess_gain_diff
 
-        total_ess_gain = format(result, ".2f")
-
-    return total_ess_stolen, total_ess_gain
+    return round(total_ess_stolen), round(total_ess_gain)
 
 
 def _storage_key(identifier: str) -> str:
