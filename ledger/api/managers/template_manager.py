@@ -14,7 +14,7 @@ from ledger.api.helpers import (
 from ledger.api.managers.core_manager import LedgerFilter
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
-from ledger.view_helpers.core import calculate_days_year, events_filter
+from ledger.view_helpers.core import events_filter
 
 CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
 
@@ -319,11 +319,7 @@ class TemplateProcess:
     # Add Amounts to Dict
     def _generate_amounts_dict(self, amounts):
         """Generate the amounts dictionary."""
-        current_day = (
-            calculate_days_year()
-            if self.data.month == 0
-            else self.data.current_date.day
-        )
+        current_day = 365 if self.data.month == 0 else self.data.current_date.day
         # Calculate the total sum
         total_sum = sum(amounts[key]["total_amount"] for key in amounts)
 
