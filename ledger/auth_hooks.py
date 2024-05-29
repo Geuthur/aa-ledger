@@ -14,22 +14,12 @@ class LedgerMenuItem(MenuItemHook):
     """This class ensures only authorized users will see the menu entry"""
 
     def __init__(self):
-        # setup menu entry for sidebar
-        MenuItemHook.__init__(
-            self,
-            _(f"{app_settings.LEDGER_APP_NAME} - Ledger"),
+        super().__init__(
+            f"{app_settings.LEDGER_APP_NAME} - Ledger",
             "fas fa-book fa-fw",
             "ledger:ledger_index",
             navactive=["ledger:"],
         )
-
-    def render(self, request):
-        """Render the menu item"""
-
-        if request.user.has_perm("ledger.basic_access"):
-            return MenuItemHook.render(self, request)
-
-        return ""
 
 
 @hooks.register("menu_item_hook")
