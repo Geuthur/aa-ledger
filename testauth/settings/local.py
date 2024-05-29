@@ -53,8 +53,13 @@ DATABASES["default"] = {
 }
 
 # Add any additional apps to this list.
-INSTALLED_APPS += ["memberaudit", PACKAGE, "allianceauth.corputils", "eveuniverse"]
-
+INSTALLED_APPS += [
+    #'allianceauth.theme.bootstrap',
+    "allianceauth.corputils",
+    PACKAGE,
+    "eveuniverse",
+    "memberaudit",
+]
 # By default, apps are prevented from having public views for security reasons.
 # If you want to allow specific apps to have public views,
 # you can put their names here (same name as in INSTALLED_APPS).
