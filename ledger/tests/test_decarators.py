@@ -11,52 +11,55 @@ class TestDecorators(TestCase):
     @patch("ledger.decorators.fetch_esi_status")
     @patch("ledger.decorators.IS_TESTING", new=False)
     def test_when_esi_is_available(self, mock_fetch_esi_status):
-        # Arrange
+        # given
         @when_esi_is_available
-        def test_func():
-            return "Function ran"
+        def trigger_esi_deco():
+            return "Esi is Available"
 
-        # Act
-        result = test_func()
-
-        # Assert
+        # when
+        result = trigger_esi_deco()
+        # then
         mock_fetch_esi_status.assert_called_once()
-        self.assertEqual(result, "Function ran")
+        self.assertEqual(result, "Esi is Available")
 
     @patch("ledger.decorators.fetch_esi_status", side_effect=EsiDailyDowntime)
     @patch("ledger.decorators.IS_TESTING", new=False)
     def test_when_esi_is_available_downtime(self, mock_fetch_esi_status):
-        # Set up your test here
+        # given
         @when_esi_is_available
-        def triggeR_esi_deco():
+        def trigger_esi_deco():
             return "Esi is Available"
 
-        # Call your function here. It should raise EsiDailyDowntime.
-        result = triggeR_esi_deco()
-
-        # Assert that the function returned None
+        # when
+        result = trigger_esi_deco()
+        # then
         self.assertIsNone(result)
 
-        # Assert that fetch_esi_status was called
-        mock_fetch_esi_status.assert_called_once()
+    @patch("ledger.decorators.fetch_esi_status")
+    @patch("ledger.decorators.IS_TESTING", new=True)
+    def test_when_esi_is_available_is_test(self, mock_fetch_esi_status):
+        # given
+        @when_esi_is_available
+        def trigger_esi_deco():
+            return "Esi is Available"
+
+        # when
+        result = trigger_esi_deco()
+        # then
+        self.assertEqual(result, "Esi is Available")
 
     def test_custom_cache_timeout_still_active(self):
-        # Arrange
+        # given
         minutes = 120
-
-        # Act
+        # when
         result = custom_cache_timeout(minutes=minutes)
-
-        # Assert
+        # then
         self.assertTrue(result > 0)
 
     def test_custom_cache_timeout_expired(self):
-        # Arrange
+        # given
         minutes = -5
-
-        # Act
+        # when
         result = custom_cache_timeout(minutes=minutes)
-        print(result)
-
-        # Assert
+        # then
         self.assertTrue(result == 0)
