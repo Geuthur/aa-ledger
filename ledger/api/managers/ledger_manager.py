@@ -207,7 +207,7 @@ class JournalProcess:
 
         # Create the Billboard for the Characters
         ledger = BillboardLedger(date_data, models, corp=False)
-        billboard_dict = ledger.billboard_char_ledger()
+        billboard_dict = ledger.billboard_char_ledger(chars)
 
         output = []
         output.append(

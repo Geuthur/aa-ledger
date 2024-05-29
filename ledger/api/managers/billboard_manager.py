@@ -70,7 +70,6 @@ class BillboardLedger:
                     if entry["ref_type"] == "bounty_prizes":
                         total_bounty += entry["amount"]
                     # Misc Filter
-                    # TODO Add player_donation to the Billboard
                     if (
                         entry["ref_type"]
                         in [
@@ -82,6 +81,10 @@ class BillboardLedger:
                         and entry["amount"] > 0
                     ):
                         total_miscellaneous += entry["amount"]
+                    # Donation Filter
+                    if (entry["ref_type"] == "player_donation") and entry["amount"] > 0:
+                        if entry["first_party_id"] not in self.chars:
+                            total_miscellaneous += entry["amount"]
                     # Total ISK
                     if entry["amount"] > 0:
                         total_isk += entry["amount"]
@@ -263,7 +266,8 @@ class BillboardLedger:
         )
 
     # Create the Billboard Char Ledger
-    def billboard_char_ledger(self):
+    def billboard_char_ledger(self, chars: list):
+        self.chars = chars
         corp_journal_values = self.models.corp_journal.values(
             "amount", "ref_type", "first_party_id", "second_party_id", "date"
         )
