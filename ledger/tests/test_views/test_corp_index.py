@@ -59,5 +59,7 @@ class CharAuditTest(TestCase):
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(mock_update_corp.apply_async.called)
         self.assertTrue(
-            CorporationAudit.objects.get(corporation=self.character_ownership.character.corporation)
+            CorporationAudit.objects.get(
+                corporation=self.character_ownership.character.corporation
+            )
         )
