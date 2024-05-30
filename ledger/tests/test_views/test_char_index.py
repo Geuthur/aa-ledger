@@ -54,7 +54,6 @@ class CharAuditTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("ledger:ledger_index"))
         self.assertTrue(mock_update_character.apply_async.called)
-        print(mock_update_character.apply_async.call_args_list)
         self.assertTrue(
             CharacterAudit.objects.get(character=self.character_ownership.character)
         )

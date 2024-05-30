@@ -67,31 +67,35 @@ class TestEventsFilter(TestCase):
 
     @patch.object(Events, "objects")
     def test_events_filter_no_char_ledger(self, mock_objects):
-        # given
+        # Erstellen Sie ein Event ohne char_ledger
         event = MagicMock(char_ledger=None)
         mock_objects.all.return_value = [event]
+
         # when
         result = events_filter(self.entries)
+
         # then
         self.entries.exclude.assert_not_called()
         self.assertEqual(result, self.entries)
 
     @patch.object(Events, "objects")
     def test_events_filter_with_q_objects(self, mock_objects):
-        # given
+        # Erstellen Sie ein Event mit char_ledger und einem Datumsbereich
         event = MagicMock(
             char_ledger=True, date_start="2022-01-01", date_end="2022-01-31"
         )
         mock_objects.all.return_value = [event]
+
         # when
         result = events_filter(self.entries)
+
         # then
         self.entries.exclude.assert_called_once()
         self.assertEqual(result, self.excluded_entries)
 
     @patch.object(Events, "objects")
     def test_events_filter_multiple(self, mock_objects):
-        # given
+        # Erstellen Sie mehrere Events, von denen mindestens eines char_ledger und einen gültigen Datumsbereich hat
         event1 = MagicMock(
             char_ledger=True, date_start="2022-01-01", date_end="2022-01-31"
         )
@@ -102,8 +106,10 @@ class TestEventsFilter(TestCase):
             char_ledger=True, date_start="2022-03-01", date_end="2022-03-31"
         )
         mock_objects.all.return_value = [event1, event2, event3]
+
         # when
         result = events_filter(self.entries)
+
         # then
         self.entries.exclude.assert_called_once()
         self.assertEqual(result, self.entries.exclude.return_value)
