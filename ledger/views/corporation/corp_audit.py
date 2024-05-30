@@ -4,7 +4,7 @@ Corporation Audit
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import render
+from django.shortcuts import redirect
 from esi.decorators import token_required
 
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -33,4 +33,4 @@ def add_corp(request, token):
     )
     msg = f"{char.corporation_name} successfully added/updated to Ledger"
     messages.info(request, msg)
-    return render(request, "ledger/index.html")
+    return redirect("ledger:ledger_index")
