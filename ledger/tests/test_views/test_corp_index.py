@@ -19,7 +19,7 @@ from ledger.views.corporation.corp_audit import add_corp
 MODULE_PATH = "ledger.views.corporation.corp_audit"
 
 
-class CharAuditTest(TestCase):
+class CorpAuditTest(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
