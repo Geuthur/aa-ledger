@@ -28,7 +28,7 @@ class TestDecorators(TestCase):
         # given
         @when_esi_is_available
         def trigger_esi_deco():
-            return "Esi is Available"
+            return "Daily Downtime detected. Aborting."
 
         # when
         result = trigger_esi_deco()
@@ -41,12 +41,12 @@ class TestDecorators(TestCase):
         # given
         @when_esi_is_available
         def trigger_esi_deco():
-            return "Esi is Available"
+            return "Teesting Mode."
 
         # when
         result = trigger_esi_deco()
         # then
-        self.assertEqual(result, "Esi is Available")
+        self.assertEqual(result, "Teesting Mode.")
 
     def test_custom_cache_timeout_still_active(self):
         # given
