@@ -37,6 +37,8 @@ class TestTasks(TestCase):
             permissions=[
                 "ledger.basic_access",
                 "ledger.admin_access",
+                "ledger.char_audit_admin_access",
+                "ledger.corp_audit_admin_access",
             ],
         )
         cls.token = cls.user.token_set.first()
