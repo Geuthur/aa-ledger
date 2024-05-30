@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 from esi.models import Token
 
-from allianceauth.eveonline.models import EveCharacter
+from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from app_utils.testing import create_user_from_evecharacter
 
 from ledger.models.corporationaudit import CorporationAudit
@@ -19,7 +19,7 @@ from ledger.views.corporation.corp_audit import add_corp
 MODULE_PATH = "ledger.views.corporation.corp_audit"
 
 
-class CorpAuditTest(TestCase):
+class CharAuditTest(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -31,13 +31,12 @@ class CorpAuditTest(TestCase):
             permissions=[
                 "ledger.basic_access",
                 "ledger.admin_access",
-                "ledger.corp_audit_admin_access",
             ],
         )
 
     @patch(MODULE_PATH + ".messages")
     @patch(MODULE_PATH + ".update_corp")
-    def test_add_char(self, mock_update_corp, mock_messages):
+    def test_add_corp(self, mock_update_corp, mock_messages):
         self.client.force_login(self.user)
         token = Mock(spec=Token)
         token.character_id = self.character_ownership.character.character_id

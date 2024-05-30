@@ -33,7 +33,7 @@ def add_char(request, token):
 
 
 @login_required
-@permission_required(["ledger.admin_access", "ledger.char_audit_admin_access"])
+@permission_required(["ledger.char_audit_admin_access"])
 def fetch_memberaudit(request):
     """Add All Chars from Memberaudit to CharacterAudit"""
     try:

@@ -80,7 +80,7 @@ With the Following IDs you can set up the permissions for the Ledger
 | :------------------------ | :------------------------------------- | :-------------------------------------------------------------------------------------- |
 | `basic_access`            | Can access the Ledger module           | All Members with the Permission can access the Ledger.                                  |
 | `moderator_access`        | Has access to moderation tools         | Not Implemented yet.                                                                    |
-| `admin_access`            | Has access to all Administration tools | Not Implemented yet.                                                                    |
+| `admin_access`            | Has access to all Administration tools | Can Manage Both Modules.                                                                |
 | `char_audit_admin_access` | Can Manage Character Audit Module      | Can Manage Character Audit Module, Like Add Memeberaudit Chars, View Character Journals |
 | `corp_audit_admin_access` | Can Manage Corporation Audit Module    | Can Manage Corporation Audit Module, Like Add Corp, View Corporation Journals           |
 
