@@ -59,6 +59,8 @@ def update_character(
                             token.character_id
                         )
                     )
+                else:
+                    return False
             except TokenExpiredError:
                 return False
         else:
