@@ -1,5 +1,5 @@
 from datetime import timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 from django.test import TestCase
 from django.utils import timezone
@@ -70,8 +70,17 @@ class TestTasks(TestCase):
         self.assertTrue(mock_char_wallet.called)
         self.assertTrue(mock_char_mining.called)
         self.assertTrue(mock_task_que.called)
-        mock_logger.debug.assert_called_once_with(
-            "Processing Audit Updates for %s", format(self.token.character_name)
+        mock_logger.debug.assert_has_calls(
+            [
+                call(
+                    "Processing Audit Updates for %s", format(self.token.character_name)
+                ),
+                call(
+                    "Queued %s Audit Updates for %s",
+                    3,
+                    format(self.token.character_name),
+                ),
+            ]
         )
 
     @patch(MODULE_PATH + ".update_character_mining")
