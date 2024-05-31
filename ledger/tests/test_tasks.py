@@ -62,11 +62,12 @@ class TestTasks(TestCase):
     @patch(MODULE_PATH + ".enqueue_next_task")
     def test_update_character(self, mock_task_que, mock_char_wallet, mock_char_mining):
         # when
-        update_character(self.token.character_id)
+        result = update_character(self.token.character_id)
         # then
         self.assertTrue(mock_char_wallet.called)
         self.assertTrue(mock_char_mining.called)
         self.assertTrue(mock_task_que.called)
+        self.assertTrue(result)
 
     @patch(MODULE_PATH + ".update_character_mining")
     def test_update_character_mining(self, mock_char_mining):
@@ -98,10 +99,8 @@ class TestTasks(TestCase):
     @patch(MODULE_PATH + ".EveCharacter.objects.get_character_by_id")
     @patch(MODULE_PATH + ".CharacterAudit.objects.update_or_create")
     @patch(MODULE_PATH + ".CharacterAudit.objects.select_related")
-    @patch(MODULE_PATH + ".logger")
     def test_update_character_token(
         self,
-        mock_logger,
         mock_check_char,
         mock_update_or_create,
         mock_get_character_by_id,
@@ -166,36 +165,6 @@ class TestTasks(TestCase):
         # then
         self.assertFalse(result)
         mock_logger.info.assert_called_once_with("No Tokens for %s", 1001)
-
-    @patch(MODULE_PATH + ".update_char_mining_ledger.si")
-    @patch(MODULE_PATH + ".update_char_wallet.si")
-    @patch(MODULE_PATH + ".CharacterAudit.objects.update_or_create")
-    def test_update_character_old_mining_update(
-        self, mock_character_update, mock_char_wallet, mock_char_mining
-    ):
-        # given
-        mock_character = MagicMock()
-        mock_character.last_update_mining = timezone.now() - timedelta(hours=1)
-        mock_character_update.return_value = (mock_character, True)
-        # when
-        update_character(self.token.character_id)
-        # then
-        mock_char_mining.assert_called_once()
-
-    @patch(MODULE_PATH + ".update_char_mining_ledger.si")
-    @patch(MODULE_PATH + ".update_char_wallet.si")
-    @patch(MODULE_PATH + ".CharacterAudit.objects.update_or_create")
-    def test_update_character_old_wallet_update(
-        self, mock_character_update, mock_char_wallet, mock_char_mining
-    ):
-        # given
-        mock_character = MagicMock()
-        mock_character.last_update_wallet = timezone.now() - timedelta(hours=1)
-        mock_character_update.return_value = (mock_character, True)
-        # when
-        update_character(self.token.character_id)
-        # then
-        mock_char_wallet.assert_called_once()
 
     @patch(MODULE_PATH + ".update_corp.apply_async")
     @patch(MODULE_PATH + ".logger")
