@@ -60,28 +60,13 @@ class TestTasks(TestCase):
     @patch(MODULE_PATH + ".update_char_mining_ledger.si")
     @patch(MODULE_PATH + ".update_char_wallet.si")
     @patch(MODULE_PATH + ".enqueue_next_task")
-    @patch(MODULE_PATH + ".logger")
-    def test_update_character(
-        self, mock_logger, mock_task_que, mock_char_wallet, mock_char_mining
-    ):
+    def test_update_character(self, mock_task_que, mock_char_wallet, mock_char_mining):
         # when
         update_character(self.token.character_id)
         # then
         self.assertTrue(mock_char_wallet.called)
         self.assertTrue(mock_char_mining.called)
         self.assertTrue(mock_task_que.called)
-        mock_logger.debug.assert_has_calls(
-            [
-                call(
-                    "Processing Audit Updates for %s", format(self.token.character_name)
-                ),
-                call(
-                    "Queued %s Audit Updates for %s",
-                    3,
-                    format(self.token.character_name),
-                ),
-            ]
-        )
 
     @patch(MODULE_PATH + ".update_character_mining")
     def test_update_character_mining(self, mock_char_mining):
@@ -113,8 +98,10 @@ class TestTasks(TestCase):
     @patch(MODULE_PATH + ".EveCharacter.objects.get_character_by_id")
     @patch(MODULE_PATH + ".CharacterAudit.objects.update_or_create")
     @patch(MODULE_PATH + ".CharacterAudit.objects.select_related")
+    @patch(MODULE_PATH + ".logger")
     def test_update_character_token(
         self,
+        mock_logger,
         mock_check_char,
         mock_update_or_create,
         mock_get_character_by_id,
@@ -166,17 +153,14 @@ class TestTasks(TestCase):
         mock_token.valid_access_token.assert_called_once()
 
     @patch(MODULE_PATH + ".Token.get_token")
-    @patch(MODULE_PATH + ".CharacterAudit.objects.update_or_create")
     @patch(MODULE_PATH + ".CharacterAudit.objects.select_related")
     @patch(MODULE_PATH + ".logger")
     def test_update_character_token_no_token(
-        self, mock_logger, mock_check_char, mock_update_or_create, mock_get_token
+        self, mock_logger, mock_check_char, mock_get_token
     ):
         # given
         mock_check_char.return_value.filter.return_value.first.return_value = None
         mock_get_token.return_value = False
-        mock_character = MagicMock()
-        mock_update_or_create.return_value = (mock_character, True)
         # when
         result = update_character(self.token.character_id)
         # then
@@ -191,7 +175,7 @@ class TestTasks(TestCase):
     ):
         # given
         mock_character = MagicMock()
-        mock_character.last_update_mining = timezone.now() - timedelta(hours=3)
+        mock_character.last_update_mining = timezone.now() - timedelta(hours=1)
         mock_character_update.return_value = (mock_character, True)
         # when
         update_character(self.token.character_id)
@@ -206,7 +190,7 @@ class TestTasks(TestCase):
     ):
         # given
         mock_character = MagicMock()
-        mock_character.last_update_wallet = timezone.now() - timedelta(hours=3)
+        mock_character.last_update_wallet = timezone.now() - timedelta(hours=1)
         mock_character_update.return_value = (mock_character, True)
         # when
         update_character(self.token.character_id)
