@@ -57,18 +57,6 @@ class TestTasks(TestCase):
             "Queued %s Char Audit Updates", characters_count
         )
 
-    @patch(MODULE_PATH + ".update_char_mining_ledger.si")
-    @patch(MODULE_PATH + ".update_char_wallet.si")
-    @patch(MODULE_PATH + ".enqueue_next_task")
-    def test_update_character(self, mock_task_que, mock_char_wallet, mock_char_mining):
-        # when
-        result = update_character(self.token.character_id)
-        # then
-        self.assertTrue(mock_char_wallet.called)
-        self.assertTrue(mock_char_mining.called)
-        self.assertTrue(mock_task_que.called)
-        self.assertTrue(result)
-
     @patch(MODULE_PATH + ".update_character_mining")
     def test_update_character_mining(self, mock_char_mining):
         # given
@@ -99,7 +87,7 @@ class TestTasks(TestCase):
     @patch(MODULE_PATH + ".EveCharacter.objects.get_character_by_id")
     @patch(MODULE_PATH + ".CharacterAudit.objects.update_or_create")
     @patch(MODULE_PATH + ".CharacterAudit.objects.select_related")
-    def test_update_character_token(
+    def test_update_character_from_token(
         self,
         mock_check_char,
         mock_update_or_create,
@@ -128,6 +116,24 @@ class TestTasks(TestCase):
         mock_update_or_create.assert_called_once()
         self.assertTrue(mock_char_wallet.called)
         self.assertTrue(mock_char_mining.called)
+
+    @patch(MODULE_PATH + ".CharacterAudit.objects.select_related")
+    def test_update_character(self, mock_select_related):
+        # given
+        mock_character = MagicMock()
+        mock_character.last_update_mining = timezone.now()
+        mock_character.last_update_wallet = timezone.now()
+        mock_character.character = MagicMock()
+        mock_character.character.character_id = self.token.character_id
+        mock_character.character.character_name = self.token.character_name
+
+        mock_filter = MagicMock()
+        mock_filter.first.return_value = mock_character
+        mock_select_related.return_value.filter.return_value = mock_filter
+        # when
+        result = update_character(self.token.character_id)
+        # then
+        self.assertTrue(result)
 
     @patch(MODULE_PATH + ".Token.get_token")
     @patch(MODULE_PATH + ".CharacterAudit.objects.update_or_create")
