@@ -59,12 +59,20 @@ class TestTasks(TestCase):
 
     @patch(MODULE_PATH + ".update_char_mining_ledger.si")
     @patch(MODULE_PATH + ".update_char_wallet.si")
-    def test_update_character(self, mock_char_wallet, mock_char_mining):
+    @patch(MODULE_PATH + ".enqueue_next_task")
+    @patch(MODULE_PATH + ".logger")
+    def test_update_character(
+        self, mock_logger, mock_task_que, mock_char_wallet, mock_char_mining
+    ):
         # when
         update_character(self.token.character_id)
         # then
         self.assertTrue(mock_char_wallet.called)
         self.assertTrue(mock_char_mining.called)
+        self.assertTrue(mock_task_que.called)
+        mock_logger.debug.assert_called_once_with(
+            "Processing Audit Updates for %s", format(self.token.character_name)
+        )
 
     @patch(MODULE_PATH + ".update_character_mining")
     def test_update_character_mining(self, mock_char_mining):
