@@ -1,0 +1,31 @@
+{
+    "EveCharacter": [
+        {
+            "character_id": 1001,
+            "character_name": "Gneuten",
+            "corporation_id": 2001,
+            "corporation_name": "Hell RiderZ",
+            "corporation_ticker": "HRZ",
+            "alliance_id": 3001,
+            "alliance_name": "Voices of War",
+            "alliance_ticker": "VOW"
+        },
+        {
+            "character_id": 1002,
+            "character_name": "rotze Rotineque",
+            "corporation_id": 2002,
+            "corporation_name": "Eulenclub",
+            "corporation_ticker": "EC",
+            "alliance_id": 3001,
+            "alliance_name": "Voices of War",
+            "alliance_ticker": "VOW"
+        },
+        {
+            "character_id": 1003,
+            "character_name": "Hector Fieramosca",
+            "corporation_id": 2003,
+            "corporation_name": "Schweinshausen",
+            "corporation_ticker": "SH"
+        }
+    ]
+}

@@ -6,7 +6,7 @@ from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import render
+from django.shortcuts import redirect
 from esi.decorators import token_required
 
 from allianceauth.eveonline.models import EveCharacter
@@ -29,11 +29,11 @@ def add_char(request, token):
     )
     msg = "Char successfully added/updated to Ledger"
     messages.info(request, msg)
-    return render(request, "ledger/index.html")
+    return redirect("ledger:ledger_index")
 
 
 @login_required
-@permission_required(["ledger.admin_access", "ledger.char_audit_admin_access"])
+@permission_required(["ledger.char_audit_admin_access"])
 def fetch_memberaudit(request):
     """Add All Chars from Memberaudit to CharacterAudit"""
     try:
@@ -83,4 +83,4 @@ def fetch_memberaudit(request):
         msg = "An error occurred: Please inform your Admin."
         messages.error(request, msg)
 
-    return render(request, "ledger/index.html")
+    return redirect("ledger:ledger_index")

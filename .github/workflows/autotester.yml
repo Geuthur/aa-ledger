@@ -1,7 +1,12 @@
-name: Tests
+name: Checks
 
 on:
   push:
+    paths-ignore:
+      - "**.css"
+      - "**.js"
+      - "**.md"
+
     branches:
       - '**'
 
@@ -9,6 +14,11 @@ on:
       - '**'
 
   pull_request:
+    paths-ignore:
+      - "**.css"
+      - "**.js"
+      - "**.md"
+
     branches:
       - '**'
 
@@ -57,13 +67,9 @@ jobs:
         # MySQL versions to test against
         database:
           # https://endoflife.date/mysql
-          - mysql:8.0     # [LTS] Maintained until: 30 Apr 2026
-          - mysql:8.1     # Latest official release
+          - mysql:8.4     # [LTS] Maintained until: April 2032
           # https://endoflife.date/mariadb and https://mariadb.com/kb/en/mariadb-server-release-dates/
-          - mariadb:10.5  # Maintained until: 24 June 2025
-          - mariadb:10.6  # [LTS] Maintained until: July 2026
           - mariadb:10.11 # [LTS] Maintained until: February 2028
-          - mariadb:11.1  # Maintained until: August 2024
 
 #    continue-on-error: ${{ matrix.python-version == '3.12' }}
 
@@ -78,18 +84,21 @@ jobs:
           - 3306:3306
         options: --tmpfs /var/lib/mysql
 
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps port 6379 on service container to the host
+          - 6379:6379
+
     steps:
       # Checkout the repository
       - name: Checkout
         uses: actions/checkout@v4
-
-      # Install redis
-      - name: Install redis
-        run: sudo apt-get install -y redis-tools redis-server
-
-      # Verify that redis is up
-      - name: Verify that redis is up
-        run: redis-cli ping
 
       # Set up Python
       - name: Setup Python ${{ matrix.python-version }}
@@ -107,7 +116,25 @@ jobs:
       - name: Run Tox
         env:
           TOX_ENV: allianceauth-latest
-          DB_HOST: 127.0.0.1
-          DB_USER: root
-          DB_PASSWORD: temp_password_aa_tox_tests
         run: tox -v -e ${{ env.TOX_ENV }}
+
+      # Upload coverage to Codecov
+      - name: Upload Coverage
+        if: ${{
+              (
+                github.event_name == 'pull_request'
+                || (
+                  github.event_name == 'push'
+                  && github.ref == 'refs/heads/master'
+                )
+              )
+              && (
+                matrix.python-version == '3.10'
+                && matrix.database == 'mariadb:10.11'
+              )
+            }}
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          verbose: true

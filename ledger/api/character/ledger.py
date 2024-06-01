@@ -8,7 +8,7 @@ from django.db.models import Q
 from ledger import app_settings
 from ledger.api import schema
 from ledger.api.helpers import Paginator, get_alts_queryset, get_main_character
-from ledger.api.ledgermanager import JournalProcess
+from ledger.api.managers.ledger_manager import JournalProcess
 
 if app_settings.LEDGER_MEMBERAUDIT_USE:
     from memberaudit.models import CharacterWalletJournalEntry

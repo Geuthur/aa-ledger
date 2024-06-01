@@ -6,7 +6,7 @@ from ninja.pagination import paginate
 
 from ledger.api import schema
 from ledger.api.helpers import Paginator, get_corporations, get_main_and_alts_all
-from ledger.api.ledgermanager import JournalProcess
+from ledger.api.managers.ledger_manager import JournalProcess
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 
@@ -91,8 +91,7 @@ class LedgerApiEndpoints:
             corporations = [corporation_id]
 
             if corporation_id == 0:
-                character_id = request.user.profile.main_character.character_id
-                corporations = get_corporations(request, character_id)
+                corporations = get_corporations(request)
 
             if not perms:
                 logging.error("Permission Denied for %s to view wallets!", request.user)
@@ -103,6 +102,6 @@ class LedgerApiEndpoints:
 
             # Create the Ledger
             ledger = JournalProcess(characters, year, month)
-            output = ledger.corporation_ledger(corporations, chars_list)
+            output = ledger.corporation_ledger(chars_list)
 
             return output

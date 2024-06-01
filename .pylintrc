@@ -4,7 +4,10 @@
 ignore-paths=
     tests/,
     (.*)/tests/,
-    (.*)/migrations/
+    testauth/,
+    (.*)/testauth/,
+    (.*)/migrations/,
+    .devcontainer/,
 
 [MESSAGES CONTROL]
 disable=

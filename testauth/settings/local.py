@@ -2,8 +2,6 @@
 Test settings
 """
 
-# flake8: noqa
-
 ########################################################
 # local.py settings
 # Every setting in base.py can be overloaded by redefining it here.
@@ -19,12 +17,12 @@ STATICFILES_DIRS = [
     f"{PACKAGE}/static",
 ]
 
-SITE_URL = "https://example.com"
+SITE_URL = "http://127.0.0.1:8000"
 CSRF_TRUSTED_ORIGINS = [SITE_URL]
 
 DISCORD_BOT_TOKEN = "My_Dummy_Token"
 # These are required for Django to function properly. Don't touch.
-ROOT_URLCONF = "tests.urls"
+ROOT_URLCONF = "testauth.urls"
 WSGI_APPLICATION = "testauth.wsgi.application"
 SECRET_KEY = "DUMMY"
 
@@ -39,29 +37,29 @@ SITE_NAME = "testauth"
 # useful error messages but can leak sensitive data.
 DEBUG = False
 
-LOGGING = False
-
 NOTIFICATIONS_REFRESH_TIME = 30
 NOTIFICATIONS_MAX_PER_USER = 50
 
-if os.environ.get("USE_MYSQL", True) is True:
-    DATABASES["default"] = {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "tox_allianceauth",
-        "USER": os.environ.get("DB_USER", "user"),
-        "PASSWORD": os.environ.get("DB_PASSWORD", "password"),
-        "HOST": os.environ.get("DB_HOST", ""),
-        "PORT": os.environ.get("DB_PORT", ""),
-        "OPTIONS": {"charset": "utf8mb4"},
-        "TEST": {
-            "CHARSET": "utf8mb4",
-            "NAME": "test_tox_allianceauth",
-        },
-    }
+# Enter credentials to use MySQL/MariaDB. Comment out to use sqlite3
+DATABASES["default"] = {
+    "ENGINE": "django.db.backends.mysql",
+    "NAME": "tox_allianceauth",
+    "USER": "root",
+    "PASSWORD": "temp_password_aa_tox_tests",
+    "HOST": "127.0.0.1",
+    "PORT": "3306",
+    "OPTIONS": {"charset": "utf8mb4"},
+    "TEST": {"CHARSET": "utf8mb4"},
+}
 
 # Add any additional apps to this list.
-INSTALLED_APPS += [PACKAGE, "eveuniverse"]
-
+INSTALLED_APPS += [
+    #'allianceauth.theme.bootstrap',
+    "allianceauth.corputils",
+    PACKAGE,
+    "eveuniverse",
+    "memberaudit",
+]
 # By default, apps are prevented from having public views for security reasons.
 # If you want to allow specific apps to have public views,
 # you can put their names here (same name as in INSTALLED_APPS).
@@ -88,7 +86,7 @@ APPS_WITH_PUBLIC_VIEWS = []
 # Other apps may require more (see their docs).
 ESI_SSO_CLIENT_ID = "dummy"
 ESI_SSO_CLIENT_SECRET = "dummy"
-ESI_SSO_CALLBACK_URL = "http://localhost:8000"
+ESI_SSO_CALLBACK_URL = "http://127.0.0.1:8000"
 
 
 # ------------------------------------------------------------------------------------ #
@@ -115,3 +113,18 @@ DEFAULT_FROM_EMAIL = ""
 #######################################
 # Add any custom settings below here. #
 #######################################
+
+# workarounds to suppress warnings
+LOGGING = None
+STATICFILES_DIRS = []
+ANALYTICS_DISABLED = True
+
+
+CELERYBEAT_SCHEDULE["ledger_character_audit_update_all"] = {
+    "task": "ledger.tasks.update_all_characters",
+    "schedule": crontab(hour="*/1"),
+}
+CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
+    "task": "ledger.tasks.update_all_corps",
+    "schedule": crontab(hour="*/1"),
+}

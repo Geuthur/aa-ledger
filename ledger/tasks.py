@@ -4,6 +4,7 @@
 import datetime
 
 # Third Party
+# pylint: disable=no-name-in-module
 from celery import shared_task
 
 from django.utils import timezone
@@ -58,6 +59,8 @@ def update_character(
                             token.character_id
                         )
                     )
+                else:
+                    return False
             except TokenExpiredError:
                 return False
         else:

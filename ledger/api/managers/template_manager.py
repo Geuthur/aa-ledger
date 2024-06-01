@@ -1,139 +1,87 @@
+from dataclasses import dataclass
 from datetime import datetime
 
 from django.db.models import DecimalField, F, Q, Sum
 from django.db.models.functions import Coalesce
 
-from ledger import app_settings
 from ledger.api.helpers import (
+    convert_ess_payout,
     get_alts_queryset,
     get_main_and_alts_all,
     get_main_character,
     get_models_and_string,
 )
+from ledger.api.managers.core_manager import LedgerFilter
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
-from ledger.view_helpers.core import calculate_days_year, events_filter
+from ledger.view_helpers.core import events_filter
 
 CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
 
 logger = get_extension_logger(__name__)
 
 
-class TemplateFilterCore:
-    """TemplateFilter class to store the filter data."""
-
-    def __init__(self, char_id):
-        self.char_id = char_id
-        self.filter = Q(second_party_id__in=self.char_id) | Q(
-            first_party_id__in=self.char_id
-        )
-        self.filter_bounty = self.filter & Q(ref_type="bounty_prizes")
-        self.filter_ess = self.filter & Q(ref_type="ess_escrow_transfer")
-        self.filter_mining = (
-            Q(character__eve_character_id__in=char_id)
-            if app_settings.LEDGER_MEMBERAUDIT_USE
-            else Q(character__character__character_id__in=char_id)
-        )
-
-
-class TemplateFilterCost(TemplateFilterCore):
-    """TemplateFilter class to store the filter data."""
-
-    def __init__(self, char_id):
-        super().__init__(char_id)
-        self.my_filter_market_cost = self.filter & Q(
-            ref_type__in=[
-                "transaction_tax",
-                "market_provider_tax",
-                "brokers_fee",
-            ]
-        )
-        self.filter_production = self.filter & Q(
-            ref_type__in=["industry_job_tax", "manufacturing"]
-        )
-
-
-class TemplateFilterTrading(TemplateFilterCost):
-    """TemplateFilter class to store the filter data."""
-
-    # pylint: disable=duplicate-code
-    def __init__(self, char_id):
-        super().__init__(char_id)
-        self.filter_market = self.filter & Q(ref_type="market_transaction")
-        self.filter_contract = self.filter & Q(
-            ref_type__in=[
-                "contract_price_payment_corp",
-                "contract_reward",
-                "contract_price",
-            ],
-            amount__gt=0,
-        )
-        self.filter_donation = self.filter & Q(ref_type="player_donation")
-
-
-class TemplateFilter(TemplateFilterTrading):
-    """TemplateFilterAll class to store all filter data."""
-
-    def __init__(self, char_id):
-        super().__init__(char_id)  # Call the __init__ method of the base class
-        self.char_id = char_id
-
-
+@dataclass
 class TemplateData:
     """TemplateData class to store the data."""
 
-    def __init__(self, request, request_id, year, month):
-        self.request = request
-        self.request_id = request_id
-        self.year = year
-        self.month = month
-        self.current_date = datetime.now()
+    request: any
+    request_id: int
+    year: int
+    month: int
+    current_date: datetime = datetime.now()
+
+    def __post_init__(self):
         self.current_date = self.current_date.replace(year=self.year)
-        if not self.month == 0:
+        if self.month != 0:
             self.current_date = self.current_date.replace(month=self.month)
 
 
+@dataclass
 class TemplateTotalCore:
-    def __init__(self):
-        self.ess = 0
-        self.mining = 0
-        self.contract = 0
-        self.transaction = 0
-        self.donation = 0
-        self.production_cost = 0
-        self.market_cost = 0
+    """TemplateTotalCore class to store the core data."""
+
+    bounty: int = 0
+    ess: int = 0
+    mining: int = 0
+    contract: int = 0
+    transaction: int = 0
+    donation: int = 0
+    production_cost: int = 0
+    market_cost: int = 0
 
 
+@dataclass
 class TemplateTotalDay:
-    def __init__(self):
-        self.ess_day = 0
-        self.mining_day = 0
-        self.contract_day = 0
-        self.transaction_day = 0
-        self.donation_day = 0
-        self.production_cost_day = 0
-        self.market_cost_day = 0
+    """TemplateTotalDay class to store the daily data."""
+
+    bounty_day: int = 0
+    ess_day: int = 0
+    mining_day: int = 0
+    contract_day: int = 0
+    transaction_day: int = 0
+    donation_day: int = 0
+    production_cost_day: int = 0
+    market_cost_day: int = 0
 
 
+@dataclass
 class TemplateTotalHour:
-    def __init__(self):
-        self.ess_hour = 0
-        self.mining_hour = 0
-        self.contract_hour = 0
-        self.transaction_hour = 0
-        self.donation_hour = 0
-        self.production_cost_hour = 0
-        self.market_cost_hour = 0
+    """TemplateTotalHour class to store the hourly data."""
+
+    bounty_hour: int = 0
+    ess_hour: int = 0
+    mining_hour: int = 0
+    contract_hour: int = 0
+    transaction_hour: int = 0
+    donation_hour: int = 0
+    production_cost_hour: int = 0
+    market_cost_hour: int = 0
 
 
+@dataclass
 class TemplateTotal(TemplateTotalCore, TemplateTotalDay, TemplateTotalHour):
-    def __init__(self):
-        self.bounty = 0
-        self.bounty_day = 0
-        self.bounty_hour = 0
-        TemplateTotalCore.__init__(self)
-        TemplateTotalDay.__init__(self)
-        TemplateTotalHour.__init__(self)
+    """TemplateTotal class to store the data."""
 
     def to_dict(self):
         return {
@@ -194,26 +142,24 @@ class TemplateProcess:
         Create the character template.
         return: dict
         """
-        filters = (
-            Q(character__eve_character__in=self.chars)
-            if app_settings.LEDGER_MEMBERAUDIT_USE
-            else Q(character__character__in=self.chars)
-        )
+        # Create Char List
+        chars = [char.character_id for char in self.chars]
+
+        filters = LedgerFilter(chars)
+
         filter_date = Q(date__year=self.data.year)
         if not self.data.month == 0:
             filter_date &= Q(date__month=self.data.month)
 
-        chars = [char.character_id for char in self.chars]
-
-        entries_filter = Q(second_party_id__in=chars) | Q(first_party_id__in=chars)
-
         # Filter the entries for the current day/month
         character_journal = CharacterWalletJournalEntry.objects.filter(
-            filters, filter_date
+            filters.filter_partys, filter_date
         ).select_related("first_party", "second_party")
 
         corporation_journal = (
-            CorporationWalletJournalEntry.objects.filter(entries_filter, filter_date)
+            CorporationWalletJournalEntry.objects.filter(
+                filters.filter_partys, filter_date
+            )
             .select_related("first_party", "second_party")
             .order_by("-date")
         )
@@ -221,7 +167,7 @@ class TemplateProcess:
         # Exclude Events to avoid wrong stats
         corporation_journal = events_filter(corporation_journal)
         mining_journal = (
-            CharacterMiningLedger.objects.filter(filters, filter_date)
+            CharacterMiningLedger.objects.filter(filters.filter_mining, filter_date)
         ).annotate_pricing()
 
         self._process_characters(character_journal, corporation_journal, mining_journal)
@@ -235,13 +181,15 @@ class TemplateProcess:
 
         mains, chars = get_main_and_alts_all(self.chars, char_ids=True)
 
-        filters = Q(second_party_id__in=chars)
+        filters = LedgerFilter(chars)
         filter_date = Q(date__year=self.data.year)
         if not self.data.month == 0:
             filter_date &= Q(date__month=self.data.month)
 
         corporation_journal = (
-            CorporationWalletJournalEntry.objects.filter(filters, filter_date)
+            CorporationWalletJournalEntry.objects.filter(
+                filters.filter_second_party, filter_date
+            )
             .select_related("first_party", "second_party", "division")
             .values("amount", "date", "second_party_id", "ref_type")
             .order_by("-date")
@@ -304,7 +252,7 @@ class TemplateProcess:
             # Each Chars from a Main Character
             chars = [alt.character_id for alt in alts] + [main.character_id]
 
-            filters = TemplateFilter(chars)
+            filters = LedgerFilter(chars)
 
             amounts = {
                 # Calculate Income
@@ -371,11 +319,7 @@ class TemplateProcess:
     # Add Amounts to Dict
     def _generate_amounts_dict(self, amounts):
         """Generate the amounts dictionary."""
-        current_day = (
-            calculate_days_year()
-            if self.data.month == 0
-            else self.data.current_date.day
-        )
+        current_day = 365 if self.data.month == 0 else self.data.current_date.day
         # Calculate the total sum
         total_sum = sum(amounts[key]["total_amount"] for key in amounts)
 
@@ -417,7 +361,7 @@ class TemplateProcess:
         char_id = char.character_id
 
         # Create the filters
-        filters = TemplateFilter([char_id])
+        filters = LedgerFilter([char_id])
 
         # Set the models
         character_journal, corporation_journal, mining_journal = models
@@ -461,10 +405,9 @@ class TemplateProcess:
                 character_journal.filter(filters.my_filter_market_cost)
             ),
         }
-
-        # Apply formula to amounts["ess"]["total_amount"]
-        amounts["ess"]["total_amount"] = (
-            amounts["ess"]["total_amount"] / app_settings.LEDGER_CORP_TAX
-        ) * (100 - app_settings.LEDGER_CORP_TAX)
+        # Convert ESS Payout for Character Ledger
+        amounts["ess"]["total_amount"] = convert_ess_payout(
+            amounts["ess"]["total_amount"]
+        )
 
         return amounts

@@ -8,7 +8,7 @@ from allianceauth.eveonline.models import EveCharacter
 
 from ledger.api import schema
 from ledger.api.helpers import get_alts_queryset, get_main_character
-from ledger.api.templatemanager import TemplateData, TemplateProcess
+from ledger.api.managers.template_manager import TemplateData, TemplateProcess
 from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
