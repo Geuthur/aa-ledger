@@ -51,6 +51,8 @@ def rem_etag_header(operation):
     )
     if "If-None-Match" in operation.future.request.headers:
         del operation.future.request.headers["If-None-Match"]
+        return True
+    return False
 
 
 def set_etag_header(operation, headers):
@@ -65,6 +67,8 @@ def set_etag_header(operation, headers):
             etag,
             result,
         )
+        return True
+    return False
 
 
 def stringify_params(operation):
