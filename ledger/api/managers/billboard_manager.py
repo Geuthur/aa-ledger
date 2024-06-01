@@ -164,11 +164,14 @@ class BillboardLedger:
             self.sum.sum_amount_misc.append(int(self.data.total_miscellaneous))
             self.sum.sum_amount_mining.append(int(self.data.total_mining))
         # Add the date to the date list
-        self.date_billboard.append(
-            date.replace(day=range_).strftime("%Y-%m-%d")
-            if not self.date.monthly
-            else date.replace(month=range_).strftime("%Y-%m")
-        )
+        try:
+            self.date_billboard.append(
+                date.replace(day=range_).strftime("%Y-%m-%d")
+                if not self.date.monthly
+                else date.replace(month=range_).strftime("%Y-%m")
+            )
+        except ValueError:
+            pass
 
     def calculate_total_sum(self):
         self.sum.total_sum = sum(
