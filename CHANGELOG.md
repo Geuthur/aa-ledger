@@ -1,5 +1,27 @@
 # Changelog
 
+## \[0.5.0\] - 2024-06-01
+
+### Added
+
+- Create Function for ESS Payout Calculation on CharacterLedger
+- Create Core Manager to Handling Ledger Stuff
+- Create FilterClass for all Filters and removed old ones
+- Create Tests for different Szenarios more come later
+
+### Fixed
+
+- Summary on Character Ledger not include Mining Amount
+- Donations on Memberside not added to Detailed Information
+- Value Error on Billboard
+- Mining Amount not display on Detailed Information
+
+### Chamged
+
+- Moved Billboard Manager to own py
+
+https://github.com/geuthur/aa-ledger/compare/v0.4.2...v0.5.0
+
 ## \[0.5.0b1\] - 2024-05-27
 
 ### Fixed
