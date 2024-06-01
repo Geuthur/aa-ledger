@@ -48,29 +48,37 @@ class TestEtagHelpers(TestCase):
         mock_cache_delete.assert_called_once_with("etag-cache_key", False)
 
     @patch(MODULE_PATH + ".get_etag_header")
-    @patch(MODULE_PATH + ".logger")
-    def test_inject_etag_header(self, mock_logger, mock_get_etag_header):
+    def test_inject_etag_header(self, mock_get_etag_header):
         mock_get_etag_header.return_value = "ABCD"
         inject_etag_header(self.mock_operation)
         self.assertEqual(
             self.mock_operation.future.request.headers["If-None-Match"], "ABCD"
         )
 
-    @patch(MODULE_PATH + ".logger")
-    def test_rem_etag_header(self, mock_logger):
+    def test_rem_etag_header(self):
         self.mock_operation.future.request.headers["If-None-Match"] = "ABCD"
-        rem_etag_header(self.mock_operation)
+        result = rem_etag_header(self.mock_operation)
         self.assertNotIn("If-None-Match", self.mock_operation.future.request.headers)
+        self.assertTrue(result)
+
+        self.mock_operation.future.request.headers = {}
+        result = rem_etag_header(self.mock_operation)
+        self.assertFalse(result)
 
     @patch(MODULE_PATH + ".get_etag_key")
     @patch(MODULE_PATH + ".cache.set")
-    @patch(MODULE_PATH + ".logger")
-    def test_set_etag_header(self, mock_logger, mock_cache_set, mock_get_etag_key):
+    def test_set_etag_header(self, mock_cache_set, mock_get_etag_key):
         mock_get_etag_key.return_value = "etag_key"
         headers = Mock()
         headers.headers.get.return_value = "ABCD"
-        set_etag_header(self.mock_operation, headers)
+        result = set_etag_header(self.mock_operation, headers)
         mock_cache_set.assert_called_once_with("etag_key", "ABCD", MAX_ETAG_LIFE)
+        self.assertTrue(result)
+
+        mock_get_etag_key.return_value = None
+        headers.headers.get.return_value = None
+        result = set_etag_header(self.mock_operation, headers)
+        self.assertFalse(result)
 
     def test_stringify_params(self):
         result = stringify_params(self.mock_operation)
@@ -93,8 +101,7 @@ class TestEtagReults(TestCase):
         }
 
     @patch("django_redis.cache.RedisCache.set")
-    @patch(MODULE_PATH + ".rem_etag_header")
-    def test_handle_page_results(self, mock_rem_etag, mock_set):
+    def test_handle_page_results(self, _):
         self.operation.result.return_value = ([], self.headers)
         results, current_page, total_pages = handle_page_results(
             self.operation, 1, 2, False, False
@@ -105,10 +112,7 @@ class TestEtagReults(TestCase):
 
     @patch(MODULE_PATH + ".handle_etag_headers")
     @patch("django_redis.cache.RedisCache.set")
-    @patch(MODULE_PATH + ".rem_etag_header")
-    def test_handle_page_results_notmodified(
-        self, mock_rem_etag, mock_set, mock_handle_etag_headers
-    ):
+    def test_handle_page_results_notmodified(self, _, mock_handle_etag_headers):
         # given
         self.operation.result.return_value = ([], self.headers)
         mock_error = NotModifiedError()
@@ -117,22 +121,18 @@ class TestEtagReults(TestCase):
         mock_handle_etag_headers.side_effect = mock_error
 
         # when
-        try:
-            results, current_page, total_pages = handle_page_results(
-                self.operation, 1, 2, False, False
-            )
-        except NotModifiedError:
-            pass
+        results, current_page, total_pages = handle_page_results(
+            self.operation, 1, 2, False, False
+        )
+
         # then
         mock_handle_etag_headers.assert_called()
         self.assertEqual(current_page, 2)
         self.assertEqual(total_pages, 1)
+        self.assertEqual(results, [])
 
-    @patch(MODULE_PATH + ".rem_etag_header")
     @patch(MODULE_PATH + ".handle_etag_headers")
-    def test_handle_page_results_http_not_modified(
-        self, mock_handle_etag_headers, mock_rem_etag
-    ):
+    def test_handle_page_results_http_not_modified(self, mock_handle_etag_headers):
         self.operation.result.return_value = ([], self.headers)
         mock_handle_etag_headers.side_effect = HTTPNotModified(self.headers)
         # when
@@ -143,10 +143,9 @@ class TestEtagReults(TestCase):
         self.assertEqual(current_page, 3)
         self.assertEqual(total_pages, 2)
 
-    @patch(MODULE_PATH + ".rem_etag_header")
     @patch(MODULE_PATH + ".handle_etag_headers")
     def test_handle_page_results_http_not_modified_etags_incomplete(
-        self, mock_handle_etag_headers, mock_rem_etag
+        self, mock_handle_etag_headers
     ):
         self.operation.result.return_value = ([], self.headers)
         mock_handle_etag_headers.side_effect = HTTPNotModified(self.headers)
@@ -189,18 +188,10 @@ class TestEtagReults(TestCase):
         mock_set_etag_header.assert_not_called()
         mock_del_etag_header.assert_not_called()
 
-    @patch(MODULE_PATH + ".handle_page_results")
-    @patch(MODULE_PATH + ".inject_etag_header")
-    @patch(MODULE_PATH + ".set_etag_header")
     @patch(MODULE_PATH + ".handle_etag_headers")
-    @patch(MODULE_PATH + ".logger")
     def test_etag_results(
         self,
-        mock_logger,
-        mock_handle_etag_headers,
-        mock_set_etag_header,
-        mock_inject_etag_header,
-        mock_handle_page_results,
+        _,
     ):
         # given
         mock_token = MagicMock()
