@@ -16,7 +16,7 @@
 - Value Error on Billboard
 - Mining Amount not display on Detailed Information
 
-### Chamged
+### Changed
 
 - Moved Billboard Manager to own py
 
