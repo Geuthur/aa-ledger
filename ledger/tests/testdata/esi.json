@@ -1,0 +1,269 @@
+{
+    "Character": {
+      "get_characters_character_id_roles": {
+        "1001": {
+            "roles": [
+                "Security_Officer",
+                "Factory_Manager",
+                "Station_Manager",
+                "Auditor"
+              ],
+              "roles_at_base": [
+                "Hangar_Take_1",
+                "Hangar_Take_2",
+                "Hangar_Take_3"
+              ],
+              "roles_at_hq": [
+                "Hangar_Take_1",
+                "Hangar_Take_2",
+                "Hangar_Take_3"
+              ],
+              "roles_at_other": [
+                "Hangar_Take_1",
+                "Hangar_Take_2",
+                "Hangar_Take_3"
+              ]
+          },
+          "1002": {
+            "roles": [
+                "Security_Officer",
+                "Factory_Manager",
+                "Station_Manager",
+                "Auditor"
+              ],
+              "roles_at_base": [
+                "Hangar_Take_1",
+                "Hangar_Take_2",
+                "Hangar_Take_3"
+              ],
+              "roles_at_hq": [
+                "Hangar_Take_1",
+                "Hangar_Take_2",
+                "Hangar_Take_3"
+              ],
+              "roles_at_other": [
+                "Hangar_Take_1",
+                "Hangar_Take_2",
+                "Hangar_Take_3"
+              ]
+        },
+        "1003": {
+          "roles": [
+              "Security_Officer",
+              "Factory_Manager",
+              "Station_Manager",
+              "Auditor"
+            ],
+            "roles_at_base": [
+              "Hangar_Take_1",
+              "Hangar_Take_2",
+              "Hangar_Take_3"
+            ],
+            "roles_at_hq": [
+              "Hangar_Take_1",
+              "Hangar_Take_2",
+              "Hangar_Take_3"
+            ],
+            "roles_at_other": [
+              "Hangar_Take_1",
+              "Hangar_Take_2",
+              "Hangar_Take_3"
+            ]
+        },
+        "1004": {
+          "roles": [
+              "Security_Officer",
+              "Factory_Manager",
+              "Station_Manager",
+              "Auditor"
+            ],
+            "roles_at_base": [
+              "Hangar_Take_1",
+              "Hangar_Take_2",
+              "Hangar_Take_3"
+            ],
+            "roles_at_hq": [
+              "Hangar_Take_1",
+              "Hangar_Take_2",
+              "Hangar_Take_3"
+            ],
+            "roles_at_other": [
+              "Hangar_Take_1",
+              "Hangar_Take_2",
+              "Hangar_Take_3"
+            ]
+        },
+        "1005": {
+          "roles": [
+              "Security_Officer",
+              "Factory_Manager",
+              "Station_Manager",
+              "Auditor"
+            ],
+            "roles_at_base": [
+              "Hangar_Take_1",
+              "Hangar_Take_2",
+              "Hangar_Take_3"
+            ],
+            "roles_at_hq": [
+              "Hangar_Take_1",
+              "Hangar_Take_2",
+              "Hangar_Take_3"
+            ],
+            "roles_at_other": [
+              "Hangar_Take_1",
+              "Hangar_Take_2",
+              "Hangar_Take_3"
+            ]
+          }
+        }
+      },
+      "Corporation": {
+        "get_corporations_corporation_id_divisions": {
+          "2001": {
+            "hangar": [
+              {
+                "division": 1,
+                "name": "Test Hangar"
+              },
+              {
+                "division": 2,
+                "name": "Officer Hangar"
+              },
+              {
+                "division": 3,
+                "name": "Schiffe"
+              },
+              {
+                "division": 4,
+                "name": "Lager"
+              },
+              {
+                "division": 5,
+                "name": "Wertvoll"
+              },
+              {
+                "division": 6,
+                "name": "Produktion"
+              },
+              {
+                "division": 7,
+                "name": "Blueprints"
+              }
+            ],
+            "wallet": [
+              {
+                "division": 1
+              },
+              {
+                "division": 2,
+                "name": "Rechnungen"
+              },
+              {
+                "division": 3,
+                "name": "Event's"
+              },
+              {
+                "division": 4,
+                "name": "Ship Replacment Abteilung"
+              },
+              {
+                "division": 5,
+                "name": "Roaming"
+              },
+              {
+                "division": 6,
+                "name": "Partner"
+              },
+              {
+                "division": 7,
+                "name": "Backup"
+            }
+          ]
+        }
+      }
+    },
+    "Wallet": {
+      "get_corporations_corporation_id_wallets": {
+        "2001": [
+          {
+              "balance": 27544210.6212,
+              "division": 1
+          },
+          {
+              "balance": 0,
+              "division": 2
+          },
+          {
+              "balance": 0,
+              "division": 3
+          },
+          {
+              "balance": 1600000000,
+              "division": 4
+          },
+          {
+              "balance": 32320243.96,
+              "division": 5
+          },
+          {
+              "balance": 0,
+              "division": 6
+          },
+          {
+              "balance": 0,
+              "division": 7
+          }
+        ]
+      },
+      "get_corporations_corporation_id_wallets_division_journal": {
+        "2001": [
+          {
+              "amount": 1000,
+              "balance": 2000,
+              "context_id": 0,
+              "context_id_type": "division",
+              "date": "2016-10-29T14:00:00Z",
+              "description": "Test",
+              "first_party_id": 1001,
+              "id": 1,
+              "reason": "Test",
+              "ref_type": "player_division",
+              "second_party_id": 0,
+              "tax": 0,
+              "tax_receiver_id": 0
+          },
+          {
+              "amount": 1000,
+              "balance": 3000,
+              "context_id": 0,
+              "context_id_type": "division",
+              "date": "2016-10-29T14:00:00Z",
+              "description": "Test",
+              "first_party_id": 1001,
+              "id": 2,
+              "reason": "Test",
+              "ref_type": "player_division",
+              "second_party_id": 0,
+              "tax": 0,
+              "tax_receiver_id": 0
+          },
+          {
+              "amount": 1000,
+              "balance": 4000,
+              "context_id": 0,
+              "context_id_type": "division",
+              "date": "2016-10-29T14:00:00Z",
+              "description": "Test",
+              "first_party_id": 1001,
+              "id": 3,
+              "reason": "Test",
+              "ref_type": "player_division",
+              "second_party_id": 0,
+              "tax": 0,
+              "tax_receiver_id": 0
+          }
+        ]
+      }
+    }
+  }
