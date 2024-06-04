@@ -20,6 +20,18 @@ _endpoints = [
         needs_token=True,
     ),
     EsiEndpoint(
+        "Wallet",
+        "get_characters_character_id_wallet_journal",
+        "character_id",
+        needs_token=False,
+    ),
+    EsiEndpoint(
+        "Wallet",
+        "get_characters_character_id_wallet",
+        "character_id",
+        needs_token=False,
+    ),
+    EsiEndpoint(
         "Corporation",
         "get_corporations_corporation_id_divisions",
         "corporation_id",
@@ -34,7 +46,13 @@ _endpoints = [
     EsiEndpoint(
         "Wallet",
         "get_corporations_corporation_id_wallets_division_journal",
-        ("corporation_id"),
+        "corporation_id",
+        needs_token=False,
+    ),
+    EsiEndpoint(
+        "Industry",
+        "get_characters_character_id_mining",
+        "character_id",
         needs_token=False,
     ),
 ]
