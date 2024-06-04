@@ -44,8 +44,8 @@ NOTIFICATIONS_MAX_PER_USER = 50
 DATABASES["default"] = {
     "ENGINE": "django.db.backends.mysql",
     "NAME": "alliance_auth",
-    "USER": "admin",
-    "PASSWORD": "admin",
+    "USER": "root",
+    "PASSWORD": "temp_password_aa_tox_tests",
     "HOST": "127.0.0.1",
     "PORT": "3306",
     "OPTIONS": {"charset": "utf8mb4"},
