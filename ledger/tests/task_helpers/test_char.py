@@ -43,7 +43,7 @@ class TestCharacterHelpers(TestCase):
                 "id": 1,
                 "reason": "Test",
                 "ref_type": "player_division",
-                "second_party_id": 0,
+                "second_party_id": 1002,
                 "tax": 0,
                 "tax_receiver_id": 0,
             },
@@ -59,12 +59,28 @@ class TestCharacterHelpers(TestCase):
                 "id": 2,
                 "reason": "Test",
                 "ref_type": "player_division",
-                "second_party_id": 0,
+                "second_party_id": 1020,
                 "tax": 0,
                 "tax_receiver_id": 0,
             },
             {
-                "entry_id": 3,
+                "entry_id": 5,
+                "amount": 1000,
+                "balance": 4000,
+                "context_id": 0,
+                "context_id_type": "division",
+                "date": "2016-10-29T14:00:00Z",
+                "description": "Test",
+                "first_party_id": 1035,
+                "id": 5,
+                "reason": "Test",
+                "ref_type": "player_division",
+                "second_party_id": 1034,
+                "tax": 0,
+                "tax_receiver_id": 0,
+            },
+            {
+                "entry_id": 6,
                 "amount": 1000,
                 "balance": 4000,
                 "context_id": 0,
@@ -72,10 +88,10 @@ class TestCharacterHelpers(TestCase):
                 "date": "2016-10-29T14:00:00Z",
                 "description": "Test",
                 "first_party_id": 1001,
-                "id": 3,
+                "id": 6,
                 "reason": "Test",
                 "ref_type": "player_division",
-                "second_party_id": 1020,
+                "second_party_id": 1002,
                 "tax": 0,
                 "tax_receiver_id": 0,
             },
@@ -90,6 +106,12 @@ class TestCharacterHelpers(TestCase):
             },
             {
                 "date": datetime.strptime("2024-03-16", "%Y-%m-%d"),
+                "quantity": 20000,
+                "solar_system_id": 30004783,
+                "type_id": 17425,
+            },
+            {
+                "date": datetime.strptime("2024-03-16", "%Y-%m-%d"),
                 "quantity": 9810,
                 "solar_system_id": 30004783,
                 "type_id": 17428,
@@ -97,6 +119,15 @@ class TestCharacterHelpers(TestCase):
             {
                 "date": datetime.strptime("2024-03-22", "%Y-%m-%d"),
                 "quantity": 12550,
+                "solar_system_id": 30004783,
+                "type_id": 17425,
+            },
+        ]
+
+        cls.mining2 = [
+            {
+                "date": datetime.strptime("2024-03-16", "%Y-%m-%d"),
+                "quantity": 16751,
                 "solar_system_id": 30004783,
                 "type_id": 17425,
             },
@@ -140,12 +171,11 @@ class TestCharacterHelpers(TestCase):
         # TODO get Data from Test ESI
         # mock_etag.return_value = mock_esi.client.Wallet.get_characters_character_id_wallet_journal(character_id=1001)
         mock_etag.return_value = self.journal
-        mock_journal.return_value.filter.return_value.values_list.return_value = [
+        mock_journal.filter.return_value.values_list.return_value = [
             1,
-            2,
             3,
         ]
-        mock_entity.return_value.values_list.return_value = [1001, 1002, 1003]
+        mock_entity.return_value.values_list.return_value = [1001]
         mock_create_names.return_value = True
         mock_charjournal_bulk.return_value = None
         # when
@@ -174,9 +204,8 @@ class TestCharacterHelpers(TestCase):
         mock_get_token.return_value = self.mock_token
         mock_esi.client = esi_client_stub
         mock_etag.return_value = self.journal
-        mock_journal.return_value.filter.return_value.values_list.return_value = [
+        mock_journal.filter.return_value.values_list.return_value = [
             1,
-            2,
             3,
         ]
         mock_entity.return_value.values_list.return_value = [1001, 1002, 1003]
@@ -213,23 +242,9 @@ class TestCharacterHelpers(TestCase):
     @patch(MODULE_PATH + ".get_token")
     @patch(MODULE_PATH + ".esi")
     @patch(MODULE_PATH + ".etag_results")
-    @patch(MODULE_PATH + ".EveType.objects.bulk_get_or_create_esi")
-    def test_update_character_mining(self, _, mock_etag, mock_esi, mock_get_token):
-        # given
-        mock_get_token.return_value = self.mock_token
-        mock_esi.client = esi_client_stub
-        mock_etag.return_value = self.mining
-        # when
-        result = update_character_mining(1001)
-        # then
-        self.assertEqual(result, ("Finished Mining for: Gneuten"))
-
-    @patch(MODULE_PATH + ".get_token")
-    @patch(MODULE_PATH + ".esi")
-    @patch(MODULE_PATH + ".etag_results")
     @patch(MODULE_PATH + ".CharacterMiningLedger.objects")
     @patch(MODULE_PATH + ".EveType.objects.bulk_get_or_create_esi")
-    def test_update_character_mining_existing(
+    def test_update_character_mining(
         self, _, mock_existing, mock_etag, mock_esi, mock_get_token
     ):
         # given
@@ -247,7 +262,45 @@ class TestCharacterHelpers(TestCase):
     @patch(MODULE_PATH + ".get_token")
     @patch(MODULE_PATH + ".esi")
     @patch(MODULE_PATH + ".etag_results")
-    def test_update_character_minin_no_tokeng(self, _, mock_esi, mock_get_token):
+    @patch(MODULE_PATH + ".CharacterMiningLedger.objects")
+    @patch(MODULE_PATH + ".EveType.objects.bulk_get_or_create_esi")
+    def test_update_character_mining_non_existing(
+        self, _, mock_existing, mock_etag, mock_esi, mock_get_token
+    ):
+        # given
+        mock_get_token.return_value = self.mock_token
+        mock_esi.client = esi_client_stub
+        mock_etag.return_value = self.mining
+        mock_existing.filter.return_value.values_list.return_value = []
+        # when
+        result = update_character_mining(1001)
+        # then
+        self.assertEqual(result, ("Finished Mining for: Gneuten"))
+
+    @patch(MODULE_PATH + ".get_token")
+    @patch(MODULE_PATH + ".esi")
+    @patch(MODULE_PATH + ".etag_results")
+    @patch(MODULE_PATH + ".CharacterMiningLedger.objects")
+    @patch(MODULE_PATH + ".EveType.objects.bulk_get_or_create_esi")
+    def test_update_character_mining_2(
+        self, _, mock_existing, mock_etag, mock_esi, mock_get_token
+    ):
+        # given
+        mock_get_token.return_value = self.mock_token
+        mock_esi.client = esi_client_stub
+        mock_etag.return_value = self.mining2
+        mock_existing.filter.return_value.values_list.return_value = [
+            "20240316-17425-1001-30004783"
+        ]
+        # when
+        result = update_character_mining(1001)
+        # then
+        self.assertEqual(result, ("Finished Mining for: Gneuten"))
+
+    @patch(MODULE_PATH + ".get_token")
+    @patch(MODULE_PATH + ".esi")
+    @patch(MODULE_PATH + ".etag_results")
+    def test_update_character_mining_no_token(self, _, mock_esi, mock_get_token):
         # given
         mock_get_token.return_value = None
         # when
