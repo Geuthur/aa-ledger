@@ -78,8 +78,9 @@ jobs:
       database:
         image: ${{ matrix.database }}
         env:
-          MYSQL_ROOT_PASSWORD: temp_password_aa_tox_tests
-          MYSQL_DATABASE: tox_allianceauth
+          MYSQL_ROOT_USER: admin
+          MYSQL_ROOT_PASSWORD: admin
+          MYSQL_DATABASE: alliance_auth
         ports:
           - 3306:3306
         options: --tmpfs /var/lib/mysql

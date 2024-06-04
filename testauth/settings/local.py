@@ -43,13 +43,12 @@ NOTIFICATIONS_MAX_PER_USER = 50
 # Enter credentials to use MySQL/MariaDB. Comment out to use sqlite3
 DATABASES["default"] = {
     "ENGINE": "django.db.backends.mysql",
-    "NAME": "tox_allianceauth",
-    "USER": "root",
-    "PASSWORD": "temp_password_aa_tox_tests",
+    "NAME": "alliance_auth",
+    "USER": "admin",
+    "PASSWORD": "admin",
     "HOST": "127.0.0.1",
     "PORT": "3306",
     "OPTIONS": {"charset": "utf8mb4"},
-    "TEST": {"CHARSET": "utf8mb4"},
 }
 
 # Add any additional apps to this list.
