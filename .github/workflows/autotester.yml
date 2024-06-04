@@ -78,7 +78,6 @@ jobs:
       database:
         image: ${{ matrix.database }}
         env:
-          MYSQL_ROOT_USER: root
           MYSQL_ROOT_PASSWORD: temp_password_aa_tox_tests
           MYSQL_DATABASE: alliance_auth
         ports:
