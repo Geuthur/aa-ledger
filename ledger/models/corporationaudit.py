@@ -16,24 +16,6 @@ from ledger.models.characteraudit import WalletJournalEntry
 logger = get_extension_logger(__name__)
 
 
-class CorpSteuer(models.Model):
-    character_id = models.PositiveIntegerField(null=True)
-    character_name = models.CharField(max_length=100, null=True)
-    status = models.CharField(
-        max_length=50,
-        null=True,
-        blank=True,
-    )
-    date = models.DateField(
-        null=True,
-        blank=True,
-    )
-
-    class Meta:
-        default_permissions = ()
-        permissions = (("steuer_admin_access", "Has access to Tax Administration"),)
-
-
 class CorporationAudit(models.Model):
 
     objects = CorpAuditManager()

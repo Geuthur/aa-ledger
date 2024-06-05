@@ -13,7 +13,6 @@ from ledger.views.corporation.corp_events import (
     events_index,
     load_events,
 )
-from ledger.views.corporation.corp_tax import index_steuer
 
 # AA Example App
 from ledger.views.pve import ledger_index, ratting_char_index, ratting_index
@@ -31,8 +30,6 @@ urlpatterns = [
     path("corporation/add/", add_corp, name="ledger_add_corp"),
     # -- PvE
     path("index", ledger_index, name="ledger_index"),
-    # -- -- Steuer
-    path("steuer/index", index_steuer, name="steuer_index"),
     # -- -- Corporation Ledger
     path("corp_index", ratting_index, name="ledger_corp_index"),
     # -- -- Char Ledger
