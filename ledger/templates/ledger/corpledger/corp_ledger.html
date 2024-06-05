@@ -8,25 +8,24 @@
 {% block page_topic %}<h1 class="page-header text-center">{% translate "Corporation Ledger" %}</h1>{% endblock page_topic %}
 
 {% block vow_block %}
-<div class="container-fluid">
-    <div class="rounded-top" style="--bs-bg-opacity: .5;">
-        <ul class="nav nav-tabs rounded-top bg-primary" id="ledger-ratting" role="tablist">
-            <li class="nav-item">
-                <a id="currentMonthLink" class="nav-link active" href="#tab-current_month" data-bs-toggle="tab" role="tab" data-bs-target="#tab-current_month">
-                    Month - {% now "F" %}
-                </a>
-            </li>
-            <li class="nav-item">
-                <a id="currentYearLink" class="nav-link" href="#tab-all_month" data-bs-toggle="tab" role="tab" data-bs-target="#tab-all_month">
-                    Year - {% now "Y" %}
-                </a>
-            </li>
-        </ul>
-        <div class="tab-content rounded-bottom">
-            <div class="tab-content">
-                {% include 'ledger/corpledger/month.html' %}
-                {% include 'ledger/corpledger/year.html' %}
-            </div>
+<div class="card-body container-fluid">
+    <div class="card-body bg-primary rounded-top"><h3>{% translate "Corporation Ledger" %}</h3></div>
+    <ul class="nav nav-tabs" id="ledger-ratting" role="tablist">
+        <li class="nav-item">
+            <a id="currentMonthLink" class="nav-link active" href="#tab-current_month" data-bs-toggle="tab" role="tab" data-bs-target="#tab-current_month">
+                Month - {% now "F" %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a id="currentYearLink" class="nav-link" href="#tab-all_month" data-bs-toggle="tab" role="tab" data-bs-target="#tab-all_month">
+                Year - {% now "Y" %}
+            </a>
+        </li>
+    </ul>
+    <div class="tab-content rounded-bottom">
+        <div class="tab-content">
+            {% include 'ledger/corpledger/month.html' %}
+            {% include 'ledger/corpledger/year.html' %}
         </div>
     </div>
 </div>
