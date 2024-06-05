@@ -128,6 +128,73 @@ class UpdateCorpWalletDivisionTest(TestCase):
         cls.mock_token.character_id = 1001
         cls.mock_token.corporation_id = 2001
         cls.mock_token.valid_access_token.return_value = "token"
+        # TODO: Fetch from Fake ESI
+        cls.journal = [
+            {
+                "amount": 1000,
+                "balance": 2000,
+                "context_id": 0,
+                "context_id_type": "division",
+                "date": timezone.now(),
+                "description": "Test",
+                "first_party_id": 1001,
+                "id": 1,
+                "entry_id": 1,
+                "reason": "Test",
+                "ref_type": "player_division",
+                "second_party_id": 1002,
+                "tax": 0,
+                "tax_receiver_id": 0,
+            },
+            {
+                "amount": 1000,
+                "balance": 2000,
+                "context_id": 0,
+                "context_id_type": "division",
+                "date": timezone.now(),
+                "description": "Test",
+                "first_party_id": 1004,
+                "id": 2,
+                "entry_id": 2,
+                "reason": "Test",
+                "ref_type": "player_division",
+                "second_party_id": 1002,
+                "tax": 0,
+                "tax_receiver_id": 0,
+            },
+            {
+                "amount": 1000,
+                "balance": 2000,
+                "context_id": 0,
+                "context_id_type": "division",
+                "date": timezone.now(),
+                "description": "Test",
+                "first_party_id": 1010,
+                "entry_id": 3,
+                "id": 3,
+                "reason": "Test",
+                "ref_type": "player_division",
+                "second_party_id": 1001,
+                "tax": 0,
+                "tax_receiver_id": 0,
+            },
+            {
+                "amount": 1000,
+                "balance": 2000,
+                "context_id": 0,
+                "context_id_type": "division",
+                "date": timezone.now(),
+                "description": "Test",
+                "first_party_id": 1001,
+                "entry_id": 4,
+                "id": 4,
+                "reason": "Test",
+                "ref_type": "player_division",
+                "second_party_id": 1101,
+                "tax": 0,
+                "tax_receiver_id": 0,
+            },
+        ]
 
     @patch(MODULE_PATH + ".CorporationAudit.objects.get")
     @patch(MODULE_PATH + ".get_corp_token")
@@ -150,6 +217,39 @@ class UpdateCorpWalletDivisionTest(TestCase):
         mock_get_token.return_value = self.mock_token
         mock_etag_results.return_value = [{"division": 1, "balance": 100}]
         mock_update_or_create.return_value = (MagicMock(), True)
+        mock_esi.client = esi_client_stub
+        # when
+        result = update_corp_wallet_division(2001)
+        # then
+        self.assertEqual(
+            result,
+            (
+                "Finished wallet divs for: %s",
+                mock_get_corp.return_value.corporation.corporation_name,
+            ),
+        )
+
+    @patch(MODULE_PATH + ".CorporationAudit.objects.get")
+    @patch(MODULE_PATH + ".get_corp_token")
+    @patch(MODULE_PATH + ".esi")
+    @patch(MODULE_PATH + ".etag_results")
+    @patch(MODULE_PATH + ".CorporationWalletDivision.objects.update_or_create")
+    @patch(MODULE_PATH + ".update_corp_wallet_journal")
+    def test_update_corp_wallet_division_no_division_item(
+        self,
+        _,
+        mock_update_or_create,
+        mock_etag_results,
+        mock_esi,
+        mock_get_token,
+        mock_get_corp,
+    ):
+        # given
+        mock_get_corp.return_value = MagicMock()
+        mock_get_corp.return_value.corporation.corporation_id = 2001
+        mock_get_token.return_value = self.mock_token
+        mock_etag_results.return_value = [{"division": 1, "balance": 100}]
+        mock_update_or_create.return_value = (None, False)
         mock_esi.client = esi_client_stub
         # when
         result = update_corp_wallet_division(2001)
@@ -231,23 +331,6 @@ class UpdateCorpWalletDivisionTest(TestCase):
     @patch(MODULE_PATH + ".get_corp_token")
     @patch(MODULE_PATH + ".CorporationAudit.objects.get")
     @patch(MODULE_PATH + ".CorporationWalletDivision.objects.get")
-    def test_update_corp_wallet_journal_no_token(
-        self, mock_division_get, mock_audit_get, mock_get_token
-    ):
-        # given
-        mock_get_token.return_value = None
-        mock_audit_get.return_value = MagicMock()
-        mock_division_get.return_value = MagicMock()
-
-        # when
-        result = update_corp_wallet_journal(2001, 1)
-
-        # then
-        self.assertEqual(result, "No Tokens")
-
-    @patch(MODULE_PATH + ".get_corp_token")
-    @patch(MODULE_PATH + ".CorporationAudit.objects.get")
-    @patch(MODULE_PATH + ".CorporationWalletDivision.objects.get")
     @patch(MODULE_PATH + ".CorporationWalletJournalEntry.objects.filter")
     @patch(MODULE_PATH + ".EveEntity.objects.all")
     @patch(MODULE_PATH + ".esi")
@@ -276,7 +359,7 @@ class UpdateCorpWalletDivisionTest(TestCase):
             name=None, balance=1000.00, division=1
         )
 
-        mock_filter.return_value.order_by.return_value.values_list.return_value = []
+        mock_filter.return_value.order_by.return_value.values_list.return_value = [1, 3]
 
         mock_all.return_value.values_list.return_value = []
 
@@ -286,23 +369,7 @@ class UpdateCorpWalletDivisionTest(TestCase):
         date_object = datetime.datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%SZ")
         date_object = date_object.replace(tzinfo=pytz.UTC)
 
-        mock_etag_results.return_value = [
-            {
-                "amount": 1000,
-                "balance": 2000,
-                "context_id": 0,
-                "context_id_type": "division",
-                "date": date_object,
-                "description": "Test",
-                "first_party_id": 1001,
-                "id": 1,
-                "reason": "Test",
-                "ref_type": "player_division",
-                "second_party_id": 0,
-                "tax": 0,
-                "tax_receiver_id": 0,
-            }
-        ]
+        mock_etag_results.return_value = self.journal
 
         mock_create_bulk_from_esi.return_value = True
         mock_bulk_create.return_value = [MagicMock()]
@@ -312,6 +379,23 @@ class UpdateCorpWalletDivisionTest(TestCase):
 
         # then
         self.assertEqual(result, True)
+
+    @patch(MODULE_PATH + ".get_corp_token")
+    @patch(MODULE_PATH + ".CorporationAudit.objects.get")
+    @patch(MODULE_PATH + ".CorporationWalletDivision.objects.get")
+    def test_update_corp_wallet_journal_no_token(
+        self, mock_division_get, mock_audit_get, mock_get_token
+    ):
+        # given
+        mock_get_token.return_value = None
+        mock_audit_get.return_value = MagicMock()
+        mock_division_get.return_value = MagicMock()
+
+        # when
+        result = update_corp_wallet_journal(2001, 1)
+
+        # then
+        self.assertEqual(result, "No Tokens")
 
     @patch(MODULE_PATH + ".get_corp_token")
     @patch(MODULE_PATH + ".CorporationAudit.objects.get")
@@ -404,23 +488,7 @@ class UpdateCorpWalletDivisionTest(TestCase):
         date_object = datetime.datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%SZ")
         date_object = date_object.replace(tzinfo=pytz.UTC)
 
-        mock_etag_results.return_value = [
-            {
-                "amount": 1000,
-                "balance": 2000,
-                "context_id": 0,
-                "context_id_type": "division",
-                "date": date_object,
-                "description": "Test",
-                "first_party_id": 1001,
-                "id": 1,
-                "reason": "Test",
-                "ref_type": "player_division",
-                "second_party_id": 0,
-                "tax": 0,
-                "tax_receiver_id": 0,
-            }
-        ]
+        mock_etag_results.return_value = self.journal
 
         mock_create_bulk_from_esi.return_value = None  # No names created
 
