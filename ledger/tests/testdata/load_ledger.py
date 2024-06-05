@@ -5,8 +5,16 @@ from pathlib import Path
 
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 
-from ledger.models.characteraudit import CharacterAudit, CharacterMiningLedger
-from ledger.models.corporationaudit import CorporationAudit
+from ledger.models.characteraudit import (
+    CharacterAudit,
+    CharacterMiningLedger,
+    CharacterWalletJournalEntry,
+)
+from ledger.models.corporationaudit import (
+    CorporationAudit,
+    CorporationWalletDivision,
+    CorporationWalletJournalEntry,
+)
 
 
 def load_char_audit():
@@ -52,4 +60,51 @@ def load_char_mining():
         type_id=17423,
         system_id=30004785,
         quantity=1000,
+    )
+
+
+def load_char_journal():
+    CharacterWalletJournalEntry.objects.all().delete()
+    CharacterWalletJournalEntry(
+        character=CharacterAudit.objects.get(id=1),
+        id=1,
+        amount=100_000,
+        balance=100_000_000,
+        context_id=0,
+        context_id_type="division",
+        date="2016-10-29T14:00:00Z",
+        description="Test",
+        first_party_id=1001,
+        entry_id=1,
+        reason="Test Transfer",
+        ref_type="player_division",
+        second_party_id=1010,
+        tax=0,
+        tax_receiver_id=0,
+    )
+
+
+def load_corp_journal():
+    CorporationWalletJournalEntry.objects.all().delete()
+    CorporationWalletDivision(
+        corporation=CorporationAudit.objects.get(id=1),
+        balance=100_000,
+        division=1,
+    )
+    CorporationWalletJournalEntry(
+        division=CorporationWalletDivision.objects.get(id=1),
+        id=1,
+        amount=100_000,
+        balance=100_000_000,
+        context_id=0,
+        context_id_type="division",
+        date="2016-10-29T14:00:00Z",
+        description="Test",
+        first_party_id=1001,
+        entry_id=1,
+        reason="Test Transfer",
+        ref_type="player_division",
+        second_party_id=1010,
+        tax=0,
+        tax_receiver_id=0,
     )
