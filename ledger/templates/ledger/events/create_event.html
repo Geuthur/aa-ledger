@@ -1,0 +1,60 @@
+{% extends 'ledger/base.html' %}
+{% load i18n %}
+{% load humanize %}
+
+{% block page_title %}Create Event{% endblock %}
+{% block vow_menu %}{% include 'ledger/events/menu.html' %}{% endblock %}
+
+{% block vow_block %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-body">
+                <div class="card-header bg-primary">
+                    <h3 class="card-title">{% translate "Create Event" %}</h3>
+                </div>
+                <div class="card-body bg-secondary">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="title" class="form-label">{% translate "Title" %}:</label>
+                            <input type="text" id="title" name="title" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="date_start" class="form-label">{% translate "Start Date" %}:</label>
+                            <input type="datetime-local" id="date_start" name="date_start" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="date_end" class="form-label">{% translate "End Date" %}:</label>
+                            <input type="datetime-local" id="date_end" name="date_end" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="location" class="form-label">{% translate "Location" %}:</label>
+                            <input type="text" id="location" name="location" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="char_ledger" class="form-label">{% translate "Char Ledger Exclude" %}:</label>
+                            <input type="checkbox" id="char_ledger" name="char_ledger" {% if event.char_ledger %}checked{% endif %} class="form-check-input">
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">{% translate "Description" %}:</label>
+                            <textarea id="description" name="description" class="form-control" rows="16"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">{% translate "Create Event" %}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_javascript %}
+{% endblock %}
+
+{% block extra_css %}
+    {% include "ledger/bundles/ledger-css.html" %}
+{% endblock %}
+
+{% block extra_script %}
+{% endblock %}
