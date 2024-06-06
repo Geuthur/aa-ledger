@@ -76,10 +76,4 @@ class CorporationWalletJournalEntry(WalletJournalEntry):
     division = models.ForeignKey(CorporationWalletDivision, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(
-            "Corporatuin Wallet Journal: %s '%s' %s: %s isk",
-            self.first_party.name,
-            self.ref_type,
-            self.second_party.name,
-            self.amount,
-        )
+        return f"Corporation Wallet Journal: {self.first_party.name} '{self.ref_type}' {self.second_party.name}: {self.amount} isk"
