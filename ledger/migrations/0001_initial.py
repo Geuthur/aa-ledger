@@ -68,7 +68,8 @@ class Migration(migrations.Migration):
             ],
             options={
                 "permissions": (
-                    ("char_audit_admin_access", "Has access to all Character Audit"),
+                    ("char_audit_admin_access", "Has access to all characters"),
+                    ("char_audit_manager", "Has access to all characters for own Corp"),
                 ),
                 "default_permissions": (),
             },
@@ -100,7 +101,8 @@ class Migration(migrations.Migration):
             ],
             options={
                 "permissions": (
-                    ("corp_audit_admin_access", "Has access to all Corporation Audit"),
+                    ("corp_audit_admin_access", "Has access to all Corporations"),
+                    ("corp_audit_manager", "Has access to own Corporation"),
                 ),
                 "default_permissions": (),
             },

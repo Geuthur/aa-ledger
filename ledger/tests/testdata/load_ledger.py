@@ -84,6 +84,14 @@ def load_char_mining():
         system=EveSolarSystem.objects.get(id=30002063),
         quantity=1000,
     )
+    CharacterMiningLedger.objects.create(
+        character=CharacterAudit.objects.get(id=2),
+        id="20240316-17423-1002-30004785",
+        date="2024-03-16",
+        type=EveType.objects.get(id=17425),
+        system=EveSolarSystem.objects.get(id=30002063),
+        quantity=1000,
+    )
 
 
 def load_char_journal():
