@@ -51,10 +51,8 @@ class CorporationAudit(models.Model):
     class Meta:
         default_permissions = ()
         permissions = (
-            (
-                "corp_audit_admin_access",
-                "Has access to all Corporation Audit",
-            ),
+            ("corp_audit_admin_access", "Has access to all Corporations"),
+            ("corp_audit_manager", "Has access to own Corporation"),
         )
 
 

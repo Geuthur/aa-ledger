@@ -16,14 +16,26 @@ class AuditCharacterQuerySet(models.QuerySet):
             logger.debug("Returning all characters for superuser %s.", user)
             return self
 
+        if user.has_perm("ledger.char_audit_admin_access"):
+            logger.debug("Returning all characters for %s.", user)
+            return self
+
+        if user.has_perm("ledger.admin_access"):
+            logger.debug("Returning all characters for %s.", user)
+            return self
+
         try:
             char = user.profile.main_character
             assert char
             queries = [models.Q(character__character_ownership__user=user)]
 
+            if user.has_perm("ledger.char_audit_manager"):
+                queries.append(models.Q(character__corporation_id=char.corporation_id))
+
             logger.debug(
                 "%s queries for user %s visible chracters.", len(queries), user
             )
+
             query = queries.pop()
             for q in queries:
                 query |= q
@@ -44,10 +56,21 @@ class AuditCharacterManager(models.Manager):
             logger.debug("Returning all characters for superuser %s.", user)
             return qs.all()
 
+        if user.has_perm("ledger.char_audit_admin_access"):
+            logger.debug("Returning all characters for %s.", user)
+            return qs.all()
+
+        if user.has_perm("ledger.admin_access"):
+            logger.debug("Returning all characters for %s.", user)
+            return qs.all()
+
         try:
             char = user.profile.main_character
             assert char
             queries = [models.Q(character_ownership__user=user)]
+
+            if user.has_perm("ledger.char_audit_manager"):
+                queries.append(models.Q(corporation_id=char.corporation_id))
 
             logger.debug(
                 "%s queries for user %s visible chracters.", len(queries), user

@@ -48,10 +48,8 @@ class CharacterAudit(models.Model):
     class Meta:
         default_permissions = ()
         permissions = (
-            (
-                "char_audit_admin_access",
-                "Has access to all Character Audit",
-            ),
+            ("char_audit_admin_access", "Has access to all characters"),
+            ("char_audit_manager", "Has access to all characters for own Corp"),
         )
 
     @classmethod
