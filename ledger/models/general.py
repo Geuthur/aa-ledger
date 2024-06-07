@@ -31,7 +31,6 @@ class General(models.Model):
         default_permissions = ()
         permissions = (
             ("basic_access", "Can access this app, Ledger."),
-            ("moderator_access", "Has access to moderation tools"),
             ("admin_access", "Has access to all Administration tools"),
         )
 

@@ -9,7 +9,7 @@
     <a class="nav-link" href="{% url 'ledger:events_index' %}">Events</a>
 </li>
 {% endif %}
-{% if perms.ledger.event_admin_access %}
+{% if perms.ledger.admin_access %}
 <li class="nav-item">
     <a class="nav-link" href="{% url 'ledger:create_event' %}">Create Event</a>
 </li>

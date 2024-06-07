@@ -24,13 +24,13 @@
 {% endif %}
 {% endif %}
 
-{% if perms.ledger.corp_audit_admin_access %}
+{% if perms.ledger.corp_audit_admin_access or perms.ledger.corp_audit_manager or perms.ledger.admin_access %}
 <li class="nav-item">
     <a class="nav-link" href="{% url 'ledger:ledger_add_corp' %}">Add Corporation</a>
 </li>
 {% endif %}
 
-{% if perms.ledger.char_audit_admin_access and memberaudit%}
+{% if perms.ledger.char_audit_admin_access or perms.ledger.admin_access and memberaudit%}
 <li class="nav-item">
     <a class="nav-link" href="{% url 'ledger:ledger_fetch_memberaudit' %}">Add All Memberaudit Chars</a>
 </li>

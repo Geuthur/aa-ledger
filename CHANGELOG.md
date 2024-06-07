@@ -5,12 +5,13 @@
 ### Added
 
 - Create Tests
-- Chaned Events Layout & Added to Ledger
+- Added Events System to Ledger
 - New Permission `audit_manager` have access to own Corporation, Character Information (API)
 
 ### Removed
 
 - Removed Corp Tax (Will be Released later)
+- Removed Moderator Permission
 
 ### Fixed
 
