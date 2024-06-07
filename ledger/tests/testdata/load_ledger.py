@@ -135,8 +135,10 @@ def load_char_journal():
 
 def load_corp_journal():
     CorporationWalletJournalEntry.objects.all().delete()
+    CorporationWalletDivision.objects.all().delete()
     load_eveentity()
-    CorporationWalletDivision.objects.create(
+    CorporationWalletDivision.objects.update_or_create(
+        id=1,
         corporation=CorporationAudit.objects.get(id=1),
         balance=100_000,
         division=1,

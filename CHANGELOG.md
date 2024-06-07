@@ -1,5 +1,26 @@
 # Changelog
 
+## \[0.5.1a1\] - 2024-06-07
+
+### Added
+
+- Create Tests
+- Chaned Events Layout & Added to Ledger
+- New Permission `audit_manager` have access to own Corporation, Character Information (API)
+
+### Removed
+
+- Removed Corp Tax (Will be Released later)
+
+### Fixed
+
+- Character Jorunal not working correctly
+
+### Changed
+
+- API Adressing from journal api and ledger api
+- Corporation and Character Ledger access update
+
 ## \[0.5.0\] - 2024-06-01
 
 ### Added

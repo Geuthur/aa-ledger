@@ -1,9 +1,4 @@
-from ninja import Field, Schema
-from ninja.pagination import LimitOffsetPagination
-from ninja.types import DictStrAny
-
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import QuerySet
 
 from allianceauth.authentication.models import UserProfile
 from allianceauth.eveonline.models import EveCharacter
@@ -19,26 +14,6 @@ else:
 from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
-
-
-class Paginator(LimitOffsetPagination):
-    class Input(Schema):
-        limit: int = Field(30000, ge=1)
-        offset: int = Field(0, ge=0)
-
-    # pylint: disable=unused-argument
-    def paginate_queryset(
-        self,
-        queryset: QuerySet,
-        pagination: Input,
-        **params: DictStrAny,  # pylint: disable=unused-import
-    ) -> any:
-        offset = pagination.offset
-        limit: int = pagination.limit
-        return {
-            "items": queryset[offset : offset + limit],
-            "count": self._items_count(queryset),
-        }
 
 
 def convert_ess_payout(ess: int) -> float:

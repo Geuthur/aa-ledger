@@ -1,13 +1,12 @@
 from typing import List
 
 from ninja import NinjaAPI
-from ninja.pagination import paginate
 
 from django.db.models import Q
 
 from ledger import app_settings
 from ledger.api import schema
-from ledger.api.helpers import Paginator, get_alts_queryset, get_main_character
+from ledger.api.helpers import get_alts_queryset, get_main_character
 
 if app_settings.LEDGER_MEMBERAUDIT_USE:
     from memberaudit.models import CharacterWalletJournalEntry
@@ -31,14 +30,13 @@ class LedgerJournalApiEndpoints:
             response={200: List[schema.CharacterWalletEvent], 403: str},
             tags=self.tags,
         )
-        @paginate(Paginator)
         def get_character_wallet(request, character_id: int):
             if character_id == 0:
                 character_id = request.user.profile.main_character.character_id
             response, main = get_main_character(request, character_id)
 
             if not response:
-                return []
+                return 403, "Permission Denied"
 
             characters = get_alts_queryset(main)
 

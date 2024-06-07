@@ -75,3 +75,8 @@ class CorporationWalletJournalEntry(WalletJournalEntry):
 
     def __str__(self):
         return f"Corporation Wallet Journal: {self.first_party.name} '{self.ref_type}' {self.second_party.name}: {self.amount} isk"
+
+    @classmethod
+    def get_visible(cls, user):
+        corps_vis = CorporationAudit.objects.visible_to(user)
+        return cls.objects.filter(division__corporation__in=corps_vis)

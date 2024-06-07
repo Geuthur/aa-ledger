@@ -58,33 +58,33 @@ document.addEventListener('DOMContentLoaded', function () {
             url: '/ledger/api/corporation/0/ledger/year/' + currentYear + '/month/' + selectedMonth + '/',
             dataSrc: function (data) {
                 // Zusätzliche Daten im DataTable-Objekt speichern
-                total_amount = data.items[0].total.total_amount;
-                total_amount_ess = data.items[0].total.total_amount_ess;
-                total_amount_combined = data.items[0].total.total_amount_all;
+                total_amount = data[0].total.total_amount;
+                total_amount_ess = data[0].total.total_amount_ess;
+                total_amount_combined = data[0].total.total_amount_all;
 
                 // Billboard
-                if (data.items[0].billboard.charts) {
+                if (data[0].billboard.charts) {
                     $('#ChartContainer').show(); // Container anzeigen, wenn Daten vorhanden sind
                     var maxpg = 0;
-                    data.items[0].billboard.charts.forEach(function (arr) {
+                    data[0].billboard.charts.forEach(function (arr) {
                         if (maxpg < arr[0]) {
                             maxpg = arr[0];
                         }
                     });
                     if (chart_1) {
                         chart_1.load({
-                            columns: data.items[0].billboard.charts,
+                            columns: data[0].billboard.charts,
                             unload: charts_1_cache,
                             done: function() {
-                                charts_1_cache = data.items[0].billboard.charts;
+                                charts_1_cache = data[0].billboard.charts;
                             },
                             resizeAfter: true,
                         });
                     } else {
-                        var charts_1_cache = data.items[0].billboard.charts;
+                        var charts_1_cache = data[0].billboard.charts;
                         chart_1 = bb.generate({
                             data: {
-                                columns: data.items[0].billboard.charts,
+                                columns: data[0].billboard.charts,
                                 type: 'donut'
                             },
                             bindto: '#rattingChart'
@@ -95,25 +95,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 // RattingBar
-                if (data.items[0].billboard.rattingbar) {
+                if (data[0].billboard.rattingbar) {
                     $('#rattingBarContainer').show(); // Container anzeigen, wenn Daten vorhanden sind
-                    var pgs = data.items[0].billboard.rattingbar.filter(arr => arr[0] !== 'x').map(arr => arr[0]);
+                    var pgs = data[0].billboard.rattingbar.filter(arr => arr[0] !== 'x').map(arr => arr[0]);
                     if (rattingBar_1) {
                         rattingBar_1.load({
-                            columns: data.items[0].billboard.rattingbar,
+                            columns: data[0].billboard.rattingbar,
                             groups: [pgs],
                             unload: rattingbar_1_cache,
                             done: function() {
-                                rattingbar_1_cache = data.items[0].billboard.rattingbar;
+                                rattingbar_1_cache = data[0].billboard.rattingbar;
                             },
                             resizeAfter: true,
                         });
                     } else {
-                        var rattingbar_1_cache = data.items[0].billboard.rattingbar;
+                        var rattingbar_1_cache = data[0].billboard.rattingbar;
                         rattingBar_1 = bb.generate({
                             data: {
                                 x: 'x',
-                                columns: data.items[0].billboard.rattingbar,
+                                columns: data[0].billboard.rattingbar,
                                 type: 'bar',
                                 groups: [pgs],
                             },
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     $('#rattingBarContainer').hide(); // Container verstecken, wenn keine Daten vorhanden sind
                 }
 
-                return data.items[0].ratting;
+                return data[0].ratting;
             },
             cache: false
         },
@@ -213,33 +213,33 @@ document.addEventListener('DOMContentLoaded', function () {
                     url: '/ledger/api/corporation/0/ledger/year/' + currentYear + '/month/0/',
                     dataSrc: function (data) {
                         // Zusätzliche Daten im DataTable-Objekt speichern
-                        total_amount = data.items[0].total.total_amount;
-                        total_amount_ess = data.items[0].total.total_amount_ess;
-                        total_amount_combined = data.items[0].total.total_amount_all;
+                        total_amount = data[0].total.total_amount;
+                        total_amount_ess = data[0].total.total_amount_ess;
+                        total_amount_combined = data[0].total.total_amount_all;
 
                         // Billboard
-                        if (data.items[0].billboard.charts) {
+                        if (data[0].billboard.charts) {
                             $('#ChartYearContainer').show(); // Container anzeigen, wenn Daten vorhanden sind
                             var maxpg = 0;
-                            data.items[0].billboard.charts.forEach(function (arr) {
+                            data[0].billboard.charts.forEach(function (arr) {
                                 if (maxpg < arr[0]) {
                                     maxpg = arr[0];
                                 }
                             });
                             if (chart_2) {
                                 chart_2.load({
-                                    columns: data.items[0].billboard.charts,
+                                    columns: data[0].billboard.charts,
                                     unload: charts_2_cache,
                                     done: function() {
-                                        charts_2_cache = data.items[0].billboard.charts;
+                                        charts_2_cache = data[0].billboard.charts;
                                     },
                                     resizeAfter: false  // will resize after load
                                 });
                             } else {
-                                var charts_2_cache = data.items[0].billboard.charts;
+                                var charts_2_cache = data[0].billboard.charts;
                                 chart_2 = bb.generate({
                                     data: {
-                                        columns: data.items[0].billboard.charts,
+                                        columns: data[0].billboard.charts,
                                         type: 'donut'
                                     },
                                     donut: {
@@ -253,24 +253,24 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
 
                         // RattingBar
-                        if (data.items[0].billboard.rattingbar) {
+                        if (data[0].billboard.rattingbar) {
                             $('#rattingBarYearContainer').show(); // Container anzeigen, wenn Daten vorhanden sind
-                            var pgs = data.items[0].billboard.rattingbar.filter(arr => arr[0] !== 'x').map(arr => arr[0]);
+                            var pgs = data[0].billboard.rattingbar.filter(arr => arr[0] !== 'x').map(arr => arr[0]);
                             if (rattingBar_2) {
                                 rattingBar_2.load({
-                                    columns: data.items[0].billboard.rattingbar,
+                                    columns: data[0].billboard.rattingbar,
                                     unload: rattingbar_2_cache,
                                     done: function() {
-                                        rattingbar_2_cache = data.items[0].billboard.rattingbar;
+                                        rattingbar_2_cache = data[0].billboard.rattingbar;
                                     },
                                     resizeAfter: false  // will resize after load
                                 });
                             } else {
-                                var rattingbar_2_cache = data.items[0].billboard.rattingbar;
+                                var rattingbar_2_cache = data[0].billboard.rattingbar;
                                 rattingBar_2 = bb.generate({
                                     data: {
                                         x: 'x',
-                                        columns: data.items[0].billboard.rattingbar,
+                                        columns: data[0].billboard.rattingbar,
                                         type: 'bar',
                                         groups: [pgs],
                                     },
@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             $('#rattingBarYearContainer').hide(); // Container verstecken, wenn keine Daten vorhanden sind
                         }
 
-                        return data.items[0].ratting;
+                        return data[0].ratting;
                     },
                     cache: false
                 },

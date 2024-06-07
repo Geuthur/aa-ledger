@@ -12,7 +12,6 @@ from ledger.hooks import get_extension_logger
 logger = get_extension_logger(__name__)
 
 
-# TODO Refactor this class
 # pylint: disable=too-many-locals, too-many-branches, too-many-statements
 class LedgerTemplateApiEndpoints:
     tags = ["CorporationLedgerTemplate"]
@@ -32,11 +31,7 @@ class LedgerTemplateApiEndpoints:
             overall_mode = main_id == 0
 
             if not perms:
-                logger.error(
-                    "Permission Denied for %s to view corporation ledger template!",
-                    request.user,
-                )
-                return 403, "Permission Denied!"
+                return 403, "Permission Denied"
 
             corporations = get_corporations(request)
 
