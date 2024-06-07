@@ -21,29 +21,6 @@ from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
 
-SR_CHAR = (
-    "character__eve_character"
-    if app_settings.LEDGER_MEMBERAUDIT_USE
-    else "character__character"
-)
-
-
-def get_filters(characters, year, month):
-    filters = (
-        Q(character__eve_character__in=characters)
-        if app_settings.LEDGER_MEMBERAUDIT_USE
-        else Q(character__character__in=characters)
-    )
-    filter_date = Q(date__year=year)
-    if not month == 0:
-        filter_date &= Q(date__month=month)
-
-    chars = [char.character_id for char in characters]
-
-    entries_filter = Q(second_party_id__in=chars) | Q(first_party_id__in=chars)
-
-    return filters, filter_date, entries_filter
-
 
 class LedgerApiEndpoints:
     tags = ["CharacerLedger"]
@@ -66,37 +43,51 @@ class LedgerApiEndpoints:
 
             characters = get_alts_queryset(main)
 
-            wallet_journal = (
-                CharacterWalletJournalEntry.objects.filter(
-                    character__character__in=characters
-                )
-                .select_related("first_party", "second_party", SR_CHAR)
-                .order_by("-date")[:35000]
+            filters = (
+                Q(character__eve_character__in=characters)
+                if app_settings.LEDGER_MEMBERAUDIT_USE
+                else Q(character__character__in=characters)
             )
-            output = []
 
-            for w in wallet_journal:
-                output.append(
-                    {
-                        "character": w.character.eve_character,
-                        "id": w.entry_id,
-                        "date": w.date,
-                        "first_party": {
-                            "id": w.first_party_id,
-                            "name": w.first_party.name,
-                            "cat": w.first_party.category,
-                        },
-                        "second_party": {
-                            "id": w.second_party_id,
-                            "name": w.second_party.name,
-                            "cat": w.second_party.category,
-                        },
-                        "ref_type": w.ref_type,
-                        "amount": w.amount,
-                        "balance": w.balance,
-                        "reason": w.reason,
-                    }
-                )
+            wallet_journal = CharacterWalletJournalEntry.objects.filter(
+                filters
+            ).select_related("first_party", "second_party")[:35000]
+            output = []
+            if wallet_journal:
+                for w in wallet_journal:
+                    output.append(
+                        {
+                            "character": (
+                                w.character.character
+                                if not app_settings.LEDGER_MEMBERAUDIT_USE
+                                else w.character.eve_character
+                            ),
+                            "id": w.entry_id,
+                            "date": w.date,
+                            "first_party": {
+                                "id": (
+                                    w.first_party.eve_id
+                                    if not app_settings.LEDGER_MEMBERAUDIT_USE
+                                    else w.first_party.id
+                                ),
+                                "name": w.first_party.name,
+                                "cat": w.first_party.category,
+                            },
+                            "second_party": {
+                                "id": (
+                                    w.second_party.eve_id
+                                    if not app_settings.LEDGER_MEMBERAUDIT_USE
+                                    else w.second_party.id
+                                ),
+                                "name": w.second_party.name,
+                                "cat": w.second_party.category,
+                            },
+                            "ref_type": w.ref_type,
+                            "amount": w.amount,
+                            "balance": w.balance,
+                            "reason": w.reason,
+                        }
+                    )
 
             return output
 
