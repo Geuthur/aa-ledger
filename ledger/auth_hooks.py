@@ -21,6 +21,11 @@ class LedgerMenuItem(MenuItemHook):
             navactive=["ledger:"],
         )
 
+    def render(self, request):
+        if request.user.has_perm("ledger.basic_access"):
+            return MenuItemHook.render(self, request)
+        return ""
+
 
 @hooks.register("menu_item_hook")
 def register_menu():

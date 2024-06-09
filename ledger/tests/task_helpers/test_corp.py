@@ -90,8 +90,9 @@ class GetCorpTokenTest(TestCase):
     @patch(MODULE_PATH + ".EveCharacter.objects.filter")
     @patch(MODULE_PATH + ".Token.objects.filter")
     @patch(MODULE_PATH + ".esi")
+    @patch(MODULE_PATH + ".logger")
     def test_get_corp_token_no_token(
-        self, mock_esi, mock_token_filter, mock_char_filter
+        self, mock_logger, mock_esi, mock_token_filter, mock_char_filter
     ):
         # given
         mock_char_filter.return_value.values.return_value = [
@@ -107,15 +108,12 @@ class GetCorpTokenTest(TestCase):
         )
 
         # when
-        try:
-            result = get_corp_token(
-                2001, ["esi-characters.read_corporation_roles.v1"], ["Factory_Manager"]
-            )
-        except TokenError:
-            pass
-
+        result = get_corp_token(
+            2001, ["esi-characters.read_corporation_roles.v1"], ["Factory_Manager"]
+        )
         # then
         self.assertFalse(result)
+        assert mock_logger.error.called
 
 
 class UpdateCorpWalletDivisionTest(TestCase):

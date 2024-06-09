@@ -11,8 +11,6 @@ TESTING_MODE = False
 # Set Naming on Auth Hook
 LEDGER_APP_NAME = clean_setting("LEDGER_APP_NAME", "Geuthur")
 
-# Killboard
-
 # Caching Key for Caching System
 STORAGE_BASE_KEY = "ledger_storage_"
 
