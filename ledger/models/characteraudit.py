@@ -48,10 +48,8 @@ class CharacterAudit(models.Model):
     class Meta:
         default_permissions = ()
         permissions = (
-            (
-                "char_audit_admin_access",
-                "Has access to all Character Audit",
-            ),
+            ("char_audit_admin_access", "Has access to all characters"),
+            ("char_audit_manager", "Has access to all characters for own Corp"),
         )
 
     @classmethod
@@ -151,15 +149,7 @@ class CharacterWalletJournalEntry(WalletJournalEntry):
     character = models.ForeignKey(CharacterAudit, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(
-            (
-                "Character Wallet Journal: %s '%s' %s: %s isk",
-                self.first_party.name,
-                self.ref_type,
-                self.second_party.name,
-                self.amount,
-            )
-        )
+        return f"Character Wallet Journal: {self.first_party.name} '{self.ref_type}' {self.second_party.name}: {self.amount} isk"
 
 
 # Mining Models

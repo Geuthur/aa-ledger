@@ -9,7 +9,6 @@ from django.utils import timezone
 from esi.models import Token
 from eveuniverse.models import EveType
 
-from ledger import providers
 from ledger.errors import TokenError
 from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import (
@@ -18,6 +17,7 @@ from ledger.models.characteraudit import (
     CharacterWalletJournalEntry,
 )
 from ledger.models.general import EveEntity
+from ledger.providers import esi
 from ledger.task_helpers.etag_helpers import NotModifiedError, etag_results
 
 logger = get_extension_logger(__name__)
@@ -63,10 +63,8 @@ def update_character_wallet(character_id, force_refresh=False):
         return "No Tokens"
 
     try:
-        journal_items_ob = (
-            providers.esi.client.Wallet.get_characters_character_id_wallet_journal(
-                character_id=character_id
-            )
+        journal_items_ob = esi.client.Wallet.get_characters_character_id_wallet_journal(
+            character_id=character_id
         )
 
         journal_items = etag_results(
@@ -116,11 +114,9 @@ def update_character_wallet(character_id, force_refresh=False):
 
         created_names = EveEntity.objects.create_bulk_from_esi(_new_names)
 
-        wallet_ballance = (
-            providers.esi.client.Wallet.get_characters_character_id_wallet(
-                character_id=character_id, token=token.valid_access_token()
-            ).result()
-        )
+        wallet_ballance = esi.client.Wallet.get_characters_character_id_wallet(
+            character_id=character_id, token=token.valid_access_token()
+        ).result()
 
         audit_char.balance = wallet_ballance
         audit_char.save()
@@ -155,7 +151,7 @@ def update_character_mining(character_id, force_refresh=False):
     if not token:
         return "No Tokens"
     try:
-        mining_op = providers.esi.client.Industry.get_characters_character_id_mining(
+        mining_op = esi.client.Industry.get_characters_character_id_mining(
             character_id=character_id
         )
 

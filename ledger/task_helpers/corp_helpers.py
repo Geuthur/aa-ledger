@@ -10,7 +10,6 @@ from esi.models import Token
 
 from allianceauth.eveonline.models import EveCharacter
 
-from ledger import providers
 from ledger.errors import DatabaseError
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import (
@@ -19,6 +18,7 @@ from ledger.models.corporationaudit import (
     CorporationWalletJournalEntry,
 )
 from ledger.models.general import EveEntity
+from ledger.providers import esi
 from ledger.task_helpers.etag_helpers import NotModifiedError, etag_results
 
 logger = get_extension_logger(__name__)
@@ -49,7 +49,7 @@ def get_corp_token(corp_id, scopes, req_roles):
 
     for token in tokens:
         try:
-            roles = providers.esi.client.Character.get_characters_character_id_roles(
+            roles = esi.client.Character.get_characters_character_id_roles(
                 character_id=token.character_id, token=token.valid_access_token()
             ).result()
 
@@ -84,7 +84,7 @@ def update_corp_wallet_division(corp_id, force_refresh=False):
 
     if token:
         division_names = (
-            providers.esi.client.Corporation.get_corporations_corporation_id_divisions(
+            esi.client.Corporation.get_corporations_corporation_id_divisions(
                 corporation_id=audit_corp.corporation.corporation_id,
                 token=token.valid_access_token(),
             ).result()
@@ -101,10 +101,8 @@ def update_corp_wallet_division(corp_id, force_refresh=False):
         return "No Tokens"
 
     try:
-        divisions_items_ob = (
-            providers.esi.client.Wallet.get_corporations_corporation_id_wallets(
-                corporation_id=audit_corp.corporation.corporation_id
-            )
+        divisions_items_ob = esi.client.Wallet.get_corporations_corporation_id_wallets(
+            corporation_id=audit_corp.corporation.corporation_id
         )
 
         division_items = etag_results(
@@ -185,7 +183,7 @@ def update_corp_wallet_journal(corp_id, wallet_division, force_refresh=False):
         total_pages = 1
         _new_names = []
         while current_page <= total_pages:
-            journal_items_ob = providers.esi.client.Wallet.get_corporations_corporation_id_wallets_division_journal(
+            journal_items_ob = esi.client.Wallet.get_corporations_corporation_id_wallets_division_journal(
                 corporation_id=audit_corp.corporation.corporation_id,
                 division=wallet_division,
                 page=current_page,

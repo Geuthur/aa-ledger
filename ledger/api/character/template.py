@@ -14,7 +14,6 @@ from ledger.hooks import get_extension_logger
 logger = get_extension_logger(__name__)
 
 
-# TODO Refactor this class
 # pylint: disable=too-many-locals, too-many-branches, too-many-statements
 class LedgerTemplateApiEndpoints:
     tags = ["CharacerLedgerTemplate"]

@@ -26,6 +26,36 @@
             "corporation_id": 2003,
             "corporation_name": "Schweinshausen",
             "corporation_ticker": "SH"
+        },
+        {
+            "character_id": 1004,
+            "character_name": "Garthd",
+            "corporation_id": 2001,
+            "corporation_name": "Hell RiderZ",
+            "corporation_ticker": "HRZ",
+            "alliance_id": 3001,
+            "alliance_name": "Voices of War",
+            "alliance_ticker": "VOW"
+        },
+        {
+            "character_id": 1005,
+            "character_name": "Gerthd",
+            "corporation_id": 2001,
+            "corporation_name": "Hell RiderZ",
+            "corporation_ticker": "HRZ",
+            "alliance_id": 3001,
+            "alliance_name": "Voices of War",
+            "alliance_ticker": "VOW"
+        },
+        {
+            "character_id": 1006,
+            "character_name": "Gorthd",
+            "corporation_id": 2001,
+            "corporation_name": "Hell RiderZ",
+            "corporation_ticker": "HRZ",
+            "alliance_id": 3001,
+            "alliance_name": "Voices of War",
+            "alliance_ticker": "VOW"
         }
     ]
 }

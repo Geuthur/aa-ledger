@@ -16,24 +16,6 @@ from ledger.models.characteraudit import WalletJournalEntry
 logger = get_extension_logger(__name__)
 
 
-class CorpSteuer(models.Model):
-    character_id = models.PositiveIntegerField(null=True)
-    character_name = models.CharField(max_length=100, null=True)
-    status = models.CharField(
-        max_length=50,
-        null=True,
-        blank=True,
-    )
-    date = models.DateField(
-        null=True,
-        blank=True,
-    )
-
-    class Meta:
-        default_permissions = ()
-        permissions = (("steuer_admin_access", "Has access to Tax Administration"),)
-
-
 class CorporationAudit(models.Model):
 
     objects = CorpAuditManager()
@@ -69,10 +51,8 @@ class CorporationAudit(models.Model):
     class Meta:
         default_permissions = ()
         permissions = (
-            (
-                "corp_audit_admin_access",
-                "Has access to all Corporation Audit",
-            ),
+            ("corp_audit_admin_access", "Has access to all Corporations"),
+            ("corp_audit_manager", "Has access to own Corporation"),
         )
 
 
@@ -94,10 +74,9 @@ class CorporationWalletJournalEntry(WalletJournalEntry):
     division = models.ForeignKey(CorporationWalletDivision, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(
-            "Corporatuin Wallet Journal: %s '%s' %s: %s isk",
-            self.first_party.name,
-            self.ref_type,
-            self.second_party.name,
-            self.amount,
-        )
+        return f"Corporation Wallet Journal: {self.first_party.name} '{self.ref_type}' {self.second_party.name}: {self.amount} isk"
+
+    @classmethod
+    def get_visible(cls, user):
+        corps_vis = CorporationAudit.objects.visible_to(user)
+        return cls.objects.filter(division__corporation__in=corps_vis)

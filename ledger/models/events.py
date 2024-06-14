@@ -6,6 +6,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
+# TODO Make it Corp Specific
 class Events(models.Model):
     """Event Tracker for Voices of War."""
 

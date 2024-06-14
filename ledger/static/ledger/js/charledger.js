@@ -58,31 +58,31 @@ document.addEventListener('DOMContentLoaded', function () {
             url: '/ledger/api/account/0/ledger/year/' + currentYear + '/month/' + selectedMonth + '/',
             dataSrc: function (data) {
                 // Zusätzliche Daten im DataTable-Objekt speichern
-                total_amount = data.items[0].total.total_amount;
-                total_amount_ess = data.items[0].total.total_amount_ess;
-                total_amount_others = data.items[0].total.total_amount_others;
-                total_amount_mining = data.items[0].total.total_amount_mining;
-                total_amount_combined = data.items[0].total.total_amount_all;
+                total_amount = data[0].total.total_amount;
+                total_amount_ess = data[0].total.total_amount_ess;
+                total_amount_others = data[0].total.total_amount_others;
+                total_amount_mining = data[0].total.total_amount_mining;
+                total_amount_combined = data[0].total.total_amount_all;
 
                 // Billboard
                 // Wallet Chart
-                if (data.items[0].billboard.walletcharts) {
+                if (data[0].billboard.walletcharts) {
                     $('#walletChartContainer').show(); // Container anzeigen, wenn Daten vorhanden sind
                     var maxpg = 0;
-                    data.items[0].billboard.walletcharts.forEach(function (arr) {
+                    data[0].billboard.walletcharts.forEach(function (arr) {
                         if (maxpg < arr[0]) {
                             maxpg = arr[0];
                         }
                     });
                     if (chart_wallet_1) {
                         chart_wallet_1.load({
-                            columns: data.items[0].billboard.walletcharts,
+                            columns: data[0].billboard.walletcharts,
                             resizeAfter: true,
                         });
                     } else {
                         chart_wallet_1 = bb.generate({
                             data: {
-                                columns: data.items[0].billboard.walletcharts,
+                                columns: data[0].billboard.walletcharts,
                                 type: 'donut'
                             },
                             colors: {
@@ -99,12 +99,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 // Ratting Bar
-                if (data.items[0].billboard.rattingbar) {
+                if (data[0].billboard.rattingbar) {
                     $('#rattingBarContainer').show(); // Container anzeigen, wenn Daten vorhanden sind
-                    var pgs = data.items[0].billboard.rattingbar.filter(arr => arr[0] !== 'x').map(arr => arr[0]);
+                    var pgs = data[0].billboard.rattingbar.filter(arr => arr[0] !== 'x').map(arr => arr[0]);
                     if (rattingBar_1) {
                         rattingBar_1.load({
-                            columns: data.items[0].billboard.rattingbar,
+                            columns: data[0].billboard.rattingbar,
                             groups: [pgs],
                             resizeAfter: true,
                         });
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         rattingBar_1 = bb.generate({
                             data: {
                                 x: 'x',
-                                columns: data.items[0].billboard.rattingbar,
+                                columns: data[0].billboard.rattingbar,
                                 type: 'bar',
                                 groups: [pgs],
                             },
@@ -135,16 +135,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 // Workflow Gauge
-                if (data.items[0].billboard.workflowgauge) {
+                if (data[0].billboard.workflowgauge) {
                     $('#workGaugeContainer').show(); // Container anzeigen, wenn Daten vorhanden sind
                     if (gauge_1) {
                         gauge_1.load({
-                            columns: data.items[0].billboard.workflowgauge
+                            columns: data[0].billboard.workflowgauge
                         });
                     } else {
                         gauge_1 = bb.generate({
                             data: {
-                                columns: data.items[0].billboard.workflowgauge,
+                                columns: data[0].billboard.workflowgauge,
                                 type: 'gauge'
                             },
                             bindto: '#workGauge'
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     $('#workGaugeContainer').hide(); // Container verstecken, wenn keine Daten vorhanden sind
                 }
 
-                return data.items[0].ratting;
+                return data[0].ratting;
             },
             cache: false
         },
@@ -253,24 +253,24 @@ document.addEventListener('DOMContentLoaded', function () {
                     url: '/ledger/api/account/0/ledger/year/' + currentYear + '/month/0/',
                     dataSrc: function (data) {
                         // Zusätzliche Daten im DataTable-Objekt speichern
-                        total_amount = data.items[0].total.total_amount;
-                        total_amount_ess = data.items[0].total.total_amount_ess;
-                        total_amount_mining = data.items[0].total.total_amount_mining;
-                        total_amount_others = data.items[0].total.total_amount_others;
-                        total_amount_combined = data.items[0].total.total_amount_all;
+                        total_amount = data[0].total.total_amount;
+                        total_amount_ess = data[0].total.total_amount_ess;
+                        total_amount_mining = data[0].total.total_amount_mining;
+                        total_amount_others = data[0].total.total_amount_others;
+                        total_amount_combined = data[0].total.total_amount_all;
 
                         // Billboard
                         // Wallet Chart
-                        if (data.items[0].billboard.walletcharts) {
+                        if (data[0].billboard.walletcharts) {
                             var maxpg = 0;
-                            data.items[0].billboard.walletcharts.forEach(function(arr) {
+                            data[0].billboard.walletcharts.forEach(function(arr) {
                                 if (maxpg < arr[0]) {
                                     maxpg = arr[0];
                                 }
                             });
                             chart_wallet_2 = bb.generate({
                                 data: {
-                                    columns: data.items[0].billboard.walletcharts,
+                                    columns: data[0].billboard.walletcharts,
                                     type: 'donut', // for ESM specify as: donut()
                                 },
                                 colors: {
@@ -286,9 +286,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
 
                         // Ratting Bar
-                        if (data.items[0].billboard.rattingbar) {
+                        if (data[0].billboard.rattingbar) {
                             var pgs = [];
-                            data.items[0].billboard.rattingbar.forEach(function(arr) {
+                            data[0].billboard.rattingbar.forEach(function(arr) {
                                 if (arr[0] != 'x') {
                                     pgs.push(arr[0]);
                                 }
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             rattingBar_2 = bb.generate({
                                 data: {
                                     x: 'x',
-                                    columns: data.items[0].billboard.rattingbar,
+                                    columns: data[0].billboard.rattingbar,
                                     type: 'bar', // for ESM specify as: donut()
                                     groups: [pgs],
                                 },
@@ -319,16 +319,16 @@ document.addEventListener('DOMContentLoaded', function () {
                             $('#rattingBarContainerYear').hide();
                         }
 
-                        if (data.items[0].billboard.workflowgauge) {
+                        if (data[0].billboard.workflowgauge) {
                             var maxpg2 = 0;
-                            data.items[0].billboard.workflowgauge.forEach(function(arr) {
+                            data[0].billboard.workflowgauge.forEach(function(arr) {
                                 if (maxpg2 < arr[0]) {
                                     maxpg2 = arr[0];
                                 }
                             });
                             gauge_2 = bb.generate({
                                 data: {
-                                    columns: data.items[0].billboard.workflowgauge,
+                                    columns: data[0].billboard.workflowgauge,
                                     type: 'gauge', // for ESM specify as: gauge()
                                 },
                                 bindto: '#workGaugeYear'
@@ -337,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             $('#workGaugeContainerYear').hide();
                         }
 
-                        return data.items[0].ratting;
+                        return data[0].ratting;
                     },
                     cache: false
                 },

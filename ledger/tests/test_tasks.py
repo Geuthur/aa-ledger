@@ -19,7 +19,7 @@ from ledger.tasks import (
     update_corp_wallet,
 )
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_audits import load_char_audit, load_corp_audit
+from ledger.tests.testdata.load_ledger import load_char_audit, load_corp_audit
 
 MODULE_PATH = "ledger.tasks"
 

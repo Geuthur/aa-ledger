@@ -1,0 +1,67 @@
+{% extends 'ledger/base.html' %}
+{% load i18n %}
+{% load humanize %}
+
+{% block page_title %}Manage Events{% endblock %}
+{% block vow_menu %}{% include 'ledger/events/menu.html' %}{% endblock %}
+
+{% block vow_block %}
+    <div class="card-body card-primary">
+        <div class="card-header bg-primary">
+             <h3><div class="card-title">{% translate "Manage Events" %}</div></h3>
+        </div>
+        <div class="card-body bg-secondary">
+            <table id="event-table">
+                <thead>
+                    <tr>
+                        <th style="width: 2%;">ID</th>
+                        <th style="width: 10%;">Title</th>
+                        <th style="width: 10%;">Start Date</th>
+                        <th style="width: 10%;">End Date</th>
+                        <th style="width: 10%;">Location</th>
+                        <th style="width: 50%;">Description</th>
+                        <th style="width: 5%;">Char Ledger Exclude</th>
+                        <th style="width: 10%;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                    <tr>
+                        <td>{{ event.id }}</td>
+                        <td>{{ event.title }}</td>
+                        <td>{{ event.date_start }}</td>
+                        <td>{{ event.date_end }}</td>
+                        <td>{{ event.location }}</td>
+                        <td>{{ event.description }}</td>
+                        <td>{{ event.char_ledger }}</td>
+                        <td class="d-flex">
+                            <a href="{% url 'ledger:edit_event' event.id %}" class="btn btn-primary">Edit</a>
+                            <a href="{% url 'ledger:delete_event' event.id %}" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_javascript %}
+{% include 'bundles/datatables-js-bs5.html' %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    $(document).ready(function() {
+        $('#event-table').DataTable({
+            "pageLength": 10
+        });
+    });
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+    {% include "ledger/bundles/ledger-css.html" %}
+{% endblock %}
+
+{% block extra_script %}
+{% endblock %}
