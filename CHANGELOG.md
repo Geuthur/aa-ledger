@@ -1,6 +1,6 @@
 # Changelog
 
-## \[0.5.1a1\] - 2024-06-07
+## \[0.5.1\] - 2024-06-14
 
 ### Added
 
@@ -12,6 +12,7 @@
 
 - Removed Corp Tax (Will be Released later)
 - Removed Moderator Permission
+- Removed Ledger from Auth Hook Naming now it only show the APP NAME
 
 ### Fixed
 

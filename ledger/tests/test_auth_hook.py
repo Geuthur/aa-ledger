@@ -1,7 +1,11 @@
+from unittest.mock import MagicMock
+
 from django.test import TestCase
 from django.urls import reverse
 
 from app_utils.testdata_factories import UserMainFactory
+
+from ledger.auth_hooks import LedgerMenuItem
 
 
 class TestAuthHooks(TestCase):
@@ -23,4 +27,20 @@ class TestAuthHooks(TestCase):
         self.client.force_login(self.user)
 
         response = self.client.get(reverse("ledger:ledger_index"))
+
         self.assertContains(response, self.html_menu, html=True)
+
+    def test_render_returns_empty_string_for_user_without_permission(self):
+        # given
+        ledger_menu_item = LedgerMenuItem()
+        mock_request = MagicMock()
+        mock_request.user.has_perm.return_value = False
+
+        # when
+        result = ledger_menu_item.render(mock_request)
+        # then
+        self.assertEqual(
+            result,
+            "",
+            "Expected render method to return an empty string for users without permission",
+        )
