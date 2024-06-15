@@ -1,6 +1,13 @@
 {
     "EveCharacter": [
         {
+            "character_id": 1000,
+            "character_name": "CONCORD",
+            "corporation_id": 1000125,
+            "corporation_name": "CONCORD",
+            "corporation_ticker": "CCP"
+        },
+        {
             "character_id": 1001,
             "character_name": "Gneuten",
             "corporation_id": 2001,

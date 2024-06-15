@@ -4,9 +4,9 @@ from unittest.mock import patch
 from django.test import TestCase
 from django.utils import timezone
 
-from ledger.models.general import EveEntity  # replace with your actual module path
+from ledger.models.general import EveEntity
 
-MODULE_PATH = "ledger.models.general"  # replace with your actual module path
+MODULE_PATH = "ledger.models.general"
 
 
 class TestGeneralModel(TestCase):

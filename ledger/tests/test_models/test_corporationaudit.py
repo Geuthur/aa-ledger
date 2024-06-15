@@ -8,9 +8,9 @@ from ledger.models.corporationaudit import (
     CorporationWalletJournalEntry,
 )
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_ledger import load_corp_audit, load_corp_journal
+from ledger.tests.testdata.load_ledger import load_ledger_all
 
-MODULE_PATH = "ledger.models.general"  # replace with your actual module path
+MODULE_PATH = "ledger.models.general"
 
 
 class TestCorporationAuditModel(TestCase):
@@ -25,16 +25,17 @@ class TestCorporationAuditModel(TestCase):
 
 
 class TestCorporationWalletJournal(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
         load_allianceauth()
-        load_corp_audit()
-        load_corp_journal()
-        self.journal = CorporationWalletJournalEntry.objects.get(id=1)
+        load_ledger_all()
+        cls.journal = CorporationWalletJournalEntry.objects.get(entry_id=1)
 
     def test_str(self):
         self.assertEqual(
             str(self.journal),
-            "Corporation Wallet Journal: Gneuten 'test' rotze Rotineque: 100000.00 isk",
+            "Corporation Wallet Journal: CONCORD 'ess_escrow_transfer' Gneuten: 100000.00 isk",
         )
 
     def test_get_visible(self):

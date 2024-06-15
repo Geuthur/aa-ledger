@@ -1,22 +1,20 @@
-from unittest.mock import patch
-
 from django.test import TestCase
 
-from allianceauth.eveonline.models import EveCharacter
-from app_utils.testing import add_character_to_user, create_user_from_evecharacter
+from app_utils.testing import create_user_from_evecharacter
 
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_ledger import load_corp_audit
+from ledger.tests.testdata.load_ledger import load_ledger_all
 
-MODULE_PATH = "ledger.managers.corpaudit_manager"  # Replace with the actual module path
+MODULE_PATH = "ledger.managers.corpaudit_manager"
 
 
 class CorpAuditQuerySetTest(TestCase):
     @classmethod
-    def setUp(self):
+    def setUpClass(cls) -> None:
+        super().setUpClass()
         load_allianceauth()
-        load_corp_audit()
+        load_ledger_all()
 
     def test_visible_to_superuser(self):
         self.user, self.character_ownership = create_user_from_evecharacter(

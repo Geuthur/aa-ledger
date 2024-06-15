@@ -118,7 +118,7 @@ class BillboardLedger:
                 if (self.date.month == 0 and entry["date"].month == range_) or (
                     self.date.month != 0 and entry["date"].day == range_
                 ):
-                    total_mining += entry["total"]
+                    total_mining += entry["total"] if entry["total"] else 0
         return total_mining
 
     # pylint: disable=too-many-branches

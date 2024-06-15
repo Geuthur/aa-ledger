@@ -19,7 +19,7 @@ from ledger.tasks import (
     update_corp_wallet,
 )
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_ledger import load_char_audit, load_corp_audit
+from ledger.tests.testdata.load_ledger import load_ledger_all
 
 MODULE_PATH = "ledger.tasks"
 
@@ -30,8 +30,7 @@ class TestTasks(TestCase):
     def setUpClass(cls) -> None:
         super().setUpClass()
         load_allianceauth()
-        load_char_audit()
-        load_corp_audit()
+        load_ledger_all()
         cls.user, cls.character_ownership = create_user_from_evecharacter(
             1001,
             permissions=[
