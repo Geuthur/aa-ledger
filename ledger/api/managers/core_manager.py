@@ -92,6 +92,7 @@ class LedgerFilterCost(LedgerFilterCore):
         super().__init__(char_id)
         self.my_filter_market_cost = self.filter_partys & Q(
             ref_type__in=[
+                "market_escrow",
                 "transaction_tax",
                 "market_provider_tax",
                 "brokers_fee",
