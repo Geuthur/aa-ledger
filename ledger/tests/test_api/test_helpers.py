@@ -1,4 +1,13 @@
+import sys
 from unittest.mock import MagicMock, patch
+
+from corpstats.models import CorpMember as ExpectedCorpMember
+from memberaudit.models import (
+    CharacterMiningLedgerEntry as ExceptedCharacterMiningLedger,
+)
+from memberaudit.models import (
+    CharacterWalletJournalEntry as ExceptedCharacterWalletJournalEntry,
+)
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import RequestFactory, TestCase
@@ -14,9 +23,12 @@ from app_utils.testing import (
 
 from ledger.api.helpers import (
     get_alts_queryset,
+    get_corp_models_and_string,
     get_main_and_alts_all,
     get_main_character,
+    get_models_and_string,
 )
+from ledger.errors import LedgerImportError
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 
 MODULE_PATH = "ledger.api.helpers"
@@ -52,17 +64,15 @@ class TestApiHelpers(TestCase):
         request = self.factory.get("/")
         request.user = self.user
         char = EveCharacter.objects.get(character_id=1001)
-        char2 = EveCharacter.objects.get(character_id=1004)
         self.user4.profile.main_character.delete()
         # when
         data = get_main_and_alts_all([2001], corp_members=False)
         # then
-        self.assertEqual(
-            data, {1001: {"main": char, "alts": []}, 1004: {"main": char2, "alts": []}}
-        )
+        self.assertEqual(data, {1001: {"main": char, "alts": []}})
 
-    def test_get_main_and_alts_all_with_and_char_not_in_chars(self):
+    def test_get_main_and_alts_all_not_in_chars(self):
         # given
+        mains = {}
         request = self.factory.get("/")
         request.user = self.user
         corp_stats = CorpStats.objects.create(
@@ -72,14 +82,18 @@ class TestApiHelpers(TestCase):
         CorpMember.objects.create(
             character_id=1005, character_name="Gerthd", corpstats=corp_stats
         )
+        chars = EveCharacter.objects.filter(character_id__in=[1001, 1004, 1005])
+        for char in chars:
+            mains[char.character_id] = {"main": char, "alts": []}
+        excepted_data = mains
         # when
         data = get_main_and_alts_all([2001], corp_members=True)
         # then
-        char = EveCharacter.objects.get(character_id=1001)
-        self.assertEqual(data, {1001: {"main": char, "alts": []}})
+        self.assertEqual(data, excepted_data)
 
-    def test_get_main_and_alts_all_with_and_char_in_chars(self):
+    def test_get_main_and_alts_all_char_in_chars(self):
         # given
+        mains = {}
         request = self.factory.get("/")
         request.user = self.user
         corp_stats = CorpStats.objects.create(
@@ -92,11 +106,39 @@ class TestApiHelpers(TestCase):
         self.user5, _ = create_user_from_evecharacter(
             1005,
         )
+        chars = EveCharacter.objects.filter(character_id__in=[1001, 1004, 1005])
+        for char in chars:
+            mains[char.character_id] = {"main": char, "alts": []}
+        excepted_data = mains
         # when
         data = get_main_and_alts_all([2001], corp_members=True)
         # then
-        char = EveCharacter.objects.get(character_id=1001)
-        self.assertEqual(data, {1001: {"main": char, "alts": []}})
+        self.assertEqual(data, excepted_data)
+
+    def test_get_main_and_alts_all_char_does_not_exist(self):
+        # given
+        mains = {}
+        request = self.factory.get("/")
+        request.user = self.user
+        corp_stats = CorpStats.objects.create(
+            token=Token.objects.get(user=self.user),
+            corp=EveCorporationInfo.objects.get(corporation_id=2001),
+        )
+        corp_member = CorpMember.objects.create(
+            character_id=1005, character_name="Gerthd", corpstats=corp_stats
+        )
+        EveCharacter.objects.get(character_id=1005).delete()
+
+        chars = EveCharacter.objects.filter(character_id__in=[1001, 1004])
+        for char in chars:
+            mains[char.character_id] = {"main": char, "alts": []}
+        mains[1005] = {"main": corp_member, "alts": []}
+
+        excepted_data = mains
+        # when
+        data = get_main_and_alts_all([2001], corp_members=True)
+        # then
+        self.assertEqual(data, excepted_data)
 
     def test_get_main_character(self):
         # given
@@ -152,3 +194,45 @@ class TestApiHelpers(TestCase):
         data = get_alts_queryset(main_char)
         # then
         self.assertEqual(data.count(), 1)
+
+    @patch(MODULE_PATH + ".app_settings.LEDGER_MEMBERAUDIT_USE", True)
+    def test_get_models_and_string_memberaudit(self):
+        CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
+
+        self.assertIs(CharacterMiningLedger, ExceptedCharacterMiningLedger)
+        self.assertIs(CharacterWalletJournalEntry, ExceptedCharacterWalletJournalEntry)
+
+    @patch(MODULE_PATH + ".app_settings.LEDGER_CORPSTATS_TWO", True)
+    def test_get_corp_models_and_string(self):
+        CorpMember = get_corp_models_and_string()
+        self.assertIs(CorpMember, ExpectedCorpMember)
+
+
+class TestApiHelperCorpStatsImport(TestCase):
+    def setUp(self):
+        self.original_sys_modules = sys.modules.copy()
+
+    def tearDown(self):
+        sys.modules = self.original_sys_modules
+
+    @patch(MODULE_PATH + ".app_settings.LEDGER_CORPSTATS_TWO", True)
+    @patch(MODULE_PATH + ".app_settings.LEDGER_MEMBERAUDIT_USE", True)
+    @patch(MODULE_PATH + ".logger")
+    def test_packages_are_not_installed(self, mock_logger):
+        with patch.dict(
+            sys.modules,
+            {k: None for k in list(sys.modules) if k.startswith("corpstats")},
+        ):
+            with self.assertRaises(LedgerImportError):
+                _ = get_corp_models_and_string()
+            mock_logger.error.assert_called()
+
+        with patch.dict(
+            sys.modules,
+            {k: None for k in list(sys.modules) if k.startswith("memberaudit")},
+        ):
+            with self.assertRaises(LedgerImportError):
+                CharacterMiningLedger, CharacterWalletJournalEntry = (
+                    get_models_and_string()
+                )
+            mock_logger.error.assert_called()

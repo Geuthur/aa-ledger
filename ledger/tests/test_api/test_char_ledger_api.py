@@ -46,6 +46,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         url = "/ledger/api/account/0/ledger/year/2024/month/3/"
 
         response = self.client.get(url)
+        print(response.json())
         expected_data = CharmonthlyMarch
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)
@@ -60,13 +61,13 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
     def test_get_character_ledger_api_year(self):
+        # given
         self.client.force_login(self.user)
         url = "/ledger/api/account/1001/ledger/year/2024/month/0/"
-
-        response = self.client.get(url)
-        print(response.json())
         expected_data = Charyearly
-        print(expected_data)
+        # when
+        response = self.client.get(url)
+        # then
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)
 

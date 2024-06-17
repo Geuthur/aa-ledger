@@ -80,7 +80,7 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
         url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
 
         response = self.client.get(url)
-        print(response.json())
+
         expected_data = noData
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)

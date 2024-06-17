@@ -136,7 +136,7 @@ class ManageApiJournalCharEndpointsTest(TestCase):
 
     def test_get_character_journal_api_single_ref_types(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/account/1001/wallet/?type_refs=bounty_prizes,player_donation,contract_reward"
+        url = "/ledger/api/account/1001/wallet/?type_refs=bounty_prizes,player_donation,contract_reward,transaction_tax,industry_job_tax"
 
         journal_query = CharacterWalletJournalEntry.objects.filter(
             character__character__character_id=1001
