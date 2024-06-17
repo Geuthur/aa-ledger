@@ -147,6 +147,22 @@ def load_char_journal():
         tax=0,
         tax_receiver_id=0,
     )
+    CharacterWalletJournalEntry.objects.create(
+        character=CharacterAudit.objects.get(character__character_name="Gneuten"),
+        amount=100_000,
+        balance=100_000_000,
+        context_id=30004783,
+        context_id_type="system_id",
+        date="2024-01-19T14:00:00Z",
+        description="Test",
+        first_party=EveEntity.objects.get(eve_id=1000125),
+        entry_id=3,
+        reason="",
+        ref_type="bounty_prizes",
+        second_party=EveEntity.objects.get(eve_id=1001),
+        tax=0,
+        tax_receiver_id=0,
+    )
 
     CharacterWalletJournalEntry.objects.create(
         character=CharacterAudit.objects.get(character__character_name="Gneuten"),

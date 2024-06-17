@@ -166,7 +166,7 @@ class JournalProcess:
 
         # Filter the entries for the Year/Month
         filter_date = Q(date__year=self.year)
-        if not self.month == 0:
+        if self.month != 0:
             filter_date &= Q(date__month=self.month)
 
         # Get the Corporation Journal

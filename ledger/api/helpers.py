@@ -56,10 +56,8 @@ def get_main_character(request, character_id):
         "character_ownership__user__profile",
         "character_ownership__user__profile__main_character",
     ).get(character_id=character_id)
-    try:
-        main_char = main_char.character_ownership.user.profile.main_character
-    except ObjectDoesNotExist:
-        pass
+
+    main_char = main_char.character_ownership.user.profile.main_character
 
     # check access
     visible = models.CharacterAudit.objects.visible_eve_characters(request.user)
@@ -67,15 +65,16 @@ def get_main_character(request, character_id):
         account_chars = (
             request.user.profile.main_character.character_ownership.user.character_ownerships.all()
         )
+        account_char_ids = account_chars.values_list("character_id", flat=True)
+
         logger.warning(
             "%s Can See %s, requested %s",
             request.user,
             list(visible),
             main_char.id,
         )
-        if main_char in account_chars:
-            pass
-        else:
+
+        if main_char.id not in account_char_ids:
             perms = False
 
     if not request.user.has_perm("ledger.basic_access"):
@@ -94,7 +93,6 @@ def get_alts_queryset(main_char):
                 "character_id", flat=True
             )
         )
-
         return EveCharacter.objects.filter(id__in=linked_characters)
     except ObjectDoesNotExist:
         return EveCharacter.objects.filter(pk=main_char.pk)
@@ -126,25 +124,20 @@ def get_main_and_alts_all(corporations: list, char_ids=False, corp_members=True)
     )
 
     for char in users:
-        try:
-            if char.main_character:
-                main = (
-                    char.main_character.character_ownership.user.profile.main_character
+        if char.main_character:
+            main = char.main_character.character_ownership.user.profile.main_character
+            linked_characters = (
+                main.character_ownership.user.character_ownerships.all().exclude(
+                    character__character_id=main.character_id
                 )
-                linked_characters = (
-                    main.character_ownership.user.character_ownerships.all().exclude(
-                        character__character_id=main.character_id
-                    )
-                )
-                if main.corporation_id in corporations:
-                    mains[main.character_id] = {
-                        "main": main,
-                        "alts": [char.character for char in linked_characters],
-                    }
-            else:
-                continue
-        except ObjectDoesNotExist:
-            pass
+            )
+            if main.corporation_id in corporations:
+                mains[main.character_id] = {
+                    "main": main,
+                    "alts": [char.character for char in linked_characters],
+                }
+        else:
+            continue
 
     if corp_members:
         corp = CorpMember.objects.select_related("corpstats", "corpstats__corp").filter(
@@ -162,15 +155,12 @@ def get_main_and_alts_all(corporations: list, char_ids=False, corp_members=True)
                 ]
             )
         )
-        if corp:
-            for char in corp:
-                if char.character_id not in chars:
-                    mains[char.character_id] = {"main": char, "alts": []}
-
+        for char in corp:
+            if char.character_id not in chars:
+                mains[char.character_id] = {"main": char, "alts": []}
     # Sort Names Alphabetic
     mains = sorted(mains.items(), key=lambda item: item[1]["main"].character_name)
     mains = dict(mains)
-
     if char_ids:
         chars = list(
             set(
@@ -188,17 +178,14 @@ def get_main_and_alts_all(corporations: list, char_ids=False, corp_members=True)
 
 
 def get_corporations(request):  # pylint: disable=unused-argument
-    try:
-        linked_characters = request.user.profile.main_character.character_ownership.user.character_ownerships.all().values_list(
-            "character_id", flat=True
-        )
-        chars = EveCharacter.objects.filter(id__in=linked_characters)
+    linked_characters = request.user.profile.main_character.character_ownership.user.character_ownerships.all().values_list(
+        "character_id", flat=True
+    )
+    chars = EveCharacter.objects.filter(id__in=linked_characters)
 
-        corporations = set()
+    corporations = set()
 
-        for char in chars:
-            corporations.add(char.corporation_id)
+    for char in chars:
+        corporations.add(char.corporation_id)
 
-        return corporations
-    except ObjectDoesNotExist:
-        return []
+    return corporations

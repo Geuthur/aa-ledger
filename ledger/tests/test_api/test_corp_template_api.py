@@ -50,6 +50,32 @@ class ManageApiTemplateCorpEndpointsTest(TestCase):
         self.assertContains(response, "200,000", count=2, status_code=200)
         self.assertContains(response, "Ratting", status_code=200)
         self.assertContains(response, "ESS", status_code=200)
+        self.assertContains(response, "Gneuten", status_code=200)
+        self.assertNotContains(response, "2024", status_code=200)
+
+    def test_get_corporation_ledger_template_api_year(self):
+        self.client.force_login(self.user)
+        url = "/ledger/api/corporation/1001/ledger/template/year/2024/month/0/"
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "200,000", count=2, status_code=200)
+        self.assertContains(response, "Ratting", status_code=200)
+        self.assertContains(response, "ESS", status_code=200)
+        self.assertContains(response, "Gneuten", status_code=200)
+        self.assertContains(response, "2024", status_code=200)
+
+    def test_get_corporation_ledger_template_api_year_all(self):
+        self.client.force_login(self.user)
+        url = "/ledger/api/corporation/0/ledger/template/year/2024/month/0/"
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "200,000", count=2, status_code=200)
+        self.assertContains(response, "Ratting", status_code=200)
+        self.assertContains(response, "ESS", status_code=200)
+        self.assertContains(response, "Summary", status_code=200)
+        self.assertContains(response, "2024", status_code=200)
 
     def test_get_corporation_template_api_no_permission(self):
         self.client.force_login(self.user2)

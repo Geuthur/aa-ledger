@@ -63,6 +63,16 @@
             "alliance_id": 3001,
             "alliance_name": "Voices of War",
             "alliance_ticker": "VOW"
+        },
+        {
+            "character_id": 1007,
+            "character_name": "Eulenspiegel",
+            "corporation_id": 2002,
+            "corporation_name": "Eulenclub",
+            "corporation_ticker": "EC",
+            "alliance_id": 3001,
+            "alliance_name": "Voices of War",
+            "alliance_ticker": "VOW"
         }
     ]
 }
