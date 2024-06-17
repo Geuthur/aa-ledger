@@ -5,12 +5,6 @@ from allianceauth.eveonline.models import EveCharacter
 
 from ledger import app_settings, models
 from ledger.errors import LedgerImportError
-
-if app_settings.LEDGER_CORPSTATS_TWO:
-    from corpstats.models import CorpMember
-else:
-    from allianceauth.corputils.models import CorpMember
-
 from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
@@ -33,7 +27,7 @@ def get_models_and_string():
                 CharacterMiningLedger,
                 CharacterWalletJournalEntry,
             )
-        except Exception as exc:
+        except ImportError as exc:
             logger.error("Memberaudit is enabled but not installed")
             raise LedgerImportError("Memberaudit is enabled but not installed") from exc
 
@@ -46,6 +40,22 @@ def get_models_and_string():
         CharacterMiningLedger,
         CharacterWalletJournalEntry,
     )
+
+
+# pylint: disable=import-outside-toplevel
+def get_corp_models_and_string():
+    if app_settings.LEDGER_CORPSTATS_TWO:
+        try:
+            from corpstats.models import CorpMember
+
+            return CorpMember
+        except ImportError as exc:
+            logger.error("Corpstats is enabled but not installed")
+            raise LedgerImportError("Corpstats is enabled but not installed") from exc
+
+    from allianceauth.corputils.models import CorpMember
+
+    return CorpMember
 
 
 def get_main_character(request, character_id):
@@ -108,13 +118,14 @@ def get_main_and_alts_all(corporations: list, char_ids=False, corp_members=True)
     - corp_members: add Corp Members
 
     Returns - Dict (Queryset)
-    - `Dict`: Mains and Alts
+    - `Dict`: Mains and Alts QuerySet (EvECharacter or CorpMember)
 
     Returns - Dict(Queryset) & List
     - `Dict`: Mains and Alts Queryset
     - `List`: Character IDS
     """
     mains = {}
+    corpmember = get_corp_models_and_string()
 
     # pylint: disable=no-member
     users = (
@@ -140,7 +151,7 @@ def get_main_and_alts_all(corporations: list, char_ids=False, corp_members=True)
             continue
 
     if corp_members:
-        corp = CorpMember.objects.select_related("corpstats", "corpstats__corp").filter(
+        corp = corpmember.objects.select_related("corpstats", "corpstats__corp").filter(
             corpstats__corp__corporation_id__in=corporations
         )
 
@@ -156,6 +167,10 @@ def get_main_and_alts_all(corporations: list, char_ids=False, corp_members=True)
             )
         )
         for char in corp:
+            try:
+                char = EveCharacter.objects.get(character_id=char.character_id)
+            except EveCharacter.DoesNotExist:
+                pass
             if char.character_id not in chars:
                 mains[char.character_id] = {"main": char, "alts": []}
     # Sort Names Alphabetic
@@ -173,7 +188,6 @@ def get_main_and_alts_all(corporations: list, char_ids=False, corp_members=True)
             )
         )
         return mains, chars
-
     return mains
 
 
