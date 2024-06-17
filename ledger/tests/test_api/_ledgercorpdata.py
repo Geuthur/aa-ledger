@@ -7,6 +7,7 @@ noData = [
             "total_amount_all": "0.00",
             "total_amount_mining": 0,
             "total_amount_others": 0,
+            "total_amount_costs": 0,
         },
         "billboard": {
             "walletcharts": [],
@@ -34,6 +35,7 @@ CorpmonthlyMarch = [
             "total_amount_all": "400000.00",
             "total_amount_mining": 0,
             "total_amount_others": 0,
+            "total_amount_costs": 0,
         },
         "billboard": {
             "walletcharts": [],
@@ -167,6 +169,7 @@ Corpyearly = [
             "total_amount_all": "400000.00",
             "total_amount_mining": 0,
             "total_amount_others": 0,
+            "total_amount_costs": 0,
         },
         "billboard": {
             "walletcharts": [],

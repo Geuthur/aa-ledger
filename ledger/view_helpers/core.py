@@ -24,9 +24,7 @@ def calculate_ess_stolen(total_amount: int, ess_amount: int) -> Tuple[int, int]:
     total_ess_gain = total_ess_gain * 100
 
     total_ess_gain_diff = Decimal(66.667) - int(total_ess_gain)
-    if (
-        abs(total_ess_gain_diff) < Decimal("0.9") or total_ess_gain_diff < 0
-    ):  # Hier können Sie den Schwellenwert nach Bedarf anpassen
+    if abs(total_ess_gain_diff) < Decimal("0.9") or total_ess_gain_diff < 0:
         total_ess_gain = 0
     else:
         total_ess_stolen = ess_amount * (total_ess_gain_diff / 100)

@@ -110,8 +110,6 @@ def load_char_mining():
         quantity=100,
     )
 
-    print(CharacterMiningLedger.objects.all())
-
 
 def load_char_journal():
     CharacterWalletJournalEntry.objects.all().delete()

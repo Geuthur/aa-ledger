@@ -7,6 +7,7 @@ noData = [
             "total_amount_all": "0.00",
             "total_amount_mining": "0",
             "total_amount_others": "0.00",
+            "total_amount_costs": "0.00",
         },
         "billboard": {
             "walletcharts": None,
@@ -27,18 +28,20 @@ CharmonthlyMarch = [
                 "total_amount_ess": "1133333.333333333333333333333",
                 "total_amount_mining": "200000",
                 "total_amount_others": "200000.00",
+                "total_amount_costs": "-200000.00",
             }
         ],
         "total": {
             "total_amount": "200000.00",
             "total_amount_ess": "1133333.333333333333333333333",
-            "total_amount_all": "1733333.333333333333333333333",
+            "total_amount_all": "1533333.333333333333333333333",
             "total_amount_mining": "200000",
             "total_amount_others": "200000.00",
+            "total_amount_costs": "-200000.00",
         },
         "billboard": {
             "walletcharts": [
-                ["Income", 500000],
+                ["Income", 400000],
                 ["Market Cost", 100000],
                 ["Production Cost", 100000],
                 ["Misc. Cost", 0],
@@ -235,18 +238,20 @@ Charyearly = [
                 "total_amount_ess": "1133333.333333333333333333333",
                 "total_amount_mining": "200000",
                 "total_amount_others": "200000.00",
+                "total_amount_costs": "-200000.00",
             }
         ],
         "total": {
             "total_amount": "300000.00",
             "total_amount_ess": "1133333.333333333333333333333",
-            "total_amount_all": "1833333.333333333333333333333",
+            "total_amount_all": "1633333.333333333333333333333",
             "total_amount_mining": "200000",
             "total_amount_others": "200000.00",
+            "total_amount_costs": "-200000.00",
         },
         "billboard": {
             "walletcharts": [
-                ["Income", 600000],
+                ["Income", 500000],
                 ["Market Cost", 100000],
                 ["Production Cost", 100000],
                 ["Misc. Cost", 0],

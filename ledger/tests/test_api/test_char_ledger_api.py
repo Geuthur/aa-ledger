@@ -46,7 +46,6 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         url = "/ledger/api/account/0/ledger/year/2024/month/3/"
 
         response = self.client.get(url)
-        print(response.json())
         expected_data = CharmonthlyMarch
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)
