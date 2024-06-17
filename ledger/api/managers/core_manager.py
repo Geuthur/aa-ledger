@@ -55,6 +55,7 @@ class LedgerTotal:
     total_amount_all: int = 0
     total_amount_mining: int = 0
     total_amount_others: int = 0
+    total_amount_costs: int = 0
 
     def to_dict(self):
         return asdict(self)
@@ -90,7 +91,7 @@ class LedgerFilterCost(LedgerFilterCore):
 
     def __init__(self, char_id):
         super().__init__(char_id)
-        self.my_filter_market_cost = self.filter_partys & Q(
+        self.filter_market_cost = self.filter_partys & Q(
             ref_type__in=[
                 "market_escrow",
                 "transaction_tax",

@@ -85,7 +85,8 @@ class BillboardLedger:
                         total_miscellaneous += entry["amount"]
                 # Total ISK
                 if entry["amount"] > 0:
-                    total_isk += entry["amount"]
+                    if entry["first_party_id"] not in self.chars:
+                        total_isk += entry["amount"]
                 else:
                     total_cost += entry["amount"]
                 # Total Market

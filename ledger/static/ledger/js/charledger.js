@@ -1,5 +1,5 @@
-var total_amount, total_amount_ess, total_amount_mining, total_amount_others, total_amount_combined;
-var yearTableInitialized = false;  // Flag to check if the year DataTable is initialized
+var total_amount, total_amount_ess, total_amount_mining, total_amount_others, total_amount_combined, total_amount_costs;
+var yearTableInitialized = false;
 var rattingBar_1, rattingBar_2, chart_wallet_1, chart_wallet_2, gauge_1, gauge_2;
 var selectedMonth;
 var bb, d3;
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#monthDropdown').change(function() {
         selectedMonth = $(this).val(); // Ausgewählter Monat auslesen
-        var selectedYear = currentYear; // Hier die Logik zum Auslesen des ausgewählten Jahres implementieren, falls nötig
+        var selectedYear = currentYear;
         var monthText = getMonthName(selectedMonth);
 
         // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
@@ -63,11 +63,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 total_amount_others = data[0].total.total_amount_others;
                 total_amount_mining = data[0].total.total_amount_mining;
                 total_amount_combined = data[0].total.total_amount_all;
+                total_amount_costs = data[0].total.total_amount_costs;
 
                 // Billboard
                 // Wallet Chart
                 if (data[0].billboard.walletcharts) {
-                    $('#walletChartContainer').show(); // Container anzeigen, wenn Daten vorhanden sind
+                    $('#walletChartContainer').show();
                     var maxpg = 0;
                     data[0].billboard.walletcharts.forEach(function (arr) {
                         if (maxpg < arr[0]) {
@@ -95,12 +96,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                     }
                 } else {
-                    $('#walletChartContainer').hide(); // Container verstecken, wenn keine Daten vorhanden sind
+                    $('#walletChartContainer').hide();
                 }
 
                 // Ratting Bar
                 if (data[0].billboard.rattingbar) {
-                    $('#rattingBarContainer').show(); // Container anzeigen, wenn Daten vorhanden sind
+                    $('#rattingBarContainer').show();
                     var pgs = data[0].billboard.rattingbar.filter(arr => arr[0] !== 'x').map(arr => arr[0]);
                     if (rattingBar_1) {
                         rattingBar_1.load({
@@ -131,12 +132,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                     }
                 } else {
-                    $('#rattingBarContainer').hide(); // Container verstecken, wenn keine Daten vorhanden sind
+                    $('#rattingBarContainer').hide();
                 }
 
                 // Workflow Gauge
                 if (data[0].billboard.workflowgauge) {
-                    $('#workGaugeContainer').show(); // Container anzeigen, wenn Daten vorhanden sind
+                    $('#workGaugeContainer').show();
                     if (gauge_1) {
                         gauge_1.load({
                             columns: data[0].billboard.workflowgauge
@@ -151,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                     }
                 } else {
-                    $('#workGaugeContainer').hide(); // Container verstecken, wenn keine Daten vorhanden sind
+                    $('#workGaugeContainer').hide();
                 }
 
                 return data[0].ratting;
@@ -169,7 +170,6 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             {   data: 'total_amount',
                 render: function (data, type, row) {
-                    // Rückgabe des formatierten Strings mit Farbe und Einheit
                     if (type === 'display') {
                         return formatAndColor(data);
                     }
@@ -178,7 +178,6 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             {   data: 'total_amount_ess',
                 render: function (data, type, row) {
-                    // Rückgabe des formatierten Strings mit Farbe und Einheit
                     if (type === 'display') {
                         return formatAndColor(data);
                     }
@@ -187,7 +186,6 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             {   data: 'total_amount_mining',
                 render: function (data, type, row) {
-                    // Rückgabe des formatierten Strings mit Farbe und Einheit
                     if (type === 'display') {
                         return formatAndColor(data);
                     }
@@ -196,14 +194,12 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             {   data: 'total_amount_others',
                 render: function (data, type, row) {
-                    // Rückgabe des formatierten Strings mit Farbe und Einheit
                     if (type === 'display') {
                         return formatAndColor(data);
                     }
                     return data;
                 }
             },
-            // Add more columns as needed
             {
                 data: 'col-total-action',
                 render: function (data, type, row) {
@@ -229,11 +225,13 @@ document.addEventListener('DOMContentLoaded', function () {
             var totalMiningAmountAllChars = parseFloat(total_amount_mining);
             var totalOthersAmountAllChars = parseFloat(total_amount_others);
             var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
+            var totalCostsAmountAllChars = parseFloat(total_amount_costs);
             $('#foot .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
             $('#foot .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
             $('#foot .col-total-mining').html('' + formatAndColor(totalMiningAmountAllChars) + '');
             $('#foot .col-total-others').html('' + formatAndColor(totalOthersAmountAllChars) + '');
             $('#foot .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
+            $('#foot .col-total-costs').html('' + formatAndColor(totalCostsAmountAllChars) + '');
             $('#foot .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                 'aria-label="{{ data.main_name }}"' +
                 'data-ajax_url="/ledger/api/account/0/ledger/template/year/' + currentYear + '/month/' + selectedMonth + '/" ' +
@@ -258,6 +256,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         total_amount_mining = data[0].total.total_amount_mining;
                         total_amount_others = data[0].total.total_amount_others;
                         total_amount_combined = data[0].total.total_amount_all;
+                        total_amount_costs = data[0].total.total_amount_costs;
 
                         // Billboard
                         // Wallet Chart
@@ -271,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             chart_wallet_2 = bb.generate({
                                 data: {
                                     columns: data[0].billboard.walletcharts,
-                                    type: 'donut', // for ESM specify as: donut()
+                                    type: 'donut',
                                 },
                                 colors: {
                                     'Market Cost': '#ff0000',
@@ -297,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 data: {
                                     x: 'x',
                                     columns: data[0].billboard.rattingbar,
-                                    type: 'bar', // for ESM specify as: donut()
+                                    type: 'bar',
                                     groups: [pgs],
                                 },
                                 axis: {
@@ -329,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             gauge_2 = bb.generate({
                                 data: {
                                     columns: data[0].billboard.workflowgauge,
-                                    type: 'gauge', // for ESM specify as: gauge()
+                                    type: 'gauge',
                                 },
                                 bindto: '#workGaugeYear'
                             });
@@ -352,7 +351,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     },
                     {   data: 'total_amount',
                         render: function (data, type, row) {
-                            // Rückgabe des formatierten Strings mit Farbe und Einheit
                             if (type === 'display') {
                                 return formatAndColor(data);
                             }
@@ -361,7 +359,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     },
                     {   data: 'total_amount_ess',
                         render: function (data, type, row) {
-                            // Rückgabe des formatierten Strings mit Farbe und Einheit
                             if (type === 'display') {
                                 return formatAndColor(data);
                             }
@@ -370,7 +367,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     },
                     {   data: 'total_amount_mining',
                         render: function (data, type, row) {
-                            // Rückgabe des formatierten Strings mit Farbe und Einheit
                             if (type === 'display') {
                                 return formatAndColor(data);
                             }
@@ -379,14 +375,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     },
                     {   data: 'total_amount_others',
                         render: function (data, type, row) {
-                            // Rückgabe des formatierten Strings mit Farbe und Einheit
                             if (type === 'display') {
                                 return formatAndColor(data);
                             }
                             return data;
                         }
                     },
-                    // Add more columns as needed
                     {
                         data: 'col-total-action',
                         render: function (data, type, row) {
@@ -412,12 +406,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     var totalMiningAmountAllChars_year = parseFloat(total_amount_mining);
                     var totalOthersAmountAllChars_year = parseFloat(total_amount_others);
                     var totalCombinedAmountAllChars_year = parseFloat(total_amount_combined);
+                    var totalCostsAmountAllChars_year = parseFloat(total_amount_costs);
 
                     $('#foot-year .col-total-amount').html('' + formatAndColor(totalAmountAllChars_year) + '');
                     $('#foot-year .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars_year) + '');
                     $('#foot-year .col-total-mining').html('' + formatAndColor(totalMiningAmountAllChars_year) + '');
                     $('#foot-year .col-total-others').html('' + formatAndColor(totalOthersAmountAllChars_year) + '');
                     $('#foot-year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars_year) + '');
+                    $('#foot-year .col-total-costs').html('' + formatAndColor(totalCostsAmountAllChars_year) + '');
                     $('#foot-year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                     'aria-label="{{ data.main_name }}"' +
                     'data-ajax_url="/ledger/api/account/0/ledger/template/year/' + currentYear + '/month/0/" ' +

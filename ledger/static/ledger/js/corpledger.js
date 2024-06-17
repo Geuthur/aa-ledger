@@ -1,5 +1,5 @@
 var total_amount, total_amount_ess, total_amount_combined;
-var yearTableInitialized = false;  // Flag to check if the year DataTable is initialized
+var yearTableInitialized = false;
 var chart_1, chart_2, rattingBar_1, rattingBar_2;
 var selectedMonth;
 var bb, d3;
@@ -91,12 +91,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                     }
                 } else {
-                    $('#ChartContainer').hide(); // Container verstecken, wenn keine Daten vorhanden sind
+                    $('#ChartContainer').hide();
                 }
 
                 // RattingBar
                 if (data[0].billboard.rattingbar) {
-                    $('#rattingBarContainer').show(); // Container anzeigen, wenn Daten vorhanden sind
+                    $('#rattingBarContainer').show();
                     var pgs = data[0].billboard.rattingbar.filter(arr => arr[0] !== 'x').map(arr => arr[0]);
                     if (rattingBar_1) {
                         rattingBar_1.load({
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                     }
                 } else {
-                    $('#rattingBarContainer').hide(); // Container verstecken, wenn keine Daten vorhanden sind
+                    $('#rattingBarContainer').hide();
                 }
 
                 return data[0].ratting;
@@ -150,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             {   data: 'total_amount',
                 render: function (data, type, row) {
-                    // Rückgabe des formatierten Strings mit Farbe und Einheit
                     if (type === 'display') {
                         return formatAndColor(data);
                     }
@@ -159,14 +158,12 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             {   data: 'total_amount_ess',
                 render: function (data, type, row) {
-                    // Rückgabe des formatierten Strings mit Farbe und Einheit
                     if (type === 'display') {
                         return formatAndColor(data);
                     }
                     return data;
                 }
             },
-            // Add more columns as needed
             {
                 data: 'col-total-action',
                 render: function (data, type, row) {
@@ -219,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         // Billboard
                         if (data[0].billboard.charts) {
-                            $('#ChartYearContainer').show(); // Container anzeigen, wenn Daten vorhanden sind
+                            $('#ChartYearContainer').show();
                             var maxpg = 0;
                             data[0].billboard.charts.forEach(function (arr) {
                                 if (maxpg < arr[0]) {
@@ -249,12 +246,12 @@ document.addEventListener('DOMContentLoaded', function () {
                                 });
                             }
                         } else {
-                            $('#ChartYearContainer').hide(); // Container verstecken, wenn keine Daten vorhanden sind
+                            $('#ChartYearContainer').hide();
                         }
 
                         // RattingBar
                         if (data[0].billboard.rattingbar) {
-                            $('#rattingBarYearContainer').show(); // Container anzeigen, wenn Daten vorhanden sind
+                            $('#rattingBarYearContainer').show();
                             var pgs = data[0].billboard.rattingbar.filter(arr => arr[0] !== 'x').map(arr => arr[0]);
                             if (rattingBar_2) {
                                 rattingBar_2.load({
@@ -263,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     done: function() {
                                         rattingbar_2_cache = data[0].billboard.rattingbar;
                                     },
-                                    resizeAfter: false  // will resize after load
+                                    resizeAfter: false
                                 });
                             } else {
                                 var rattingbar_2_cache = data[0].billboard.rattingbar;
@@ -289,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 });
                             }
                         } else {
-                            $('#rattingBarYearContainer').hide(); // Container verstecken, wenn keine Daten vorhanden sind
+                            $('#rattingBarYearContainer').hide();
                         }
 
                         return data[0].ratting;
@@ -307,7 +304,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     },
                     {   data: 'total_amount',
                         render: function (data, type, row) {
-                            // Rückgabe des formatierten Strings mit Farbe und Einheit
                             if (type === 'display') {
                                 return formatAndColor(data);
                             }
@@ -316,14 +312,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     },
                     {   data: 'total_amount_ess',
                         render: function (data, type, row) {
-                            // Rückgabe des formatierten Strings mit Farbe und Einheit
                             if (type === 'display') {
                                 return formatAndColor(data);
                             }
                             return data;
                         }
                     },
-                    // Add more columns as needed
                     {
                         data: 'col-total-action',
                         render: function (data, type, row) {
