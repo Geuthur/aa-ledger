@@ -36,20 +36,19 @@ class BillboardLedger:
         total_bounty = 0
         total_ess_payout = 0
         for entry in journal:
-            if entry["date"].year == self.date.year:
-                if (self.date.month == 0 and entry["date"].month == range_) or (
-                    self.date.month != 0 and entry["date"].day == range_
-                ):
+            if (self.date.month == 0 and entry["date"].month == range_) or (
+                self.date.month != 0 and entry["date"].day == range_
+            ):
+                if self.is_corp:
+                    if entry["ref_type"] == "bounty_prizes":
+                        total_bounty += entry["amount"]
+                if entry["ref_type"] == "ess_escrow_transfer":
                     if self.is_corp:
-                        if entry["ref_type"] == "bounty_prizes":
-                            total_bounty += entry["amount"]
-                    if entry["ref_type"] == "ess_escrow_transfer":
-                        if self.is_corp:
-                            total_ess_payout += entry["amount"]
-                        else:
-                            total_ess_payout += (
-                                entry["amount"] / app_settings.LEDGER_CORP_TAX
-                            ) * (100 - app_settings.LEDGER_CORP_TAX)
+                        total_ess_payout += entry["amount"]
+                    else:
+                        total_ess_payout += (
+                            entry["amount"] / app_settings.LEDGER_CORP_TAX
+                        ) * (100 - app_settings.LEDGER_CORP_TAX)
         return total_bounty, total_ess_payout
 
     def aggregate_char(self, journal, range_):
@@ -62,45 +61,44 @@ class BillboardLedger:
         total_production_cost = 0
 
         for entry in journal:
-            if entry["date"].year == self.date.year:
-                if (self.date.month == 0 and entry["date"].month == range_) or (
-                    self.date.month != 0 and entry["date"].day == range_
+            if (self.date.month == 0 and entry["date"].month == range_) or (
+                self.date.month != 0 and entry["date"].day == range_
+            ):
+                # Bounty Filter
+                if entry["ref_type"] == "bounty_prizes":
+                    total_bounty += entry["amount"]
+                # Misc Filter
+                if (
+                    entry["ref_type"]
+                    in [
+                        "market_transaction",
+                        "contract_price_payment_corp",
+                        "contract_reward",
+                        "contract_price",
+                    ]
+                    and entry["amount"] > 0
                 ):
-                    # Bounty Filter
-                    if entry["ref_type"] == "bounty_prizes":
-                        total_bounty += entry["amount"]
-                    # Misc Filter
-                    if (
-                        entry["ref_type"]
-                        in [
-                            "market_transaction",
-                            "contract_price_payment_corp",
-                            "contract_reward",
-                            "contract_price",
-                        ]
-                        and entry["amount"] > 0
-                    ):
+                    total_miscellaneous += entry["amount"]
+                # Donation Filter
+                if (entry["ref_type"] == "player_donation") and entry["amount"] > 0:
+                    if entry["first_party_id"] not in self.chars:
                         total_miscellaneous += entry["amount"]
-                    # Donation Filter
-                    if (entry["ref_type"] == "player_donation") and entry["amount"] > 0:
-                        if entry["first_party_id"] not in self.chars:
-                            total_miscellaneous += entry["amount"]
-                    # Total ISK
-                    if entry["amount"] > 0:
-                        total_isk += entry["amount"]
-                    else:
-                        total_cost += entry["amount"]
-                    # Total Market
-                    if entry["ref_type"] in [
-                        "market_escrow",
-                        "transaction_tax",
-                        "market_provider_tax",
-                        "brokers_fee",
-                    ]:
-                        total_market += entry["amount"]
-                    # Production Cost
-                    if entry["ref_type"] in ["industry_job_tax", "manufacturing"]:
-                        total_production_cost += entry["amount"]
+                # Total ISK
+                if entry["amount"] > 0:
+                    total_isk += entry["amount"]
+                else:
+                    total_cost += entry["amount"]
+                # Total Market
+                if entry["ref_type"] in [
+                    "market_escrow",
+                    "transaction_tax",
+                    "market_provider_tax",
+                    "brokers_fee",
+                ]:
+                    total_market += entry["amount"]
+                # Production Cost
+                if entry["ref_type"] in ["industry_job_tax", "manufacturing"]:
+                    total_production_cost += entry["amount"]
         return (
             total_bounty,
             total_miscellaneous,
@@ -114,11 +112,10 @@ class BillboardLedger:
         """Aggregate the journal entries for the mining."""
         total_mining = 0
         for entry in journal:
-            if entry["date"].year == self.date.year:
-                if (self.date.month == 0 and entry["date"].month == range_) or (
-                    self.date.month != 0 and entry["date"].day == range_
-                ):
-                    total_mining += entry["total"] if entry["total"] else 0
+            if (self.date.month == 0 and entry["date"].month == range_) or (
+                self.date.month != 0 and entry["date"].day == range_
+            ):
+                total_mining += entry["total"] if entry["total"] else 0
         return total_mining
 
     # pylint: disable=too-many-branches
