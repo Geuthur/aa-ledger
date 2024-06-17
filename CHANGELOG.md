@@ -1,5 +1,22 @@
 # Changelog
 
+## \[0.5.2a1\] - 2024-06-17
+
+### Added
+
+- Costs to Character Ledger Table
+- Many Tests
+
+### Fixed
+
+- Income Calculation not exclude Donation from Own Chars on Billboard Chart
+- Fixed Market Cost not shown if Transaction is empty on Detailed. Information
+- Fixed Market Escrow RefType wasn't shown on Detailed Information
+
+### Changed
+
+- Corp & Character Ledger Template Update
+
 ## \[0.5.1\] - 2024-06-14
 
 ### Added

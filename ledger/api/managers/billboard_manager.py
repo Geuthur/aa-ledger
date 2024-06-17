@@ -88,7 +88,8 @@ class BillboardLedger:
                     if entry["first_party_id"] not in self.chars:
                         total_isk += entry["amount"]
                 else:
-                    total_cost += entry["amount"]
+                    if entry["second_party_id"] not in self.chars:
+                        total_cost += entry["amount"]
                 # Total Market
                 if entry["ref_type"] in [
                     "market_escrow",
