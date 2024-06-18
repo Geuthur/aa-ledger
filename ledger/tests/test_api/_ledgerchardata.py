@@ -41,7 +41,7 @@ CharmonthlyMarch = [
         },
         "billboard": {
             "walletcharts": [
-                ["Income", 500000],
+                ["Income", 600000],
                 ["Market Cost", 100000],
                 ["Production Cost", 100000],
                 ["Misc. Cost", 100000],
@@ -251,7 +251,7 @@ Charyearly = [
         },
         "billboard": {
             "walletcharts": [
-                ["Income", 600000],
+                ["Income", 700000],
                 ["Market Cost", 100000],
                 ["Production Cost", 100000],
                 ["Misc. Cost", 100000],

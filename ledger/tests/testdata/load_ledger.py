@@ -179,6 +179,7 @@ def load_char_journal():
         tax_receiver_id=0,
     )
 
+    # Player Donation
     CharacterWalletJournalEntry.objects.create(
         character=CharacterAudit.objects.get(character__character_name="Gneuten"),
         amount=100_000,
@@ -259,6 +260,24 @@ def load_char_journal():
         entry_id=50,
         reason="Test Transfer",
         ref_type="industry_job_tax",
+        second_party=EveEntity.objects.get(eve_id=1001),
+        tax=0,
+        tax_receiver_id=0,
+    )
+
+    # Market Escrow
+    CharacterWalletJournalEntry.objects.create(
+        character=CharacterAudit.objects.get(character__character_name="Gneuten"),
+        amount=100_000,
+        balance=0,
+        context_id=60,
+        context_id_type="system_id",
+        date="2024-03-19T14:00:00Z",
+        description="Test",
+        first_party=EveEntity.objects.get(eve_id=1000125),
+        entry_id=60,
+        reason="Test Transfer",
+        ref_type="market_escrow",
         second_party=EveEntity.objects.get(eve_id=1001),
         tax=0,
         tax_receiver_id=0,

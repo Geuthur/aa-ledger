@@ -86,7 +86,7 @@ class BillboardLedger:
                 # Total ISK
                 if entry["amount"] > 0:
                     total_isk += entry["amount"]
-                elif entry["amount"] < 0:
+                else:
                     total_cost += entry["amount"]
                 # Total Market
                 if entry["ref_type"] in [
@@ -99,8 +99,7 @@ class BillboardLedger:
                         total_market_cost += entry["amount"]
                 # Production Cost
                 if entry["ref_type"] in ["industry_job_tax", "manufacturing"]:
-                    if entry["amount"] < 0:
-                        total_production_cost += entry["amount"]
+                    total_production_cost += entry["amount"]
         return (
             total_bounty,
             total_miscellaneous,
