@@ -229,17 +229,17 @@ class BillboardLedger:
             else None
         )
 
+    # Generate Charts Billboard for Character Ledger
     def generate_wallet_charts_data(self):
-        # Daten für die Wallet-Charts vorbereiten
         misc_cost = abs(
             self.data.total_cost
             - self.data.total_production_cost
             - self.data.total_market_cost
         )
+
         wallet_chart_data = [
             # Earns
             ["Income", int(self.data.total_isk)],
-            # ["Ratting", int(total_sum_ratting)],  ["Mining", int(total_sum_mining)], ["Misc.", int(total_sum_misc)],
             # Costs
             ["Market Cost", int(abs(self.data.total_market_cost))],
             ["Production Cost", int(abs(self.data.total_production_cost))],
@@ -252,19 +252,26 @@ class BillboardLedger:
             else None
         )
 
-    # Generate Charts Billboard for Corporation Wallets
+    # Generate Charts Billboard for Corporation Ledger
     def generate_wallet_corps_data(self, corporation_dict, summary_dict_all):
-        for entry in corporation_dict.values():
-            total_amount_entry = entry["total_amount"]
-            percentage = (total_amount_entry / summary_dict_all) * 100
-            name = entry["main_name"]
-            self.billboard_dict["charts"].append([name, percentage])
+        if not corporation_dict:
+            self.billboard_dict["charts"] = None
+            return
+        others_percentage = 0
+        others_name = "Others"
+        chart_entries = []
 
-        self.billboard_dict["charts"] = (
-            sorted(self.billboard_dict["charts"], key=lambda x: x[0])
-            if self.billboard_dict["charts"]
-            else None
-        )
+        for i, entry in enumerate(corporation_dict.values(), start=1):
+            percentage = (entry["total_amount"] / summary_dict_all) * 100
+            if i <= 10:
+                chart_entries.append([entry["main_name"], percentage])
+            else:
+                others_percentage += percentage / 10
+
+        if len(corporation_dict) > 10:
+            chart_entries.append([others_name, others_percentage])
+
+        self.billboard_dict["charts"] = sorted(chart_entries, key=lambda x: -x[1])
 
     # Create the Billboard Char Ledger
     def billboard_char_ledger(self, chars: list):
