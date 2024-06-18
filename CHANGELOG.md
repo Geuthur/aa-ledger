@@ -9,7 +9,6 @@
 
 ### Fixed
 
-- Income Calculation not exclude Donation from Own Chars on Billboard Chart
 - Fixed Market Cost not shown if Transaction is empty on Detailed. Information
 - Fixed Market Escrow RefType wasn't shown on Detailed Information
 
