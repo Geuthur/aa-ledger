@@ -19,7 +19,7 @@ class LedgerDataCore:
 class LedgerData(LedgerDataCore):
     total_cost: int = 0
     total_production_cost: int = 0
-    total_market: int = 0
+    total_market_cost: int = 0
 
 
 class LedgerModels:
@@ -97,7 +97,8 @@ class LedgerFilterCost(LedgerFilterCore):
                 "transaction_tax",
                 "market_provider_tax",
                 "brokers_fee",
-            ]
+            ],
+            amount__lt=0,
         )
         self.filter_production = self.filter_partys & Q(
             ref_type__in=["industry_job_tax", "manufacturing"]

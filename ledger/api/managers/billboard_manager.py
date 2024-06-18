@@ -57,7 +57,7 @@ class BillboardLedger:
         total_miscellaneous = 0
         total_isk = 0
         total_cost = 0
-        total_market = 0
+        total_market_cost = 0
         total_production_cost = 0
 
         for entry in journal:
@@ -95,16 +95,18 @@ class BillboardLedger:
                     "market_provider_tax",
                     "brokers_fee",
                 ]:
-                    total_market += entry["amount"]
+                    if entry["amount"] < 0:
+                        total_market_cost += entry["amount"]
                 # Production Cost
                 if entry["ref_type"] in ["industry_job_tax", "manufacturing"]:
-                    total_production_cost += entry["amount"]
+                    if entry["amount"] < 0:
+                        total_production_cost += entry["amount"]
         return (
             total_bounty,
             total_miscellaneous,
             total_isk,
             total_cost,
-            total_market,
+            total_market_cost,
             total_production_cost,
         )
 
@@ -138,7 +140,7 @@ class BillboardLedger:
                 total_miscellaneous,
                 total_isk,
                 total_cost,
-                total_market,
+                total_market_cost,
                 total_production_cost,
             ) = self.aggregate_char(char_journal, range_)
 
@@ -147,7 +149,7 @@ class BillboardLedger:
             # Wallet Charts
             self.data.total_isk += total_isk
             self.data.total_cost += total_cost
-            self.data.total_market += total_market
+            self.data.total_market_cost += total_market_cost
             self.data.total_production_cost += total_production_cost
 
         if mining_journal:
@@ -233,14 +235,14 @@ class BillboardLedger:
         misc_cost = abs(
             self.data.total_cost
             - self.data.total_production_cost
-            - self.data.total_market
+            - self.data.total_market_cost
         )
         wallet_chart_data = [
             # Earns
             ["Income", int(self.data.total_isk)],
             # ["Ratting", int(total_sum_ratting)],  ["Mining", int(total_sum_mining)], ["Misc.", int(total_sum_misc)],
             # Costs
-            ["Market Cost", int(abs(self.data.total_market))],
+            ["Market Cost", int(abs(self.data.total_market_cost))],
             ["Production Cost", int(abs(self.data.total_production_cost))],
             ["Misc. Cost", int(misc_cost)],
         ]
