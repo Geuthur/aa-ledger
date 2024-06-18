@@ -198,7 +198,7 @@ def load_char_journal():
 
     CharacterWalletJournalEntry.objects.create(
         character=CharacterAudit.objects.get(character__character_name="Gneuten"),
-        amount=100_000,
+        amount=-100_000,
         balance=0,
         context_id=31,
         context_id_type="system_id",
@@ -209,6 +209,23 @@ def load_char_journal():
         reason="Test Transfer",
         ref_type="player_donation",
         second_party=EveEntity.objects.get(eve_id=1001),
+        tax=0,
+        tax_receiver_id=0,
+    )
+
+    CharacterWalletJournalEntry.objects.create(
+        character=CharacterAudit.objects.get(character__character_name="Gneuten"),
+        amount=100_000,
+        balance=0,
+        context_id=31,
+        context_id_type="system_id",
+        date="2024-03-19T14:00:00Z",
+        description="Test",
+        first_party=EveEntity.objects.get(eve_id=1001),
+        entry_id=31,
+        reason="Test Transfer",
+        ref_type="player_donation",
+        second_party=EveEntity.objects.get(eve_id=1006),
         tax=0,
         tax_receiver_id=0,
     )
