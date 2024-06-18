@@ -37,7 +37,7 @@ class LedgerJournalApiEndpoints:
                     division__corporation__corporation__corporation_id=corporation_id
                 )
                 .select_related("first_party", "second_party", "division")
-                .order_by("-date")
+                .order_by("-entry_id")
             )
 
             start_count = (page - 1) * 10000
@@ -45,8 +45,6 @@ class LedgerJournalApiEndpoints:
 
             if type_refs:
                 refs = type_refs.split(",")
-                if len(refs) == 0:
-                    return 200, []
                 wallet_journal = wallet_journal.filter(ref_type__in=refs)
 
             wallet_journal = wallet_journal[start_count:end_count]

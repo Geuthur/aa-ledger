@@ -4,9 +4,9 @@ from unittest.mock import patch
 from django.test import TestCase
 from django.utils import timezone
 
-from ledger.models.events import Events  # replace with your actual module path
+from ledger.models.events import Events
 
-MODULE_PATH = "ledger.models.general"  # replace with your actual module path
+MODULE_PATH = "ledger.models.general"
 
 
 class TestGeneralModel(TestCase):

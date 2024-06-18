@@ -13,7 +13,7 @@ from ledger.task_helpers.char_helpers import (
 from ledger.task_helpers.etag_helpers import NotModifiedError
 from ledger.tests.testdata.esi_stub import esi_client_stub
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_ledger import load_char_audit, load_char_mining
+from ledger.tests.testdata.load_ledger import load_ledger_all
 
 MODULE_PATH = "ledger.task_helpers.char_helpers"
 
@@ -23,8 +23,7 @@ class TestCharacterHelpers(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         load_allianceauth()
-        load_char_audit()
-        load_char_mining()
+        load_ledger_all()
 
         cls.mock_token = MagicMock(spec=Token)
         cls.mock_token.character_id = 1001

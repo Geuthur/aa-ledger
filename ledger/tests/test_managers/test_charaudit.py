@@ -5,17 +5,17 @@ from app_utils.testing import create_user_from_evecharacter
 
 from ledger.models.characteraudit import CharacterAudit, CharacterMiningLedger
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_ledger import load_char_audit, load_char_mining
+from ledger.tests.testdata.load_ledger import load_ledger_all
 
-MODULE_PATH = "ledger.managers.corpaudit_manager"  # Replace with the actual module path
+MODULE_PATH = "ledger.managers.corpaudit_manager"
 
 
 class CharAuditQuerySetTest(TestCase):
     @classmethod
-    def setUp(self):
+    def setUpClass(cls) -> None:
+        super().setUpClass()
         load_allianceauth()
-        load_char_audit()
-        load_char_mining()
+        load_ledger_all()
 
     def test_visible_to_superuser(self):
         # given

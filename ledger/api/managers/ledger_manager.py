@@ -35,6 +35,7 @@ class JournalProcess:
         self.summary_total.total_amount_all += totals.get("total_amount_all", 0)
         self.summary_total.total_amount_mining += totals.get("total_amount_mining", 0)
         self.summary_total.total_amount_others += totals.get("total_amount_others", 0)
+        self.summary_total.total_amount_costs += totals.get("total_amount_costs", 0)
 
     def aggregate_journal(self, journal):
         result = journal.aggregate(
@@ -66,7 +67,7 @@ class JournalProcess:
                 corporation_journal.filter(filters.filter_ess)
             )
 
-            combined_amount = total_bounty + total_ess
+            summary_amount = total_bounty + total_ess
 
             if total_bounty or total_ess:
                 self.corporation_dict[char_id] = {
@@ -80,7 +81,7 @@ class JournalProcess:
             totals = {
                 "total_amount": total_bounty,
                 "total_amount_ess": total_ess,
-                "total_amount_all": combined_amount,
+                "total_amount_all": summary_amount,
             }
             # Summary all
             self.calc_summary_total(totals)
@@ -115,6 +116,12 @@ class JournalProcess:
                         first_party_id__in=chars
                     )
                 ),
+                "market_cost": self.aggregate_journal(
+                    character_journal.filter(filters.filter_market_cost)
+                ),
+                "production_cost": self.aggregate_journal(
+                    character_journal.filter(filters.filter_production)
+                ),
                 "mining": mining_journal.filter(filters.filter_mining)
                 .values("total", "date")
                 .aggregate(
@@ -130,12 +137,14 @@ class JournalProcess:
             total_amount_others = (
                 amounts["contracts"] + amounts["transactions"] + amounts["donations"]
             )
-            combined_amount = (
+            costs_amount = amounts["market_cost"] + amounts["production_cost"]
+            summary_amount = (
                 amounts["bounty"]
                 + amounts["ess"]
                 + amounts["mining"]["total_amount"]
                 + total_amount_others
             )
+            summary_amount -= abs(costs_amount)
 
             if amounts["bounty"] > 0 or total_amount_others > 0:
                 self.character_dict[char_id] = {
@@ -145,14 +154,16 @@ class JournalProcess:
                     "total_amount_ess": amounts["ess"],
                     "total_amount_mining": amounts["mining"]["total_amount"],
                     "total_amount_others": total_amount_others,
+                    "total_amount_costs": costs_amount,
                 }
 
             totals = {
                 "total_amount": amounts["bounty"],
                 "total_amount_ess": amounts["ess"],
-                "total_amount_all": combined_amount,
+                "total_amount_all": summary_amount,
                 "total_amount_mining": amounts["mining"]["total_amount"],
                 "total_amount_others": total_amount_others,
+                "total_amount_costs": costs_amount,
             }
             # Summary all
             self.calc_summary_total(totals)
@@ -166,7 +177,7 @@ class JournalProcess:
 
         # Filter the entries for the Year/Month
         filter_date = Q(date__year=self.year)
-        if not self.month == 0:
+        if self.month != 0:
             filter_date &= Q(date__month=self.month)
 
         # Get the Corporation Journal

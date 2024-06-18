@@ -402,7 +402,7 @@ class TemplateProcess:
                 character_journal.filter(filters.filter_production)
             ),
             "market_cost": self._aggregate_journal(
-                character_journal.filter(filters.my_filter_market_cost)
+                character_journal.filter(filters.filter_market_cost)
             ),
         }
         # Convert ESS Payout for Character Ledger

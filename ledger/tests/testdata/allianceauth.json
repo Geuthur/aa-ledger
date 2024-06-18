@@ -1,6 +1,13 @@
 {
     "EveCharacter": [
         {
+            "character_id": 1000,
+            "character_name": "CONCORD",
+            "corporation_id": 1000125,
+            "corporation_name": "CONCORD",
+            "corporation_ticker": "CCP"
+        },
+        {
             "character_id": 1001,
             "character_name": "Gneuten",
             "corporation_id": 2001,
@@ -53,6 +60,16 @@
             "corporation_id": 2001,
             "corporation_name": "Hell RiderZ",
             "corporation_ticker": "HRZ",
+            "alliance_id": 3001,
+            "alliance_name": "Voices of War",
+            "alliance_ticker": "VOW"
+        },
+        {
+            "character_id": 1007,
+            "character_name": "Eulenspiegel",
+            "corporation_id": 2002,
+            "corporation_name": "Eulenclub",
+            "corporation_ticker": "EC",
             "alliance_id": 3001,
             "alliance_name": "Voices of War",
             "alliance_ticker": "VOW"

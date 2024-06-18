@@ -8,12 +8,13 @@ from ledger.models.general import EveEntity
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 from ledger.tests.testdata.load_ledger import load_eveentity
 
-MODULE_PATH = "ledger.managers.general_manager"  # Replace with the actual module path
+MODULE_PATH = "ledger.managers.general_manager"
 
 
 class GeneralQuerySetTest(TestCase):
     @classmethod
-    def setUp(self):
+    def setUpclass(cls) -> None:
+        super().setUpClass()
         load_allianceauth()
 
     def test_get_or_create_esi(self):

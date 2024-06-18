@@ -1,6 +1,11 @@
 {
     "EveEntity": [
         {
+            "eve_id": 1000,
+            "name": "CONCORD",
+            "category": "character"
+        },
+        {
             "eve_id": 1001,
             "name": "Gneuten",
             "category": "character"
@@ -43,6 +48,11 @@
         {
             "eve_id": 2003,
             "name": "Schweinshausen",
+            "category": "corporation"
+        },
+        {
+            "eve_id": 1000125,
+            "name": "CONCORD",
             "category": "corporation"
         },
         {

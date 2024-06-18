@@ -14,17 +14,13 @@ from ledger.models.characteraudit import (
     CharacterWalletJournalEntry,
 )
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
-from ledger.tests.testdata.load_ledger import (
-    load_char_audit,
-    load_char_journal,
-    load_char_mining,
-)
+from ledger.tests.testdata.load_ledger import load_ledger_all
 
-MODULE_PATH = "ledger.models.general"  # replace with your actual module path
+MODULE_PATH = "ledger.models.general"
 
 
 class TestCharacterAuditModel(TestCase):
+    @classmethod
     def setUp(self):
         load_allianceauth()
         self.audit = CharacterAudit(
@@ -92,25 +88,27 @@ class TestCharacterAuditModel(TestCase):
 
 
 class TestCharacterWalletJournal(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
         load_allianceauth()
-        load_char_audit()
-        load_char_journal()
-        self.journal = CharacterWalletJournalEntry.objects.get(id=1)
+        load_ledger_all()
+        cls.journal = CharacterWalletJournalEntry.objects.get(entry_id=1)
 
     def test_str(self):
         self.assertEqual(
             str(self.journal),
-            "Character Wallet Journal: Gneuten 'test' rotze Rotineque: 100000.00 isk",
+            "Character Wallet Journal: CONCORD 'bounty_prizes' Gneuten: 100000.00 isk",
         )
 
 
 class TestCharacterMiningLedger(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
         load_allianceauth()
-        load_char_audit()
-        load_char_mining()
-        self.mining = CharacterMiningLedger.objects.get(
+        load_ledger_all()
+        cls.mining = CharacterMiningLedger.objects.get(
             id="20240316-17425-1001-30004783"
         )
 

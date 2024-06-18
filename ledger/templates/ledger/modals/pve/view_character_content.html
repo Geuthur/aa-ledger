@@ -63,10 +63,6 @@
                                 <div class="col-sm-6">Trading:</div>
                                 <div class='col-sm-6'><span style="color: green">{{ character.transaction.total_amount|floatformat:0|intcomma }}</span> ISK</div>
                             </div>
-                            <div class="row description-row">
-                                <div class="col-sm-6">Trading Cost:</div>
-                                <div class='col-sm-6'><span style="color: red">{{ character.market_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
-                            </div>
                         {% endif %}
 
                         {% if character.contract %}
@@ -92,13 +88,22 @@
                             </div>
                         {% endif %}
 
-                        {% if character.production_cost %}
+                        {% if character.production_cost or character.market_cost %}
                             <hr>
+                        {% endif %}
+                        {% if character.production_cost %}
                             <div class="row description-row">
                                 <div class="col-sm-6">Production Cost:</div>
                                 <div class='col-sm-6'><span style="color: red">{{ character.production_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
                             </div>
                         {% endif %}
+                        {% if character.market_cost %}
+                            <div class="row description-row">
+                                <div class="col-sm-6">Trading Cost:</div>
+                                <div class='col-sm-6'><span style="color: red">{{ character.market_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                            </div>
+                        {% endif %}
+                        <!--############################## SUMMARY #######################-->
                         <hr>
                         <div class="row description-row">
                             <div class="col-sm-6">Summary:</div>
@@ -176,19 +181,6 @@
                             </div>
                         {% endif %}
 
-                        {% if character.market_cost %}
-                            {% if character.market_cost.total_amount_day %}
-                                <div class="row description-row">
-                                    <div class="col-sm-6">Current Day - Trading Cost:</div>
-                                    <div class='col-sm-4'><span style="color: red">{{ character.market_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
-                                </div>
-                            {% endif %}
-                            <div class="row description-row">
-                                <div class="col-sm-6">Avg. Trading Cost per Day:</div>
-                                <div class='col-sm-4'><span style="color: red">{{ character.market_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
-                            </div>
-                        {% endif %}
-
                         {% if character.contract %}
                             <hr>
                             {% if character.contract.total_amount_day %}
@@ -217,8 +209,11 @@
                             </div>
                         {% endif %}
 
+
+                        {% if character.production_cost or character.market_cost %}
+                            <hr>
+                        {% endif %}
                         {% if character.production_cost %}
-                        <hr>
                             {% if character.production_cost.total_amount_day %}
                                 <div class="row description-row">
                                     <div class="col-sm-6">Current Day - Production Cost:</div>
@@ -231,6 +226,19 @@
                                 </div>
                         {% endif %}
 
+                        {% if character.market_cost %}
+                            {% if character.market_cost.total_amount_day %}
+                                <div class="row description-row">
+                                    <div class="col-sm-6">Current Day - Trading Cost:</div>
+                                    <div class='col-sm-4'><span style="color: red">{{ character.market_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+                                </div>
+                            {% endif %}
+                            <div class="row description-row">
+                                <div class="col-sm-6">Avg. Trading Cost per Day:</div>
+                                <div class='col-sm-4'><span style="color: red">{{ character.market_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                            </div>
+                        {% endif %}
+                <!--############################## SUMMARY DAILY #######################-->
                         {% if character.date %}
                             <hr>
                             <div class="row description-row">
@@ -280,13 +288,6 @@
                             </div>
                         {% endif %}
 
-                        {% if character.market_cost %}
-                            <div class="row description-row">
-                                <div class="col-sm-6">Avg. Trading Cost per Hour:</div>
-                                <div class='col-sm-4'><span style="color: red">{{ character.market_cost.average_hour|floatformat:0|intcomma }}</span> ISK</div>
-                            </div>
-                        {% endif %}
-
                         {% if character.contract %}
                             <hr>
                             <div class="row description-row">
@@ -303,13 +304,24 @@
                             </div>
                         {% endif %}
 
-                        {% if character.production_cost %}
+
+                        {% if character.production_cost or character.market_cost %}
                             <hr>
+                        {% endif %}
+                        {% if character.production_cost %}
                             <div class="row description-row">
                                 <div class="col-sm-6">Avg. Production Cost per Hour:</div>
                                 <div class='col-sm-4'><span style="color: red">{{ character.production_cost.average_hour|floatformat:0|intcomma }}</span> ISK</div>
                             </div>
                         {% endif %}
+
+                        {% if character.market_cost %}
+                            <div class="row description-row">
+                                <div class="col-sm-6">Avg. Trading Cost per Hour:</div>
+                                <div class='col-sm-4'><span style="color: red">{{ character.market_cost.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+                            </div>
+                        {% endif %}
+                        <!--############################## SUMMARY HOURLY #######################-->
                         {% if character.date %}
                             <hr>
                             <div class="row description-row">

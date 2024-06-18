@@ -8,7 +8,7 @@ from ledger.admin import CharacterAuditAdmin, CorporationAuditAdmin
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_ledger import load_char_audit, load_corp_audit
+from ledger.tests.testdata.load_ledger import load_ledger_all
 
 
 class MockRequest:
@@ -16,15 +16,15 @@ class MockRequest:
 
 
 class TestCorporationAuditAdmin(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
         load_allianceauth()
-        load_corp_audit()
-        self.factory = RequestFactory()
-        self.site = AdminSite()
-        self.corporation_audit_admin = CorporationAuditAdmin(
-            CorporationAudit, self.site
-        )
-        self.corporation_audit = CorporationAudit.objects.get(id=1)
+        load_ledger_all()
+        cls.factory = RequestFactory()
+        cls.site = AdminSite()
+        cls.corporation_audit_admin = CorporationAuditAdmin(CorporationAudit, cls.site)
+        cls.corporation_audit = CorporationAudit.objects.get(id=1)
 
     def test_entity_pic(self):
         user = UserFactory(is_superuser=True, is_staff=True)
@@ -85,14 +85,16 @@ class TestCorporationAuditAdmin(TestCase):
 
 
 class TestCharacterAuditAdmin(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
         # Assuming load_allianceauth() and load_char_audit() are functions you've defined elsewhere to set up your test environment
         load_allianceauth()
-        load_char_audit()
-        self.factory = RequestFactory()
-        self.site = AdminSite()
-        self.character_audit_admin = CharacterAuditAdmin(CharacterAudit, self.site)
-        self.character_audit = CharacterAudit.objects.get(id=1)
+        load_ledger_all()
+        cls.factory = RequestFactory()
+        cls.site = AdminSite()
+        cls.character_audit_admin = CharacterAuditAdmin(CharacterAudit, cls.site)
+        cls.character_audit = CharacterAudit.objects.get(id=1)
 
     def test_entity_pic(self):
         user = UserFactory(is_superuser=True, is_staff=True)
