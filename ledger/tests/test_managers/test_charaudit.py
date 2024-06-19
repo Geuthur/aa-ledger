@@ -90,7 +90,25 @@ class CharAuditQuerySetTest(TestCase):
         self.assertEqual(list(result), list(expected_result))
         # when
         expected_result = EveCharacter.objects.filter(
-            character_id__in=[1001, 1004, 1005, 1006]
+            character_id__in=[
+                1001,
+                1004,
+                1005,
+                1006,
+                1010,
+                1011,
+                1012,
+                1013,
+                1014,
+                1015,
+                1016,
+                1017,
+                1018,
+                1019,
+                1020,
+                1021,
+                1022,
+            ]
         )
         result = CharacterAudit.objects.visible_eve_characters(self.user)
         # then

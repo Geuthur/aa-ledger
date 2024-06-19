@@ -54,7 +54,6 @@ class LedgerDate:
         self.monthly = self.month == 0
         self.range_data = 12 if self.monthly else self.calculate_days()
         self.day_checks = list(range(1, self.range_data + 1))
-        logger.error(self.day_checks)
 
 
 @dataclass
