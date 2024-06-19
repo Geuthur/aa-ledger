@@ -29,12 +29,13 @@ class TemplateData:
     request_id: int
     year: int
     month: int
+    ledger_date: datetime = datetime.now()
     current_date: datetime = datetime.now()
 
     def __post_init__(self):
-        self.current_date = self.current_date.replace(year=self.year)
+        self.ledger_date = self.ledger_date.replace(year=self.year)
         if self.month != 0:
-            self.current_date = self.current_date.replace(month=self.month)
+            self.ledger_date = self.ledger_date.replace(month=self.month)
 
 
 @dataclass
@@ -312,9 +313,9 @@ class TemplateProcess:
         main_name = char.character_name if not self.show_year else "Summary"
         main_id = char.character_id if not self.show_year else 0
         date = (
-            str(self.data.current_date.year)
+            str(self.data.ledger_date.year)
             if self.data.month == 0
-            else self.data.current_date.strftime("%B")
+            else self.data.ledger_date.strftime("%B")
         )
 
         self.template_dict.update(
@@ -328,7 +329,7 @@ class TemplateProcess:
     # Add Amounts to Dict
     def _generate_amounts_dict(self, amounts):
         """Generate the amounts dictionary."""
-        current_day = 365 if self.data.month == 0 else self.data.current_date.day
+        current_day = 365 if self.data.month == 0 else self.data.ledger_date.day
         # Calculate the total sum
         total_sum = sum(amounts[key]["total_amount"] for key in amounts)
 
