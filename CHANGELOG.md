@@ -11,6 +11,10 @@
 
 - Fixed Market Cost not shown if Transaction is empty on Detailed. Information
 - Fixed Market Escrow RefType wasn't shown on Detailed Information
+- Fixed Billboard Limiter Sorted before enumerate
+- Fixed Curent Day Row.
+- Fixed Date not shown correctly on Month Change
+- Fixed Date Range Calculation on Billboard Manager
 
 ### Changed
 

@@ -5,6 +5,9 @@ from decimal import Decimal
 
 from ledger import app_settings
 from ledger.api.managers.core_manager import LedgerData, LedgerDate, LedgerModels
+from ledger.hooks import get_extension_logger
+
+logger = get_extension_logger(__name__)
 
 
 @dataclass
@@ -162,14 +165,13 @@ class BillboardLedger:
             self.sum.sum_amount_misc.append(int(self.data.total_miscellaneous))
             self.sum.sum_amount_mining.append(int(self.data.total_mining))
         # Add the date to the date list
-        try:
-            self.date_billboard.append(
-                date.replace(day=range_).strftime("%Y-%m-%d")
-                if not self.date.monthly
-                else date.replace(month=range_).strftime("%Y-%m")
-            )
-        except ValueError:
-            pass
+        self.date_billboard.append(
+            date.replace(
+                year=self.date.year, month=self.date.month, day=range_
+            ).strftime("%Y-%m-%d")
+            if not self.date.monthly
+            else date.replace(year=self.date.year, month=range_).strftime("%Y-%m")
+        )
 
     def calculate_total_sum(self):
         self.sum.total_sum = sum(
@@ -261,17 +263,21 @@ class BillboardLedger:
         others_name = "Others"
         chart_entries = []
 
-        for i, entry in enumerate(corporation_dict.values(), start=1):
+        sorted_entries = sorted(
+            corporation_dict.values(), key=lambda x: x["total_amount"], reverse=True
+        )
+
+        for i, entry in enumerate(sorted_entries, start=1):
             percentage = (entry["total_amount"] / summary_dict_all) * 100
             if i <= 10:
                 chart_entries.append([entry["main_name"], percentage])
             else:
-                others_percentage += percentage / 10
+                others_percentage += percentage
 
         if len(corporation_dict) > 10:
             chart_entries.append([others_name, others_percentage])
 
-        self.billboard_dict["charts"] = sorted(chart_entries, key=lambda x: -x[1])
+        self.billboard_dict["charts"] = chart_entries
 
     # Create the Billboard Char Ledger
     def billboard_char_ledger(self, chars: list):

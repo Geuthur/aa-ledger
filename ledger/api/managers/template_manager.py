@@ -278,7 +278,14 @@ class TemplateProcess:
         result = journal.aggregate(
             total_amount=Coalesce(Sum(F("amount")), 0, output_field=DecimalField()),
             total_amount_day=Coalesce(
-                Sum(F("amount"), filter=Q(date__day=self.data.current_date.day)),
+                Sum(
+                    F("amount"),
+                    filter=Q(
+                        date__year=self.data.current_date.year,
+                        date__month=self.data.current_date.month,
+                        date__day=self.data.current_date.day,
+                    ),
+                ),
                 0,
                 output_field=DecimalField(),
             ),
@@ -286,6 +293,8 @@ class TemplateProcess:
                 Sum(
                     F("amount"),
                     filter=Q(
+                        date__year=self.data.current_date.year,
+                        date__month=self.data.current_date.month,
                         date__day=self.data.current_date.day,
                         date__hour=self.data.current_date.hour,
                     ),
