@@ -2,17 +2,15 @@
 Decorators
 """
 
-import sys
 from datetime import datetime, timedelta
 from functools import wraps
 
 from app_utils.esi import EsiDailyDowntime, fetch_esi_status
 
+from ledger.app_settings import IS_TESTING
 from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
-
-IS_TESTING = sys.argv[1:2] == ["test"]
 
 
 def when_esi_is_available(func):

@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from ninja import NinjaAPI
 
 from django.test import TestCase
@@ -44,6 +46,45 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
     def test_get_character_ledger_api(self):
         self.client.force_login(self.user)
         url = "/ledger/api/account/0/ledger/year/2024/month/3/"
+
+        response = self.client.get(url)
+        expected_data = CharmonthlyMarch
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_data)
+
+    @patch("ledger.api.character.ledger.get_cache_stale")
+    @patch("ledger.api.character.ledger.IS_TESTING", False)
+    def test_get_character_ledger_api_cache_no_testing(self, mock_get_cache_stale):
+        self.client.force_login(self.user)
+        url = "/ledger/api/account/0/ledger/year/2024/month/3/"
+
+        mock_get_cache_stale.return_value = CharmonthlyMarch
+
+        response = self.client.get(url)
+        expected_data = CharmonthlyMarch
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_data)
+
+    @patch("ledger.api.character.ledger.get_cache_stale")
+    @patch("ledger.api.character.ledger.IS_TESTING", True)
+    def test_get_character_ledger_api_no_cache_testing(self, mock_get_cache_stale):
+        self.client.force_login(self.user)
+        url = "/ledger/api/account/0/ledger/year/2024/month/3/"
+
+        mock_get_cache_stale.return_value = False
+
+        response = self.client.get(url)
+        expected_data = CharmonthlyMarch
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_data)
+
+    @patch("ledger.api.character.ledger.get_cache_stale")
+    @patch("ledger.api.character.ledger.IS_TESTING", False)
+    def test_get_character_ledger_api_no_cache_no_testing(self, mock_get_cache_stale):
+        self.client.force_login(self.user)
+        url = "/ledger/api/account/0/ledger/year/2024/month/3/"
+
+        mock_get_cache_stale.return_value = False
 
         response = self.client.get(url)
         expected_data = CharmonthlyMarch

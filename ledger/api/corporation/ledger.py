@@ -6,6 +6,7 @@ from ninja import NinjaAPI
 from ledger.api import schema
 from ledger.api.helpers import get_corporations, get_main_and_alts_all
 from ledger.api.managers.ledger_manager import JournalProcess
+from ledger.app_settings import IS_TESTING
 from ledger.hooks import get_extension_logger
 from ledger.view_helpers.core import _storage_key, get_cache_stale, set_cache
 
@@ -40,13 +41,17 @@ class LedgerApiEndpoints:
             output = get_cache_stale(
                 _storage_key(f"corporation_ledger_{corporation_id}_{year}_{month}")
             )
+
             if not output:
                 ledger = JournalProcess(characters, year, month)
                 output = ledger.corporation_ledger(chars_list)
-                set_cache(
-                    output,
-                    _storage_key(f"corporation_ledger_{corporation_id}_{year}_{month}"),
-                    1,
-                )
+                if not IS_TESTING:
+                    set_cache(
+                        output,
+                        _storage_key(
+                            f"corporation_ledger_{corporation_id}_{year}_{month}"
+                        ),
+                        1,
+                    )
 
             return output

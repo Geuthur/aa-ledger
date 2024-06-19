@@ -2,10 +2,13 @@
 App Settings
 """
 
+import sys
+
 # Django
 from app_utils.app_settings import clean_setting
 
-TESTING_MODE = False
+IS_TESTING = sys.argv[1:2] == ["test"]
+
 # Set Test Mode True or False
 
 # Set Naming on Auth Hook
