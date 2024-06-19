@@ -6,6 +6,7 @@ from ledger.api import schema
 from ledger.api.helpers import get_alts_queryset, get_main_character
 from ledger.api.managers.ledger_manager import JournalProcess
 from ledger.hooks import get_extension_logger
+from ledger.view_helpers.core import _storage_key, get_cache_stale, set_cache
 
 logger = get_extension_logger(__name__)
 
@@ -31,7 +32,16 @@ class LedgerApiEndpoints:
             characters = get_alts_queryset(main)
 
             # Create the Ledger
-            ledger = JournalProcess(characters, year, month)
-            output = ledger.character_ledger()
+            output = get_cache_stale(
+                _storage_key(f"character_ledger_{character_id}_{year}_{month}")
+            )
+            if not output:
+                ledger = JournalProcess(characters, year, month)
+                output = ledger.character_ledger()
+                set_cache(
+                    output,
+                    _storage_key(f"character_ledger_{character_id}_{year}_{month}"),
+                    1,
+                )
 
             return output
