@@ -1,6 +1,6 @@
 # Changelog
 
-## \[0.5.2a1\] - 2024-06-17
+## \[0.5.2a2\] - 2024-06-19
 
 ### Added
 
@@ -9,12 +9,12 @@
 
 ### Fixed
 
-- Fixed Market Cost not shown if Transaction is empty on Detailed. Information
-- Fixed Market Escrow RefType wasn't shown on Detailed Information
-- Fixed Billboard Limiter Sorted before enumerate
-- Fixed Curent Day Row shown on different months,years.
-- Fixed Date not shown correctly on Month Change
-- Fixed Date Range Calculation on Billboard Manager
+- Market Cost not shown if Transaction is empty on Detailed. Information
+- Market Escrow RefType wasn't shown on Detailed Information
+- Billboard Limiter Sorted before enumerate
+- Curent Day Row shown on different months,years.
+- Date not shown correctly on Month Change
+- Date Range Calculation on Billboard Manager
 
 ### Changed
 
