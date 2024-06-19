@@ -1,5 +1,7 @@
 """PvE Views"""
 
+from datetime import datetime
+
 # Django
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render
@@ -23,8 +25,12 @@ def ledger_index(request):
 @login_required
 @permission_required("ledger.basic_access")
 def ratting_index(request):
+    current_year = datetime.now().year
+    years = [current_year - i for i in range(6)]
+
     context = {
         "memberaudit": LEDGER_MEMBERAUDIT_USE,
+        "years": years,
     }
     return render(request, "ledger/corpledger/corp_ledger.html", context=context)
 
@@ -32,7 +38,11 @@ def ratting_index(request):
 @login_required
 @permission_required("ledger.basic_access")
 def ratting_char_index(request):
+    current_year = datetime.now().year
+    years = [current_year - i for i in range(6)]
+
     context = {
         "memberaudit": LEDGER_MEMBERAUDIT_USE,
+        "years": years,
     }
     return render(request, "ledger/charledger/char_ledger.html", context=context)

@@ -6,6 +6,7 @@
 
 - Costs to Character Ledger Table
 - Many Tests
+- Year Selection on Ledger
 
 ### Fixed
 
@@ -19,6 +20,7 @@
 ### Changed
 
 - Corp & Character Ledger Template Update
+- Corp, Char Ledger JS to Bootstrap Dropdown
 
 ## \[0.5.1\] - 2024-06-14
 

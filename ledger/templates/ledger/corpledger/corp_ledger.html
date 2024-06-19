@@ -9,7 +9,38 @@
 
 {% block vow_block %}
 <div class="card-body container-fluid">
-    <div class="card-body bg-primary rounded-top"><h3>{% translate "Corporation Ledger" %}</h3></div>
+    <div class="card-body bg-primary rounded-top d-flex">
+        <h3>{% translate "Corporation Ledger" %} </h3>
+        <div class="dropdown px-2">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Year
+            </button>
+            <ul class="dropdown-menu" id="yearDropdown">
+                {% for year in years %}
+                    <li><a class="dropdown-item" href="#">{{ year }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Month
+            </button>
+            <ul class="dropdown-menu" id="monthDropdown">
+                <li><a class="dropdown-item" data-bs-month-id="1" href="#">{% trans "January" %}</a></li>
+                <li><a class="dropdown-item" data-bs-month-id="2" href="#">{% trans "February" %}</a></li>
+                <li><a class="dropdown-item" data-bs-month-id="3" href="#">{% trans "March" %}</a></li>
+                <li><a class="dropdown-item" data-bs-month-id="4" href="#">{% trans "April" %}</a></li>
+                <li><a class="dropdown-item" data-bs-month-id="5" href="#">{% trans "May" %}</a></li>
+                <li><a class="dropdown-item" data-bs-month-id="6" href="#">{% trans "June" %}</a></li>
+                <li><a class="dropdown-item" data-bs-month-id="7" href="#">{% trans "July" %}</a></li>
+                <li><a class="dropdown-item" data-bs-month-id="8" href="#">{% trans "August" %}</a></li>
+                <li><a class="dropdown-item" data-bs-month-id="9" href="#">{% trans "September" %}</a></li>
+                <li><a class="dropdown-item" data-bs-month-id="10" href="#">{% trans "October" %}</a></li>
+                <li><a class="dropdown-item" data-bs-month-id="11" href="#">{% trans "November" %}</a></li>
+                <li><a class="dropdown-item" data-bs-month-id="12" href="#">{% trans "December" %}</a></li>
+            </ul>
+        </div>
+    </div>
     <ul class="nav nav-tabs" id="ledger-ratting" role="tablist">
         <li class="nav-item">
             <a id="currentMonthLink" class="nav-link active" href="#tab-current_month" data-bs-toggle="tab" role="tab" data-bs-target="#tab-current_month">
@@ -25,7 +56,7 @@
     <div class="tab-content rounded-bottom">
         <div class="tab-content">
             {% include 'ledger/corpledger/month.html' %}
-            {% include 'ledger/corpledger/year.html' %}
+            {% include 'ledger/corpledger/year.html' with years=years %}
         </div>
     </div>
 </div>
