@@ -34,15 +34,16 @@ class LedgerApiEndpoints:
                 logging.error("Permission Denied for %s to view wallets!", request.user)
                 return 403, "Permission Denied!"
 
-            # filters &= Q(ref_type=ref_type)
-            characters, chars_list = get_main_and_alts_all(corporations, char_ids=True)
-
-            # Create the Ledger
             output = get_cache_stale(
                 _storage_key(f"corporation_ledger_{corporation_id}_{year}_{month}")
             )
 
+            # Create the Ledger
             if not output:
+                characters, chars_list = get_main_and_alts_all(
+                    corporations, char_ids=True
+                )
+
                 ledger = JournalProcess(characters, year, month)
                 output = ledger.corporation_ledger(chars_list)
                 if not IS_TESTING:

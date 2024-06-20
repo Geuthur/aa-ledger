@@ -30,14 +30,14 @@ class LedgerApiEndpoints:
             if not response:
                 return 403, "Permission Denied"
 
-            characters = get_alts_queryset(main)
-
-            # Create the Ledger
             output = get_cache_stale(
                 _storage_key(f"character_ledger_{character_id}_{year}_{month}")
             )
 
+            # Create the Ledger
             if not output:
+                characters = get_alts_queryset(main)
+
                 ledger = JournalProcess(characters, year, month)
                 output = ledger.character_ledger()
                 if not IS_TESTING:

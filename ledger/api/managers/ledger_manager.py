@@ -184,9 +184,6 @@ class JournalProcess:
         corporation_journal = CorporationWalletJournalEntry.objects.filter(
             filters.filter_second_party, filter_date
         ).select_related(
-            "division",
-            "division__corporation",
-            "division__corporation__corporation",
             "first_party",
             "second_party",
         )
@@ -244,9 +241,6 @@ class JournalProcess:
         corporation_journal = CorporationWalletJournalEntry.objects.filter(
             filters.filter_second_party, filter_date
         ).select_related(
-            "division",
-            "division__corporation",
-            "division__corporation__corporation",
             "first_party",
             "second_party",
         )
