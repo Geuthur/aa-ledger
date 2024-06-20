@@ -2,6 +2,7 @@
 Core View Helper
 """
 
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Tuple
 
@@ -9,11 +10,26 @@ from django.core.cache import cache
 from django.db.models import Q
 
 from ledger.app_settings import STORAGE_BASE_KEY
-from ledger.decorators import custom_cache_timeout
 from ledger.hooks import get_extension_logger
 from ledger.models.events import Events
 
 logger = get_extension_logger(__name__)
+
+
+def ledger_cache_timeout():
+    """
+    Calculate time left to next hour
+
+    Example:
+    1 Hour
+        10:15 -> 45 minutes left
+        10:45 -> 15 minutes left
+    """
+    now = datetime.now()
+    delta = timedelta(minutes=60, hours=0, seconds=0)
+    next_time = (now + delta).replace(minute=0, second=0, microsecond=0)
+    timeout = next_time - now
+    return timeout.total_seconds()
 
 
 def calculate_ess_stolen(total_amount: int, ess_amount: int) -> Tuple[int, int]:
@@ -48,7 +64,16 @@ def set_cache(data, key_name: str, time: int):
     cache.set(
         key=_storage_key(key_name),
         value=data,
-        timeout=custom_cache_timeout(hours=time),
+        timeout=time,
+    )
+
+
+def set_cache_hourly(data, key_name: str):
+    """Reset hourly"""
+    cache.set(
+        key=_storage_key(key_name),
+        value=data,
+        timeout=ledger_cache_timeout(),
     )
 
 

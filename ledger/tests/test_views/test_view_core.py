@@ -11,7 +11,9 @@ from ledger.view_helpers.core import (
     delete_cache,
     events_filter,
     get_cache_stale,
+    ledger_cache_timeout,
     set_cache,
+    set_cache_hourly,
 )
 
 MODULE_PATH = "ledger.view_helpers.core"
@@ -48,6 +50,10 @@ class TestViewHelpers(TestCase):
 
     def test_set_cache(self):
         result = set_cache("test", "test", 1)
+        self.assertIsNone(result)
+
+    def test_set_cache_hourly(self):
+        result = set_cache_hourly("test", "test")
         self.assertIsNone(result)
 
     def test_delete_cache(self):
@@ -113,3 +119,11 @@ class TestEventsFilter(TestCase):
         # then
         self.entries.exclude.assert_called_once()
         self.assertEqual(result, self.entries.exclude.return_value)
+
+
+class TestCache(TestCase):
+    def test_ledger_cache_timeout(self):
+        # when
+        result = ledger_cache_timeout()
+        # then
+        self.assertTrue(result > 0)
