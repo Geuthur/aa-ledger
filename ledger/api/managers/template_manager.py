@@ -29,12 +29,13 @@ class TemplateData:
     request_id: int
     year: int
     month: int
+    ledger_date: datetime = datetime.now()
     current_date: datetime = datetime.now()
 
     def __post_init__(self):
-        self.current_date = self.current_date.replace(year=self.year)
+        self.ledger_date = self.ledger_date.replace(year=self.year)
         if self.month != 0:
-            self.current_date = self.current_date.replace(month=self.month)
+            self.ledger_date = self.ledger_date.replace(month=self.month)
 
 
 @dataclass
@@ -278,7 +279,14 @@ class TemplateProcess:
         result = journal.aggregate(
             total_amount=Coalesce(Sum(F("amount")), 0, output_field=DecimalField()),
             total_amount_day=Coalesce(
-                Sum(F("amount"), filter=Q(date__day=self.data.current_date.day)),
+                Sum(
+                    F("amount"),
+                    filter=Q(
+                        date__year=self.data.current_date.year,
+                        date__month=self.data.current_date.month,
+                        date__day=self.data.current_date.day,
+                    ),
+                ),
                 0,
                 output_field=DecimalField(),
             ),
@@ -286,6 +294,8 @@ class TemplateProcess:
                 Sum(
                     F("amount"),
                     filter=Q(
+                        date__year=self.data.current_date.year,
+                        date__month=self.data.current_date.month,
                         date__day=self.data.current_date.day,
                         date__hour=self.data.current_date.hour,
                     ),
@@ -303,9 +313,9 @@ class TemplateProcess:
         main_name = char.character_name if not self.show_year else "Summary"
         main_id = char.character_id if not self.show_year else 0
         date = (
-            str(self.data.current_date.year)
+            str(self.data.ledger_date.year)
             if self.data.month == 0
-            else self.data.current_date.strftime("%B")
+            else self.data.ledger_date.strftime("%B")
         )
 
         self.template_dict.update(
@@ -319,7 +329,7 @@ class TemplateProcess:
     # Add Amounts to Dict
     def _generate_amounts_dict(self, amounts):
         """Generate the amounts dictionary."""
-        current_day = 365 if self.data.month == 0 else self.data.current_date.day
+        current_day = 365 if self.data.month == 0 else self.data.ledger_date.day
         # Calculate the total sum
         total_sum = sum(amounts[key]["total_amount"] for key in amounts)
 

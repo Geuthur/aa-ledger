@@ -5,10 +5,13 @@ from decimal import Decimal
 
 from ledger import app_settings
 from ledger.api.managers.core_manager import LedgerData, LedgerDate, LedgerModels
+from ledger.hooks import get_extension_logger
+
+logger = get_extension_logger(__name__)
 
 
 @dataclass
-class LedgerSum:
+class BillboardSum:
     sum_amount: list = field(default_factory=lambda: ["Ratting"])
     sum_amount_ess: list = field(default_factory=lambda: ["ESS Payout"])
     sum_amount_misc: list = field(default_factory=lambda: ["Miscellaneous"])
@@ -22,7 +25,7 @@ class BillboardLedger:
         self.data = LedgerData()
         self.models = models
         self.date = date_data
-        self.sum = LedgerSum()
+        self.sum = BillboardSum()
         self.billboard_dict = {
             "walletcharts": [],
             "charts": [],
@@ -162,14 +165,13 @@ class BillboardLedger:
             self.sum.sum_amount_misc.append(int(self.data.total_miscellaneous))
             self.sum.sum_amount_mining.append(int(self.data.total_mining))
         # Add the date to the date list
-        try:
-            self.date_billboard.append(
-                date.replace(day=range_).strftime("%Y-%m-%d")
-                if not self.date.monthly
-                else date.replace(month=range_).strftime("%Y-%m")
-            )
-        except ValueError:
-            pass
+        self.date_billboard.append(
+            date.replace(
+                year=self.date.year, month=self.date.month, day=range_
+            ).strftime("%Y-%m-%d")
+            if not self.date.monthly
+            else date.replace(year=self.date.year, month=range_).strftime("%Y-%m")
+        )
 
     def calculate_total_sum(self):
         self.sum.total_sum = sum(
@@ -229,17 +231,17 @@ class BillboardLedger:
             else None
         )
 
+    # Generate Charts Billboard for Character Ledger
     def generate_wallet_charts_data(self):
-        # Daten für die Wallet-Charts vorbereiten
         misc_cost = abs(
             self.data.total_cost
             - self.data.total_production_cost
             - self.data.total_market_cost
         )
+
         wallet_chart_data = [
             # Earns
             ["Income", int(self.data.total_isk)],
-            # ["Ratting", int(total_sum_ratting)],  ["Mining", int(total_sum_mining)], ["Misc.", int(total_sum_misc)],
             # Costs
             ["Market Cost", int(abs(self.data.total_market_cost))],
             ["Production Cost", int(abs(self.data.total_production_cost))],
@@ -252,19 +254,30 @@ class BillboardLedger:
             else None
         )
 
-    # Generate Charts Billboard for Corporation Wallets
+    # Generate Charts Billboard for Corporation Ledger
     def generate_wallet_corps_data(self, corporation_dict, summary_dict_all):
-        for entry in corporation_dict.values():
-            total_amount_entry = entry["total_amount"]
-            percentage = (total_amount_entry / summary_dict_all) * 100
-            name = entry["main_name"]
-            self.billboard_dict["charts"].append([name, percentage])
+        if not corporation_dict:
+            self.billboard_dict["charts"] = None
+            return
+        others_percentage = 0
+        others_name = "Others"
+        chart_entries = []
 
-        self.billboard_dict["charts"] = (
-            sorted(self.billboard_dict["charts"], key=lambda x: x[0])
-            if self.billboard_dict["charts"]
-            else None
+        sorted_entries = sorted(
+            corporation_dict.values(), key=lambda x: x["total_amount"], reverse=True
         )
+
+        for i, entry in enumerate(sorted_entries, start=1):
+            percentage = (entry["total_amount"] / summary_dict_all) * 100
+            if i <= 10:
+                chart_entries.append([entry["main_name"], percentage])
+            else:
+                others_percentage += percentage
+
+        if len(corporation_dict) > 10:
+            chart_entries.append([others_name, others_percentage])
+
+        self.billboard_dict["charts"] = chart_entries
 
     # Create the Billboard Char Ledger
     def billboard_char_ledger(self, chars: list):

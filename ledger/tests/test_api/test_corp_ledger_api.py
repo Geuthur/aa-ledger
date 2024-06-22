@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from ninja import NinjaAPI
 
 from django.test import TestCase
@@ -5,7 +7,12 @@ from django.test import TestCase
 from app_utils.testing import create_user_from_evecharacter
 
 from ledger.api.corporation.ledger import LedgerApiEndpoints
-from ledger.tests.test_api._ledgercorpdata import CorpmonthlyMarch, Corpyearly, noData
+from ledger.tests.test_api._ledgercorpdata import (
+    Corpdatamany,
+    CorpmonthlyMarch,
+    Corpyearly,
+    noData,
+)
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 from ledger.tests.testdata.load_ledger import load_ledger_all
 
@@ -49,6 +56,45 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)
 
+    @patch("ledger.api.corporation.ledger.get_cache_stale")
+    @patch("ledger.api.corporation.ledger.IS_TESTING", False)
+    def test_get_corporation_ledger_api_cache_no_testing(self, mock_get_cache_stale):
+        self.client.force_login(self.user)
+        url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
+
+        mock_get_cache_stale.return_value = CorpmonthlyMarch
+
+        response = self.client.get(url)
+        expected_data = CorpmonthlyMarch
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_data)
+
+    @patch("ledger.api.corporation.ledger.get_cache_stale")
+    @patch("ledger.api.corporation.ledger.IS_TESTING", True)
+    def test_get_corporation_ledger_api_no_cache_testing(self, mock_get_cache_stale):
+        self.client.force_login(self.user)
+        url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
+
+        mock_get_cache_stale.return_value = False
+
+        response = self.client.get(url)
+        expected_data = CorpmonthlyMarch
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_data)
+
+    @patch("ledger.api.corporation.ledger.get_cache_stale")
+    @patch("ledger.api.corporation.ledger.IS_TESTING", False)
+    def test_get_corporation_ledger_api_no_cache_no_testing(self, mock_get_cache_stale):
+        self.client.force_login(self.user)
+        url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
+
+        mock_get_cache_stale.return_value = False
+
+        response = self.client.get(url)
+        expected_data = CorpmonthlyMarch
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_data)
+
     def test_get_corporation_ledger_api_single(self):
         self.client.force_login(self.user)
         url = "/ledger/api/corporation/2001/ledger/year/2024/month/3/"
@@ -75,12 +121,32 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
 
         self.assertEqual(response.status_code, 403)
 
-    def test_get_corporation_ledger_api_no_data(self):
+    @patch("ledger.api.corporation.ledger.get_cache_stale")
+    def test_get_corporation_ledger_api_no_data(self, mock_get_cache_stale):
         self.client.force_login(self.user3)
         url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
+        mock_get_cache_stale.return_value = False
 
         response = self.client.get(url)
 
         expected_data = noData
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_data)
+
+    def test_get_corporation_ledger_api_many_data(self):
+        self.client.force_login(self.user3)
+        url = "/ledger/api/corporation/2001/ledger/year/2024/month/3/"
+
+        for i in range(1010, 1023):
+            self.user, _ = create_user_from_evecharacter(
+                i,
+                permissions=[
+                    "ledger.basic_access",
+                ],
+            )
+
+        response = self.client.get(url)
+
+        expected_data = Corpdatamany
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)

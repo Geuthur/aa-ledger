@@ -1,9 +1,13 @@
+import calendar
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 
 from django.db.models import Q
 
 from ledger import app_settings
+from ledger.hooks import get_extension_logger
+
+logger = get_extension_logger(__name__)
 
 
 @dataclass
@@ -42,9 +46,13 @@ class LedgerDate:
     range_data: int = field(init=False)
     day_checks: list = field(init=False)
 
+    def calculate_days(self):
+        _, num_days = calendar.monthrange(self.year, self.month)
+        return num_days
+
     def __post_init__(self):
         self.monthly = self.month == 0
-        self.range_data = 12 if self.monthly else 31
+        self.range_data = 12 if self.monthly else self.calculate_days()
         self.day_checks = list(range(1, self.range_data + 1))
 
 

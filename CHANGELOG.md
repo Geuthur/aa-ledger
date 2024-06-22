@@ -1,20 +1,28 @@
 # Changelog
 
-## \[0.5.2a1\] - 2024-06-17
+## \[0.5.2a2\] - 2024-06-19
 
 ### Added
 
 - Costs to Character Ledger Table
 - Many Tests
+- Year Selection on Ledger
+- Ledger Caching
 
 ### Fixed
 
-- Fixed Market Cost not shown if Transaction is empty on Detailed. Information
-- Fixed Market Escrow RefType wasn't shown on Detailed Information
+- Market Cost not shown if Transaction is empty on Detailed. Information
+- Market Escrow RefType wasn't shown on Detailed Information
+- Billboard Limiter Sorted before enumerate
+- Curent Day Row shown on different months,years.
+- Date not shown correctly on Month Change
+- Date Range Calculation on Billboard Manager
 
 ### Changed
 
 - Corp & Character Ledger Template Update
+- Corp, Char Ledger JS to Bootstrap Dropdown
+- Caching Function
 
 ## \[0.5.1\] - 2024-06-14
 

@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from app_utils.esi import EsiDailyDowntime
 
-from ledger.decorators import custom_cache_timeout, when_esi_is_available
+from ledger.decorators import when_esi_is_available
 
 
 class TestDecorators(TestCase):
@@ -47,19 +47,3 @@ class TestDecorators(TestCase):
         result = trigger_esi_deco()
         # then
         self.assertEqual(result, "Teesting Mode.")
-
-    def test_custom_cache_timeout_still_active(self):
-        # given
-        minutes = 120
-        # when
-        result = custom_cache_timeout(minutes=minutes)
-        # then
-        self.assertTrue(result > 0)
-
-    def test_custom_cache_timeout_expired(self):
-        # given
-        minutes = -5
-        # when
-        result = custom_cache_timeout(minutes=minutes)
-        # then
-        self.assertTrue(result == 0)

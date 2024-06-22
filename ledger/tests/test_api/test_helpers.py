@@ -189,7 +189,10 @@ class TestApiHelpers(TestCase):
         main_char.character_ownership.user.character_ownerships.all.return_value.values_list.side_effect = (
             ObjectDoesNotExist
         )
-        main_char.pk = 90
+
+        existing_char = EveCharacter.objects.all().first()
+        main_char.pk = existing_char.pk
+
         # when
         data = get_alts_queryset(main_char)
         # then
