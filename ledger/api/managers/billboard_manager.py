@@ -11,7 +11,7 @@ logger = get_extension_logger(__name__)
 
 
 @dataclass
-class LedgerSum:
+class BillboardSum:
     sum_amount: list = field(default_factory=lambda: ["Ratting"])
     sum_amount_ess: list = field(default_factory=lambda: ["ESS Payout"])
     sum_amount_misc: list = field(default_factory=lambda: ["Miscellaneous"])
@@ -25,7 +25,7 @@ class BillboardLedger:
         self.data = LedgerData()
         self.models = models
         self.date = date_data
-        self.sum = LedgerSum()
+        self.sum = BillboardSum()
         self.billboard_dict = {
             "walletcharts": [],
             "charts": [],
