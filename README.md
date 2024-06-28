@@ -58,11 +58,11 @@ To set up the Scheduled Tasks add following code to your `local.py`
 ```python
 CELERYBEAT_SCHEDULE["ledger_character_audit_update_all"] = {
     "task": "ledger.tasks.update_all_characters",
-    "schedule": crontab(hour="*/1"),
+    "schedule": crontab(minute=0, hour="*/1"),
 }
 CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
     "task": "ledger.tasks.update_all_corps",
-    "schedule": crontab(hour="*/1"),
+    "schedule": crontab(minute=0, hour="*/1"),
 }
 ```
 
