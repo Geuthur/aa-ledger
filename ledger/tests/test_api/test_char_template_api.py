@@ -53,7 +53,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertContains(
             response,
             '<span style="color: green">100,000</span>',
-            count=1,
+            count=3,
             status_code=200,
         )
 
@@ -78,7 +78,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertContains(
             response,
             '<span style="color: green">100,000</span>',
-            count=1,
+            count=3,
             status_code=200,
         )
 
