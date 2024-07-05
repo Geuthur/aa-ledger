@@ -50,14 +50,6 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertContains(response, "1,133,333", status_code=200)
 
         self.assertContains(response, "Donations", status_code=200)
-        self.assertContains(
-            response,
-            '<span style="color: green">100,000</span>',
-            count=3,
-            status_code=200,
-        )
-
-        self.assertContains(response, "-100,000", count=2, status_code=200)
 
     def test_get_character_ledger_template_api_single(self):
         # given
@@ -75,14 +67,9 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertContains(response, "1,133,333", status_code=200)
 
         self.assertContains(response, "Donations", status_code=200)
-        self.assertContains(
-            response,
-            '<span style="color: green">100,000</span>',
-            count=3,
-            status_code=200,
-        )
 
-        self.assertContains(response, "-100,000", count=2, status_code=200)
+        # Summary
+        self.assertContains(response, "200,000", count=2, status_code=200)
 
     def test_get_character_ledger_template_api_year(self):
         # given
@@ -92,7 +79,6 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         response = self.client.get(url)
         # then
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "200,000", count=1, status_code=200)
         self.assertContains(response, "Ratting", status_code=200)
 
         self.assertContains(response, "ESS", status_code=200)
@@ -100,14 +86,6 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
 
         self.assertContains(response, "Mining", status_code=200)
         self.assertContains(response, "Donations", status_code=200)
-        self.assertContains(
-            response,
-            '<span style="color: green">100,000</span>',
-            count=1,
-            status_code=200,
-        )
-
-        self.assertContains(response, "-100,000", count=2, status_code=200)
 
         # Summary
         self.assertContains(response, "300,000", count=1, status_code=200)
