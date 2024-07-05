@@ -37,12 +37,11 @@ class LedgerApiEndpoints:
             output = get_cache_stale(
                 _storage_key(f"corporation_ledger_{corporation_id}_{year}_{month}")
             )
+            output = None
 
             # Create the Ledger
             if not output:
-                characters, chars_list = get_main_and_alts_all(
-                    corporations, char_ids=True
-                )
+                characters, chars_list = get_main_and_alts_all(corporations)
 
                 ledger = JournalProcess(characters, year, month)
                 output = ledger.corporation_ledger(chars_list)

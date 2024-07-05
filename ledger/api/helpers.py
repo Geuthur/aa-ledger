@@ -1,6 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
 
-from allianceauth.authentication.models import UserProfile
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger import app_settings, models
@@ -108,90 +107,71 @@ def get_alts_queryset(main_char):
         return EveCharacter.objects.filter(pk=main_char.pk)
 
 
-def get_main_and_alts_all(corporations: list, char_ids=False, corp_members=True):
+def get_main_and_alts_all(corporations: list, corp_members=True):
     """
-    Get all mains and their alts from Alliance Auth if they are in Corp
+    Get all mains and their alts from given corporations
 
     Args:
     - corporations: corp `list`
-    - char_ids: include list
     - corp_members: add Corp Members
-
-    Returns - Dict (Queryset)
-    - `Dict`: Mains and Alts QuerySet (EvECharacter or CorpMember)
 
     Returns - Dict(Queryset) & List
     - `Dict`: Mains and Alts Queryset
     - `List`: Character IDS
     """
     mains = {}
+    chars_list = set()
     corpmember = get_corp_models_and_string()
 
-    # pylint: disable=no-member
-    users = (
-        UserProfile.objects.select_related("main_character")
-        .all()
-        .order_by("main_character_id")
+    linked_chars = EveCharacter.objects.filter(corporation_id__in=corporations)
+    linked_chars = linked_chars | EveCharacter.objects.filter(
+        character_ownership__user__profile__main_character__corporation_id__in=corporations
     )
 
-    for char in users:
-        if char.main_character:
-            main = char.main_character.character_ownership.user.profile.main_character
-            linked_characters = (
-                main.character_ownership.user.character_ownerships.all().exclude(
-                    character__character_id=main.character_id
+    linked_chars = linked_chars.select_related(
+        "character_ownership", "character_ownership__user__profile__main_character"
+    ).prefetch_related("character_ownership__user__character_ownerships")
+    linked_chars = linked_chars.order_by("character_name")
+
+    for char in linked_chars:
+        try:
+            main = char.character_ownership.user.profile.main_character
+            if main is not None:
+                linked_characters = (
+                    main.character_ownership.user.character_ownerships.all().exclude(
+                        character__character_id=main.character_id
+                    )
                 )
-            )
-            if main.corporation_id in corporations:
-                mains[main.character_id] = {
-                    "main": main,
-                    "alts": [char.character for char in linked_characters],
-                }
-        else:
-            continue
+                if main.corporation_id in corporations:
+                    alts = [char.character for char in linked_characters]
+                    mains[main.character_id] = {
+                        "main": main,
+                        "alts": alts,
+                    }
+                chars_list.add(main.character_id)
+                for alt in alts:
+                    chars_list.add(alt.character_id)
+
+        except ObjectDoesNotExist:
+            pass
 
     if corp_members:
         corp = corpmember.objects.select_related("corpstats", "corpstats__corp").filter(
             corpstats__corp__corporation_id__in=corporations
         )
 
-        # Add None Registred Chars to the Ledger
-        chars = list(
-            set(
-                [main["main"].character_id for _, main in mains.items()]
-                + [
-                    alt.character_id
-                    for _, main in mains.items()
-                    for alt in main["alts"]
-                ]
-            )
-        )
         for char in corp:
             try:
                 char = EveCharacter.objects.get(character_id=char.character_id)
             except EveCharacter.DoesNotExist:
                 pass
-            if char.character_id not in chars:
+            if char.character_id not in chars_list:
                 mains[char.character_id] = {"main": char, "alts": []}
-    # Sort Names Alphabetic
-    mains = sorted(mains.items(), key=lambda item: item[1]["main"].character_name)
-    mains = dict(mains)
-    if char_ids:
-        chars = list(
-            set(
-                [main["main"].character_id for _, main in mains.items()]
-                + [
-                    alt.character_id
-                    for _, main in mains.items()
-                    for alt in main["alts"]
-                ]
-            )
-        )
-        return mains, chars
-    return mains
+                chars_list.add(char.character_id)
+    return mains, list(chars_list)
 
 
-def get_corporations(request):  # pylint: disable=unused-argument
+def get_corporations(request):
     linked_characters = request.user.profile.main_character.character_ownership.user.character_ownerships.all().values_list(
         "character_id", flat=True
     )

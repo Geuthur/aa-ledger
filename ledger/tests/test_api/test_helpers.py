@@ -66,7 +66,7 @@ class TestApiHelpers(TestCase):
         char = EveCharacter.objects.get(character_id=1001)
         self.user4.profile.main_character.delete()
         # when
-        data = get_main_and_alts_all([2001], corp_members=False)
+        data, _ = get_main_and_alts_all([2001], corp_members=False)
         # then
         self.assertEqual(data, {1001: {"main": char, "alts": []}})
 
@@ -87,7 +87,7 @@ class TestApiHelpers(TestCase):
             mains[char.character_id] = {"main": char, "alts": []}
         excepted_data = mains
         # when
-        data = get_main_and_alts_all([2001], corp_members=True)
+        data, _ = get_main_and_alts_all([2001], corp_members=True)
         # then
         self.assertEqual(data, excepted_data)
 
@@ -111,7 +111,7 @@ class TestApiHelpers(TestCase):
             mains[char.character_id] = {"main": char, "alts": []}
         excepted_data = mains
         # when
-        data = get_main_and_alts_all([2001], corp_members=True)
+        data, _ = get_main_and_alts_all([2001], corp_members=True)
         # then
         self.assertEqual(data, excepted_data)
 
@@ -136,7 +136,7 @@ class TestApiHelpers(TestCase):
 
         excepted_data = mains
         # when
-        data = get_main_and_alts_all([2001], corp_members=True)
+        data, _ = get_main_and_alts_all([2001], corp_members=True)
         # then
         self.assertEqual(data, excepted_data)
 

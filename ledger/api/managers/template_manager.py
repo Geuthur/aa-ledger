@@ -180,7 +180,7 @@ class TemplateProcess:
         return: dict
         """
 
-        mains, chars = get_main_and_alts_all(self.chars, char_ids=True)
+        mains, chars = get_main_and_alts_all(self.chars)
 
         filters = LedgerFilter(chars)
         filter_date = Q(date__year=self.data.year)
