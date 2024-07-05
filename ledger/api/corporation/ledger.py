@@ -37,7 +37,6 @@ class LedgerApiEndpoints:
             output = get_cache_stale(
                 _storage_key(f"corporation_ledger_{corporation_id}_{year}_{month}")
             )
-            output = None
 
             # Create the Ledger
             if not output:

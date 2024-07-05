@@ -45,7 +45,6 @@ class ManageApiTemplateCorpEndpointsTest(TestCase):
         url = "/ledger/api/corporation/1001/ledger/template/year/2024/month/3/"
         # when
         response = self.client.get(url)
-        print(response.content)
         # then
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Ratting", status_code=200)
