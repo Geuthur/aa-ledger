@@ -9,11 +9,23 @@ from typing import Tuple
 from django.core.cache import cache
 from django.db.models import Q
 
-from ledger.app_settings import STORAGE_BASE_KEY
+from ledger.app_settings import LEDGER_MEMBERAUDIT_USE, STORAGE_BASE_KEY
 from ledger.hooks import get_extension_logger
 from ledger.models.events import Events
 
 logger = get_extension_logger(__name__)
+
+
+# pylint: disable=unused-argument
+def add_info_to_context(request, context: dict) -> dict:
+    """Add additional information to the context for the view."""
+    new_context = {
+        **{
+            "memberaudit": LEDGER_MEMBERAUDIT_USE,
+        },
+        **context,
+    }
+    return new_context
 
 
 def ledger_cache_timeout():

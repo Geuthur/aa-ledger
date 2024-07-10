@@ -46,17 +46,14 @@ class LedgerTemplateApiEndpoints:
 
             if overall_mode:
                 linked_char = EveCharacter.objects.filter(
-                    character_ownership__user=request.user,
                     character_id__in=chars_list,
                 )
             else:
                 linked_char = [
                     EveCharacter.objects.get(
-                        character_ownership__user=request.user,
                         character_id=character_id,
                     )
                 ]
-            logger.debug(linked_char)
 
             # Create the Ledger
             ledger_data = TemplateData(request, character_id, year, month)

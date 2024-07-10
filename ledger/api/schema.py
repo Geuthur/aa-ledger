@@ -52,6 +52,10 @@ class CharacterLedgerTemplate(Schema):
     character: Optional[str] = None
 
 
+class CharacterAdmin(Schema):
+    character: Optional[dict] = None
+
+
 class CorporationWalletEvent(Schema):
     division: str
     id: int

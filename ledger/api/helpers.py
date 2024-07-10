@@ -59,14 +59,19 @@ def get_corp_models_and_string():
 
 def get_main_character(request, character_id):
     perms = True
+    if character_id == 0:
+        character_id = request.user.profile.main_character.character_id
 
     main_char = EveCharacter.objects.select_related(
         "character_ownership",
         "character_ownership__user__profile",
         "character_ownership__user__profile__main_character",
     ).get(character_id=character_id)
-
-    main_char = main_char.character_ownership.user.profile.main_character
+    # pylint: disable=broad-exception-caught
+    try:
+        main_char = main_char.character_ownership.user.profile.main_character
+    except Exception:
+        pass
 
     # check access
     visible = models.CharacterAudit.objects.visible_eve_characters(request.user)
@@ -92,6 +97,24 @@ def get_main_character(request, character_id):
         )
         perms = False
 
+    return perms, main_char
+
+
+def get_character(request, character_id):
+    perms = True
+    if character_id == 0:
+        character_id = request.user.profile.main_character.character_id
+
+    main_char = EveCharacter.objects.select_related(
+        "character_ownership",
+        "character_ownership__user__profile",
+        "character_ownership__user__profile__main_character",
+    ).get(character_id=character_id)
+
+    # check access
+    visible = models.CharacterAudit.objects.visible_eve_characters(request.user)
+    if main_char not in visible:
+        perms = False
     return perms, main_char
 
 

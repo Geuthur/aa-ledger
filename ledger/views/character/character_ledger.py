@@ -16,21 +16,25 @@ logger = get_extension_logger(__name__)
 
 @login_required
 @permission_required("ledger.basic_access")
-def ledger_index(request):
-    context = {}
-    add_info_to_context(request, context)
-
-    return render(request, "ledger/index.html", context=context)
-
-
-@login_required
-@permission_required("ledger.basic_access")
-def ratting_index(request):
+def character_ledger(request, character_pk):
+    """
+    Character Ledger
+    """
     current_year = datetime.now().year
     years = [current_year - i for i in range(6)]
 
     context = {
         "years": years,
+        "character_pk": character_pk,
     }
     add_info_to_context(request, context)
-    return render(request, "ledger/corpledger/corp_ledger.html", context=context)
+    return render(request, "ledger/charledger/character_ledger.html", context=context)
+
+
+@login_required
+@permission_required("ledger.admin_access")
+def character_admin(request):
+    """
+    Character Admin
+    """
+    return render(request, "ledger/charledger/admin/character_admin.html")
