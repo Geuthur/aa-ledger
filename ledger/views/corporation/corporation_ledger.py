@@ -20,6 +20,7 @@ def corporation_ledger(request, corporation_pk):
     """
     Corporation Ledger
     """
+    # pylint: disable=duplicate-code
     current_year = datetime.now().year
     years = [current_year - i for i in range(6)]
 
