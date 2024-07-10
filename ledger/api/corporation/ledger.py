@@ -33,8 +33,7 @@ class LedgerApiEndpoints:
             if corporation_id == 0:
                 corporations = get_main_and_alts_corporations(request)
             else:
-                corporations = set()
-                corporations.add(corporation_id)
+                corporations = [corporation_id]
 
             # Create the Ledger
             characters, chars_list = get_main_and_alts_all(corporations)

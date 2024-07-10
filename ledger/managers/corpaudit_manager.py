@@ -26,15 +26,20 @@ class CorpAuditQuerySet(models.QuerySet):
         try:
             char = user.profile.main_character
             assert char
+            queries = [models.Q(corporation__corporation_id=char.corporation_id)]
+
             if user.has_perm("ledger.corp_audit_manager"):
-                query = models.Q(corporation__corporation_id=char.corporation_id)
-            else:
-                logger.debug("User %s has no permission. Nothing visible.", user)
-                return self.none()
+                queries.append(
+                    models.Q(corporation__corporation_id=char.corporation_id)
+                )
+
             logger.debug(
-                "Returning own corp for Corp Audit Manager %s.",
-                user,
+                "%s queries for user %s visible corporations.", len(queries), user
             )
+
+            query = queries.pop()
+            for q in queries:
+                query |= q
             return self.filter(query)
         except AssertionError:
             logger.debug("User %s has no main character. Nothing visible.", user)

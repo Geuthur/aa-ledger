@@ -83,17 +83,20 @@ def get_corporation(request, corporation_id):
     """Get Corporation and check permissions"""
     perms = True
     if corporation_id == 0:
-        corporation_id = request.user.profile.main_character.corporation_id
+        corporations = get_main_and_alts_corporations(request)
+    else:
+        corporations = [corporation_id]
     try:
-        main_corp = models.CorporationAudit.objects.get(
-            corporation__corporation_id=corporation_id
+        main_corp = models.CorporationAudit.objects.filter(
+            corporation__corporation_id__in=corporations
         )
     except ObjectDoesNotExist:
         main_corp = None
-
-    # check access
+    # Check access
     visible = models.CorporationAudit.objects.visible_to(request.user)
-    if main_corp not in visible:
+    # Check if there is an intersection between main_corp and visible
+    common_corps = main_corp.intersection(visible)
+    if not common_corps.exists():
         perms = False
     return perms, main_corp
 
@@ -176,4 +179,4 @@ def get_main_and_alts_corporations(request):
     for char in chars:
         corporations.add(char.corporation_id)
 
-    return corporations
+    return list(corporations)
