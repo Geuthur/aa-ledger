@@ -9,6 +9,9 @@ from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
 
+# Add Filter to LedgerDataCore
+# TODO agent_mission_time_bonus_reward, agent_mission_reward
+
 
 @dataclass
 class LedgerDataCore:
