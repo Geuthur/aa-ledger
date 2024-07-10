@@ -26,7 +26,7 @@ class LedgerTemplateApiEndpoints:
             tags=self.tags,
         )
         def get_corporation_ledger_template(
-            request, main_id: int, year: int, month: int
+            request, main_id: int, year: int, month: int, corp: bool = False
         ):
             perms = request.user.has_perm("ledger.basic_access")
 
@@ -41,6 +41,11 @@ class LedgerTemplateApiEndpoints:
                 linked_char = EveCharacter.objects.filter(
                     corporation_id__in=corporations,
                 )
+            elif corp:
+                linked_char = EveCharacter.objects.filter(
+                    corporation_id__in=[main_id],
+                )
+                overall_mode = True
             else:
                 linked_char = [
                     EveCharacter.objects.get(

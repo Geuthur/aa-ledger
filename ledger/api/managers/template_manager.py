@@ -195,7 +195,7 @@ class TemplateProcess:
             .order_by("-date")
         )
 
-        self._process_corporation(corporation_journal, self.chars)
+        self._process_corporation(corporation_journal)
         return self.template_dict
 
     # Process the character
@@ -225,11 +225,11 @@ class TemplateProcess:
         self._generate_amounts_dict(total_amounts)
 
     # Process the corporation
-    def _process_corporation(self, corporation_journal, mains_data):
+    def _process_corporation(self, corporation_journal):
         """Process the corporations."""
         total_amounts = TemplateTotal().to_dict()
 
-        for char in mains_data:
+        for char in self.chars:
             amounts = self._process_amounts_corp(char, corporation_journal)
             # Add amounts to total_amounts
             for key, value in amounts.items():
