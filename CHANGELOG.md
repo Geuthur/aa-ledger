@@ -8,10 +8,14 @@
 
 - Character Ledger & Corporation Ledger Path
 - Corp & Char JS
+- Optimized get_all_mains_alts function
+- Optimized Billboard Calculation (Performance)
 
 ### Fixed
 
 - Error on Template if no data found
+- Wrong Calculations on Character Ledger 30 Days (ESS Payout)
+- Characters not visible in Character Ledger
 
 ### Removed
 

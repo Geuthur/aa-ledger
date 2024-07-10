@@ -43,6 +43,12 @@ class JournalProcess:
         )
         return result["total_amount"]
 
+    def aggregate_journal_flat(self, journal):
+        total_amount = 0
+        for entry in journal:
+            total_amount += entry
+        return total_amount
+
     def process_corporation_chars(self, corporation_journal):
         # Create a Dict for all Mains(including their alts)
         for _, data in self.chars.items():
@@ -60,11 +66,15 @@ class JournalProcess:
             # Get the Filter Settings
             filters = LedgerFilter(chars_mains)
 
-            total_bounty = self.aggregate_journal(
-                corporation_journal.filter(filters.filter_bounty)
+            total_bounty = self.aggregate_journal_flat(
+                corporation_journal.filter(filters.filter_bounty).values_list(
+                    "amount", flat=True
+                )
             )
-            total_ess = self.aggregate_journal(
-                corporation_journal.filter(filters.filter_ess)
+            total_ess = self.aggregate_journal_flat(
+                corporation_journal.filter(filters.filter_ess).values_list(
+                    "amount", flat=True
+                )
             )
 
             summary_amount = total_bounty + total_ess
@@ -146,7 +156,7 @@ class JournalProcess:
             )
             summary_amount -= abs(costs_amount)
 
-            if amounts["bounty"] > 0 or total_amount_others > 0:
+            if summary_amount > 0:
                 self.character_dict[char_id] = {
                     "main_id": char_id,
                     "main_name": char_name,
@@ -256,7 +266,7 @@ class JournalProcess:
         ledger = BillboardLedger(date_data, models, corp=True)
 
         billboard_dict = ledger.billboard_corp_ledger(
-            self.corporation_dict, self.summary_total.total_amount
+            self.corporation_dict, self.summary_total.total_amount, self.chars
         )
 
         output = []
