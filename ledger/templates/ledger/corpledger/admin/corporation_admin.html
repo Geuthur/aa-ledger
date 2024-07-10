@@ -6,15 +6,14 @@
 {% block vow_block %}
 
 <div class="bg-primary rounded-top px-2 py-2 mb-4">
-    <h3 class="text-white">{% translate "Ledger Character Overview" %}</h3>
+    <h3 class="text-white">{% translate "Ledger Corporation Overview" %}</h3>
 </div>
 <div class="card-body">
     <div class="row">
-        <table class="table table-striped table-hover" id="members" style="width: 100%;">
+        <table class="table table-striped table-hover" id="corporations" style="width: 100%;">
             <br>
             <thead>
                 <th class="col-portrait" style="width: 10%;"></th>
-                <th class="col-user" style="width: 20%;">Character</th>
                 <th class="col-group" style="width: 20%;">Corporation</th>
                 <th class="col-actions" style="width: 10%;">Actions</th>
             </thead>
@@ -31,39 +30,38 @@
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize DataTable
-    var Chars = $('#members').DataTable({
+    var Corps = $('#corporations').DataTable({
         ajax: {
-            url: '/ledger/api/account/ledger/admin/',
+            url: '/ledger/api/corporation/ledger/admin/',
             dataSrc: function (data) {
-                var charactersArray = [];
-                var charactersObj = data[0].character;
-                for (var key in charactersObj) {
-                    if (charactersObj.hasOwnProperty(key)) {
-                        charactersArray.push(charactersObj[key]);
+                var corporationsArray = [];
+                var corporationsObj = data[0].corporation;
+                for (var key in corporationsObj) {
+                    if (corporationsObj.hasOwnProperty(key)) {
+                        corporationsArray.push(corporationsObj[key]);
                     }
                 }
-                return charactersArray;
+                return corporationsArray;
             },
         },
         processing: true,
         columns: [
-            {data: 'character_id', title: ''},
-            {data: 'character_name', title: 'Character'},
+            {data: 'corporation_id', title: ''},
             {data: 'corporation_name', title: 'Corporation'},
         ],
         columnDefs: [
             {
                 targets: 0,
                 render: function (data, type, row) {
-                    return '<img src="https://images.evetech.net/characters/' + row.character_id + '/portrait?size=32" class="rounded-circle" title="' + row.character_name + '" height="30">';
+                    return '<img src="https://images.evetech.net/corporations/' + row.corporation_id + '/logo?size=32" class="rounded-circle" title="' + row.corporation_name + '" height="30">';
                 },
             },
             {
-                targets: 3,
+                targets: 2,
                 className: 'text-end',
                 sortable: false,
                 render: function (data, type, row) {
-                    return '<a href="/ledger/character_ledger/'+ row.character_id +'/"><button class="btn btn-primary btn-sm" title="Edit"><i class="fa-solid fa-eye"></i></button></a>';
+                    return '<a href="/ledger/corporation_ledger/'+ row.corporation_id +'/"><button class="btn btn-primary btn-sm" title="Edit"><i class="fa-solid fa-eye"></i></button></a>';
                 },
             }
         ]

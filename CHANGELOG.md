@@ -1,5 +1,22 @@
 # Changelog
 
+### Added
+
+- Admin Overview for Corporation & Character Ledger
+
+### Changed
+
+- Character Ledger & Corporation Ledger Path
+- Corp & Char JS
+
+### Fixed
+
+- Error on Template if no data found
+
+### Removed
+
+- Temporary Main & Alts merging in Corporation Ledger
+
 ## \[0.5.2a2\] - 2024-06-19
 
 ### Added

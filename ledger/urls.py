@@ -14,9 +14,13 @@ from ledger.views.corporation.corp_events import (
     events_index,
     load_events,
 )
+from ledger.views.corporation.corporation_ledger import (
+    corporation_admin,
+    corporation_ledger,
+)
 
 # AA Example App
-from ledger.views.pve import ledger_index, ratting_index
+from ledger.views.pve import ledger_index
 
 app_name: str = "ledger"
 
@@ -32,7 +36,12 @@ urlpatterns = [
     # -- PvE
     path("index", ledger_index, name="ledger_index"),
     # -- -- Corporation Ledger
-    path("corp_index", ratting_index, name="ledger_corp_index"),
+    path(
+        "corporation_ledger/<int:corporation_pk>/",
+        corporation_ledger,
+        name="corporation_ledger",
+    ),
+    path("corporation_admin/", corporation_admin, name="corporation_admin"),
     # -- -- Char Ledger
     path(
         "character_ledger/<int:character_pk>/",

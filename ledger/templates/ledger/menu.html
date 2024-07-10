@@ -3,7 +3,7 @@
 
 {% if perms.ledger.basic_access %}
 <li class="nav-item">
-    <a class="nav-link" href="{% url 'ledger:ledger_corp_index' %}">Corporation Ledger</a>
+    <a class="nav-link" href="{% url 'ledger:corporation_ledger' corporation_pk=0 %}">Corporation Ledger</a>
 </li>
 
 <li class="nav-item">
@@ -41,6 +41,9 @@
     <span class="nav-link">|</span>
 </li>
 <li class="nav-item">
-    <a class="nav-link" href="{% url 'ledger:character_admin' %}">Admin Overview</a>
+    <a class="nav-link" href="{% url 'ledger:character_admin' %}">Character Admin Overview</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'ledger:corporation_admin' %}">Corporation Admin Overview</a>
 </li>
 {% endif %}

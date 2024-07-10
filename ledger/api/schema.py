@@ -56,6 +56,10 @@ class CharacterAdmin(Schema):
     character: Optional[dict] = None
 
 
+class CorporationAdmin(Schema):
+    corporation: Optional[dict] = None
+
+
 class CorporationWalletEvent(Schema):
     division: str
     id: int

@@ -7,7 +7,7 @@ from django.shortcuts import render
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger.api import schema
-from ledger.api.helpers import get_alts_queryset, get_main_character
+from ledger.api.helpers import get_alts_queryset, get_character
 from ledger.api.managers.template_manager import TemplateData, TemplateProcess
 from ledger.hooks import get_extension_logger
 
@@ -36,7 +36,7 @@ class LedgerTemplateApiEndpoints:
                 else character_id
             )
 
-            response, main = get_main_character(request, character_id)
+            response, main = get_character(request, character_id)
             alts = get_alts_queryset(main)
 
             chars_list = [char.character_id for char in alts]

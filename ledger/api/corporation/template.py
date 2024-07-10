@@ -4,8 +4,10 @@ from ninja import NinjaAPI
 
 from django.shortcuts import render
 
+from allianceauth.eveonline.models import EveCharacter
+
 from ledger.api import schema
-from ledger.api.helpers import get_corporations
+from ledger.api.helpers import get_main_and_alts_corporations
 from ledger.api.managers.template_manager import TemplateData, TemplateProcess
 from ledger.hooks import get_extension_logger
 
@@ -33,11 +35,22 @@ class LedgerTemplateApiEndpoints:
             if not perms:
                 return 403, "Permission Denied"
 
-            corporations = get_corporations(request)
+            corporations = get_main_and_alts_corporations(request)
+
+            if overall_mode:
+                linked_char = EveCharacter.objects.filter(
+                    corporation_id__in=corporations,
+                )
+            else:
+                linked_char = [
+                    EveCharacter.objects.get(
+                        character_id=main_id,
+                    )
+                ]
 
             # Create the Ledger
             ledger_data = TemplateData(request, main_id, year, month)
-            ledger = TemplateProcess(corporations, ledger_data, overall_mode)
+            ledger = TemplateProcess(linked_char, ledger_data, overall_mode)
             context = {"character": ledger.corporation_template()}
 
             return render(

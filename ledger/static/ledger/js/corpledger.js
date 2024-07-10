@@ -4,6 +4,8 @@ var chart_1, chart_2, rattingBar_1, rattingBar_2;
 var selectedMonth, selectedYear, monthText, yearText;
 var MonthTable, YearTable;
 var bb, d3;
+// eslint-disable-next-line no-undef
+var corporationPk = corporationsettings.corporation_pk;
 
 // Aktuelles Datumobjekt erstellen
 var currentDate = new Date();
@@ -49,7 +51,7 @@ $('#monthDropdown li').click(function() {
     monthText = getMonthName(selectedMonth);
 
     // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
-    var url = '/ledger/api/corporation/0/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
+    var url = '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
 
     // DataTable neu laden mit den Daten des ausgewählten Monats
     MonthTable.ajax.url(url).load();
@@ -64,8 +66,8 @@ $('#yearDropdown li').click(function() {
     selectedYear = $(this).text();
 
     // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
-    var url = '/ledger/api/corporation/0/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
-    var url_year = '/ledger/api/corporation/0/ledger/year/' + selectedYear + '/month/0/';
+    var url = '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
+    var url_year = '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/0/';
 
     // DataTable neu laden mit den Daten des ausgewählten Monats
     MonthTable.ajax.url(url).load();
@@ -78,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize DataTable for current_month
     MonthTable = $('#ratting').DataTable({
         ajax: {
-            url: '/ledger/api/corporation/0/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/',
+            url: '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/',
             dataSrc: function (data) {
                 // Zusätzliche Daten im DataTable-Objekt speichern
                 total_amount = data[0].total.total_amount;
@@ -214,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function () {
             $('#foot .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
             $('#foot .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                 'aria-label="{{ data.main_name }}"' +
-                'data-ajax_url="/ledger/api/corporation/0/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/" ' +
+                'data-ajax_url="/ledger/api/corporation/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/" ' +
                 'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>');
         },
     });
@@ -223,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function initializeYearTable() {
     YearTable = $('#ratting_year').DataTable({
         ajax: {
-            url: '/ledger/api/corporation/0/ledger/year/' + selectedYear + '/month/0/',
+            url: '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/0/',
             dataSrc: function (data) {
                 // Zusätzliche Daten im DataTable-Objekt speichern
                 total_amount = data[0].total.total_amount;
@@ -361,7 +363,7 @@ function initializeYearTable() {
             $('#foot-year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
             $('#foot-year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
             'aria-label="{{ data.main_name }}"' +
-            'data-ajax_url="/ledger/api/corporation/0/ledger/template/year/' + selectedYear + '/month/0/" ' +
+            'data-ajax_url="/ledger/api/corporation/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/0/" ' +
             'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>');
         },
     });

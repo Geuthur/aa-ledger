@@ -7,8 +7,7 @@ from django.db.models.functions import Coalesce
 from ledger.api.helpers import (
     convert_ess_payout,
     get_alts_queryset,
-    get_main_and_alts_all,
-    get_main_character,
+    get_character,
     get_models_and_string,
 )
 from ledger.api.managers.core_manager import LedgerFilter
@@ -180,7 +179,7 @@ class TemplateProcess:
         return: dict
         """
 
-        mains, chars = get_main_and_alts_all(self.chars)
+        chars = [char.character_id for char in self.chars]
 
         filters = LedgerFilter(chars)
         filter_date = Q(date__year=self.data.year)
@@ -196,15 +195,7 @@ class TemplateProcess:
             .order_by("-date")
         )
 
-        if self.show_year:
-            mains_data = mains
-        else:
-            mains_data = {self.data.request_id: mains.get(self.data.request_id, None)}
-
-        # Exclude Events to avoid wrong stats
-        corporation_journal = events_filter(corporation_journal)
-
-        self._process_corporation(corporation_journal, mains_data)
+        self._process_corporation(corporation_journal, self.chars)
         return self.template_dict
 
     # Process the character
@@ -212,7 +203,7 @@ class TemplateProcess:
         self, character_journal, corporation_journal, mining_journal
     ):
         """Process the characters."""
-        _, main = get_main_character(self.data.request, self.data.request_id)
+        _, main = get_character(self.data.request, self.data.request_id)
 
         alts = get_alts_queryset(main)
 
@@ -235,42 +226,17 @@ class TemplateProcess:
 
     # Process the corporation
     def _process_corporation(self, corporation_journal, mains_data):
-        """Process the characters."""
+        """Process the corporations."""
+        total_amounts = TemplateTotal().to_dict()
 
-        total_amounts = {
-            "bounty": {
-                "total_amount": 0,
-                "total_amount_day": 0,
-                "total_amount_hour": 0,
-            },
-            "ess": {"total_amount": 0, "total_amount_day": 0, "total_amount_hour": 0},
-        }
-
-        for _, main_data in mains_data.items():
-            main = main_data["main"]
-            alts = main_data["alts"]
-
-            # Each Chars from a Main Character
-            chars = [alt.character_id for alt in alts] + [main.character_id]
-
-            filters = LedgerFilter(chars)
-
-            amounts = {
-                # Calculate Income
-                "bounty": self._aggregate_journal(
-                    corporation_journal.filter(filters.filter_bounty)
-                ),
-                "ess": self._aggregate_journal(
-                    corporation_journal.filter(filters.filter_ess)
-                ),
-            }
-
+        for char in mains_data:
+            amounts = self._process_amounts_corp(char, corporation_journal)
             # Add amounts to total_amounts
             for key, value in amounts.items():
                 for sub_key, sub_value in value.items():
                     total_amounts[key][sub_key] += sub_value
 
-            self._update_template_dict(main)
+            self._update_template_dict(char)
 
         self._generate_amounts_dict(total_amounts)
 
@@ -365,6 +331,25 @@ class TemplateProcess:
             "total_amount_day": round(total_sum / current_day, 2),
             "total_amount_hour": round((total_sum / current_day) / 24, 2),
         }
+
+    # Genereate Amounts for each Char
+    def _process_amounts_corp(self, char, corporation_journal):
+        char_id = char.character_id
+
+        # Create the filters
+        filters = LedgerFilter([char_id])
+
+        # Calculate the amounts
+        amounts = {
+            # Calculate Income
+            "bounty": self._aggregate_journal(
+                corporation_journal.filter(filters.filter_bounty)
+            ),
+            "ess": self._aggregate_journal(
+                corporation_journal.filter(filters.filter_ess)
+            ),
+        }
+        return amounts
 
     # Genereate Amounts for each Char
     def _process_amounts_char(self, char, models, chars_list):
