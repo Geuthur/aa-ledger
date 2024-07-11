@@ -46,8 +46,10 @@ class BillboardLedger:
         if self.date.month == 0:
             # Gruppieren nach Monat
             annotations = {"period": TruncMonth("date")}
+            period_format = "%Y-%m"
         else:
             # Gruppieren nach Tag
+            period_format = "%Y-%m-%d"
             annotations = {"period": TruncDay("date")}
 
         data_dict = defaultdict(lambda: defaultdict(int))
@@ -78,7 +80,7 @@ class BillboardLedger:
             )
 
             for entry in corp_journal:
-                period = entry["period"].strftime("%Y-%m-%d")
+                period = entry["period"].strftime(period_format)
                 if self.is_corp:
                     data_dict[period]["total_bounty"] = entry["total_bounty"]
                 data_dict[period]["total_ess"] = entry["total_ess"]
@@ -144,7 +146,7 @@ class BillboardLedger:
             )
 
             for entry in char_journal:
-                period = entry["period"].strftime("%Y-%m-%d")
+                period = entry["period"].strftime(period_format)
                 data_dict[period]["total_bounty"] = entry["total_bounty"]
                 data_dict[period]["total_miscellaneous"] = entry["total_miscellaneous"]
                 data_dict[period]["total_isk"] = entry["total_isk"]
@@ -156,7 +158,7 @@ class BillboardLedger:
 
         if self.models.mining_journal:
             for entry in self.models.mining_journal.values("total", "date"):
-                period = entry["date"].strftime("%Y-%m-%d")
+                period = entry["date"].strftime(period_format)
                 data_dict[period]["total_mining"] += entry["total"]
 
         for period, data in data_dict.items():
@@ -177,6 +179,10 @@ class BillboardLedger:
             if not self.is_corp:
                 self.sum.sum_amount_misc.append(int(self.data.total_miscellaneous))
                 self.sum.sum_amount_mining.append(int(self.data.total_mining))
+
+            logger.debug(
+                f"Period: {period}, Total Bounty: {self.data.total_bounty}, Total ESS: {self.data.total_ess_payout}, Total Miscellaneous: {self.data.total_miscellaneous}, Total Mining: {self.data.total_mining}, Total ISK: {self.data.total_isk}, Total Cost: {self.data.total_cost}, Total Market Cost: {self.data.total_market_cost}, Total Production Cost: {self.data.total_production_cost}"
+            )
 
             self.date_billboard.append(period)
 
