@@ -42,7 +42,6 @@ class BillboardLedger:
         }
         self.date_billboard = ["x"]
 
-    # pylint: disable=too-many-branches
     def annotate_days(self):
         if self.date.month == 0:
             # Gruppieren nach Monat
@@ -53,122 +52,18 @@ class BillboardLedger:
             period_format = "%Y-%m-%d"
             annotations = {"period": TruncDay("date")}
 
-        data_dict = defaultdict(lambda: defaultdict(int))
+        self.data_dict = defaultdict(lambda: defaultdict(int))
 
         filters = LedgerFilter(self.chars)
-        donations_filter = filters.filter_donation & ~Q(first_party_id__in=self.chars)
 
         if self.models.corp_journal:
-            corp_journal = (
-                self.models.corp_journal.annotate(**annotations)
-                .values("period")
-                .annotate(
-                    total_bounty=Coalesce(
-                        Sum(
-                            "amount",
-                            filter=Q(filters.filter_bounty),
-                        ),
-                        0,
-                        output_field=DecimalField(),
-                    ),
-                    total_ess=Coalesce(
-                        Sum(
-                            "amount",
-                            filter=filters.filter_ess,
-                        ),
-                        0,
-                        output_field=DecimalField(),
-                    ),
-                )
-                .order_by("period")
-            )
-
-            for entry in corp_journal:
-                period = entry["period"].strftime(period_format)
-                if self.is_corp:
-                    data_dict[period]["total_bounty"] = entry["total_bounty"]
-                data_dict[period]["total_ess"] = entry["total_ess"]
-
-                if not self.is_corp:
-                    # Convert the ESS Payout for Character
-                    data_dict[period]["total_ess"] = convert_ess_payout(
-                        data_dict[period]["total_ess"]
-                    )
+            self._process_corp_journal(annotations, filters, period_format)
 
         if not self.is_corp:
             if self.models.char_journal:
-                char_journal = (
-                    self.models.char_journal.annotate(**annotations)
-                    .values("period")
-                    .annotate(
-                        total_bounty=Coalesce(
-                            Sum("amount", filter=Q(ref_type="bounty_prizes")),
-                            0,
-                            output_field=DecimalField(),
-                        ),
-                        total_miscellaneous=Coalesce(
-                            Sum(
-                                "amount",
-                                filter=filters.filter_market
-                                | filters.filter_contract
-                                | donations_filter,
-                            ),
-                            0,
-                            output_field=DecimalField(),
-                        ),
-                        total_isk=Coalesce(
-                            Sum("amount", filter=Q(filters.filter_total)),
-                            0,
-                            output_field=DecimalField(),
-                        ),
-                        total_cost=Coalesce(
-                            Sum(
-                                "amount",
-                                filter=filters.filter_total
-                                & ~Q(first_party_id__in=self.chars),
-                            ),
-                            0,
-                            output_field=DecimalField(),
-                        ),
-                        total_market_cost=Coalesce(
-                            Sum(
-                                "amount",
-                                filter=filters.filter_market_cost,
-                            ),
-                            0,
-                            output_field=DecimalField(),
-                        ),
-                        total_production_cost=Coalesce(
-                            Sum(
-                                "amount",
-                                filter=filters.filter_production,
-                            ),
-                            0,
-                            output_field=DecimalField(),
-                        ),
-                    )
-                    .order_by("period")
-                )
+                self._process_char_journal(annotations, filters, period_format)
 
-                for entry in char_journal:
-                    period = entry["period"].strftime(period_format)
-                    data_dict[period]["total_bounty"] = entry["total_bounty"]
-                    data_dict[period]["total_miscellaneous"] = entry[
-                        "total_miscellaneous"
-                    ]
-                    data_dict[period]["total_isk"] = entry["total_isk"]
-                    data_dict[period]["total_cost"] = entry["total_cost"]
-                    data_dict[period]["total_market_cost"] = entry["total_market_cost"]
-                    data_dict[period]["total_production_cost"] = entry[
-                        "total_production_cost"
-                    ]
-
-            if self.models.mining_journal:
-                for entry in self.models.mining_journal.values("total", "date"):
-                    period = entry["date"].strftime(period_format)
-                    data_dict[period]["total_mining"] += entry["total"]
-
-        for period, data in data_dict.items():
+        for period, data in self.data_dict.items():
             # Main Data
             self.data.total_bounty = data.get("total_bounty", 0)
             self.data.total_ess_payout = data.get("total_ess", 0)
@@ -188,6 +83,113 @@ class BillboardLedger:
                 self.sum.sum_amount_mining.append(int(self.data.total_mining))
 
             self.date_billboard.append(period)
+
+    def _process_corp_journal(self, annotations, filters, period_format):
+        corp_journal = (
+            self.models.corp_journal.annotate(**annotations)
+            .values("period")
+            .annotate(
+                total_bounty=Coalesce(
+                    Sum(
+                        "amount",
+                        filter=Q(filters.filter_bounty),
+                    ),
+                    0,
+                    output_field=DecimalField(),
+                ),
+                total_ess=Coalesce(
+                    Sum(
+                        "amount",
+                        filter=filters.filter_ess,
+                    ),
+                    0,
+                    output_field=DecimalField(),
+                ),
+            )
+            .order_by("period")
+        )
+
+        for entry in corp_journal:
+            period = entry["period"].strftime(period_format)
+            if self.is_corp:
+                self.data_dict[period]["total_bounty"] = entry["total_bounty"]
+            self.data_dict[period]["total_ess"] = entry["total_ess"]
+
+            if not self.is_corp:
+                # Convert the ESS Payout for Character
+                self.data_dict[period]["total_ess"] = convert_ess_payout(
+                    self.data_dict[period]["total_ess"]
+                )
+
+    def _process_char_journal(self, annotations, filters, period_format):
+        donations_filter = filters.filter_donation & ~Q(first_party_id__in=self.chars)
+        char_journal = (
+            self.models.char_journal.annotate(**annotations)
+            .values("period")
+            .annotate(
+                total_bounty=Coalesce(
+                    Sum("amount", filter=Q(ref_type="bounty_prizes")),
+                    0,
+                    output_field=DecimalField(),
+                ),
+                total_miscellaneous=Coalesce(
+                    Sum(
+                        "amount",
+                        filter=filters.filter_market
+                        | filters.filter_contract
+                        | donations_filter,
+                    ),
+                    0,
+                    output_field=DecimalField(),
+                ),
+                total_isk=Coalesce(
+                    Sum("amount", filter=Q(filters.filter_total)),
+                    0,
+                    output_field=DecimalField(),
+                ),
+                total_cost=Coalesce(
+                    Sum(
+                        "amount",
+                        filter=filters.filter_total & ~Q(first_party_id__in=self.chars),
+                    ),
+                    0,
+                    output_field=DecimalField(),
+                ),
+                total_market_cost=Coalesce(
+                    Sum(
+                        "amount",
+                        filter=filters.filter_market_cost,
+                    ),
+                    0,
+                    output_field=DecimalField(),
+                ),
+                total_production_cost=Coalesce(
+                    Sum(
+                        "amount",
+                        filter=filters.filter_production,
+                    ),
+                    0,
+                    output_field=DecimalField(),
+                ),
+            )
+            .order_by("period")
+        )
+
+        for entry in char_journal:
+            period = entry["period"].strftime(period_format)
+            self.data_dict[period]["total_bounty"] = entry["total_bounty"]
+            self.data_dict[period]["total_miscellaneous"] = entry["total_miscellaneous"]
+            self.data_dict[period]["total_isk"] = entry["total_isk"]
+            self.data_dict[period]["total_cost"] = entry["total_cost"]
+            self.data_dict[period]["total_market_cost"] = entry["total_market_cost"]
+            self.data_dict[period]["total_production_cost"] = entry[
+                "total_production_cost"
+            ]
+
+        if self.models.mining_journal:
+            for entry in self.models.mining_journal.values("total", "date"):
+                period = entry["date"].strftime(period_format)
+                self.data_dict[period]["total_mining"] += entry["total"]
 
     def calculate_total_sum(self):
         self.sum.total_sum = sum(
