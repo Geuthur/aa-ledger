@@ -65,12 +65,14 @@ class JournalProcess:
 
             # Get the Filter Settings
             filters = LedgerFilter(chars_mains)
+            corporation_journal.filter(filters.filter_bounty).aggregate(Sum("amount"))
 
             total_bounty = self.aggregate_journal_flat(
                 corporation_journal.filter(filters.filter_bounty).values_list(
                     "amount", flat=True
                 )
             )
+
             total_ess = self.aggregate_journal_flat(
                 corporation_journal.filter(filters.filter_ess).values_list(
                     "amount", flat=True
@@ -266,7 +268,7 @@ class JournalProcess:
         ledger = BillboardLedger(date_data, models, corp=True)
 
         billboard_dict = ledger.billboard_corp_ledger(
-            self.corporation_dict, self.summary_total.total_amount, self.chars
+            self.corporation_dict, self.summary_total.total_amount, chars_list
         )
 
         output = []

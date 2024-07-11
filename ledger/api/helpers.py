@@ -124,9 +124,9 @@ def get_main_and_alts_all(main_corp: list):
         corpmember.objects.select_related("corpstats", "corpstats__corp")
         .prefetch_related("corpstats")
         .filter(corpstats__corp__corporation_id__in=corps_list)
-        .values_list("character_id", flat=True)
+        .order_by("character_id")
     )
-    for character_id in corps:
+    for corpmember in corps:
         try:
             # Combine Alts with Main
             char = (
@@ -135,10 +135,10 @@ def get_main_and_alts_all(main_corp: list):
                     "character_ownership__user__profile__main_character",
                 )
                 .prefetch_related("character_ownership__user__character_ownerships")
-                .get(character_id=character_id)
+                .get(character_id=corpmember.character_id)
             )
             main = char.character_ownership.user.profile.main_character
-            if main is not None:
+            if main and main.character_id not in chars_list:
                 linked_characters = (
                     main.character_ownership.user.character_ownerships.select_related(
                         "character", "user"
@@ -160,9 +160,15 @@ def get_main_and_alts_all(main_corp: list):
                 chars_list.add(main.character_id)
 
         except ObjectDoesNotExist:
-            # Add Corp Members as main
-            characters[char.character_id] = {"main": char, "alts": []}
-            chars_list.add(char.character_id)
+            char, created = EveCharacter.objects.get_or_create(
+                character_id=corpmember.character_id,
+                corporation_id=corpmember.corpstats.corp.corporation_id,
+            )
+            if created:
+                logger.debug("Corpmember: %s Created", corpmember.character_name)
+                # Add Corp Members as main
+                characters[char.character_id] = {"main": char, "alts": []}
+                chars_list.add(char.character_id)
     return characters, list(chars_list)
 
 

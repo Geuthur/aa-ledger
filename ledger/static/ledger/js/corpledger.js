@@ -127,14 +127,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         rattingBar_1.load({
                             columns: data[0].billboard.rattingbar,
                             groups: [pgs],
-                            unload: rattingbar_1_cache,
-                            done: function() {
-                                rattingbar_1_cache = data[0].billboard.rattingbar;
-                            },
                             resizeAfter: true,
                         });
                     } else {
-                        var rattingbar_1_cache = data[0].billboard.rattingbar;
                         rattingBar_1 = bb.generate({
                             data: {
                                 x: 'x',
@@ -267,44 +262,39 @@ function initializeYearTable() {
                     $('#ChartYearContainer').hide();
                 }
 
-                // RattingBar
+                // Ratting Bar
                 if (data[0].billboard.rattingbar) {
-                    $('#rattingBarYearContainer').show();
-                    var pgs = data[0].billboard.rattingbar.filter(arr => arr[0] !== 'x').map(arr => arr[0]);
-                    if (rattingBar_2) {
-                        rattingBar_2.load({
+                    $('#rattingBarContainerYear').show();
+                    var pgs = [];
+                    data[0].billboard.rattingbar.forEach(function(arr) {
+                        if (arr[0] != 'x') {
+                            pgs.push(arr[0]);
+                        }
+                    });
+                    rattingBar_2 = bb.generate({
+                        data: {
+                            x: 'x',
                             columns: data[0].billboard.rattingbar,
-                            unload: rattingbar_2_cache,
-                            done: function() {
-                                rattingbar_2_cache = data[0].billboard.rattingbar;
+                            type: 'bar',
+                            groups: [pgs],
+                        },
+                        axis: {
+                            x: {
+                                padding: { right: 8000*60*60*12 },
+                                type: 'timeseries',
+                                tick: { format: '%Y-%m', rotate: 45 }
                             },
-                            resizeAfter: false
-                        });
-                    } else {
-                        var rattingbar_2_cache = data[0].billboard.rattingbar;
-                        rattingBar_2 = bb.generate({
-                            data: {
-                                x: 'x',
-                                columns: data[0].billboard.rattingbar,
-                                type: 'bar',
-                                groups: [pgs],
+                            y: {
+                                tick: { format: function(x) {
+                                    return d3.format(',')(x);
+                                } },
+                                label: 'ISK'
                             },
-                            axis: {
-                                x: {
-                                    padding: { right: 8000 * 60 * 60 * 12 },
-                                    type: 'timeseries',
-                                    tick: { format: '%Y-%m-%d', rotate: 45 }
-                                },
-                                y: {
-                                    tick: { format: d3.format(',') },
-                                    label: 'ISK'
-                                },
-                            },
-                            bindto: '#rattingBarYear',
-                        });
-                    }
+                        },
+                        bindto: '#rattingBarYear'
+                    });
                 } else {
-                    $('#rattingBarYearContainer').hide();
+                    $('#rattingBarContainerYear').hide();
                 }
 
                 return data[0].ratting;

@@ -3,7 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from decimal import Decimal
 
-from django.db.models import Case, DecimalField, Q, Sum, When
+from django.db.models import DecimalField, Q, Sum
 from django.db.models.functions import Coalesce, TruncDay, TruncMonth
 
 from ledger.api.helpers import convert_ess_payout
@@ -42,6 +42,7 @@ class BillboardLedger:
         }
         self.date_billboard = ["x"]
 
+    # pylint: disable=too-many-branches
     def annotate_days(self):
         if self.date.month == 0:
             # Gruppieren nach Monat
@@ -53,6 +54,7 @@ class BillboardLedger:
             annotations = {"period": TruncDay("date")}
 
         data_dict = defaultdict(lambda: defaultdict(int))
+
         filters = LedgerFilter(self.chars)
         donations_filter = filters.filter_donation & ~Q(first_party_id__in=self.chars)
 
@@ -61,19 +63,21 @@ class BillboardLedger:
                 self.models.corp_journal.annotate(**annotations)
                 .values("period")
                 .annotate(
-                    total_bounty=Sum(
-                        Case(
-                            When(filters.filter_bounty, then="amount"),
-                            default=0,
-                            output_field=DecimalField(),
-                        )
+                    total_bounty=Coalesce(
+                        Sum(
+                            "amount",
+                            filter=Q(filters.filter_bounty),
+                        ),
+                        0,
+                        output_field=DecimalField(),
                     ),
-                    total_ess=Sum(
-                        Case(
-                            When(filters.filter_ess, then="amount"),
-                            default=0,
-                            output_field=DecimalField(),
-                        )
+                    total_ess=Coalesce(
+                        Sum(
+                            "amount",
+                            filter=filters.filter_ess,
+                        ),
+                        0,
+                        output_field=DecimalField(),
                     ),
                 )
                 .order_by("period")
@@ -91,75 +95,78 @@ class BillboardLedger:
                         data_dict[period]["total_ess"]
                     )
 
-        if self.models.char_journal:
-            char_journal = (
-                self.models.char_journal.annotate(**annotations)
-                .values("period")
-                .annotate(
-                    total_bounty=Sum(
-                        Case(
-                            When(filters.filter_bounty, then="amount"),
-                            default=0,
+        if not self.is_corp:
+            if self.models.char_journal:
+                char_journal = (
+                    self.models.char_journal.annotate(**annotations)
+                    .values("period")
+                    .annotate(
+                        total_bounty=Coalesce(
+                            Sum("amount", filter=Q(ref_type="bounty_prizes")),
+                            0,
                             output_field=DecimalField(),
-                        )
-                    ),
-                    total_miscellaneous=Coalesce(
-                        Sum(
-                            "amount",
-                            filter=filters.filter_market
-                            | filters.filter_contract
-                            | donations_filter,
                         ),
-                        0,
-                        output_field=DecimalField(),
-                    ),
-                    total_isk=Sum(
-                        Case(
-                            When(filters.filter_total, then="amount"),
-                            default=0,
+                        total_miscellaneous=Coalesce(
+                            Sum(
+                                "amount",
+                                filter=filters.filter_market
+                                | filters.filter_contract
+                                | donations_filter,
+                            ),
+                            0,
                             output_field=DecimalField(),
-                        )
-                    ),
-                    total_cost=Sum(
-                        Case(
-                            When(filters.filter_costs, then="amount"),
-                            default=0,
+                        ),
+                        total_isk=Coalesce(
+                            Sum("amount", filter=Q(filters.filter_total)),
+                            0,
                             output_field=DecimalField(),
-                        )
-                    ),
-                    total_market_cost=Sum(
-                        Case(
-                            When(filters.filter_market_cost, then="amount"),
-                            default=0,
+                        ),
+                        total_cost=Coalesce(
+                            Sum(
+                                "amount",
+                                filter=filters.filter_total
+                                & ~Q(first_party_id__in=self.chars),
+                            ),
+                            0,
                             output_field=DecimalField(),
-                        )
-                    ),
-                    total_production_cost=Sum(
-                        Case(
-                            When(filters.filter_production, then="amount"),
-                            default=0,
+                        ),
+                        total_market_cost=Coalesce(
+                            Sum(
+                                "amount",
+                                filter=filters.filter_market_cost,
+                            ),
+                            0,
                             output_field=DecimalField(),
-                        )
-                    ),
+                        ),
+                        total_production_cost=Coalesce(
+                            Sum(
+                                "amount",
+                                filter=filters.filter_production,
+                            ),
+                            0,
+                            output_field=DecimalField(),
+                        ),
+                    )
+                    .order_by("period")
                 )
-                .order_by("period")
-            )
 
-            for entry in char_journal:
-                period = entry["period"].strftime(period_format)
-                data_dict[period]["total_bounty"] = entry["total_bounty"]
-                data_dict[period]["total_miscellaneous"] = entry["total_miscellaneous"]
-                data_dict[period]["total_isk"] = entry["total_isk"]
-                data_dict[period]["total_cost"] = entry["total_cost"]
-                data_dict[period]["total_market_cost"] = entry["total_market_cost"]
-                data_dict[period]["total_production_cost"] = entry[
-                    "total_production_cost"
-                ]
+                for entry in char_journal:
+                    period = entry["period"].strftime(period_format)
+                    data_dict[period]["total_bounty"] = entry["total_bounty"]
+                    data_dict[period]["total_miscellaneous"] = entry[
+                        "total_miscellaneous"
+                    ]
+                    data_dict[period]["total_isk"] = entry["total_isk"]
+                    data_dict[period]["total_cost"] = entry["total_cost"]
+                    data_dict[period]["total_market_cost"] = entry["total_market_cost"]
+                    data_dict[period]["total_production_cost"] = entry[
+                        "total_production_cost"
+                    ]
 
-        if self.models.mining_journal:
-            for entry in self.models.mining_journal.values("total", "date"):
-                period = entry["date"].strftime(period_format)
-                data_dict[period]["total_mining"] += entry["total"]
+            if self.models.mining_journal:
+                for entry in self.models.mining_journal.values("total", "date"):
+                    period = entry["date"].strftime(period_format)
+                    data_dict[period]["total_mining"] += entry["total"]
 
         for period, data in data_dict.items():
             # Main Data
@@ -179,10 +186,6 @@ class BillboardLedger:
             if not self.is_corp:
                 self.sum.sum_amount_misc.append(int(self.data.total_miscellaneous))
                 self.sum.sum_amount_mining.append(int(self.data.total_mining))
-
-            logger.debug(
-                f"Period: {period}, Total Bounty: {self.data.total_bounty}, Total ESS: {self.data.total_ess_payout}, Total Miscellaneous: {self.data.total_miscellaneous}, Total Mining: {self.data.total_mining}, Total ISK: {self.data.total_isk}, Total Cost: {self.data.total_cost}, Total Market Cost: {self.data.total_market_cost}, Total Production Cost: {self.data.total_production_cost}"
-            )
 
             self.date_billboard.append(period)
 
@@ -315,8 +318,8 @@ class BillboardLedger:
         return self.billboard_dict
 
     # Create the Billboard Corp Ledger
-    def billboard_corp_ledger(self, corporation_dict, summary_dict_all, chars_list):
-        self.chars = chars_list
+    def billboard_corp_ledger(self, corporation_dict, summary_dict_all, chars: list):
+        self.chars = chars
 
         self.annotate_days()
 
