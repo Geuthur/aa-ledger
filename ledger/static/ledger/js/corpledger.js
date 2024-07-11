@@ -157,7 +157,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 return data[0].ratting;
             },
-            cache: false
+            cache: false,
+            error: function (xhr, status, error) {
+                // Prüfen, ob der Status 403 Forbidden ist
+                if (xhr.status === 403) {
+                    // Alle Container verstecken
+                    $('#ChartContainer').hide();
+                    $('#rattingBarContainer').hide();
+                    // DataTable leeren und Meldung anzeigen, dass keine Daten vorhanden sind
+                    MonthTable.clear().draw();
+                    MonthTable.rows.add([{ main_name: 'Keine Daten vorhanden', total_amount: '', total_amount_ess: '', 'col-total-action': '' }]).draw();
+                }
+            }
         },
         'processing': true,
         columns: [
