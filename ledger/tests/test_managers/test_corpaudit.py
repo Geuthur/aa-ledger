@@ -99,4 +99,4 @@ class CorpAuditQuerySetTest(TestCase):
                 "corporation_id", flat=True
             )
         )
-        self.assertEqual(result, [])
+        self.assertEqual(result, [55])

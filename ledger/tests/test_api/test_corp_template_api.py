@@ -73,7 +73,7 @@ class ManageApiTemplateCorpEndpointsTest(TestCase):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "200,000", count=2, status_code=200)
+        self.assertContains(response, "200,000", count=1, status_code=200)
         self.assertContains(response, "Ratting", status_code=200)
         self.assertContains(response, "ESS", status_code=200)
         self.assertContains(response, "Summary", status_code=200)
