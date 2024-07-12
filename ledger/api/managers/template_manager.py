@@ -11,7 +11,6 @@ from ledger.api.helpers import (
     get_models_and_string,
 )
 from ledger.api.managers.core_manager import LedgerFilter
-from ledger.decorators import log_timing
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 from ledger.view_helpers.core import events_filter
@@ -175,7 +174,6 @@ class TemplateProcess:
         self._process_characters(character_journal, corporation_journal, mining_journal)
         return self.template_dict
 
-    @log_timing
     def corporation_template(self):
         """
         Create the corporation template.
@@ -230,7 +228,6 @@ class TemplateProcess:
         self._generate_amounts_dict(total_amounts)
 
     # Process the corporation
-    @log_timing
     def _process_corporation(self, corporation_journal):
         """Process the corporations."""
         total_amounts = TemplateTotal().to_dict()
@@ -331,7 +328,6 @@ class TemplateProcess:
         return processed_result
 
     # Update Core Dict
-    @log_timing
     def _update_template_dict(self, char):
         main_name = char.character_name if not self.show_year else "Summary"
         main_id = char.character_id if not self.show_year else 0
@@ -349,7 +345,6 @@ class TemplateProcess:
         )
 
     # Add Amounts to Dict
-    @log_timing
     def _generate_amounts_dict(self, amounts):
         """Generate the amounts dictionary."""
         current_day = 365 if self.data.month == 0 else self.data.ledger_date.day

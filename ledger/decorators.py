@@ -45,7 +45,7 @@ def log_timing(func):
         start_time = time.time()
         result = func(*args, **kwargs)
         end_time = time.time()
-        logger.info(
+        logger.debug(
             "%s wurde aufgerufen. Ausführungszeit: %s Sekunden",
             func.__name__,
             end_time - start_time,
