@@ -12,6 +12,7 @@
 - Refactor Char, Corp JS
 - Optimized get_all_mains_alts function
 - Optimized Billboard Calculation (Performance)
+- Optimized Template Calculation (Performance) on Corporation side
 
 ### Fixed
 
