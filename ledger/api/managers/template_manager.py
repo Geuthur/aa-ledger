@@ -216,6 +216,7 @@ class TemplateProcess:
 
         models = character_journal, corporation_journal, mining_journal
 
+        # TODO - Refactor this to use a single query
         for char in self.chars:
             amounts = self._process_amounts_char(char, models, chars_list)
 
@@ -246,7 +247,7 @@ class TemplateProcess:
         self._generate_amounts_dict(total_amounts)
 
     # Aggregate Journal
-    def _aggregate_journal(self, journal):
+    def _aggregate_journal_char(self, journal):
         result = journal.aggregate(
             total_amount=Coalesce(Sum(F("amount")), 0, output_field=DecimalField()),
             total_amount_day=Coalesce(
@@ -279,7 +280,7 @@ class TemplateProcess:
             result["total_amount_day"] = 0
         return result
 
-    def _aggregate_journal_new(self, journal, char_ids):
+    def _aggregate_journal_corp(self, journal, char_ids):
         # Group by character ID before aggregating
         result = (
             journal.values("second_party_id")
@@ -397,10 +398,10 @@ class TemplateProcess:
 
         # Aggregate data for all characters in a single query
         amounts = {
-            "bounty": self._aggregate_journal_new(
+            "bounty": self._aggregate_journal_corp(
                 corporation_journal.filter(filters.filter_bounty), char_ids
             ),
-            "ess": self._aggregate_journal_new(
+            "ess": self._aggregate_journal_corp(
                 corporation_journal.filter(filters.filter_ess), char_ids
             ),
         }
@@ -419,10 +420,10 @@ class TemplateProcess:
         # Calculate the amounts
         amounts = {
             # Calculate Income
-            "bounty": self._aggregate_journal(
+            "bounty": self._aggregate_journal_char(
                 character_journal.filter(filters.filter_bounty)
             ),
-            "ess": self._aggregate_journal(
+            "ess": self._aggregate_journal_char(
                 corporation_journal.filter(filters.filter_ess)
             ),
             "mining": mining_journal.filter(filters.filter_mining)
@@ -436,22 +437,22 @@ class TemplateProcess:
                 ),
             ),
             # Calculate Trading
-            "contract": self._aggregate_journal(
+            "contract": self._aggregate_journal_char(
                 character_journal.filter(filters.filter_contract)
             ),
-            "transaction": self._aggregate_journal(
+            "transaction": self._aggregate_journal_char(
                 character_journal.filter(filters.filter_market)
             ),
-            "donation": self._aggregate_journal(
+            "donation": self._aggregate_journal_char(
                 character_journal.filter(filters.filter_donation).exclude(
                     first_party_id__in=chars_list
                 )
             ),
             # Calculate Costs
-            "production_cost": self._aggregate_journal(
+            "production_cost": self._aggregate_journal_char(
                 character_journal.filter(filters.filter_production)
             ),
-            "market_cost": self._aggregate_journal(
+            "market_cost": self._aggregate_journal_char(
                 character_journal.filter(filters.filter_market_cost)
             ),
         }
