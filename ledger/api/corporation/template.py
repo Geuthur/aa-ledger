@@ -26,26 +26,37 @@ class LedgerTemplateApiEndpoints:
     def __init__(self, api: NinjaAPI):
 
         @api.get(
-            "corporation/{main_id}/ledger/template/year/{year}/month/{month}/",
+            "corporation/{corporation_id}/character/{main_id}/ledger/template/year/{year}/month/{month}/",
             response={200: List[schema.CharacterLedgerTemplate], 403: str},
             tags=self.tags,
         )
         def get_corporation_ledger_template(
-            request, main_id: int, year: int, month: int, corp: bool = False
+            request,
+            corporation_id: int,
+            main_id: int,
+            year: int,
+            month: int,
+            corp: bool = False,
         ):
-            perms, char = get_character(request, main_id)
-
-            overall_mode = main_id == 0
+            perms = request.user.has_perm("ledger.basic_access")
 
             if not perms:
                 return 403, "Permission Denied"
 
+            if corporation_id == 0:
+                corporations = get_main_and_alts_corporations(request)
+            else:
+                corporations = [corporation_id]
+
+            _, char = get_character(request, main_id)
+
             # Get all Chars from the main (including the main char itself)
-            alts = get_alts_queryset(char)
+            alts = get_alts_queryset(char, corporations=corporations)
             linked_char = list(alts)
 
+            overall_mode = main_id == 0
+
             if overall_mode:
-                corporations = get_main_and_alts_corporations(request)
                 _, chars_list = get_main_and_alts_all(corporations)
                 linked_char = EveCharacter.objects.filter(
                     character_id__in=chars_list,
@@ -57,7 +68,7 @@ class LedgerTemplateApiEndpoints:
                 overall_mode = True
 
             # Create the Ledger
-            ledger_data = TemplateData(request, main_id, char, year, month)
+            ledger_data = TemplateData(request, char, year, month)
             ledger = TemplateProcess(linked_char, ledger_data, overall_mode)
             context = {"character": ledger.corporation_template()}
 

@@ -56,11 +56,10 @@ class JournalProcess:
             main = data["main"]
             alts = data["alts"]
 
-            chars_mains = [alt.character_id for alt in alts] + [main.character_id]
+            chars_mains = [alt.character_id for alt in alts]
 
             for alt in alts:
                 self.chars_list.append(alt.character_id)
-            self.chars_list.append(main.character_id)
 
             total_bounty = 0
             total_ess = 0

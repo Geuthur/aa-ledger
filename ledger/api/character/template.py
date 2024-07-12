@@ -56,7 +56,7 @@ class LedgerTemplateApiEndpoints:
                 ]
 
             # Create the Ledger
-            ledger_data = TemplateData(request, character_id, main, year, month)
+            ledger_data = TemplateData(request, main, year, month)
             ledger = TemplateProcess(linked_char, ledger_data, overall_mode)
             context = {"character": ledger.character_template()}
 

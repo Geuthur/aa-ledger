@@ -30,6 +30,7 @@ class LedgerApiEndpoints:
             if not response:
                 return 403, "Permission Denied"
 
+            # pylint: disable=duplicate-code
             if corporation_id == 0:
                 corporations = get_main_and_alts_corporations(request)
             else:

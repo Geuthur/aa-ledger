@@ -146,7 +146,7 @@ var MonthAjax = {
                             'data-bs-toggle="modal" ' +
                             'data-bs-target="#modalViewCharacterContainer" ' +
                             'aria-label="' + row.main_name + '" ' +
-                            'data-ajax_url="/ledger/api/corporation/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/" ' +
+                            'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/" ' +
                             'title="' + row.main_name + '">' +
                             '<span class="fas fa-info"></span>' +
                             '</button>';
@@ -166,7 +166,7 @@ var MonthAjax = {
                 $('#foot .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
                 $('#foot .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                     'aria-label="{{ data.main_name }}"' +
-                    'data-ajax_url="/ledger/api/corporation/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/?corp=true" ' +
+                    'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/?corp=true" ' +
                     'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>');
             },
             initComplete: function(settings, json) {
@@ -237,7 +237,7 @@ var YearAjax = {
                             'data-bs-toggle="modal" ' +
                             'data-bs-target="#modalViewCharacterContainer" ' +
                             'aria-label="' + row.main_name + '" ' +
-                            'data-ajax_url="/ledger/api/corporation/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/0/" ' +
+                            'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/0/" ' +
                             'title="' + row.main_name + '">' +
                             '<span class="fas fa-info"></span>' +
                             '</button>';
@@ -257,7 +257,7 @@ var YearAjax = {
                 $('#foot-year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
                 $('#foot-year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                     'aria-label="{{ data.main_name }}"' +
-                    'data-ajax_url="/ledger/api/corporation/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/0/?corp=true" ' +
+                    'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/0/?corp=true" ' +
                     'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>');
             },
             initComplete: function(settings, json) {

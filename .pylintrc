@@ -33,3 +33,4 @@ disable=
 
 [DESIGN]
 max-attributes=10
+max-args=7

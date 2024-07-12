@@ -7,7 +7,6 @@ from django.db.models.functions import Coalesce
 from ledger.api.helpers import (
     convert_ess_payout,
     get_alts_queryset,
-    get_character,
     get_models_and_string,
 )
 from ledger.api.managers.core_manager import LedgerFilter
@@ -25,8 +24,7 @@ class TemplateData:
     """TemplateData class to store the data."""
 
     request: any
-    request_id: int
-    main_char: str
+    main: any
     year: int
     month: int
     ledger_date: datetime = datetime.now()
@@ -204,9 +202,7 @@ class TemplateProcess:
         self, character_journal, corporation_journal, mining_journal
     ):
         """Process the characters."""
-        _, main = get_character(self.data.request, self.data.request_id)
-
-        alts = get_alts_queryset(main)
+        alts = get_alts_queryset(self.data.main)
 
         chars_list = [char.character_id for char in alts]
 
@@ -221,10 +217,9 @@ class TemplateProcess:
             # Add amounts to total_amounts
             for key, value in amounts.items():
                 for sub_key, sub_value in value.items():
-                    logger.debug(sub_key)
                     total_amounts[key][sub_key] += sub_value
 
-        self._update_template_dict(self.data.main_char)
+        self._update_template_dict(self.data.main)
         self._generate_amounts_dict(total_amounts)
 
     # Process the corporation
@@ -240,7 +235,7 @@ class TemplateProcess:
                 for value_type, char_value in sub_value.items():
                     total_amounts[key][value_type] += char_value
 
-        self._update_template_dict(self.data.main_char)
+        self._update_template_dict(self.data.main)
         self._generate_amounts_dict(total_amounts)
 
     # Aggregate Journal
