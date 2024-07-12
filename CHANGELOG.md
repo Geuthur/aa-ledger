@@ -20,6 +20,10 @@
 - Characters not visible in Character Ledger
 - Error from DataTable if No Data found (403 Error)
 
+### Known Issues
+
+- To fast Tab changing calls error on console
+
 ## \[0.5.2a2\] - 2024-06-19
 
 ### Added

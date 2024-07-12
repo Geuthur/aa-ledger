@@ -278,9 +278,6 @@ var YearAjax = {
 
 
 function loadBillboard(data, id) {
-    if (!(YearTable != null || MonthTable != null)) {
-        return;
-    }
     // Initialize a charts object if it doesn't exist
     if (window.charts === undefined) {
         window.charts = {};
