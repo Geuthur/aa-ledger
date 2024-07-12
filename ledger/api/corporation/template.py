@@ -10,6 +10,7 @@ from ledger.api import schema
 from ledger.api.helpers import (
     get_alts_queryset,
     get_character,
+    get_main_and_alts_all,
     get_main_and_alts_corporations,
 )
 from ledger.api.managers.template_manager import TemplateData, TemplateProcess
@@ -43,11 +44,11 @@ class LedgerTemplateApiEndpoints:
             alts = get_alts_queryset(char)
             linked_char = list(alts)
 
-            corporations = get_main_and_alts_corporations(request)
-
             if overall_mode:
+                corporations = get_main_and_alts_corporations(request)
+                _, chars_list = get_main_and_alts_all(corporations)
                 linked_char = EveCharacter.objects.filter(
-                    corporation_id__in=corporations,
+                    character_id__in=chars_list,
                 )
             elif corp:
                 linked_char = EveCharacter.objects.filter(
@@ -56,7 +57,7 @@ class LedgerTemplateApiEndpoints:
                 overall_mode = True
 
             # Create the Ledger
-            ledger_data = TemplateData(request, main_id, year, month)
+            ledger_data = TemplateData(request, main_id, char, year, month)
             ledger = TemplateProcess(linked_char, ledger_data, overall_mode)
             context = {"character": ledger.corporation_template()}
 

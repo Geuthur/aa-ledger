@@ -11,6 +11,7 @@ from ledger.api.helpers import (
     get_models_and_string,
 )
 from ledger.api.managers.core_manager import LedgerFilter
+from ledger.decorators import log_timing
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 from ledger.view_helpers.core import events_filter
@@ -26,6 +27,7 @@ class TemplateData:
 
     request: any
     request_id: int
+    main_char: str
     year: int
     month: int
     ledger_date: datetime = datetime.now()
@@ -130,7 +132,7 @@ class TemplateTotal(TemplateTotalCore, TemplateTotalDay, TemplateTotalHour):
 class TemplateProcess:
     """TemplateProcess class to process the data."""
 
-    def __init__(self, chars, data: TemplateData, show_year=False):
+    def __init__(self, chars: list, data: TemplateData, show_year=False):
         self.data = data
         self.chars = chars
         self.show_year = show_year
@@ -173,6 +175,7 @@ class TemplateProcess:
         self._process_characters(character_journal, corporation_journal, mining_journal)
         return self.template_dict
 
+    @log_timing
     def corporation_template(self):
         """
         Create the corporation template.
@@ -182,6 +185,7 @@ class TemplateProcess:
         chars = [char.character_id for char in self.chars]
 
         filters = LedgerFilter(chars)
+
         filter_date = Q(date__year=self.data.year)
         if not self.data.month == 0:
             filter_date &= Q(date__month=self.data.month)
@@ -190,8 +194,7 @@ class TemplateProcess:
             CorporationWalletJournalEntry.objects.filter(
                 filters.filter_second_party, filter_date
             )
-            .select_related("first_party", "second_party", "division")
-            .values("amount", "date", "second_party_id", "ref_type")
+            .select_related("first_party", "second_party")
             .order_by("-date")
         )
 
@@ -219,25 +222,27 @@ class TemplateProcess:
             # Add amounts to total_amounts
             for key, value in amounts.items():
                 for sub_key, sub_value in value.items():
+                    logger.debug(sub_key)
                     total_amounts[key][sub_key] += sub_value
 
-            self._update_template_dict(char)
+        self._update_template_dict(self.data.main_char)
         self._generate_amounts_dict(total_amounts)
 
     # Process the corporation
+    @log_timing
     def _process_corporation(self, corporation_journal):
         """Process the corporations."""
         total_amounts = TemplateTotal().to_dict()
 
-        for char in self.chars:
-            amounts = self._process_amounts_corp(char, corporation_journal)
-            # Add amounts to total_amounts
-            for key, value in amounts.items():
-                for sub_key, sub_value in value.items():
-                    total_amounts[key][sub_key] += sub_value
+        amounts = self._process_amounts_corp(self.chars, corporation_journal)
 
-            self._update_template_dict(char)
+        # Add amounts to total_amounts
+        for key, value in amounts.items():
+            for _, sub_value in value.items():
+                for value_type, char_value in sub_value.items():
+                    total_amounts[key][value_type] += char_value
 
+        self._update_template_dict(self.data.main_char)
         self._generate_amounts_dict(total_amounts)
 
     # Aggregate Journal
@@ -274,7 +279,58 @@ class TemplateProcess:
             result["total_amount_day"] = 0
         return result
 
+    def _aggregate_journal_new(self, journal, char_ids):
+        # Group by character ID before aggregating
+        result = (
+            journal.values("second_party_id")
+            .annotate(
+                total_amount=Coalesce(Sum(F("amount")), 0, output_field=DecimalField()),
+                total_amount_day=Coalesce(
+                    Sum(
+                        F("amount"),
+                        filter=Q(
+                            date__year=self.data.current_date.year,
+                            date__month=self.data.current_date.month,
+                            date__day=self.data.current_date.day,
+                        ),
+                    ),
+                    0,
+                    output_field=DecimalField(),
+                ),
+                total_amount_hour=Coalesce(
+                    Sum(
+                        F("amount"),
+                        filter=Q(
+                            date__year=self.data.current_date.year,
+                            date__month=self.data.current_date.month,
+                            date__day=self.data.current_date.day,
+                            date__hour=self.data.current_date.hour,
+                        ),
+                    ),
+                    0,
+                    output_field=DecimalField(),
+                ),
+            )
+            .filter(second_party_id__in=char_ids)
+        )
+
+        # Process results to match the expected structure
+        processed_result = {
+            char_id: {"total_amount": 0, "total_amount_day": 0, "total_amount_hour": 0}
+            for char_id in char_ids
+        }
+        for item in result:
+            char_id = item["second_party_id"]
+            processed_result[char_id]["total_amount"] += item["total_amount"]
+            processed_result[char_id]["total_amount_day"] += item["total_amount_day"]
+            processed_result[char_id]["total_amount_hour"] += item["total_amount_hour"]
+            if self.data.month == 0:
+                processed_result[char_id]["total_amount_day"] = 0
+
+        return processed_result
+
     # Update Core Dict
+    @log_timing
     def _update_template_dict(self, char):
         main_name = char.character_name if not self.show_year else "Summary"
         main_id = char.character_id if not self.show_year else 0
@@ -283,7 +339,6 @@ class TemplateProcess:
             if self.data.month == 0
             else self.data.ledger_date.strftime("%B")
         )
-
         self.template_dict.update(
             {
                 "main_name": main_name,
@@ -293,6 +348,7 @@ class TemplateProcess:
         )
 
     # Add Amounts to Dict
+    @log_timing
     def _generate_amounts_dict(self, amounts):
         """Generate the amounts dictionary."""
         current_day = 365 if self.data.month == 0 else self.data.ledger_date.day
@@ -333,20 +389,19 @@ class TemplateProcess:
         }
 
     # Genereate Amounts for each Char
-    def _process_amounts_corp(self, char, corporation_journal):
-        char_id = char.character_id
+    def _process_amounts_corp(self, chars, corporation_journal):
+        char_ids = [char.character_id for char in chars]
 
-        # Create the filters
-        filters = LedgerFilter([char_id])
+        # Adjust the filters to handle multiple character IDs
+        filters = LedgerFilter(char_ids)
 
-        # Calculate the amounts
+        # Aggregate data for all characters in a single query
         amounts = {
-            # Calculate Income
-            "bounty": self._aggregate_journal(
-                corporation_journal.filter(filters.filter_bounty)
+            "bounty": self._aggregate_journal_new(
+                corporation_journal.filter(filters.filter_bounty), char_ids
             ),
-            "ess": self._aggregate_journal(
-                corporation_journal.filter(filters.filter_ess)
+            "ess": self._aggregate_journal_new(
+                corporation_journal.filter(filters.filter_ess), char_ids
             ),
         }
         return amounts
