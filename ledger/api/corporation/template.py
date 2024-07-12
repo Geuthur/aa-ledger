@@ -7,7 +7,11 @@ from django.shortcuts import render
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger.api import schema
-from ledger.api.helpers import get_main_and_alts_corporations
+from ledger.api.helpers import (
+    get_alts_queryset,
+    get_character,
+    get_main_and_alts_corporations,
+)
 from ledger.api.managers.template_manager import TemplateData, TemplateProcess
 from ledger.hooks import get_extension_logger
 
@@ -28,12 +32,16 @@ class LedgerTemplateApiEndpoints:
         def get_corporation_ledger_template(
             request, main_id: int, year: int, month: int, corp: bool = False
         ):
-            perms = request.user.has_perm("ledger.basic_access")
+            perms, char = get_character(request, main_id)
 
             overall_mode = main_id == 0
 
             if not perms:
                 return 403, "Permission Denied"
+
+            # Get all Chars from the main (including the main char itself)
+            alts = get_alts_queryset(char)
+            linked_char = list(alts)
 
             corporations = get_main_and_alts_corporations(request)
 
@@ -46,12 +54,6 @@ class LedgerTemplateApiEndpoints:
                     corporation_id__in=[main_id],
                 )
                 overall_mode = True
-            else:
-                linked_char = [
-                    EveCharacter.objects.get(
-                        character_id=main_id,
-                    )
-                ]
 
             # Create the Ledger
             ledger_data = TemplateData(request, main_id, year, month)
