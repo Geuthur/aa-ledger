@@ -338,7 +338,10 @@ function loadBillboard(data, id) {
                 x: {
                     padding: { right: 8000*60*60*12 },
                     type: 'timeseries',
-                    tick: { format: '%Y-%m', rotate: 45 }
+                    tick: {
+                        format: '%Y-%m' + (id === 'Month' ? '-%d' : ''),
+                        rotate: 45
+                    }
                 },
                 y: {
                     tick: { format: function(x) {
