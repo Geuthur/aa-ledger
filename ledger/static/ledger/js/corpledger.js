@@ -58,6 +58,7 @@ $('#yearDropdown li').click(function() {
 
     YearTable.clear().draw();
     $('#foot-year').hide();
+
     MonthTable.clear().draw();
     $('#foot').hide();
 
@@ -172,6 +173,7 @@ var MonthAjax = {
                 if ($('#currentMonthLink').hasClass('active')) {
                     loadBillboard(AjaxDatMonth, 'Month');
                 }
+                $('#foot').show();
             }
         });
     },
@@ -262,6 +264,7 @@ var YearAjax = {
                 if ($('#currentYearLink').hasClass('active')) {
                     loadBillboard(AjaxDataYear, 'Year');
                 }
+                $('#foot-year').show();
             }
         });
     },

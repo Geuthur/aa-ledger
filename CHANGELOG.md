@@ -4,6 +4,7 @@
 
 - Loading Animation on Data Load
 - Admin Overview for Corporation & Character Ledger
+- Added option to see Stats for 1 Char (only admin) this will be later continue to own user
 
 ### Changed
 
