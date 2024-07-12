@@ -51,11 +51,16 @@ class JournalProcess:
 
     def process_corporation_chars(self, corporation_journal):
         # Create a Dict for all Mains(including their alts)
+        self.chars_mains = []
         for _, data in self.chars.items():
             main = data["main"]
             alts = data["alts"]
 
             chars_mains = [alt.character_id for alt in alts] + [main.character_id]
+
+            for alt in alts:
+                self.chars_mains.append(alt.character_id)
+            self.chars_mains.append(main.character_id)
 
             total_bounty = 0
             total_ess = 0
@@ -78,10 +83,11 @@ class JournalProcess:
                     "amount", flat=True
                 )
             )
+            logger.debug("%s Total Bounty: %s", char_name, total_bounty)
 
             summary_amount = total_bounty + total_ess
 
-            if total_bounty or total_ess:
+            if summary_amount > 0:
                 self.corporation_dict[char_id] = {
                     "main_id": char_id,
                     "main_name": char_name,
@@ -268,7 +274,7 @@ class JournalProcess:
         ledger = BillboardLedger(date_data, models, corp=True)
 
         billboard_dict = ledger.billboard_corp_ledger(
-            self.corporation_dict, self.summary_total.total_amount, chars_list
+            self.corporation_dict, self.summary_total.total_amount, self.chars_mains
         )
 
         output = []

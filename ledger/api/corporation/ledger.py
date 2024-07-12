@@ -38,15 +38,6 @@ class LedgerApiEndpoints:
             # Create the Ledger
             characters, chars_list = get_main_and_alts_all(corporations)
 
-            chars_mains_test = []
-            for _, data in characters.items():
-                main = data["main"]
-                alts = data["alts"]
-                for alt in alts:
-                    chars_mains_test.append(alt.character_id)
-
-                chars_mains_test.append(main.character_id)
-
             ledger = JournalProcess(characters, year, month)
             output = ledger.corporation_ledger(chars_list)
 

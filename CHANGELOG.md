@@ -2,24 +2,23 @@
 
 ### Added
 
+- Loading Animation on Data Load
 - Admin Overview for Corporation & Character Ledger
 
 ### Changed
 
 - Character Ledger & Corporation Ledger Path
-- Corp & Char JS
+- Refactor Char, Corp JS
 - Optimized get_all_mains_alts function
 - Optimized Billboard Calculation (Performance)
 
 ### Fixed
 
+- In some cases the Billboard has Lazy Rendering
 - Error on Template if no data found
 - Wrong Calculations on Character Ledger 30 Days (ESS Payout)
 - Characters not visible in Character Ledger
-
-### Removed
-
-- Temporary Main & Alts merging in Corporation Ledger
+- Error from DataTable if No Data found (403 Error)
 
 ## \[0.5.2a2\] - 2024-06-19
 

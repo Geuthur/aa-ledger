@@ -144,6 +144,7 @@ def get_main_and_alts_all(main_corp: list):
                         "character", "user"
                     ).all()
                 )
+                logger.debug(linked_characters)
 
                 linked_characters = linked_characters.exclude(
                     character__character_id=main.character_id
@@ -160,15 +161,16 @@ def get_main_and_alts_all(main_corp: list):
                 chars_list.add(main.character_id)
 
         except ObjectDoesNotExist:
-            char, created = EveCharacter.objects.get_or_create(
+            # logger.debug("Corpmember: %s Not Found", corpmember.character_name)
+            char_create, created = EveCharacter.objects.get_or_create(
                 character_id=corpmember.character_id,
                 corporation_id=corpmember.corpstats.corp.corporation_id,
             )
             if created:
                 logger.debug("Corpmember: %s Created", corpmember.character_name)
                 # Add Corp Members as main
-                characters[char.character_id] = {"main": char, "alts": []}
-                chars_list.add(char.character_id)
+                characters[char_create.character_id] = {"main": char_create, "alts": []}
+                chars_list.add(char_create.character_id)
     return characters, list(chars_list)
 
 
