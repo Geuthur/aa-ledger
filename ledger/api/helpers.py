@@ -122,7 +122,6 @@ def get_main_and_alts_all(main_corp: list):
     corpmember = get_corp_models_and_string()
     corps = (
         corpmember.objects.select_related("corpstats", "corpstats__corp")
-        .prefetch_related("corpstats")
         .filter(corpstats__corp__corporation_id__in=corps_list)
         .order_by("character_id")
     )
@@ -142,12 +141,12 @@ def get_main_and_alts_all(main_corp: list):
                 linked_characters = (
                     main.character_ownership.user.character_ownerships.select_related(
                         "character", "user"
-                    ).all()
+                    ).filter(character__corporation_id__in=corps_list)
                 )
-                logger.debug(linked_characters)
 
+                # Exclude Main from Alts
                 linked_characters = linked_characters.exclude(
-                    character__character_id=main.character_id
+                    character__character_id=main.character_id,
                 )
 
                 if main.corporation_id in corps_list:
@@ -161,7 +160,6 @@ def get_main_and_alts_all(main_corp: list):
                 chars_list.add(main.character_id)
 
         except ObjectDoesNotExist:
-            # logger.debug("Corpmember: %s Not Found", corpmember.character_name)
             char_create, created = EveCharacter.objects.get_or_create(
                 character_id=corpmember.character_id,
                 corporation_id=corpmember.corpstats.corp.corporation_id,
