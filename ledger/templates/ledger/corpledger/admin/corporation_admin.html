@@ -27,45 +27,57 @@
 
 {% block extra_javascript %}
 {% include 'bundles/datatables-js-bs5.html' %}
-<script type="text/javascript">
-document.addEventListener('DOMContentLoaded', function () {
-    // Initialize DataTable
-    var Corps = $('#corporations').DataTable({
-        ajax: {
-            url: '/ledger/api/corporation/ledger/admin/',
-            dataSrc: function (data) {
-                var corporationsArray = [];
-                var corporationsObj = data[0].corporation;
-                for (var key in corporationsObj) {
-                    if (corporationsObj.hasOwnProperty(key)) {
-                        corporationsArray.push(corporationsObj[key]);
-                    }
+<script type="application/javascript">
+CorpsAjax = {
+    url: '/ledger/api/corporation/ledger/admin/',
+    type: 'GET',
+    success: function(response) {
+
+        // Data Structure
+        var data = Object.values(response[0].corporation).map(function(item) {
+            return {
+                corporation_id: item.corporation_id,
+                corporation_name: item.corporation_name,
+            };
+        });
+
+        // Initialisierung der DataTable
+        var Corps = $('#corporations').DataTable({
+            data: data,
+            columns: [
+                {data: 'corporation_id', title: ''},
+                {data: 'corporation_name', title: 'Corporation'},
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    render: function (data, type, row) {
+                        return '<img src="https://images.evetech.net/corporations/' + row.corporation_id + '/logo?size=32" class="rounded-circle" title="' + row.corporation_name + '" height="30">';
+                    },
+                },
+                {
+                    targets: 2,
+                    className: 'text-end',
+                    sortable: false,
+                    render: function (data, type, row) {
+                        return '<a href="/ledger/corporation_ledger/'+ row.corporation_id +'/"><button class="btn btn-primary btn-sm" title="Edit"><i class="fa-solid fa-eye"></i></button></a>';
+                    },
                 }
-                return corporationsArray;
-            },
-        },
-        processing: true,
-        columns: [
-            {data: 'corporation_id', title: ''},
-            {data: 'corporation_name', title: 'Corporation'},
-        ],
-        columnDefs: [
-            {
-                targets: 0,
-                render: function (data, type, row) {
-                    return '<img src="https://images.evetech.net/corporations/' + row.corporation_id + '/logo?size=32" class="rounded-circle" title="' + row.corporation_name + '" height="30">';
-                },
-            },
-            {
-                targets: 2,
-                className: 'text-end',
-                sortable: false,
-                render: function (data, type, row) {
-                    return '<a href="/ledger/corporation_ledger/'+ row.corporation_id +'/"><button class="btn btn-primary btn-sm" title="Edit"><i class="fa-solid fa-eye"></i></button></a>';
-                },
-            }
-        ]
-    });
+            ]
+        });
+    },
+    error: function(response) {
+    // Annahme: Ihr DataTable hat 3 Spalten
+    var errorRow = '<tr><td colspan="3" class="text-center">{% trans 'No Permission' %}</td></tr>';
+
+    // Fügt die Fehlerzeile in die Tabelle ein. Stellen Sie sicher, dass die ID oder Klasse Ihrer Tabelle korrekt ist.
+    $('#corporations tbody').html(errorRow);
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    // DataTable mit AJAX-Daten initialisieren
+    $.ajax(CorpsAjax);
 });
 </script>
 {% endblock %}

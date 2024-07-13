@@ -2,18 +2,28 @@
 
 ### Added
 
+- Average Hourly Tick calculated with
+  - Example: 100000 ISK - July 16
+  - 100000 / 16 / 24 / 3
+  - This month you make avg 87 ISK per Tick
+- Current Day Tick
+  - Example: 100000 ISK - July 16
+  - 100000 / 3
+  - You make 33333 ISK per Tick this Day
+- Error Handler for Template Modal
 - Loading Animation on Data Load
 - Admin Overview for Corporation & Character Ledger
-- Added option to see Stats for 1 Char (only admin) this will be later continue to own user
 - Create EveCharacter if Corp Member not exist
 
 ### Changed
 
+- Permissions more information in README
 - Character Ledger & Corporation Ledger Path
 - Refactor Char, Corp JS
 - Optimized get_all_mains_alts function
 - Optimized Billboard Calculation (Performance)
 - Optimized Template Calculation (Performance) on Corporation side
+- Add Memberaudit Chars to CharacterAudit permission changed from
 
 ### Fixed
 

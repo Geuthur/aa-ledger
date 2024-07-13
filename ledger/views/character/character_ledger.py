@@ -32,7 +32,7 @@ def character_ledger(request, character_pk):
 
 
 @login_required
-@permission_required("ledger.admin_access")
+@permission_required("ledger.basic_access")
 def character_admin(request):
     """
     Character Admin

@@ -2,12 +2,11 @@ from typing import List
 
 from ninja import NinjaAPI
 
-from allianceauth.eveonline.models import EveCharacter
-
 from ledger.api import schema
 from ledger.api.helpers import get_alts_queryset, get_character
 from ledger.api.managers.ledger_manager import JournalProcess
 from ledger.hooks import get_extension_logger
+from ledger.models.characteraudit import CharacterAudit
 
 logger = get_extension_logger(__name__)
 
@@ -23,9 +22,9 @@ class LedgerApiEndpoints:
             tags=self.tags,
         )
         def get_character_ledger(request, character_id: int, year: int, month: int):
-            response, main = get_character(request, character_id)
+            perm, main = get_character(request, character_id)
 
-            if not response:
+            if not perm:
                 return 403, "Permission Denied"
 
             # Create the Ledger
@@ -45,9 +44,9 @@ class LedgerApiEndpoints:
             tags=self.tags,
         )
         def get_character_admin(request):
-            if request.user.has_perm("ledger.admin_access"):
-                characters = EveCharacter.objects.all()
-            else:
+            characters = CharacterAudit.objects.visible_eve_characters(request.user)
+
+            if not characters.exists():
                 return 403, "Permission Denied"
 
             character_dict = {}

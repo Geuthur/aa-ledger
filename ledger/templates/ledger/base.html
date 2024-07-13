@@ -9,7 +9,18 @@
 {% block page_title %}Ledger{% endblock %}
 
 {% block header_nav_brand %}
-    Ledger
+    <style>
+    .ledger-link {
+        color: white !important; /* Stellt sicher, dass diese Farbregel Vorrang hat */
+        text-decoration: none !important; /* Entfernt die Unterstreichung */
+        transition: color 0.3s; /* Fügt eine sanfte Übergangsanimation hinzu */
+    }
+
+    .ledger-link:hover {
+        color: rgba(255, 255, 255, 0.4) !important; /* Reduziert die Farbintensität um 60% beim Hover */
+    }
+    </style>
+    <a class="ledger-link" href="{% url 'ledger:index' %}">Ledger</a>
 {% endblock header_nav_brand %}
 
 {% block header_nav_collapse_left %}

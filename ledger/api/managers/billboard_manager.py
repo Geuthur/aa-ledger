@@ -189,7 +189,9 @@ class BillboardLedger:
         if self.models.mining_journal:
             for entry in self.models.mining_journal.values("total", "date"):
                 period = entry["date"].strftime(period_format)
-                self.data_dict[period]["total_mining"] += entry["total"]
+                self.data_dict[period]["total_mining"] += (
+                    entry["total"] if entry["total"] else 0
+                )
 
     def calculate_total_sum(self):
         self.sum.total_sum = sum(

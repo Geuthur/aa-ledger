@@ -120,6 +120,11 @@
                                     <div class="col-sm-6">Current Day - Ratting:</div>
                                     <div class='col-sm-4'><span style="color: green">{{ character.bounty.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
                                 </div>
+
+                                <div class="row description-row">
+                                    <div class="col-sm-6">Current Day Avg Tick - Ratting:</div>
+                                    <div class='col-sm-4'><span style="color: green">{{ character.bounty.total_amount_day_tick|floatformat:0|intcomma }}</span> ISK</div>
+                                </div>
                             {% endif %}
                             <div class="row description-row">
                                 <div class="col-sm-6">Avg. Ratting per Day:</div>
@@ -255,6 +260,13 @@
                             <div class="row description-row">
                                 <div class="col-sm-6">Avg. Ratting per Hour:</div>
                                 <div class='col-sm-4'><span style="color: green">{{ character.bounty.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+                            </div>
+                        {% endif %}
+
+                        {% if character.bounty %}
+                            <div class="row description-row">
+                                <div class="col-sm-6">Avg. Ratting Tick per Hour:</div>
+                                <div class='col-sm-4'><span style="color: green">{{ character.bounty.average_hour_tick|floatformat:0|intcomma }}</span> ISK</div>
                             </div>
                         {% endif %}
 

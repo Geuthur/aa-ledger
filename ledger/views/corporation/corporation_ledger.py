@@ -33,7 +33,7 @@ def corporation_ledger(request, corporation_pk):
 
 
 @login_required
-@permission_required("ledger.admin_access")
+@permission_required("ledger.basic_access")
 def corporation_admin(request):
     """
     Corporation Admin

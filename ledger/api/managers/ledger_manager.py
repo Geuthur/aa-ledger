@@ -162,7 +162,7 @@ class JournalProcess:
             )
             summary_amount -= abs(costs_amount)
 
-            if summary_amount > 0:
+            if summary_amount:
                 self.character_dict[char_id] = {
                     "main_id": char_id,
                     "main_name": char_name,

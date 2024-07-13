@@ -42,18 +42,28 @@ class LedgerTemplateApiEndpoints:
             chars_list = [char.character_id for char in alts]
 
             if not response:
-                return 403, "Permission Denied"
-
-            if overall_mode:
-                linked_char = EveCharacter.objects.filter(
-                    character_id__in=chars_list,
-                )
-            else:
-                linked_char = [
-                    EveCharacter.objects.get(
-                        character_id=character_id,
+                context = {
+                    "error_title": "Permission Denied",
+                    "error_message": "You don't have permission to view this character's ledger.",
+                }
+                return render(request, "ledger/modals/pve/error.html", context)
+            try:
+                if overall_mode:
+                    linked_char = EveCharacter.objects.filter(
+                        character_id__in=chars_list,
                     )
-                ]
+                else:
+                    linked_char = [
+                        EveCharacter.objects.get(
+                            character_id=character_id,
+                        )
+                    ]
+            except EveCharacter.DoesNotExist:
+                context = {
+                    "error_title": "403 Error",
+                    "error_message": "Character not found.",
+                }
+                return render(request, "ledger/modals/pve/error.html", context)
 
             # Create the Ledger
             ledger_data = TemplateData(request, main, year, month)
