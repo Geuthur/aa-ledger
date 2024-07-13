@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 
 from allianceauth.eveonline.models import EveCharacter
 
@@ -167,16 +168,26 @@ def get_main_and_alts_all(main_corp: list):
                     chars_list.add(main.character_id)
 
         except ObjectDoesNotExist:
-            char_create, created = EveCharacter.objects.get_or_create(
-                character_id=corpmember.character_id,
-                corporation_id=corpmember.corpstats.corp.corporation_id,
-            )
-            if created:
+            # Ensure that the character not already exists
+            if EveCharacter.objects.filter(
+                character_id=corpmember.character_id
+            ).exists():
+                continue
+            try:
+                char_create = EveCharacter.objects.create_character(
+                    character_id=corpmember.character_id,
+                )
                 logger.debug("Corpmember: %s Created", corpmember.character_name)
                 # Add Corp Members as main
-                characters[char_create.character_id] = {"main": char_create, "alts": []}
+                characters[char_create.character_id] = {
+                    "main": char_create,
+                    "alts": [char_create],
+                }
                 if char_create.character_id in corps_list:
                     chars_list.add(char_create.character_id)
+            except IntegrityError as exc:
+                logger.debug("Integrity Error: %s", exc)
+                continue
 
     return characters, list(chars_list)
 
