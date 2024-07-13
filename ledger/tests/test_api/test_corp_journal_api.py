@@ -23,7 +23,7 @@ class ManageApiJournalCorpEndpointsTest(TestCase):
             1001,
             permissions=[
                 "ledger.basic_access",
-                "ledger.corp_audit_admin_access",
+                "ledger.corp_audit_admin_manager",
                 "ledger.corp_audit_manager",
             ],
         )

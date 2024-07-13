@@ -34,7 +34,7 @@ class CorpAuditQuerySetTest(TestCase):
         self.user, self.character_ownership = create_user_from_evecharacter(
             1001,
             permissions=[
-                "ledger.corp_audit_admin_access",
+                "ledger.corp_audit_admin_manager",
             ],
         )
 
@@ -53,7 +53,7 @@ class CorpAuditQuerySetTest(TestCase):
 
         self.assertTrue(self.user.has_perm("ledger.admin_access"))
         self.assertFalse(self.user.is_superuser)
-        self.assertFalse(self.user.has_perm("ledger.corp_audit_admin_access"))
+        self.assertFalse(self.user.has_perm("ledger.corp_audit_admin_manager"))
 
         expected_result = CorporationAudit.objects.all()
 

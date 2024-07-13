@@ -40,7 +40,7 @@ class CharAuditQuerySetTest(TestCase):
         self.user, self.character_ownership = create_user_from_evecharacter(
             1001,
             permissions=[
-                "ledger.char_audit_admin_access",
+                "ledger.char_audit_admin_manager",
             ],
         )
         # when

@@ -29,7 +29,7 @@ class ManageApiJournalCharEndpointsTest(TestCase):
             1001,
             permissions=[
                 "ledger.basic_access",
-                "ledger.char_audit_admin_access",
+                "ledger.char_audit_admin_manager",
                 "ledger.char_audit_manager",
             ],
         )
