@@ -40,26 +40,7 @@ class CharAuditQuerySetTest(TestCase):
         self.user, self.character_ownership = create_user_from_evecharacter(
             1001,
             permissions=[
-                "ledger.char_audit_admin_access",
-            ],
-        )
-        # when
-        expected_result = CharacterAudit.objects.all()
-        result = CharacterAudit.objects.visible_to(self.user)
-        # then
-        self.assertEqual(list(result), list(expected_result))
-        # when
-        expected_result = EveCharacter.objects.all()
-        result = CharacterAudit.objects.visible_eve_characters(self.user)
-        # then
-        self.assertEqual(list(result), list(expected_result))
-
-    def test_visible_to_admin_access(self):
-        # given
-        self.user, self.character_ownership = create_user_from_evecharacter(
-            1001,
-            permissions=[
-                "ledger.admin_access",
+                "ledger.char_audit_admin_manager",
             ],
         )
         # when

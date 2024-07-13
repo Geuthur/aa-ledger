@@ -4,6 +4,7 @@ from django.urls import path, re_path
 
 from ledger.api import api
 from ledger.views.character.char_audit import add_char, fetch_memberaudit
+from ledger.views.character.character_ledger import character_admin, character_ledger
 from ledger.views.corporation.corp_audit import add_corp
 from ledger.views.corporation.corp_events import (
     create_event,
@@ -13,9 +14,13 @@ from ledger.views.corporation.corp_events import (
     events_index,
     load_events,
 )
+from ledger.views.corporation.corporation_ledger import (
+    corporation_admin,
+    corporation_ledger,
+)
 
 # AA Example App
-from ledger.views.pve import ledger_index, ratting_char_index, ratting_index
+from ledger.views.pve import ledger_index
 
 app_name: str = "ledger"
 
@@ -31,9 +36,19 @@ urlpatterns = [
     # -- PvE
     path("index", ledger_index, name="ledger_index"),
     # -- -- Corporation Ledger
-    path("corp_index", ratting_index, name="ledger_corp_index"),
+    path(
+        "corporation_ledger/<int:corporation_pk>/",
+        corporation_ledger,
+        name="corporation_ledger",
+    ),
+    path("corporation_admin/", corporation_admin, name="corporation_admin"),
     # -- -- Char Ledger
-    path("char_index", ratting_char_index, name="ledger_char_index"),
+    path(
+        "character_ledger/<int:character_pk>/",
+        character_ledger,
+        name="character_ledger",
+    ),
+    path("character_admin/", character_admin, name="character_admin"),
     # -- -- Events
     path("events/", events_index, name="events_index"),
     path("events/admin/", events_admin, name="event_admin"),

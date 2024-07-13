@@ -31,7 +31,7 @@ class CharAuditTest(TestCase):
             permissions=[
                 "ledger.basic_access",
                 "ledger.admin_access",
-                "ledger.corp_audit_admin_access",
+                "ledger.corp_audit_admin_manager",
             ],
         )
 

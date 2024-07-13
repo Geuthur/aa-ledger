@@ -1,0 +1,18 @@
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+
+<div class="modal-content">
+    <button type="button" class="btn-close py-3 px-3" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true"></button>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modalTitle">{{ error_title }}</h4>
+    </div>
+    <div class="card-body">
+        <div class="modal-body">
+            {{ error_message }}
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        </div>
+</div>

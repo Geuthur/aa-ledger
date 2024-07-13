@@ -7,7 +7,7 @@ from django.shortcuts import render
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger.api import schema
-from ledger.api.helpers import get_alts_queryset, get_main_character
+from ledger.api.helpers import get_alts_queryset, get_character
 from ledger.api.managers.template_manager import TemplateData, TemplateProcess
 from ledger.hooks import get_extension_logger
 
@@ -36,30 +36,37 @@ class LedgerTemplateApiEndpoints:
                 else character_id
             )
 
-            response, main = get_main_character(request, character_id)
+            response, main = get_character(request, character_id)
             alts = get_alts_queryset(main)
 
             chars_list = [char.character_id for char in alts]
 
             if not response:
-                return 403, "Permission Denied"
-
-            if overall_mode:
-                linked_char = EveCharacter.objects.filter(
-                    character_ownership__user=request.user,
-                    character_id__in=chars_list,
-                )
-            else:
-                linked_char = [
-                    EveCharacter.objects.get(
-                        character_ownership__user=request.user,
-                        character_id=character_id,
+                context = {
+                    "error_title": "Permission Denied",
+                    "error_message": "You don't have permission to view this character's ledger.",
+                }
+                return render(request, "ledger/modals/pve/error.html", context)
+            try:
+                if overall_mode:
+                    linked_char = EveCharacter.objects.filter(
+                        character_id__in=chars_list,
                     )
-                ]
-            logger.debug(linked_char)
+                else:
+                    linked_char = [
+                        EveCharacter.objects.get(
+                            character_id=character_id,
+                        )
+                    ]
+            except EveCharacter.DoesNotExist:
+                context = {
+                    "error_title": "403 Error",
+                    "error_message": "Character not found.",
+                }
+                return render(request, "ledger/modals/pve/error.html", context)
 
             # Create the Ledger
-            ledger_data = TemplateData(request, character_id, year, month)
+            ledger_data = TemplateData(request, main, year, month)
             ledger = TemplateProcess(linked_char, ledger_data, overall_mode)
             context = {"character": ledger.character_template()}
 

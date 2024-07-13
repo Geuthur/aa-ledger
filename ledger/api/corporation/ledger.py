@@ -1,14 +1,16 @@
-import logging
 from typing import List
 
 from ninja import NinjaAPI
 
 from ledger.api import schema
-from ledger.api.helpers import get_corporations, get_main_and_alts_all
+from ledger.api.helpers import (
+    get_corporation,
+    get_main_and_alts_all,
+    get_main_and_alts_corporations,
+)
 from ledger.api.managers.ledger_manager import JournalProcess
-from ledger.app_settings import IS_TESTING
 from ledger.hooks import get_extension_logger
-from ledger.view_helpers.core import _storage_key, get_cache_stale, set_cache_hourly
+from ledger.models import CorporationAudit
 
 logger = get_extension_logger(__name__)
 
@@ -23,33 +25,50 @@ class LedgerApiEndpoints:
             tags=self.tags,
         )
         def get_corporation_ledger(request, corporation_id: int, year: int, month: int):
-            perms = request.user.has_perm("ledger.basic_access")
+            response, _ = get_corporation(request, corporation_id)
 
-            corporations = [corporation_id]
+            if not response:
+                return 403, "Permission Denied"
 
+            # pylint: disable=duplicate-code
             if corporation_id == 0:
-                corporations = get_corporations(request)
-
-            if not perms:
-                logging.error("Permission Denied for %s to view wallets!", request.user)
-                return 403, "Permission Denied!"
-
-            output = get_cache_stale(
-                _storage_key(f"corporation_ledger_{corporation_id}_{year}_{month}")
-            )
+                corporations = get_main_and_alts_corporations(request)
+            else:
+                corporations = [corporation_id]
 
             # Create the Ledger
-            if not output:
-                characters, chars_list = get_main_and_alts_all(corporations)
+            characters, chars_list = get_main_and_alts_all(corporations)
 
-                ledger = JournalProcess(characters, year, month)
-                output = ledger.corporation_ledger(chars_list)
-                if not IS_TESTING:
-                    set_cache_hourly(
-                        output,
-                        _storage_key(
-                            f"corporation_ledger_{corporation_id}_{year}_{month}"
-                        ),
-                    )
+            ledger = JournalProcess(characters, year, month)
+            output = ledger.corporation_ledger(chars_list)
+
+            return output
+
+        @api.get(
+            "corporation/ledger/admin/",
+            response={200: List[schema.CorporationAdmin], 403: str},
+            tags=self.tags,
+        )
+        def get_corporation_admin(request):
+            corporations = CorporationAudit.objects.visible_to(request.user)
+
+            if not corporations.exists():
+                return 403, "Permission Denied"
+
+            corporation_dict = {}
+
+            for corporation in corporations:
+                # pylint: disable=broad-exception-caught
+                try:
+                    corporation_dict[corporation.corporation.corporation_id] = {
+                        "corporation_id": corporation.corporation.corporation_id,
+                        "corporation_name": corporation.corporation.corporation_name,
+                    }
+                except Exception as e:
+                    logger.debug(e)
+                    continue
+
+            output = []
+            output.append({"corporation": corporation_dict})
 
             return output

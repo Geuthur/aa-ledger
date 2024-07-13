@@ -16,11 +16,7 @@ class AuditCharacterQuerySet(models.QuerySet):
             logger.debug("Returning all characters for superuser %s.", user)
             return self
 
-        if user.has_perm("ledger.char_audit_admin_access"):
-            logger.debug("Returning all characters for %s.", user)
-            return self
-
-        if user.has_perm("ledger.admin_access"):
+        if user.has_perm("ledger.char_audit_admin_manager"):
             logger.debug("Returning all characters for %s.", user)
             return self
 
@@ -56,11 +52,7 @@ class AuditCharacterManager(models.Manager):
             logger.debug("Returning all characters for superuser %s.", user)
             return qs.all()
 
-        if user.has_perm("ledger.char_audit_admin_access"):
-            logger.debug("Returning all characters for %s.", user)
-            return qs.all()
-
-        if user.has_perm("ledger.admin_access"):
+        if user.has_perm("ledger.char_audit_admin_manager"):
             logger.debug("Returning all characters for %s.", user)
             return qs.all()
 

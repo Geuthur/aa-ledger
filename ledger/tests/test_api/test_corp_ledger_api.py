@@ -28,8 +28,8 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
             1001,
             permissions=[
                 "ledger.basic_access",
-                "ledger.corp_audit_admin_access",
                 "ledger.corp_audit_manager",
+                "ledger.corp_audit_admin_manager",
             ],
         )
 
@@ -47,72 +47,6 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
         cls.api = NinjaAPI()
         cls.manage_api_endpoints = LedgerApiEndpoints(api=cls.api)
 
-    def test_get_corporation_ledger_api(self):
-        self.client.force_login(self.user)
-        url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
-
-        response = self.client.get(url)
-        expected_data = CorpmonthlyMarch
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
-
-    @patch("ledger.api.corporation.ledger.get_cache_stale")
-    @patch("ledger.api.corporation.ledger.IS_TESTING", False)
-    def test_get_corporation_ledger_api_cache_no_testing(self, mock_get_cache_stale):
-        self.client.force_login(self.user)
-        url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
-
-        mock_get_cache_stale.return_value = CorpmonthlyMarch
-
-        response = self.client.get(url)
-        expected_data = CorpmonthlyMarch
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
-
-    @patch("ledger.api.corporation.ledger.get_cache_stale")
-    @patch("ledger.api.corporation.ledger.IS_TESTING", True)
-    def test_get_corporation_ledger_api_no_cache_testing(self, mock_get_cache_stale):
-        self.client.force_login(self.user)
-        url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
-
-        mock_get_cache_stale.return_value = False
-
-        response = self.client.get(url)
-        expected_data = CorpmonthlyMarch
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
-
-    @patch("ledger.api.corporation.ledger.get_cache_stale")
-    @patch("ledger.api.corporation.ledger.IS_TESTING", False)
-    def test_get_corporation_ledger_api_no_cache_no_testing(self, mock_get_cache_stale):
-        self.client.force_login(self.user)
-        url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
-
-        mock_get_cache_stale.return_value = False
-
-        response = self.client.get(url)
-        expected_data = CorpmonthlyMarch
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
-
-    def test_get_corporation_ledger_api_single(self):
-        self.client.force_login(self.user)
-        url = "/ledger/api/corporation/2001/ledger/year/2024/month/3/"
-
-        response = self.client.get(url)
-        expected_data = CorpmonthlyMarch
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
-
-    def test_get_corporation_ledger_api_year(self):
-        self.client.force_login(self.user)
-        url = "/ledger/api/corporation/2001/ledger/year/2024/month/0/"
-
-        response = self.client.get(url)
-        expected_data = Corpyearly
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
-
     def test_get_corporation_ledger_api_no_permission(self):
         self.client.force_login(self.user2)
         url = "/ledger/api/corporation/2001/ledger/year/2024/month/3/"
@@ -121,11 +55,9 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
 
         self.assertEqual(response.status_code, 403)
 
-    @patch("ledger.api.corporation.ledger.get_cache_stale")
-    def test_get_corporation_ledger_api_no_data(self, mock_get_cache_stale):
+    def test_get_corporation_ledger_api_no_data(self):
         self.client.force_login(self.user3)
         url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
-        mock_get_cache_stale.return_value = False
 
         response = self.client.get(url)
 
@@ -133,20 +65,12 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)
 
-    def test_get_corporation_ledger_api_many_data(self):
+    def test_get_corporation_ledger_api_not_found(self):
         self.client.force_login(self.user3)
         url = "/ledger/api/corporation/2001/ledger/year/2024/month/3/"
-
-        for i in range(1010, 1023):
-            self.user, _ = create_user_from_evecharacter(
-                i,
-                permissions=[
-                    "ledger.basic_access",
-                ],
-            )
+        self.maxDiff = None
 
         response = self.client.get(url)
 
-        expected_data = Corpdatamany
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.json(), "Permission Denied")

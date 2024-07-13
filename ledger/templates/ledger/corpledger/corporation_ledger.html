@@ -5,12 +5,14 @@
 {% load ledger %}
 
 {% block page_title %}Corporation Ledger{% endblock %}
-{% block page_topic %}<h1 class="page-header text-center">{% translate "Corporation Ledger" %}</h1>{% endblock page_topic %}
+{% block page_topic %}<h1 class="page-header text-center">{% trans "Corporation Ledger" %}</h1>{% endblock page_topic %}
+
+{% block vow_menu %}{% include 'ledger/corpledger/menu.html' %}{% endblock %}
 
 {% block vow_block %}
 <div class="card-body container-fluid">
     <div class="card-body bg-primary rounded-top d-flex">
-        <h3>{% translate "Corporation Ledger" %} </h3>
+        <h3>{% trans "Corporation Ledger" %} </h3>
         <div class="dropdown px-2">
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Year
@@ -97,7 +99,8 @@
 {% block extra_javascript %}
 <link rel="stylesheet" type="text/css" href="{% static 'ledger/css/billboards_dark.css' %}">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" integrity="sha512-vc58qvvBdrDR4etbxMdlTt4GBQk1qjvyORR2nrsPsFPyrs+/u5c3+1Ct6upOgdZoIl7eq6k3a1UPDSNAQi/32A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/3.11.3/billboard.min.js" integrity="sha512-rW9pOtBGPL12EGH9SeJmQWtVRvMImYHFGcYmTG/f9UIEO8I/nl2BxUQ41+t0ieqRdTF3PawVUVBXC7Jnb3AGnA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/3.12.4/billboard.min.js" integrity="sha512-/cNN6+3RhTdLjXMj9HAsHESe8G3AokZzjc06eexZBWgXZHcq5Bmp8BFnmajTFOk2QVVVH+DbHXqCNj5IKshkzg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/3.12.4/plugin/billboardjs-plugin-textoverlap.min.js" integrity="sha512-sPXJvLXSIL7e/sK7QpxRACuNXeubynxw+OtknjtItKGFzZ6EsK8ExH9Z/abU4YBjrJWeUKYRrkhnlJC+7GnEaw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {% include 'bundles/datatables-js-bs5.html' %}
 <script type="application/javascript">
     $('#modalViewCharacterContainer').on('show.bs.modal', function (event) {
@@ -107,7 +110,12 @@
         $("#modalViewCharacterContent").load(ajax_url)
     });
 </script>
-<script type="text/javascript" src="{% static 'ledger/js/corpledger.js' %}"></script>
+<script type="application/javascript">
+    let corporationsettings = {
+        corporation_pk: {{ corporation_pk }},
+    };
+</script>
+<script type="application/javascript" src="{% static 'ledger/js/corpledger.js' %}"></script>
 {% endblock extra_javascript %}
 {% block extra_script %}
 {% endblock extra_script %}

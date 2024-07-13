@@ -9,6 +9,9 @@ from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
 
+# Add Filter to LedgerDataCore
+# TODO agent_mission_time_bonus_reward, agent_mission_reward
+
 
 @dataclass
 class LedgerDataCore:
@@ -79,11 +82,13 @@ class LedgerFilterCore:
     filter_bounty: Q = field(init=False)
     filter_ess: Q = field(init=False)
     filter_mining: Q = field(init=False)
+    filter_total: Q = field(init=False)
 
     def __post_init__(self):
         self.filter_first_party = Q(first_party_id__in=self.char_id)
         self.filter_second_party = Q(second_party_id__in=self.char_id)
         self.filter_partys = self.filter_first_party | self.filter_second_party
+        self.filter_total = self.filter_partys & Q(amount__gt=0)
         self.filter_bounty = self.filter_second_party & Q(ref_type="bounty_prizes")
         self.filter_ess = self.filter_second_party & Q(ref_type="ess_escrow_transfer")
         self.filter_mining = (
@@ -111,6 +116,7 @@ class LedgerFilterCost(LedgerFilterCore):
         self.filter_production = self.filter_partys & Q(
             ref_type__in=["industry_job_tax", "manufacturing"]
         )
+        self.filter_costs = self.filter_partys & Q(amount__lt=0)
 
 
 @dataclass
@@ -134,7 +140,22 @@ class LedgerFilterTrading(LedgerFilterCost):
 
 
 @dataclass
-class LedgerFilter(LedgerFilterTrading):
+class LedgerFilterMission(LedgerFilterTrading):
+    """LedgerFilterMission class to store the filter data."""
+
+    def __init__(self, char_id):
+        super().__init__(char_id)
+        self.filter_mission = self.filter_partys & Q(
+            ref_type__in=[
+                "agent_mission_reward",
+                "agent_mission_time_bonus_reward",
+            ],
+            amount__gt=0,
+        )
+
+
+@dataclass
+class LedgerFilter(LedgerFilterMission):
     """LedgerFilterAll class to store all filter data."""
 
     def __init__(self, char_id):

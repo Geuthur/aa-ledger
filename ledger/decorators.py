@@ -2,6 +2,7 @@
 Decorators
 """
 
+import time
 from functools import wraps
 
 from app_utils.esi import EsiDailyDowntime, fetch_esi_status
@@ -33,3 +34,22 @@ def when_esi_is_available(func):
         return func(*args, **kwargs)
 
     return outer
+
+
+def log_timing(func):
+    """
+    Ein Dekorator, der die Ausführungszeit einer Funktion misst und in die Logdatei schreibt.
+    """
+
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        logger.debug(
+            "%s wurde aufgerufen. Ausführungszeit: %s Sekunden",
+            func.__name__,
+            end_time - start_time,
+        )
+        return result
+
+    return wrapper

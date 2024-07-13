@@ -42,6 +42,13 @@
                             </div>
                         {% endif %}
 
+                        {% if character.mission %}
+                            <div class="row description-row">
+                                <div class="col-sm-6">Mission Rewards:</div>
+                                <div class='col-sm-4'><span style="color: green">{{ character.mission.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                            </div>
+                        {% endif %}
+
                         {% if character.stolen %}
                             <div class="row description-row">
                                 <div class="col-sm-6">Stolen ESS:</div>
@@ -120,6 +127,11 @@
                                     <div class="col-sm-6">Current Day - Ratting:</div>
                                     <div class='col-sm-4'><span style="color: green">{{ character.bounty.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
                                 </div>
+
+                                <div class="row description-row">
+                                    <div class="col-sm-6">Current Day Avg Tick - Ratting:</div>
+                                    <div class='col-sm-4'><span style="color: green">{{ character.bounty.total_amount_day_tick|floatformat:0|intcomma }}</span> ISK</div>
+                                </div>
                             {% endif %}
                             <div class="row description-row">
                                 <div class="col-sm-6">Avg. Ratting per Day:</div>
@@ -150,6 +162,19 @@
                             <div class="row description-row">
                                 <div class="col-sm-6">Avg. Stolen per Day:</div>
                                 <div class='col-sm-4'><span style="color: red">{{ character.stolen.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                            </div>
+                        {% endif %}
+
+                        {% if character.mission %}
+                            {% if character.mission.total_amount_day %}
+                                <div class="row description-row">
+                                    <div class="col-sm-6">Current Day - Mission Rewards:</div>
+                                    <div class='col-sm-4'><span style="color: green">{{ character.mission.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+                                </div>
+                            {% endif %}
+                            <div class="row description-row">
+                                <div class="col-sm-6">Avg. Mission Rewards per Day:</div>
+                                <div class='col-sm-4'><span style="color: green">{{ character.mission.average_day|floatformat:0|intcomma }}</span> ISK</div>
                             </div>
                         {% endif %}
 
@@ -258,6 +283,13 @@
                             </div>
                         {% endif %}
 
+                        {% if character.bounty %}
+                            <div class="row description-row">
+                                <div class="col-sm-6">Avg. Ratting Tick per Hour:</div>
+                                <div class='col-sm-4'><span style="color: green">{{ character.bounty.average_hour_tick|floatformat:0|intcomma }}</span> ISK</div>
+                            </div>
+                        {% endif %}
+
                         {% if character.ess %}
                             <div class="row description-row">
                                 <div class="col-sm-6">Avg. ESS per Hour:</div>
@@ -269,6 +301,13 @@
                             <div class="row description-row">
                                 <div class="col-sm-6">Avg. Stolen per Hour:</div>
                                 <div class='col-sm-4'><span style="color: red">{{ character.stolen.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+                            </div>
+                        {% endif %}
+
+                        {% if character.mission %}
+                            <div class="row description-row">
+                                <div class="col-sm-6">Avg. Mission Rewards per Hour:</div>
+                                <div class='col-sm-4'><span style="color: green">{{ character.mission.average_hour|floatformat:0|intcomma }}</span> ISK</div>
                             </div>
                         {% endif %}
 

@@ -4,7 +4,8 @@ Corporation Audit
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import redirect
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
 from esi.decorators import token_required
 
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -15,9 +16,9 @@ from ledger.tasks import update_corp
 
 @login_required
 @token_required(scopes=CorporationAudit.get_esi_scopes())
-@permission_required(["ledger.corp_audit_admin_access"])
-def add_corp(request, token):
-    char = EveCharacter.objects.get_character_by_id(token.character_id)
+@permission_required(["ledger.admin_access"])
+def add_corp(request, token) -> HttpResponse:
+    char = get_object_or_404(EveCharacter, character_id=token.character_id)
     corp, _ = EveCorporationInfo.objects.get_or_create(
         corporation_id=char.corporation_id,
         defaults={

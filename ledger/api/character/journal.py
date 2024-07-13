@@ -6,11 +6,7 @@ from django.db.models import Q
 
 from ledger import app_settings
 from ledger.api import schema
-from ledger.api.helpers import (
-    get_alts_queryset,
-    get_main_character,
-    get_models_and_string,
-)
+from ledger.api.helpers import get_alts_queryset, get_character, get_models_and_string
 from ledger.hooks import get_extension_logger
 
 _, CharacterWalletJournalEntry = get_models_and_string()
@@ -33,7 +29,7 @@ class LedgerJournalApiEndpoints:
         ):
             if character_id == 0:
                 character_id = request.user.profile.main_character.character_id
-            response, main = get_main_character(request, character_id)
+            response, main = get_character(request, character_id)
 
             if not response:
                 return 403, "Permission Denied"

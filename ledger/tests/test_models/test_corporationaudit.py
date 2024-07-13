@@ -43,7 +43,7 @@ class TestCorporationWalletJournal(TestCase):
         self.user, self.character_ownership = create_user_from_evecharacter(
             1001,
             permissions=[
-                "ledger.corp_audit_admin_access",
+                "ledger.corp_audit_admin_manager",
             ],
         )
         request = self.factory.get("/")

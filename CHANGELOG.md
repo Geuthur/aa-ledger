@@ -1,5 +1,49 @@
 # Changelog
 
+## \[0.5.3\] - 2024-07-13
+
+### Added
+
+- Added Mission Rewards to Calculation [#26](https://github.com/Geuthur/aa-ledger/issues/26) - Point 5 Suggestion Added
+- Average Hourly Tick calculated with [#26](https://github.com/Geuthur/aa-ledger/issues/26) - Point 4 Suggestion Added
+  - Example: 100000 ISK - July 16
+  - 100000 / 16 / 24 / 3
+  - This month you make avg 87 ISK per Tick
+- Current Day Tick [#26](https://github.com/Geuthur/aa-ledger/issues/26) - Point 4 Suggestion Added
+  - Example: 100000 ISK - July 16
+  - 100000 / 3
+  - You make 33333 ISK per Tick this Day
+- Error Handler for Template Modal
+- Loading Animation on Data Load
+- Admin Overview for Corporation & Character Ledger [#26](https://github.com/Geuthur/aa-ledger/issues/26) - Point 3 Suggestion Added with Point 1 included except Daily Graph
+- Create EveCharacter if Corp Member not exist
+
+### Changed
+
+- Permissions more information in README
+- Character Ledger & Corporation Ledger Path
+- Refactor Char, Corp JS
+- Optimized get_all_mains_alts function
+- Optimized Billboard Calculation (Performance)
+- Optimized Template Calculation (Performance) on Corporation side
+- Add Memberaudit Chars to CharacterAudit permission changed from
+
+### Fixed
+
+- In some cases the Billboard has Lazy Rendering
+- Error on Template if no data found
+- Wrong Calculations on Character Ledger 30 Days (ESS Payout)
+- Characters not visible in Character Ledger
+- Error from DataTable if No Data found (403 Error)
+
+### Removed
+
+- Caching after Performance Optimation not needed anymore
+
+### Known Issues
+
+- To fast Tab changing calls error on console
+
 ## \[0.5.2a2\] - 2024-06-19
 
 ### Added
