@@ -77,14 +77,14 @@ python manage.py migrate
 
 With the Following IDs you can set up the permissions for the Ledger
 
-| ID                        | Description                               |                                                           |
-| :------------------------ | :---------------------------------------- | :-------------------------------------------------------- |
-| `basic_access`            | Can access the Ledger module              | All Members with the Permission can access the Ledger.    |
-| `admin_access`            | Has access to all Administration tools    | Can Add Memberaudit Chars.                                |
-| `char_audit_manager`      | Has Access to all characters for own Corp | Can see all Chars from Corps he is in                     |
-| `corp_audit_manager`      | Has Access to own Corporation             | Can see all Corps he is in                                |
-| `char_audit_admin_access` | Has Access to all Characters              | Can see all Chars & Add Membreraudit Chars to Char Auduit |
-| `corp_audit_admin_access` | Has Access to all Corporations            | Can see all Corps                                         |
+| ID                         | Description                               |                                                           |
+| :------------------------- | :---------------------------------------- | :-------------------------------------------------------- |
+| `basic_access`             | Can access the Ledger module              | All Members with the Permission can access the Ledger.    |
+| `admin_access`             | Can access the Administration tools       | Can Add Memberaudit Chars & Add Corporations.             |
+| `char_audit_manager`       | Has Access to all characters for own Corp | Can see all Chars from Corps he is in                     |
+| `corp_audit_manager`       | Has Access to own Corporation             | Can see all Corps he is in                                |
+| `char_audit_admin_manager` | Has Access to all Characters              | Can see all Chars & Add Membreraudit Chars to Char Auduit |
+| `corp_audit_admin_manager` | Has Access to all Corporations            | Can see all Corps                                         |
 
 ### Step 6 - (Optional) Setting up Compatibilies<a name="step6"></a>
 

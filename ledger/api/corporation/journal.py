@@ -24,7 +24,7 @@ class LedgerJournalApiEndpoints:
         ):
             perms = (
                 request.user.has_perm("ledger.admin_access")
-                | request.user.has_perm("ledger.corp_audit_admin_access")
+                | request.user.has_perm("ledger.corp_audit_admin_manager")
                 | request.user.has_perm("ledger.corp_audit_manager")
             )
 

@@ -15,12 +15,8 @@ class CorpAuditQuerySet(models.QuerySet):
             )
             return self
 
-        if user.has_perm("ledger.corp_audit_admin_access"):
+        if user.has_perm("ledger.corp_audit_admin_manager"):
             logger.debug("Returning all corps for Corp Audit Admin %s.", user)
-            return self
-
-        if user.has_perm("ledger.admin_access"):
-            logger.debug("Returning all corps for Admin Access %s.", user)
             return self
 
         try:

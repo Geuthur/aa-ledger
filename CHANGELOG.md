@@ -1,5 +1,7 @@
 # Changelog
 
+## \[0.5.3\] - 2024-07-13
+
 ### Added
 
 - Average Hourly Tick calculated with
