@@ -121,6 +121,9 @@ class JournalProcess:
                 "ess": self.aggregate_journal(
                     corporation_journal.filter(filters.filter_ess)
                 ),
+                "mission": self.aggregate_journal(
+                    character_journal.filter(filters.filter_mission)
+                ),
                 "contracts": self.aggregate_journal(
                     character_journal.filter(filters.filter_contract)
                 ),
@@ -151,7 +154,10 @@ class JournalProcess:
             amounts["ess"] = convert_ess_payout(amounts["ess"])
 
             total_amount_others = (
-                amounts["contracts"] + amounts["transactions"] + amounts["donations"]
+                amounts["contracts"]
+                + amounts["transactions"]
+                + amounts["donations"]
+                + amounts["mission"]
             )
             costs_amount = amounts["market_cost"] + amounts["production_cost"]
             summary_amount = (

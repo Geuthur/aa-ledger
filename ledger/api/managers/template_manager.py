@@ -48,6 +48,7 @@ class TemplateTotalCore:
     donation: int = 0
     production_cost: int = 0
     market_cost: int = 0
+    mission: int = 0
 
 
 @dataclass
@@ -62,6 +63,7 @@ class TemplateTotalDay:
     donation_day: int = 0
     production_cost_day: int = 0
     market_cost_day: int = 0
+    mission_day: int = 0
 
 
 @dataclass
@@ -76,6 +78,7 @@ class TemplateTotalHour:
     donation_hour: int = 0
     production_cost_hour: int = 0
     market_cost_hour: int = 0
+    mission_hour: int = 0
 
 
 @dataclass
@@ -122,6 +125,11 @@ class TemplateTotal(TemplateTotalCore, TemplateTotalDay, TemplateTotalHour):
                 "total_amount": self.market_cost,
                 "total_amount_day": self.market_cost_day,
                 "total_amount_hour": self.market_cost_hour,
+            },
+            "mission": {
+                "total_amount": self.mission,
+                "total_amount_day": self.mission_day,
+                "total_amount_hour": self.mission_hour,
             },
         }
 
@@ -450,6 +458,10 @@ class TemplateProcess:
             ),
             "market_cost": self._aggregate_journal_char(
                 character_journal.filter(filters.filter_market_cost)
+            ),
+            # Calculate Missions
+            "mission": self._aggregate_journal_char(
+                character_journal.filter(filters.filter_mission)
             ),
         }
         # Convert ESS Payout for Character Ledger

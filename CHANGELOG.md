@@ -4,17 +4,18 @@
 
 ### Added
 
-- Average Hourly Tick calculated with
+- Added Mission Rewards to Calculation [#26](https://github.com/Geuthur/aa-ledger/issues/26) - Point 5 Suggestion Added
+- Average Hourly Tick calculated with [#26](https://github.com/Geuthur/aa-ledger/issues/26) - Point 4 Suggestion Added
   - Example: 100000 ISK - July 16
   - 100000 / 16 / 24 / 3
   - This month you make avg 87 ISK per Tick
-- Current Day Tick
+- Current Day Tick [#26](https://github.com/Geuthur/aa-ledger/issues/26) - Point 4 Suggestion Added
   - Example: 100000 ISK - July 16
   - 100000 / 3
   - You make 33333 ISK per Tick this Day
 - Error Handler for Template Modal
 - Loading Animation on Data Load
-- Admin Overview for Corporation & Character Ledger
+- Admin Overview for Corporation & Character Ledger [#26](https://github.com/Geuthur/aa-ledger/issues/26) - Point 3 Suggestion Added with Point 1 included except Daily Graph
 - Create EveCharacter if Corp Member not exist
 
 ### Changed

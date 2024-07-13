@@ -140,7 +140,22 @@ class LedgerFilterTrading(LedgerFilterCost):
 
 
 @dataclass
-class LedgerFilter(LedgerFilterTrading):
+class LedgerFilterMission(LedgerFilterTrading):
+    """LedgerFilterMission class to store the filter data."""
+
+    def __init__(self, char_id):
+        super().__init__(char_id)
+        self.filter_mission = self.filter_partys & Q(
+            ref_type__in=[
+                "agent_mission_reward",
+                "agent_mission_time_bonus_reward",
+            ],
+            amount__gt=0,
+        )
+
+
+@dataclass
+class LedgerFilter(LedgerFilterMission):
     """LedgerFilterAll class to store all filter data."""
 
     def __init__(self, char_id):
