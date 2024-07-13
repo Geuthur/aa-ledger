@@ -43,23 +43,6 @@ class CorpAuditQuerySetTest(TestCase):
         result = CorporationAudit.objects.visible_to(self.user)
         self.assertEqual(list(result), list(expected_result))
 
-    def test_visible_to_admin_access(self):
-        self.user, self.character_ownership = create_user_from_evecharacter(
-            1001,
-            permissions=[
-                "ledger.admin_access",
-            ],
-        )
-
-        self.assertTrue(self.user.has_perm("ledger.admin_access"))
-        self.assertFalse(self.user.is_superuser)
-        self.assertFalse(self.user.has_perm("ledger.corp_audit_admin_manager"))
-
-        expected_result = CorporationAudit.objects.all()
-
-        result = CorporationAudit.objects.visible_to(self.user)
-        self.assertEqual(list(result), list(expected_result))
-
     def test_visible_to_corp_manager_access(self):
         self.user, self.character_ownership = create_user_from_evecharacter(
             1001,

@@ -28,8 +28,8 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
             1001,
             permissions=[
                 "ledger.basic_access",
-                "ledger.corp_audit_admin_manager",
                 "ledger.corp_audit_manager",
+                "ledger.corp_audit_admin_manager",
             ],
         )
 
