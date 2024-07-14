@@ -130,54 +130,64 @@ def get_main_and_alts_all(main_corp: list):
     characters = {}
     chars_list = set()
     corps_list = main_corp
-    corpmember = get_corp_models_and_string()
-    corps = (
-        corpmember.objects.select_related("corpstats", "corpstats__corp")
-        .filter(corpstats__corp__corporation_id__in=corps_list)
-        .order_by("character_id")
+
+    linked_chars = EveCharacter.objects.filter(corporation_id__in=corps_list)
+    linked_chars = linked_chars | EveCharacter.objects.filter(
+        character_ownership__user__profile__main_character__corporation_id__in=corps_list
     )
 
-    for corpmember in corps:
+    linked_chars = linked_chars.select_related(
+        "character_ownership", "character_ownership__user__profile__main_character"
+    ).prefetch_related("character_ownership__user__character_ownerships")
+
+    linked_chars = linked_chars.order_by("character_name")
+
+    corpmember = get_corp_models_and_string()
+
+    for char in linked_chars:
         try:
-            # Combine Alts with Main
+            main = char.character_ownership.user.profile.main_character
+            if main is not None:
+                if main.character_id not in characters:
+                    characters[main.character_id] = {
+                        "main": main,
+                        "alts": [],
+                    }
+                characters[main.character_id]["alts"].append(char)
+                chars_list.add(char.character_id)
+        except ObjectDoesNotExist:
+            continue
+
+    for member in corpmember.objects.filter(
+        corpstats__corp__corporation_id__in=corps_list
+    ).exclude(character_id__in=chars_list):
+        try:
             char = (
                 EveCharacter.objects.select_related(
                     "character_ownership",
                     "character_ownership__user__profile__main_character",
                 )
                 .prefetch_related("character_ownership__user__character_ownerships")
-                .get(character_id=corpmember.character_id)
+                .get(character_id=member.character_id)
             )
             main = char.character_ownership.user.profile.main_character
-            if main and main.character_id not in chars_list:
-                linked_characters = (
-                    main.character_ownership.user.character_ownerships.select_related(
-                        "character", "user"
-                    ).filter(character__corporation_id__in=corps_list)
-                )
-
-                alts = [char.character for char in linked_characters]
-                characters[main.character_id] = {
-                    "main": main,
-                    "alts": alts,
-                }
-
-                for alt in alts:
-                    chars_list.add(alt.character_id)
-                if main.character_id in corps_list:
-                    chars_list.add(main.character_id)
-
+            if main is not None:
+                if main.character_id not in characters:
+                    characters[main.character_id] = {
+                        "main": main,
+                        "alts": [],
+                    }
+                characters[main.character_id]["alts"].append(member.character)
+                chars_list.add(member.character_id)
         except ObjectDoesNotExist:
             # Ensure that the character not already exists
-            if EveCharacter.objects.filter(
-                character_id=corpmember.character_id
-            ).exists():
+            if EveCharacter.objects.filter(character_id=member.character_id).exists():
                 continue
             try:
                 char_create = EveCharacter.objects.create_character(
-                    character_id=corpmember.character_id,
+                    character_id=member.character_id,
                 )
-                logger.debug("Corpmember: %s Created", corpmember.character_name)
+                logger.debug("Corpmember: %s Created", member.character_name)
                 # Add Corp Members as main
                 characters[char_create.character_id] = {
                     "main": char_create,
