@@ -297,10 +297,10 @@ function loadBillboard(data, id) {
     }
 
     // Billboard
-    if (data.billboard.charts) {
+    if (data.charts) {
         $('#ChartContainer-' + id).removeClass('d-none');
         var maxpg = 0;
-        data.billboard.charts.forEach(function (arr) {
+        data.charts.forEach(function (arr) {
             if (maxpg < arr[0]) {
                 maxpg = arr[0];
             }
@@ -308,7 +308,7 @@ function loadBillboard(data, id) {
         // Store the chart in the charts object using id as the key
         window.charts['chart' + id] = bb.generate({
             data: {
-                columns: data.billboard.charts,
+                columns: data.charts,
                 type: 'donut'
             },
             donut: {
@@ -329,10 +329,10 @@ function loadBillboard(data, id) {
     }
 
     // Ratting Bar
-    if (data.billboard.rattingbar) {
+    if (data.rattingbar) {
         $('#rattingBarContainer-' + id).removeClass('d-none');
         var pgs = [];
-        data.billboard.rattingbar.forEach(function(arr) {
+        data.rattingbar.forEach(function(arr) {
             if (arr[0] != 'x') {
                 pgs.push(arr[0]);
             }
@@ -340,7 +340,7 @@ function loadBillboard(data, id) {
         window.bar['bar' + id] = bb.generate({
             data: {
                 x: 'x',
-                columns: data.billboard.rattingbar,
+                columns: data.rattingbar,
                 type: 'bar',
                 groups: [pgs],
             },
