@@ -2,7 +2,7 @@ from django.db.models import DecimalField, F, Q, Sum
 from django.db.models.functions import Coalesce
 
 from ledger.api.helpers import convert_ess_payout, get_models_and_string
-from ledger.api.managers.billboard_manager import BillboardLedger
+from ledger.api.managers.billboard_manager import BillboardData, BillboardLedger
 from ledger.api.managers.core_manager import (
     LedgerDate,
     LedgerFilter,
@@ -229,6 +229,7 @@ class JournalProcess:
 
         # Create Data for Billboard
         date_data = LedgerDate(self.year, self.month)
+        data = BillboardData()
         models = LedgerModels(
             character_journal=character_journal,
             corporation_journal=corporation_journal,
@@ -236,7 +237,7 @@ class JournalProcess:
         )
 
         # Create the Billboard for the Characters
-        ledger = BillboardLedger(date_data, models, corp=False)
+        ledger = BillboardLedger(date_data, models, data, corp=False)
         billboard_dict = ledger.billboard_char_ledger(chars)
 
         output = []
@@ -272,14 +273,16 @@ class JournalProcess:
 
         # Create Data for Billboard
         date_data = LedgerDate(self.year, self.month)
+        data = BillboardData(
+            corporation_dict=self.corporation_dict,
+            total_amount=self.summary_total.total_amount,
+        )
         models = LedgerModels(corporation_journal=corporation_journal)
 
         # Create the Billboard for the Corporation
-        ledger = BillboardLedger(date_data, models, corp=True)
+        ledger = BillboardLedger(date_data, models, data, corp=True)
 
-        billboard_dict = ledger.billboard_corp_ledger(
-            self.corporation_dict, self.summary_total.total_amount, self.chars_list
-        )
+        billboard_dict = ledger.billboard_corp_ledger(self.chars_list)
 
         output = []
         output.append(

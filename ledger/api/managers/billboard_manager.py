@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 
 from django.db.models import DecimalField, Q, Sum
-from django.db.models.functions import Coalesce, TruncDay, TruncMonth
+from django.db.models.functions import Coalesce, TruncDay, TruncMonth, TruncWeek
 
 from ledger.api.helpers import convert_ess_payout
 from ledger.api.managers.core_manager import (
@@ -27,26 +27,48 @@ class BillboardSum:
     total_sum: int = None
 
 
+@dataclass
+class BillboardDict:
+    walletcharts: list = field(default_factory=list)
+    charts: list = field(default_factory=list)
+    rattingbar: list = field(default_factory=list)
+    workflowgauge: list = field(default_factory=list)
+
+
+@dataclass
+class BillboardData(LedgerData):
+    corporation_dict: dict = field(default_factory=dict)
+    total_amount: int = 0
+
+
+@dataclass
+class BillboardBar:
+    standard: list = field(default_factory=lambda: ["x"])
+    weekly: list = field(default_factory=lambda: ["x"])
+    daily: list = field(default_factory=lambda: ["x"])
+
+
 class BillboardLedger:
-    def __init__(self, date_data: LedgerDate, models: LedgerModels, corp=False):
+    def __init__(
+        self, date: LedgerDate, models: LedgerModels, data: BillboardData, corp=False
+    ):
         self.is_corp = corp
-        self.data = LedgerData()
         self.models = models
-        self.date = date_data
+        self.date = date
+        self.data = data
         self.sum = BillboardSum()
-        self.billboard_dict = {
-            "walletcharts": [],
-            "charts": [],
-            "rattingbar": [],
-            "workflowgauge": [],
-        }
-        self.date_billboard = ["x"]
+        self.billboard_dict = BillboardDict()
+        self.date_billboard = BillboardBar()
 
     def annotate_days(self):
         if self.date.month == 0:
             # Gruppieren nach Monat
             annotations = {"period": TruncMonth("date")}
             period_format = "%Y-%m"
+        elif self.date.month == 55:
+            # Gruppieren nach Tag
+            annotations = {"period": TruncWeek("date")}
+            period_format = "%Y-%m-%d"
         else:
             # Gruppieren nach Tag
             period_format = "%Y-%m-%d"
@@ -56,6 +78,9 @@ class BillboardLedger:
 
         filters = LedgerFilter(self.chars)
 
+        self.process_billboard(annotations, filters, period_format)
+
+    def process_billboard(self, annotations, filters, period_format):
         if self.models.corp_journal:
             self._process_corp_journal(annotations, filters, period_format)
 
@@ -82,7 +107,7 @@ class BillboardLedger:
                 self.sum.sum_amount_misc.append(int(self.data.total_miscellaneous))
                 self.sum.sum_amount_mining.append(int(self.data.total_mining))
 
-            self.date_billboard.append(period)
+            self.date_billboard.standard.append(period)
 
     def _process_corp_journal(self, annotations, filters, period_format):
         corp_journal = (
@@ -225,7 +250,7 @@ class BillboardLedger:
         return [math.floor(perc * 10) / 10 for perc in percentages]
 
     def generate_gauge_data(self, rounded_percentages):
-        self.billboard_dict["workflowgauge"] = (
+        self.billboard_dict.workflowgauge = (
             [
                 ["Ratting", rounded_percentages[0]],
                 ["ESS Payout", rounded_percentages[1]],
@@ -237,10 +262,10 @@ class BillboardLedger:
         )
 
     def generate_wallet_ratting_bar(self):
-        self.billboard_dict["rattingbar"] = (
+        self.billboard_dict.rattingbar = (
             (
                 [
-                    self.date_billboard,
+                    self.date_billboard.standard,
                     self.sum.sum_amount,
                     self.sum.sum_amount_ess,
                     self.sum.sum_amount_misc,
@@ -268,36 +293,38 @@ class BillboardLedger:
             ["Misc. Cost", int(misc_cost)],
         ]
 
-        self.billboard_dict["walletcharts"] = (
+        self.billboard_dict.walletcharts = (
             wallet_chart_data
             if any(item[1] != 0 for item in wallet_chart_data)
             else None
         )
 
     # Generate Charts Billboard for Corporation Ledger
-    def generate_wallet_corps_data(self, corporation_dict, summary_dict_all):
-        if not corporation_dict:
-            self.billboard_dict["charts"] = None
+    def generate_wallet_corps_data(self):
+        if not self.data.corporation_dict:
+            self.billboard_dict.charts = None
             return
         others_percentage = 0
         others_name = "Others"
         chart_entries = []
 
         sorted_entries = sorted(
-            corporation_dict.values(), key=lambda x: x["total_amount"], reverse=True
+            self.data.corporation_dict.values(),
+            key=lambda x: x["total_amount"],
+            reverse=True,
         )
 
         for i, entry in enumerate(sorted_entries, start=1):
-            percentage = (entry["total_amount"] / summary_dict_all) * 100
+            percentage = (entry["total_amount"] / self.data.total_amount) * 100
             if i <= 10:
                 chart_entries.append([entry["main_name"], percentage])
             else:
                 others_percentage += percentage
 
-        if len(corporation_dict) > 10:
+        if len(self.data.corporation_dict) > 10:
             chart_entries.append([others_name, others_percentage])
 
-        self.billboard_dict["charts"] = chart_entries
+        self.billboard_dict.charts = chart_entries
 
     # Create the Billboard Char Ledger
     def billboard_char_ledger(self, chars: list):
@@ -322,7 +349,7 @@ class BillboardLedger:
         return self.billboard_dict
 
     # Create the Billboard Corp Ledger
-    def billboard_corp_ledger(self, corporation_dict, summary_dict_all, chars: list):
+    def billboard_corp_ledger(self, chars: list):
         self.chars = chars
 
         self.annotate_days()
@@ -331,6 +358,6 @@ class BillboardLedger:
 
         self.generate_wallet_ratting_bar()
 
-        self.generate_wallet_corps_data(corporation_dict, summary_dict_all)
+        self.generate_wallet_corps_data()
 
         return self.billboard_dict
