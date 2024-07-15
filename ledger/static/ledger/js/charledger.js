@@ -175,7 +175,11 @@ var MonthAjax = {
             ],
             order: [[1, 'desc']],
             columnDefs: [
-                { sortable: false, targets: [3] },
+                {
+                    sortable: false,
+                    targets: [5],
+                    className: 'text-end',
+                },
             ],
             footerCallback: function (row, data, start, end, display) {
                 var totalAmountAllChars = parseFloat(total_amount);
@@ -193,7 +197,8 @@ var MonthAjax = {
                 $('#foot .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                     'aria-label="{{ data.main_name }}"' +
                     'data-ajax_url="/ledger/api/account/' + characterPk + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/" ' +
-                    'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>');
+                    'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
+                    .addClass('text-end');
             },
             initComplete: function(settings, json) {
                 if ($('#currentMonthLink').hasClass('active')) {
@@ -291,7 +296,11 @@ var YearAjax = {
             ],
             order: [[1, 'desc']],
             columnDefs: [
-                { sortable: false, targets: [3] },
+                {
+                    sortable: false,
+                    targets: [5],
+                    className: 'text-end',
+                },
             ],
             footerCallback: function (row, data, start, end, display) {
                 var totalAmountAllChars_year = parseFloat(total_amount);
@@ -310,7 +319,8 @@ var YearAjax = {
                 $('#foot-year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                 'aria-label="{{ data.main_name }}"' +
                 'data-ajax_url="/ledger/api/account/' + characterPk + '/ledger/template/year/' + selectedYear + '/month/0/" ' +
-                'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>');
+                'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
+                    .addClass('text-end');
             },
             initComplete: function(settings, json) {
                 if ($('#currentYearLink').hasClass('active')) {
