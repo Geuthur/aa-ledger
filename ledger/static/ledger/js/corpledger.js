@@ -2,7 +2,7 @@ var total_amount, total_amount_ess, total_amount_combined;
 var selectedMonth, selectedYear, monthText, yearText;
 var MonthTable, YearTable;
 var bb, d3;
-var AjaxDatMonth, AjaxDataYear;
+var BillboardMonth, BillboardYear;
 // eslint-disable-next-line no-undef
 var corporationPk = corporationsettings.corporation_pk;
 
@@ -111,7 +111,7 @@ var MonthAjax = {
         total_amount = data[0].total.total_amount;
         total_amount_ess = data[0].total.total_amount_ess;
         total_amount_combined = data[0].total.total_amount_all;
-        AjaxDatMonth = data[0];
+        BillboardMonth = data[0].billboard.standard;
 
         MonthTable = $('#ratting').DataTable({
             data: data[0].ratting,
@@ -176,7 +176,7 @@ var MonthAjax = {
             },
             initComplete: function(settings, json) {
                 if ($('#currentMonthLink').hasClass('active')) {
-                    loadBillboard(AjaxDatMonth, 'Month');
+                    loadBillboard(BillboardMonth, 'Month');
                 }
                 $('#foot').show();
             }
@@ -207,7 +207,7 @@ var YearAjax = {
         total_amount = data[0].total.total_amount;
         total_amount_ess = data[0].total.total_amount_ess;
         total_amount_combined = data[0].total.total_amount_all;
-        AjaxDataYear = data[0];
+        BillboardYear = data[0].billboard.standard;
 
         YearTable = $('#ratting_year').DataTable({
             data: data[0].ratting,
@@ -272,7 +272,7 @@ var YearAjax = {
             },
             initComplete: function(settings, json) {
                 if ($('#currentYearLink').hasClass('active')) {
-                    loadBillboard(AjaxDataYear, 'Year');
+                    loadBillboard(BillboardYear, 'Year');
                 }
                 $('#foot-year').show();
             }
@@ -380,13 +380,13 @@ $('#ledger-ratting').on('click', 'a[data-bs-toggle=\'tab\']', function () {
     setTimeout(function() {
         // Überprüfen, ob das spezifische Tab aktiv ist
         if ($('#currentYearLink').hasClass('active')) {
-            loadBillboard(AjaxDataYear, 'Year');
+            loadBillboard(BillboardYear, 'Year');
         }
     }, 500);
     setTimeout(function() {
         // Überprüfen, ob das spezifische Tab aktiv ist
         if ($('#currentMonthLink').hasClass('active')) {
-            loadBillboard(AjaxDatMonth, 'Month');
+            loadBillboard(BillboardMonth, 'Month');
         }
     }, 500);
 });

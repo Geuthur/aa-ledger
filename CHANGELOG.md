@@ -1,5 +1,21 @@
 # Changelog
 
+## \[0.5.3.x\] - 2024-xx-xx
+
+### Added
+
+- Billboard: Tick Value
+- Billboard: Hourly Statistics
+
+### Changed
+
+- Refactor Billboard Manager
+
+### Fixed
+
+- Button Sorting
+- CSS Issues with Table
+
 ## \[0.5.3\] - 2024-07-13
 
 ### Added

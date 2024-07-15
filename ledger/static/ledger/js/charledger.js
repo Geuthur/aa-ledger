@@ -1,8 +1,9 @@
+
 var total_amount, total_amount_ess, total_amount_mining, total_amount_others, total_amount_combined, total_amount_costs;
 var selectedMonth, selectedYear, monthText, yearText;
 var MonthTable, YearTable;
 var bb, d3;
-var AjaxDatMonth, AjaxDataYear;
+var BillboardMonth, BillboardYear, BillboardHourly;
 // eslint-disable-next-line no-undef
 var characterPk = charactersettings.character_pk;
 
@@ -74,6 +75,15 @@ $('#yearDropdown li').click(function() {
     $('#currentYearLink').text('Year - ' + selectedYear);
 });
 
+$('#barDropdown-Month li').click(function() {
+    var selectedMode = $(this).text();
+    if (selectedMode === 'Hourly') {
+        updateBillboard(BillboardHourly, 'Month', 'Hourly');
+    } else {
+        updateBillboard(BillboardMonth, 'Month');
+    }
+});
+
 function hideLoading(id) {
     $('#bar-loading-'+id).addClass('d-none');
     $('#chart-loading-'+id).addClass('d-none');
@@ -115,7 +125,8 @@ var MonthAjax = {
         total_amount_mining = data[0].total.total_amount_mining;
         total_amount_combined = data[0].total.total_amount_all;
         total_amount_costs = data[0].total.total_amount_costs;
-        AjaxDatMonth = data[0];
+        BillboardMonth = data[0].billboard.standard;
+        BillboardHourly = data[0].billboard.hourly;
 
         MonthTable = $('#ratting').DataTable({
             data: data[0].ratting,
@@ -202,7 +213,7 @@ var MonthAjax = {
             },
             initComplete: function(settings, json) {
                 if ($('#currentMonthLink').hasClass('active')) {
-                    loadBillboard(AjaxDatMonth, 'Month');
+                    loadBillboard(BillboardMonth, 'Month');
                 }
                 $('#foot').show();
             }
@@ -236,7 +247,7 @@ var YearAjax = {
         total_amount_others = data[0].total.total_amount_others;
         total_amount_combined = data[0].total.total_amount_all;
         total_amount_costs = data[0].total.total_amount_costs;
-        AjaxDataYear = data[0];
+        BillboardYear = data[0].billboard.standard;
 
         YearTable = $('#ratting_year').DataTable({
             data: data[0].ratting,
@@ -324,7 +335,7 @@ var YearAjax = {
             },
             initComplete: function(settings, json) {
                 if ($('#currentYearLink').hasClass('active')) {
-                    loadBillboard(AjaxDataYear, 'Year');
+                    loadBillboard(BillboardYear, 'Year');
                 }
                 $('#foot-year').show();
             }
@@ -340,8 +351,6 @@ var YearAjax = {
     }
 };
 
-
-
 function loadBillboard(data, id) {
     // Initialize a charts object if it doesn't exist
     if (window.charts === undefined) {
@@ -349,10 +358,10 @@ function loadBillboard(data, id) {
     }
 
     // Billboard
-    if (data.billboard.walletcharts) {
+    if (data.walletcharts) {
         $('#ChartContainer-' + id).removeClass('d-none');
         var maxpg = 0;
-        data.billboard.walletcharts.forEach(function (arr) {
+        data.walletcharts.forEach(function (arr) {
             if (maxpg < arr[0]) {
                 maxpg = arr[0];
             }
@@ -360,7 +369,7 @@ function loadBillboard(data, id) {
         // Store the chart in the charts object using id as the key
         window.charts['chart' + id] = bb.generate({
             data: {
-                columns: data.billboard.walletcharts,
+                columns: data.walletcharts,
                 type: 'donut'
             },
             donut: {
@@ -381,20 +390,21 @@ function loadBillboard(data, id) {
     }
 
     // Ratting Bar
-    if (data.billboard.rattingbar) {
+    if (data.rattingbar) {
         $('#rattingBarContainer-' + id).removeClass('d-none');
-        var pgs = [];
-        data.billboard.rattingbar.forEach(function(arr) {
-            if (arr[0] != 'x') {
-                pgs.push(arr[0]);
-            }
-        });
+        // ---- Stacks Bar Optional ----
+        //var pgs = [];
+        //data.rattingbar.forEach(function(arr) {
+        //    if (arr[0] != 'x') {
+        //        pgs.push(arr[0]);
+        //    }
+        //});
         window.bar['bar' + id] = bb.generate({
             data: {
                 x: 'x',
-                columns: data.billboard.rattingbar,
+                columns: data.rattingbar,
                 type: 'bar',
-                groups: [pgs],
+                // groups: [pgs],
             },
             axis: {
                 x: {
@@ -427,17 +437,17 @@ function loadBillboard(data, id) {
     }
 
     // Workflow Gauge
-    if (data.billboard.workflowgauge) {
+    if (data.workflowgauge) {
         $('#workGaugeContainer-' + id).removeClass('d-none');
         var maxpg2 = 0;
-        data.billboard.workflowgauge.forEach(function(arr) {
+        data.workflowgauge.forEach(function(arr) {
             if (maxpg2 < arr[0]) {
                 maxpg2 = arr[0];
             }
         });
         window.gauge['gauge' + id] = bb.generate({
             data: {
-                columns: data.billboard.workflowgauge,
+                columns: data.workflowgauge,
                 type: 'gauge'
             },
             bindto: '#rattingworkGauge-'+id,
@@ -449,6 +459,45 @@ function loadBillboard(data, id) {
         $('#workGaugeContainer-'+id).addClass('d-none');
     }
 }
+
+function updateBillboard(data, id, selectedMode) {
+    // Update Bar Chart
+    if (data.rattingbar && window.bar && window.bar['bar' + id]) {
+        window.bar['bar' + id].unload();
+
+        // Berechnen des maximalen Werts für die Y-Achse
+        let maxYValue = Math.max(...data.rattingbar.map(d => Math.max(...d.slice(1))));
+
+        // Anpassen der maxYValue für eine bessere Darstellung
+        maxYValue += maxYValue * 0.1; // Fügt 10% Puffer hinzu
+
+        window.bar['bar' + id].load({
+            columns: data.rattingbar,
+            axis: {
+                x: {
+                    padding: { right: 8000*60*60*12 },
+                    type: 'timeseries',
+                    tick: {
+                        format: '%Y-%m' + (id === 'Month' ? '-%d' : '') + (selectedMode === 'Hourly' ? ' %H' : ''),
+                        rotate: 45
+                    }
+                },
+                y: {
+                    tick: { format: function(x) { return d3.format(',')(x); } },
+                    label: 'ISK',
+                    max: maxYValue, // Setzt die maximale Y-Achse dynamisch
+                },
+            },
+            bar: {
+                width: {
+                    ratio: 0.9,
+                    max: 30
+                }
+            },
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize DataTable
     $.ajax(MonthAjax);
@@ -460,13 +509,13 @@ $('#ledger-ratting').on('click', 'a[data-bs-toggle=\'tab\']', function () {
     setTimeout(function() {
         // Überprüfen, ob das spezifische Tab aktiv ist
         if ($('#currentYearLink').hasClass('active')) {
-            loadBillboard(AjaxDataYear, 'Year');
+            loadBillboard(BillboardYear, 'Year');
         }
     }, 500);
     setTimeout(function() {
         // Überprüfen, ob das spezifische Tab aktiv ist
         if ($('#currentMonthLink').hasClass('active')) {
-            loadBillboard(AjaxDatMonth, 'Month');
+            loadBillboard(BillboardMonth, 'Month');
         }
     }, 500);
 });
