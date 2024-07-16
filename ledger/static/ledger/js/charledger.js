@@ -1,4 +1,3 @@
-
 var total_amount, total_amount_ess, total_amount_mining, total_amount_others, total_amount_combined, total_amount_costs;
 var selectedMonth, selectedYear, monthText, yearText;
 var MonthTable, YearTable;
@@ -78,8 +77,10 @@ $('#yearDropdown li').click(function() {
 $('#barDropdown-Month li').click(function() {
     var selectedMode = $(this).text();
     if (selectedMode === 'Hourly') {
+        $('#barTitle-Month').text('Ledger ' + selectedMode);
         updateBillboard(BillboardHourly, 'Month', 'Hourly');
     } else {
+        $('#barTitle-Month').text('Ledger 30 Days');
         updateBillboard(BillboardMonth, 'Month');
     }
 });
@@ -377,7 +378,7 @@ function loadBillboard(data, id) {
             },
             bindto: '#rattingChart-' + id,
             legend: {
-                show: true
+                show: false
             }
         });
     } else {
@@ -408,7 +409,7 @@ function loadBillboard(data, id) {
             },
             axis: {
                 x: {
-                    padding: { right: 8000*60*60*12 },
+                    padding: { right: 8000*60*60*12 * (id === 'Year' ? 12 : 1) },
                     type: 'timeseries',
                     tick: {
                         format: '%Y-%m' + (id === 'Month' ? '-%d' : ''),
@@ -421,6 +422,12 @@ function loadBillboard(data, id) {
                     } },
                     label: 'ISK'
                 },
+            },
+            bar: {
+                width: {
+                    ratio: 0.8,
+                    max: 50
+                }
             },
             bindto: '#rattingBar-'+id,
             legend: {
@@ -463,37 +470,60 @@ function loadBillboard(data, id) {
 function updateBillboard(data, id, selectedMode) {
     // Update Bar Chart
     if (data.rattingbar && window.bar && window.bar['bar' + id]) {
-        window.bar['bar' + id].unload();
-
         // Berechnen des maximalen Werts für die Y-Achse
         let maxYValue = Math.max(...data.rattingbar.map(d => Math.max(...d.slice(1))));
 
         // Anpassen der maxYValue für eine bessere Darstellung
-        maxYValue += maxYValue * 0.1; // Fügt 10% Puffer hinzu
+        maxYValue = maxYValue * 0.1; // Fügt 10% Puffer hinzu
 
-        window.bar['bar' + id].load({
-            columns: data.rattingbar,
+        let filteredData = selectedMode === 'Hourly' ?
+            data.rattingbar.filter((d, index) => index === 0 || d[0] === 'Ratting' || d[0] === 'Tick') :
+            data.rattingbar;
+
+        let validIndices = new Set();
+        validIndices.add(0); // Das 'x'-Array immer behalten
+        filteredData.forEach((row, rowIndex) => {
+            if (rowIndex > 0) { // Überspringen des 'x'-Arrays
+                row.forEach((value, valueIndex) => {
+                    if (value !== 0) {
+                        validIndices.add(valueIndex);
+                    }
+                });
+            }
+        });
+
+        filteredData = filteredData.map(row => row.filter((_, index) => validIndices.has(index)));
+
+        window.bar['bar' + id] = bb.generate({
+            data: {
+                x: 'x',
+                columns: filteredData,
+                type: 'bar',
+            },
             axis: {
                 x: {
-                    padding: { right: 8000*60*60*12 },
                     type: 'timeseries',
                     tick: {
-                        format: '%Y-%m' + (id === 'Month' ? '-%d' : '') + (selectedMode === 'Hourly' ? ' %H' : ''),
+                        format: '%Y-%m' + (id === 'Month' ? '-%d' : '') + (selectedMode === 'Hourly' ? ' %H:00:00' : ''),
                         rotate: 45
-                    }
+                    },
+                    padding: { right: 8000*60*60*12 * (selectedMode === 'Hourly' ? 1 : 1) },
                 },
                 y: {
                     tick: { format: function(x) { return d3.format(',')(x); } },
                     label: 'ISK',
-                    max: maxYValue, // Setzt die maximale Y-Achse dynamisch
                 },
             },
             bar: {
                 width: {
-                    ratio: 0.9,
-                    max: 30
-                }
+                    ratio: 0.8 * (selectedMode === 'Hourly' ? 12 : 1),
+                    max: 50
+                },
             },
+            bindto: '#rattingBar-'+id,
+            legend: {
+                show: true
+            }
         });
     }
 }

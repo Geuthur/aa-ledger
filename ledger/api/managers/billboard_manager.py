@@ -9,7 +9,7 @@ from django.db.models.functions import (
     TruncDay,
     TruncHour,
     TruncMonth,
-    TruncWeek,
+    TruncYear,
 )
 
 from ledger.api.helpers import convert_ess_payout
@@ -45,6 +45,7 @@ class _BillboardDict:
 @dataclass
 class BillboardDict:
     standard: _BillboardDict = field(default_factory=_BillboardDict)
+    weekly: _BillboardDict = field(default_factory=_BillboardDict)
     hourly: _BillboardDict = field(default_factory=_BillboardDict)
 
 
@@ -64,8 +65,9 @@ class BillboardBar:
 
 @dataclass
 class BillboardTrunc:
+    year: tuple = field(default_factory=lambda: (TruncYear("date"), "%Y-%m"))
     month: tuple = field(default_factory=lambda: (TruncMonth("date"), "%Y-%m"))
-    week: tuple = field(default_factory=lambda: (TruncWeek("date"), "%Y-%m-%d"))
+    week: tuple = field(default_factory=lambda: (TruncDay("date"), "%Y-%m-%d"))
     day: tuple = field(default_factory=lambda: (TruncDay("date"), "%Y-%m-%d"))
     hour: tuple = field(
         default_factory=lambda: (TruncHour("date"), "%Y-%m-%d %H:00:00")
@@ -399,7 +401,5 @@ class BillboardLedger:
         )
 
         self.generate_wallet_corps_data()
-
-        logger.debug(self.date_billboard.hourly)
 
         return self.billboard_dict

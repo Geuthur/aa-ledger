@@ -346,7 +346,7 @@ function loadBillboard(data, id) {
             },
             axis: {
                 x: {
-                    padding: { right: 8000*60*60*12 },
+                    padding: { right: 8000*60*60*12 * (id === 'Year' ? 12 : 1) },
                     type: 'timeseries',
                     tick: {
                         format: '%Y-%m' + (id === 'Month' ? '-%d' : ''),
@@ -358,6 +358,12 @@ function loadBillboard(data, id) {
                         return d3.format(',')(x);
                     } },
                     label: 'ISK'
+                },
+            },
+            bar: {
+                width: {
+                    ratio: 0.8 * (id === 'Month' ? 12 : 1),
+                    max: 50
                 },
             },
             bindto: '#rattingBar-'+id,

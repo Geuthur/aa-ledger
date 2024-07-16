@@ -4,17 +4,22 @@
 
 ### Added
 
+- Billboard: Dark Theme & Flatly Theme
 - Billboard: Tick Value
 - Billboard: Hourly Statistics
+- add_info_to_context: Theme Check cause NIGHT_MODE won't work
 
 ### Changed
 
 - Refactor Billboard Manager
+- Billboard: Bar Overlapping disabled
 
 ### Fixed
 
-- Button Sorting
-- CSS Issues with Table
+- Character/Corp Ledger: Button Sorting
+- Character/Corp Ledger: CSS Issues with Table
+- Billboard: Padding Issue on Year Tab
+- add_info_to_context didn't work on each temnplate
 
 ## \[0.5.3\] - 2024-07-13
 
