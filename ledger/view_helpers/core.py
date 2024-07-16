@@ -9,6 +9,8 @@ from typing import Tuple
 from django.core.cache import cache
 from django.db.models import Q
 
+from allianceauth.authentication.models import UserProfile
+
 from ledger.app_settings import LEDGER_MEMBERAUDIT_USE, STORAGE_BASE_KEY
 from ledger.hooks import get_extension_logger
 from ledger.models.events import Events
@@ -19,10 +21,15 @@ logger = get_extension_logger(__name__)
 # pylint: disable=unused-argument
 def add_info_to_context(request, context: dict) -> dict:
     """Add additional information to the context for the view."""
+    theme = None
+    try:
+        user = UserProfile.objects.get(id=request.user.id)
+        theme = user.theme
+    except UserProfile.DoesNotExist:
+        pass
+
     new_context = {
-        **{
-            "memberaudit": LEDGER_MEMBERAUDIT_USE,
-        },
+        **{"memberaudit": LEDGER_MEMBERAUDIT_USE, "theme": theme},
         **context,
     }
     return new_context

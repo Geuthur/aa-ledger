@@ -16,6 +16,6 @@ logger = get_extension_logger(__name__)
 @permission_required("ledger.basic_access")
 def ledger_index(request):
     context = {}
-    add_info_to_context(request, context)
+    context = add_info_to_context(request, context)
 
     return render(request, "ledger/index.html", context=context)
