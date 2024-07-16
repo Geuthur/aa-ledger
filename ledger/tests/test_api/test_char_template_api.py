@@ -44,7 +44,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Ratting", status_code=200)
         self.assertContains(response, "Mining", status_code=200)
-        self.assertContains(response, "200,000", count=2, status_code=200)
+        self.assertContains(response, "200,000", count=3, status_code=200)
 
         self.assertContains(response, "ESS", status_code=200)
         self.assertContains(response, "1,133,333", status_code=200)
@@ -61,7 +61,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Ratting", status_code=200)
         self.assertContains(response, "Mining", status_code=200)
-        self.assertContains(response, "200,000", count=2, status_code=200)
+        self.assertContains(response, "200,000", count=3, status_code=200)
 
         self.assertContains(response, "ESS", status_code=200)
         self.assertContains(response, "1,133,333", status_code=200)
@@ -69,7 +69,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertContains(response, "Donations", status_code=200)
 
         # Summary
-        self.assertContains(response, "200,000", count=2, status_code=200)
+        self.assertContains(response, "200,000", count=3, status_code=200)
 
     def test_get_character_ledger_template_api_year(self):
         # given

@@ -72,16 +72,12 @@ class TestApiHelpers(TestCase):
         CorpMember.objects.create(
             character_id=1005, character_name="Gerthd", corpstats=corp_stats
         )
-        self.user5, _ = create_user_from_evecharacter(
-            1005,
-        )
-        chars = EveCharacter.objects.filter(character_id__in=[1005])
+        chars = EveCharacter.objects.filter(character_id__in=[1001, 1004, 1005])
         for char in chars:
             mains[char.character_id] = {"main": char, "alts": [char]}
         excepted_data = mains
         # when
         data, _ = get_main_and_alts_all([self.corp.corporation_id])
-
         # then
         self.assertEqual(data, excepted_data)
 
