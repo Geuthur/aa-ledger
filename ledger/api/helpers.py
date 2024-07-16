@@ -1,11 +1,11 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import IntegrityError
 
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger import app_settings, models
 from ledger.errors import LedgerImportError
 from ledger.hooks import get_extension_logger
+from ledger.tasks import create_missing_character
 
 logger = get_extension_logger(__name__)
 
@@ -130,6 +130,7 @@ def get_main_and_alts_all(main_corp: list):
     characters = {}
     chars_list = set()
     corps_list = main_corp
+    missing_chars = set()
 
     linked_chars = EveCharacter.objects.filter(corporation_id__in=corps_list)
     linked_chars = linked_chars | EveCharacter.objects.filter(
@@ -190,21 +191,15 @@ def get_main_and_alts_all(main_corp: list):
                 if char.corporation_id in corps_list:
                     chars_list.add(char.character_id)
                 continue
-            try:
-                char_create = EveCharacter.objects.create_character(
-                    character_id=member.character_id,
-                )
-                logger.debug("Corpmember: %s Created", member.character_name)
-                # Add Corp Members as main
-                characters[char_create.character_id] = {
-                    "main": char_create,
-                    "alts": [char_create],
-                }
-                if char_create.character_id in corps_list:
-                    chars_list.add(char_create.character_id)
-            except IntegrityError as exc:
-                logger.debug("Integrity Error: %s", exc)
-                continue
+            missing_chars.add(member.character_id)
+    try:
+        create_missing_character.apply_async(
+            args=missing_chars,
+            priority=6,
+        )
+    # pylint: disable=broad-exception-caught
+    except Exception as exc:
+        logger.debug("Error: %s", exc)
 
     return characters, list(chars_list)
 

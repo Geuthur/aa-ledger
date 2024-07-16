@@ -7,6 +7,7 @@ import datetime
 # pylint: disable=no-name-in-module
 from celery import shared_task
 
+from django.db import IntegrityError
 from django.utils import timezone
 from esi.errors import TokenExpiredError
 from esi.models import Token
@@ -27,7 +28,22 @@ from ledger.task_helpers.corp_helpers import update_corp_wallet_division
 
 logger = get_extension_logger(__name__)
 
+
 # Character Audit - Tasks
+# pylint: disable=unused-argument
+@shared_task(bind=True, base=QueueOnce)
+@when_esi_is_available
+def create_missing_character(self, chars_list: list, runs: int = 0):
+    for character_id in chars_list:
+        try:
+            EveCharacter.objects.create_character(
+                character_id=character_id,
+            )
+            runs = runs + 1
+        except IntegrityError as exc:
+            logger.debug("Integrity Error: %s", exc)
+            continue
+    logger.info("Created %s missing Characters", runs)
 
 
 @shared_task
