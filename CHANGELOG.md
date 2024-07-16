@@ -8,6 +8,7 @@
 - Billboard: Tick Value
 - Billboard: Hourly Statistics
 - add_info_to_context: Theme Check cause NIGHT_MODE won't work
+- Create Missing Char Task for alt and main function
 
 ### Changed
 

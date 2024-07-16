@@ -1,3 +1,5 @@
+from celery_once import AlreadyQueued
+
 from django.core.exceptions import ObjectDoesNotExist
 
 from allianceauth.eveonline.models import EveCharacter
@@ -186,20 +188,21 @@ def get_main_and_alts_all(main_corp: list):
                 char = EveCharacter.objects.get(character_id=member.character_id)
                 characters[char.character_id] = {
                     "main": char,
-                    "alts": [char],
+                    "alts": [],
                 }
-                if char.corporation_id in corps_list:
-                    chars_list.add(char.character_id)
+                chars_list.add(char.character_id)
+                characters[char.character_id]["alts"].append(char)
                 continue
             missing_chars.add(member.character_id)
-    try:
-        create_missing_character.apply_async(
-            args=missing_chars,
-            priority=6,
-        )
-    # pylint: disable=broad-exception-caught
-    except Exception as exc:
-        logger.debug("Error: %s", exc)
+
+    if missing_chars:
+        try:
+            create_missing_character.apply_async(
+                args=[list(missing_chars)],
+                priority=6,
+            )
+        except AlreadyQueued:
+            pass
 
     return characters, list(chars_list)
 
