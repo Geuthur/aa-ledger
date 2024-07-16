@@ -182,6 +182,13 @@ def get_main_and_alts_all(main_corp: list):
         except ObjectDoesNotExist:
             # Ensure that the character not already exists
             if EveCharacter.objects.filter(character_id=member.character_id).exists():
+                char = EveCharacter.objects.get(character_id=member.character_id)
+                characters[char.character_id] = {
+                    "main": char,
+                    "alts": [char],
+                }
+                if char.corporation_id in corps_list:
+                    chars_list.add(char.character_id)
                 continue
             try:
                 char_create = EveCharacter.objects.create_character(
