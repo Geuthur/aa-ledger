@@ -1,12 +1,12 @@
 # Changelog
 
-## \[0.5.3.x\] - 2024-xx-xx
+## \[0.5.4\] - 2024-xx-xx
 
 ### Added
 
 - Billboard: Dark Theme & Flatly Theme
-- Billboard: Tick Value
-- Billboard: Hourly Statistics
+- Billboard: Tick Value [#26](https://github.com/Geuthur/aa-ledger/issues/26)
+- Billboard: Hourly Statistics [#26](https://github.com/Geuthur/aa-ledger/issues/26)
 - add_info_to_context: Theme Check cause NIGHT_MODE won't work
 - Create Missing Char Task for alt and main function
 

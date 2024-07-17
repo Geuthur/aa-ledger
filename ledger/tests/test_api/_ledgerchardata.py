@@ -160,3 +160,71 @@ Charyearly = [
         },
     }
 ]
+
+CharNoMining = [
+    {
+        "ratting": [
+            {
+                "main_id": 1001,
+                "main_name": "Gneuten",
+                "total_amount": "200000.00",
+                "total_amount_ess": "1133333.333333333333333333333",
+                "total_amount_mining": "0",
+                "total_amount_others": "200000.00",
+                "total_amount_costs": "-200000.00",
+            }
+        ],
+        "total": {
+            "total_amount": "200000.00",
+            "total_amount_ess": "1133333.333333333333333333333",
+            "total_amount_all": "1333333.333333333333333333333",
+            "total_amount_mining": "0",
+            "total_amount_others": "200000.00",
+            "total_amount_costs": "-200000.00",
+        },
+        "billboard": {
+            "standard": {
+                "walletcharts": [
+                    ["Income", 1200000],
+                    ["Market Cost", 200000],
+                    ["Production Cost", 200000],
+                    ["Misc. Cost", 1400000],
+                ],
+                "charts": [],
+                "rattingbar": [
+                    ["x", "2024-03-19"],
+                    ["Ratting", 200000],
+                    ["Tick"],
+                    ["ESS Payout", 1133333],
+                    ["Miscellaneous", 200000],
+                    ["Mining", 0],
+                ],
+                "workflowgauge": [
+                    ["Ratting", 13.0],
+                    ["ESS Payout", 73.9],
+                    ["Miscellaneous", 13.0],
+                    ["Mining", 0.0],
+                ],
+            },
+            "weekly": {
+                "walletcharts": [],
+                "charts": [],
+                "rattingbar": [],
+                "workflowgauge": [],
+            },
+            "hourly": {
+                "walletcharts": [],
+                "charts": [],
+                "rattingbar": [
+                    ["x", "2024-03-19 14:00:00"],
+                    ["Ratting", 200000],
+                    ["Tick", 66666],
+                    ["ESS Payout", 1133333],
+                    ["Miscellaneous", 200000],
+                    ["Mining", 0],
+                ],
+                "workflowgauge": [],
+            },
+        },
+    }
+]

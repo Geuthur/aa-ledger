@@ -36,12 +36,12 @@ class LedgerTemplateApiEndpoints:
                 else character_id
             )
 
-            response, main = get_character(request, character_id)
+            perms, main = get_character(request, character_id)
             alts = get_alts_queryset(main)
 
             chars_list = [char.character_id for char in alts]
 
-            if not response:
+            if not perms:
                 context = {
                     "error_title": "Permission Denied",
                     "error_message": "You don't have permission to view this character's ledger.",

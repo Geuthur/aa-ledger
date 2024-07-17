@@ -43,6 +43,7 @@ def create_missing_character(self, chars_list: list, runs: int = 0):
         except IntegrityError:
             continue
     logger.debug("Created %s missing Characters", runs)
+    return True
 
 
 @shared_task
