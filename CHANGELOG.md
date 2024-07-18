@@ -9,6 +9,7 @@
 - Billboard: Hourly Statistics [#26](https://github.com/Geuthur/aa-ledger/issues/26)
 - add_info_to_context: Theme Check cause NIGHT_MODE won't work
 - Create Missing Char Task for alts and mains function
+- Character Ledger: Create Graphical Overview for Single Lookup
 
 ### Changed
 

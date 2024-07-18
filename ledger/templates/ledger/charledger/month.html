@@ -6,55 +6,19 @@
     <div class="card-body bg-secondary table-responsive">
         <div id="loadingIndicator-Month" class="d-flex justify-content-center align-items-center">
             {% if NIGHT_MODE %}
-            <img src="{% static 'killstats/img/Spinner-1s-64px-dark.gif' %}">
+            <img src="{% static 'ledger/images/Spinner-1s-64px-dark.gif' %}">
             {% else %}
-                <img src="{% static 'killstats/img/Spinner-1s-64px-light.gif' %}">
+                <img src="{% static 'ledger/images/Spinner-1s-64px-light.gif' %}">
             {% endif %}
         </div>
         <div id="errorHandler" class="d-flex d-none justify-content-center align-items-center">
             You don't have Permission to view this Page
         </div>
-        <table class="table table-striped table-hover w-100" id="ratting">
-            <br>
-            <thead>
-                <th class="col-main-character w-auto">Main Character</th>
-                <th class="col-total-amount w-auto">Ratting Amount</th>
-                <th class="col-total-ess w-auto">ESS Payout</th>
-                <th class="col-total-mining w-auto">Mining Amount</th>
-                <th class="col-total-others w-auto">Misc. Amount</th>
-                <th class="col-total-action w-auto"></th>
-            </thead>
-
-            <tbody>
-            </tbody>
-
-            <tfoot id="foot" style="display: none;">
-                <tr>
-                    <th><strong>{% translate "Summary" %}</strong></th>
-                    <th class="col-total-amount"></th>
-                    <th class="col-total-ess"></th>
-                    <th class="col-total-mining"></th>
-                    <th class="col-total-others"></th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <th><strong>{% translate "Costs" %}</strong></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th class="col-total-costs"></th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <th><strong>{% translate "Total" %}</strong></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th class="col-total-gesamt"></th>
-                    <th class="col-total-button"></th>
-                </tr>
-            </tfoot>
-        </table>
+        {% if character_pk == 0 %}
+            {% include 'ledger/charledger/partials/table.html' with mode="month" %}
+        {% else %}
+            {% include 'ledger/charledger/partials/card.html' with mode="month" %}
+        {% endif %}
     </div>
     <br>
     <div class="rounded-top">

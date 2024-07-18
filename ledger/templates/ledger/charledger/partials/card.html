@@ -1,0 +1,64 @@
+{% load i18n %}
+{% load humanize %}
+{% load static %}
+<!-- Style -->
+<style>
+    @media (min-width: 768px) {
+        .dl-horizontal dt {
+            float: left;
+            width: 100px;
+            clear: left;
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 8px;
+        }
+        .dl-horizontal dd {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+</style>
+
+<div class="panel panel-default">
+    <div class="panel-heading text-center" id="title"><h3>Overview</h3></div>
+    <div class="panel-body">
+        <div class="row">
+            <!-- Bildbereich -->
+            <div class="col-md-2">
+                <div class="character-summary-image hidden-xs text-center" id="portrait-{{ mode }}">
+                </div>
+            </div>
+            <!-- Textbereich -->
+            <div class="col-md-8">
+                <div class="character-summary-info">
+                    <dl class="dl-horizontal">
+                        <dt>Charakter:</dt>
+                        <dd class="nowrap" id="character_name-{{ mode }}">Geuhur</dd>
+                    </dl>
+                    <dl class="dl-horizontal">
+                        <dt>Ratting:</dt>
+                        <dd class="nowrap" id="amount_ratting-{{ mode }}"></dd>
+                    </dl>
+                    <dl class="dl-horizontal">
+                        <dt>ESS Payout:</dt>
+                        <dd class="nowrap" id="amount_ess-{{ mode }}"></dd>
+                    </dl>
+                    <dl class="dl-horizontal">
+                        <dt>Mining:</dt>
+                        <dd class="nowrap" id="amount_mining-{{ mode }}"></dd>
+                    </dl>
+                    <dl class="dl-horizontal">
+                        <dt>Misc:</dt>
+                        <dd class="nowrap" id="amount_misc-{{ mode }}"></dd>
+                    </dl>
+
+                    <dl class="dl-horizontal">
+                        <dt>More:</dt>
+                        <dd class="nowrap" id="get_template-{{ mode }}"><i class="fas fa-search"></i></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
