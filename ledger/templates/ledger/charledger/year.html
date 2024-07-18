@@ -15,9 +15,9 @@
             You don't have Permission to view this Page
         </div>
         {% if character_pk == 0 %}
-            {% include 'ledger/charledger/partials/table.html' with mode="year" %}
+            {% include 'ledger/charledger/partials/table.html' with mode="Year" %}
         {% else %}
-            {% include 'ledger/charledger/partials/card.html' with mode="year" %}
+            {% include 'ledger/charledger/partials/card.html' with mode="Year" %}
         {% endif %}
     </div>
     <br>

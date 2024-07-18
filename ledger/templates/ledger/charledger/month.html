@@ -15,9 +15,9 @@
             You don't have Permission to view this Page
         </div>
         {% if character_pk == 0 %}
-            {% include 'ledger/charledger/partials/table.html' with mode="month" %}
+            {% include 'ledger/charledger/partials/table.html' with mode="Month" %}
         {% else %}
-            {% include 'ledger/charledger/partials/card.html' with mode="month" %}
+            {% include 'ledger/charledger/partials/card.html' with mode="Month" %}
         {% endif %}
     </div>
     <br>

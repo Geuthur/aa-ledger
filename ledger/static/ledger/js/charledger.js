@@ -37,9 +37,6 @@ $('#monthDropdown li').click(function() {
     showLoading('Month');
     hideContainer('Month');
 
-    MonthTable.clear().draw();
-    $('#foot-month').hide();
-
     selectedMonth = $(this).find('a').data('bs-month-id');
     monthText = getMonthName(selectedMonth);
 
@@ -47,7 +44,7 @@ $('#monthDropdown li').click(function() {
     var newurl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
 
     // DataTable neu laden mit den Daten des ausgewählten Monats
-    reloadMonthAjax(newurl);
+    reloadAjax(newurl, MonthAjax);
     $('#currentMonthLink').text('Month - ' + monthText);
 });
 
@@ -56,11 +53,12 @@ $('#yearDropdown li').click(function() {
     showLoading('Month');
     hideContainer('Year');
     hideContainer('Month');
-
-    YearTable.clear().draw();
-    $('#foot-year').hide();
-    MonthTable.clear().draw();
-    $('#foot-month').hide();
+    if (characterPk < 0) {
+        YearTable.clear().draw();
+        $('#foot-Year').hide();
+        MonthTable.clear().draw();
+        $('#foot-Month').hide();
+    }
 
     selectedYear = $(this).text();
 
@@ -69,8 +67,8 @@ $('#yearDropdown li').click(function() {
     var newurl_year = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/0/';
 
     // DataTable neu laden mit den Daten des ausgewählten Monats
-    reloadMonthAjax(newurl);
-    reloadYearAjax(newurl_year);
+    reloadAjax(newurl, MonthAjax);
+    reloadAjax(newurl_year, YearAjax);
     $('#currentMonthLink').text('Month - ' + monthText);
     $('#currentYearLink').text('Year - ' + selectedYear);
 });
@@ -100,27 +98,33 @@ function showLoading(id) {
 }
 
 function hideContainer(id) {
+    $('#info-panel-'+id).addClass('d-none');
     $('#ChartContainer-'+id).addClass('d-none');
     $('#rattingBarContainer-'+id).addClass('d-none');
     $('#workGaugeContainer-'+id).addClass('d-none');
 }
 
 function showContainer(id) {
+    $('#info-panel-'+id).addClass('d-none');
     $('#ChartContainer-'+id).removeClass('d-none');
     $('#rattingBarContainer-'+id).removeClass('d-none');
     $('#workGaugeContainer-'+id).removeClass('d-none');
 }
 
-function reloadMonthAjax(newUrl) {
-    MonthAjax.url = newUrl; // Update URL
-    $('#ratting').DataTable().destroy();
-    $.ajax(MonthAjax);
+function reloadAjax(newUrl, ajax) {
+    ajax.url = newUrl; // Update URL
+    $.ajax(ajax);
 }
 
 var MonthAjax = {
     url: '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/',
     type: 'GET',
     success: function(data) {
+        if (MonthTable) {
+            $('#foot-Month').hide();
+            $('#ratting-Month').DataTable().clear().draw();
+            $('#ratting-Month').DataTable().destroy();
+        }
         hideLoading('Month');
         var char_name = data[0].ratting[0]?.main_name || 'No Data';
         var char_id = data[0].ratting[0]?.main_id || '0';
@@ -136,14 +140,15 @@ var MonthAjax = {
 
 
         if (characterPk > 0) {
+            $('#info-panel-Month').removeClass('d-none');
             // Daten direkt in die HTML-Elemente einfügen
-            $('#portrait-month').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
-            $('#character_name-month').text(char_name);
-            $('#amount_ratting-month').html('' + formatAndColor(total_amount) + '');
-            $('#amount_ess-month').html('' + formatAndColor(total_amount_ess) + '');
-            $('#amount_mining-month').html('' + formatAndColor(total_amount_mining) + '');
-            $('#amount_misc-month').html('' + formatAndColor(total_amount_others) + '');
-            $('#get_template-month').html('<button class="btn btn-sm btn-info btn-square" ' +
+            $('#portrait-Month').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
+            $('#character_name-Month').text(char_name);
+            $('#amount_ratting-Month').html('' + formatAndColor(total_amount) + '');
+            $('#amount_ess-Month').html('' + formatAndColor(total_amount_ess) + '');
+            $('#amount_mining-Month').html('' + formatAndColor(total_amount_mining) + '');
+            $('#amount_misc-Month').html('' + formatAndColor(total_amount_others) + '');
+            $('#get_template-Month').html('<button class="btn btn-sm btn-info btn-square" ' +
                             'data-bs-toggle="modal" ' +
                             'data-bs-target="#modalViewCharacterContainer" ' +
                             'aria-label="' + char_name + '" ' +
@@ -157,7 +162,7 @@ var MonthAjax = {
                 loadBillboard(BillboardMonth, 'Month');
             }
         } else {
-            MonthTable = $('#ratting-month').DataTable({
+            MonthTable = $('#ratting-Month').DataTable({
                 data: data[0].ratting,
                 columns: [
                     {
@@ -228,13 +233,13 @@ var MonthAjax = {
                     var totalOthersAmountAllChars = parseFloat(total_amount_others);
                     var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
                     var totalCostsAmountAllChars = parseFloat(total_amount_costs);
-                    $('#foot-month .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
-                    $('#foot-month .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
-                    $('#foot-month .col-total-mining').html('' + formatAndColor(totalMiningAmountAllChars) + '');
-                    $('#foot-month .col-total-others').html('' + formatAndColor(totalOthersAmountAllChars) + '');
-                    $('#foot-month .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
-                    $('#foot-month .col-total-costs').html('' + formatAndColor(totalCostsAmountAllChars) + '');
-                    $('#foot-month .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
+                    $('#foot-Month .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
+                    $('#foot-Month .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
+                    $('#foot-Month .col-total-mining').html('' + formatAndColor(totalMiningAmountAllChars) + '');
+                    $('#foot-Month .col-total-others').html('' + formatAndColor(totalOthersAmountAllChars) + '');
+                    $('#foot-Month .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
+                    $('#foot-Month .col-total-costs').html('' + formatAndColor(totalCostsAmountAllChars) + '');
+                    $('#foot-Month .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                         'aria-label="{{ data.main_name }}"' +
                         'data-ajax_url="/ledger/api/account/' + characterPk + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/" ' +
                         'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
@@ -244,7 +249,7 @@ var MonthAjax = {
                     if ($('#currentMonthLink').hasClass('active')) {
                         loadBillboard(BillboardMonth, 'Month');
                     }
-                    $('#foot-month').show();
+                    $('#foot-Month').show();
                 }
             });
         }
@@ -252,23 +257,24 @@ var MonthAjax = {
     error: function(xhr, status, error) {
         if (xhr.status === 403) {
             hideLoading('Month');
-            $('#ratting').hide();
+            if (MonthTable) {
+                $('#ratting-Month').hide();
+            }
             $('#errorHandler').removeClass('d-none');
             $('.dropdown-toggle').attr('disabled', true);
         }
     }
 };
 
-function reloadYearAjax(newUrl) {
-    YearAjax.url = newUrl; // Update URL
-    $('#ratting-year').DataTable().destroy();
-    $.ajax(YearAjax);
-}
-
 var YearAjax = {
     url: '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/0/',
     type: 'GET',
     success: function(data) {
+        if (YearTable) {
+            $('#foot-Year').hide();
+            $('#ratting-Year').DataTable().clear().draw();
+            $('#ratting-Year').DataTable().destroy();
+        }
         hideLoading('Year');
         // Zusätzliche Daten im DataTable-Objekt speichern
         var char_name = data[0].ratting[0]?.main_name || 'No Data';
@@ -282,14 +288,15 @@ var YearAjax = {
         BillboardYear = data[0].billboard.standard;
 
         if (characterPk > 0) {
+            $('#info-panel-Year').removeClass('d-none');
             // Daten direkt in die HTML-Elemente einfügen
-            $('#portrait-year').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
-            $('#character_name-year').text(char_name);
-            $('#amount_ratting-year').html('' + formatAndColor(total_amount) + '');
-            $('#amount_ess-year').html('' + formatAndColor(total_amount_ess) + '');
-            $('#amount_mining-year').html('' + formatAndColor(total_amount_mining) + '');
-            $('#amount_misc-year').html('' + formatAndColor(total_amount_others) + '');
-            $('#get_template-year').html('<button class="btn btn-sm btn-info btn-square" ' +
+            $('#portrait-Year').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
+            $('#character_name-Year').text(char_name);
+            $('#amount_ratting-Year').html('' + formatAndColor(total_amount) + '');
+            $('#amount_ess-Year').html('' + formatAndColor(total_amount_ess) + '');
+            $('#amount_mining-Year').html('' + formatAndColor(total_amount_mining) + '');
+            $('#amount_misc-Year').html('' + formatAndColor(total_amount_others) + '');
+            $('#get_template-Year').html('<button class="btn btn-sm btn-info btn-square" ' +
                             'data-bs-toggle="modal" ' +
                             'data-bs-target="#modalViewCharacterContainer" ' +
                             'aria-label="' + char_name + '" ' +
@@ -298,8 +305,12 @@ var YearAjax = {
                             '<span class="fas fa-search"></span>' +
                             '</button>'
             );
+            if ($('#currentYearLink').hasClass('active')) {
+                loadBillboard(BillboardYear, 'Year');
+            }
+            $('#foot-Year').show();
         } else {
-            YearTable = $('#ratting-year').DataTable({
+            YearTable = $('#ratting-Year').DataTable({
                 data: data[0].ratting,
                 columns: [
                     {
@@ -371,13 +382,13 @@ var YearAjax = {
                     var totalCombinedAmountAllChars_year = parseFloat(total_amount_combined);
                     var totalCostsAmountAllChars_year = parseFloat(total_amount_costs);
 
-                    $('#foot-year .col-total-amount').html('' + formatAndColor(totalAmountAllChars_year) + '');
-                    $('#foot-year .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars_year) + '');
-                    $('#foot-year .col-total-mining').html('' + formatAndColor(totalMiningAmountAllChars_year) + '');
-                    $('#foot-year .col-total-others').html('' + formatAndColor(totalOthersAmountAllChars_year) + '');
-                    $('#foot-year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars_year) + '');
-                    $('#foot-year .col-total-costs').html('' + formatAndColor(totalCostsAmountAllChars_year) + '');
-                    $('#foot-year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
+                    $('#foot-Year .col-total-amount').html('' + formatAndColor(totalAmountAllChars_year) + '');
+                    $('#foot-Year .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars_year) + '');
+                    $('#foot-Year .col-total-mining').html('' + formatAndColor(totalMiningAmountAllChars_year) + '');
+                    $('#foot-Year .col-total-others').html('' + formatAndColor(totalOthersAmountAllChars_year) + '');
+                    $('#foot-Year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars_year) + '');
+                    $('#foot-Year .col-total-costs').html('' + formatAndColor(totalCostsAmountAllChars_year) + '');
+                    $('#foot-Year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                     'aria-label="{{ data.main_name }}"' +
                     'data-ajax_url="/ledger/api/account/' + characterPk + '/ledger/template/year/' + selectedYear + '/month/0/" ' +
                     'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
@@ -387,7 +398,7 @@ var YearAjax = {
                     if ($('#currentYearLink').hasClass('active')) {
                         loadBillboard(BillboardYear, 'Year');
                     }
-                    $('#foot-year').show();
+                    $('#foot-Year').show();
                 }
             });
         }
@@ -395,7 +406,9 @@ var YearAjax = {
     error: function(xhr, status, error) {
         if (xhr.status === 403) {
             hideLoading('Year');
-            $('#ratting-year').hide();
+            if (YearTable) {
+                $('#ratting-Year').hide();
+            }
             $('#errorHandler-Year').removeClass('d-none');
             $('.dropdown-toggle').attr('disabled', true);
         }
