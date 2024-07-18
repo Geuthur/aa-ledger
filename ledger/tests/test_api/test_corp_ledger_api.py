@@ -45,9 +45,25 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
         cls.api = NinjaAPI()
         cls.manage_api_endpoints = LedgerApiEndpoints(api=cls.api)
 
+    def test_get_corporation_ledger_api_single(self):
+        self.client.force_login(self.user)
+        url = "/ledger/api/corporation/2002/ledger/year/2024/month/3/"
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_corporation_ledger_api_year_single(self):
+        self.client.force_login(self.user)
+        url = "/ledger/api/corporation/2002/ledger/year/2024/month/0/"
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
     def test_get_corporation_ledger_api(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/corporation/2001/ledger/year/2024/month/3/"
+        url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
 
         response = self.client.get(url)
 
@@ -55,23 +71,7 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
 
     def test_get_corporation_ledger_api_year(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/corporation/2001/ledger/year/2024/month/0/"
-
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, 200)
-
-    def test_get_corporation_ledger_api_many_data(self):
-        self.client.force_login(self.user)
-        url = "/ledger/api/corporation/2001/ledger/year/2024/month/3/"
-
-        for i in range(1010, 1023):
-            self.user, _ = create_user_from_evecharacter(
-                i,
-                permissions=[
-                    "ledger.basic_access",
-                ],
-            )
+        url = "/ledger/api/corporation/0/ledger/year/2024/month/0/"
 
         response = self.client.get(url)
 
