@@ -24,6 +24,7 @@
 - Character/Corp Ledger: CSS Issues with Table
 - Billboard: Padding Issue on Year Tab
 - add_info_to_context didn't work on each temnplate
+- Character Ledger: Wrong Donations Calculation on Single Lookup (Not Exclude Alts)
 
 ## \[0.5.3\] - 2024-07-13
 
