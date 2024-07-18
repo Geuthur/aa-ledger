@@ -37,6 +37,11 @@ $('#monthDropdown li').click(function() {
     showLoading('Month');
     hideContainer('Month');
 
+    if (characterPk === 0) {
+        MonthTable.clear().draw();
+        $('#foot-Month').hide();
+    }
+
     selectedMonth = $(this).find('a').data('bs-month-id');
     monthText = getMonthName(selectedMonth);
 
@@ -53,7 +58,7 @@ $('#yearDropdown li').click(function() {
     showLoading('Month');
     hideContainer('Year');
     hideContainer('Month');
-    if (characterPk < 0) {
+    if (characterPk === 0) {
         YearTable.clear().draw();
         $('#foot-Year').hide();
         MonthTable.clear().draw();
@@ -121,8 +126,6 @@ var MonthAjax = {
     type: 'GET',
     success: function(data) {
         if (MonthTable) {
-            $('#foot-Month').hide();
-            $('#ratting-Month').DataTable().clear().draw();
             $('#ratting-Month').DataTable().destroy();
         }
         hideLoading('Month');
@@ -271,8 +274,6 @@ var YearAjax = {
     type: 'GET',
     success: function(data) {
         if (YearTable) {
-            $('#foot-Year').hide();
-            $('#ratting-Year').DataTable().clear().draw();
             $('#ratting-Year').DataTable().destroy();
         }
         hideLoading('Year');
