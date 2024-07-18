@@ -72,7 +72,9 @@ class TestApiHelpers(TestCase):
         CorpMember.objects.create(
             character_id=1005, character_name="Gerthd", corpstats=corp_stats
         )
-        chars = EveCharacter.objects.filter(character_id__in=[1001, 1004, 1005])
+        chars = EveCharacter.objects.filter(
+            corporation_id__in=[self.corp.corporation_id]
+        )
         for char in chars:
             mains[char.character_id] = {"main": char, "alts": [char]}
         excepted_data = mains

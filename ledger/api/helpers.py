@@ -127,82 +127,75 @@ def get_alts_queryset(main_char, corporations=None):
         return EveCharacter.objects.filter(pk=main_char.pk)
 
 
-def get_main_and_alts_all(main_corp: list):
-    """Get all members for a corporation"""
-    characters = {}
-    chars_list = set()
-    corps_list = main_corp
-    missing_chars = set()
-
-    linked_chars = EveCharacter.objects.filter(corporation_id__in=corps_list)
-    linked_chars = linked_chars | EveCharacter.objects.filter(
-        character_ownership__user__profile__main_character__corporation_id__in=corps_list
+def _get_linked_characters(corporations):
+    linked_chars = EveCharacter.objects.filter(corporation_id__in=corporations)
+    linked_chars |= EveCharacter.objects.filter(
+        character_ownership__user__profile__main_character__corporation_id__in=corporations
+    )
+    return (
+        linked_chars.select_related(
+            "character_ownership", "character_ownership__user__profile__main_character"
+        )
+        .prefetch_related("character_ownership__user__character_ownerships")
+        .order_by("character_name")
     )
 
-    linked_chars = linked_chars.select_related(
-        "character_ownership", "character_ownership__user__profile__main_character"
-    ).prefetch_related("character_ownership__user__character_ownerships")
 
-    linked_chars = linked_chars.order_by("character_name")
+def _process_character(
+    char: EveCharacter, characters, chars_list, corporations, missing_chars
+):
+    try:
+        main = char.character_ownership.user.profile.main_character
+        if main and main.character_id not in characters:
+            characters[main.character_id] = {"main": main, "alts": []}
+        if char.corporation_id in corporations:
+            characters[main.character_id]["alts"].append(char)
+            chars_list.add(char.character_id)
+    except ObjectDoesNotExist:
+        if EveCharacter.objects.filter(character_id=char.character_id).exists():
+            char = EveCharacter.objects.get(character_id=char.character_id)
+            characters[char.character_id] = {"main": char, "alts": []}
+            if char.corporation_id in corporations:
+                chars_list.add(char.character_id)
+                characters[char.character_id]["alts"].append(char)
 
+        missing_chars.add(char.character_id)
+
+
+def _process_missing_characters(missing_chars):
+    if missing_chars:
+        try:
+            create_missing_character.apply_async(args=[list(missing_chars)], priority=6)
+        except AlreadyQueued:
+            pass
+
+
+def get_main_and_alts_all(corporations: list):
+    """Get all members for given corporations"""
+    characters = {}
+    chars_list = set()
+    missing_chars = set()
+
+    linked_chars = _get_linked_characters(corporations)
     corpmember = get_corp_models_and_string()
 
     for char in linked_chars:
-        try:
-            main = char.character_ownership.user.profile.main_character
-            if main is not None:
-                if main.character_id not in characters:
-                    characters[main.character_id] = {
-                        "main": main,
-                        "alts": [],
-                    }
-                characters[main.character_id]["alts"].append(char)
-                chars_list.add(char.character_id)
-        except ObjectDoesNotExist:
-            continue
+        _process_character(char, characters, chars_list, corporations, missing_chars)
 
     for member in corpmember.objects.filter(
-        corpstats__corp__corporation_id__in=corps_list
+        corpstats__corp__corporation_id__in=corporations
     ).exclude(character_id__in=chars_list):
-        try:
-            char = (
-                EveCharacter.objects.select_related(
-                    "character_ownership",
-                    "character_ownership__user__profile__main_character",
-                )
-                .prefetch_related("character_ownership__user__character_ownerships")
-                .get(character_id=member.character_id)
+        char = (
+            EveCharacter.objects.select_related(
+                "character_ownership",
+                "character_ownership__user__profile__main_character",
             )
-            main = char.character_ownership.user.profile.main_character
-            if main is not None:
-                if main.character_id not in characters:
-                    characters[main.character_id] = {
-                        "main": main,
-                        "alts": [],
-                    }
-                characters[main.character_id]["alts"].append(member.character)
-                chars_list.add(member.character_id)
-        except ObjectDoesNotExist:
-            # Ensure that the character not already exists
-            if EveCharacter.objects.filter(character_id=member.character_id).exists():
-                char = EveCharacter.objects.get(character_id=member.character_id)
-                characters[char.character_id] = {
-                    "main": char,
-                    "alts": [],
-                }
-                chars_list.add(char.character_id)
-                characters[char.character_id]["alts"].append(char)
-                continue
-            missing_chars.add(member.character_id)
+            .prefetch_related("character_ownership__user__character_ownerships")
+            .get(character_id=member.character_id)
+        )
+        _process_character(char, characters, chars_list, corporations, missing_chars)
 
-    if missing_chars:
-        try:
-            create_missing_character.apply_async(
-                args=[list(missing_chars)],
-                priority=6,
-            )
-        except AlreadyQueued:
-            pass
+    _process_missing_characters(missing_chars)
 
     return characters, list(chars_list)
 
