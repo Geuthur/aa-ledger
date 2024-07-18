@@ -160,6 +160,8 @@ def _process_character(
                 characters[char.character_id]["alts"].append(char)
 
         missing_chars.add(char.character_id)
+    except AttributeError:
+        pass
 
 
 def _process_missing_characters(missing_chars):
