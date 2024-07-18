@@ -8,16 +8,18 @@
 - Billboard: Tick Value [#26](https://github.com/Geuthur/aa-ledger/issues/26)
 - Billboard: Hourly Statistics [#26](https://github.com/Geuthur/aa-ledger/issues/26)
 - add_info_to_context: Theme Check cause NIGHT_MODE won't work
-- Create Missing Char Task for alt and main function
+- Create Missing Char Task for alts and mains function
 
 ### Changed
 
 - Refactor Billboard Manager
 - Billboard: Bar Overlapping disabled
+- Billboard: Char Ledger Charts Legend disabled
 
 ### Fixed
 
 - Character/Corp Ledger: Button Sorting
+- Both Admin Overview: Sorting wrong Col
 - Character/Corp Ledger: CSS Issues with Table
 - Billboard: Padding Issue on Year Tab
 - add_info_to_context didn't work on each temnplate

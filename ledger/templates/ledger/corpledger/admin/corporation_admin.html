@@ -54,6 +54,7 @@ CorpsAjax = {
                     render: function (data, type, row) {
                         return '<img src="https://images.evetech.net/corporations/' + row.corporation_id + '/logo?size=32" class="rounded-circle" title="' + row.corporation_name + '" height="30">';
                     },
+                    sortable: false,
                 },
                 {
                     targets: 2,
@@ -63,7 +64,8 @@ CorpsAjax = {
                         return '<a href="/ledger/corporation_ledger/'+ row.corporation_id +'/"><button class="btn btn-primary btn-sm" title="Edit"><i class="fa-solid fa-eye"></i></button></a>';
                     },
                 }
-            ]
+            ],
+            order: [[1, 'asc']],
         });
     },
     error: function(response) {

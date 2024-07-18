@@ -414,11 +414,12 @@ function loadBillboard(data, id) {
             },
             axis: {
                 x: {
-                    padding: { right: 8000*60*60*12 * (id === 'Year' ? 12 : 1) },
                     type: 'timeseries',
                     tick: {
                         format: '%Y-%m' + (id === 'Month' ? '-%d' : ''),
-                    }
+                        rotate: 45,
+                    },
+                    padding: { right: 8000*60*60*12 * (id === 'Year' ? 12 : 1) },
                 },
                 y: {
                     tick: { format: function(x) {
@@ -511,6 +512,7 @@ function updateBillboard(data, id, selectedMode) {
                     type: 'timeseries',
                     tick: {
                         format: '%Y-%m' + (id === 'Month' ? '-%d' : '') + (selectedMode === 'Hourly' ? ' %H:00:00' : ''),
+                        rotate: 45,
                     },
                     padding: { right: 8000*60*60*12 * (selectedMode === 'Hourly' ? 1 : 1) },
                 },
