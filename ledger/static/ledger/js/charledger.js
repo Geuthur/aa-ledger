@@ -3,6 +3,7 @@ var selectedMonth, selectedYear, monthText, yearText;
 var MonthTable, YearTable;
 var bb, d3;
 var BillboardMonth, BillboardYear, BillboardHourly;
+var ActiveBillboardMonth, selectedMode;
 // eslint-disable-next-line no-undef
 var characterPk = charactersettings.character_pk;
 
@@ -75,14 +76,15 @@ $('#yearDropdown li').click(function() {
 });
 
 $('#barDropdown-Month li').click(function() {
-    var selectedMode = $(this).text();
+    selectedMode = $(this).text();
     if (selectedMode === 'Hourly') {
         $('#barTitle-Month').text('Ledger ' + selectedMode);
-        updateBillboard(BillboardHourly, 'Month', 'Hourly');
+        ActiveBillboardMonth = BillboardHourly;
     } else {
         $('#barTitle-Month').text('Ledger 30 Days');
-        updateBillboard(BillboardMonth, 'Month');
+        ActiveBillboardMonth = BillboardMonth;
     }
+    updateBillboard(ActiveBillboardMonth, 'Month', selectedMode);
 });
 
 function hideLoading(id) {
@@ -128,6 +130,7 @@ var MonthAjax = {
         total_amount_costs = data[0].total.total_amount_costs;
         BillboardMonth = data[0].billboard.standard;
         BillboardHourly = data[0].billboard.hourly;
+        ActiveBillboardMonth = BillboardMonth;
 
         MonthTable = $('#ratting').DataTable({
             data: data[0].ratting,
@@ -393,6 +396,7 @@ function loadBillboard(data, id) {
     // Ratting Bar
     if (data.rattingbar) {
         $('#rattingBarContainer-' + id).removeClass('d-none');
+
         // ---- Stacks Bar Optional ----
         //var pgs = [];
         //data.rattingbar.forEach(function(arr) {
@@ -400,12 +404,13 @@ function loadBillboard(data, id) {
         //        pgs.push(arr[0]);
         //    }
         //});
+
         window.bar['bar' + id] = bb.generate({
             data: {
                 x: 'x',
                 columns: data.rattingbar,
                 type: 'bar',
-                // groups: [pgs],
+                //groups: [pgs],
             },
             axis: {
                 x: {
@@ -413,7 +418,6 @@ function loadBillboard(data, id) {
                     type: 'timeseries',
                     tick: {
                         format: '%Y-%m' + (id === 'Month' ? '-%d' : ''),
-                        rotate: 45
                     }
                 },
                 y: {
@@ -476,6 +480,8 @@ function updateBillboard(data, id, selectedMode) {
         // Anpassen der maxYValue für eine bessere Darstellung
         maxYValue = maxYValue * 0.1; // Fügt 10% Puffer hinzu
 
+
+        // Filter only Ratting and Tick values
         let filteredData = selectedMode === 'Hourly' ?
             data.rattingbar.filter((d, index) => index === 0 || d[0] === 'Ratting' || d[0] === 'Tick') :
             data.rattingbar;
@@ -492,12 +498,12 @@ function updateBillboard(data, id, selectedMode) {
             }
         });
 
-        filteredData = filteredData.map(row => row.filter((_, index) => validIndices.has(index)));
+        //filteredData = filteredData.map(row => row.filter((_, index) => validIndices.has(index)));
 
         window.bar['bar' + id] = bb.generate({
             data: {
                 x: 'x',
-                columns: filteredData,
+                columns: data.rattingbar,
                 type: 'bar',
             },
             axis: {
@@ -505,7 +511,6 @@ function updateBillboard(data, id, selectedMode) {
                     type: 'timeseries',
                     tick: {
                         format: '%Y-%m' + (id === 'Month' ? '-%d' : '') + (selectedMode === 'Hourly' ? ' %H:00:00' : ''),
-                        rotate: 45
                     },
                     padding: { right: 8000*60*60*12 * (selectedMode === 'Hourly' ? 1 : 1) },
                 },
@@ -516,10 +521,11 @@ function updateBillboard(data, id, selectedMode) {
             },
             bar: {
                 width: {
-                    ratio: 0.8 * (selectedMode === 'Hourly' ? 12 : 1),
+                    ratio: 0.8 * (selectedMode === 'Hourly' ? 6 : 1),
                     max: 50
                 },
             },
+            padding: true,
             bindto: '#rattingBar-'+id,
             legend: {
                 show: true
@@ -546,6 +552,7 @@ $('#ledger-ratting').on('click', 'a[data-bs-toggle=\'tab\']', function () {
         // Überprüfen, ob das spezifische Tab aktiv ist
         if ($('#currentMonthLink').hasClass('active')) {
             loadBillboard(BillboardMonth, 'Month');
+            updateBillboard(ActiveBillboardMonth, 'Month', selectedMode);
         }
     }, 500);
 });
