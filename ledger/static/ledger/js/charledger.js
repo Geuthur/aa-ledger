@@ -151,6 +151,8 @@ var MonthAjax = {
             $('#amount_ess-Month').html('' + formatAndColor(total_amount_ess) + '');
             $('#amount_mining-Month').html('' + formatAndColor(total_amount_mining) + '');
             $('#amount_misc-Month').html('' + formatAndColor(total_amount_others) + '');
+            $('#amount_costs-Month').html('' + formatAndColor(total_amount_costs) + '');
+            $('#amount_summary-Month').html('' + formatAndColor(total_amount_combined) + '');
             $('#get_template-Month').html('<button class="btn btn-sm btn-info btn-square" ' +
                             'data-bs-toggle="modal" ' +
                             'data-bs-target="#modalViewCharacterContainer" ' +
@@ -297,6 +299,8 @@ var YearAjax = {
             $('#amount_ess-Year').html('' + formatAndColor(total_amount_ess) + '');
             $('#amount_mining-Year').html('' + formatAndColor(total_amount_mining) + '');
             $('#amount_misc-Year').html('' + formatAndColor(total_amount_others) + '');
+            $('#amount_costs-Year').html('' + formatAndColor(total_amount_costs) + '');
+            $('#amount_summary-Year').html('' + formatAndColor(total_amount_combined) + '');
             $('#get_template-Year').html('<button class="btn btn-sm btn-info btn-square" ' +
                             'data-bs-toggle="modal" ' +
                             'data-bs-target="#modalViewCharacterContainer" ' +
