@@ -1,7 +1,11 @@
 from django.db.models import DecimalField, F, Q, Sum
 from django.db.models.functions import Coalesce
 
-from ledger.api.helpers import convert_ess_payout, get_models_and_string
+from ledger.api.helpers import (
+    convert_ess_payout,
+    get_alts_queryset,
+    get_models_and_string,
+)
 from ledger.api.managers.billboard_manager import BillboardData, BillboardLedger
 from ledger.api.managers.core_manager import (
     LedgerDate,
@@ -106,7 +110,13 @@ class JournalProcess:
         self, corporation_journal, character_journal, mining_journal
     ):
         """Process the characters for the Journal"""
-        chars = [char.character_id for char in self.chars]
+        # Exclude Alts
+        if len(self.chars) == 1:
+            alts = get_alts_queryset(self.chars[0])
+            chars = [char.character_id for char in alts]
+        else:
+            chars = [char.character_id for char in self.chars]
+
         for char in self.chars:
             char_id = char.character_id
             char_name = char.character_name
