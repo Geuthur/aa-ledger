@@ -153,7 +153,7 @@ var MonthAjax = {
             $('#amount_misc-Month').html('' + formatAndColor(total_amount_others) + '');
             $('#amount_costs-Month').html('' + formatAndColor(total_amount_costs) + '');
             $('#amount_summary-Month').html('' + formatAndColor(total_amount_combined) + '');
-            $('#get_template-Month').html('<button class="btn btn-sm btn-info btn-square" ' +
+            $('#get_template-Month').html('<button class="btn btn-sm btn-info btn-square" id="button-Month" ' +
                             'data-bs-toggle="modal" ' +
                             'data-bs-target="#modalViewCharacterContainer" ' +
                             'aria-label="' + char_name + '" ' +
@@ -162,6 +162,10 @@ var MonthAjax = {
                             '<span class="fas fa-search"></span>' +
                             '</button>'
             );
+            var infobutton = document.getElementById('button-Month');
+            if (!data[0].ratting[0]?.main_name) {
+                infobutton.classList.add('disabled');
+            }
 
             if ($('#currentMonthLink').hasClass('active')) {
                 loadBillboard(BillboardMonth, 'Month');
@@ -301,7 +305,7 @@ var YearAjax = {
             $('#amount_misc-Year').html('' + formatAndColor(total_amount_others) + '');
             $('#amount_costs-Year').html('' + formatAndColor(total_amount_costs) + '');
             $('#amount_summary-Year').html('' + formatAndColor(total_amount_combined) + '');
-            $('#get_template-Year').html('<button class="btn btn-sm btn-info btn-square" ' +
+            $('#get_template-Year').html('<button class="btn btn-sm btn-info btn-square" id="button-Year" ' +
                             'data-bs-toggle="modal" ' +
                             'data-bs-target="#modalViewCharacterContainer" ' +
                             'aria-label="' + char_name + '" ' +
@@ -310,6 +314,11 @@ var YearAjax = {
                             '<span class="fas fa-search"></span>' +
                             '</button>'
             );
+            var infobutton = document.getElementById('button-Year');
+            if (!data[0].ratting[0]?.main_name) {
+                infobutton.classList.add('disabled');
+            }
+
             if ($('#currentYearLink').hasClass('active')) {
                 loadBillboard(BillboardYear, 'Year');
             }
