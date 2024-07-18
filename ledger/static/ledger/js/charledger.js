@@ -122,8 +122,8 @@ var MonthAjax = {
     type: 'GET',
     success: function(data) {
         hideLoading('Month');
-        var char_name = data[0].ratting[0].main_name;
-        var char_id = data[0].ratting[0].main_id;
+        var char_name = data[0].ratting[0]?.main_name || 'No Data';
+        var char_id = data[0].ratting[0]?.main_id || '0';
         total_amount = data[0].total.total_amount;
         total_amount_ess = data[0].total.total_amount_ess;
         total_amount_others = data[0].total.total_amount_others;
@@ -138,7 +138,7 @@ var MonthAjax = {
         if (characterPk > 0) {
             // Daten direkt in die HTML-Elemente einfügen
             $('#portrait-month').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
-            $('#character_name-month').text('Geuhur');
+            $('#character_name-month').text(char_name);
             $('#amount_ratting-month').html('' + formatAndColor(total_amount) + '');
             $('#amount_ess-month').html('' + formatAndColor(total_amount_ess) + '');
             $('#amount_mining-month').html('' + formatAndColor(total_amount_mining) + '');
@@ -271,8 +271,8 @@ var YearAjax = {
     success: function(data) {
         hideLoading('Year');
         // Zusätzliche Daten im DataTable-Objekt speichern
-        var char_name = data[0].ratting[0].main_name;
-        var char_id = data[0].ratting[0].main_id;
+        var char_name = data[0].ratting[0]?.main_name || 'No Data';
+        var char_id = data[0].ratting[0]?.main_id || '';
         total_amount = data[0].total.total_amount;
         total_amount_ess = data[0].total.total_amount_ess;
         total_amount_mining = data[0].total.total_amount_mining;
@@ -284,7 +284,7 @@ var YearAjax = {
         if (characterPk > 0) {
             // Daten direkt in die HTML-Elemente einfügen
             $('#portrait-year').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
-            $('#character_name-year').text('Geuhur');
+            $('#character_name-year').text(char_name);
             $('#amount_ratting-year').html('' + formatAndColor(total_amount) + '');
             $('#amount_ess-year').html('' + formatAndColor(total_amount_ess) + '');
             $('#amount_mining-year').html('' + formatAndColor(total_amount_mining) + '');
