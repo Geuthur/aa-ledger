@@ -57,8 +57,8 @@
     </ul>
     <div class="tab-content rounded-bottom">
         <div class="tab-content">
-            {% include 'ledger/charledger/month.html' %}
-            {% include 'ledger/charledger/year.html' with years=years %}
+            {% include 'ledger/charledger/month.html' with character_pk=character_pk %}
+            {% include 'ledger/charledger/year.html' with character_pk=character_pk years=years %}
         </div>
     </div>
 </div>
@@ -69,28 +69,22 @@
 {% block extra_css %}
 <style>
 @media all {
-    #ratting th, #ratting_year th,
-    #ratting td, #ratting_year td {
+    #ratting-month th, #ratting-year th,
+    #ratting-month td, #ratting-year td {
         padding: 0.75rem;
         vertical-align: top;
+    }
+
+    #ratting-month tbody td:nth-child(5), #ratting-year tbody td:nth-child(5) {
+        text-align: right;
+    }
+
+    #ratting-month tfoot th, #ratting-year tfoot th {
         border-top: 1px solid #dee2e6;
     }
 
-    #ratting thead th, #ratting_year thead th {
-        vertical-align: bottom;
-        border-bottom: 2px solid #dee2e6;
-    }
-
-    #ratting tbody td:nth-child(5), #ratting_year tbody td:nth-child(5) {
+    #ratting-month tfoot th:nth-child(5), #ratting-year tfoot th:nth-child(5) {
         text-align: right;
-    }
-
-    #ratting tfoot th:nth-child(5), #ratting_year tfoot th:nth-child(5) {
-        text-align: right;
-    }
-
-    #ratting tr, #ratting_year tr {
-        border-bottom: 1px solid #dee2e6;
     }
 
 }

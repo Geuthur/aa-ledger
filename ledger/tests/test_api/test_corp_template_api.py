@@ -75,6 +75,21 @@ class ManageApiTemplateCorpEndpointsTest(TestCase):
         # Summary
         self.assertContains(response, "200,000", count=2, status_code=200)
 
+    def test_get_corporation_ledger_template_api_single_corp(self):
+        self.client.force_login(self.user)
+        url = "/ledger/api/corporation/2001/character/2001/ledger/template/year/2024/month/3/?corp=True"
+        # when
+        response = self.client.get(url)
+        # then
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Ratting", status_code=200)
+        self.assertContains(response, "ESS", status_code=200)
+        self.assertContains(response, "Summary - March", status_code=200)
+
+        # Summary
+        self.assertContains(response, "1,400,000", status_code=200)
+        self.assertContains(response, "200,000", status_code=200)
+
     def test_get_corporation_ledger_template_api_year(self):
         self.client.force_login(self.user)
         url = "/ledger/api/corporation/2001/character/1001/ledger/template/year/2024/month/0/"

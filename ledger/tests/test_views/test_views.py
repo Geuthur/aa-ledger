@@ -8,8 +8,11 @@ from django.urls import reverse
 from app_utils.testdata_factories import UserMainFactory
 
 from ledger.models.general import General
-from ledger.views.character.character_ledger import character_ledger
-from ledger.views.corporation.corporation_ledger import corporation_ledger
+from ledger.views.character.character_ledger import character_admin, character_ledger
+from ledger.views.corporation.corporation_ledger import (
+    corporation_admin,
+    corporation_ledger,
+)
 from ledger.views.pve import ledger_index
 
 
@@ -38,10 +41,22 @@ class TestViews(TestCase):
         response = character_ledger(request, character_pk=0)
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
+    def test_char_ledger_admin_view(self):
+        request = self.factory.get(reverse("ledger:character_admin"))
+        request.user = self.user
+        response = character_admin(request)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
     def test_corp_ledger_view(self):
         request = self.factory.get(
             reverse("ledger:corporation_ledger", kwargs={"corporation_pk": 0})
         )
         request.user = self.user
         response = corporation_ledger(request, corporation_pk=0)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_corp_ledger_admin_view(self):
+        request = self.factory.get(reverse("ledger:corporation_admin"))
+        request.user = self.user
+        response = corporation_admin(request)
         self.assertEqual(response.status_code, HTTPStatus.OK)

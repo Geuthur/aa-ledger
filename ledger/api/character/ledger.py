@@ -46,22 +46,18 @@ class LedgerApiEndpoints:
         def get_character_admin(request):
             characters = CharacterAudit.objects.visible_eve_characters(request.user)
 
-            if not characters.exists():
+            if not characters:
                 return 403, "Permission Denied"
 
             character_dict = {}
 
             for character in characters:
-                # pylint: disable=broad-exception-caught
-                try:
-                    character_dict[character.character_id] = {
-                        "character_id": character.character_id,
-                        "character_name": character.character_name,
-                        "corporation_id": character.corporation_id,
-                        "corporation_name": character.corporation.corporation_name,
-                    }
-                except Exception:
-                    continue
+                character_dict[character.character_id] = {
+                    "character_id": character.character_id,
+                    "character_name": character.character_name,
+                    "corporation_id": character.corporation_id,
+                    "corporation_name": character.corporation.corporation_name,
+                }
 
             output = []
             output.append({"character": character_dict})

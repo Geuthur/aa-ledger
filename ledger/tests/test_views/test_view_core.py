@@ -7,6 +7,7 @@ from django.test import TestCase
 from ledger.models.events import Events
 from ledger.view_helpers.core import (
     _storage_key,
+    add_info_to_context,
     calculate_ess_stolen,
     delete_cache,
     events_filter,
@@ -127,3 +128,15 @@ class TestCache(TestCase):
         result = ledger_cache_timeout()
         # then
         self.assertTrue(result > 0)
+
+    def test_add_info_to_context(self):
+        # given
+        request = MagicMock()
+        request.user = MagicMock()
+        request.user.id = 99999999
+
+        context = {"memberaudit": False, "theme": None}
+        # when
+        result = add_info_to_context(request, context)
+        # then
+        self.assertEqual(result, context)
