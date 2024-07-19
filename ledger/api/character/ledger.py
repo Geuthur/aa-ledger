@@ -50,6 +50,7 @@ class LedgerApiEndpoints:
                 return 403, "Permission Denied"
 
             character_dict = {}
+
             for character in characters:
                 # pylint: disable=broad-exception-caught
                 try:

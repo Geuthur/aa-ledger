@@ -1,16 +1,18 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from ninja import NinjaAPI
 
 from django.test import TestCase
 from eveuniverse.models import EveMarketPrice
 
-from app_utils.testing import create_user_from_evecharacter
+from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+from app_utils.testing import add_character_to_user, create_user_from_evecharacter
 
 from ledger.api.character.ledger import LedgerApiEndpoints
 from ledger.models.characteraudit import CharacterMiningLedger
 from ledger.tests.test_api._ledgerchardata import (
     CharmonthlyMarch,
+    CharmonthlyMarchMulti,
     CharNoMining,
     Charyearly,
     noData,
@@ -57,6 +59,19 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         response = self.client.get(url)
 
         expected_data = CharmonthlyMarch
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_data)
+
+    def test_get_character_ledger_api_multi(self):
+        chars = EveCharacter.objects.filter(character_id__in=[1002, 1003])
+        for char in chars:
+            add_character_to_user(self.user, char)
+        self.client.force_login(self.user)
+        url = "/ledger/api/account/0/ledger/year/2024/month/3/"
+
+        response = self.client.get(url)
+
+        expected_data = CharmonthlyMarchMulti
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)
 
@@ -172,3 +187,14 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         response = self.client.get(url)
         # then
         self.assertContains(response, "Permission Denied", status_code=403)
+
+    def test_get_character_admin_exception(self):
+        self.client.force_login(self.user)
+        url = "/ledger/api/account/ledger/admin/"
+
+        EveCorporationInfo.objects.get(corporation_id=2001).delete()
+
+        # when
+        response = self.client.get(url)
+        # then
+        self.assertEqual(response.status_code, 200)

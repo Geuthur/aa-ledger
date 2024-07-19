@@ -100,6 +100,84 @@ CharmonthlyMarch = [
     }
 ]
 
+
+CharmonthlyMarchMulti = [
+    {
+        "ratting": [
+            {
+                "main_id": 1001,
+                "main_name": "Gneuten",
+                "total_amount": "200000.00",
+                "total_amount_ess": "1133333.333333333333333333333",
+                "total_amount_mining": "200000",
+                "total_amount_others": "200000.00",
+                "total_amount_costs": "-200000.00",
+            },
+            {
+                "main_id": 1002,
+                "main_name": "rotze Rotineque",
+                "total_amount": "0.00",
+                "total_amount_ess": "0.00",
+                "total_amount_mining": "100000",
+                "total_amount_others": "0.00",
+                "total_amount_costs": "0.00",
+            },
+        ],
+        "total": {
+            "total_amount": "200000.00",
+            "total_amount_ess": "1133333.333333333333333333333",
+            "total_amount_all": "1633333.333333333333333333333",
+            "total_amount_mining": "300000",
+            "total_amount_others": "200000.00",
+            "total_amount_costs": "-200000.00",
+        },
+        "billboard": {
+            "standard": {
+                "walletcharts": [
+                    ["Income", 1200000],
+                    ["Market Cost", 200000],
+                    ["Production Cost", 200000],
+                    ["Misc. Cost", 1400000],
+                ],
+                "charts": [],
+                "rattingbar": [
+                    ["x", "2024-03-19", "2024-03-16"],
+                    ["Ratting", 200000, 0],
+                    ["Tick"],
+                    ["ESS Payout", 1133333, 0],
+                    ["Miscellaneous", 200000, 0],
+                    ["Mining", 0, 300000],
+                ],
+                "workflowgauge": [
+                    ["Ratting", 10.9],
+                    ["ESS Payout", 61.8],
+                    ["Miscellaneous", 10.9],
+                    ["Mining", 16.3],
+                ],
+            },
+            "weekly": {
+                "walletcharts": [],
+                "charts": [],
+                "rattingbar": [],
+                "workflowgauge": [],
+            },
+            "hourly": {
+                "walletcharts": [],
+                "charts": [],
+                "rattingbar": [
+                    ["x", "2024-03-19 14:00:00", "2024-03-16 00:00:00"],
+                    ["Ratting", 200000, 0],
+                    ["Tick", 66666, 0],
+                    ["ESS Payout", 1133333, 0],
+                    ["Miscellaneous", 200000, 0],
+                    ["Mining", 0, 300000],
+                ],
+                "workflowgauge": [],
+            },
+        },
+    }
+]
+
 Charyearly = [
     {
         "ratting": [

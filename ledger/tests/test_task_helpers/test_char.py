@@ -1,6 +1,8 @@
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
+import _strptime
+
 from django.test import TestCase
 from esi.errors import TokenError
 from esi.models import Token

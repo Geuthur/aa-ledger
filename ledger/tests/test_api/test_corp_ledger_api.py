@@ -131,3 +131,17 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
         response = self.client.get(url)
         # then
         self.assertContains(response, "Permission Denied", status_code=403)
+
+    @patch("ledger.api.corporation.ledger.CorporationAudit.objects.visible_to")
+    def test_get_corporation_admin_exception(self, mock_visible_to):
+        self.client.force_login(self.user)
+        url = "/ledger/api/corporation/ledger/admin/"
+
+        corp = EveCorporationInfo.objects.get(corporation_id=2001)
+
+        mock_visible_to.return_value = [corp, "test"]
+
+        # when
+        response = self.client.get(url)
+        # then
+        self.assertEqual(response.status_code, 200)
