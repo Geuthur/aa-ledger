@@ -5,6 +5,12 @@
 [![Tests](https://github.com/Geuthur/aa-ledger/actions/workflows/autotester.yml/badge.svg)](https://github.com/Geuthur/aa-ledger/actions/workflows/autotester.yml)
 [![codecov](https://codecov.io/gh/Geuthur/aa-ledger/graph/badge.svg?token=5CWREOQKGZ)](https://codecov.io/gh/Geuthur/aa-ledger)
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W810Q5J4)
+
+Character/Corporation Ledger see Statistics for Ratting, Mining, ESS Payout
+
+##
+
 - [AA Ledger](#aa-ledger)
   - [Features](#features)
   - [Upcoming](#upcoming)
