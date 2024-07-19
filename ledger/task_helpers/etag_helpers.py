@@ -124,7 +124,12 @@ def handle_page_results(
             current_page += 1
 
         except (HTTPNotModified, NotModifiedError) as e:
-            total_pages = int(e.response.headers["X-Pages"])
+            logger.debug(e)
+            if isinstance(e, NotModifiedError):
+                total_pages = int(headers.headers["X-Pages"])
+            else:
+                total_pages = int(e.response.headers["X-Pages"])
+
             if not etags_incomplete:
                 current_page += 1
             else:
