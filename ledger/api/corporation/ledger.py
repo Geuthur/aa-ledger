@@ -58,10 +58,14 @@ class LedgerApiEndpoints:
             corporation_dict = {}
 
             for corporation in corporations:
-                corporation_dict[corporation.corporation.corporation_id] = {
-                    "corporation_id": corporation.corporation.corporation_id,
-                    "corporation_name": corporation.corporation.corporation_name,
-                }
+                # pylint: disable=broad-exception-caught
+                try:
+                    corporation_dict[corporation.corporation.corporation_id] = {
+                        "corporation_id": corporation.corporation.corporation_id,
+                        "corporation_name": corporation.corporation.corporation_name,
+                    }
+                except Exception:
+                    continue
 
             output = []
             output.append({"corporation": corporation_dict})
