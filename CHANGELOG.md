@@ -10,6 +10,7 @@
 - add_info_to_context: Theme Check cause NIGHT_MODE won't work
 - Create Missing Char Task for alts and mains function
 - Character Ledger: Create Graphical Overview for Single Lookup
+- Character Ledger: Look Up button for each Character
 
 ### Changed
 
@@ -25,6 +26,8 @@
 - Billboard: Padding Issue on Year Tab
 - add_info_to_context didn't work on each temnplate
 - Character Ledger: Wrong Donations Calculation on Single Lookup (Not Exclude Alts)
+- etag_handler: Fix NotModified Error (Testing)
+- Corporation Overview: No Data Error on DoesNotExist error
 
 ## \[0.5.3\] - 2024-07-13
 
