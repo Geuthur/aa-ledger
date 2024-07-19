@@ -20,7 +20,7 @@
     }
 </style>
 
-<div class="card">
+<div class="card d-none" id="lookup-{{ mode }}">
     <div class="card-header bg-primary text-center" id="title"><h3>Overview</h3></div>
     <div class="card-body d-flex">
         <!-- Bildbereich -->
@@ -41,7 +41,7 @@
                     </dl>
                 </div>
                 <!-- Costs Info -->
-                <div class="col-md-8 w-auto" id="info-panel-{{ mode }}">
+                <div class="col-md-8 w-auto" id="info-costs-panel-{{ mode }}">
 
                     <dl class="dl-horizontal">
                         <dt>{% trans "Ratting" %}:</dt>

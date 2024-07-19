@@ -103,7 +103,7 @@ function showLoading(id) {
 }
 
 function hideContainer(id) {
-    $('#info-panel-'+id).addClass('d-none');
+    $('#lookup-'+id).addClass('d-none');
     $('#ChartContainer-'+id).addClass('d-none');
     $('#rattingBarContainer-'+id).addClass('d-none');
     $('#workGaugeContainer-'+id).addClass('d-none');
@@ -136,7 +136,7 @@ var MonthAjax = {
 
 
         if (characterPk > 0) {
-            $('#info-panel-Month').removeClass('d-none');
+            $('#lookup-Month').removeClass('d-none');
             // Daten direkt in die HTML-Elemente einfügen
             $('#portrait-Month').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
             $('#character_name-Month').text(char_name);
@@ -291,7 +291,7 @@ var YearAjax = {
         BillboardYear = data[0].billboard.standard;
 
         if (characterPk > 0) {
-            $('#info-panel-Year').removeClass('d-none');
+            $('#lookup-Year').removeClass('d-none');
             // Daten direkt in die HTML-Elemente einfügen
             $('#portrait-Year').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
             $('#character_name-Year').text(char_name);
