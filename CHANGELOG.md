@@ -7,7 +7,7 @@
 - Billboard: Dark Theme & Flatly Theme
 - Billboard: Tick Value [#26](https://github.com/Geuthur/aa-ledger/issues/26)
 - Billboard: Hourly Statistics [#26](https://github.com/Geuthur/aa-ledger/issues/26)
-- add_info_to_context: Theme Check cause NIGHT_MODE won't work
+- add_info_to_context: Theme Check cause NIGHT_MODE won't work with AA v4
 - Create Missing Char Task for alts and mains function
 - Character Ledger: Create Graphical Overview for Single Lookup
 - Character Ledger: Look Up button for each Character
@@ -28,6 +28,7 @@
 - Character Ledger: Wrong Donations Calculation on Single Lookup (Not Exclude Alts)
 - etag_handler: Fix NotModified Error (Testing)
 - Corporation Overview: No Data Error on DoesNotExist error
+- Add Char Button shown if memberaudit is active
 
 ## \[0.5.3\] - 2024-07-13
 
