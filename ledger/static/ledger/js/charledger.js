@@ -109,13 +109,6 @@ function hideContainer(id) {
     $('#workGaugeContainer-'+id).addClass('d-none');
 }
 
-function showContainer(id) {
-    $('#info-panel-'+id).addClass('d-none');
-    $('#ChartContainer-'+id).removeClass('d-none');
-    $('#rattingBarContainer-'+id).removeClass('d-none');
-    $('#workGaugeContainer-'+id).removeClass('d-none');
-}
-
 function reloadAjax(newUrl, ajax) {
     ajax.url = newUrl; // Update URL
     $.ajax(ajax);
@@ -178,7 +171,10 @@ var MonthAjax = {
                         data: 'main_name',
                         render: function (data, type, row) {
                             var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" title="' + data + '" height="30">';
-                            return imageHTML + ' ' + data;
+                            return imageHTML + ' ' + data + ' <a href="/ledger/character_ledger/' + row.main_id + '/"><button class="btn btn-sm btn-info btn-square" id="lookup-Month" ' +
+                            'title="' + row.main_name + ' Single Lookup">' +
+                            '<span class="fas fa-search"></span>' +
+                            '</button></a>';
                         }
                     },
                     {   data: 'total_amount',
@@ -331,7 +327,10 @@ var YearAjax = {
                         data: 'main_name',
                         render: function (data, type, row) {
                             var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" title="' + data + '" height="30">';
-                            return imageHTML + ' ' + data;
+                            return imageHTML + ' ' + data + ' <a href="/ledger/character_ledger/' + row.main_id + '/"><button class="btn btn-sm btn-info btn-square" id="lookup-Year" ' +
+                            'title="' + row.main_name + ' Single Lookup">' +
+                            '<span class="fas fa-search"></span>' +
+                            '</button></a>';
                         }
                     },
                     {   data: 'total_amount',
