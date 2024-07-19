@@ -37,4 +37,10 @@ def character_admin(request):
     """
     Character Admin
     """
-    return render(request, "ledger/charledger/admin/character_admin.html")
+
+    context = {}
+    context = add_info_to_context(request, context)
+
+    return render(
+        request, "ledger/charledger/admin/character_admin.html", context=context
+    )

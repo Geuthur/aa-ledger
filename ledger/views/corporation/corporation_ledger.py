@@ -38,4 +38,8 @@ def corporation_admin(request):
     """
     Corporation Admin
     """
-    return render(request, "ledger/corpledger/admin/corporation_admin.html")
+    context = {}
+    context = add_info_to_context(request, context)
+    return render(
+        request, "ledger/corpledger/admin/corporation_admin.html", context=context
+    )
