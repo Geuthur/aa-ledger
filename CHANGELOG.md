@@ -31,6 +31,7 @@
 - Add Char Button shown if memberaudit is active
 - Char/Corp Ledger Footer Amount changes wrong if sorting.
 - Billboard: Calculation Issue
+- Character Information: Summary not show red if negative
 
 ## \[0.5.3\] - 2024-07-13
 
