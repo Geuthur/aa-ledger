@@ -29,6 +29,7 @@ class JournalProcess:
         self.year = year
         self.month = month
         self.chars = chars
+        self.alts = get_alts_queryset(chars[0]) if len(chars) == 1 else None
         self.chars_list = []
         self.corporation_dict = {}
         self.character_dict = {}
@@ -110,13 +111,6 @@ class JournalProcess:
         self, corporation_journal, character_journal, mining_journal
     ):
         """Process the characters for the Journal"""
-        # Exclude Alts
-        if len(self.chars) == 1:
-            alts = get_alts_queryset(self.chars[0])
-            chars = [char.character_id for char in alts]
-        else:
-            chars = [char.character_id for char in self.chars]
-
         for char in self.chars:
             char_id = char.character_id
             char_name = char.character_name
@@ -142,7 +136,7 @@ class JournalProcess:
                 ),
                 "donations": self.aggregate_journal(
                     character_journal.filter(filters.filter_donation).exclude(
-                        first_party_id__in=chars
+                        first_party_id__in=self.chars_list
                     )
                 ),
                 "market_cost": self.aggregate_journal(
@@ -202,10 +196,14 @@ class JournalProcess:
 
     def character_ledger(self):
         # Get the Character IDs
-        chars = [char.character_id for char in self.chars]
+        # Exclude Alts
+        if self.alts:
+            self.chars_list = [char.character_id for char in self.alts]
+        else:
+            self.chars_list = [char.character_id for char in self.chars]
 
         # Get the Filter Settings
-        filters = LedgerFilter(chars)
+        filters = LedgerFilter(self.chars_list)
 
         # Filter the entries for the Year/Month
         filter_date = Q(date__year=self.year)
@@ -248,7 +246,7 @@ class JournalProcess:
 
         # Create the Billboard for the Characters
         ledger = BillboardLedger(date_data, models, data, corp=False)
-        billboard_dict = ledger.billboard_char_ledger(chars)
+        billboard_dict = ledger.billboard_char_ledger(self.chars, self.chars_list)
 
         output = []
         output.append(

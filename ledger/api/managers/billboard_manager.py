@@ -172,7 +172,7 @@ class BillboardLedger:
                 )
 
     def _process_char_journal(self, annotations, filters, period_format):
-        donations_filter = filters.filter_donation & ~Q(first_party_id__in=self.chars)
+        donations_filter = filters.filter_donation & ~Q(first_party_id__in=self.alts)
         char_journal = (
             self.models.char_journal.annotate(**annotations)
             .values("period")
@@ -356,8 +356,9 @@ class BillboardLedger:
         self.billboard_dict.standard.charts = chart_entries
 
     # Create the Billboard Char Ledger
-    def billboard_char_ledger(self, chars: list):
-        self.chars = chars
+    def billboard_char_ledger(self, chars, alts: list):
+        self.chars = [char.character_id for char in chars]
+        self.alts = alts
         periods = BillboardTrunc()
 
         if self.date.month == 0:
