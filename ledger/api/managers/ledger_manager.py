@@ -29,11 +29,22 @@ class JournalProcess:
         self.year = year
         self.month = month
         self.chars = chars
-        self.alts = get_alts_queryset(chars[0]) if len(chars) == 1 else None
+        self.alts = self.get_alts(chars)
         self.chars_list = []
         self.corporation_dict = {}
         self.character_dict = {}
         self.summary_total = LedgerTotal()
+
+    def get_alts(self, main):
+        """Get the Alts for the Main Character"""
+        alts = None
+        if len(main) == 1:
+            # pylint: disable=broad-exception-caught
+            try:
+                alts = get_alts_queryset(main[0])
+            except Exception:
+                pass
+        return alts
 
     def calc_summary_total(self, totals):
         self.summary_total.total_amount += totals.get("total_amount", 0)
