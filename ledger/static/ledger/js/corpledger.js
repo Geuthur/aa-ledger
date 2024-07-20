@@ -1,4 +1,3 @@
-var total_amount, total_amount_ess, total_amount_combined;
 var selectedMonth, selectedYear, monthText, yearText;
 var MonthTable, YearTable;
 var bb, d3;
@@ -108,9 +107,9 @@ var MonthAjax = {
     type: 'GET',
     success: function(data) {
         hideLoading('Month');
-        total_amount = data[0].total.total_amount;
-        total_amount_ess = data[0].total.total_amount_ess;
-        total_amount_combined = data[0].total.total_amount_all;
+        var total_amount = data[0].total.total_amount;
+        var total_amount_ess = data[0].total.total_amount_ess;
+        var total_amount_combined = data[0].total.total_amount_all;
         BillboardMonth = data[0].billboard.standard;
 
         MonthTable = $('#ratting').DataTable({
@@ -204,9 +203,9 @@ var YearAjax = {
     success: function(data) {
         hideLoading('Year');
         // Zusätzliche Daten im DataTable-Objekt speichern
-        total_amount = data[0].total.total_amount;
-        total_amount_ess = data[0].total.total_amount_ess;
-        total_amount_combined = data[0].total.total_amount_all;
+        var total_amount = data[0].total.total_amount;
+        var total_amount_ess = data[0].total.total_amount_ess;
+        var total_amount_combined = data[0].total.total_amount_all;
         BillboardYear = data[0].billboard.standard;
 
         YearTable = $('#ratting_year').DataTable({

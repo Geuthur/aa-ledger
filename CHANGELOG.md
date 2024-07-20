@@ -29,6 +29,7 @@
 - etag_handler: Fix NotModified Error (Testing)
 - Corporation Overview: No Data Error on DoesNotExist error
 - Add Char Button shown if memberaudit is active
+- Char/Corp Ledger Footer Amount changes wrong if sorting.
 
 ## \[0.5.3\] - 2024-07-13
 

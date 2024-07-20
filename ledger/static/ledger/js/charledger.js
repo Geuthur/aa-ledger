@@ -1,4 +1,3 @@
-var total_amount, total_amount_ess, total_amount_mining, total_amount_others, total_amount_combined, total_amount_costs;
 var selectedMonth, selectedYear, monthText, yearText;
 var MonthTable, YearTable;
 var bb, d3;
@@ -124,12 +123,12 @@ var MonthAjax = {
         hideLoading('Month');
         var char_name = data[0].ratting[0]?.main_name || 'No Data';
         var char_id = data[0].ratting[0]?.main_id || '0';
-        total_amount = data[0].total.total_amount;
-        total_amount_ess = data[0].total.total_amount_ess;
-        total_amount_others = data[0].total.total_amount_others;
-        total_amount_mining = data[0].total.total_amount_mining;
-        total_amount_combined = data[0].total.total_amount_all;
-        total_amount_costs = data[0].total.total_amount_costs;
+        var total_amount = data[0].total.total_amount;
+        var total_amount_ess = data[0].total.total_amount_ess;
+        var total_amount_others = data[0].total.total_amount_others;
+        var total_amount_mining = data[0].total.total_amount_mining;
+        var total_amount_combined = data[0].total.total_amount_all;
+        var total_amount_costs = data[0].total.total_amount_costs;
         BillboardMonth = data[0].billboard.standard;
         BillboardHourly = data[0].billboard.hourly;
         ActiveBillboardMonth = BillboardMonth;
@@ -282,12 +281,12 @@ var YearAjax = {
         // Zusätzliche Daten im DataTable-Objekt speichern
         var char_name = data[0].ratting[0]?.main_name || 'No Data';
         var char_id = data[0].ratting[0]?.main_id || '';
-        total_amount = data[0].total.total_amount;
-        total_amount_ess = data[0].total.total_amount_ess;
-        total_amount_mining = data[0].total.total_amount_mining;
-        total_amount_others = data[0].total.total_amount_others;
-        total_amount_combined = data[0].total.total_amount_all;
-        total_amount_costs = data[0].total.total_amount_costs;
+        var total_amount = data[0].total.total_amount;
+        var total_amount_ess = data[0].total.total_amount_ess;
+        var total_amount_mining = data[0].total.total_amount_mining;
+        var total_amount_others = data[0].total.total_amount_others;
+        var total_amount_combined = data[0].total.total_amount_all;
+        var total_amount_costs = data[0].total.total_amount_costs;
         BillboardYear = data[0].billboard.standard;
 
         if (characterPk > 0) {
