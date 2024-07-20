@@ -14,33 +14,7 @@
         <div id="errorHandler" class="d-flex d-none justify-content-center align-items-center">
             You don't have Permission to view this Page
         </div>
-        <table class="table table-striped table-hover w-100" id="ratting">
-            <br>
-            <thead>
-                <th class="col-main-character w-auto">Main Character</th>
-                <th class="col-total-amount w-auto">Total Amount</th>
-                <th class="col-total-ess w-auto">ESS Amount</th>
-                <th class="col-total-action w-auto"></th>
-            </thead>
-
-            <tbody>
-            </tbody>
-
-            <tfoot id="foot" style="display: none;">
-                <tr>
-                    <th><strong>{% translate "Summary" %}</strong></th>
-                    <th class="col-total-amount"></th>
-                    <th class="col-total-ess"></th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <th><strong>{% translate "Total" %}</strong></th>
-                    <th class="col-total-gesamt"></th>
-                    <th></th>
-                    <th class="col-total-button"></th>
-                </tr>
-            </tfoot>
-        </table>
+        {% include 'ledger/corpledger/partials/table.html' with mode="Month" %}
     </div>
     <br>
     <div class="rounded-top">

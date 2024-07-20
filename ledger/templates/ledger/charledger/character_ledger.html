@@ -67,28 +67,7 @@
 {% include 'ledger/modals/modal_dialog.html' with name="ViewCharacter" %}
 {% endblock %}
 {% block extra_css %}
-<style>
-@media all {
-    #ratting-Month th, #ratting-Year th,
-    #ratting-Month td, #ratting-Year td {
-        padding: 0.75rem;
-        vertical-align: top;
-    }
-
-    #ratting-Month tbody td:nth-child(5), #ratting-Year tbody td:nth-child(5) {
-        text-align: right;
-    }
-
-    #ratting-Month tfoot th, #ratting-Year tfoot th {
-        border-top: 1px solid #dee2e6;
-    }
-
-    #ratting-Month tfoot th:nth-child(5), #ratting-Year tfoot th:nth-child(5) {
-        text-align: right;
-    }
-
-}
-</style>
+{% include 'ledger/bundles/table-css.html' %}
 {% endblock %}
 {% block extra_javascript %}
 {% if NIGHT_MODE or theme == "allianceauth.theme.darkly.auth_hooks.DarklyThemeHook" %}

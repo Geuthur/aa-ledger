@@ -36,7 +36,7 @@ $('#monthDropdown li').click(function() {
     hideContainer('Month');
 
     MonthTable.clear().draw();
-    $('#foot').hide();
+    $('#foot-Month').hide();
 
     selectedMonth = $(this).find('a').data('bs-month-id');
     monthText = getMonthName(selectedMonth);
@@ -56,10 +56,10 @@ $('#yearDropdown li').click(function() {
     hideContainer('Month');
 
     YearTable.clear().draw();
-    $('#foot-year').hide();
+    $('#foot-Year').hide();
 
     MonthTable.clear().draw();
-    $('#foot').hide();
+    $('#foot-Month').hide();
 
     selectedYear = $(this).text();
 
@@ -98,7 +98,7 @@ function showContainer(id) {
 
 function reloadMonthAjax(newUrl) {
     MonthAjax.url = newUrl; // Update URL
-    $('#ratting').DataTable().destroy();
+    $('#ratting-Month').DataTable().destroy();
     $.ajax(MonthAjax);
 }
 
@@ -112,7 +112,7 @@ var MonthAjax = {
         var total_amount_combined = data[0].total.total_amount_all;
         BillboardMonth = data[0].billboard.standard;
 
-        MonthTable = $('#ratting').DataTable({
+        MonthTable = $('#ratting-Month').DataTable({
             data: data[0].ratting,
             columns: [
                 {
@@ -164,10 +164,10 @@ var MonthAjax = {
                 var totalAmountAllChars = parseFloat(total_amount);
                 var totalEssAmountAllChars = parseFloat(total_amount_ess);
                 var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
-                $('#foot .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
-                $('#foot .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
-                $('#foot .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
-                $('#foot .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
+                $('#foot-Month .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
+                $('#foot-Month .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
+                $('#foot-Month .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
+                $('#foot-Month .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                     'aria-label="{{ data.main_name }}"' +
                     'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/?corp=true" ' +
                     'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
@@ -177,14 +177,14 @@ var MonthAjax = {
                 if ($('#currentMonthLink').hasClass('active')) {
                     loadBillboard(BillboardMonth, 'Month');
                 }
-                $('#foot').show();
+                $('#foot-Month').show();
             }
         });
     },
     error: function(xhr, status, error) {
         if (xhr.status === 403) {
             hideLoading('Month');
-            $('#ratting').hide();
+            $('#ratting-Month').hide();
             $('#errorHandler').removeClass('d-none');
             $('.dropdown-toggle').attr('disabled', true);
         }
@@ -193,7 +193,7 @@ var MonthAjax = {
 
 function reloadYearAjax(newUrl) {
     YearAjax.url = newUrl; // Update URL
-    $('#ratting_year').DataTable().destroy();
+    $('#ratting-Year').DataTable().destroy();
     $.ajax(YearAjax);
 }
 
@@ -208,7 +208,7 @@ var YearAjax = {
         var total_amount_combined = data[0].total.total_amount_all;
         BillboardYear = data[0].billboard.standard;
 
-        YearTable = $('#ratting_year').DataTable({
+        YearTable = $('#ratting-Year').DataTable({
             data: data[0].ratting,
             columns: [
                 {
@@ -260,10 +260,10 @@ var YearAjax = {
                 var totalAmountAllChars = parseFloat(total_amount);
                 var totalEssAmountAllChars = parseFloat(total_amount_ess);
                 var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
-                $('#foot-year .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
-                $('#foot-year .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
-                $('#foot-year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
-                $('#foot-year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
+                $('#foot-Year .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
+                $('#foot-Year .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
+                $('#foot-Year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
+                $('#foot-Year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                     'aria-label="{{ data.main_name }}"' +
                     'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/0/?corp=true" ' +
                     'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
@@ -273,14 +273,14 @@ var YearAjax = {
                 if ($('#currentYearLink').hasClass('active')) {
                     loadBillboard(BillboardYear, 'Year');
                 }
-                $('#foot-year').show();
+                $('#foot-Year').show();
             }
         });
     },
     error: function(xhr, status, error) {
         if (xhr.status === 403) {
             hideLoading('Year');
-            $('#ratting_year').hide();
+            $('#ratting-Year').hide();
             $('#errorHandler-Year').removeClass('d-none');
             $('.dropdown-toggle').attr('disabled', true);
         }
