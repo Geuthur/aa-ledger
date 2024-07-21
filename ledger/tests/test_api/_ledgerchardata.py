@@ -65,10 +65,10 @@ CharmonthlyMarch = [
                 "rattingbar": [
                     ["x", "2024-03-19", "2024-03-16"],
                     ["Ratting", 200000, 0],
-                    ["Tick"],
                     ["ESS Payout", 1133333, 0],
                     ["Miscellaneous", 200000, 0],
                     ["Mining", 0, 200000],
+                    ["Tick"],
                 ],
                 "workflowgauge": [
                     ["Ratting", 11.5],
@@ -89,10 +89,10 @@ CharmonthlyMarch = [
                 "rattingbar": [
                     ["x", "2024-03-19 14:00:00", "2024-03-16 00:00:00"],
                     ["Ratting", 200000, 0],
-                    ["Tick", 66666, 0],
                     ["ESS Payout", 1133333, 0],
                     ["Miscellaneous", 200000, 0],
                     ["Mining", 0, 200000],
+                    ["Tick", 66666, 0],
                 ],
                 "workflowgauge": [],
             },
@@ -143,10 +143,10 @@ CharmonthlyMarchMulti = [
                 "rattingbar": [
                     ["x", "2024-03-19", "2024-03-16"],
                     ["Ratting", 200000, 0],
-                    ["Tick"],
                     ["ESS Payout", 1133333, 0],
                     ["Miscellaneous", 200000, 0],
                     ["Mining", 0, 300000],
+                    ["Tick"],
                 ],
                 "workflowgauge": [
                     ["Ratting", 10.9],
@@ -167,10 +167,10 @@ CharmonthlyMarchMulti = [
                 "rattingbar": [
                     ["x", "2024-03-19 14:00:00", "2024-03-16 00:00:00"],
                     ["Ratting", 200000, 0],
-                    ["Tick", 66666, 0],
                     ["ESS Payout", 1133333, 0],
                     ["Miscellaneous", 200000, 0],
                     ["Mining", 0, 300000],
+                    ["Tick", 66666, 0],
                 ],
                 "workflowgauge": [],
             },
@@ -211,10 +211,10 @@ Charyearly = [
                 "rattingbar": [
                     ["x", "2024-03", "2024-01"],
                     ["Ratting", 200000, 100000],
-                    ["Tick"],
                     ["ESS Payout", 1133333, 0],
                     ["Miscellaneous", 200000, 0],
                     ["Mining", 200000, 0],
+                    ["Tick"],
                 ],
                 "workflowgauge": [
                     ["Ratting", 16.3],
@@ -272,10 +272,10 @@ CharNoMining = [
                 "rattingbar": [
                     ["x", "2024-03-19"],
                     ["Ratting", 200000],
-                    ["Tick"],
                     ["ESS Payout", 1133333],
                     ["Miscellaneous", 200000],
                     ["Mining", 0],
+                    ["Tick"],
                 ],
                 "workflowgauge": [
                     ["Ratting", 13.0],
@@ -296,10 +296,10 @@ CharNoMining = [
                 "rattingbar": [
                     ["x", "2024-03-19 14:00:00"],
                     ["Ratting", 200000],
-                    ["Tick", 66666],
                     ["ESS Payout", 1133333],
                     ["Miscellaneous", 200000],
                     ["Mining", 0],
+                    ["Tick", 66666],
                 ],
                 "workflowgauge": [],
             },
