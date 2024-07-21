@@ -27,10 +27,10 @@ logger = get_extension_logger(__name__)
 @dataclass
 class BillboardSum:
     sum_amount: list = field(default_factory=lambda: ["Ratting"])
-    sum_amount_tick: list = field(default_factory=lambda: ["Tick"])
     sum_amount_ess: list = field(default_factory=lambda: ["ESS Payout"])
     sum_amount_misc: list = field(default_factory=lambda: ["Miscellaneous"])
     sum_amount_mining: list = field(default_factory=lambda: ["Mining"])
+    sum_amount_tick: list = field(default_factory=lambda: ["Tick"])
     total_sum: int = None
 
 
@@ -122,12 +122,12 @@ class BillboardLedger:
             self.data.total_production_cost += data.get("total_production_cost", 0)
 
             summary.sum_amount.append(int(self.data.total_bounty))
-            if self.tick:
-                summary.sum_amount_tick.append(int(self.data.total_bounty / 3))
             summary.sum_amount_ess.append(int(self.data.total_ess_payout))
             if not self.is_corp:
                 summary.sum_amount_misc.append(int(self.data.total_miscellaneous))
                 summary.sum_amount_mining.append(int(self.data.total_mining))
+            if self.tick:
+                summary.sum_amount_tick.append(int(self.data.total_bounty / 3))
 
             billboard_values.append(period)
 
@@ -295,10 +295,10 @@ class BillboardLedger:
                 [
                     billboard_values,
                     summary.sum_amount,
-                    summary.sum_amount_tick,
                     summary.sum_amount_ess,
                     summary.sum_amount_misc,
                     summary.sum_amount_mining,
+                    summary.sum_amount_tick,
                 ]
             )
             if summary.total_sum

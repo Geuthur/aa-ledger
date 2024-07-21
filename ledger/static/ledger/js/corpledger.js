@@ -330,22 +330,38 @@ function loadBillboard(data, id) {
     // Ratting Bar
     if (data.rattingbar) {
         $('#rattingBarContainer-' + id).removeClass('d-none');
-        var pgs = [];
-        data.rattingbar.forEach(function(arr) {
-            if (arr[0] != 'x') {
-                pgs.push(arr[0]);
-            }
+
+        var columnCount = 0;
+        let baseRatio = 1.0; // Basiswert für den ratio
+        let decreaseFactor = 0.1; // Gewünschter Abnahmefaktor
+
+        // Count 'x' arrays
+        var xArray = data.rattingbar.find(function(arr) {
+            return arr[0] === 'x';
         });
+
+        if (xArray) {
+            // Subtract 'x' array from the total count
+            columnCount = xArray.length - 1;
+        }
+
+        // ---- Stacks Bar Optional ----
+        var groups = data.rattingbar.filter(function(arr) {
+            return arr[0] !== 'x';
+        }).map(function(arr) {
+            return arr[0]; // Nur die Bezeichnungen extrahieren
+        });
+
         window.bar['bar' + id] = bb.generate({
             data: {
                 x: 'x',
                 columns: data.rattingbar,
                 type: 'bar',
-                groups: [pgs],
+                groups: [groups],
             },
             axis: {
                 x: {
-                    padding: { right: 8000*60*60*12 * (id === 'Year' ? 12 : 1) },
+                    padding: { mode: 'fit' },
                     type: 'timeseries',
                     tick: {
                         format: '%Y-%m' + (id === 'Month' ? '-%d' : ''),
@@ -361,8 +377,8 @@ function loadBillboard(data, id) {
             },
             bar: {
                 width: {
-                    ratio: 0.8 * (id === 'Month' ? 12 : 1),
-                    max: 50
+                    ratio: baseRatio / (1 + decreaseFactor * columnCount),
+                    max: 25,
                 },
             },
             bindto: '#rattingBar-'+id,

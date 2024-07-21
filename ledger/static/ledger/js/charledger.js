@@ -468,21 +468,33 @@ function loadBillboard(data, id) {
     // Ratting Bar
     if (data.rattingbar) {
         $('#rattingBarContainer-' + id).removeClass('d-none');
+        var columnCount = 0;
+        let baseRatio = 1.0; // Basiswert für den ratio
+        let decreaseFactor = 0.2; // Gewünschter Abnahmefaktor
+
+        // Count 'x' arrays
+        var xArray = data.rattingbar.find(function(arr) {
+            return arr[0] === 'x';
+        });
+
+        if (xArray) {
+            // Subtract 'x' array from the total count
+            columnCount = xArray.length - 1;
+        }
 
         // ---- Stacks Bar Optional ----
-        //var pgs = [];
-        //data.rattingbar.forEach(function(arr) {
-        //    if (arr[0] != 'x') {
-        //        pgs.push(arr[0]);
-        //    }
-        //});
+        var groups = data.rattingbar.filter(function(arr) {
+            return arr[0] !== 'x';
+        }).map(function(arr) {
+            return arr[0]; // Nur die Bezeichnungen extrahieren
+        });
 
         window.bar['bar' + id] = bb.generate({
             data: {
                 x: 'x',
                 columns: data.rattingbar,
                 type: 'bar',
-                //groups: [pgs],
+                groups: [groups],
             },
             axis: {
                 x: {
@@ -491,7 +503,7 @@ function loadBillboard(data, id) {
                         format: '%Y-%m' + (id === 'Month' ? '-%d' : ''),
                         rotate: 45,
                     },
-                    padding: { right: 8000*60*60*12 * (id === 'Year' ? 12 : 1) },
+                    padding: { mode: 'fit' },
                 },
                 y: {
                     tick: { format: function(x) {
@@ -502,8 +514,8 @@ function loadBillboard(data, id) {
             },
             bar: {
                 width: {
-                    ratio: 0.8,
-                    max: 50
+                    ratio: baseRatio / (1 + decreaseFactor * columnCount),
+                    max: 25
                 }
             },
             bindto: '#rattingBar-'+id,
@@ -547,37 +559,34 @@ function loadBillboard(data, id) {
 function updateBillboard(data, id, selectedMode) {
     // Update Bar Chart
     if (data.rattingbar && window.bar && window.bar['bar' + id]) {
-        // Berechnen des maximalen Werts für die Y-Achse
-        let maxYValue = Math.max(...data.rattingbar.map(d => Math.max(...d.slice(1))));
+        var columnCount = 0;
+        let baseRatio = 1.0; // Basiswert für den ratio
+        let decreaseFactor = 0.2 * (selectedMode === 'Hourly' ? 0.1:1); // Gewünschter Abnahmefaktor
 
-        // Anpassen der maxYValue für eine bessere Darstellung
-        maxYValue = maxYValue * 0.1; // Fügt 10% Puffer hinzu
-
-
-        // Filter only Ratting and Tick values
-        let filteredData = selectedMode === 'Hourly' ?
-            data.rattingbar.filter((d, index) => index === 0 || d[0] === 'Ratting' || d[0] === 'Tick') :
-            data.rattingbar;
-
-        let validIndices = new Set();
-        validIndices.add(0); // Das 'x'-Array immer behalten
-        filteredData.forEach((row, rowIndex) => {
-            if (rowIndex > 0) { // Überspringen des 'x'-Arrays
-                row.forEach((value, valueIndex) => {
-                    if (value !== 0) {
-                        validIndices.add(valueIndex);
-                    }
-                });
-            }
+        // Count 'x' arrays
+        var xArray = data.rattingbar.find(function(arr) {
+            return arr[0] === 'x';
         });
 
-        //filteredData = filteredData.map(row => row.filter((_, index) => validIndices.has(index)));
+        if (xArray) {
+            // Subtract 'x' array from the total count
+            columnCount = xArray.length - 1;
+        }
+
+        // ---- Stacks Bar Optional ----
+        var groups = data.rattingbar.filter(function(arr) {
+            return arr[0] !== 'x' && arr[0] !== 'Tick';
+        }).map(function(arr) {
+            return arr[0]; // Nur die Bezeichnungen extrahieren
+        });
+
 
         window.bar['bar' + id] = bb.generate({
             data: {
                 x: 'x',
                 columns: data.rattingbar,
                 type: 'bar',
+                groups: [groups],
             },
             axis: {
                 x: {
@@ -586,7 +595,7 @@ function updateBillboard(data, id, selectedMode) {
                         format: '%Y-%m' + (id === 'Month' ? '-%d' : '') + (selectedMode === 'Hourly' ? ' %H:00:00' : ''),
                         rotate: 45,
                     },
-                    padding: { right: 8000*60*60*12 * (selectedMode === 'Hourly' ? 1 : 1) },
+                    padding: { mode: 'fit' },
                 },
                 y: {
                     tick: { format: function(x) { return d3.format(',')(x); } },
@@ -595,8 +604,8 @@ function updateBillboard(data, id, selectedMode) {
             },
             bar: {
                 width: {
-                    ratio: 0.8 * (selectedMode === 'Hourly' ? 6 : 1),
-                    max: 50
+                    ratio: baseRatio / (1 + decreaseFactor * columnCount),
+                    max: 25
                 },
             },
             padding: true,
