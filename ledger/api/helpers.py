@@ -187,15 +187,16 @@ def get_main_and_alts_all(corporations: list):
     for member in corpmember.objects.filter(
         corpstats__corp__corporation_id__in=corporations
     ).exclude(character_id__in=chars_list):
-        char = (
-            EveCharacter.objects.select_related(
+        try:
+            char = EveCharacter.objects.select_related(
                 "character_ownership",
                 "character_ownership__user__profile__main_character",
+            ).get(character_id=member.character_id)
+            _process_character(
+                char, characters, chars_list, corporations, missing_chars
             )
-            .prefetch_related("character_ownership__user__character_ownerships")
-            .get(character_id=member.character_id)
-        )
-        _process_character(char, characters, chars_list, corporations, missing_chars)
+        except ObjectDoesNotExist:
+            missing_chars.add(member.character_id)
 
     _process_missing_characters(missing_chars)
 
