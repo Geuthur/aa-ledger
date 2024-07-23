@@ -114,7 +114,10 @@
                         <hr>
                         <div class="row description-row">
                             <div class="col-sm-6">Summary:</div>
-                            <div class='col-sm-6'><span style="color: green">{{ character.summary.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                            <div class='col-sm-6'>
+                            <span style="{% if character.summary.total_amount < 0 %}color: red{% else %}color: green{% endif %}">
+                                {{ character.summary.total_amount|floatformat:0|intcomma }}
+                            </span> ISK</div>
                         </div>
                     </div>
                 </div>
@@ -268,7 +271,11 @@
                             <hr>
                             <div class="row description-row">
                                 <div class="col-sm-6">Summary Day:</div>
-                                <div class='col-sm-6'><span style="color: green">{{ character.summary.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+                                <div class='col-sm-6'>
+                                    <span style="{% if character.summary.total_amount_day < 0 %}color: red{% else %}color: green{% endif %}">
+                                        {{ character.summary.total_amount_day|floatformat:0|intcomma }}
+                                    </span> ISK
+                                </div>
                             </div>
                         {% endif %}
                     </div>
@@ -365,7 +372,11 @@
                             <hr>
                             <div class="row description-row">
                                 <div class="col-sm-6">Summary Hour:</div>
-                                <div class='col-sm-6'><span style="color: green">{{ character.summary.total_amount_hour|floatformat:0|intcomma }}</span> ISK</div>
+                                <div class='col-sm-6'>
+                                    <span style="{% if character.summary.total_amount_hour < 0 %}color: red{% else %}color: green{% endif %}">
+                                        {{ character.summary.total_amount_hour|floatformat:0|intcomma }}
+                                    </span> ISK
+                                </div>
                             </div>
                         {% endif %}
                     </div>

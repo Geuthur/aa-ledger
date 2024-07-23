@@ -52,7 +52,7 @@ class LedgerApiEndpoints:
         def get_corporation_admin(request):
             corporations = CorporationAudit.objects.visible_to(request.user)
 
-            if not corporations.exists():
+            if not corporations:
                 return 403, "Permission Denied"
 
             corporation_dict = {}
@@ -64,8 +64,7 @@ class LedgerApiEndpoints:
                         "corporation_id": corporation.corporation.corporation_id,
                         "corporation_name": corporation.corporation.corporation_name,
                     }
-                except Exception as e:
-                    logger.debug(e)
+                except Exception:
                     continue
 
             output = []

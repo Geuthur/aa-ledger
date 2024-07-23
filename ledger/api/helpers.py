@@ -1,11 +1,13 @@
+from celery_once import AlreadyQueued
+
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import IntegrityError
 
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger import app_settings, models
 from ledger.errors import LedgerImportError
 from ledger.hooks import get_extension_logger
+from ledger.tasks import create_missing_character
 
 logger = get_extension_logger(__name__)
 
@@ -91,12 +93,10 @@ def get_corporation(request, corporation_id):
         corporations = get_main_and_alts_corporations(request)
     else:
         corporations = [corporation_id]
-    try:
-        main_corp = models.CorporationAudit.objects.filter(
-            corporation__corporation_id__in=corporations
-        )
-    except ObjectDoesNotExist:
-        main_corp = None
+
+    main_corp = models.CorporationAudit.objects.filter(
+        corporation__corporation_id__in=corporations
+    )
     # Check access
     visible = models.CorporationAudit.objects.visible_to(request.user)
     # Check if there is an intersection between main_corp and visible
@@ -125,69 +125,78 @@ def get_alts_queryset(main_char, corporations=None):
         return EveCharacter.objects.filter(pk=main_char.pk)
 
 
-def get_main_and_alts_all(main_corp: list):
-    """Get all members for a corporation"""
-    characters = {}
-    chars_list = set()
-    corps_list = main_corp
-    corpmember = get_corp_models_and_string()
-    corps = (
-        corpmember.objects.select_related("corpstats", "corpstats__corp")
-        .filter(corpstats__corp__corporation_id__in=corps_list)
-        .order_by("character_id")
+def _get_linked_characters(corporations):
+    linked_chars = EveCharacter.objects.filter(corporation_id__in=corporations)
+    linked_chars |= EveCharacter.objects.filter(
+        character_ownership__user__profile__main_character__corporation_id__in=corporations
+    )
+    return (
+        linked_chars.select_related(
+            "character_ownership", "character_ownership__user__profile__main_character"
+        )
+        .prefetch_related("character_ownership__user__character_ownerships")
+        .order_by("character_name")
     )
 
-    for corpmember in corps:
+
+def _process_character(
+    char: EveCharacter, characters, chars_list, corporations, missing_chars
+):
+    try:
+        main = char.character_ownership.user.profile.main_character
+        if main and main.character_id not in characters:
+            characters[main.character_id] = {"main": main, "alts": []}
+        if char.corporation_id in corporations:
+            characters[main.character_id]["alts"].append(char)
+            chars_list.add(char.character_id)
+    except ObjectDoesNotExist:
+        if EveCharacter.objects.filter(character_id=char.character_id).exists():
+            char = EveCharacter.objects.get(character_id=char.character_id)
+            characters[char.character_id] = {"main": char, "alts": []}
+            if char.corporation_id in corporations:
+                chars_list.add(char.character_id)
+                characters[char.character_id]["alts"].append(char)
+
+        missing_chars.add(char.character_id)
+    except AttributeError:
+        pass
+
+
+def _process_missing_characters(missing_chars):
+    if missing_chars:
         try:
-            # Combine Alts with Main
-            char = (
-                EveCharacter.objects.select_related(
-                    "character_ownership",
-                    "character_ownership__user__profile__main_character",
-                )
-                .prefetch_related("character_ownership__user__character_ownerships")
-                .get(character_id=corpmember.character_id)
+            create_missing_character.apply_async(args=[list(missing_chars)], priority=6)
+        except AlreadyQueued:
+            pass
+
+
+def get_main_and_alts_all(corporations: list):
+    """Get all members for given corporations"""
+    characters = {}
+    chars_list = set()
+    missing_chars = set()
+
+    linked_chars = _get_linked_characters(corporations)
+    corpmember = get_corp_models_and_string()
+
+    for char in linked_chars:
+        _process_character(char, characters, chars_list, corporations, missing_chars)
+
+    for member in corpmember.objects.filter(
+        corpstats__corp__corporation_id__in=corporations
+    ).exclude(character_id__in=chars_list):
+        try:
+            char = EveCharacter.objects.select_related(
+                "character_ownership",
+                "character_ownership__user__profile__main_character",
+            ).get(character_id=member.character_id)
+            _process_character(
+                char, characters, chars_list, corporations, missing_chars
             )
-            main = char.character_ownership.user.profile.main_character
-            if main and main.character_id not in chars_list:
-                linked_characters = (
-                    main.character_ownership.user.character_ownerships.select_related(
-                        "character", "user"
-                    ).filter(character__corporation_id__in=corps_list)
-                )
-
-                alts = [char.character for char in linked_characters]
-                characters[main.character_id] = {
-                    "main": main,
-                    "alts": alts,
-                }
-
-                for alt in alts:
-                    chars_list.add(alt.character_id)
-                if main.character_id in corps_list:
-                    chars_list.add(main.character_id)
-
         except ObjectDoesNotExist:
-            # Ensure that the character not already exists
-            if EveCharacter.objects.filter(
-                character_id=corpmember.character_id
-            ).exists():
-                continue
-            try:
-                char_create = EveCharacter.objects.create_character(
-                    character_id=corpmember.character_id,
-                )
-                logger.debug("Corpmember: %s Created", corpmember.character_name)
-                # Add Corp Members as main
-                characters[char_create.character_id] = {
-                    "main": char_create,
-                    "alts": [char_create],
-                }
-                if char_create.character_id in corps_list:
-                    chars_list.add(char_create.character_id)
-            except IntegrityError as exc:
-                logger.debug("Integrity Error: %s", exc)
-                continue
+            missing_chars.add(member.character_id)
+
+    _process_missing_characters(missing_chars)
 
     return characters, list(chars_list)
 

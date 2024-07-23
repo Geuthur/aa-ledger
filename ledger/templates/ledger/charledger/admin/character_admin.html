@@ -57,6 +57,7 @@ CharsAjax = {
                     render: function (data, type, row) {
                         return '<img src="https://images.evetech.net/characters/' + row.character_id + '/portrait?size=32" class="rounded-circle" title="' + row.character_name + '" height="30">';
                     },
+                    sortable: false,
                 },
                 {
                     targets: 3,
@@ -66,7 +67,8 @@ CharsAjax = {
                         return '<a href="/ledger/character_ledger/'+ row.character_id +'/"><button class="btn btn-primary btn-sm" title="Edit"><i class="fa-solid fa-eye"></i></button></a>';
                     },
                 }
-            ]
+            ],
+            order: [[1, 'asc']],
         });
     },
     error: function(response) {

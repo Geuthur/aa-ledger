@@ -46,7 +46,7 @@ class LedgerApiEndpoints:
         def get_character_admin(request):
             characters = CharacterAudit.objects.visible_eve_characters(request.user)
 
-            if not characters.exists():
+            if not characters:
                 return 403, "Permission Denied"
 
             character_dict = {}

@@ -10,10 +10,10 @@
     <a class="nav-link" href="{% url 'ledger:character_ledger' character_pk=0 %}">Character Ledger</a>
 </li>
 
+{% if not memberaudit %}
 <li class="nav-item">
     <span class="nav-link">|</span>
 </li>
-{% if not memberaudit %}
 <li class="nav-item">
     <a class="nav-link" href="{% url 'ledger:ledger_add_char' %}">Add Char</a>
 </li>

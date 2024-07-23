@@ -14,33 +14,7 @@
         <div id="errorHandler-Year" class="d-flex d-none justify-content-center align-items-center">
             You don't have Permission to view this Page
         </div>
-        <table class="table table-striped table-hover table-width-fix" id="ratting_year" style="width: 100%;">
-            <br>
-            <thead>
-                <th class="col-main-character" style="width: 20%;">Main Character</th>
-                <th class="col-total-amount" style="width: 20%;">Total Amount</th>
-                <th class="col-total-ess" style="width: 20%;">ESS Amount</th>
-                <th class="col-total-action" style="width: 1%;"></th>
-            </thead>
-
-            <tbody>
-            </tbody>
-
-            <tfoot id="foot-year" style="display: none;">
-                <tr>
-                    <th><strong>{% translate "Summary" %}</strong></th>
-                    <th class="col-total-amount"></th>
-                    <th class="col-total-ess"></th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <th><strong>{% translate "Total" %}</strong></th>
-                    <th class="col-total-gesamt"></th>
-                    <th></th>
-                    <th class="col-total-button"></th>
-                </tr>
-            </tfoot>
-        </table>
+        {% include 'ledger/corpledger/partials/table.html' with mode="Year" %}
     </div>
     <br>
     <div class="rounded-top">

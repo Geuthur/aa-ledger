@@ -1,8 +1,7 @@
-var total_amount, total_amount_ess, total_amount_combined;
 var selectedMonth, selectedYear, monthText, yearText;
 var MonthTable, YearTable;
 var bb, d3;
-var AjaxDatMonth, AjaxDataYear;
+var BillboardMonth, BillboardYear;
 // eslint-disable-next-line no-undef
 var corporationPk = corporationsettings.corporation_pk;
 
@@ -37,7 +36,7 @@ $('#monthDropdown li').click(function() {
     hideContainer('Month');
 
     MonthTable.clear().draw();
-    $('#foot').hide();
+    $('#foot-Month').hide();
 
     selectedMonth = $(this).find('a').data('bs-month-id');
     monthText = getMonthName(selectedMonth);
@@ -57,10 +56,10 @@ $('#yearDropdown li').click(function() {
     hideContainer('Month');
 
     YearTable.clear().draw();
-    $('#foot-year').hide();
+    $('#foot-Year').hide();
 
     MonthTable.clear().draw();
-    $('#foot').hide();
+    $('#foot-Month').hide();
 
     selectedYear = $(this).text();
 
@@ -99,7 +98,7 @@ function showContainer(id) {
 
 function reloadMonthAjax(newUrl) {
     MonthAjax.url = newUrl; // Update URL
-    $('#ratting').DataTable().destroy();
+    $('#ratting-Month').DataTable().destroy();
     $.ajax(MonthAjax);
 }
 
@@ -108,12 +107,12 @@ var MonthAjax = {
     type: 'GET',
     success: function(data) {
         hideLoading('Month');
-        total_amount = data[0].total.total_amount;
-        total_amount_ess = data[0].total.total_amount_ess;
-        total_amount_combined = data[0].total.total_amount_all;
-        AjaxDatMonth = data[0];
+        var total_amount = data[0].total.total_amount;
+        var total_amount_ess = data[0].total.total_amount_ess;
+        var total_amount_combined = data[0].total.total_amount_all;
+        BillboardMonth = data[0].billboard.standard;
 
-        MonthTable = $('#ratting').DataTable({
+        MonthTable = $('#ratting-Month').DataTable({
             data: data[0].ratting,
             columns: [
                 {
@@ -155,32 +154,37 @@ var MonthAjax = {
             ],
             order: [[1, 'desc']],
             columnDefs: [
-                { sortable: false, targets: [3] },
+                {
+                    sortable: false,
+                    targets: [3],
+                    className: 'text-end',
+                },
             ],
             footerCallback: function (row, data, start, end, display) {
                 var totalAmountAllChars = parseFloat(total_amount);
                 var totalEssAmountAllChars = parseFloat(total_amount_ess);
                 var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
-                $('#foot .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
-                $('#foot .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
-                $('#foot .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
-                $('#foot .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
+                $('#foot-Month .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
+                $('#foot-Month .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
+                $('#foot-Month .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
+                $('#foot-Month .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                     'aria-label="{{ data.main_name }}"' +
                     'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/?corp=true" ' +
-                    'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>');
+                    'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
+                    .addClass('text-end');
             },
             initComplete: function(settings, json) {
                 if ($('#currentMonthLink').hasClass('active')) {
-                    loadBillboard(AjaxDatMonth, 'Month');
+                    loadBillboard(BillboardMonth, 'Month');
                 }
-                $('#foot').show();
+                $('#foot-Month').show();
             }
         });
     },
     error: function(xhr, status, error) {
         if (xhr.status === 403) {
             hideLoading('Month');
-            $('#ratting').hide();
+            $('#ratting-Month').hide();
             $('#errorHandler').removeClass('d-none');
             $('.dropdown-toggle').attr('disabled', true);
         }
@@ -189,7 +193,7 @@ var MonthAjax = {
 
 function reloadYearAjax(newUrl) {
     YearAjax.url = newUrl; // Update URL
-    $('#ratting_year').DataTable().destroy();
+    $('#ratting-Year').DataTable().destroy();
     $.ajax(YearAjax);
 }
 
@@ -199,12 +203,12 @@ var YearAjax = {
     success: function(data) {
         hideLoading('Year');
         // Zusätzliche Daten im DataTable-Objekt speichern
-        total_amount = data[0].total.total_amount;
-        total_amount_ess = data[0].total.total_amount_ess;
-        total_amount_combined = data[0].total.total_amount_all;
-        AjaxDataYear = data[0];
+        var total_amount = data[0].total.total_amount;
+        var total_amount_ess = data[0].total.total_amount_ess;
+        var total_amount_combined = data[0].total.total_amount_all;
+        BillboardYear = data[0].billboard.standard;
 
-        YearTable = $('#ratting_year').DataTable({
+        YearTable = $('#ratting-Year').DataTable({
             data: data[0].ratting,
             columns: [
                 {
@@ -246,32 +250,37 @@ var YearAjax = {
             ],
             order: [[1, 'desc']],
             columnDefs: [
-                { sortable: false, targets: [3] },
+                {
+                    sortable: false,
+                    targets: [3],
+                    className: 'text-end',
+                },
             ],
             footerCallback: function (row, data, start, end, display) {
                 var totalAmountAllChars = parseFloat(total_amount);
                 var totalEssAmountAllChars = parseFloat(total_amount_ess);
                 var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
-                $('#foot-year .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
-                $('#foot-year .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
-                $('#foot-year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
-                $('#foot-year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
+                $('#foot-Year .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
+                $('#foot-Year .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
+                $('#foot-Year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
+                $('#foot-Year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                     'aria-label="{{ data.main_name }}"' +
                     'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/0/?corp=true" ' +
-                    'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>');
+                    'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
+                    .addClass('text-end');
             },
             initComplete: function(settings, json) {
                 if ($('#currentYearLink').hasClass('active')) {
-                    loadBillboard(AjaxDataYear, 'Year');
+                    loadBillboard(BillboardYear, 'Year');
                 }
-                $('#foot-year').show();
+                $('#foot-Year').show();
             }
         });
     },
     error: function(xhr, status, error) {
         if (xhr.status === 403) {
             hideLoading('Year');
-            $('#ratting_year').hide();
+            $('#ratting-Year').hide();
             $('#errorHandler-Year').removeClass('d-none');
             $('.dropdown-toggle').attr('disabled', true);
         }
@@ -287,10 +296,10 @@ function loadBillboard(data, id) {
     }
 
     // Billboard
-    if (data.billboard.charts) {
+    if (data.charts) {
         $('#ChartContainer-' + id).removeClass('d-none');
         var maxpg = 0;
-        data.billboard.charts.forEach(function (arr) {
+        data.charts.forEach(function (arr) {
             if (maxpg < arr[0]) {
                 maxpg = arr[0];
             }
@@ -298,7 +307,7 @@ function loadBillboard(data, id) {
         // Store the chart in the charts object using id as the key
         window.charts['chart' + id] = bb.generate({
             data: {
-                columns: data.billboard.charts,
+                columns: data.charts,
                 type: 'donut'
             },
             donut: {
@@ -319,24 +328,40 @@ function loadBillboard(data, id) {
     }
 
     // Ratting Bar
-    if (data.billboard.rattingbar) {
+    if (data.rattingbar) {
         $('#rattingBarContainer-' + id).removeClass('d-none');
-        var pgs = [];
-        data.billboard.rattingbar.forEach(function(arr) {
-            if (arr[0] != 'x') {
-                pgs.push(arr[0]);
-            }
+
+        var columnCount = 0;
+        let baseRatio = 1.0; // Basiswert für den ratio
+        let decreaseFactor = 0.1; // Gewünschter Abnahmefaktor
+
+        // Count 'x' arrays
+        var xArray = data.rattingbar.find(function(arr) {
+            return arr[0] === 'x';
         });
+
+        if (xArray) {
+            // Subtract 'x' array from the total count
+            columnCount = xArray.length - 1;
+        }
+
+        // ---- Stacks Bar Optional ----
+        var groups = data.rattingbar.filter(function(arr) {
+            return arr[0] !== 'x';
+        }).map(function(arr) {
+            return arr[0]; // Nur die Bezeichnungen extrahieren
+        });
+
         window.bar['bar' + id] = bb.generate({
             data: {
                 x: 'x',
-                columns: data.billboard.rattingbar,
+                columns: data.rattingbar,
                 type: 'bar',
-                groups: [pgs],
+                groups: [groups],
             },
             axis: {
                 x: {
-                    padding: { right: 8000*60*60*12 },
+                    padding: { mode: 'fit' },
                     type: 'timeseries',
                     tick: {
                         format: '%Y-%m' + (id === 'Month' ? '-%d' : ''),
@@ -348,6 +373,12 @@ function loadBillboard(data, id) {
                         return d3.format(',')(x);
                     } },
                     label: 'ISK'
+                },
+            },
+            bar: {
+                width: {
+                    ratio: baseRatio / (1 + decreaseFactor * columnCount),
+                    max: 25,
                 },
             },
             bindto: '#rattingBar-'+id,
@@ -370,13 +401,13 @@ $('#ledger-ratting').on('click', 'a[data-bs-toggle=\'tab\']', function () {
     setTimeout(function() {
         // Überprüfen, ob das spezifische Tab aktiv ist
         if ($('#currentYearLink').hasClass('active')) {
-            loadBillboard(AjaxDataYear, 'Year');
+            loadBillboard(BillboardYear, 'Year');
         }
     }, 500);
     setTimeout(function() {
         // Überprüfen, ob das spezifische Tab aktiv ist
         if ($('#currentMonthLink').hasClass('active')) {
-            loadBillboard(AjaxDatMonth, 'Month');
+            loadBillboard(BillboardMonth, 'Month');
         }
     }, 500);
 });

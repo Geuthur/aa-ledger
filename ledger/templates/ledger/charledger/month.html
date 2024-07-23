@@ -6,62 +6,35 @@
     <div class="card-body bg-secondary table-responsive">
         <div id="loadingIndicator-Month" class="d-flex justify-content-center align-items-center">
             {% if NIGHT_MODE %}
-            <img src="{% static 'killstats/img/Spinner-1s-64px-dark.gif' %}">
+            <img src="{% static 'ledger/images/Spinner-1s-64px-dark.gif' %}">
             {% else %}
-                <img src="{% static 'killstats/img/Spinner-1s-64px-light.gif' %}">
+                <img src="{% static 'ledger/images/Spinner-1s-64px-light.gif' %}">
             {% endif %}
         </div>
         <div id="errorHandler" class="d-flex d-none justify-content-center align-items-center">
             You don't have Permission to view this Page
         </div>
-        <table class="table table-striped table-hover" id="ratting" style="width: 100%;">
-            <br>
-            <thead>
-                <th class="col-main-character" style="width: 20%;">Main Character</th>
-                <th class="col-total-amount" style="width: 20%;">Ratting Amount</th>
-                <th class="col-total-ess" style="width: 20%;">ESS Payout</th>
-                <th class="col-total-mining" style="width: 15%;">Mining Amount</th>
-                <th class="col-total-others" style="width: 30%;">Misc. Amount</th>
-                <th class="col-total-action" style="width: 1%;"></th>
-            </thead>
-
-            <tbody>
-            </tbody>
-
-            <tfoot id="foot" style="display: none;">
-                <tr>
-                    <th><strong>{% translate "Summary" %}</strong></th>
-                    <th class="col-total-amount"></th>
-                    <th class="col-total-ess"></th>
-                    <th class="col-total-mining"></th>
-                    <th class="col-total-others"></th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <th><strong>{% translate "Costs" %}</strong></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th class="col-total-costs"></th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <th><strong>{% translate "Total" %}</strong></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th class="col-total-gesamt"></th>
-                    <th class="col-total-button"></th>
-                </tr>
-            </tfoot>
-        </table>
+        {% if character_pk == 0 %}
+            {% include 'ledger/charledger/partials/table.html' with mode="Month" %}
+        {% else %}
+            {% include 'ledger/charledger/partials/card.html' with mode="Month" %}
+        {% endif %}
     </div>
     <br>
     <div class="rounded-top">
         <div class="row g-0">
-            <div class="col-md-6 g-2 d-none" id="rattingBarContainer-Month">
-                <div class="card-header bg-primary">
-                    <h3 class="card-title">Ledger 30 Days</h3>
+            <div class="col-md-12 g-2 d-none" id="rattingBarContainer-Month">
+                <div class="card-header bg-primary d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0" id="barTitle-Month">Ledger 30 Days</h3>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Mode
+                        </button>
+                        <ul class="dropdown-menu" id="barDropdown-Month">
+                            <li><a class="dropdown-item" href="#">Month</a></li>
+                            <li><a class="dropdown-item" href="#">Hourly</a></li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="card-body bg-secondary">
                     <div id="rattingBar-Month"></div>

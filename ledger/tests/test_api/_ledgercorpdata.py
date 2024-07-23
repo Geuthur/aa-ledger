@@ -10,10 +10,24 @@ noData = [
             "total_amount_costs": 0,
         },
         "billboard": {
-            "walletcharts": [],
-            "charts": None,
-            "rattingbar": None,
-            "workflowgauge": [],
+            "standard": {
+                "walletcharts": [],
+                "charts": None,
+                "rattingbar": None,
+                "workflowgauge": [],
+            },
+            "weekly": {
+                "walletcharts": [],
+                "charts": [],
+                "rattingbar": [],
+                "workflowgauge": [],
+            },
+            "hourly": {
+                "walletcharts": [],
+                "charts": [],
+                "rattingbar": [],
+                "workflowgauge": [],
+            },
         },
     }
 ]

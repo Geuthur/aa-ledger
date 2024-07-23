@@ -57,8 +57,8 @@
     </ul>
     <div class="tab-content rounded-bottom">
         <div class="tab-content">
-            {% include 'ledger/charledger/month.html' %}
-            {% include 'ledger/charledger/year.html' with years=years %}
+            {% include 'ledger/charledger/month.html' with character_pk=character_pk %}
+            {% include 'ledger/charledger/year.html' with character_pk=character_pk years=years %}
         </div>
     </div>
 </div>
@@ -67,40 +67,17 @@
 {% include 'ledger/modals/modal_dialog.html' with name="ViewCharacter" %}
 {% endblock %}
 {% block extra_css %}
-<style>
-@media all {
-    #ratting th, #ratting_year th,
-    #ratting td, #ratting_year td {
-        padding: 0.75rem;
-        vertical-align: top;
-        border-top: 1px solid #dee2e6;
-    }
-
-    #ratting thead th, #ratting_year thead th {
-        vertical-align: bottom;
-        border-bottom: 2px solid #dee2e6;
-    }
-
-    #ratting tbody td:nth-child(5), #ratting_year tbody td:nth-child(5) {
-        text-align: right;
-    }
-
-    #ratting tfoot th:nth-child(5), #ratting_year tfoot th:nth-child(5) {
-        text-align: right;
-    }
-
-    #ratting tr, #ratting_year tr {
-        border-bottom: 1px solid #dee2e6;
-    }
-
-}
-</style>
+{% include 'ledger/bundles/table-css.html' %}
 {% endblock %}
 {% block extra_javascript %}
-<link rel="stylesheet" type="text/css" href="{% static 'ledger/css/billboards_dark.css' %}">
+{% if NIGHT_MODE or theme == "allianceauth.theme.darkly.auth_hooks.DarklyThemeHook" %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/3.12.4/theme/dark.min.css" integrity="sha512-TqGQ+TI2SXQF94++95bI8awt0VEW3pPOMmg66zzy57g0i82qe4BdHvMz6Fh7BbkMFiqq0TQ2yO/bnhC4yBCvhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+{% else %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/3.12.4/billboard.min.css" integrity="sha512-ECDNDgViBSnrgXOO8/eOIqHkrbWKhmlgN1yfDrWUgJI9zOX0nK8k0bLAGdPrfCANd+xhvrusvblcvawG7cqlzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+{% endif %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" integrity="sha512-vc58qvvBdrDR4etbxMdlTt4GBQk1qjvyORR2nrsPsFPyrs+/u5c3+1Ct6upOgdZoIl7eq6k3a1UPDSNAQi/32A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/3.12.4/billboard.min.js" integrity="sha512-/cNN6+3RhTdLjXMj9HAsHESe8G3AokZzjc06eexZBWgXZHcq5Bmp8BFnmajTFOk2QVVVH+DbHXqCNj5IKshkzg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/3.12.4/plugin/billboardjs-plugin-textoverlap.min.js" integrity="sha512-sPXJvLXSIL7e/sK7QpxRACuNXeubynxw+OtknjtItKGFzZ6EsK8ExH9Z/abU4YBjrJWeUKYRrkhnlJC+7GnEaw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 {% include 'bundles/datatables-js-bs5.html' %}
 <script type="application/javascript">
     $('#modalViewCharacterContainer').on('show.bs.modal', function (event) {

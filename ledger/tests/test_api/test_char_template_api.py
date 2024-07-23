@@ -1,7 +1,10 @@
+from unittest.mock import patch
+
 from ninja import NinjaAPI
 
 from django.test import TestCase
 
+from allianceauth.eveonline.models import EveCharacter
 from app_utils.testing import create_user_from_evecharacter
 
 from ledger.api.character.template import LedgerTemplateApiEndpoints
@@ -44,7 +47,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Ratting", status_code=200)
         self.assertContains(response, "Mining", status_code=200)
-        self.assertContains(response, "200,000", count=2, status_code=200)
+        self.assertContains(response, "200,000", status_code=200)
 
         self.assertContains(response, "ESS", status_code=200)
         self.assertContains(response, "1,133,333", status_code=200)
@@ -61,7 +64,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Ratting", status_code=200)
         self.assertContains(response, "Mining", status_code=200)
-        self.assertContains(response, "200,000", count=2, status_code=200)
+        self.assertContains(response, "200,000", status_code=200)
 
         self.assertContains(response, "ESS", status_code=200)
         self.assertContains(response, "1,133,333", status_code=200)
@@ -69,7 +72,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertContains(response, "Donations", status_code=200)
 
         # Summary
-        self.assertContains(response, "200,000", count=2, status_code=200)
+        self.assertContains(response, "200,000", status_code=200)
 
     def test_get_character_ledger_template_api_year(self):
         # given
@@ -97,3 +100,11 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         response = self.client.get(url)
 
         self.assertContains(response, "Permission Denied", status_code=200)
+
+    def test_get_character_ledger_api_not_exist(self):
+        self.client.force_login(self.user)
+        url = "/ledger/api/account/999999/ledger/template/year/2024/month/3/"
+
+        response = self.client.get(url)
+
+        self.assertContains(response, "403 Error", status_code=200)

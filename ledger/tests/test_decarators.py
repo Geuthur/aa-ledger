@@ -47,3 +47,16 @@ class TestDecorators(TestCase):
         result = trigger_esi_deco()
         # then
         self.assertEqual(result, "Teesting Mode.")
+
+    def test_log_timing(self):
+        # given
+        from ledger.decorators import log_timing
+
+        @log_timing
+        def trigger_log_timing():
+            return "Log Timing"
+
+        # when
+        result = trigger_log_timing()
+        # then
+        self.assertEqual(result, "Log Timing")

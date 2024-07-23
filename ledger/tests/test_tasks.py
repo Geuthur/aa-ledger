@@ -1,6 +1,7 @@
 from datetime import timedelta
 from unittest.mock import MagicMock, call, patch
 
+from django.db import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
 from esi.errors import TokenExpiredError
@@ -10,6 +11,7 @@ from app_utils.testing import create_user_from_evecharacter
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.tasks import (
+    create_missing_character,
     update_all_characters,
     update_all_corps,
     update_char_mining_ledger,
@@ -42,6 +44,25 @@ class TestTasks(TestCase):
         )
         cls.token = cls.user.token_set.first()
         cls.corporation = cls.character_ownership.character.corporation
+
+    @patch(MODULE_PATH + ".EveCharacter.objects.create_character")
+    def test_create_character(self, _):
+        # given
+        chars_list = [1010, 1011]
+        # when
+        result = create_missing_character(chars_list=chars_list)
+        # then
+        self.assertTrue(result)
+
+    @patch(MODULE_PATH + ".EveCharacter.objects.create_character")
+    def test_create_character_integrity(self, mock_character):
+        # given
+        chars_list = [1001, 1011]
+        mock_character.side_effect = [IntegrityError("duplicate key"), None]
+        # when
+        result = create_missing_character(chars_list=chars_list)
+        # then
+        self.assertTrue(result)
 
     @patch(MODULE_PATH + ".update_character.apply_async")
     @patch(MODULE_PATH + ".logger")

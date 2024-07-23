@@ -3,6 +3,8 @@ from typing import Dict, List, Optional
 
 from ninja import Schema
 
+from ledger.api.managers.billboard_manager import BillboardDict
+
 
 class Message(Schema):
     message: str
@@ -45,7 +47,7 @@ class CharacterWalletEvent(Schema):
 class CharacterLedger(Schema):
     ratting: Optional[List] = None
     total: Optional[Dict] = None
-    billboard: Optional[Dict] = None
+    billboard: Optional[BillboardDict] = None
 
 
 class CharacterLedgerTemplate(Schema):
@@ -75,4 +77,4 @@ class CorporationWalletEvent(Schema):
 class CorporationLedger(Schema):
     ratting: Optional[List] = None
     total: Optional[Dict] = None
-    billboard: Optional[Dict] = None
+    billboard: Optional[BillboardDict] = None

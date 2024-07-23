@@ -28,7 +28,7 @@ def corporation_ledger(request, corporation_pk):
         "years": years,
         "corporation_pk": corporation_pk,
     }
-    add_info_to_context(request, context)
+    context = add_info_to_context(request, context)
     return render(request, "ledger/corpledger/corporation_ledger.html", context=context)
 
 
@@ -38,4 +38,8 @@ def corporation_admin(request):
     """
     Corporation Admin
     """
-    return render(request, "ledger/corpledger/admin/corporation_admin.html")
+    context = {}
+    context = add_info_to_context(request, context)
+    return render(
+        request, "ledger/corpledger/admin/corporation_admin.html", context=context
+    )

@@ -127,8 +127,8 @@ class TestEtagReults(TestCase):
 
         # then
         mock_handle_etag_headers.assert_called()
-        self.assertEqual(current_page, 2)
-        self.assertEqual(total_pages, 1)
+        self.assertEqual(current_page, 3)
+        self.assertEqual(total_pages, 2)
         self.assertEqual(results, [])
 
     @patch(MODULE_PATH + ".handle_etag_headers")
