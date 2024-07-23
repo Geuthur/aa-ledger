@@ -150,7 +150,6 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         EveMarketPrice.objects.all().delete()
         # when
         response = self.client.get(url)
-        print(response.json())
         # then
         expected_data = CharNoMining
         self.assertEqual(response.status_code, 200)

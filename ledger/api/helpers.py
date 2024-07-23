@@ -93,12 +93,10 @@ def get_corporation(request, corporation_id):
         corporations = get_main_and_alts_corporations(request)
     else:
         corporations = [corporation_id]
-    try:
-        main_corp = models.CorporationAudit.objects.filter(
-            corporation__corporation_id__in=corporations
-        )
-    except ObjectDoesNotExist:
-        main_corp = None
+
+    main_corp = models.CorporationAudit.objects.filter(
+        corporation__corporation_id__in=corporations
+    )
     # Check access
     visible = models.CorporationAudit.objects.visible_to(request.user)
     # Check if there is an intersection between main_corp and visible
