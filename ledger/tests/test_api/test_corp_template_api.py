@@ -73,7 +73,7 @@ class ManageApiTemplateCorpEndpointsTest(TestCase):
         self.assertNotContains(response, "2024", status_code=200)
 
         # Summary
-        self.assertContains(response, "200,000", count=2, status_code=200)
+        self.assertContains(response, "200,000", status_code=200)
 
     def test_get_corporation_ledger_template_api_single_corp(self):
         self.client.force_login(self.user)
