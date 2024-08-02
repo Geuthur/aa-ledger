@@ -1,5 +1,15 @@
 # Changelog
 
+## \[0.5.5\] - 2024-08-02
+
+### Fixed
+
+- Billboard: On Single Lookup Bounty calculated as in char ledger
+
+### Removed
+
+- 3.8, 3.9 Python Support
+
 ## \[0.5.4\] - 2024-07-23
 
 ### Added

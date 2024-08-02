@@ -178,7 +178,7 @@ class BillboardLedger:
             .values("period")
             .annotate(
                 total_bounty=Coalesce(
-                    Sum("amount", filter=Q(ref_type="bounty_prizes")),
+                    Sum("amount", filter=Q(filters.filter_bounty)),
                     0,
                     output_field=DecimalField(),
                 ),
