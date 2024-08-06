@@ -136,9 +136,16 @@ class JournalProcess:
                 "ess": self.aggregate_journal(
                     corporation_journal.filter(filters.filter_ess)
                 ),
-                "mission": self.aggregate_journal(
-                    character_journal.filter(filters.filter_mission)
+                "mining": mining_journal.filter(filters.filter_mining)
+                .values("total", "date")
+                .aggregate(
+                    total_amount=Coalesce(
+                        Sum(F("total")), 0, output_field=DecimalField()
+                    )
                 ),
+            }
+
+            amounts_others = {
                 "contracts": self.aggregate_journal(
                     character_journal.filter(filters.filter_contract)
                 ),
@@ -150,37 +157,45 @@ class JournalProcess:
                         first_party_id__in=self.chars_list
                     )
                 ),
+                "missions": self.aggregate_journal(
+                    character_journal.filter(filters.filter_mission)
+                ),
+            }
+
+            amounts_costs = {
                 "market_cost": self.aggregate_journal(
                     character_journal.filter(filters.filter_market_cost)
                 ),
                 "production_cost": self.aggregate_journal(
                     character_journal.filter(filters.filter_production)
                 ),
-                "mining": mining_journal.filter(filters.filter_mining)
-                .values("total", "date")
-                .aggregate(
-                    total_amount=Coalesce(
-                        Sum(F("total")), 0, output_field=DecimalField()
-                    )
+                "contract_cost": self.aggregate_journal(
+                    character_journal.filter(filters.filter_contract_cost)
+                ),
+                "traveling_cost": self.aggregate_journal(
+                    character_journal.filter(filters.filter_traveling_cost)
+                ),
+                "asset_costs": self.aggregate_journal(
+                    character_journal.filter(filters.filter_assets_cost)
                 ),
             }
 
             # Convert the ESS Payout for Character
             amounts["ess"] = convert_ess_payout(amounts["ess"])
 
-            total_amount_others = (
-                amounts["contracts"]
-                + amounts["transactions"]
-                + amounts["donations"]
-                + amounts["mission"]
-            )
-            costs_amount = amounts["market_cost"] + amounts["production_cost"]
+            # Summing amounts_others
+            total_amount_others = sum(amounts_others.values())
+
+            # Summing amounts_costs
+            costs_amount = sum(amounts_costs.values())
+
             summary_amount = (
                 amounts["bounty"]
                 + amounts["ess"]
                 + amounts["mining"]["total_amount"]
                 + total_amount_others
             )
+
             summary_amount -= abs(costs_amount)
 
             if summary_amount:

@@ -27,58 +27,76 @@ class TemplateData:
     main: any
     year: int
     month: int
-    ledger_date: datetime = datetime.now()
-    current_date: datetime = datetime.now()
+    current_date: datetime = None
 
     def __post_init__(self):
+        self.ledger_date = self.current_date
         self.ledger_date = self.ledger_date.replace(year=self.year)
         if self.month != 0:
             self.ledger_date = self.ledger_date.replace(month=self.month)
 
 
+# pylint: disable=too-many-instance-attributes
 @dataclass
 class TemplateTotalCore:
     """TemplateTotalCore class to store the core data."""
 
+    mission: int = 0
     bounty: int = 0
     ess: int = 0
     mining: int = 0
+
     contract: int = 0
     transaction: int = 0
     donation: int = 0
+
+    contract_cost: int = 0
     production_cost: int = 0
     market_cost: int = 0
-    mission: int = 0
+    traveling_cost: int = 0
+    asset_cost: int = 0
 
 
+# pylint: disable=too-many-instance-attributes
 @dataclass
 class TemplateTotalDay:
     """TemplateTotalDay class to store the daily data."""
 
+    mission_day: int = 0
     bounty_day: int = 0
     ess_day: int = 0
     mining_day: int = 0
+
     contract_day: int = 0
     transaction_day: int = 0
     donation_day: int = 0
+
+    contract_cost_day: int = 0
     production_cost_day: int = 0
     market_cost_day: int = 0
-    mission_day: int = 0
+    traveling_cost_day: int = 0
+    asset_cost_day: int = 0
 
 
+# pylint: disable=too-many-instance-attributes
 @dataclass
 class TemplateTotalHour:
     """TemplateTotalHour class to store the hourly data."""
 
+    mission_hour: int = 0
     bounty_hour: int = 0
     ess_hour: int = 0
     mining_hour: int = 0
+
     contract_hour: int = 0
     transaction_hour: int = 0
     donation_hour: int = 0
+
+    contract_cost_hour: int = 0
     production_cost_hour: int = 0
     market_cost_hour: int = 0
-    mission_hour: int = 0
+    traveling_cost_hour: int = 0
+    asset_cost_hour: int = 0
 
 
 @dataclass
@@ -87,6 +105,11 @@ class TemplateTotal(TemplateTotalCore, TemplateTotalDay, TemplateTotalHour):
 
     def to_dict(self):
         return {
+            "mission": {
+                "total_amount": self.mission,
+                "total_amount_day": self.mission_day,
+                "total_amount_hour": self.mission_hour,
+            },
             "bounty": {
                 "total_amount": self.bounty,
                 "total_amount_day": self.bounty_day,
@@ -101,6 +124,7 @@ class TemplateTotal(TemplateTotalCore, TemplateTotalDay, TemplateTotalHour):
                 "total_amount": self.mining,
                 "total_amount_day": self.mining_day,
             },
+            # Trading
             "contract": {
                 "total_amount": self.contract,
                 "total_amount_day": self.contract_day,
@@ -116,6 +140,12 @@ class TemplateTotal(TemplateTotalCore, TemplateTotalDay, TemplateTotalHour):
                 "total_amount_day": self.donation_day,
                 "total_amount_hour": self.donation_hour,
             },
+            # Costs
+            "contract_cost": {
+                "total_amount": self.contract_cost,
+                "total_amount_day": self.contract_cost_day,
+                "total_amount_hour": self.contract_cost_hour,
+            },
             "production_cost": {
                 "total_amount": self.production_cost,
                 "total_amount_day": self.production_cost_day,
@@ -126,10 +156,15 @@ class TemplateTotal(TemplateTotalCore, TemplateTotalDay, TemplateTotalHour):
                 "total_amount_day": self.market_cost_day,
                 "total_amount_hour": self.market_cost_hour,
             },
-            "mission": {
-                "total_amount": self.mission,
-                "total_amount_day": self.mission_day,
-                "total_amount_hour": self.mission_hour,
+            "traveling_cost": {
+                "total_amount": self.traveling_cost,
+                "total_amount_day": self.traveling_cost_day,
+                "total_amount_hour": self.traveling_cost_hour,
+            },
+            "asset_cost": {
+                "total_amount": self.asset_cost,
+                "total_amount_day": self.asset_cost_day,
+                "total_amount_hour": self.asset_cost_hour,
             },
         }
 
@@ -424,6 +459,9 @@ class TemplateProcess:
         # Calculate the amounts
         amounts = {
             # Calculate Income
+            "mission": self._aggregate_journal_char(
+                character_journal.filter(filters.filter_mission)
+            ),
             "bounty": self._aggregate_journal_char(
                 character_journal.filter(filters.filter_bounty)
             ),
@@ -453,15 +491,20 @@ class TemplateProcess:
                 )
             ),
             # Calculate Costs
+            "contract_cost": self._aggregate_journal_char(
+                character_journal.filter(filters.filter_contract_cost)
+            ),
             "production_cost": self._aggregate_journal_char(
                 character_journal.filter(filters.filter_production)
             ),
             "market_cost": self._aggregate_journal_char(
                 character_journal.filter(filters.filter_market_cost)
             ),
-            # Calculate Missions
-            "mission": self._aggregate_journal_char(
-                character_journal.filter(filters.filter_mission)
+            "traveling_cost": self._aggregate_journal_char(
+                character_journal.filter(filters.filter_traveling_cost)
+            ),
+            "asset_cost": self._aggregate_journal_char(
+                character_journal.filter(filters.filter_assets_cost)
             ),
         }
         # Convert ESS Payout for Character Ledger

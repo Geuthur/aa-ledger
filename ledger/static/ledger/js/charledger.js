@@ -208,6 +208,14 @@ var MonthAjax = {
                             return data;
                         }
                     },
+                    {   data: 'total_amount_costs',
+                        render: function (data, type, row) {
+                            if (type === 'display') {
+                                return formatAndColor(data);
+                            }
+                            return data;
+                        }
+                    },
                     {
                         data: 'col-total-action',
                         render: function (data, type, row) {
@@ -226,7 +234,7 @@ var MonthAjax = {
                 columnDefs: [
                     {
                         sortable: false,
-                        targets: [5],
+                        targets: [6],
                         className: 'text-end',
                     },
                 ],
@@ -364,6 +372,14 @@ var YearAjax = {
                             return data;
                         }
                     },
+                    {   data: 'total_amount_costs',
+                        render: function (data, type, row) {
+                            if (type === 'display') {
+                                return formatAndColor(data);
+                            }
+                            return data;
+                        }
+                    },
                     {
                         data: 'col-total-action',
                         render: function (data, type, row) {
@@ -382,7 +398,7 @@ var YearAjax = {
                 columnDefs: [
                     {
                         sortable: false,
-                        targets: [5],
+                        targets: [6],
                         className: 'text-end',
                     },
                 ],

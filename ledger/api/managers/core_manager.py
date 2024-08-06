@@ -3,6 +3,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 
 from django.db.models import Q
+from django.utils import timezone
 
 from ledger import app_settings
 from ledger.hooks import get_extension_logger
@@ -45,7 +46,7 @@ class LedgerDate:
     year: int
     month: int
     monthly: bool = field(init=False)
-    current_date: datetime = field(default_factory=datetime.now, init=False)
+    current_date: datetime = None
     range_data: int = field(init=False)
     day_checks: list = field(init=False)
 
@@ -54,6 +55,7 @@ class LedgerDate:
         return num_days
 
     def __post_init__(self):
+        self.current_date = timezone.now()
         self.monthly = self.month == 0
         self.range_data = 12 if self.monthly else self.calculate_days()
         self.day_checks = list(range(1, self.range_data + 1))
@@ -104,6 +106,16 @@ class LedgerFilterCost(LedgerFilterCore):
 
     def __init__(self, char_id):
         super().__init__(char_id)
+        self.filter_contract_cost = self.filter_partys & Q(
+            ref_type__in=[
+                "contract_price_payment_corp",
+                "contract_reward",
+                "contract_price",
+                "contract_collateral",
+                "contract_reward_deposited",
+            ],
+            amount__lt=0,
+        )
         self.filter_market_cost = self.filter_partys & Q(
             ref_type__in=[
                 "market_escrow",
@@ -113,8 +125,26 @@ class LedgerFilterCost(LedgerFilterCore):
             ],
             amount__lt=0,
         )
+        self.filter_assets_cost = self.filter_partys & Q(
+            ref_type__in=[
+                "asset_safety_recovery_tax",
+            ],
+            amount__lt=0,
+        )
+        self.filter_traveling_cost = self.filter_partys & Q(
+            ref_type__in=[
+                "structure_gate_jump",
+            ],
+            amount__lt=0,
+        )
         self.filter_production = self.filter_partys & Q(
-            ref_type__in=["industry_job_tax", "manufacturing"]
+            ref_type__in=[
+                "industry_job_tax",
+                "manufacturing",
+                "researching_time_productivity",
+                "researching_material_productivity",
+                "copying",
+            ],
         )
         self.filter_costs = self.filter_partys & Q(amount__lt=0)
 

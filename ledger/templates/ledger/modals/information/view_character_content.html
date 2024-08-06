@@ -1,0 +1,41 @@
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load evelinks %}
+{% load ledger %}
+<div class="modal-content">
+    <button type="button" class="btn-close py-3 px-3" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true"></button>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modalTitle"><img src="{{ character.main_id|character_portrait_url:32 }}" class="img-circle" alt="{{ data.main_name }}"> {{character.main_name}} - {{character.date}}</h4>
+    </div>
+    <div class="card-body">
+        <div class="row description-row">
+            <h4 id="character-title"></h4>
+        </div>
+        {% if character %}
+        <div>
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" href="#tab-summary" data-bs-toggle="tab">Summary</button>
+                </li>
+                <li>
+                    <button class="nav-link" href="#tab-daily" data-bs-toggle="tab">Daily</button>
+                </li>
+                <li>
+                    <button class="nav-link" href="#tab-hourly" data-bs-toggle="tab">Hourly</button>
+                </li>
+            </ul>
+            <div class="border border-secondary rounded-bottom tab-content px-2">
+                {% include "ledger/modals/information/summary.html" with character=character %}
+                {% include "ledger/modals/information/daily.html" with character=character %}
+                {% include "ledger/modals/information/hourly.html" with character=character %}
+            </div>
+        </div>
+        {% else %}
+        No ratting data found...
+        {% endif %}
+    </div>
+
+    <div class="modal-footer">
+        </div>
+</div>

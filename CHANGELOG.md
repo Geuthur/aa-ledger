@@ -1,5 +1,28 @@
 # Changelog
 
+## \[0.5.6\] - 2024-08-xx
+
+### Added
+
+- RefType:
+  - researching_time_productivity,
+  - researching_material_productivity,
+  - copying,
+  - contract_reward_deposited,
+  - contract_collateral,
+  - structure_gate_jump
+  - asset_safety_recovery_tax
+- Contract Cost, Traveling Cost, Asset Safety Cost is now showing in Information Template
+- Single Costs for each Character now displaying in Character Ledger
+
+### Fixed
+
+- Character Information: Current Day was Static and not updated on next day.
+
+### Changed
+
+- Optimized Information Template
+
 ## \[0.5.5\] - 2024-08-02
 
 ### Fixed
