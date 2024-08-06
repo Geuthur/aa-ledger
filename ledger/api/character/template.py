@@ -65,7 +65,7 @@ class LedgerTemplateApiEndpoints:
                     "error_title": "403 Error",
                     "error_message": "Character not found.",
                 }
-                return render(request, "ledger/modals/pve/information.html", context)
+                return render(request, "ledger/modals/information/error.html", context)
 
             # Create the Ledger
             ledger_data = TemplateData(request, main, year, month, current_date)
