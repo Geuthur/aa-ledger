@@ -34,12 +34,13 @@
         {% endif %}
 
         {% if character.mining %}
-            <hr>
             <div class="row description-row">
                 <div class="col-sm-6">Mining:</div>
                 <div class='col-sm-6'><span style="color: green">{{ character.mining.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
+
+        <!--############################## Misc #######################-->
 
         {% if character.transaction %}
             <hr>
@@ -50,27 +51,41 @@
         {% endif %}
 
         {% if character.contract %}
-            <hr>
             <div class="row description-row">
                 <div class="col-sm-6">Contracts:</div>
-                <div class='col-sm-6'><span style="color: green">{{ character.contract.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-6'>
+                    <span style="color: green">
+                        {{ character.contract.total_amount|floatformat:0|intcomma }}
+                    </span> ISK
+                </div>
             </div>
         {% endif %}
 
         {% if character.donation %}
-            <hr>
             <div class="row description-row">
                 <div class="col-sm-6">Donations:<br>
-                <span style="color: #FFBF00"><!--<i class="fas fa-exclamation-triangle"></i> Excluded from summary <i class="fas fa-exclamation-triangle"></i>--></span>
+                <span style="color: #FFBF00"></span>
                 </div>
                 <div class='col-sm-6'>
                     <span style="color: green">
                         {{ character.donation.total_amount|floatformat:0|intcomma }}
                     </span> ISK
-                        <br><span style="color: #3483eb"><!--<i class="fas fa-info-circle"></i> Exluded registered chars <i class="fas fa-info-circle"></i>--></span>
                 </div>
             </div>
         {% endif %}
+
+        {% if character.insurance %}
+            <div class="row description-row">
+                <div class="col-sm-6">Insurance:</div>
+                <div class='col-sm-6'>
+                    <span style="color: green">
+                        {{ character.insurance.total_amount|floatformat:0|intcomma }}
+                    </span> ISK
+                </div>
+            </div>
+        {% endif %}
+
+        <!--############################## Costs #######################-->
 
         {% if character.production_cost or character.market_cost or character.contract_cost or character.asset_cost or character.traveling_cost %}
             <hr>
@@ -108,6 +123,28 @@
                 <div class='col-sm-6'><span style="color: red">{{ character.asset_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
+
+        {% if character.skill_cost %}
+            <div class="row description-row">
+                <div class="col-sm-6">Skill Cost:</div>
+                <div class='col-sm-6'><span style="color: red">{{ character.skill_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
+
+        {% if character.insurance_cost %}
+            <div class="row description-row">
+                <div class="col-sm-6">Insurance Cost:</div>
+                <div class='col-sm-6'><span style="color: red">{{ character.insurance_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
+
+        {% if character.planetary_cost %}
+            <div class="row description-row">
+                <div class="col-sm-6">Planetary Cost:</div>
+                <div class='col-sm-6'><span style="color: red">{{ character.planetary_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
+
         <!--############################## SUMMARY #######################-->
         <hr>
         <div class="row description-row">

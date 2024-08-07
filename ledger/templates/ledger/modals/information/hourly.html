@@ -42,12 +42,13 @@
         {% endif %}
 
         {% if character.mining %}
-        <hr>
         <div class="row description-row">
             <div class="col-sm-6">Avg. Mining per Hour:</div>
             <div class='col-sm-4'><span style="color: green">{{ character.mining.average_hour|floatformat:0|intcomma }}</span> ISK</div>
         </div>
         {% endif %}
+
+        <!--############################## Misc #######################-->
 
         {% if character.transaction %}
             <hr>
@@ -58,7 +59,6 @@
         {% endif %}
 
         {% if character.contract %}
-            <hr>
             <div class="row description-row">
                 <div class="col-sm-6">Avg. Contracts per Hour:</div>
                 <div class='col-sm-4'><span style="color: green">{{ character.contract.average_hour|floatformat:0|intcomma }}</span> ISK</div>
@@ -66,13 +66,20 @@
         {% endif %}
 
         {% if character.donation %}
-            <hr>
             <div class="row description-row">
                 <div class="col-sm-6">Avg. Donations per Hour:</div>
                 <div class='col-sm-4'><span style="color: green">{{ character.donation.average_hour|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
+        {% if character.insurance %}
+            <div class="row description-row">
+                <div class="col-sm-6">Avg. Insurance per Hour:</div>
+                <div class='col-sm-4'><span style="color: green">{{ character.insurance.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
+
+        <!--############################## COSTS #######################-->
 
         {% if character.production_cost or character.market_cost or character.contract_cost or character.asset_cost or character.traveling_cost %}
             <hr>
@@ -109,6 +116,27 @@
             <div class="row description-row">
                 <div class="col-sm-6">Avg. Asset Safety Cost per Hour:</div>
                 <div class='col-sm-4'><span style="color: red">{{ character.asset_cost.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
+
+        {% if character.skill_cost %}
+            <div class="row description-row">
+                <div class="col-sm-6">Avg. Skill Cost per Hour:</div>
+                <div class='col-sm-4'><span style="color: red">{{ character.skill_cost.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
+
+        {% if character.insurance_cost %}
+            <div class="row description-row">
+                <div class="col-sm-6">Avg. Insurance Cost per Hour:</div>
+                <div class='col-sm-4'><span style="color: red">{{ character.insurance_cost.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
+
+        {% if character.planetary_cost %}
+            <div class="row description-row">
+                <div class="col-sm-6">Avg. Planetary Cost per Hour:</div>
+                <div class='col-sm-4'><span style="color: red">{{ character.planetary_cost.average_hour|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
         <!--############################## SUMMARY HOURLY #######################-->

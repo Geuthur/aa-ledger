@@ -118,6 +118,7 @@ class JournalProcess:
             # Summary all
             self.calc_summary_total(totals)
 
+    # pylint: disable=too-many-locals
     def process_character_chars(
         self, corporation_journal, character_journal, mining_journal
     ):
@@ -128,6 +129,8 @@ class JournalProcess:
 
             # Get the Filter Settings
             filters = LedgerFilter([char_id])
+            all_costs_filters = filters.get_all_costs_filters()
+            all_misc_filters = filters.get_all_misc_filters(self.chars_list)
 
             amounts = {
                 "bounty": self.aggregate_journal(
@@ -146,38 +149,17 @@ class JournalProcess:
             }
 
             amounts_others = {
-                "contracts": self.aggregate_journal(
-                    character_journal.filter(filters.filter_contract)
-                ),
-                "transactions": self.aggregate_journal(
-                    character_journal.filter(filters.filter_market)
-                ),
-                "donations": self.aggregate_journal(
-                    character_journal.filter(filters.filter_donation).exclude(
-                        first_party_id__in=self.chars_list
-                    )
-                ),
-                "missions": self.aggregate_journal(
-                    character_journal.filter(filters.filter_mission)
-                ),
+                filter_name: self.aggregate_journal(
+                    character_journal.filter(filter_query)
+                )
+                for filter_name, filter_query in all_misc_filters.items()
             }
 
             amounts_costs = {
-                "market_cost": self.aggregate_journal(
-                    character_journal.filter(filters.filter_market_cost)
-                ),
-                "production_cost": self.aggregate_journal(
-                    character_journal.filter(filters.filter_production)
-                ),
-                "contract_cost": self.aggregate_journal(
-                    character_journal.filter(filters.filter_contract_cost)
-                ),
-                "traveling_cost": self.aggregate_journal(
-                    character_journal.filter(filters.filter_traveling_cost)
-                ),
-                "asset_costs": self.aggregate_journal(
-                    character_journal.filter(filters.filter_assets_cost)
-                ),
+                filter_name: self.aggregate_journal(
+                    character_journal.filter(filter_query)
+                )
+                for filter_name, filter_query in all_costs_filters.items()
             }
 
             # Convert the ESS Payout for Character

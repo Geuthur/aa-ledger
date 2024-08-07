@@ -64,7 +64,6 @@
         {% endif %}
 
         {% if character.mining %}
-            <hr>
             {% if character.mining.total_amount_day %}
                 <div class="row description-row">
                     <div class="col-sm-6">Current Day - Mining:</div>
@@ -76,6 +75,8 @@
                 <div class='col-sm-4'><span style="color: green">{{ character.mining.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
+
+        <!--############################## Misc #######################-->
 
         {% if character.transaction %}
             <hr>
@@ -92,7 +93,6 @@
         {% endif %}
 
         {% if character.contract %}
-            <hr>
             {% if character.contract.total_amount_day %}
                 <div class="row description-row">
                     <div class="col-sm-6">Current Day - Contracts:</div>
@@ -106,7 +106,6 @@
         {% endif %}
 
         {% if character.donation %}
-            <hr>
             {% if character.donation.total_amount_day %}
                 <div class="row description-row">
                     <div class="col-sm-6">Current Day - Donations:</div>
@@ -119,6 +118,20 @@
             </div>
         {% endif %}
 
+        {% if character.insurance %}
+            {% if character.insurance.total_amount_day %}
+                <div class="row description-row">
+                    <div class="col-sm-6">Current Day - Insurance:</div>
+                    <div class='col-sm-4'><span style="color: green">{{ character.donation.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+                </div>
+            {% endif %}
+            <div class="row description-row">
+                <div class="col-sm-6">Avg. Insurance per Day:</div>
+                <div class='col-sm-4'><span style="color: green">{{ character.insurance.average_day|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
+
+        <!--############################## COSTS #######################-->
 
         {% if character.production_cost or character.market_cost or character.contract_cost or character.asset_cost or character.traveling_cost %}
             <hr>
@@ -187,6 +200,45 @@
                     <div class='col-sm-4'><span style="color: red">{{ character.asset_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
+
+        {% if character.skill_cost %}
+            {% if character.asset_cost.total_amount_day %}
+                <div class="row description-row">
+                    <div class="col-sm-6">Current Day - Skillbook Cost:</div>
+                    <div class='col-sm-4'><span style="color: red">{{ character.skill_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+                </div>
+            {% endif %}
+                <div class="row description-row">
+                    <div class="col-sm-6">Avg. Skillbook Cost per Day:</div>
+                    <div class='col-sm-4'><span style="color: red">{{ character.skill_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                </div>
+        {% endif %}
+
+        {% if character.insurance_cost %}
+            {% if character.insurance_cost.total_amount_day %}
+                <div class="row description-row">
+                    <div class="col-sm-6">Current Day - Insurance Cost:</div>
+                    <div class='col-sm-4'><span style="color: red">{{ character.insurance_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+                </div>
+            {% endif %}
+                <div class="row description-row">
+                    <div class="col-sm-6">Avg. Insurance Cost per Day:</div>
+                    <div class='col-sm-4'><span style="color: red">{{ character.insurance_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                </div>
+        {% endif %}
+
+        {% if character.planetary_cost %}
+            {% if character.planetary_cost.total_amount_day %}
+                <div class="row description-row">
+                    <div class="col-sm-6">Current Day - Planetary Cost:</div>
+                    <div class='col-sm-4'><span style="color: red">{{ character.planetary_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+                </div>
+            {% endif %}
+                <div class="row description-row">
+                    <div class="col-sm-6">Avg. Planetary Cost per Day:</div>
+                    <div class='col-sm-4'><span style="color: red">{{ character.planetary_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                </div>
+        {% endif %}
 <!--############################## SUMMARY DAILY #######################-->
         {% if character.date %}
             <hr>
@@ -194,7 +246,10 @@
                 <div class="col-sm-6">Summary Day:</div>
                 <div class='col-sm-6'>
                     <span style="{% if character.summary.total_amount_day < 0 %}color: red{% else %}color: green{% endif %}">
-                        {{ character.summary.total_amount_day|floatformat:0|intcomma }}
+
+
+
+                     {{ character.summary.total_amount_day|floatformat:0|intcomma }}
                     </span> ISK
                 </div>
             </div>
