@@ -27,111 +27,125 @@ class TemplateData:
     main: any
     year: int
     month: int
-    ledger_date: datetime = datetime.now()
-    current_date: datetime = datetime.now()
+    current_date: datetime = None
 
     def __post_init__(self):
+        self.ledger_date = self.current_date
         self.ledger_date = self.ledger_date.replace(year=self.year)
         if self.month != 0:
             self.ledger_date = self.ledger_date.replace(month=self.month)
 
 
-@dataclass
-class TemplateTotalCore:
-    """TemplateTotalCore class to store the core data."""
-
-    bounty: int = 0
-    ess: int = 0
-    mining: int = 0
-    contract: int = 0
-    transaction: int = 0
-    donation: int = 0
-    production_cost: int = 0
-    market_cost: int = 0
-    mission: int = 0
-
-
-@dataclass
-class TemplateTotalDay:
-    """TemplateTotalDay class to store the daily data."""
-
-    bounty_day: int = 0
-    ess_day: int = 0
-    mining_day: int = 0
-    contract_day: int = 0
-    transaction_day: int = 0
-    donation_day: int = 0
-    production_cost_day: int = 0
-    market_cost_day: int = 0
-    mission_day: int = 0
-
-
+# pylint: disable=too-many-instance-attributes
 @dataclass
 class TemplateTotalHour:
     """TemplateTotalHour class to store the hourly data."""
 
+    mission_hour: int = 0
     bounty_hour: int = 0
     ess_hour: int = 0
     mining_hour: int = 0
+
     contract_hour: int = 0
     transaction_hour: int = 0
     donation_hour: int = 0
+    insurance_hour: int = 0
+
+    contract_cost_hour: int = 0
     production_cost_hour: int = 0
     market_cost_hour: int = 0
-    mission_hour: int = 0
+    traveling_cost_hour: int = 0
+    asset_cost_hour: int = 0
+    skill_cost_hour: int = 0
+    insurance_cost_hour: int = 0
+    planetary_cost_hour: int = 0
+    loyality_point_cost_hour: int = 0
+
+
+# pylint: disable=too-many-instance-attributes
+@dataclass
+class TemplateTotalDay(TemplateTotalHour):
+    """TemplateTotalDay class to store the daily data."""
+
+    mission_day: int = 0
+    bounty_day: int = 0
+    ess_day: int = 0
+    mining_day: int = 0
+
+    contract_day: int = 0
+    transaction_day: int = 0
+    donation_day: int = 0
+    insurance_day: int = 0
+
+    contract_cost_day: int = 0
+    production_cost_day: int = 0
+    market_cost_day: int = 0
+    traveling_cost_day: int = 0
+    asset_cost_day: int = 0
+    skill_cost_day: int = 0
+    insurance_cost_day: int = 0
+    planetary_cost_day: int = 0
+    loyality_point_cost_day: int = 0
+
+
+# pylint: disable=too-many-instance-attributes
+@dataclass
+class TemplateTotalCore(TemplateTotalDay):
+    """TemplateTotalCore class to store the core data."""
+
+    mission: int = 0
+    bounty: int = 0
+    ess: int = 0
+    mining: int = 0
+
+    contract: int = 0
+    transaction: int = 0
+    donation: int = 0
+    insurance: int = 0
+
+    contract_cost: int = 0
+    production_cost: int = 0
+    market_cost: int = 0
+    traveling_cost: int = 0
+    asset_cost: int = 0
+    skill_cost: int = 0
+    insurance_cost: int = 0
+    planetary_cost: int = 0
+    loyality_point_cost: int = 0
 
 
 @dataclass
-class TemplateTotal(TemplateTotalCore, TemplateTotalDay, TemplateTotalHour):
+class TemplateTotal(TemplateTotalCore):
     """TemplateTotal class to store the data."""
 
     def to_dict(self):
-        return {
-            "bounty": {
-                "total_amount": self.bounty,
-                "total_amount_day": self.bounty_day,
-                "total_amount_hour": self.bounty_hour,
-            },
-            "ess": {
-                "total_amount": self.ess,
-                "total_amount_day": self.ess_day,
-                "total_amount_hour": self.ess_hour,
-            },
-            "mining": {
-                "total_amount": self.mining,
-                "total_amount_day": self.mining_day,
-            },
-            "contract": {
-                "total_amount": self.contract,
-                "total_amount_day": self.contract_day,
-                "total_amount_hour": self.contract_hour,
-            },
-            "transaction": {
-                "total_amount": self.transaction,
-                "total_amount_day": self.transaction_day,
-                "total_amount_hour": self.transaction_hour,
-            },
-            "donation": {
-                "total_amount": self.donation,
-                "total_amount_day": self.donation_day,
-                "total_amount_hour": self.donation_hour,
-            },
-            "production_cost": {
-                "total_amount": self.production_cost,
-                "total_amount_day": self.production_cost_day,
-                "total_amount_hour": self.production_cost_hour,
-            },
-            "market_cost": {
-                "total_amount": self.market_cost,
-                "total_amount_day": self.market_cost_day,
-                "total_amount_hour": self.market_cost_hour,
-            },
-            "mission": {
-                "total_amount": self.mission,
-                "total_amount_day": self.mission_day,
-                "total_amount_hour": self.mission_hour,
-            },
-        }
+        attributes = []
+        # PvE
+        attributes += ["mission", "bounty", "ess", "mining"]
+        # Misc
+        attributes += ["contract", "transaction", "donation", "insurance"]
+        # Costs
+        attributes += [
+            "contract_cost",
+            "production_cost",
+            "market_cost",
+            "traveling_cost",
+            "asset_cost",
+            "skill_cost",
+            "insurance_cost",
+            "planetary_cost",
+            "loyality_point_cost",
+        ]
+
+        result = {}
+        for attr in attributes:
+            result[attr] = {
+                "total_amount": getattr(self, attr),
+                "total_amount_day": getattr(self, f"{attr}_day"),
+                "total_amount_hour": getattr(self, f"{attr}_hour"),
+            }
+
+        return result
 
 
 class TemplateProcess:
@@ -417,53 +431,46 @@ class TemplateProcess:
 
         # Create the filters
         filters = LedgerFilter([char_id])
+        all_filters = filters.get_all_filters(chars_list)
 
         # Set the models
         character_journal, corporation_journal, mining_journal = models
 
         # Calculate the amounts
         amounts = {
-            # Calculate Income
-            "bounty": self._aggregate_journal_char(
-                character_journal.filter(filters.filter_bounty)
-            ),
-            "ess": self._aggregate_journal_char(
-                corporation_journal.filter(filters.filter_ess)
-            ),
-            "mining": mining_journal.filter(filters.filter_mining)
-            .values("total", "date")
-            .aggregate(
-                total_amount=Coalesce(Sum(F("total")), 0, output_field=DecimalField()),
-                total_amount_day=Coalesce(
-                    Sum(F("total"), filter=Q(date__day=self.data.current_date.day)),
-                    0,
-                    output_field=DecimalField(),
-                ),
-            ),
-            # Calculate Trading
-            "contract": self._aggregate_journal_char(
-                character_journal.filter(filters.filter_contract)
-            ),
-            "transaction": self._aggregate_journal_char(
-                character_journal.filter(filters.filter_market)
-            ),
-            "donation": self._aggregate_journal_char(
-                character_journal.filter(filters.filter_donation).exclude(
-                    first_party_id__in=chars_list
-                )
-            ),
-            # Calculate Costs
-            "production_cost": self._aggregate_journal_char(
-                character_journal.filter(filters.filter_production)
-            ),
-            "market_cost": self._aggregate_journal_char(
-                character_journal.filter(filters.filter_market_cost)
-            ),
-            # Calculate Missions
-            "mission": self._aggregate_journal_char(
-                character_journal.filter(filters.filter_mission)
-            ),
+            filter_name: self._aggregate_journal_char(
+                character_journal.filter(filter_query)
+            )
+            for filter_name, filter_query in all_filters.items()
         }
+
+        # Add Mining to the amounts
+        amounts.update(
+            {
+                "mining": mining_journal.filter(filters.filter_mining)
+                .values("total", "date")
+                .aggregate(
+                    total_amount=Coalesce(
+                        Sum(F("total")), 0, output_field=DecimalField()
+                    ),
+                    total_amount_day=Coalesce(
+                        Sum(F("total"), filter=Q(date__day=self.data.current_date.day)),
+                        0,
+                        output_field=DecimalField(),
+                    ),
+                )
+            }
+        )
+
+        # Add ESS to the amounts
+        amounts.update(
+            {
+                "ess": self._aggregate_journal_char(
+                    corporation_journal.filter(filters.filter_ess)
+                ),
+            }
+        )
+
         # Convert ESS Payout for Character Ledger
         amounts["ess"]["total_amount"] = convert_ess_payout(
             amounts["ess"]["total_amount"]

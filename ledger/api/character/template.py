@@ -3,6 +3,7 @@ from typing import List
 from ninja import NinjaAPI
 
 from django.shortcuts import render
+from django.utils import timezone
 
 from allianceauth.eveonline.models import EveCharacter
 
@@ -35,6 +36,7 @@ class LedgerTemplateApiEndpoints:
                 if character_id == 0
                 else character_id
             )
+            current_date = timezone.now()
 
             perms, main = get_character(request, character_id)
             alts = get_alts_queryset(main)
@@ -46,7 +48,7 @@ class LedgerTemplateApiEndpoints:
                     "error_title": "Permission Denied",
                     "error_message": "You don't have permission to view this character's ledger.",
                 }
-                return render(request, "ledger/modals/pve/error.html", context)
+                return render(request, "ledger/modals/information/error.html", context)
             try:
                 if overall_mode:
                     linked_char = EveCharacter.objects.filter(
@@ -63,13 +65,15 @@ class LedgerTemplateApiEndpoints:
                     "error_title": "403 Error",
                     "error_message": "Character not found.",
                 }
-                return render(request, "ledger/modals/pve/error.html", context)
+                return render(request, "ledger/modals/information/error.html", context)
 
             # Create the Ledger
-            ledger_data = TemplateData(request, main, year, month)
+            ledger_data = TemplateData(request, main, year, month, current_date)
             ledger = TemplateProcess(linked_char, ledger_data, overall_mode)
             context = {"character": ledger.character_template()}
 
             return render(
-                request, "ledger/modals/pve/view_character_content.html", context
+                request,
+                "ledger/modals/information/view_character_content.html",
+                context,
             )

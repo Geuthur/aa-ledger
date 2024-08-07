@@ -3,6 +3,7 @@ from typing import List
 from ninja import NinjaAPI
 
 from django.shortcuts import render
+from django.utils import timezone
 
 from allianceauth.eveonline.models import EveCharacter
 
@@ -43,6 +44,8 @@ class LedgerTemplateApiEndpoints:
             if not perms:
                 return 403, "Permission Denied"
 
+            current_date = timezone.now()
+
             if corporation_id == 0:
                 corporations = get_main_and_alts_corporations(request)
             else:
@@ -68,10 +71,13 @@ class LedgerTemplateApiEndpoints:
                 overall_mode = True
 
             # Create the Ledger
-            ledger_data = TemplateData(request, char, year, month)
+
+            ledger_data = TemplateData(request, char, year, month, current_date)
             ledger = TemplateProcess(linked_char, ledger_data, overall_mode)
             context = {"character": ledger.corporation_template()}
 
             return render(
-                request, "ledger/modals/pve/view_character_content.html", context
+                request,
+                "ledger/modals/information/view_character_content.html",
+                context,
             )

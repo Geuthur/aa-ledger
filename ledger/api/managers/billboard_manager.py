@@ -185,8 +185,8 @@ class BillboardLedger:
                 total_miscellaneous=Coalesce(
                     Sum(
                         "amount",
-                        filter=filters.filter_market
-                        | filters.filter_contract
+                        filter=filters.filter_all_misc
+                        | filters.filter_all_missions
                         | donations_filter,
                     ),
                     0,
@@ -216,7 +216,7 @@ class BillboardLedger:
                 total_production_cost=Coalesce(
                     Sum(
                         "amount",
-                        filter=filters.filter_production,
+                        filter=filters.filter_production_cost,
                     ),
                     0,
                     output_field=DecimalField(),

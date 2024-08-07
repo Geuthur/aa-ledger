@@ -29,11 +29,11 @@ Character/Corporation Ledger see Statistics for Ratting, Mining, ESS Payout
 - Ratting,Mining,Trading
 - Character Ledger
 - Corporation Ledger
+- Events Calender
 
 ## Upcoming<a name="upcoming"></a>
 
-- Corp Tax System (Tracks specific amount that transfer'd to specific division)
-- Events Calender
+- Performance Updates
 
 ## Installation<a name="installation"></a>
 

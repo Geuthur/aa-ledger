@@ -118,6 +118,7 @@ class JournalProcess:
             # Summary all
             self.calc_summary_total(totals)
 
+    # pylint: disable=too-many-locals
     def process_character_chars(
         self, corporation_journal, character_journal, mining_journal
     ):
@@ -128,6 +129,8 @@ class JournalProcess:
 
             # Get the Filter Settings
             filters = LedgerFilter([char_id])
+            all_costs_filters = filters.get_all_costs_filters()
+            all_misc_filters = filters.get_all_misc_filters(self.chars_list)
 
             amounts = {
                 "bounty": self.aggregate_journal(
@@ -135,26 +138,6 @@ class JournalProcess:
                 ),
                 "ess": self.aggregate_journal(
                     corporation_journal.filter(filters.filter_ess)
-                ),
-                "mission": self.aggregate_journal(
-                    character_journal.filter(filters.filter_mission)
-                ),
-                "contracts": self.aggregate_journal(
-                    character_journal.filter(filters.filter_contract)
-                ),
-                "transactions": self.aggregate_journal(
-                    character_journal.filter(filters.filter_market)
-                ),
-                "donations": self.aggregate_journal(
-                    character_journal.filter(filters.filter_donation).exclude(
-                        first_party_id__in=self.chars_list
-                    )
-                ),
-                "market_cost": self.aggregate_journal(
-                    character_journal.filter(filters.filter_market_cost)
-                ),
-                "production_cost": self.aggregate_journal(
-                    character_journal.filter(filters.filter_production)
                 ),
                 "mining": mining_journal.filter(filters.filter_mining)
                 .values("total", "date")
@@ -165,22 +148,36 @@ class JournalProcess:
                 ),
             }
 
+            amounts_others = {
+                filter_name: self.aggregate_journal(
+                    character_journal.filter(filter_query)
+                )
+                for filter_name, filter_query in all_misc_filters.items()
+            }
+
+            amounts_costs = {
+                filter_name: self.aggregate_journal(
+                    character_journal.filter(filter_query)
+                )
+                for filter_name, filter_query in all_costs_filters.items()
+            }
+
             # Convert the ESS Payout for Character
             amounts["ess"] = convert_ess_payout(amounts["ess"])
 
-            total_amount_others = (
-                amounts["contracts"]
-                + amounts["transactions"]
-                + amounts["donations"]
-                + amounts["mission"]
-            )
-            costs_amount = amounts["market_cost"] + amounts["production_cost"]
+            # Summing amounts_others
+            total_amount_others = sum(amounts_others.values())
+
+            # Summing amounts_costs
+            costs_amount = sum(amounts_costs.values())
+
             summary_amount = (
                 amounts["bounty"]
                 + amounts["ess"]
                 + amounts["mining"]["total_amount"]
                 + total_amount_others
             )
+
             summary_amount -= abs(costs_amount)
 
             if summary_amount:

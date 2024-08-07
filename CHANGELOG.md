@@ -1,5 +1,48 @@
 # Changelog
 
+## \[0.5.6\] - 2024-08-07
+
+### Added
+
+- RefType:
+
+  - researching_time_productivity,
+  - researching_material_productivity,
+  - copying,
+  - contract_reward_deposited,
+  - contract_collateral,
+  - structure_gate_jump
+  - asset_safety_recovery_tax
+  - planetary_import_tax
+  - planetary_export_tax
+  - planetary_construction
+  - insurance
+  - skill_purchase
+  - reaction
+  - reprocessing_tax
+  - jump_clone_activation_fee
+
+- New Statistics to Information Template
+
+  - Contract Cost
+  - Asset Safety Cost
+  - Traveling Cost
+  - Skillbook Purchase Cost
+  - Insurance Cost
+  - Planetary Cost
+  - Insurance
+
+- Single Costs for each Character now displaying in Character Ledger
+
+### Fixed
+
+- Character Information: Current Day was Static and not updated on next day.
+
+### Changed
+
+- Optimized Information Template
+- Refactor Template,Ledger Manager
+
 ## \[0.5.5\] - 2024-08-02
 
 ### Fixed
