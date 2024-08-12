@@ -16,7 +16,7 @@
         {% if character.bounty %}
             <div class="row description-row">
                 <div class="col-sm-6">Avg. {{ mode }} Tick per Hour:</div>
-                <div class='col-sm-4'><span style="color: green">{{ character.bounty.average_hour_tick|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4'><span style="color: yellow">{{ character.bounty.average_hour_tick|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
