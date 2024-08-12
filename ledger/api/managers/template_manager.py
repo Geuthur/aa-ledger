@@ -256,15 +256,14 @@ class TemplateProcess:
 
         # Add amounts to total_amounts
         for key, value in amounts.items():
-            for _, sub_value in value.items():
-                for value_type, char_value in sub_value.items():
-                    total_amounts[key][value_type] += char_value
+            for sub_key, sub_value in value.items():
+                total_amounts[key][sub_key] += sub_value
 
         self._update_template_dict(self.data.main)
         self._generate_amounts_dict(total_amounts)
 
     # Aggregate Journal
-    def _aggregate_journal_char(self, journal):
+    def _aggregate_journal(self, journal):
         result = journal.aggregate(
             total_amount=Coalesce(Sum(F("amount")), 0, output_field=DecimalField()),
             total_amount_day=Coalesce(
@@ -297,56 +296,6 @@ class TemplateProcess:
             result["total_amount_day"] = 0
         return result
 
-    def _aggregate_journal_corp(self, journal, char_ids):
-        # Group by character ID before aggregating
-        result = (
-            journal.values("second_party_id")
-            .annotate(
-                total_amount=Coalesce(Sum(F("amount")), 0, output_field=DecimalField()),
-                total_amount_day=Coalesce(
-                    Sum(
-                        F("amount"),
-                        filter=Q(
-                            date__year=self.data.current_date.year,
-                            date__month=self.data.current_date.month,
-                            date__day=self.data.current_date.day,
-                        ),
-                    ),
-                    0,
-                    output_field=DecimalField(),
-                ),
-                total_amount_hour=Coalesce(
-                    Sum(
-                        F("amount"),
-                        filter=Q(
-                            date__year=self.data.current_date.year,
-                            date__month=self.data.current_date.month,
-                            date__day=self.data.current_date.day,
-                            date__hour=self.data.current_date.hour,
-                        ),
-                    ),
-                    0,
-                    output_field=DecimalField(),
-                ),
-            )
-            .filter(second_party_id__in=char_ids)
-        )
-
-        # Process results to match the expected structure
-        processed_result = {
-            char_id: {"total_amount": 0, "total_amount_day": 0, "total_amount_hour": 0}
-            for char_id in char_ids
-        }
-        for item in result:
-            char_id = item["second_party_id"]
-            processed_result[char_id]["total_amount"] += item["total_amount"]
-            processed_result[char_id]["total_amount_day"] += item["total_amount_day"]
-            processed_result[char_id]["total_amount_hour"] += item["total_amount_hour"]
-            if self.data.month == 0:
-                processed_result[char_id]["total_amount_day"] = 0
-
-        return processed_result
-
     # Update Core Dict
     def _update_template_dict(self, char):
         main_name = char.character_name if not self.show_year else "Summary"
@@ -369,7 +318,9 @@ class TemplateProcess:
         """Generate the amounts dictionary."""
         current_day = 365 if self.data.month == 0 else self.data.ledger_date.day
         # Calculate the total sum
-        total_sum = sum(amounts[key]["total_amount"] for key in amounts)
+        total_sum = sum(
+            amounts[key]["total_amount"] for key in amounts if key != "stolen"
+        )
 
         self.template_dict.update(
             {
@@ -412,20 +363,23 @@ class TemplateProcess:
 
     # Genereate Amounts for each Char
     def _process_amounts_corp(self, chars, corporation_journal):
+        amounts = defaultdict(lambda: defaultdict(Decimal))
+
         char_ids = [char.character_id for char in chars]
 
         # Adjust the filters to handle multiple character IDs
         filters = LedgerFilter(char_ids)
+        all_filters = filters.get_corp_filters()
 
-        # Aggregate data for all characters in a single query
-        amounts = {
-            "bounty": self._aggregate_journal_corp(
-                corporation_journal.filter(filters.filter_bounty), char_ids
-            ),
-            "ess": self._aggregate_journal_corp(
-                corporation_journal.filter(filters.filter_ess), char_ids
-            ),
-        }
+        # Calculate the amounts for all characters
+        for filter_name, filter_query in all_filters.items():
+            aggregated_amounts = self._aggregate_journal(
+                corporation_journal.filter(filter_query)
+            )
+            for sub_key, sub_value in aggregated_amounts.items():
+                amounts[filter_name][sub_key] += sub_value
+
+        amounts = calculate_ess_stolen(amounts)
 
         return amounts
 
@@ -443,12 +397,13 @@ class TemplateProcess:
 
         # Calculate the amounts for all characters
         for filter_name, filter_query in all_filters.items():
-            aggregated_amounts = self._aggregate_journal_char(
+            aggregated_amounts = self._aggregate_journal(
                 character_journal.filter(filter_query)
             )
             for sub_key, sub_value in aggregated_amounts.items():
                 amounts[filter_name][sub_key] += sub_value
 
+        # TODO move to core_manager
         # Add Mining to the amounts
         mining_aggregated = (
             mining_journal.filter(filters.filter_mining)
@@ -466,19 +421,13 @@ class TemplateProcess:
         amounts["mining"]["total_amount_day"] += mining_aggregated["total_amount_day"]
 
         # Add ESS to the amounts
-        ess_aggregated = self._aggregate_journal_char(
+        ess_aggregated = self._aggregate_journal(
             corporation_journal.filter(filters.filter_ess)
         )
         for sub_key, sub_value in ess_aggregated.items():
             amounts["ess"][sub_key] += sub_value
 
-        amounts["stolen"]["total_amount"], _ = (
-            calculate_ess_stolen(
-                amounts["bounty"]["total_amount"], amounts["ess"]["total_amount"]
-            )
-            if amounts["ess"]["total_amount"]
-            else (0, 0)
-        )
+        amounts = calculate_ess_stolen(amounts)
 
         # Convert ESS Payout for Character Ledger
         amounts["ess"]["total_amount"] = convert_ess_payout(

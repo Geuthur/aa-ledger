@@ -30,7 +30,7 @@
         {% if character.stolen %}
             <div class="row description-row">
                 <div class="col-sm-6">Avg. Stolen per Hour:</div>
-                <div class='col-sm-4'><span style="color: red">{{ character.stolen.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4'><span style="color: yellow">{{ character.stolen.average_hour|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 

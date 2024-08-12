@@ -21,15 +21,30 @@ MODULE_PATH = "ledger.view_helpers.core"
 
 
 class TestViewHelpers(TestCase):
-    def test_calculate_ess_stolen(self):
-        # ESS Payout is 100%
-        result = calculate_ess_stolen(134777, 89851)
-        self.assertEqual(result, (0, 0))
+    def test_calculate_ess_stolen_key_error(self):
+        # Test case where 'bounty' key is missing
+        amounts = {"ess": {"total_amount": 1000, "total_amount_day": 500}, "stolen": {}}
 
-    def test_calculate_ess_stolen_is_stolen(self):
-        # ESS Payout is 62%, 38% is stolen
-        result = calculate_ess_stolen(134777, 40000)
-        self.assertEqual(result, (15067, 38))
+        # Call the function and check if it handles the KeyError
+        result = calculate_ess_stolen(amounts)
+
+        # Since 'bounty' key is missing, 'stolen' amounts should not be calculated
+        self.assertEqual(result["stolen"].get("total_amount"), None)
+        self.assertEqual(result["stolen"].get("total_amount_day"), None)
+
+    def test_calculate_ess_stolen_key_error_ess(self):
+        # Test case where 'ess' key is missing
+        amounts = {
+            "bounty": {"total_amount": 1000, "total_amount_day": 500},
+            "stolen": {},
+        }
+
+        # Call the function and check if it handles the KeyError
+        result = calculate_ess_stolen(amounts)
+
+        # Since 'ess' key is missing, 'stolen' amounts should not be calculated
+        self.assertEqual(result["stolen"].get("total_amount"), None)
+        self.assertEqual(result["stolen"].get("total_amount_day"), None)
 
     def test_events_filter(self):
         result = events_filter([])

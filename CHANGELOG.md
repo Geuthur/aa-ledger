@@ -1,11 +1,13 @@
 # Changelog
 
-## \[0.5.7\] - 2024-08-12
+## \[0.5.7\] - 2024-08-13
 
 ### Added
 
 - Corporation Ledger: Portrait mouseover now displays included alts
-- Character Ledger: Stolen ESS (only estimated)
+- Character/Corporation Ledger: Stolen ESS (Amount that stolen from you)
+- Information Template: Yellow Coloring for Info amounts only
+- Day HTML template for Current Day Statistics
 
 ### Changed
 
@@ -14,10 +16,9 @@
 - Update README
 - Update Ledger FAQ
 - Optimized Character Information Template
-
-### Removed
-
-- ESS Stolen Information
+- Optimized Corporation Information Template
+- Information Template: Moved Current Day to Top in Daily Tab
+- Calculate ESS Stolen function
 
 ## \[0.5.6\] - 2024-08-07
 

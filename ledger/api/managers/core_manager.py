@@ -113,6 +113,12 @@ class LedgerFilterPvE(LedgerFilterCore):
             # "ess": self.filter_ess,
         }
 
+    def get_corp_filters(self):
+        return {
+            "bounty": self.filter_bounty,
+            "ess": self.filter_ess,
+        }
+
 
 # pylint: disable=too-many-instance-attributes
 @dataclass

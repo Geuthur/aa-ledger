@@ -4,7 +4,6 @@ Core View Helper
 
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Tuple
 
 from django.core.cache import cache
 from django.db.models import Q
@@ -51,21 +50,34 @@ def ledger_cache_timeout():
     return timeout.total_seconds()
 
 
-def calculate_ess_stolen(total_amount: int, ess_amount: int) -> Tuple[int, int]:
-    total_ess_stolen = 0
-    total_ess_gain = 0
+def calculate_ess_stolen_amount(bounty, ess):
+    try:
+        total_ess_gain = ess / bounty
+        total_ess_gain = total_ess_gain * 100
 
-    total_ess_gain = ess_amount / total_amount
-    total_ess_gain = total_ess_gain * 100
+        total_ess_gain_diff = Decimal(66.667) - int(total_ess_gain)
 
-    total_ess_gain_diff = Decimal(66.667) - int(total_ess_gain)
-    if abs(total_ess_gain_diff) < Decimal("0.9") or total_ess_gain_diff < 0:
-        total_ess_gain = 0
-    else:
-        total_ess_stolen = ess_amount * (total_ess_gain_diff / 100)
-        total_ess_gain = total_ess_gain_diff
+        stolen = ess * (total_ess_gain_diff / 100)
+        # If the difference is less than 0.9 or negative, no ESS was stolen
+        if abs(total_ess_gain_diff) < Decimal("0.9") or total_ess_gain_diff < 0:
+            stolen = 0
+    # pylint: disable=broad-except
+    except Exception:
+        stolen = 0
+    return round(stolen)
 
-    return round(total_ess_stolen), round(total_ess_gain)
+
+def calculate_ess_stolen(amounts):
+    try:
+        amounts["stolen"]["total_amount"] = calculate_ess_stolen_amount(
+            amounts["bounty"]["total_amount"], amounts["ess"]["total_amount"]
+        )
+        amounts["stolen"]["total_amount_day"] = calculate_ess_stolen_amount(
+            amounts["bounty"]["total_amount_day"], amounts["ess"]["total_amount_day"]
+        )
+    except KeyError:
+        pass
+    return amounts
 
 
 def _storage_key(identifier: str) -> str:
