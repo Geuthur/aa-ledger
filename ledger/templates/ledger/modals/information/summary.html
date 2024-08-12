@@ -30,7 +30,7 @@
             <div class="row description-row">
                 <div class="col-sm-6">Stolen ESS:</div>
                 <div class='col-sm-6'>
-                    <span style="color: yellow">{{ character.stolen.total_amount|floatformat:0|intcomma }}</span> ISK
+                    <span style="color: yellow" data-bs-toggle="tooltip" data-bs-placement="left" title="Estimated only">{{ character.stolen.total_amount|floatformat:0|intcomma }}</span> ISK
                 </div>
             </div>
         {% endif %}
