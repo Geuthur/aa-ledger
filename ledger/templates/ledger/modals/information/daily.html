@@ -22,7 +22,7 @@
             </div>
         {% endif %}
 
-        {% if character.stolen %}
+        {% if character.stolen.average_day %}
             <div class="row description-row">
                 <div class="col-sm-6">Avg. Stolen per Day:</div>
                 <div class='col-sm-4'><span style="color: yellow">{{ character.stolen.average_day|floatformat:0|intcomma }}</span> ISK</div>
