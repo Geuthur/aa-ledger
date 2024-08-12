@@ -29,7 +29,10 @@
         {% if character.stolen %}
             <div class="row description-row">
                 <div class="col-sm-6">Stolen ESS:</div>
-                <div class='col-sm-6'><span style="color: red">{{ character.stolen.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-6'>
+                    <span style="color: red">{{ character.stolen.total_amount|floatformat:0|intcomma }}</span> ISK
+                    <span class="btn btn-sm btn-info btn-square fas fa-info" data-bs-toggle="tooltip" title="Estimated only"></span>
+                </div>
             </div>
         {% endif %}
 
@@ -156,3 +159,11 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>

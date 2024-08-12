@@ -38,10 +38,10 @@
         {% endif %}
 
         {% if character.stolen %}
-            {% if character.stolen.average_day %}
+            {% if character.stolen.total_amount_day %}
                 <div class="row description-row">
                     <div class="col-sm-6">Current Day - Stolen ESS:</div>
-                    <div class='col-sm-4'><span style="color: red">{{ character.stolen.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                    <div class='col-sm-4'><span style="color: red">{{ character.stolen.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
             {% endif %}
             <div class="row description-row">

@@ -14,7 +14,7 @@ from ledger.api.helpers import (
 from ledger.api.managers.core_manager import LedgerFilter
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
-from ledger.view_helpers.core import events_filter
+from ledger.view_helpers.core import calculate_ess_stolen, events_filter
 
 CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
 
@@ -47,6 +47,7 @@ class TemplateTotalHour:
     bounty_hour: int = 0
     ess_hour: int = 0
     mining_hour: int = 0
+    stolen_hour: int = 0
 
     contract_hour: int = 0
     transaction_hour: int = 0
@@ -73,6 +74,7 @@ class TemplateTotalDay(TemplateTotalHour):
     bounty_day: int = 0
     ess_day: int = 0
     mining_day: int = 0
+    stolen_day: int = 0
 
     contract_day: int = 0
     transaction_day: int = 0
@@ -99,6 +101,7 @@ class TemplateTotalCore(TemplateTotalDay):
     bounty: int = 0
     ess: int = 0
     mining: int = 0
+    stolen: int = 0
 
     contract: int = 0
     transaction: int = 0
@@ -123,7 +126,7 @@ class TemplateTotal(TemplateTotalCore):
     def to_dict(self):
         attributes = []
         # PvE
-        attributes += ["mission", "bounty", "ess", "mining"]
+        attributes += ["mission", "bounty", "ess", "mining", "stolen"]
         # Misc
         attributes += ["contract", "transaction", "donation", "insurance"]
         # Costs
@@ -423,6 +426,7 @@ class TemplateProcess:
                 corporation_journal.filter(filters.filter_ess), char_ids
             ),
         }
+
         return amounts
 
     # Generate Amounts for all Chars
@@ -467,6 +471,14 @@ class TemplateProcess:
         )
         for sub_key, sub_value in ess_aggregated.items():
             amounts["ess"][sub_key] += sub_value
+
+        amounts["stolen"]["total_amount"], _ = (
+            calculate_ess_stolen(
+                amounts["bounty"]["total_amount"], amounts["ess"]["total_amount"]
+            )
+            if amounts["ess"]["total_amount"]
+            else (0, 0)
+        )
 
         # Convert ESS Payout for Character Ledger
         amounts["ess"]["total_amount"] = convert_ess_payout(

@@ -5,6 +5,7 @@
 ### Added
 
 - Corporation Ledger: Portrait mouseover now displays included alts
+- Character Ledger: Stolen ESS (only estimated)
 
 ### Changed
 
