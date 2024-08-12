@@ -428,7 +428,7 @@ class TemplateProcess:
     # Generate Amounts for all Chars
     # pylint: disable=too-many-locals
     def _process_amounts_char(self, models, chars_list):
-        total_amounts = defaultdict(lambda: defaultdict(Decimal))
+        amounts = defaultdict(lambda: defaultdict(Decimal))
 
         # Create the filters for all characters
         filters = LedgerFilter(chars_list)
@@ -443,7 +443,7 @@ class TemplateProcess:
                 character_journal.filter(filter_query)
             )
             for sub_key, sub_value in aggregated_amounts.items():
-                total_amounts[filter_name][sub_key] += sub_value
+                amounts[filter_name][sub_key] += sub_value
 
         # Add Mining to the amounts
         mining_aggregated = (
@@ -458,21 +458,19 @@ class TemplateProcess:
                 ),
             )
         )
-        total_amounts["mining"]["total_amount"] += mining_aggregated["total_amount"]
-        total_amounts["mining"]["total_amount_day"] += mining_aggregated[
-            "total_amount_day"
-        ]
+        amounts["mining"]["total_amount"] += mining_aggregated["total_amount"]
+        amounts["mining"]["total_amount_day"] += mining_aggregated["total_amount_day"]
 
         # Add ESS to the amounts
         ess_aggregated = self._aggregate_journal_char(
             corporation_journal.filter(filters.filter_ess)
         )
         for sub_key, sub_value in ess_aggregated.items():
-            total_amounts["ess"][sub_key] += sub_value
+            amounts["ess"][sub_key] += sub_value
 
         # Convert ESS Payout for Character Ledger
-        total_amounts["ess"]["total_amount"] = convert_ess_payout(
-            total_amounts["ess"]["total_amount"]
+        amounts["ess"]["total_amount"] = convert_ess_payout(
+            amounts["ess"]["total_amount"]
         )
 
-        return total_amounts
+        return amounts
