@@ -26,9 +26,9 @@
                 </li>
             </ul>
             <div class="border border-secondary rounded-bottom tab-content px-2">
-                {% include "ledger/modals/information/summary.html" with character=character %}
-                {% include "ledger/modals/information/daily.html" with character=character %}
-                {% include "ledger/modals/information/hourly.html" with character=character %}
+                {% include "ledger/modals/information/summary.html" with character=character mode=mode %}
+                {% include "ledger/modals/information/daily.html" with character=character mode=mode %}
+                {% include "ledger/modals/information/hourly.html" with character=character mode=mode %}
             </div>
         </div>
         {% else %}

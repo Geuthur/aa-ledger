@@ -67,21 +67,22 @@ class JournalProcess:
         return total_amount
 
     def process_corporation_chars(self, corporation_journal):
-        # Create a Dict for all Mains(including their alts)
+        # Create IDs for the second_party_ids
+        second_party_ids = corporation_journal.values_list("second_party_id", flat=True)
+
         for _, data in self.chars.items():
             main = data["main"]
             alts = data["alts"]
 
             chars_mains = [alt.character_id for alt in alts]
 
+            # Assuming journal is a list of objects with a second_party_id attribute
+            alts_names = [
+                alt.character_id for alt in alts if alt.character_id in second_party_ids
+            ]
+
             for alt in alts:
                 self.chars_list.append(alt.character_id)
-
-            total_bounty = 0
-            total_ess = 0
-
-            char_name = main.character_name
-            char_id = main.character_id
 
             # Get the Filter Settings
             filters = LedgerFilter(chars_mains)
@@ -102,10 +103,10 @@ class JournalProcess:
             summary_amount = total_bounty + total_ess
 
             if summary_amount > 0:
-                self.corporation_dict[char_id] = {
-                    "main_id": char_id,
-                    "main_name": char_name,
-                    "alt_names": [],
+                self.corporation_dict[main.character_id] = {
+                    "main_id": main.character_id,
+                    "main_name": main.character_name,
+                    "alt_names": alts_names,
                     "total_amount": total_bounty,
                     "total_amount_ess": total_ess,
                 }

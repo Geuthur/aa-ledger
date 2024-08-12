@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "aa-ledger"
-description = "Character/Corporation Ledger"
+description = "Character/Corporation Ledger Statistics with Information about ESS, Ratting, Trading, Mining, etc."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [

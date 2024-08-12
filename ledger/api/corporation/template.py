@@ -74,7 +74,10 @@ class LedgerTemplateApiEndpoints:
 
             ledger_data = TemplateData(request, char, year, month, current_date)
             ledger = TemplateProcess(linked_char, ledger_data, overall_mode)
-            context = {"character": ledger.corporation_template()}
+            context = {
+                "character": ledger.corporation_template(),
+                "mode": "TAX",
+            }
 
             return render(
                 request,

@@ -7,7 +7,7 @@
     <div class="card-body modal-tab">
         {% if character.bounty %}
             <div class="row description-row">
-                <div class="col-sm-6">Ratting:</div>
+                <div class="col-sm-6">{{ mode }}:</div>
                 <div class='col-sm-4'><span style="color: green">{{ character.bounty.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}

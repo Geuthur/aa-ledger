@@ -9,17 +9,17 @@
         {% if character.bounty %}
             {% if character.bounty.total_amount_day %}
                 <div class="row description-row">
-                    <div class="col-sm-6">Current Day - Ratting:</div>
+                    <div class="col-sm-6">Current Day - {{ mode }}:</div>
                     <div class='col-sm-4'><span style="color: green">{{ character.bounty.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
 
                 <div class="row description-row">
-                    <div class="col-sm-6">Current Day Avg Tick - Ratting:</div>
+                    <div class="col-sm-6">Current Day Avg Tick - {{ mode }}:</div>
                     <div class='col-sm-4'><span style="color: green">{{ character.bounty.total_amount_day_tick|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
             {% endif %}
             <div class="row description-row">
-                <div class="col-sm-6">Avg. Ratting per Day:</div>
+                <div class="col-sm-6">Avg. {{ mode }} per Day:</div>
                 <div class='col-sm-4'><span style="color: green">{{ character.bounty.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}

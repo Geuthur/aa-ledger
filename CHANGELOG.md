@@ -1,5 +1,22 @@
 # Changelog
 
+## \[0.5.7\] - 2024-08-12
+
+### Added
+
+- Corporation Ledger: Mouse over display now all included Alts
+
+### Changed
+
+- PyPi Description
+- Corporation Ledger: Changed Naming 'Ratting' to 'TAX'
+- Update README
+- Update Ledger FAQ
+
+### Removed
+
+- ESS Stolen Information
+
 ## \[0.5.6\] - 2024-08-07
 
 ### Added
