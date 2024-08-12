@@ -4,7 +4,7 @@
 
 ### Added
 
-- Corporation Ledger: Mouse over display now all included Alts
+- Corporation Ledger: Portrait mouseover now displays included alts
 
 ### Changed
 
