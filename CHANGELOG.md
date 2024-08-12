@@ -12,6 +12,7 @@
 - Corporation Ledger: Changed Naming 'Ratting' to 'TAX'
 - Update README
 - Update Ledger FAQ
+- Optimized Character Information Template
 
 ### Removed
 
