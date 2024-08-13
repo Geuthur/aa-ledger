@@ -8,28 +8,28 @@
         {% if character.bounty %}
             <div class="row description-row">
                 <div class="col-sm-6">{{ mode }}:</div>
-                <div class='col-sm-4'><span style="color: green">{{ character.bounty.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: green">{{ character.bounty.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.ess %}
             <div class="row description-row">
                 <div class="col-sm-6">ESS:</div>
-                <div class='col-sm-4'><span style="color: green">{{ character.ess.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: green">{{ character.ess.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.mission %}
             <div class="row description-row">
                 <div class="col-sm-6">Mission Rewards:</div>
-                <div class='col-sm-4'><span style="color: green">{{ character.mission.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: green">{{ character.mission.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.stolen.total_amount %}
             <div class="row description-row">
                 <div class="col-sm-6">Stolen ESS:</div>
-                <div class='col-sm-6'>
+                <div class='col-sm-4 text-end'>
                     <span style="color: yellow" data-bs-toggle="tooltip" data-bs-placement="left" title="Estimated only">{{ character.stolen.total_amount|floatformat:0|intcomma }}</span> ISK
                 </div>
             </div>
@@ -38,7 +38,7 @@
         {% if character.mining %}
             <div class="row description-row">
                 <div class="col-sm-6">Mining:</div>
-                <div class='col-sm-6'><span style="color: green">{{ character.mining.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: green">{{ character.mining.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
@@ -48,14 +48,14 @@
             <hr>
             <div class="row description-row">
                 <div class="col-sm-6">Trading:</div>
-                <div class='col-sm-6'><span style="color: green">{{ character.transaction.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: green">{{ character.transaction.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.contract %}
             <div class="row description-row">
                 <div class="col-sm-6">Contracts:</div>
-                <div class='col-sm-6'>
+                <div class='col-sm-4 text-end'>
                     <span style="color: green">
                         {{ character.contract.total_amount|floatformat:0|intcomma }}
                     </span> ISK
@@ -68,7 +68,7 @@
                 <div class="col-sm-6">Donations:<br>
                 <span style="color: #FFBF00"></span>
                 </div>
-                <div class='col-sm-6'>
+                <div class='col-sm-4 text-end'>
                     <span style="color: green">
                         {{ character.donation.total_amount|floatformat:0|intcomma }}
                     </span> ISK
@@ -79,7 +79,7 @@
         {% if character.insurance %}
             <div class="row description-row">
                 <div class="col-sm-6">Insurance:</div>
-                <div class='col-sm-6'>
+                <div class='col-sm-4 text-end'>
                     <span style="color: green">
                         {{ character.insurance.total_amount|floatformat:0|intcomma }}
                     </span> ISK
@@ -95,55 +95,55 @@
         {% if character.contract_cost %}
             <div class="row description-row">
                 <div class="col-sm-6">Contract Cost:</div>
-                <div class='col-sm-6'><span style="color: red">{{ character.contract_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: red">{{ character.contract_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.production_cost %}
             <div class="row description-row">
                 <div class="col-sm-6">Production Cost:</div>
-                <div class='col-sm-6'><span style="color: red">{{ character.production_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: red">{{ character.production_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
         {% if character.market_cost %}
             <div class="row description-row">
                 <div class="col-sm-6">Trading Cost:</div>
-                <div class='col-sm-6'><span style="color: red">{{ character.market_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: red">{{ character.market_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.traveling_cost %}
             <div class="row description-row">
                 <div class="col-sm-6">Traveling Cost:</div>
-                <div class='col-sm-6'><span style="color: red">{{ character.traveling_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: red">{{ character.traveling_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.asset_cost %}
             <div class="row description-row">
                 <div class="col-sm-6">Asset Safety Cost:</div>
-                <div class='col-sm-6'><span style="color: red">{{ character.asset_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: red">{{ character.asset_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.skill_cost %}
             <div class="row description-row">
                 <div class="col-sm-6">Skill Cost:</div>
-                <div class='col-sm-6'><span style="color: red">{{ character.skill_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: red">{{ character.skill_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.insurance_cost %}
             <div class="row description-row">
                 <div class="col-sm-6">Insurance Cost:</div>
-                <div class='col-sm-6'><span style="color: red">{{ character.insurance_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: red">{{ character.insurance_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.planetary_cost %}
             <div class="row description-row">
                 <div class="col-sm-6">Planetary Cost:</div>
-                <div class='col-sm-6'><span style="color: red">{{ character.planetary_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: red">{{ character.planetary_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
@@ -151,7 +151,7 @@
         <hr>
         <div class="row description-row">
             <div class="col-sm-6">Summary:</div>
-            <div class='col-sm-6'>
+            <div class='col-sm-4 text-end'>
             <span style="{% if character.summary.total_amount < 0 %}color: red{% else %}color: green{% endif %}">
                 {{ character.summary.total_amount|floatformat:0|intcomma }}
             </span> ISK</div>

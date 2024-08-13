@@ -11,35 +11,35 @@
         {% if character.bounty %}
             <div class="row description-row">
                 <div class="col-sm-6">Avg. {{ mode }} per Day:</div>
-                <div class='col-sm-4'><span style="color: green">{{ character.bounty.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: green">{{ character.bounty.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.ess %}
             <div class="row description-row">
                 <div class="col-sm-6">Avg. ESS per Day:</div>
-                <div class='col-sm-4'><span style="color: green">{{ character.ess.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: green">{{ character.ess.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.stolen.average_day %}
             <div class="row description-row">
                 <div class="col-sm-6">Avg. Stolen per Day:</div>
-                <div class='col-sm-4'><span style="color: yellow">{{ character.stolen.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.stolen.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.mission %}
             <div class="row description-row">
                 <div class="col-sm-6">Avg. Mission Rewards per Day:</div>
-                <div class='col-sm-4'><span style="color: green">{{ character.mission.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: green">{{ character.mission.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.mining %}
             <div class="row description-row">
                 <div class="col-sm-6">Avg. Mining per Day:</div>
-                <div class='col-sm-4'><span style="color: green">{{ character.mining.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: green">{{ character.mining.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
@@ -49,28 +49,28 @@
             <hr>
             <div class="row description-row">
                 <div class="col-sm-6">Avg. Trading per Day:</div>
-                <div class='col-sm-4'><span style="color: green">{{ character.transaction.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: green">{{ character.transaction.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.contract %}
                 <div class="row description-row">
                     <div class="col-sm-6">Avg. Contracts per Day:</div>
-                    <div class='col-sm-4'><span style="color: green">{{ character.contract.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                    <div class='col-sm-4 text-end'><span style="color: green">{{ character.contract.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 
         {% if character.donation %}
             <div class="row description-row">
                 <div class="col-sm-6">Avg. Donations per Day:</div>
-                <div class='col-sm-4'><span style="color: green">{{ character.donation.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: green">{{ character.donation.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.insurance %}
             <div class="row description-row">
                 <div class="col-sm-6">Avg. Insurance per Day:</div>
-                <div class='col-sm-4'><span style="color: green">{{ character.insurance.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: green">{{ character.insurance.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
@@ -82,56 +82,56 @@
         {% if character.contract_cost %}
                 <div class="row description-row">
                     <div class="col-sm-6">Avg. Contract Cost per Day:</div>
-                    <div class='col-sm-4'><span style="color: red">{{ character.contract_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                    <div class='col-sm-4 text-end'><span style="color: red">{{ character.contract_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 
         {% if character.production_cost %}
                 <div class="row description-row">
                     <div class="col-sm-6">Avg. Production Cost per Day:</div>
-                    <div class='col-sm-4'><span style="color: red">{{ character.production_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                    <div class='col-sm-4 text-end'><span style="color: red">{{ character.production_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 
         {% if character.market_cost %}
             <div class="row description-row">
                 <div class="col-sm-6">Avg. Trading Cost per Day:</div>
-                <div class='col-sm-4'><span style="color: red">{{ character.market_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span style="color: red">{{ character.market_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.traveling_cost %}
                 <div class="row description-row">
                     <div class="col-sm-6">Avg. Traveling Cost per Day:</div>
-                    <div class='col-sm-4'><span style="color: red">{{ character.traveling_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                    <div class='col-sm-4 text-end'><span style="color: red">{{ character.traveling_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 
         {% if character.asset_cost %}
                 <div class="row description-row">
                     <div class="col-sm-6">Avg. Asset Safety Cost per Day:</div>
-                    <div class='col-sm-4'><span style="color: red">{{ character.asset_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                    <div class='col-sm-4 text-end'><span style="color: red">{{ character.asset_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 
         {% if character.skill_cost %}
                 <div class="row description-row">
                     <div class="col-sm-6">Avg. Skillbook Cost per Day:</div>
-                    <div class='col-sm-4'><span style="color: red">{{ character.skill_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                    <div class='col-sm-4 text-end'><span style="color: red">{{ character.skill_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 
         {% if character.insurance_cost %}
                 <div class="row description-row">
                     <div class="col-sm-6">Avg. Insurance Cost per Day:</div>
-                    <div class='col-sm-4'><span style="color: red">{{ character.insurance_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                    <div class='col-sm-4 text-end'><span style="color: red">{{ character.insurance_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 
         {% if character.planetary_cost %}
                 <div class="row description-row">
                     <div class="col-sm-6">Avg. Planetary Cost per Day:</div>
-                    <div class='col-sm-4'><span style="color: red">{{ character.planetary_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                    <div class='col-sm-4 text-end'><span style="color: red">{{ character.planetary_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 <!--############################## SUMMARY DAILY #######################-->
@@ -139,7 +139,7 @@
             <hr>
             <div class="row description-row">
                 <div class="col-sm-6">Summary Day:</div>
-                <div class='col-sm-6'>
+                <div class='col-sm-4 text-end'>
                     <span style="{% if character.summary.total_amount_day < 0 %}color: red{% else %}color: green{% endif %}">
 
 

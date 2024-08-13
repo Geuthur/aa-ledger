@@ -17,6 +17,7 @@
 - Update Ledger FAQ
 - Optimized Character Information Template
 - Optimized Corporation Information Template
+- Information Template: Formatting
 - Information Template: Moved Current Day to Top in Daily Tab
 - Calculate ESS Stolen function
 
