@@ -45,7 +45,7 @@ class ManageApiTemplateCorpEndpointsTest(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Ratting", status_code=200)
+        self.assertContains(response, "TAX", status_code=200)
         self.assertContains(response, "ESS", status_code=200)
         self.assertContains(response, "Summary", status_code=200)
 
@@ -55,7 +55,7 @@ class ManageApiTemplateCorpEndpointsTest(TestCase):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Ratting", status_code=200)
+        self.assertContains(response, "TAX", status_code=200)
         self.assertContains(response, "ESS", status_code=200)
         self.assertContains(response, "Summary", status_code=200)
         self.assertContains(response, "2024", status_code=200)
@@ -67,7 +67,7 @@ class ManageApiTemplateCorpEndpointsTest(TestCase):
         response = self.client.get(url)
         # then
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Ratting", status_code=200)
+        self.assertContains(response, "TAX", status_code=200)
         self.assertContains(response, "ESS", status_code=200)
         self.assertContains(response, "Gneuten", status_code=200)
         self.assertNotContains(response, "2024", status_code=200)
@@ -82,7 +82,7 @@ class ManageApiTemplateCorpEndpointsTest(TestCase):
         response = self.client.get(url)
         # then
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Ratting", status_code=200)
+        self.assertContains(response, "TAX", status_code=200)
         self.assertContains(response, "ESS", status_code=200)
         self.assertContains(response, "Summary - March", status_code=200)
 
@@ -97,7 +97,7 @@ class ManageApiTemplateCorpEndpointsTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "200,000", count=2, status_code=200)
-        self.assertContains(response, "Ratting", status_code=200)
+        self.assertContains(response, "TAX", status_code=200)
         self.assertContains(response, "ESS", status_code=200)
         self.assertContains(response, "Gneuten", status_code=200)
         self.assertContains(response, "2024", status_code=200)

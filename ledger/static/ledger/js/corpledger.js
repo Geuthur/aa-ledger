@@ -118,7 +118,15 @@ var MonthAjax = {
                 {
                     data: 'main_name',
                     render: function (data, type, row) {
-                        var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" title="' + data + '" height="30">';
+                        // Initialize alt_names
+                        var alt_portrait = 'Included Characters: ';
+
+                        // Loop through alt_names and add each image
+                        row.alt_names.forEach(function(character_id) {
+                            alt_portrait += '<img src="https://images.evetech.net/characters/' + character_id + '/portrait?size=32" class="rounded-circle" height="30">';
+                        });
+
+                        var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" height="30" data-bs-trigger="hover" data-bs-toggle="popover" data-bs-content=\''+ alt_portrait +'\' >';
                         return imageHTML + ' ' + data;
                     }
                 },
@@ -144,7 +152,6 @@ var MonthAjax = {
                         return '<button class="btn btn-sm btn-info btn-square" ' +
                             'data-bs-toggle="modal" ' +
                             'data-bs-target="#modalViewCharacterContainer" ' +
-                            'aria-label="' + row.main_name + '" ' +
                             'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/" ' +
                             'title="' + row.main_name + '">' +
                             '<span class="fas fa-info"></span>' +
@@ -168,7 +175,6 @@ var MonthAjax = {
                 $('#foot-Month .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
                 $('#foot-Month .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
                 $('#foot-Month .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
-                    'aria-label="{{ data.main_name }}"' +
                     'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/?corp=true" ' +
                     'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
                     .addClass('text-end');
@@ -178,6 +184,14 @@ var MonthAjax = {
                     loadBillboard(BillboardMonth, 'Month');
                 }
                 $('#foot-Month').show();
+                // Initialize popover
+                var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+                var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                    // eslint-disable-next-line no-undef
+                    return new bootstrap.Popover(popoverTriggerEl, {
+                        html: true
+                    });
+                });
             }
         });
     },
@@ -214,7 +228,15 @@ var YearAjax = {
                 {
                     data: 'main_name',
                     render: function (data, type, row) {
-                        var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" title="' + data + '" height="30">';
+                        // Initialize alt_names
+                        var alt_portrait = 'Included Characters: ';
+
+                        // Loop through alt_names and add each image
+                        row.alt_names.forEach(function(character_id) {
+                            alt_portrait += '<img src="https://images.evetech.net/characters/' + character_id + '/portrait?size=32" class="rounded-circle" height="30">';
+                        });
+
+                        var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" height="30" data-bs-trigger="hover" data-bs-toggle="popover" data-bs-content=\''+ alt_portrait +'\' >';
                         return imageHTML + ' ' + data;
                     }
                 },
@@ -240,7 +262,6 @@ var YearAjax = {
                         return '<button class="btn btn-sm btn-info btn-square" ' +
                             'data-bs-toggle="modal" ' +
                             'data-bs-target="#modalViewCharacterContainer" ' +
-                            'aria-label="' + row.main_name + '" ' +
                             'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/0/" ' +
                             'title="' + row.main_name + '">' +
                             '<span class="fas fa-info"></span>' +
@@ -274,6 +295,14 @@ var YearAjax = {
                     loadBillboard(BillboardYear, 'Year');
                 }
                 $('#foot-Year').show();
+                // Initialize popover
+                var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+                var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                    // eslint-disable-next-line no-undef
+                    return new bootstrap.Popover(popoverTriggerEl, {
+                        html: true
+                    });
+                });
             }
         });
     },

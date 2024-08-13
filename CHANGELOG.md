@@ -1,5 +1,26 @@
 # Changelog
 
+## \[0.5.7\] - 2024-08-13
+
+### Added
+
+- Corporation Ledger: Portrait mouseover now displays included alts
+- Character/Corporation Ledger: Stolen ESS (Amount that stolen from you)
+- Information Template: Yellow Coloring for Info amounts only
+- Day HTML template for Current Day Statistics
+
+### Changed
+
+- PyPi Description
+- Corporation Ledger: Changed Naming 'Ratting' to 'TAX'
+- Update README
+- Update Ledger FAQ
+- Optimized Character Information Template
+- Optimized Corporation Information Template
+- Information Template: Formatting
+- Information Template: Moved Current Day to Top in Daily Tab
+- Calculate ESS Stolen function
+
 ## \[0.5.6\] - 2024-08-07
 
 ### Added

@@ -34,6 +34,7 @@ Character/Corporation Ledger see Statistics for Ratting, Mining, ESS Payout
 ## Upcoming<a name="upcoming"></a>
 
 - Performance Updates
+- Planetary Interaction Statistics and Overview
 
 ## Installation<a name="installation"></a>
 
