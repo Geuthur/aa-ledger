@@ -1,5 +1,12 @@
 # Changelog
 
+## \[0.5.7.1\] - 2024-08-13
+
+### Fixed
+
+- Character Information: Insurance Current Day Calculation
+- Character Ledger: ESS Stolen
+
 ## \[0.5.7\] - 2024-08-13
 
 ### Added

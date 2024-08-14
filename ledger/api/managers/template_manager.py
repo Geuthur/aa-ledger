@@ -427,11 +427,15 @@ class TemplateProcess:
         for sub_key, sub_value in ess_aggregated.items():
             amounts["ess"][sub_key] += sub_value
 
-        amounts = calculate_ess_stolen(amounts)
-
         # Convert ESS Payout for Character Ledger
         amounts["ess"]["total_amount"] = convert_ess_payout(
             amounts["ess"]["total_amount"]
         )
+
+        amounts["ess"]["total_amount_day"] = convert_ess_payout(
+            amounts["ess"]["total_amount_day"]
+        )
+        # Calculate the stolen ESS
+        amounts = calculate_ess_stolen(amounts)
 
         return amounts

@@ -75,7 +75,7 @@
     {% if character.insurance.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Insurance:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.donation.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.insurance.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 {% endif %}
