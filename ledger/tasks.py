@@ -87,7 +87,7 @@ def update_character(
         "Processing Audit Updates for %s", format(character.character.character_name)
     )
 
-    skip_date = timezone.now() - datetime.timedelta(hours=2)
+    skip_date = timezone.now() - datetime.timedelta(hours=1)
     que = []
     mindt = timezone.now() - datetime.timedelta(days=90)
 
