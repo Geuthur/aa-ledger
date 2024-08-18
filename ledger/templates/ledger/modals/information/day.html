@@ -14,7 +14,7 @@
 
         <div class="row description-row">
             <div class="col-sm-6">Current Day Avg Tick - {{ mode }}:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.bounty.total_amount_day_tick|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.bounty.current_day_tick|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 

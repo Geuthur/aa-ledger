@@ -13,6 +13,10 @@
                 <div class="col-sm-6">Avg. {{ mode }} per Day:</div>
                 <div class='col-sm-4 text-end'><span style="color: green">{{ character.bounty.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
+            <div class="row description-row">
+                <div class="col-sm-6">Avg. Day Avg Tick - {{ mode }}:</div>
+                <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.bounty.average_day_tick|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
         {% endif %}
 
         {% if character.ess %}

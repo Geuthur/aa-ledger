@@ -331,9 +331,6 @@ class TemplateProcess:
                         "total_amount_day": (
                             round(amounts[key]["total_amount_day"], 2)
                         ),
-                        "total_amount_day_tick": (
-                            round(amounts[key]["total_amount_day"] / 3, 2)
-                        ),
                         "total_amount_hour": (
                             round(amounts[key]["total_amount_hour"], 2)
                             if key != "mining"
@@ -346,8 +343,15 @@ class TemplateProcess:
                         "average_hour": round(
                             (amounts[key]["total_amount"] / current_day) / 24, 2
                         ),
+                        "average_tick": (round((amounts[key]["total_amount"]) / 20, 2)),
+                        "current_day_tick": (
+                            round(amounts[key]["total_amount_day"] / 20, 2)
+                        ),
+                        "average_day_tick": (
+                            round(amounts[key]["total_amount"] / current_day / 20, 2)
+                        ),
                         "average_hour_tick": round(
-                            (amounts[key]["total_amount"] / current_day) / 24 / 3, 2
+                            (amounts[key]["total_amount"] / current_day) / 24 / 20, 2
                         ),
                     }.items()
                     if value != 0
