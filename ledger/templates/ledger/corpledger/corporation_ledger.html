@@ -7,7 +7,17 @@
 {% block page_title %}Corporation Ledger{% endblock %}
 {% block page_topic %}<h1 class="page-header text-center">{% trans "Corporation Ledger" %}</h1>{% endblock page_topic %}
 
-{% block vow_menu %}{% include 'ledger/corpledger/menu.html' %}{% endblock %}
+{% block header_nav_collapse_left %}
+
+{% include 'ledger/partials/menu/corp/navigation.html' with memberaudit=memberaudit %}
+
+{% endblock header_nav_collapse_left %}
+
+{% block header_nav_collapse_right %}
+
+{% include 'ledger/partials/menu/corp/administration.html' with memberaudit=memberaudit %}
+
+{% endblock header_nav_collapse_right %}
 
 {% block vow_block %}
 <div class="card-body container-fluid">
