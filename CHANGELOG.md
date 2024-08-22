@@ -1,5 +1,22 @@
 # Changelog
 
+## \[0.5.8\] - 2024-08-22
+
+### Fixed
+
+- Character/Corporation Ledger: Tick Amount not showing correct
+
+### Added
+
+- Character/Corporation Ledger: Current Day Tick
+- Character/Corporation Ledger: Current Day Summary
+
+### Changed
+
+- Menu System
+- Character Update Time from 2 hours to 1
+- Character/Corporation Ledger: Daily, Hourly Summary renamed to Avg. Summary
+
 ## \[0.5.7.1\] - 2024-08-13
 
 ### Fixed

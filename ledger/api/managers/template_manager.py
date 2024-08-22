@@ -322,6 +322,10 @@ class TemplateProcess:
             amounts[key]["total_amount"] for key in amounts if key != "stolen"
         )
 
+        total_current_day_sum = sum(
+            amounts[key]["total_amount_day"] for key in amounts if key != "stolen"
+        )
+
         self.template_dict.update(
             {
                 key: {
@@ -363,6 +367,7 @@ class TemplateProcess:
             "total_amount": round(total_sum, 2),
             "total_amount_day": round(total_sum / current_day, 2),
             "total_amount_hour": round((total_sum / current_day) / 24, 2),
+            "total_current_day": round(total_current_day_sum, 2),
         }
 
     # Genereate Amounts for each Char
