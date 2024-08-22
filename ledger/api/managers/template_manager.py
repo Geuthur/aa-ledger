@@ -322,6 +322,10 @@ class TemplateProcess:
             amounts[key]["total_amount"] for key in amounts if key != "stolen"
         )
 
+        total_current_day_sum = sum(
+            amounts[key]["total_amount_day"] for key in amounts if key != "stolen"
+        )
+
         self.template_dict.update(
             {
                 key: {
@@ -330,9 +334,6 @@ class TemplateProcess:
                         "total_amount": round(amounts[key]["total_amount"], 2),
                         "total_amount_day": (
                             round(amounts[key]["total_amount_day"], 2)
-                        ),
-                        "total_amount_day_tick": (
-                            round(amounts[key]["total_amount_day"] / 3, 2)
                         ),
                         "total_amount_hour": (
                             round(amounts[key]["total_amount_hour"], 2)
@@ -346,8 +347,15 @@ class TemplateProcess:
                         "average_hour": round(
                             (amounts[key]["total_amount"] / current_day) / 24, 2
                         ),
+                        "average_tick": (round((amounts[key]["total_amount"]) / 20, 2)),
+                        "current_day_tick": (
+                            round(amounts[key]["total_amount_day"] / 20, 2)
+                        ),
+                        "average_day_tick": (
+                            round(amounts[key]["total_amount"] / current_day / 20, 2)
+                        ),
                         "average_hour_tick": round(
-                            (amounts[key]["total_amount"] / current_day) / 24 / 3, 2
+                            (amounts[key]["total_amount"] / current_day) / 24 / 20, 2
                         ),
                     }.items()
                     if value != 0
@@ -359,6 +367,7 @@ class TemplateProcess:
             "total_amount": round(total_sum, 2),
             "total_amount_day": round(total_sum / current_day, 2),
             "total_amount_hour": round((total_sum / current_day) / 24, 2),
+            "total_current_day": round(total_current_day_sum, 2),
         }
 
     # Genereate Amounts for each Char

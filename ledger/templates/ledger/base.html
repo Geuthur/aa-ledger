@@ -25,9 +25,15 @@
 
 {% block header_nav_collapse_left %}
 
-{% block vow_menu %}{% include 'ledger/menu.html' with memberaudit=memberaudit %}{% endblock %}
+{% include 'ledger/partials/menu/navigation.html' with memberaudit=memberaudit %}
 
 {% endblock header_nav_collapse_left %}
+
+{% block header_nav_collapse_right %}
+
+{% include 'ledger/partials/menu/administration.html' with memberaudit=memberaudit %}
+
+{% endblock header_nav_collapse_right %}
 
 {% block content %}
 

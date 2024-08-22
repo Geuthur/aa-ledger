@@ -14,7 +14,7 @@
 
         <div class="row description-row">
             <div class="col-sm-6">Current Day Avg Tick - {{ mode }}:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.bounty.total_amount_day_tick|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.bounty.current_day_tick|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
@@ -139,6 +139,23 @@
             <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.planetary_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
+{% endif %}
+
+
+<!--############################## SUMMARY Day #######################-->
+{% if character.summary.total_current_day %}
+    <hr>
+    <div class="row description-row">
+        <div class="col-sm-6">Current Day Summary:</div>
+        <div class='col-sm-4 text-end'>
+            <span style="{% if character.summary.total_current_day < 0 %}color: red{% else %}color: yellow{% endif %}">
+
+
+
+            {{ character.summary.total_current_day|floatformat:0|intcomma }}
+            </span> ISK
+        </div>
+    </div>
 {% endif %}
 
 {% if character.bounty.total_amount_day or character.mission.total_amount_day or character.mining.total_amount_day or character.contract_cost.total_amount_day or character.production_cost.total_amount_day or character.market_cost.total_amount_day or character.traveling_cost.total_amount_day or character.asset_cost.total_amount_day or character.skill_cost.total_amount_day or character.insurance_cost.total_amount_day or character.planetary_cost.total_amount_day or character.transaction.total_amount_day or character.contract.total_amount_day or character.donation.total_amount_day or character.insurance.total_amount_day %}

@@ -10,6 +10,12 @@
                 <div class="col-sm-6">{{ mode }}:</div>
                 <div class='col-sm-4 text-end'><span style="color: green">{{ character.bounty.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
+            <!--- Not implemented yet
+            <div class="row description-row">
+                <div class="col-sm-6">Avg. {{ mode }} - Tick:</div>
+                <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.bounty.average_tick|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+            --->
         {% endif %}
 
         {% if character.ess %}
