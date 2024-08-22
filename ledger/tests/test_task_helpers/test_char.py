@@ -2,6 +2,7 @@ from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import _strptime
+from bravado.exception import HTTPNotModified
 
 from django.test import TestCase
 from esi.errors import TokenError
@@ -312,12 +313,18 @@ class TestCharacterHelpers(TestCase):
     @patch(MODULE_PATH + ".get_token")
     @patch(MODULE_PATH + ".logger")
     @patch(MODULE_PATH + ".etag_results")
+    @patch(MODULE_PATH + ".esi.client.Industry.get_characters_character_id_mining")
     def test_update_character_mining_not_modified(
-        self, mock_etag, mock_logger, mock_get_token
+        self,
+        mock_get_characters_character_id_mining,
+        mock_etag,
+        mock_logger,
+        mock_get_token,
     ):
         # given
         mock_get_token.return_value = self.mock_token
         mock_etag.side_effect = NotModifiedError
+        mock_get_characters_character_id_mining.side_effect = HTTPNotModified
         # when
         update_character_mining(1001)
         # then
