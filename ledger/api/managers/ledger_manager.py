@@ -66,15 +66,41 @@ class JournalProcess:
             total_amount += entry
         return total_amount
 
+    # pylint: disable=too-many-locals
     def process_corporation_chars(self, corporation_journal):
         # Create IDs for the second_party_ids
         second_party_ids = corporation_journal.values_list("second_party_id", flat=True)
 
+        # Get the Filter Settings for all characters
+        all_chars_mains = [
+            alt.character_id for data in self.chars.values() for alt in data["alts"]
+        ]
+        filters = LedgerFilter(all_chars_mains)
+
+        # Aggregate the data in a single query for all characters
+        aggregated_data = (
+            corporation_journal.filter(Q(filters.filter_bounty) | Q(filters.filter_ess))
+            .values("second_party_id")
+            .annotate(
+                total_bounty=Coalesce(
+                    Sum("amount", filter=filters.filter_bounty),
+                    0,
+                    output_field=DecimalField(),
+                ),
+                total_ess=Coalesce(
+                    Sum("amount", filter=filters.filter_ess),
+                    0,
+                    output_field=DecimalField(),
+                ),
+            )
+        )
+
+        # Convert aggregated data to a dictionary for quick lookup
+        aggregated_dict = {item["second_party_id"]: item for item in aggregated_data}
+
         for _, data in self.chars.items():
             main = data["main"]
             alts = data["alts"]
-
-            chars_mains = [alt.character_id for alt in alts]
 
             # Assuming journal is a list of objects with a second_party_id attribute
             alts_names = [
@@ -84,20 +110,14 @@ class JournalProcess:
             for alt in alts:
                 self.chars_list.append(alt.character_id)
 
-            # Get the Filter Settings
-            filters = LedgerFilter(chars_mains)
-            corporation_journal.filter(filters.filter_bounty).aggregate(Sum("amount"))
-
-            total_bounty = self.aggregate_journal_flat(
-                corporation_journal.filter(filters.filter_bounty).values_list(
-                    "amount", flat=True
-                )
+            # Calculate total amounts for the current main and its alts
+            total_bounty = sum(
+                aggregated_dict.get(alt.character_id, {}).get("total_bounty", 0)
+                for alt in alts
             )
-
-            total_ess = self.aggregate_journal_flat(
-                corporation_journal.filter(filters.filter_ess).values_list(
-                    "amount", flat=True
-                )
+            total_ess = sum(
+                aggregated_dict.get(alt.character_id, {}).get("total_ess", 0)
+                for alt in alts
             )
 
             summary_amount = total_bounty + total_ess
@@ -308,6 +328,43 @@ class JournalProcess:
                     list(self.corporation_dict.values()), key=lambda x: x["main_name"]
                 ),
                 "total": self.summary_total.to_dict(),
+                "billboard": billboard_dict,
+            }
+        )
+
+        return output
+
+    def corporation_billboard(self, chars_list: list):
+        # Get the Filter Settings
+        filters = LedgerFilter(chars_list)
+
+        filter_date = Q(date__year=self.year)
+        if not self.month == 0:
+            filter_date &= Q(date__month=self.month)
+
+        corporation_journal = CorporationWalletJournalEntry.objects.filter(
+            filters.filter_second_party, filter_date
+        ).select_related(
+            "first_party",
+            "second_party",
+        )
+
+        # Create Data for Billboard
+        date_data = LedgerDate(self.year, self.month)
+        data = BillboardData(
+            corporation_dict=self.corporation_dict,
+            total_amount=self.summary_total.total_amount,
+        )
+        models = LedgerModels(corporation_journal=corporation_journal)
+
+        # Create the Billboard for the Corporation
+        ledger = BillboardLedger(date_data, models, data, corp=True)
+
+        billboard_dict = ledger.billboard_corp_ledger(self.chars_list)
+
+        output = []
+        output.append(
+            {
                 "billboard": billboard_dict,
             }
         )
