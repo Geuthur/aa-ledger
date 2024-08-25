@@ -6,8 +6,8 @@ from django.db.models import Q
 
 from ledger import app_settings
 from ledger.api import schema
-from ledger.api.helpers import get_alts_queryset, get_character, get_models_and_string
-from ledger.hooks import get_extension_logger
+from ledger.api.helpers import get_alts_queryset, get_character
+from ledger.hooks import get_extension_logger, get_models_and_string
 
 _, CharacterWalletJournalEntry = get_models_and_string()
 

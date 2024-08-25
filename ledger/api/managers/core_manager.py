@@ -73,6 +73,14 @@ class LedgerTotal:
     def to_dict(self):
         return asdict(self)
 
+    def get_data(self, totals: dict):
+        self.total_amount += totals.get("total_amount", 0)
+        self.total_amount_ess += totals.get("total_amount_ess", 0)
+        self.total_amount_all += totals.get("total_amount_all", 0)
+        self.total_amount_mining += totals.get("total_amount_mining", 0)
+        self.total_amount_others += totals.get("total_amount_others", 0)
+        self.total_amount_costs += totals.get("total_amount_costs", 0)
+
 
 @dataclass
 class LedgerFilterCore:

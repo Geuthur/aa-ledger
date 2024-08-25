@@ -1,13 +1,11 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from ninja import NinjaAPI
 
 from django.test import TestCase
-from esi.models import Token
 
-from allianceauth.corputils.models import CorpMember, CorpStats
-from allianceauth.eveonline.models import EveCorporationInfo
-from app_utils.testing import create_user_from_evecharacter
+from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+from app_utils.testing import add_character_to_user, create_user_from_evecharacter
 
 from ledger.api.corporation.ledger import LedgerApiEndpoints
 from ledger.tests.test_api._ledgercorpdata import noData
@@ -55,7 +53,7 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
 
     def test_get_corporation_ledger_api_year_single(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/corporation/2002/ledger/year/2024/month/0/"
+        url = "/ledger/api/corporation/2001/ledger/year/2024/month/0/"
 
         response = self.client.get(url)
 
@@ -103,6 +101,29 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
 
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.json(), "Permission Denied")
+
+    @patch("ledger.models.CorporationWalletJournalEntry.objects.filter")
+    def test_get_corporation_ledger_api_single_with_zero_summary_amount(
+        self, mock_filter
+    ):
+        self.client.force_login(self.user)
+        url = "/ledger/api/corporation/2002/ledger/year/2024/month/3/"
+
+        # Mock the queryset to return a journal entry with zero summary amount
+        mock_entry = MagicMock()
+        mock_entry.get.return_value = 0
+        mock_entry.get.side_effect = lambda key, default: (
+            0 if key in ["total_bounty", "total_ess"] else default
+        )
+        mock_filter.return_value.select_related.return_value.annotate_ledger.return_value = [
+            mock_entry
+        ]
+
+        response = self.client.get(url)
+
+        expected_data = noData
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_data)
 
     def test_get_corporation_admin(self):
         self.client.force_login(self.user2)

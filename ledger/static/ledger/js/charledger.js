@@ -1,4 +1,3 @@
-var selectedMonth, selectedYear, monthText, yearText;
 var MonthTable, YearTable;
 var bb, d3;
 var BillboardMonth, BillboardYear, BillboardHourly;
@@ -10,9 +9,13 @@ var characterPk = charactersettings.character_pk;
 var currentDate = new Date();
 
 // Aktuelles Jahr und Monat abrufen
-selectedYear = currentDate.getFullYear();
-selectedMonth = currentDate.getMonth() + 1;
-monthText = getMonthName(selectedMonth);
+var selectedYear = currentDate.getFullYear();
+var selectedMonth = currentDate.getMonth() + 1;
+var monthText = getMonthName(selectedMonth);
+
+// Billboard URLs
+var BillboardUrl = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
+var BillboardUrlYear = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/0/';
 
 function getMonthName(monthNumber) {
     var months = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -46,8 +49,10 @@ $('#monthDropdown li').click(function() {
 
     // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
     var newurl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
+    var BillboardUrl = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
 
     // DataTable neu laden mit den Daten des ausgewählten Monats
+    setBillboardData(BillboardUrl, 'Month');
     reloadAjax(newurl, MonthAjax);
     $('#currentMonthLink').text('Month - ' + monthText);
 });
@@ -69,8 +74,12 @@ $('#yearDropdown li').click(function() {
     // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
     var newurl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
     var newurl_year = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/0/';
+    var BillboardUrl = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
+    var BillboardUrlYear = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/0/';
 
     // DataTable neu laden mit den Daten des ausgewählten Monats
+    setBillboardData(BillboardUrl, 'Month');
+    setBillboardData(BillboardUrlYear, 'Year');
     reloadAjax(newurl, MonthAjax);
     reloadAjax(newurl_year, YearAjax);
     $('#currentMonthLink').text('Month - ' + monthText);
@@ -112,6 +121,23 @@ function reloadAjax(newUrl, ajax) {
     ajax.url = newUrl; // Update URL
     $.ajax(ajax);
 }
+function setBillboardData(url, id) {
+    $.ajax({
+        url: url,
+        type: 'GET',
+        success: function(data) {
+            if (id === 'Month') {
+                BillboardMonth = data[0].billboard.standard;
+                BillboardHourly = data[0].billboard.hourly;
+                ActiveBillboardMonth = BillboardMonth;
+                loadBillboard(data[0].billboard.standard, 'Month');
+            } else {
+                BillboardYear = data[0].billboard.standard;
+                loadBillboard(data[0].billboard.standard, 'Year');
+            }
+        }
+    });
+}
 
 var MonthAjax = {
     url: '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/',
@@ -129,10 +155,6 @@ var MonthAjax = {
         var total_amount_mining = data[0].total.total_amount_mining;
         var total_amount_combined = data[0].total.total_amount_all;
         var total_amount_costs = data[0].total.total_amount_costs;
-        BillboardMonth = data[0].billboard.standard;
-        BillboardHourly = data[0].billboard.hourly;
-        ActiveBillboardMonth = BillboardMonth;
-
 
         if (characterPk > 0) {
             $('#lookup-Month').removeClass('d-none');
@@ -157,10 +179,6 @@ var MonthAjax = {
             var infobutton = document.getElementById('button-Month');
             if (!data[0].ratting[0]?.main_name) {
                 infobutton.classList.add('disabled');
-            }
-
-            if ($('#currentMonthLink').hasClass('active')) {
-                loadBillboard(BillboardMonth, 'Month');
             }
         } else {
             MonthTable = $('#ratting-Month').DataTable({
@@ -258,9 +276,6 @@ var MonthAjax = {
                         .addClass('text-end');
                 },
                 initComplete: function(settings, json) {
-                    if ($('#currentMonthLink').hasClass('active')) {
-                        loadBillboard(BillboardMonth, 'Month');
-                    }
                     $('#foot-Month').show();
                 }
             });
@@ -295,7 +310,6 @@ var YearAjax = {
         var total_amount_others = data[0].total.total_amount_others;
         var total_amount_combined = data[0].total.total_amount_all;
         var total_amount_costs = data[0].total.total_amount_costs;
-        BillboardYear = data[0].billboard.standard;
 
         if (characterPk > 0) {
             $('#lookup-Year').removeClass('d-none');
@@ -322,9 +336,6 @@ var YearAjax = {
                 infobutton.classList.add('disabled');
             }
 
-            if ($('#currentYearLink').hasClass('active')) {
-                loadBillboard(BillboardYear, 'Year');
-            }
             $('#foot-Year').show();
         } else {
             YearTable = $('#ratting-Year').DataTable({
@@ -423,9 +434,6 @@ var YearAjax = {
                         .addClass('text-end');
                 },
                 initComplete: function(settings, json) {
-                    if ($('#currentYearLink').hasClass('active')) {
-                        loadBillboard(BillboardYear, 'Year');
-                    }
                     $('#foot-Year').show();
                 }
             });
@@ -634,6 +642,9 @@ function updateBillboard(data, id, selectedMode) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    setBillboardData(BillboardUrl, 'Month');
+    setBillboardData(BillboardUrlYear, 'Year');
+
     // Initialize DataTable
     $.ajax(MonthAjax);
     $.ajax(YearAjax);
@@ -646,12 +657,12 @@ $('#ledger-ratting').on('click', 'a[data-bs-toggle=\'tab\']', function () {
         if ($('#currentYearLink').hasClass('active')) {
             loadBillboard(BillboardYear, 'Year');
         }
-    }, 500);
+    }, 100);
     setTimeout(function() {
         // Überprüfen, ob das spezifische Tab aktiv ist
         if ($('#currentMonthLink').hasClass('active')) {
             loadBillboard(BillboardMonth, 'Month');
             updateBillboard(ActiveBillboardMonth, 'Month', selectedMode);
         }
-    }, 500);
+    }, 100);
 });

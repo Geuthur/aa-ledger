@@ -4,7 +4,7 @@ from ninja import NinjaAPI
 
 from ledger.api import schema
 from ledger.api.helpers import get_alts_queryset, get_character
-from ledger.api.managers.ledger_manager import JournalProcess
+from ledger.api.managers.character_manager import CharacterProcess
 from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import CharacterAudit
 
@@ -18,7 +18,7 @@ class LedgerApiEndpoints:
     def __init__(self, api: NinjaAPI):
         @api.get(
             "account/{character_id}/ledger/year/{year}/month/{month}/",
-            response={200: List[schema.CharacterLedger], 403: str},
+            response={200: List[schema.Ledger], 403: str},
             tags=self.tags,
         )
         def get_character_ledger(request, character_id: int, year: int, month: int):
@@ -33,8 +33,30 @@ class LedgerApiEndpoints:
             else:
                 characters = [main]
 
-            ledger = JournalProcess(characters, year, month)
-            output = ledger.character_ledger()
+            ledger = CharacterProcess(characters, year, month)
+            output = ledger.generate_ledger()
+
+            return output
+
+        @api.get(
+            "account/{character_id}/billboard/year/{year}/month/{month}/",
+            response={200: List[schema.Billboard], 403: str},
+            tags=self.tags,
+        )
+        def get_billboard_ledger(request, character_id: int, year: int, month: int):
+            perm, main = get_character(request, character_id)
+
+            if not perm:
+                return 403, "Permission Denied"
+
+            # Create the Ledger
+            if character_id == 0:
+                characters = get_alts_queryset(main)
+            else:
+                characters = [main]
+
+            ledger = CharacterProcess(characters, year, month)
+            output = ledger.generate_billboard()
 
             return output
 

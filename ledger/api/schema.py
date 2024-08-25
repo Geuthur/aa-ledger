@@ -74,7 +74,10 @@ class CorporationWalletEvent(Schema):
     reason: Optional[str] = None
 
 
-class CorporationLedger(Schema):
+class Ledger(Schema):
     ratting: Optional[List] = None
     total: Optional[Dict] = None
+
+
+class Billboard(Schema):
     billboard: Optional[BillboardDict] = None

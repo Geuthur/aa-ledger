@@ -13,6 +13,7 @@ from allianceauth.eveonline.models import EveCharacter
 
 from ledger import app_settings
 from ledger.hooks import get_extension_logger
+from ledger.managers.characterjournal_manager import CharWalletManager
 from ledger.managers.charaudit_manager import (
     AuditCharacterManager,
     CharacterMiningLedgerEntryManager,
@@ -148,8 +149,15 @@ class WalletJournalEntry(models.Model):
 class CharacterWalletJournalEntry(WalletJournalEntry):
     character = models.ForeignKey(CharacterAudit, on_delete=models.CASCADE)
 
+    objects = CharWalletManager()
+
     def __str__(self):
         return f"Character Wallet Journal: {self.first_party.name} '{self.ref_type}' {self.second_party.name}: {self.amount} isk"
+
+    @classmethod
+    def get_visible(cls, user):
+        chars_vis = CharacterAudit.objects.visible_to(user)
+        return cls.objects.filter(character__in=chars_vis)
 
 
 # Mining Models

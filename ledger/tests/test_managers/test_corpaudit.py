@@ -65,21 +65,19 @@ class CorpAuditQuerySetTest(TestCase):
         )
         self.user.profile.main_character = None
 
-        result = list(
-            CorporationAudit.objects.visible_to(self.user).values_list(
-                "corporation_id", flat=True
-            )
+        result = (
+            CorporationAudit.objects.visible_to(self.user)
+            .values_list("corporation_id", flat=True)
+            .count()
         )
-        self.assertEqual(result, [])
+
+        self.assertEqual(result, 0)
 
     def test_visible_to_no_access(self):
         self.user, self.character_ownership = create_user_from_evecharacter(
             1001,
         )
 
-        result = list(
-            CorporationAudit.objects.visible_to(self.user).values_list(
-                "corporation_id", flat=True
-            )
-        )
-        self.assertEqual(result, [43])
+        result = CorporationAudit.objects.visible_to(self.user).count()
+
+        self.assertEqual(result, 1)

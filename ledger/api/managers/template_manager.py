@@ -6,13 +6,9 @@ from decimal import Decimal
 from django.db.models import DecimalField, F, Q, Sum
 from django.db.models.functions import Coalesce
 
-from ledger.api.helpers import (
-    convert_ess_payout,
-    get_alts_queryset,
-    get_models_and_string,
-)
+from ledger.api.helpers import convert_ess_payout, get_alts_queryset
 from ledger.api.managers.core_manager import LedgerFilter
-from ledger.hooks import get_extension_logger
+from ledger.hooks import get_extension_logger, get_models_and_string
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 from ledger.view_helpers.core import calculate_ess_stolen, events_filter
 

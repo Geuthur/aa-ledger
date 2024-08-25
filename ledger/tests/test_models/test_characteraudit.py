@@ -1,11 +1,11 @@
 import datetime
 from unittest.mock import PropertyMock, patch
 
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.utils import timezone
-from eveuniverse.models import EveSolarSystem, EveType
 
 from allianceauth.eveonline.models import EveCharacter
+from app_utils.testing import create_user_from_evecharacter
 
 from ledger.app_settings import LEDGER_CHAR_MAX_INACTIVE_DAYS
 from ledger.models.characteraudit import (
@@ -100,6 +100,23 @@ class TestCharacterWalletJournal(TestCase):
             str(self.journal),
             "Character Wallet Journal: CONCORD 'bounty_prizes' Gneuten: 100000.00 isk",
         )
+
+    def test_get_visible(self):
+        self.factory = RequestFactory()
+        self.user, self.character_ownership = create_user_from_evecharacter(
+            1001,
+            permissions=[
+                "ledger.char_audit_admin_manager",
+            ],
+        )
+        request = self.factory.get("/")
+        request.user = self.user
+
+        query = CharacterWalletJournalEntry.get_visible(request.user)
+
+        excepted_character = CharacterWalletJournalEntry.objects.all()
+
+        self.assertEqual(list(query), list(excepted_character))
 
 
 class TestCharacterMiningLedger(TestCase):

@@ -1,5 +1,26 @@
 # Changelog
 
+## \[0.5.9\] - 2024-08-22
+
+### Added
+
+- Corporation Manager
+- Character Manager
+- Billboard API
+- Character Journal Manager
+- Corporation Journal Manager
+
+### Changed
+
+- Moved Billboard System from Ledger to own function
+- Reduced loading times significant from Database Querys, Calculation
+- log_timing decorator
+- Core Manager
+
+### Removed
+
+- ledger_manager
+
 ## \[0.5.8\] - 2024-08-22
 
 ### Fixed

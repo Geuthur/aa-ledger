@@ -5,8 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger import app_settings, models
-from ledger.errors import LedgerImportError
-from ledger.hooks import get_extension_logger
+from ledger.hooks import get_corp_models_and_string, get_extension_logger
 from ledger.tasks import create_missing_character
 
 logger = get_extension_logger(__name__)
@@ -15,50 +14,6 @@ logger = get_extension_logger(__name__)
 def convert_ess_payout(ess: int) -> float:
     """Convert ESS payout"""
     return (ess / app_settings.LEDGER_CORP_TAX) * (100 - app_settings.LEDGER_CORP_TAX)
-
-
-# pylint: disable=import-outside-toplevel
-def get_models_and_string():
-    if app_settings.LEDGER_MEMBERAUDIT_USE:
-        try:
-            from memberaudit.models import (
-                CharacterMiningLedgerEntry as CharacterMiningLedger,
-            )
-            from memberaudit.models import CharacterWalletJournalEntry
-
-            return (
-                CharacterMiningLedger,
-                CharacterWalletJournalEntry,
-            )
-        except ImportError as exc:
-            logger.error("Memberaudit is enabled but not installed")
-            raise LedgerImportError("Memberaudit is enabled but not installed") from exc
-
-    from ledger.models.characteraudit import (
-        CharacterMiningLedger,
-        CharacterWalletJournalEntry,
-    )
-
-    return (
-        CharacterMiningLedger,
-        CharacterWalletJournalEntry,
-    )
-
-
-# pylint: disable=import-outside-toplevel
-def get_corp_models_and_string():
-    if app_settings.LEDGER_CORPSTATS_TWO:
-        try:
-            from corpstats.models import CorpMember
-
-            return CorpMember
-        except ImportError as exc:
-            logger.error("Corpstats is enabled but not installed")
-            raise LedgerImportError("Corpstats is enabled but not installed") from exc
-
-    from allianceauth.corputils.models import CorpMember
-
-    return CorpMember
 
 
 def get_character(request, character_id):

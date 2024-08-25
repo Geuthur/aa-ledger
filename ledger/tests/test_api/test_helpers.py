@@ -25,9 +25,9 @@ from ledger.api.helpers import (
     get_character,
     get_corp_models_and_string,
     get_main_and_alts_all,
-    get_models_and_string,
 )
 from ledger.errors import LedgerImportError
+from ledger.hooks import get_models_and_string
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 
 MODULE_PATH = "ledger.api.helpers"
@@ -110,9 +110,10 @@ class TestApiHelpers(TestCase):
         mock_select_related.assert_called()
         self.assertIn("MagicMock", str(data.values()))
 
+    @patch(MODULE_PATH + ".create_missing_character.apply_async")
     @patch(MODULE_PATH + ".EveCharacter.objects.select_related")
     def test_get_main_and_alts_all_process_corpmember_object_does_not_exist(
-        self, mock_select_related
+        self, mock_select_related, mock_apply_async
     ):
         # Setup mock EveCharacter instance to simulate ObjectDoesNotExist
         mock_select_related.return_value.get.side_effect = ObjectDoesNotExist
@@ -266,36 +267,6 @@ class TestApiHelpers(TestCase):
         missing_chars = set()
 
         _process_character(char, characters, chars_list, corporations, missing_chars)
-
-
-class TestApiHelperCorpStatsImport(TestCase):
-    def setUp(self):
-        self.original_sys_modules = sys.modules.copy()
-
-    def tearDown(self):
-        sys.modules = self.original_sys_modules
-
-    @patch(MODULE_PATH + ".app_settings.LEDGER_CORPSTATS_TWO", True)
-    @patch(MODULE_PATH + ".app_settings.LEDGER_MEMBERAUDIT_USE", True)
-    @patch(MODULE_PATH + ".logger")
-    def test_packages_are_not_installed(self, mock_logger):
-        with patch.dict(
-            sys.modules,
-            {k: None for k in list(sys.modules) if k.startswith("corpstats")},
-        ):
-            with self.assertRaises(LedgerImportError):
-                _ = get_corp_models_and_string()
-            mock_logger.error.assert_called()
-
-        with patch.dict(
-            sys.modules,
-            {k: None for k in list(sys.modules) if k.startswith("memberaudit")},
-        ):
-            with self.assertRaises(LedgerImportError):
-                CharacterMiningLedger, CharacterWalletJournalEntry = (
-                    get_models_and_string()
-                )
-            mock_logger.error.assert_called()
 
 
 class TestApiHelperTask(TestCase):

@@ -36,20 +36,23 @@ def when_esi_is_available(func):
     return outer
 
 
-def log_timing(func):
+def log_timing(logs):
     """
     Ein Dekorator, der die Ausführungszeit einer Funktion misst und in die Logdatei schreibt.
     """
 
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        result = func(*args, **kwargs)
-        end_time = time.time()
-        logger.debug(
-            "%s wurde aufgerufen. Ausführungszeit: %s Sekunden",
-            func.__name__,
-            end_time - start_time,
-        )
-        return result
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
+            result = func(*args, **kwargs)
+            end_time = time.time()
+            logs.debug(
+                "%s wurde aufgerufen. Ausführungszeit: %s Sekunden",
+                func.__name__,
+                end_time - start_time,
+            )
+            return result
 
-    return wrapper
+        return wrapper
+
+    return decorator
