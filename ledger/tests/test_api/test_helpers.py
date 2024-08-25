@@ -284,5 +284,7 @@ class TestApiHelperTask(TestCase):
         # Then: Second call should raise AlreadyQueued, which is caught and handled
         _process_missing_characters(missing_chars)
 
+        _process_missing_characters(None)
+
         # Assert apply_async was called twice
         self.assertEqual(mock_apply_async.call_count, 2)

@@ -66,6 +66,8 @@ class CharManagerQuerySetTest(TestCase):
         self.assertIn("total_mission", qs_no_filter.query.annotations)
 
     def test_annotate_mining(self):
+        from memberaudit.models import CharacterMiningLedgerEntry
+
         character_ids = [1, 2, 3]
         filter_date = Q(date__gte="2023-01-01")
 
@@ -74,6 +76,27 @@ class CharManagerQuerySetTest(TestCase):
 
         qs_no_filter = self.manager.annotate_mining(character_ids)
         self.assertIsNotNone(qs_no_filter)
+
+        with patch(
+            MODULE_PATH + ".get_models_and_string"
+        ) as mock_get_models_and_string, patch(
+            MODULE_PATH + ".app_settings"
+        ) as mock_app_settings:
+
+            # Mocking the return values for get_models_and_string
+            mock_entry_memberaudit = CharacterMiningLedgerEntry
+            mock_entry_default = MagicMock()
+
+            mock_app_settings.LEDGER_MEMBERAUDIT_USE = True
+            mock_get_models_and_string.return_value = (
+                mock_entry_memberaudit,
+                mock_entry_default,
+            )
+            qs = self.manager.annotate_mining(character_ids, filter_date)
+            self.assertIsNotNone(qs)
+
+            qs_no_filter = self.manager.annotate_mining(character_ids)
+            self.assertIsNotNone(qs_no_filter)
 
     def test_annotate_contract_cost(self):
         character_ids = [1, 2, 3]

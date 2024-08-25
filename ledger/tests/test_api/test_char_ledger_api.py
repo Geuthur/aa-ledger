@@ -9,6 +9,7 @@ from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from app_utils.testing import add_character_to_user, create_user_from_evecharacter
 
 from ledger.api.character.ledger import LedgerApiEndpoints
+from ledger.api.managers.character_manager import CharacterProcess
 from ledger.models.characteraudit import CharacterMiningLedger
 from ledger.tests.test_api._ledgerchardata import (
     CharmonthlyMarch,
@@ -19,6 +20,8 @@ from ledger.tests.test_api._ledgerchardata import (
 )
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 from ledger.tests.testdata.load_ledger import load_ledger_all
+
+MODULE_PATH = "ledger.api.managers.character_manager"
 
 
 class ManageApiLedgerCharEndpointsTest(TestCase):
@@ -51,6 +54,15 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
         cls.api = NinjaAPI()
         cls.manage_api_endpoints = LedgerApiEndpoints(api=cls.api)
+
+    @patch(MODULE_PATH + ".get_alts_queryset")
+    def test_get_alts_with_exception(self, mock_get_alts_queryset):
+        process = CharacterProcess(chars=[], year=2024, month=3)
+        main = [1]
+        mock_get_alts_queryset.side_effect = Exception("Test exception")
+        result = process.get_alts(main)
+        self.assertIsNone(result)
+        mock_get_alts_queryset.assert_called_once_with(1)
 
     def test_get_character_ledger_api(self):
         self.client.force_login(self.user)

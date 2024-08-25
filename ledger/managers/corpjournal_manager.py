@@ -44,10 +44,7 @@ class CorpWalletQuerySet(models.QuerySet):
         )
 
         for character_id in corpmember:
-            try:
-                char_to_main[character_id] = character_id
-            except ObjectDoesNotExist:
-                continue
+            char_to_main[character_id] = character_id
         return char_to_main, main_to_alts
 
     def annotate_bounty(self, second_party_ids: list) -> models.QuerySet:
