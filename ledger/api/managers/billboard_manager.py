@@ -102,7 +102,7 @@ class BillboardLedger:
         self.data_dict = defaultdict(lambda: defaultdict(int))
         summary = BillboardSum()
         if self.models.corp_journal:
-            self._process_corp_journal(annotations, filters, period_format)
+            self._process_corp_journal(annotations, period_format)
 
         if not self.is_corp:
             if self.models.char_journal:
@@ -134,28 +134,12 @@ class BillboardLedger:
         summary.total_sum = self.calculate_total_sum(summary)
         return summary
 
-    def _process_corp_journal(self, annotations, filters, period_format):
+    def _process_corp_journal(self, annotations, period_format):
         corp_journal = (
             self.models.corp_journal.annotate(**annotations)
             .values("period")
-            .annotate(
-                total_bounty=Coalesce(
-                    Sum(
-                        "amount",
-                        filter=Q(filters.filter_bounty),
-                    ),
-                    0,
-                    output_field=DecimalField(),
-                ),
-                total_ess=Coalesce(
-                    Sum(
-                        "amount",
-                        filter=filters.filter_ess,
-                    ),
-                    0,
-                    output_field=DecimalField(),
-                ),
-            )
+            .annotate_bounty(self.chars)
+            .annotate_ess(self.chars)
             .order_by("period")
         )
 

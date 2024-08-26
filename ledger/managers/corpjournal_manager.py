@@ -6,6 +6,7 @@ from django.db.models.functions import Coalesce
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger.hooks import get_corp_models_and_string, get_extension_logger
+from ledger.view_helpers.core import events_filter
 
 logger = get_extension_logger(__name__)
 
@@ -19,7 +20,7 @@ class CorpWalletQuerySet(models.QuerySet):
         linked_chars = linked_chars.select_related(
             "character_ownership", "character_ownership__user__profile__main_character"
         ).prefetch_related("character_ownership__user__character_ownerships__character")
-        logger.debug(len(linked_chars))
+
         corpmember = get_corp_models_and_string()
         char_to_main = {}
         main_to_alts = {}
@@ -48,17 +49,34 @@ class CorpWalletQuerySet(models.QuerySet):
         return char_to_main, main_to_alts
 
     def annotate_bounty(self, second_party_ids: list) -> models.QuerySet:
-        return self.filter(
-            ref_type="bounty_prizes", second_party_id__in=second_party_ids
-        ).annotate(
-            total_bounty=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
+        return self.annotate(
+            total_bounty=Coalesce(
+                Sum(
+                    "amount",
+                    filter=(
+                        Q(ref_type="bounty_prizes")
+                        & Q(second_party_id__in=second_party_ids)
+                    ),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            )
         )
 
     def annotate_ess(self, second_party_ids: list) -> models.QuerySet:
-        return self.filter(
-            ref_type="ess_escrow_transfer", second_party_id__in=second_party_ids
-        ).annotate(
-            total_ess=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
+        qs = events_filter(self)
+        return qs.annotate(
+            total_ess=Coalesce(
+                Sum(
+                    "amount",
+                    filter=(
+                        Q(ref_type="ess_escrow_transfer")
+                        & Q(second_party_id__in=second_party_ids)
+                    ),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            )
         )
 
     def annotate_ledger(self, corporations: list) -> models.QuerySet:
@@ -112,8 +130,7 @@ class CorpWalletQuerySet(models.QuerySet):
 
 
 class CorpWalletManagerBase(models.Manager):
-    def visible_to(self, user):
-        return self.get_queryset().visible_to(user)
+    pass
 
 
 CorpWalletManager = CorpWalletManagerBase.from_queryset(CorpWalletQuerySet)

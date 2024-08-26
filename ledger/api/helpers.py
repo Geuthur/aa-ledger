@@ -23,11 +23,7 @@ def get_character(request, character_id):
         character_id = request.user.profile.main_character.character_id
 
     try:
-        main_char = EveCharacter.objects.select_related(
-            "character_ownership",
-            "character_ownership__user__profile",
-            "character_ownership__user__profile__main_character",
-        ).get(character_id=character_id)
+        main_char = EveCharacter.objects.get(character_id=character_id)
     except ObjectDoesNotExist:
         main_char = EveCharacter.objects.select_related(
             "character_ownership",
@@ -142,10 +138,7 @@ def get_main_and_alts_all(corporations: list):
         corpstats__corp__corporation_id__in=corporations
     ).exclude(character_id__in=chars_list):
         try:
-            char = EveCharacter.objects.select_related(
-                "character_ownership",
-                "character_ownership__user__profile__main_character",
-            ).get(character_id=member.character_id)
+            char = EveCharacter.objects.get(character_id=member.character_id)
             _process_character(
                 char, characters, chars_list, corporations, missing_chars
             )

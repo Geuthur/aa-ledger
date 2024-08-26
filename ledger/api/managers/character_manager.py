@@ -8,7 +8,6 @@ from ledger.api.managers.core_manager import (
     LedgerModels,
     LedgerTotal,
 )
-from ledger.decorators import log_timing
 from ledger.hooks import get_extension_logger, get_models_and_string
 from ledger.models.characteraudit import CharacterWalletJournalEntry
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
@@ -39,7 +38,6 @@ class CharacterProcess:
                 pass
         return alts
 
-    @log_timing(logger)
     def process_character_chars(self, journal):
         """Process the characters for the Journal"""
         character_dict = {}
@@ -51,7 +49,7 @@ class CharacterProcess:
             char_id = char.character_id
 
             # Call annotate_ledger and store the result
-            result = journal.annotate_ledger(
+            result = journal.generate_ledger(
                 [char_id], self.filter_date, self.chars_list
             )
 
@@ -104,7 +102,6 @@ class CharacterProcess:
 
         return character_dict, character_totals.to_dict()
 
-    @log_timing(logger)
     def generate_ledger(self):
         # Get the Character IDs
         if self.alts:
@@ -137,7 +134,6 @@ class CharacterProcess:
         return output
 
     def generate_billboard(self):
-        # TODO - Move to new System
         # pylint: disable=redefined-outer-name, invalid-name
         CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
         # Get the Character IDs
@@ -156,11 +152,11 @@ class CharacterProcess:
         # Filter for the Character Journal
         journal = CharacterWalletJournalEntry.objects.filter(
             filters.filter_partys, filter_date
-        ).select_related("first_party", "second_party")
+        )
 
         corporation_journal = CorporationWalletJournalEntry.objects.filter(
             filters.filter_second_party, filter_date
-        ).select_related("first_party", "second_party")
+        )
 
         mining_journal = CharacterMiningLedger.objects.filter(
             filters.filter_mining, filter_date
