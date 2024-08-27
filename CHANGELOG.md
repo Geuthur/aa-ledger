@@ -19,7 +19,8 @@
 
 ### Removed
 
-- ledger_manager
+- Ledger Manager
+- Member Audit Support (You can now add Task to Sync Characters with Member Audit)
 
 ## \[0.5.8\] - 2024-08-22
 

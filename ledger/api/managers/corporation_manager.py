@@ -2,12 +2,10 @@ from django.db.models import Q
 
 from ledger.api.managers.billboard_manager import BillboardData, BillboardLedger
 from ledger.api.managers.core_manager import LedgerDate, LedgerModels, LedgerTotal
-from ledger.hooks import get_extension_logger, get_models_and_string
+from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 
 logger = get_extension_logger(__name__)
-
-CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
 
 
 class CorporationProcess:

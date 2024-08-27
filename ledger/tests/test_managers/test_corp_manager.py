@@ -39,22 +39,6 @@ class CharManagerQuerySetTest(TestCase):
             ],
         )
 
-    @patch(MODULE_PATH + ".CorpWalletManagerBase.get_queryset")
-    def test_visible_to(self, mock_get_queryset):
-        # Setup the mock
-        mock_queryset = MagicMock()
-        mock_get_queryset.return_value = mock_queryset
-
-        # Create an instance of CorpWalletManagerBase
-        manager = CorpWalletManagerBase()
-
-        # Call the visible_to method
-        manager.visible_to(self.user)
-
-        # Assertions
-        mock_get_queryset.assert_called_once()
-        mock_queryset.visible_to.assert_called_once_with(self.user)
-
     def test_annotate_bounty(self):
         character_ids = [1, 2, 3]
 

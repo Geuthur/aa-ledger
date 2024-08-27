@@ -1,14 +1,11 @@
 from unittest.mock import Mock, patch
 
-from memberaudit.models import Character
-
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
 from esi.models import Token
 
-from allianceauth.eveonline.models import EveCharacter
 from app_utils.testing import create_user_from_evecharacter
 
 from ledger.models.characteraudit import CharacterAudit

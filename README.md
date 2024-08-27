@@ -73,6 +73,16 @@ CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
 }
 ```
 
+> \[!NOTE\]
+> If you have Member Audit installed add this to Fetch Member Audit Chars and Sync with Ledger
+
+```
+CELERYBEAT_SCHEDULE["ledger_character_member_audit_fetch"] = {
+    "task": "ledger.tasks.create_member_audit",
+    "schedule": crontab(minute=0, hour="*/1"),
+}
+```
+
 ### Step 4 - Migration to AA<a name="step4"></a>
 
 ```shell
@@ -100,8 +110,6 @@ The Following Settings can be setting up in the `local.py`
 - LEDGER_APP_NAME:          `"YOURNAME"`     - Set the name of the APP
 
 - LEDGER_CORP_TAX:          `15`             - Set Tax Value for ESS Payout Calculation
-
-- LEDGER_MEMBERAUDIT_USE:   `True / False`   - Set to use the Memberaudit Journal to Fetch Statistics
 
 - LEDGER_LOGGER_USE:        `True / False`   - Set to use own Logger File
 

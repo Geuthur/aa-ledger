@@ -8,8 +8,11 @@ from ledger.api.managers.core_manager import (
     LedgerModels,
     LedgerTotal,
 )
-from ledger.hooks import get_extension_logger, get_models_and_string
-from ledger.models.characteraudit import CharacterWalletJournalEntry
+from ledger.hooks import get_extension_logger
+from ledger.models.characteraudit import (
+    CharacterMiningLedger,
+    CharacterWalletJournalEntry,
+)
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 
 logger = get_extension_logger(__name__)
@@ -134,8 +137,6 @@ class CharacterProcess:
         return output
 
     def generate_billboard(self):
-        # pylint: disable=redefined-outer-name, invalid-name
-        CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
         # Get the Character IDs
         if self.alts:
             self.chars_list = [char.character_id for char in self.alts]

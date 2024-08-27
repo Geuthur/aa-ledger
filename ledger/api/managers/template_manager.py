@@ -8,11 +8,13 @@ from django.db.models.functions import Coalesce
 
 from ledger.api.helpers import convert_ess_payout, get_alts_queryset
 from ledger.api.managers.core_manager import LedgerFilter
-from ledger.hooks import get_extension_logger, get_models_and_string
+from ledger.hooks import get_extension_logger
+from ledger.models.characteraudit import (
+    CharacterMiningLedger,
+    CharacterWalletJournalEntry,
+)
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 from ledger.view_helpers.core import calculate_ess_stolen, events_filter
-
-CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
 
 logger = get_extension_logger(__name__)
 

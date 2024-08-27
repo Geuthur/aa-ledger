@@ -5,10 +5,7 @@ from django.test import TestCase
 
 from app_utils.testing import create_user_from_evecharacter
 
-from ledger.managers.characterjournal_manager import (
-    CharWalletManager,
-    CharWalletManagerBase,
-)
+from ledger.managers.characterjournal_manager import CharWalletManager
 from ledger.models.characteraudit import CharacterWalletJournalEntry
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 from ledger.tests.testdata.load_ledger import load_ledger_all
@@ -64,8 +61,6 @@ class CharManagerQuerySetTest(TestCase):
         self.assertIn("total_mission", qs_no_filter.query.annotations)
 
     def test_annotate_mining(self):
-        from memberaudit.models import CharacterMiningLedgerEntry
-
         character_ids = [1, 2, 3]
 
         qs = self.manager.annotate_mining(character_ids)
@@ -73,27 +68,6 @@ class CharManagerQuerySetTest(TestCase):
 
         qs_no_filter = self.manager.annotate_mining(character_ids)
         self.assertIsNotNone(qs_no_filter)
-
-        with patch(
-            MODULE_PATH + ".get_models_and_string"
-        ) as mock_get_models_and_string, patch(
-            MODULE_PATH + ".app_settings"
-        ) as mock_app_settings:
-
-            # Mocking the return values for get_models_and_string
-            mock_entry_memberaudit = CharacterMiningLedgerEntry
-            mock_entry_default = MagicMock()
-
-            mock_app_settings.LEDGER_MEMBERAUDIT_USE = True
-            mock_get_models_and_string.return_value = (
-                mock_entry_memberaudit,
-                mock_entry_default,
-            )
-            qs = self.manager.annotate_mining(character_ids)
-            self.assertIsNotNone(qs)
-
-            qs_no_filter = self.manager.annotate_mining(character_ids)
-            self.assertIsNotNone(qs_no_filter)
 
     def test_annotate_contract_cost(self):
         character_ids = [1, 2, 3]
@@ -239,18 +213,14 @@ class CharManagerQuerySetTest(TestCase):
         self.assertIsNotNone(qs_no_filter)
         self.assertIn("total_insurance_trade", qs_no_filter.query.annotations)
 
-    @patch("ledger.hooks.get_models_and_string")
-    def test_annotate_ledger(self, mock_get_models_and_string):
-        mock_model = MagicMock()
-        mock_get_models_and_string.return_value = (None, mock_model)
-        manager = CharWalletManager()
+    def test_generate_ledger(self):
 
         character_ids = [1, 2, 3]
         filter_date = Q(date__gte="2023-01-01")
         exclude = [4, 5]
 
         # Test with filter
-        result_with_filter = manager.generate_ledger(
+        result_with_filter = self.manager.generate_ledger(
             character_ids, filter_date, exclude
         )
         self.assertIsNotNone(result_with_filter)
@@ -259,22 +229,24 @@ class CharManagerQuerySetTest(TestCase):
         self.assertIn("amounts_costs", result_with_filter)
 
         # Test without filter
-        result_without_filter = manager.generate_ledger(character_ids)
+        result_without_filter = self.manager.generate_ledger(character_ids)
         self.assertIsNotNone(result_without_filter)
         self.assertIn("amounts", result_without_filter)
         self.assertIn("amounts_others", result_without_filter)
         self.assertIn("amounts_costs", result_without_filter)
 
-    @patch(
-        "ledger.managers.characterjournal_manager.CharWalletManagerBase.get_queryset"
-    )
-    def test_visible_to(self, mock_get_queryset):
-        mock_queryset = MagicMock()
-        mock_get_queryset.return_value = mock_queryset
+    def test_generate_billboard(self):
 
-        manager = CharWalletManagerBase()
-        # when
-        manager.visible_to(self.user)
-        # then
-        mock_get_queryset.assert_called_once()
-        mock_queryset.visible_to.assert_called_once_with(self.user)
+        character_ids = [1, 2, 3]
+        filter_date = Q(date__gte="2023-01-01")
+        exclude = [4, 5]
+
+        # Test with filter
+        qs = self.manager.generate_billboard(character_ids, filter_date, exclude)
+        self.assertIsNotNone(qs)
+        self.assertIn("total_bounty", qs.query.annotations)
+
+        # Test without filter
+        qs_no_filter = self.manager.generate_billboard(character_ids)
+        self.assertIsNotNone(qs_no_filter)
+        self.assertIn("total_bounty", qs_no_filter.query.annotations)

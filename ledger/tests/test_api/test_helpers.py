@@ -1,14 +1,7 @@
-import sys
 from unittest.mock import MagicMock, patch
 
 from celery_once import AlreadyQueued
 from corpstats.models import CorpMember as ExpectedCorpMember
-from memberaudit.models import (
-    CharacterMiningLedgerEntry as ExceptedCharacterMiningLedger,
-)
-from memberaudit.models import (
-    CharacterWalletJournalEntry as ExceptedCharacterWalletJournalEntry,
-)
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import RequestFactory, TestCase
@@ -26,8 +19,6 @@ from ledger.api.helpers import (
     get_corp_models_and_string,
     get_main_and_alts_all,
 )
-from ledger.errors import LedgerImportError
-from ledger.hooks import get_models_and_string
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 
 MODULE_PATH = "ledger.api.helpers"
@@ -86,13 +77,13 @@ class TestApiHelpers(TestCase):
         # then
         self.assertEqual(data, excepted_data)
 
-    @patch(MODULE_PATH + ".EveCharacter.objects.select_related")
-    def test_get_main_and_alts_all_process_corpmember(self, mock_select_related):
+    @patch(MODULE_PATH + ".EveCharacter.objects.get")
+    def test_get_main_and_alts_all_process_corpmember(self, mock_eve_Character):
         # given
         mock_char = MagicMock()
         mock_char.character_id = 1005
         mock_char.character_name = "Gerthd"
-        mock_select_related.return_value.get.return_value = mock_char
+        mock_eve_Character.return_value = mock_char
 
         request = self.factory.get("/")
         request.user = self.user
@@ -107,16 +98,16 @@ class TestApiHelpers(TestCase):
         # when
         data, _ = get_main_and_alts_all([self.corp.corporation_id])
         # then
-        mock_select_related.assert_called()
+        mock_eve_Character.assert_called()
         self.assertIn("MagicMock", str(data.values()))
 
     @patch(MODULE_PATH + ".create_missing_character.apply_async")
-    @patch(MODULE_PATH + ".EveCharacter.objects.select_related")
+    @patch(MODULE_PATH + ".EveCharacter.objects.get")
     def test_get_main_and_alts_all_process_corpmember_object_does_not_exist(
-        self, mock_select_related, mock_apply_async
+        self, mock_eve_Character, mock_apply_async
     ):
         # Setup mock EveCharacter instance to simulate ObjectDoesNotExist
-        mock_select_related.return_value.get.side_effect = ObjectDoesNotExist
+        mock_eve_Character.return_value.side_effect = ObjectDoesNotExist
 
         # Setup the rest of your test environment as before
         mains = {}
@@ -195,13 +186,6 @@ class TestApiHelpers(TestCase):
         data = get_alts_queryset(main_char)
         # then
         self.assertEqual(data.count(), 1)
-
-    @patch(MODULE_PATH + ".app_settings.LEDGER_MEMBERAUDIT_USE", True)
-    def test_get_models_and_string_memberaudit(self):
-        CharacterMiningLedger, CharacterWalletJournalEntry = get_models_and_string()
-
-        self.assertIs(CharacterMiningLedger, ExceptedCharacterMiningLedger)
-        self.assertIs(CharacterWalletJournalEntry, ExceptedCharacterWalletJournalEntry)
 
     @patch(MODULE_PATH + ".app_settings.LEDGER_CORPSTATS_TWO", True)
     def test_get_corp_models_and_string(self):

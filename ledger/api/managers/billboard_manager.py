@@ -3,7 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from decimal import Decimal
 
-from django.db.models import DecimalField, Q, Sum
+from django.db.models import DecimalField, Q, Sum, Value
 from django.db.models.functions import (
     Coalesce,
     TruncDay,
@@ -162,8 +162,8 @@ class BillboardLedger:
             .values("period")
             .annotate(
                 total_bounty=Coalesce(
-                    Sum("amount", filter=Q(filters.filter_bounty)),
-                    0,
+                    Sum("amount", filter=filters.filter_bounty),
+                    Value(0),
                     output_field=DecimalField(),
                 ),
                 total_miscellaneous=Coalesce(
@@ -173,12 +173,12 @@ class BillboardLedger:
                         | filters.filter_all_missions
                         | donations_filter,
                     ),
-                    0,
+                    Value(0),
                     output_field=DecimalField(),
                 ),
                 total_isk=Coalesce(
                     Sum("amount", filter=Q(filters.filter_total)),
-                    0,
+                    Value(0),
                     output_field=DecimalField(),
                 ),
                 total_cost=Coalesce(
@@ -186,7 +186,7 @@ class BillboardLedger:
                         "amount",
                         filter=filters.filter_total & ~Q(first_party_id__in=self.chars),
                     ),
-                    0,
+                    Value(0),
                     output_field=DecimalField(),
                 ),
                 total_market_cost=Coalesce(
@@ -194,7 +194,7 @@ class BillboardLedger:
                         "amount",
                         filter=filters.filter_market_cost,
                     ),
-                    0,
+                    Value(0),
                     output_field=DecimalField(),
                 ),
                 total_production_cost=Coalesce(
@@ -202,7 +202,7 @@ class BillboardLedger:
                         "amount",
                         filter=filters.filter_production_cost,
                     ),
-                    0,
+                    Value(0),
                     output_field=DecimalField(),
                 ),
             )

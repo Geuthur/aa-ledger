@@ -6,11 +6,13 @@ from django.test import TestCase
 from django.utils import timezone
 from esi.errors import TokenExpiredError
 
+from allianceauth.eveonline.models import EveCharacter
 from app_utils.testing import create_user_from_evecharacter
 
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.tasks import (
+    create_member_audit,
     create_missing_character,
     update_all_characters,
     update_all_corps,
@@ -33,6 +35,7 @@ class TestTasks(TestCase):
         super().setUpClass()
         load_allianceauth()
         load_ledger_all()
+
         cls.user, cls.character_ownership = create_user_from_evecharacter(
             1001,
             permissions=[
@@ -53,6 +56,75 @@ class TestTasks(TestCase):
         result = create_missing_character(chars_list=chars_list)
         # then
         self.assertTrue(result)
+
+    @patch(MODULE_PATH + ".CharacterAudit.objects.update_or_create")
+    @patch(MODULE_PATH + ".EveCharacter.objects.get_character_by_id")
+    @patch("memberaudit.models.Character.objects.all")
+    @patch(MODULE_PATH + ".CharacterAudit.objects.all")
+    def test_create_member_audit(
+        self,
+        mock_char_audit_all,
+        mock_char_all,
+        mock_get_character_by_id,
+        mock_update_or_create,
+    ):
+        # Setup mock return values
+        mock_char_audit_all.return_value.values_list.return_value = []
+        mock_char_all.return_value.values_list.return_value = [1999]
+        mock_get_character_by_id.return_value = EveCharacter(
+            character_id=1999,
+            character_name="Test Character",
+            corporation_id=2001,
+            corporation_name="Hell Rider'Z",
+        )
+
+        # Call the function
+        create_member_audit()
+
+        # Check that update_or_create was called
+        mock_update_or_create.assert_called_once()
+
+    @patch(MODULE_PATH + ".CharacterAudit.objects.update_or_create")
+    @patch(MODULE_PATH + ".EveCharacter.objects.get_character_by_id")
+    @patch("memberaudit.models.Character.objects.all")
+    @patch(MODULE_PATH + ".CharacterAudit.objects.all")
+    def test_create_member_audit_no_update_or_create(
+        self,
+        mock_char_audit_all,
+        mock_char_all,
+        mock_get_character_by_id,
+        mock_update_or_create,
+    ):
+        # Setup mock return values
+        mock_char_audit_all.return_value.values_list.return_value = [1, 2, 3, 4, 5]
+        mock_char_all.return_value.values_list.return_value = [2, 3, 4, 5]
+
+        # Call the function
+        create_member_audit()
+
+        # Check that update_or_create was not called
+        mock_update_or_create.assert_not_called()
+
+    @patch(MODULE_PATH + ".CharacterAudit.objects.update_or_create")
+    @patch(MODULE_PATH + ".EveCharacter.objects.get_character_by_id")
+    @patch("memberaudit.models.Character.objects.all")
+    @patch(MODULE_PATH + ".CharacterAudit.objects.all")
+    def test_create_member_audit_integrityerror(
+        self,
+        mock_char_audit_all,
+        mock_char_all,
+        mock_get_character_by_id,
+        mock_update_or_create,
+    ):
+        # Setup mock return values
+        mock_char_audit_all.return_value.values_list.return_value = [1, 2, 3, 4, 5]
+        mock_char_all.return_value.values_list.return_value = [2, 3, 4, 5]
+        mock_update_or_create.side_effect = IntegrityError("duplicate key")
+        # Call the function
+        create_member_audit()
+
+        # Check that update_or_create was not called
+        mock_update_or_create.assert_not_called()
 
     @patch(MODULE_PATH + ".EveCharacter.objects.create_character")
     def test_create_character_integrity(self, mock_character):

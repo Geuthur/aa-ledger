@@ -5,13 +5,9 @@ from datetime import datetime
 from django.db.models import Q
 from django.utils import timezone
 
-from ledger import app_settings
 from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
-
-# Add Filter to LedgerDataCore
-# TODO agent_mission_time_bonus_reward, agent_mission_reward
 
 
 @dataclass
@@ -106,11 +102,7 @@ class LedgerFilterPvE(LedgerFilterCore):
 
         self.filter_bounty = self.filter_second_party & Q(ref_type="bounty_prizes")
         self.filter_ess = self.filter_second_party & Q(ref_type="ess_escrow_transfer")
-        self.filter_mining = (
-            Q(character__eve_character__character_id__in=self.char_id)
-            if app_settings.LEDGER_MEMBERAUDIT_USE
-            else Q(character__character__character_id__in=self.char_id)
-        )
+        self.filter_mining = Q(character__character__character_id__in=self.char_id)
 
         self.filter_all_pve = self.filter_bounty | self.filter_ess | self.filter_mining
 

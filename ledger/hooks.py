@@ -47,30 +47,3 @@ def get_corp_models_and_string():
     from allianceauth.corputils.models import CorpMember
 
     return CorpMember
-
-
-# pylint: disable=import-outside-toplevel, cyclic-import
-def get_models_and_string():
-    if app_settings.LEDGER_MEMBERAUDIT_USE:
-        try:
-            from memberaudit.models import (
-                CharacterMiningLedgerEntry as CharacterMiningLedger,
-            )
-            from memberaudit.models import CharacterWalletJournalEntry
-
-            return (
-                CharacterMiningLedger,
-                CharacterWalletJournalEntry,
-            )
-        except ImportError as exc:
-            raise LedgerImportError("Memberaudit is enabled but not installed") from exc
-
-    from ledger.models.characteraudit import (
-        CharacterMiningLedger,
-        CharacterWalletJournalEntry,
-    )
-
-    return (
-        CharacterMiningLedger,
-        CharacterWalletJournalEntry,
-    )

@@ -4,8 +4,7 @@ from django.db import models
 from django.db.models import DecimalField, Q, Sum, Value
 from django.db.models.functions import Coalesce
 
-from ledger import app_settings
-from ledger.hooks import get_extension_logger, get_models_and_string
+from ledger.hooks import get_extension_logger
 from ledger.view_helpers.core import events_filter
 
 logger = get_extension_logger(__name__)
@@ -98,28 +97,19 @@ class CharWalletQuerySet(models.QuerySet):
         )
 
     def annotate_mining(self, character_ids: list, filter_date=None) -> models.QuerySet:
-        # pylint: disable=invalid-name
-        CharacterMiningLedgerEntry, _ = get_models_and_string()
+        # pylint: disable=import-outside-toplevel
+        from ledger.models.characteraudit import CharacterMiningLedger
 
-        qs = CharacterMiningLedgerEntry.objects.get_queryset()
-        if app_settings.LEDGER_MEMBERAUDIT_USE:
-            qs = qs.filter(character__eve_character__character_id__in=character_ids)
-        else:
-            qs = qs.filter(character__character__character_id__in=character_ids)
+        qs = CharacterMiningLedger.objects.get_queryset()
+
+        qs = qs.filter(character__character__character_id__in=character_ids)
 
         if filter_date:
             qs = qs.filter(filter_date)
 
-        if app_settings.LEDGER_MEMBERAUDIT_USE:
-            qs = qs.annotate_pricing().values(
-                "character__eve_character__character_id", "total"
-            )
-        else:
-            qs = qs.annotate_pricing().values(
-                "character__character__character_id", "total"
-            )
-
-        return qs
+        return qs.annotate_pricing().values(
+            "character__character__character_id", "total"
+        )
 
     # Costs
     def annotate_contract_cost(self, character_ids: list) -> models.QuerySet:
@@ -355,11 +345,10 @@ class CharWalletQuerySet(models.QuerySet):
     def generate_ledger(
         self, character_ids: list, filter_date=None, exclude=None
     ) -> models.QuerySet:
-        # pylint: disable=invalid-name
-        _, CharacterWalletJournalEntry = get_models_and_string()
+        """Generate the Ledger for the given characters."""
 
-        # Combine all filters
-        qs = CharacterWalletJournalEntry.objects.filter(
+        # Filter Characters
+        qs = self.filter(
             Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
         )
 
@@ -459,11 +448,9 @@ class CharWalletQuerySet(models.QuerySet):
     def generate_billboard(
         self, character_ids: list, filter_date=None, exclude=None
     ) -> models.QuerySet:
-        # pylint: disable=invalid-name
-        _, CharacterWalletJournalEntry = get_models_and_string()
-
+        """Generate the Billboard for the given characters."""
         # Combine all filters
-        qs = CharacterWalletJournalEntry.objects.filter(
+        qs = self.filter(
             Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
         )
 
