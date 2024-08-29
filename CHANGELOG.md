@@ -1,6 +1,13 @@
 # Changelog
 
-## \[0.5.9\] - 2024-08-22
+## \[0.5.9\] - 2024-08-29
+
+> \[!WARNING\]
+> Member Audit support has been dropped, Please Read README
+
+### Fixed
+
+- Billboard Wallet Donut Calculation
 
 ### Added
 
@@ -20,7 +27,7 @@
 ### Removed
 
 - Ledger Manager
-- Member Audit Support (You can now add Task to Sync Characters with Member Audit)
+- Member Audit integration
 
 ## \[0.5.8\] - 2024-08-22
 

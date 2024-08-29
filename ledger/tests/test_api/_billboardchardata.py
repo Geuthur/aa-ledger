@@ -28,10 +28,10 @@ CharmonthlyMarch = [
         "billboard": {
             "standard": {
                 "walletcharts": [
-                    ["Income", 1200000],
+                    ["Income", 1733333],
                     ["Market Cost", 200000],
-                    ["Production Cost", 200000],
-                    ["Misc. Cost", 1400000],
+                    ["Production Cost", 100000],
+                    ["Misc. Cost", 100000],
                 ],
                 "charts": [],
                 "rattingbar": [
@@ -78,10 +78,10 @@ CharmonthlyMarchMulti = [
         "billboard": {
             "standard": {
                 "walletcharts": [
-                    ["Income", 1200000],
+                    ["Income", 1833333],
                     ["Market Cost", 200000],
-                    ["Production Cost", 200000],
-                    ["Misc. Cost", 1400000],
+                    ["Production Cost", 100000],
+                    ["Misc. Cost", 100000],
                 ],
                 "charts": [],
                 "rattingbar": [
@@ -127,10 +127,10 @@ Charyearly = [
         "billboard": {
             "standard": {
                 "walletcharts": [
-                    ["Income", 700000],
-                    ["Market Cost", 100000],
+                    ["Income", 1833333],
+                    ["Market Cost", 200000],
                     ["Production Cost", 100000],
-                    ["Misc. Cost", 800000],
+                    ["Misc. Cost", 100000],
                 ],
                 "charts": [],
                 "rattingbar": [
@@ -169,10 +169,10 @@ CharNoMining = [
         "billboard": {
             "standard": {
                 "walletcharts": [
-                    ["Income", 1200000],
+                    ["Income", 1533333],
                     ["Market Cost", 200000],
-                    ["Production Cost", 200000],
-                    ["Misc. Cost", 1400000],
+                    ["Production Cost", 100000],
+                    ["Misc. Cost", 100000],
                 ],
                 "charts": [],
                 "rattingbar": [

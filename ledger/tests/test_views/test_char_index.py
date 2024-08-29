@@ -1,4 +1,6 @@
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
+
+from memberaudit.models import Character
 
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
@@ -6,6 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 from esi.models import Token
 
+from allianceauth.eveonline.models import EveCharacter
 from app_utils.testing import create_user_from_evecharacter
 
 from ledger.models.characteraudit import CharacterAudit
@@ -169,5 +172,77 @@ class CharAuditTest(TestCase):
             request,
             "The 'memberaudit' app is not installed. Please make sure it is installed.",
         )
+        self.assertFalse(mock_update_character.apply_async.called)
+        self.assertEqual(response.url, reverse("ledger:ledger_index"))
+
+    @patch(MODULE_PATH + ".messages")
+    @patch(MODULE_PATH + ".update_character")
+    @patch("memberaudit.models.Character.objects.filter")
+    @patch(MODULE_PATH + ".CharacterAudit.objects.values_list")
+    def test_char_in_ledger_chars_ids(
+        self, mock_values_list, mock_filter, mock_update_character, mock_messages
+    ):
+        mock_values_list.return_value = [9999]
+        mock_char = MagicMock()
+        mock_char.eve_character.character_id = 9999
+        mock_filter.return_value = [mock_char]
+
+        self.client.force_login(self.user)
+        request = self.factory.get(reverse("ledger:ledger_fetch_memberaudit"))
+        request.user = self.user
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+
+        response = fetch_memberaudit(request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(mock_update_character.apply_async.called)
+        self.assertEqual(response.url, reverse("ledger:ledger_index"))
+
+    @patch(MODULE_PATH + ".messages")
+    @patch(MODULE_PATH + ".update_character")
+    @patch("memberaudit.models.Character.objects.filter")
+    @patch(MODULE_PATH + ".CharacterAudit.objects.get_or_create")
+    def test_eve_character_does_not_exist(
+        self, mock_get_or_create, mock_filter, mock_update_character, mock_messages
+    ):
+        mock_get_or_create.side_effect = EveCharacter.DoesNotExist
+        mock_char = MagicMock()
+        mock_char.eve_character.character_id = 9999
+        mock_filter.return_value = [mock_char]
+
+        self.client.force_login(self.user)
+        request = self.factory.get(reverse("ledger:ledger_fetch_memberaudit"))
+        request.user = self.user
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+
+        response = fetch_memberaudit(request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(mock_update_character.apply_async.called)
+        self.assertEqual(response.url, reverse("ledger:ledger_index"))
+
+    @patch(MODULE_PATH + ".messages")
+    @patch(MODULE_PATH + ".update_character")
+    @patch("memberaudit.models.Character.objects.filter")
+    @patch(MODULE_PATH + ".CharacterAudit.objects.get_or_create")
+    def test_eve_character_attribute_error(
+        self, mock_get_or_create, mock_filter, mock_update_character, mock_messages
+    ):
+        mock_get_or_create.side_effect = AttributeError
+        mock_char = MagicMock()
+        mock_char.eve_character.character_id = 9999
+        mock_filter.return_value = [mock_char]
+
+        self.client.force_login(self.user)
+        request = self.factory.get(reverse("ledger:ledger_fetch_memberaudit"))
+        request.user = self.user
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+
+        response = fetch_memberaudit(request)
+
+        self.assertEqual(response.status_code, 302)
         self.assertFalse(mock_update_character.apply_async.called)
         self.assertEqual(response.url, reverse("ledger:ledger_index"))

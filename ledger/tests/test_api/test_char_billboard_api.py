@@ -59,6 +59,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         response = self.client.get(url)
 
         expected_data = CharmonthlyMarch
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)
 

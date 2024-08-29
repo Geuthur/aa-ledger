@@ -109,8 +109,10 @@ class TestTasks(TestCase):
     @patch(MODULE_PATH + ".EveCharacter.objects.get_character_by_id")
     @patch("memberaudit.models.Character.objects.all")
     @patch(MODULE_PATH + ".CharacterAudit.objects.all")
+    @patch(MODULE_PATH + ".logger")
     def test_create_member_audit_integrityerror(
         self,
+        mock_logger,
         mock_char_audit_all,
         mock_char_all,
         mock_get_character_by_id,
@@ -118,13 +120,14 @@ class TestTasks(TestCase):
     ):
         # Setup mock return values
         mock_char_audit_all.return_value.values_list.return_value = [1, 2, 3, 4, 5]
-        mock_char_all.return_value.values_list.return_value = [2, 3, 4, 5]
-        mock_update_or_create.side_effect = IntegrityError("duplicate key")
+        mock_char_all.return_value.values_list.return_value = [6, 7]
+        mock_update_or_create.side_effect = IntegrityError
         # Call the function
         create_member_audit()
 
-        # Check that update_or_create was not called
-        mock_update_or_create.assert_not_called()
+        mock_logger.debug.assert_called_once_with(
+            "Created %s missing Member Audit Characters", 0
+        )
 
     @patch(MODULE_PATH + ".EveCharacter.objects.create_character")
     def test_create_character_integrity(self, mock_character):

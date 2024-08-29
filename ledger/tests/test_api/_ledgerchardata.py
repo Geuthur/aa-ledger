@@ -22,16 +22,16 @@ CharmonthlyMarch = [
                 "total_amount_ess": "1133333.333333333333333333333",
                 "total_amount_mining": "200000",
                 "total_amount_others": "200000.00",
-                "total_amount_costs": "-200000.00",
+                "total_amount_costs": "-400000.00",
             }
         ],
         "total": {
             "total_amount": "200000.00",
             "total_amount_ess": "1133333.333333333333333333333",
-            "total_amount_all": "1533333.333333333333333333333",
+            "total_amount_all": "1333333.333333333333333333333",
             "total_amount_mining": "200000",
             "total_amount_others": "200000.00",
-            "total_amount_costs": "-200000.00",
+            "total_amount_costs": "-400000.00",
         },
     }
 ]
@@ -47,7 +47,7 @@ CharmonthlyMarchMulti = [
                 "total_amount_ess": "1133333.333333333333333333333",
                 "total_amount_mining": "200000",
                 "total_amount_others": "200000.00",
-                "total_amount_costs": "-200000.00",
+                "total_amount_costs": "-400000.00",
             },
             {
                 "main_id": 1002,
@@ -62,10 +62,10 @@ CharmonthlyMarchMulti = [
         "total": {
             "total_amount": "200000.00",
             "total_amount_ess": "1133333.333333333333333333333",
-            "total_amount_all": "1633333.333333333333333333333",
+            "total_amount_all": "1433333.333333333333333333333",
             "total_amount_mining": "300000",
             "total_amount_others": "200000.00",
-            "total_amount_costs": "-200000.00",
+            "total_amount_costs": "-400000.00",
         },
     }
 ]
@@ -80,16 +80,16 @@ Charyearly = [
                 "total_amount_ess": "1133333.333333333333333333333",
                 "total_amount_mining": "200000",
                 "total_amount_others": "200000.00",
-                "total_amount_costs": "-200000.00",
+                "total_amount_costs": "-400000.00",
             }
         ],
         "total": {
             "total_amount": "300000.00",
             "total_amount_ess": "1133333.333333333333333333333",
-            "total_amount_all": "1633333.333333333333333333333",
+            "total_amount_all": "1433333.333333333333333333333",
             "total_amount_mining": "200000",
             "total_amount_others": "200000.00",
-            "total_amount_costs": "-200000.00",
+            "total_amount_costs": "-400000.00",
         },
     }
 ]
@@ -104,16 +104,16 @@ CharNoMining = [
                 "total_amount_ess": "1133333.333333333333333333333",
                 "total_amount_mining": "0",
                 "total_amount_others": "200000.00",
-                "total_amount_costs": "-200000.00",
+                "total_amount_costs": "-400000.00",
             }
         ],
         "total": {
             "total_amount": "200000.00",
             "total_amount_ess": "1133333.333333333333333333333",
-            "total_amount_all": "1333333.333333333333333333333",
+            "total_amount_all": "1133333.333333333333333333333",
             "total_amount_mining": "0",
             "total_amount_others": "200000.00",
-            "total_amount_costs": "-200000.00",
+            "total_amount_costs": "-400000.00",
         },
     }
 ]

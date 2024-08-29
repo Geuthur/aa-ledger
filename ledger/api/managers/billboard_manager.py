@@ -26,12 +26,22 @@ logger = get_extension_logger(__name__)
 
 @dataclass
 class BillboardSum:
+    # Income
     sum_amount: list = field(default_factory=lambda: ["Ratting"])
     sum_amount_ess: list = field(default_factory=lambda: ["ESS Payout"])
     sum_amount_misc: list = field(default_factory=lambda: ["Miscellaneous"])
     sum_amount_mining: list = field(default_factory=lambda: ["Mining"])
+    # Tick - Ratting
     sum_amount_tick: list = field(default_factory=lambda: ["Tick"])
+    # Costs
+    sum_amount_costs: list = field(default_factory=lambda: ["Costs"])
+    sum_amounts_production_costs: list = field(
+        default_factory=lambda: ["Production Costs"]
+    )
+    sum_amounts_market_costs: list = field(default_factory=lambda: ["Market Costs"])
+    # Total
     total_sum: int = None
+    total_costs: int = None
 
 
 @dataclass
@@ -114,15 +124,20 @@ class BillboardLedger:
             self.data.total_ess_payout = data.get("total_ess", 0)
             self.data.total_miscellaneous = data.get("total_miscellaneous", 0)
             self.data.total_mining = data.get("total_mining", 0)
-            # Total
-            self.data.total_isk += data.get("total_isk", 0)
             # Costs
-            self.data.total_cost += data.get("total_cost", 0)
-            self.data.total_market_cost += data.get("total_market_cost", 0)
-            self.data.total_production_cost += data.get("total_production_cost", 0)
+            self.data.total_cost = data.get("total_cost", 0)
+            self.data.total_market_cost = data.get("total_market_cost", 0)
+            self.data.total_production_cost = data.get("total_production_cost", 0)
 
             summary.sum_amount.append(int(self.data.total_bounty))
             summary.sum_amount_ess.append(int(self.data.total_ess_payout))
+
+            summary.sum_amount_costs.append(int(self.data.total_cost))
+            summary.sum_amounts_market_costs.append(int(self.data.total_market_cost))
+            summary.sum_amounts_production_costs.append(
+                int(self.data.total_production_cost)
+            )
+
             if not self.is_corp:
                 summary.sum_amount_misc.append(int(self.data.total_miscellaneous))
                 summary.sum_amount_mining.append(int(self.data.total_mining))
@@ -132,6 +147,7 @@ class BillboardLedger:
             billboard_values.append(period)
 
         summary.total_sum = self.calculate_total_sum(summary)
+        summary.total_costs = self.calculate_total_costs(summary)
         return summary
 
     def _process_corp_journal(self, annotations, period_format):
@@ -176,15 +192,10 @@ class BillboardLedger:
                     Value(0),
                     output_field=DecimalField(),
                 ),
-                total_isk=Coalesce(
-                    Sum("amount", filter=Q(filters.filter_total)),
-                    Value(0),
-                    output_field=DecimalField(),
-                ),
                 total_cost=Coalesce(
                     Sum(
                         "amount",
-                        filter=filters.filter_total & ~Q(first_party_id__in=self.chars),
+                        filter=filters.filter_all_costs,
                     ),
                     Value(0),
                     output_field=DecimalField(),
@@ -213,7 +224,6 @@ class BillboardLedger:
             period = entry["period"].strftime(period_format)
             self.data_dict[period]["total_bounty"] = entry["total_bounty"]
             self.data_dict[period]["total_miscellaneous"] = entry["total_miscellaneous"]
-            self.data_dict[period]["total_isk"] = entry["total_isk"]
             self.data_dict[period]["total_cost"] = entry["total_cost"]
             self.data_dict[period]["total_market_cost"] = entry["total_market_cost"]
             self.data_dict[period]["total_production_cost"] = entry[
@@ -238,6 +248,33 @@ class BillboardLedger:
             ]
         )
         return total_sum
+
+    def calculate_total_costs(self, summary: BillboardSum):
+        total_costs = sum(
+            sum(filter(lambda x: isinstance(x, (int, Decimal)), lst))
+            for lst in [
+                summary.sum_amount_costs,
+            ]
+        )
+        return total_costs
+
+    def calculate_total_production_costs(self, summary: BillboardSum):
+        total_production_costs = sum(
+            sum(filter(lambda x: isinstance(x, (int, Decimal)), lst))
+            for lst in [
+                summary.sum_amounts_production_costs,
+            ]
+        )
+        return total_production_costs
+
+    def calculate_total_market_costs(self, summary: BillboardSum):
+        total_market_costs = sum(
+            sum(filter(lambda x: isinstance(x, (int, Decimal)), lst))
+            for lst in [
+                summary.sum_amounts_market_costs,
+            ]
+        )
+        return total_market_costs
 
     def calculate_percentages(self, summary: BillboardSum):
         percentages = [
@@ -290,20 +327,21 @@ class BillboardLedger:
         )
 
     # Generate Charts Billboard for Character Ledger
-    def generate_wallet_charts_data(self):
-        misc_cost = abs(
-            self.data.total_cost
-            - self.data.total_production_cost
-            - self.data.total_market_cost
-        )
+    def generate_wallet_charts_data(self, summary: BillboardSum):
+        total_costs = abs(summary.total_costs)
+        total_income = abs(summary.total_sum)
+        total_market_costs = abs(self.calculate_total_market_costs(summary))
+        total_production_costs = abs(self.calculate_total_production_costs(summary))
+
+        misc_cost = total_costs - total_market_costs - total_production_costs
 
         wallet_chart_data = [
             # Earns
-            ["Income", int(self.data.total_isk)],
+            ["Income", total_income],
             # Costs
-            ["Market Cost", int(abs(self.data.total_market_cost))],
-            ["Production Cost", int(abs(self.data.total_production_cost))],
-            ["Misc. Cost", int(misc_cost)],
+            ["Market Cost", total_market_costs],
+            ["Production Cost", total_production_costs],
+            ["Misc. Cost", misc_cost],
         ]
 
         self.billboard_dict.standard.walletcharts = (
@@ -367,7 +405,7 @@ class BillboardLedger:
         )
 
         # Create Wallet Charts Billboard
-        self.generate_wallet_charts_data()
+        self.generate_wallet_charts_data(summary)
 
         return self.billboard_dict
 
