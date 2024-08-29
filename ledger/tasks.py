@@ -25,6 +25,10 @@ from ledger.task_helpers.char_helpers import (
 )
 from ledger.task_helpers.core_helpers import enqueue_next_task, no_fail_chain
 from ledger.task_helpers.corp_helpers import update_corp_wallet_division
+from ledger.task_helpers.plan_helpers import (
+    update_character_planetary,
+    update_character_planetary_details,
+)
 
 logger = get_extension_logger(__name__)
 
@@ -134,6 +138,13 @@ def update_character(
             )
         )
 
+    if (character.last_update_planetary or mindt) <= skip_date or force_refresh:
+        que.append(
+            update_char_planets.si(
+                character.character.character_id, force_refresh=force_refresh
+            )
+        )
+
     enqueue_next_task(que)
 
     logger.debug(
@@ -208,3 +219,31 @@ def update_char_wallet(
     self, character_id, force_refresh=False, chain=[]
 ):  # pylint: disable=unused-argument, dangerous-default-value
     return update_character_wallet(character_id, force_refresh=force_refresh)
+
+
+@shared_task(
+    bind=True,
+    base=QueueOnce,
+    once={"graceful": False, "keys": ["character_id"]},
+    name="tasks.update_char_planets",
+)
+@no_fail_chain
+def update_char_planets(
+    self, character_id, force_refresh=False, chain=[]
+):  # pylint: disable=unused-argument, dangerous-default-value
+    return update_character_planetary(character_id, force_refresh=force_refresh)
+
+
+@shared_task(
+    bind=True,
+    base=QueueOnce,
+    once={"graceful": False, "keys": ["character_id", "planet_id"]},
+    name="tasks.update_char_planets_details",
+)
+@no_fail_chain
+def update_char_planets_details(
+    self, character_id, planet_id, force_refresh=False, chain=[]
+):  # pylint: disable=unused-argument, dangerous-default-value
+    return update_character_planetary_details(
+        character_id, planet_id, force_refresh=force_refresh
+    )

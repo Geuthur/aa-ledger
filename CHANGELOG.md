@@ -1,5 +1,37 @@
 # Changelog
 
+## \[0.6.0\] - 2024-09-xx
+
+### Added
+
+- Planetary Interaction System
+
+  - Planets API
+  - Planets Details API
+  - Planets Overview
+  - Alarm System for Expired Heads
+    - Alarm for each Planet
+    - Switchable
+  - Graphical Details
+    - Progress Bar
+    - Item Type
+    - Planets
+
+- Character Audit Model
+
+  - last_update_planetary field
+
+### Moved
+
+- get_token function to core_helpers
+
+### Changed
+
+- Character Audit
+  - Added Planetary ESI Scope
+- Tasks
+  - Added Planetary Update to Character Update Task
+
 ## \[0.5.9\] - 2024-08-29
 
 > \[!WARNING\]

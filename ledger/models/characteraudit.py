@@ -37,6 +37,8 @@ class CharacterAudit(models.Model):
 
     last_update_mining = models.DateTimeField(null=True, default=None, blank=True)
 
+    last_update_planetary = models.DateTimeField(null=True, default=None, blank=True)
+
     balance = models.DecimalField(
         max_digits=20, decimal_places=2, null=True, default=None
     )
@@ -62,6 +64,8 @@ class CharacterAudit(models.Model):
             # Wallet / Market /  Contracts
             "esi-wallet.read_character_wallet.v1",
             "esi-contracts.read_character_contracts.v1",
+            # Planetary Interaction
+            "esi-planets.manage_planets.v1",
         ]
 
     def is_active(self):
@@ -73,6 +77,7 @@ class CharacterAudit(models.Model):
 
             is_active = self.last_update_wallet > time_ref
             is_active = self.last_update_mining > time_ref
+            is_active = self.last_update_planetary > time_ref
 
             if self.active != is_active:
                 self.active = is_active

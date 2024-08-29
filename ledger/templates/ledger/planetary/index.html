@@ -1,0 +1,30 @@
+{% extends 'ledger/base.html' %}
+    {% load i18n %}
+    {% load humanize %}
+
+{% block vow_block %}
+    <div class="panel panel-primary">
+        <div class="container-fluid">
+            <div id="container">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_javascript %}
+{% include "ledger/modals/modal-full.html" %}
+{% include 'ledger/bundles/ledger-css.html' %}
+<script src="/static/ledger/js/img.js"></script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.zoom-size {
+    max-width: 300px;
+    max-height: 300px;
+}
+</style>
+{% endblock %}
+
+{% block extra_script %}
+{% endblock %}

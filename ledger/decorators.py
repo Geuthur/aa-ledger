@@ -47,9 +47,10 @@ def log_timing(logs):
             result = func(*args, **kwargs)
             end_time = time.time()
             logs.debug(
-                "%s wurde aufgerufen. Ausführungszeit: %s Sekunden",
-                func.__name__,
+                "TIME: %s run for %s seconds with args: %s",
                 end_time - start_time,
+                func.__name__,
+                args,
             )
             return result
 
