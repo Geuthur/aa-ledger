@@ -4,12 +4,10 @@ from ninja import NinjaAPI
 
 from django.db.models import Q
 
-from ledger import app_settings
 from ledger.api import schema
-from ledger.api.helpers import get_alts_queryset, get_character, get_models_and_string
+from ledger.api.helpers import get_alts_queryset, get_character
 from ledger.hooks import get_extension_logger
-
-_, CharacterWalletJournalEntry = get_models_and_string()
+from ledger.models import CharacterWalletJournalEntry
 
 logger = get_extension_logger(__name__)
 
@@ -36,11 +34,7 @@ class LedgerJournalApiEndpoints:
 
             characters = get_alts_queryset(main)
 
-            filters = (
-                Q(character__eve_character__in=characters)
-                if app_settings.LEDGER_MEMBERAUDIT_USE
-                else Q(character__character__in=characters)
-            )
+            filters = Q(character__character__in=characters)
 
             wallet_journal = CharacterWalletJournalEntry.objects.filter(
                 filters
@@ -60,28 +54,16 @@ class LedgerJournalApiEndpoints:
             for w in wallet_journal:
                 output.append(
                     {
-                        "character": (
-                            w.character.character
-                            if not app_settings.LEDGER_MEMBERAUDIT_USE
-                            else w.character.eve_character
-                        ),
+                        "character": (w.character.character),
                         "id": w.entry_id,
                         "date": w.date,
                         "first_party": {
-                            "id": (
-                                w.first_party.eve_id
-                                if not app_settings.LEDGER_MEMBERAUDIT_USE
-                                else w.first_party.id
-                            ),
+                            "id": (w.first_party.eve_id),
                             "name": w.first_party.name,
                             "cat": w.first_party.category,
                         },
                         "second_party": {
-                            "id": (
-                                w.second_party.eve_id
-                                if not app_settings.LEDGER_MEMBERAUDIT_USE
-                                else w.second_party.id
-                            ),
+                            "id": (w.second_party.eve_id),
                             "name": w.second_party.name,
                             "cat": w.second_party.category,
                         },

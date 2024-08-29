@@ -11,6 +11,7 @@ from allianceauth.eveonline.models import EveCorporationInfo
 
 from ledger.hooks import get_extension_logger
 from ledger.managers.corpaudit_manager import CorpAuditManager
+from ledger.managers.corpjournal_manager import CorpWalletManager
 from ledger.models.characteraudit import WalletJournalEntry
 
 logger = get_extension_logger(__name__)
@@ -72,6 +73,8 @@ class CorporationWalletDivision(models.Model):
 
 class CorporationWalletJournalEntry(WalletJournalEntry):
     division = models.ForeignKey(CorporationWalletDivision, on_delete=models.CASCADE)
+
+    objects = CorpWalletManager()
 
     def __str__(self):
         return f"Corporation Wallet Journal: {self.first_party.name} '{self.ref_type}' {self.second_party.name}: {self.amount} isk"

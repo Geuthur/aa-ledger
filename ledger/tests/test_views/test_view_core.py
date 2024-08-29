@@ -150,7 +150,7 @@ class TestCache(TestCase):
         request.user = MagicMock()
         request.user.id = 99999999
 
-        context = {"memberaudit": False, "theme": None}
+        context = {"theme": None}
         # when
         result = add_info_to_context(request, context)
         # then

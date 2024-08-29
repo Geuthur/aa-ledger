@@ -10,7 +10,7 @@ from django.db.models import Q
 
 from allianceauth.authentication.models import UserProfile
 
-from ledger.app_settings import LEDGER_MEMBERAUDIT_USE, STORAGE_BASE_KEY
+from ledger.app_settings import STORAGE_BASE_KEY
 from ledger.hooks import get_extension_logger
 from ledger.models.events import Events
 
@@ -28,7 +28,7 @@ def add_info_to_context(request, context: dict) -> dict:
         pass
 
     new_context = {
-        **{"memberaudit": LEDGER_MEMBERAUDIT_USE, "theme": theme},
+        **{"theme": theme},
         **context,
     }
     return new_context

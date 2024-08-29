@@ -26,14 +26,13 @@ Character/Corporation Ledger see Statistics for Ratting, Mining, ESS Payout
 ## Features<a name="features"></a>
 
 - Graphical Overview
-- Ratting,Mining,Trading
+- Ratting, Mining, Trading, Costs, etc.
 - Character Ledger
 - Corporation Ledger
 - Events Calender
 
 ## Upcoming<a name="upcoming"></a>
 
-- Performance Updates
 - Planetary Interaction Statistics and Overview
 
 ## Installation<a name="installation"></a>
@@ -73,6 +72,16 @@ CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
 }
 ```
 
+> \[!NOTE\]
+> If you have Member Audit installed add this to Fetch Member Audit Chars and Sync with Ledger
+
+```
+CELERYBEAT_SCHEDULE["ledger_character_member_audit_fetch"] = {
+    "task": "ledger.tasks.create_member_audit",
+    "schedule": crontab(minute=0, hour="*/1"),
+}
+```
+
 ### Step 4 - Migration to AA<a name="step4"></a>
 
 ```shell
@@ -84,14 +93,14 @@ python manage.py migrate
 
 With the Following IDs you can set up the permissions for the Ledger
 
-| ID                         | Description                               |                                                           |
-| :------------------------- | :---------------------------------------- | :-------------------------------------------------------- |
-| `basic_access`             | Can access the Ledger module              | All Members with the Permission can access the Ledger.    |
-| `admin_access`             | Can access the Administration tools       | Can Add Memberaudit Chars & Add Corporations.             |
-| `char_audit_manager`       | Has Access to all characters for own Corp | Can see all Chars from Corps he is in                     |
-| `corp_audit_manager`       | Has Access to own Corporation             | Can see all Corps he is in                                |
-| `char_audit_admin_manager` | Has Access to all Characters              | Can see all Chars & Add Membreraudit Chars to Char Auduit |
-| `corp_audit_admin_manager` | Has Access to all Corporations            | Can see all Corps                                         |
+| ID                         | Description                               |                                                        |
+| :------------------------- | :---------------------------------------- | :----------------------------------------------------- |
+| `basic_access`             | Can access the Ledger module              | All Members with the Permission can access the Ledger. |
+| `admin_access`             | Can access the Administration tools       | Can Add Memberaudit Chars & Add Corporations.          |
+| `char_audit_manager`       | Has Access to all characters for own Corp | Can see all Chars from Corps he is in.                 |
+| `corp_audit_manager`       | Has Access to own Corporation             | Can see all Corps he is in.                            |
+| `char_audit_admin_manager` | Has Access to all Characters              | Can see all Chars.                                     |
+| `corp_audit_admin_manager` | Has Access to all Corporations            | Can see all Corps.                                     |
 
 ### Step 6 - (Optional) Setting up Compatibilies<a name="step6"></a>
 
@@ -101,11 +110,9 @@ The Following Settings can be setting up in the `local.py`
 
 - LEDGER_CORP_TAX:          `15`             - Set Tax Value for ESS Payout Calculation
 
-- LEDGER_MEMBERAUDIT_USE:   `True / False`   - Set to use the Memberaudit Journal to Fetch Statistics
-
 - LEDGER_LOGGER_USE:        `True / False`   - Set to use own Logger File
 
-- LEDGER_CORPSTATS_TWO:     `True / False`   - Set to use Corp Stats Two APP to Fetch Members that are not registred
+- LEDGER_CORPSTATS_TWO:     `True / False`   - Set to use Corp Stats Two Application for fetching member data
 
 If you set up LEDGER_LOGGER_USE to `True` you need to add the following code below:
 

@@ -30,10 +30,6 @@ FUZZ_BASE_URL_REGEX = r"^http[s]?:\/\/(www\.)?fuzzwork\.co\.uk\/"
 # If True you need to set up the Logger
 LEDGER_LOGGER_USE = clean_setting("LEDGER_LOGGER_USE", False)
 
-# Corporation & Character Audit
-# If Character Ledger use Memeberaudit Journal or Own
-LEDGER_MEMBERAUDIT_USE = clean_setting("LEDGER_MEMBERAUDIT_USE", False)
-
 # Switch between AA-Corp Stats and CorpStats Two APP
 LEDGER_CORPSTATS_TWO = clean_setting("LEDGER_CORPSTATS_TWO", False)
 

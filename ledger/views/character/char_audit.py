@@ -7,6 +7,7 @@ from datetime import timedelta
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect
+from django.utils import timezone
 from esi.decorators import token_required
 
 from allianceauth.eveonline.models import EveCharacter
@@ -40,32 +41,42 @@ def fetch_memberaudit(request):
         # pylint: disable=import-outside-toplevel
         from memberaudit.models import Character
 
-        from django.utils import timezone
-
         chars = Character.objects.filter(is_disabled=0)
+        ledger_chars_ids = CharacterAudit.objects.values_list(
+            "character__character_id", flat=True
+        )
         count = 0
 
         # Zeitlimit für den letzten Wallet-Update (2 Stunden)
         time_limit = timezone.now() - timedelta(hours=2)
 
         for char in chars:
-            char_audit, _ = CharacterAudit.objects.get_or_create(
-                character=char.eve_character,
-                id=char.id,
-            )
-            if char_audit:
-                if (
-                    not char_audit.last_update_wallet
-                    or char_audit.last_update_wallet < time_limit
-                ):
-                    update_character.apply_async(
-                        args=[char.eve_character.character_id],
-                        kwargs={"force_refresh": True},
-                        priority=6,
-                    )
-                    count += 1
-                else:
+            try:
+                if char.eve_character.character_id in ledger_chars_ids:
                     continue
+                char_audit, _ = CharacterAudit.objects.get_or_create(
+                    character=char.eve_character,
+                    id=char.id,
+                )
+                if char_audit:
+                    if (
+                        not char_audit.last_update_wallet
+                        or char_audit.last_update_wallet < time_limit
+                    ):
+                        update_character.apply_async(
+                            args=[char.eve_character.character_id],
+                            kwargs={"force_refresh": True},
+                            priority=6,
+                        )
+                        count += 1
+                    else:
+                        continue
+            except EveCharacter.DoesNotExist:
+                logger.debug("Character %s not found", char)
+                continue
+            except AttributeError:
+                logger.debug("Attribute Error for %s", char)
+                continue
         msg = (
             f"{count} Char(s) successfully added/updated to Ledger"
             if count

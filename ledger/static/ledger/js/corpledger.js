@@ -1,4 +1,4 @@
-var selectedMonth, selectedYear, monthText, yearText;
+var ledgerData;
 var MonthTable, YearTable;
 var bb, d3;
 var BillboardMonth, BillboardYear;
@@ -9,9 +9,13 @@ var corporationPk = corporationsettings.corporation_pk;
 var currentDate = new Date();
 
 // Aktuelles Jahr und Monat abrufen
-selectedYear = currentDate.getFullYear();
-selectedMonth = currentDate.getMonth() + 1;
-monthText = getMonthName(selectedMonth);
+var selectedYear = currentDate.getFullYear();
+var selectedMonth = currentDate.getMonth() + 1;
+var monthText = getMonthName(selectedMonth);
+
+// Billboard URLs
+var BillboardUrl = '/ledger/api/corporation/' + corporationPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
+var BillboardUrlYear = '/ledger/api/corporation/' + corporationPk + '/billboard/year/' + selectedYear + '/month/0/';
 
 function getMonthName(monthNumber) {
     var months = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -43,9 +47,11 @@ $('#monthDropdown li').click(function() {
 
     // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
     var newurl = '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
+    var BillboardUrl = '/ledger/api/corporation/' + corporationPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
 
-    // DataTable neu laden mit den Daten des ausgewählten Monats
-    reloadMonthAjax(newurl);
+    // Daten neu laden mit den Daten des ausgewählten Monats
+    setBillboardData(BillboardUrl, 'Month');
+    reloadAjax(newurl, MonthAjax);
     $('#currentMonthLink').text('Month - ' + monthText);
 });
 
@@ -66,10 +72,14 @@ $('#yearDropdown li').click(function() {
     // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
     var newurl = '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
     var newurl_year = '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/0/';
+    var BillboardUrl = '/ledger/api/corporation/' + corporationPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
+    var BillboardUrlYear = '/ledger/api/corporation/' + corporationPk + '/billboard/year/' + selectedYear + '/month/0/';
 
-    // DataTable neu laden mit den Daten des ausgewählten Monats
-    reloadMonthAjax(newurl);
-    reloadYearAjax(newurl_year);
+    // Daten neu laden mit den Daten des ausgewählten Jahres
+    setBillboardData(BillboardUrl, 'Month');
+    setBillboardData(BillboardUrlYear, 'Year');
+    reloadAjax(newurl, MonthAjax);
+    reloadAjax(newurl_year, YearAjax);
     $('#currentMonthLink').text('Month - ' + monthText);
     $('#currentYearLink').text('Year - ' + selectedYear);
 });
@@ -96,21 +106,39 @@ function showContainer(id) {
     $('#rattingBarContainer-'+id).removeClass('d-none');
 }
 
-function reloadMonthAjax(newUrl) {
-    MonthAjax.url = newUrl; // Update URL
-    $('#ratting-Month').DataTable().destroy();
-    $.ajax(MonthAjax);
+function reloadAjax(newUrl, ajax) {
+    ajax.url = newUrl; // Update URL
+    $.ajax(ajax);
+}
+
+function setBillboardData(url, id) {
+    $.ajax({
+        url: url,
+        type: 'GET',
+        success: function(data) {
+            if (id === 'Month') {
+                BillboardMonth = data[0].billboard.standard;
+                loadBillboard(data[0].billboard.standard, 'Month');
+            } else {
+                BillboardYear = data[0].billboard.standard;
+                loadBillboard(data[0].billboard.standard, 'Year');
+            }
+        }
+    });
 }
 
 var MonthAjax = {
     url: '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/',
     type: 'GET',
     success: function(data) {
+        if (MonthTable) {
+            $('#ratting-Month').DataTable().destroy();
+        }
         hideLoading('Month');
         var total_amount = data[0].total.total_amount;
         var total_amount_ess = data[0].total.total_amount_ess;
         var total_amount_combined = data[0].total.total_amount_all;
-        BillboardMonth = data[0].billboard.standard;
+        // Daten für die Billboard-URLs speichern
 
         MonthTable = $('#ratting-Month').DataTable({
             data: data[0].ratting,
@@ -180,9 +208,6 @@ var MonthAjax = {
                     .addClass('text-end');
             },
             initComplete: function(settings, json) {
-                if ($('#currentMonthLink').hasClass('active')) {
-                    loadBillboard(BillboardMonth, 'Month');
-                }
                 $('#foot-Month').show();
                 // Initialize popover
                 var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
@@ -205,30 +230,27 @@ var MonthAjax = {
     }
 };
 
-function reloadYearAjax(newUrl) {
-    YearAjax.url = newUrl; // Update URL
-    $('#ratting-Year').DataTable().destroy();
-    $.ajax(YearAjax);
-}
-
 var YearAjax = {
     url: '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/0/',
     type: 'GET',
     success: function(data) {
+        if (YearTable) {
+            $('#ratting-Year').DataTable().destroy();
+        }
         hideLoading('Year');
         // Zusätzliche Daten im DataTable-Objekt speichern
         var total_amount = data[0].total.total_amount;
         var total_amount_ess = data[0].total.total_amount_ess;
         var total_amount_combined = data[0].total.total_amount_all;
-        BillboardYear = data[0].billboard.standard;
 
+        // DataTable neu initialisieren
         YearTable = $('#ratting-Year').DataTable({
             data: data[0].ratting,
             columns: [
                 {
                     data: 'main_name',
                     render: function (data, type, row) {
-                        // Initialize alt_names
+                    // Initialize alt_names
                         var alt_portrait = 'Included Characters: ';
 
                         // Loop through alt_names and add each image
@@ -260,12 +282,12 @@ var YearAjax = {
                     data: 'col-total-action',
                     render: function (data, type, row) {
                         return '<button class="btn btn-sm btn-info btn-square" ' +
-                            'data-bs-toggle="modal" ' +
-                            'data-bs-target="#modalViewCharacterContainer" ' +
-                            'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/0/" ' +
-                            'title="' + row.main_name + '">' +
-                            '<span class="fas fa-info"></span>' +
-                            '</button>';
+                        'data-bs-toggle="modal" ' +
+                        'data-bs-target="#modalViewCharacterContainer" ' +
+                        'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/0/" ' +
+                        'title="' + row.main_name + '">' +
+                        '<span class="fas fa-info"></span>' +
+                        '</button>';
                     }
                 },
             ],
@@ -285,20 +307,17 @@ var YearAjax = {
                 $('#foot-Year .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
                 $('#foot-Year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
                 $('#foot-Year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
-                    'aria-label="{{ data.main_name }}"' +
-                    'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/0/?corp=true" ' +
-                    'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
+                'aria-label="{{ data.main_name }}"' +
+                'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/0/?corp=true" ' +
+                'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
                     .addClass('text-end');
             },
             initComplete: function(settings, json) {
-                if ($('#currentYearLink').hasClass('active')) {
-                    loadBillboard(BillboardYear, 'Year');
-                }
                 $('#foot-Year').show();
                 // Initialize popover
                 var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
                 var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-                    // eslint-disable-next-line no-undef
+                // eslint-disable-next-line no-undef
                     return new bootstrap.Popover(popoverTriggerEl, {
                         html: true
                     });
@@ -317,11 +336,14 @@ var YearAjax = {
 };
 
 
-
 function loadBillboard(data, id) {
     // Initialize a charts object if it doesn't exist
     if (window.charts === undefined) {
         window.charts = {};
+    }
+
+    if (!data) {
+        return;
     }
 
     // Billboard
@@ -419,7 +441,11 @@ function loadBillboard(data, id) {
         $('#rattingBarContainer-'+id).addClass('d-none');
     }
 }
+
 document.addEventListener('DOMContentLoaded', function () {
+    setBillboardData(BillboardUrl, 'Month');
+    setBillboardData(BillboardUrlYear, 'Year');
+
     // Initialize DataTable
     $.ajax(MonthAjax);
     $.ajax(YearAjax);
@@ -432,11 +458,11 @@ $('#ledger-ratting').on('click', 'a[data-bs-toggle=\'tab\']', function () {
         if ($('#currentYearLink').hasClass('active')) {
             loadBillboard(BillboardYear, 'Year');
         }
-    }, 500);
+    }, 100);
     setTimeout(function() {
         // Überprüfen, ob das spezifische Tab aktiv ist
         if ($('#currentMonthLink').hasClass('active')) {
             loadBillboard(BillboardMonth, 'Month');
         }
-    }, 500);
+    }, 100);
 });

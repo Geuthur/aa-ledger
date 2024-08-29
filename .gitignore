@@ -10,3 +10,4 @@ node_modules/
 .env
 .pypirc
 /coverage.xml
+testing/

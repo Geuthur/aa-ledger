@@ -2,6 +2,7 @@ from typing import Optional
 
 from ninja import NinjaAPI
 
+from django.db.models import Q
 from django.test import TestCase
 
 from app_utils.testing import create_user_from_evecharacter
@@ -9,13 +10,9 @@ from app_utils.testing import create_user_from_evecharacter
 from ledger import app_settings
 from ledger.api.character.journal import LedgerJournalApiEndpoints
 from ledger.api.schema import Character
+from ledger.models.characteraudit import CharacterWalletJournalEntry
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 from ledger.tests.testdata.load_ledger import load_ledger_all
-
-if app_settings.LEDGER_MEMBERAUDIT_USE:
-    from memberaudit.models import CharacterWalletJournalEntry
-else:
-    from ledger.models.characteraudit import CharacterWalletJournalEntry
 
 
 class ManageApiJournalCharEndpointsTest(TestCase):
@@ -62,20 +59,12 @@ class ManageApiJournalCharEndpointsTest(TestCase):
                     "id": journal.entry_id,
                     "date": journal.date.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "first_party": {
-                        "id": (
-                            journal.first_party.eve_id
-                            if not app_settings.LEDGER_MEMBERAUDIT_USE
-                            else journal.first_party.id
-                        ),
+                        "id": (journal.first_party.eve_id),
                         "name": journal.first_party.name,
                         "cat": journal.first_party.category,
                     },
                     "second_party": {
-                        "id": (
-                            journal.second_party.eve_id
-                            if not app_settings.LEDGER_MEMBERAUDIT_USE
-                            else journal.second_party.id
-                        ),
+                        "id": (journal.second_party.eve_id),
                         "name": journal.second_party.name,
                         "cat": journal.second_party.category,
                     },
@@ -108,20 +97,12 @@ class ManageApiJournalCharEndpointsTest(TestCase):
                     "id": journal.entry_id,
                     "date": journal.date.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "first_party": {
-                        "id": (
-                            journal.first_party.eve_id
-                            if not app_settings.LEDGER_MEMBERAUDIT_USE
-                            else journal.first_party.id
-                        ),
+                        "id": (journal.first_party.eve_id),
                         "name": journal.first_party.name,
                         "cat": journal.first_party.category,
                     },
                     "second_party": {
-                        "id": (
-                            journal.second_party.eve_id
-                            if not app_settings.LEDGER_MEMBERAUDIT_USE
-                            else journal.second_party.id
-                        ),
+                        "id": (journal.second_party.eve_id),
                         "name": journal.second_party.name,
                         "cat": journal.second_party.category,
                     },
@@ -136,7 +117,7 @@ class ManageApiJournalCharEndpointsTest(TestCase):
 
     def test_get_character_journal_api_single_ref_types(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/account/1001/wallet/?type_refs=bounty_prizes,player_donation,contract_reward,transaction_tax,industry_job_tax,market_escrow"
+        url = "/ledger/api/account/1001/wallet/?type_refs=bounty_prizes,player_donation,contract_reward,transaction_tax,industry_job_tax,market_escrow,insurance"
 
         journal_query = CharacterWalletJournalEntry.objects.filter(
             character__character__character_id=1001
@@ -154,20 +135,12 @@ class ManageApiJournalCharEndpointsTest(TestCase):
                     "id": journal.entry_id,
                     "date": journal.date.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "first_party": {
-                        "id": (
-                            journal.first_party.eve_id
-                            if not app_settings.LEDGER_MEMBERAUDIT_USE
-                            else journal.first_party.id
-                        ),
+                        "id": (journal.first_party.eve_id),
                         "name": journal.first_party.name,
                         "cat": journal.first_party.category,
                     },
                     "second_party": {
-                        "id": (
-                            journal.second_party.eve_id
-                            if not app_settings.LEDGER_MEMBERAUDIT_USE
-                            else journal.second_party.id
-                        ),
+                        "id": (journal.second_party.eve_id),
                         "name": journal.second_party.name,
                         "cat": journal.second_party.category,
                     },

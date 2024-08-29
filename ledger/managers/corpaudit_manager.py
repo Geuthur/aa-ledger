@@ -42,9 +42,9 @@ class CorpAuditQuerySet(models.QuerySet):
             return self.none()
 
 
-class CorpAuditManager(models.Manager):
-    def get_queryset(self):
-        return CorpAuditQuerySet(self.model, using=self._db)
-
+class CorpAuditManagerBase(models.Manager):
     def visible_to(self, user):
         return self.get_queryset().visible_to(user)
+
+
+CorpAuditManager = CorpAuditManagerBase.from_queryset(CorpAuditQuerySet)

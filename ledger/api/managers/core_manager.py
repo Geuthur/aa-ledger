@@ -5,13 +5,9 @@ from datetime import datetime
 from django.db.models import Q
 from django.utils import timezone
 
-from ledger import app_settings
 from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
-
-# Add Filter to LedgerDataCore
-# TODO agent_mission_time_bonus_reward, agent_mission_reward
 
 
 @dataclass
@@ -73,6 +69,14 @@ class LedgerTotal:
     def to_dict(self):
         return asdict(self)
 
+    def get_data(self, totals: dict):
+        self.total_amount += totals.get("total_amount", 0)
+        self.total_amount_ess += totals.get("total_amount_ess", 0)
+        self.total_amount_all += totals.get("total_amount_all", 0)
+        self.total_amount_mining += totals.get("total_amount_mining", 0)
+        self.total_amount_others += totals.get("total_amount_others", 0)
+        self.total_amount_costs += totals.get("total_amount_costs", 0)
+
 
 @dataclass
 class LedgerFilterCore:
@@ -96,13 +100,13 @@ class LedgerFilterPvE(LedgerFilterCore):
     def __init__(self, char_id):
         super().__init__(char_id)
 
-        self.filter_bounty = self.filter_second_party & Q(ref_type="bounty_prizes")
-        self.filter_ess = self.filter_second_party & Q(ref_type="ess_escrow_transfer")
-        self.filter_mining = (
-            Q(character__eve_character__character_id__in=self.char_id)
-            if app_settings.LEDGER_MEMBERAUDIT_USE
-            else Q(character__character__character_id__in=self.char_id)
+        self.filter_bounty = self.filter_second_party & Q(
+            ref_type="bounty_prizes", amount__gt=0
         )
+        self.filter_ess = self.filter_second_party & Q(
+            ref_type="ess_escrow_transfer", amount__gt=0
+        )
+        self.filter_mining = Q(character__character__character_id__in=self.char_id)
 
         self.filter_all_pve = self.filter_bounty | self.filter_ess | self.filter_mining
 
@@ -195,6 +199,10 @@ class LedgerFilterCost(LedgerFilterPvE):
             amount__lt=0,
         )
 
+        self.loyality_points_cost = self.filter_partys & Q(
+            ref_type="lp_store", amount__lt=0
+        )
+
         self.filter_costs = self.filter_partys & Q(amount__lt=0)
 
         self.filter_all_costs = (
@@ -206,6 +214,7 @@ class LedgerFilterCost(LedgerFilterPvE):
             | self.filter_skill_cost
             | self.filter_insurance_cost
             | self.filter_planetary_cost
+            | self.loyality_points_cost
         )
 
     def get_all_costs_filters(self):
@@ -218,6 +227,7 @@ class LedgerFilterCost(LedgerFilterPvE):
             "skill_cost": self.filter_skill_cost,
             "insurance_cost": self.filter_insurance_cost,
             "planetary_cost": self.filter_planetary_cost,
+            "loyality_point_cost": self.loyality_points_cost,
         }
 
 
@@ -227,7 +237,10 @@ class LedgerFilterTrading(LedgerFilterCost):
 
     def __init__(self, char_id):
         super().__init__(char_id)
-        self.filter_market = self.filter_partys & Q(ref_type="market_transaction")
+        self.filter_market = self.filter_partys & Q(
+            ref_type="market_transaction", amount__gt=0
+        )
+
         self.filter_contract = self.filter_partys & Q(
             ref_type__in=[
                 "contract_price_payment_corp",
@@ -275,16 +288,11 @@ class LedgerFilterMission(LedgerFilterTrading):
             amount__gt=0,
         )
 
-        self.loyality_points_cost = self.filter_partys & Q(
-            ref_type="lp_store", amount__lt=0
-        )
-
-        self.filter_all_missions = self.filter_mission | self.loyality_points_cost
+        self.filter_all_missions = self.filter_mission
 
     def get_all_mission_filters(self):
         return {
             "mission": self.filter_mission,
-            "loyality_point_cost": self.loyality_points_cost,
         }
 
 
