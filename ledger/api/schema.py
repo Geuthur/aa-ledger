@@ -59,13 +59,12 @@ class CharacterPlanetDetails(Schema):
     character_name: Optional[str] = None
     planet: Optional[str] = None
     planet_id: Optional[int] = None
+    upgrade_level: Optional[int] = None
     expiry_date: Optional[datetime] = None
     expired: Optional[bool] = None
-    p0: Optional[List] = None
-    p1: Optional[List] = None
-    p2: Optional[List] = None
-    p3: Optional[List] = None
-    p4: Optional[List] = None
+    alarm: Optional[bool] = None
+    products: Optional[Dict] = None
+    extractors: Optional[Dict] = None
 
 
 class CharacterLedger(Schema):

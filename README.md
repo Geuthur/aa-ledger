@@ -70,6 +70,11 @@ CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
     "task": "ledger.tasks.update_all_corps",
     "schedule": crontab(minute=0, hour="*/1"),
 }
+
+CELERYBEAT_SCHEDULE["ledger_check_planetary_alarms"] = {
+    "task": "ledger.tasks.check_planetary_alarms",
+    "schedule": crontab(minute=0, hour="*/3"),
+}
 ```
 
 > \[!NOTE\]

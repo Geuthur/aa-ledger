@@ -1,28 +1,276 @@
 {% extends 'ledger/base.html' %}
-    {% load i18n %}
-    {% load humanize %}
+{% load i18n %}
+{% load humanize %}
+{% load static %}
+{% load ledger %}
+
+{% block page_title %}Planetary Details{% endblock %}
+{% block page_topic %}<h1 class="page-header text-center">{% translate "Planetary Details" %}</h1>{% endblock page_topic %}
 
 {% block vow_block %}
-    <div class="panel panel-primary">
-        <div class="container-fluid">
-            <div id="container">
-            </div>
+<div class="card-body container-fluid">
+    <div class="card-body bg-primary rounded-top d-flex">
+        <h3>{% translate "Planetary Details" %} </h3>
+    </div>
+
+    <div class="card-body tab-content rounded-bottom">
+        <div class="">
+            <span>
+                <i class="fa-solid fa-bullhorn"></i> Notification ON/OFF
+            <span/>
         </div>
     </div>
+    <div class="card-body tab-content rounded-bottom">
+        <div class="tab-content">
+            {% include 'ledger/planetary/partials/table.html' %}
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_javascript %}
-{% include "ledger/modals/modal-full.html" %}
-{% include 'ledger/bundles/ledger-css.html' %}
-<script src="/static/ledger/js/img.js"></script>
-{% endblock %}
+{% include 'ledger/bundles/table-css.html' %}
+<script type="application/javascript">
+	let planetarySettings = {
+		switchAlarmUrl: '{% url "ledger:switch_alarm" character_id=1337 planet_id=1337 %}',
+		csrfToken: '{% csrf_token %}',
+		switchAlarmText: '{% translate "Are you sure to Switch Alarm?" %}',
+        switchAlarm: '{% translate "Toggle Alarm" %}',
+	};
+</script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var csrfToken = planetarySettings.csrfToken;
+        var urlAlarm = planetarySettings.switchAlarmUrl;
+        var switchAlarmText = planetarySettings.switchAlarmText;
+        var switchAlarm = planetarySettings.switchAlarm;
+
+        function switchAlarmUrl(characterId, planetId) {
+            return planetarySettings.switchAlarmUrl
+                .replace("1337", characterId)
+                .replace("1337", planetId);
+        }
+
+        var confirmModal = document.getElementById('confirmModal');
+        var confirmRequest = document.getElementById('confirm-request');
+        var finalizeActionButton = document.getElementById('finalizeActionButton');
+
+        confirmModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var confirmText = button.getAttribute('data-confirm-text');
+            var formId = button.getAttribute('data-form-id');
+
+            confirmRequest.textContent = confirmText;
+
+            finalizeActionButton.onclick = function () {
+                document.getElementById(formId).submit();
+                var modal = bootstrap.Modal.getInstance(confirmModal);
+                modal.hide();
+            };
+        });
+
+        fetch('https://testing.voices-of-war.de/ledger/api/account/0/planetary/0/details/')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector('#planets-details tbody');
+                const characterIds = new Set();
+
+                data.forEach(item => {
+                    characterIds.add(item.character_id);
+                    Object.entries(item.extractors).forEach(([extractorId, extractor]) => {
+                        const row = document.createElement('tr');
+
+                        // Character
+                        const characterCell = document.createElement('td');
+                        characterCell.textContent = item.character_name;
+                        row.appendChild(characterCell);
+
+                        // Planet Type
+                        const planetTypeCell = document.createElement('td');
+                        planetTypeCell.textContent = item.planet;
+
+                        // Alarm Icon
+                        const alarmIcon = document.createElement('i');
+                        alarmIcon.className = 'fa-solid fa-bullhorn';
+                        alarmIcon.style.marginLeft = '5px';
+                        alarmIcon.style.color = 'green';
+                        if (!item.alarm) {
+                            alarmIcon.style.color = 'red';
+                        }
+                        planetTypeCell.appendChild(alarmIcon);
+                        row.appendChild(planetTypeCell);
+
+                        // Upgrade Level (assuming you have this data)
+                        const upgradeLevelCell = document.createElement('td');
+                        upgradeLevelCell.textContent = item.upgrade_level;
+                        row.appendChild(upgradeLevelCell);
+
+                        // Products
+                        const productsCell = document.createElement('td');
+                        productsCell.innerHTML = Object.values(item.products).map(product => {
+                            const img = document.createElement('img');
+                            img.src = `https://images.evetech.net/types/${product.id}/icon?size=32`;
+                            img.alt = product.name;
+                            img.title = product.name;
+                            return img.outerHTML;
+                        }).join(' ');
+                        row.appendChild(productsCell);
+
+                        // Extractor
+                        const extractorCell = document.createElement('td');
+                        extractorCell.textContent = extractorId;
+                        row.appendChild(extractorCell);
+
+                        // Extractor Type
+                        const extractorTypeCell = document.createElement('td');
+                        const typeImg = document.createElement('img');
+                        typeImg.src = `https://images.evetech.net/types/${extractor.product_type_id}/icon?size=32`;
+                        typeImg.alt = extractor.product_type_id;
+                        typeImg.title = extractor.product_name;
+                        extractorTypeCell.appendChild(typeImg);
+                        row.appendChild(extractorTypeCell);
+
+                        // Progress
+                        const progressCell = document.createElement('td');
+                        const installTime = new Date(extractor.install_time);
+                        const expiryTime = new Date(extractor.expiry_time);
+                        const currentTime = new Date();
+                        const totalDuration = expiryTime - installTime;
+                        const elapsedDuration = currentTime - installTime;
+                        const progressPercentage = Math.min((elapsedDuration / totalDuration) * 100, 100);
+
+                        const progressBar = document.createElement('div');
+                        progressBar.className = 'progress-outer';
+                        progressBar.innerHTML = `
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" style="width: ${progressPercentage}%; box-shadow: -1px 10px 10px rgba(240, 173, 78, 0.7);" aria-valuenow="${progressPercentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress-value">${progressPercentage.toFixed(0)}%</div>
+                            </div>
+                        `;
+                        progressCell.appendChild(progressBar);
+                        row.appendChild(progressCell);
+
+                        // Expiry
+                        const expiryCell = document.createElement('td');
+                        expiryCell.textContent = new Date(item.expiry_date).toLocaleString();
+                        row.appendChild(expiryCell);
+
+                        // Status
+                        const statusCell = document.createElement('td');
+                        const statusImg = document.createElement('img');
+                        statusImg.style.width = '32px';
+                        statusImg.style.height = '32px';
+                        if (item.expired) {
+                            statusImg.src = "{% static 'ledger/images/red.png' %}";
+                            statusImg.alt = "Expired";
+                            statusImg.title = "Expired";
+                        } else {
+                            statusImg.src = "{% static 'ledger/images/green.png' %}";
+                            statusImg.alt = "Active";
+                            statusImg.title = "Active";
+                        }
+                        statusCell.appendChild(statusImg);
+                        row.appendChild(statusCell);
+
+                        // Actions
+                        const actionsCell = document.createElement('td');
+                        const switchAlarmButton = document.createElement('button');
+                        switchAlarmButton.textContent = 'Switch Alarm';
+                        switchAlarmButton.className = 'btn btn-primary';
+                        const characterId = item.character_id;
+                        const planetId = item.planet_id;
+                        const url = switchAlarmUrl(characterId, planetId);
+                        const csrfToken = planetarySettings.csrfToken;
+                        var button = '';
+                        button +=
+                            '<form class="d-inline" method="post" action="' + switchAlarmUrl(characterId, planetId) + '" id="switchAlarmForm' + characterId + '_' + planetId + '">' +
+                            csrfToken +
+                            '<button type="button" class="btn btn-primary btn-sm btn-square" aria-label="' + switchAlarm + '" title="' + switchAlarm + '" data-bs-toggle="modal" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '" data-form-id="switchAlarmForm' + characterId + '_' + planetId + '"><span class="fas fa-bullhorn"></span></button></form>';
+                        actionsCell.innerHTML = button;
+                        row.appendChild(actionsCell);
+
+                        tbody.appendChild(row);
+                    });
+                });
+
+                // Add "Switch All Alarms" button if data exists
+                if (data.length > 0) {
+                    const switchAllAlarmsButton = document.createElement('button');
+                    switchAllAlarmsButton.textContent = 'Switch All Alarms';
+                    switchAllAlarmsButton.className = 'btn btn-primary';
+                    switchAllAlarmsButton.style.marginTop = '10px';
+
+                    const switchAllAlarmsForm = document.createElement('form');
+                    switchAllAlarmsForm.method = 'post';
+                    switchAllAlarmsForm.action = switchAlarmUrl(0, 0);
+                    switchAllAlarmsForm.id = 'switchAllAlarmsForm';
+                    switchAllAlarmsForm.className = 'd-inline';
+                    switchAllAlarmsForm.innerHTML = csrfToken +
+                        '<button type="button" class="btn btn-primary btn-sm btn-square" aria-label="' + switchAlarm + '" title="' + switchAlarm + '" data-bs-toggle="modal" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '" data-form-id="switchAllAlarmsForm">' + switchAllAlarmsButton.textContent + '</button>';
+
+                    const tableContainer = document.querySelector('#planets-details').parentElement;
+                    const switchAllAlarmsContainer = document.createElement('div');
+                    switchAllAlarmsContainer.className = 'switch-all-alarms-container';
+                    switchAllAlarmsContainer.appendChild(switchAllAlarmsForm);
+                    tableContainer.appendChild(switchAllAlarmsContainer);
+                }
+
+                // Initialize DataTable with sorting on the expiry column
+                $('#planets-details').DataTable({
+                    "order": [[7, "desc"]],
+                    "pageLength": 25,
+                    "columnDefs": [
+                    { "orderable": false, "targets": 'no-sort' }
+                ]
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    });
+</script>
+{% include 'bundles/datatables-js-bs5.html' %}
+{% endblock %}
 {% block extra_css %}
 <style>
-.zoom-size {
-    max-width: 300px;
-    max-height: 300px;
-}
+    .progress-outer {
+        position: relative;
+        background: #fff;
+        border-radius: 50px;
+        box-shadow: 0 0 10px rgba(0, 219, 231, 0.7);
+        overflow: hidden; /* Ensure the inner progress bar doesn't overflow */
+    }
+    .progress {
+        height: 27px;
+        margin: 0;
+        overflow: visible;
+        border-radius: 50px;
+        background: #eaedf3;
+        box-shadow: inset 0 10px 10px rgba(244, 245, 250, 0.9);
+    }
+    .progress .progress-bar {
+        border-radius: 50px;
+    }
+    .progress .progress-value {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 16px;
+        font-weight: bold;
+        color: #fff;
+        letter-spacing: 2px;
+        -webkit-text-stroke: 1px #000;
+    }
+    .progress-bar.active {
+        animation: reverse progress-bar-stripes 0.40s linear infinite, animate-positive 2s;
+    }
+    @-webkit-keyframes animate-positive {
+        0% { width: 0%; }
+    }
+    @keyframes animate-positive {
+        0% { width: 0%; }
+    }
 </style>
 {% endblock %}
 

@@ -43,6 +43,13 @@ class CharacterPlanet(models.Model):
 
     # objects = AuditCharacterManager()
 
+    class Meta:
+        default_permissions = ()
+        indexes = [
+            models.Index(fields=["character"]),
+            models.Index(fields=["planet"]),
+        ]
+
     def __str__(self):
         return f"Planet Data: {self.character.character.character_name} - {self.planet.name}"
 
@@ -161,8 +168,27 @@ class CharacterPlanetDetails(models.Model):
 
     # objects = AuditCharacterManager()
 
+    class Meta:
+        default_permissions = ()
+        indexes = [
+            models.Index(fields=["planet"]),
+        ]
+
     def __str__(self):
-        return f"Planet Details Data: {self.character.character.character_name} - {self.planet.planet.name}"
+        return f"Planet Details Data: {self.planet.character.character.character_name} - {self.planet.planet.name}"
+
+    def get_planet_install_date(self):
+        install_times = [
+            pin.get("install_time")
+            for pin in self.pins
+            if pin.get("install_time") and pin["install_time"] != "0"
+        ]
+        if install_times:
+            install = timezone.datetime.fromisoformat(
+                min(install_times).replace("Z", "+00:00")
+            )
+            return install
+        return None
 
     def get_planet_expiry_date(self):
         expiry_times = [
@@ -225,3 +251,20 @@ class CharacterPlanetDetails(models.Model):
                     "category": product_category,
                 }
         return product_types
+
+    def count_extractors(self):
+        return len([pin for pin in self.pins if pin.get("type_id") == 3060])
+
+    def all_extractors_info(self) -> dict:
+        extractors = {}
+        for pin in self.pins:
+            if pin.get("type_id") == 3060:
+                type_id = pin["extractor_details"].get("product_type_id")
+                type_data, _ = EveType.objects.get_or_create_esi(id=type_id)
+                extractors[pin.get("pin_id")] = {
+                    "install_time": pin.get("install_time"),
+                    "expiry_time": pin.get("expiry_time"),
+                    "product_type_id": type_id,
+                    "product_name": type_data.name,
+                }
+        return extractors

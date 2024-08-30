@@ -10,12 +10,13 @@
   - Planets Details API
   - Planets Overview
   - Alarm System for Expired Heads
-    - Alarm for each Planet
-    - Switchable
+    - Alarm Notification for each Planet
+    - Switchable Notification
   - Graphical Details
     - Progress Bar
     - Item Type
     - Planets
+  - Progression Display
 
 - Character Audit Model
 

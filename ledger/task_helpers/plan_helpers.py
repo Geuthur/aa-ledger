@@ -3,12 +3,7 @@ Planetary Helpers
 """
 
 from django.utils import timezone
-from django.utils.html import format_html
-from django.utils.translation import gettext_lazy as _
 from eveuniverse.models import EvePlanet
-
-from allianceauth.authentication.models import CharacterOwnership
-from allianceauth.notifications import notify
 
 from ledger.decorators import log_timing
 from ledger.hooks import get_extension_logger
@@ -170,26 +165,6 @@ def update_character_planetary_details(character_id, planet_id, force_refresh=Fa
                     planet.planet.character.character.character_name,
                 )
                 planet.last_alert = timezone.now()
-                # Send Notification if Extractor Heads are expired for more than 1 day
-                if planet.alarted:
-                    title = _("Planetary Extractor Heads Expired")
-                    msg = _(
-                        "Planet Extractor Heads have expired for %(charname)s on %(planetname)s"
-                    ) % {
-                        "charname": planet.planet.character.character.character_name,
-                        "planetname": planet.planet.planet.name,
-                    }
-
-                    owner = CharacterOwnership.objects.get(
-                        character__character_id=character_id
-                    )
-
-                    notify(
-                        title=title,
-                        message=format_html(msg),
-                        user=owner.user,
-                        level="warning",
-                    )
 
             # Reset Alert after 1 day
             if planet.last_alert < timezone.now() - timezone.timedelta(days=1):

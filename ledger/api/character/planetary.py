@@ -78,24 +78,22 @@ class LedgerPlanetaryApiEndpoints:
             if not planet_id == 0:
                 filters &= Q(planet__planet__id=planet_id)
 
-            planets = CharacterPlanetDetails.objects.filter(filters).select_related(
-                "planet"
+            planets = (
+                CharacterPlanetDetails.objects.filter(filters)
+                .prefetch_related(
+                    "planet",
+                    "planet__planet",
+                    "planet__character",
+                    "planet__character__character",
+                )
+                .select_related("planet__planet")
             )
-
-            def categorize_types(types):
-                categories = {"P0": [], "P1": [], "P2": [], "P3": [], "P4": []}
-                for t in types.values():
-                    category = t.get("category")
-                    if category in categories:
-                        categories[category].append(t.get("id"))
-                return categories
 
             output = []
 
             for p in planets:
                 types = p.allocate_products()
-
-                categorized_types = categorize_types(types)
+                extractors = p.all_extractors_info()
 
                 output.append(
                     {
@@ -103,13 +101,12 @@ class LedgerPlanetaryApiEndpoints:
                         "character_name": p.planet.character.character.character_name,
                         "planet": p.planet.planet.name,
                         "planet_id": p.planet.planet.id,
+                        "upgrade_level": p.planet.upgrade_level,
                         "expiry_date": p.get_planet_expiry_date(),
                         "expired": p.is_expired(),
-                        "p0": categorized_types["P0"],
-                        "p1": categorized_types["P1"],
-                        "p2": categorized_types["P2"],
-                        "p3": categorized_types["P3"],
-                        "p4": categorized_types["P4"],
+                        "alarm": p.alarted,
+                        "products": types,
+                        "extractors": extractors,
                     }
                 )
             return output
