@@ -125,12 +125,6 @@ def update_character_planetary_details(character_id, planet_id, force_refresh=Fa
         character__character__character_id=character_id, planet__id=planet_id
     )
 
-    skip_date = timezone.now() - timezone.timedelta(hours=3)
-    mindt = timezone.now() - timezone.timedelta(days=90)
-
-    if (planet_char.last_update or mindt) <= skip_date or force_refresh:
-        return "Skipped"
-
     logger.debug(
         "Updating planet details %s for: %s",
         planet_char.planet.name,

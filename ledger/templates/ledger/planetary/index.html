@@ -12,222 +12,80 @@
     <div class="card-body bg-primary rounded-top d-flex">
         <h3>{% translate "Planetary Details" %} </h3>
     </div>
-
-    <div class="card-body tab-content rounded-bottom">
-        <div class="">
+    <div class="card-body bg-secondary tab-content rounded-bottom">
+        <div class="d-flex justify-content-between align-items-center">
             <span>
-                <i class="fa-solid fa-bullhorn"></i> Notification ON/OFF
-            <span/>
+                <i class="fa-solid fa-bullhorn"></i> Notification <span class="text-success">ON</span>/<span class="text-danger">OFF</span>
+            </span>
+            <span id="next-update" class="text-end">Next update in: calculating...</span>
         </div>
-    </div>
-    <div class="card-body tab-content rounded-bottom">
+
+        <br><br>
+
         <div class="tab-content">
             {% include 'ledger/planetary/partials/table.html' %}
         </div>
     </div>
 </div>
 
+<div class="modal modal-xl fade" id="extractorInfoModal" tabindex="-1" aria-labelledby="extractorInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="extractorInfoModalLabel">Extractor Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Extractor details will be populated here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_javascript %}
 {% include 'ledger/bundles/table-css.html' %}
 <script type="application/javascript">
 	let planetarySettings = {
+        planetaryUrl: '/ledger/api/account/{{ character_pk }}/planetary/0/details/',
 		switchAlarmUrl: '{% url "ledger:switch_alarm" character_id=1337 planet_id=1337 %}',
 		csrfToken: '{% csrf_token %}',
 		switchAlarmText: '{% translate "Are you sure to Switch Alarm?" %}',
         switchAlarm: '{% translate "Toggle Alarm" %}',
+        alarmActivated: '{% translate "Notification Activated" %}',
+        alarmDeactivated: '{% translate "Notification Deactivated" %}',
+        characterPk: '{{ character_pk }}',
+        updateInterval: '{{ update_interval }}',
 	};
 </script>
-
+<script src="{% static 'ledger/js/planetary.js' %}"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var csrfToken = planetarySettings.csrfToken;
-        var urlAlarm = planetarySettings.switchAlarmUrl;
-        var switchAlarmText = planetarySettings.switchAlarmText;
-        var switchAlarm = planetarySettings.switchAlarm;
+    var updateInterval = planetarySettings.updateInterval;
+    function calculateNextUpdate() {
+        const now = new Date();
+        const minutes = now.getMinutes();
+        const hours = now.getHours();
+        const seconds = now.getSeconds();
 
-        function switchAlarmUrl(characterId, planetId) {
-            return planetarySettings.switchAlarmUrl
-                .replace("1337", characterId)
-                .replace("1337", planetId);
-        }
+        // Calculate the minutes to the next 1-hour interval
+        const nextUpdateHour = Math.ceil((seconds + 1)) * updateInterval;
+        const nextUpdate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), nextUpdateHour, 0, 0);
 
-        var confirmModal = document.getElementById('confirmModal');
-        var confirmRequest = document.getElementById('confirm-request');
-        var finalizeActionButton = document.getElementById('finalizeActionButton');
+        const timeDifference = nextUpdate - now;
+        const minutesToNextUpdate = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+        const secondsToNextUpdate = Math.floor((timeDifference % (1000 * 60)) / 1000);
 
-        confirmModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var confirmText = button.getAttribute('data-confirm-text');
-            var formId = button.getAttribute('data-form-id');
+        document.getElementById('next-update').innerText = `Next update in: ${minutesToNextUpdate} minutes and ${secondsToNextUpdate} seconds`;
+    }
 
-            confirmRequest.textContent = confirmText;
+    // Initial calculation
+    calculateNextUpdate();
 
-            finalizeActionButton.onclick = function () {
-                document.getElementById(formId).submit();
-                var modal = bootstrap.Modal.getInstance(confirmModal);
-                modal.hide();
-            };
-        });
-
-        fetch('/ledger/api/account/0/planetary/0/details/')
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.querySelector('#planets-details tbody');
-                const characterIds = new Set();
-
-                data.forEach(item => {
-                    characterIds.add(item.character_id);
-                    Object.entries(item.extractors).forEach(([extractorId, extractor]) => {
-                        const row = document.createElement('tr');
-
-                        // Character
-                        const characterCell = document.createElement('td');
-                        characterCell.textContent = item.character_name;
-                        row.appendChild(characterCell);
-
-                        // Planet Type
-                        const planetTypeCell = document.createElement('td');
-                        planetTypeCell.textContent = item.planet;
-
-                        // Alarm Icon
-                        const alarmIcon = document.createElement('i');
-                        alarmIcon.className = 'fa-solid fa-bullhorn';
-                        alarmIcon.style.marginLeft = '5px';
-                        alarmIcon.style.color = 'green';
-                        if (!item.alarm) {
-                            alarmIcon.style.color = 'red';
-                        }
-                        planetTypeCell.appendChild(alarmIcon);
-                        row.appendChild(planetTypeCell);
-
-                        // Upgrade Level (assuming you have this data)
-                        const upgradeLevelCell = document.createElement('td');
-                        upgradeLevelCell.textContent = item.upgrade_level;
-                        row.appendChild(upgradeLevelCell);
-
-                        // Products
-                        const productsCell = document.createElement('td');
-                        productsCell.innerHTML = Object.values(item.products).map(product => {
-                            const img = document.createElement('img');
-                            img.src = `https://images.evetech.net/types/${product.id}/icon?size=32`;
-                            img.alt = product.name;
-                            img.title = product.name;
-                            return img.outerHTML;
-                        }).join(' ');
-                        row.appendChild(productsCell);
-
-                        // Extractor
-                        const extractorCell = document.createElement('td');
-                        extractorCell.textContent = extractorId;
-                        row.appendChild(extractorCell);
-
-                        // Extractor Type
-                        const extractorTypeCell = document.createElement('td');
-                        const typeImg = document.createElement('img');
-                        typeImg.src = `https://images.evetech.net/types/${extractor.product_type_id}/icon?size=32`;
-                        typeImg.alt = extractor.product_type_id;
-                        typeImg.title = extractor.product_name;
-                        extractorTypeCell.appendChild(typeImg);
-                        row.appendChild(extractorTypeCell);
-
-                        // Progress
-                        const progressCell = document.createElement('td');
-                        const installTime = new Date(extractor.install_time);
-                        const expiryTime = new Date(extractor.expiry_time);
-                        const currentTime = new Date();
-                        const totalDuration = expiryTime - installTime;
-                        const elapsedDuration = currentTime - installTime;
-                        const progressPercentage = Math.min((elapsedDuration / totalDuration) * 100, 100);
-
-                        const progressBar = document.createElement('div');
-                        progressBar.className = 'progress-outer';
-                        progressBar.innerHTML = `
-                            <div class="progress">
-                                <div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" style="width: ${progressPercentage}%; box-shadow: -1px 10px 10px rgba(240, 173, 78, 0.7);" aria-valuenow="${progressPercentage}" aria-valuemin="0" aria-valuemax="100"></div>
-                                <div class="progress-value">${progressPercentage.toFixed(0)}%</div>
-                            </div>
-                        `;
-                        progressCell.appendChild(progressBar);
-                        row.appendChild(progressCell);
-
-                        // Expiry
-                        const expiryCell = document.createElement('td');
-                        expiryCell.textContent = new Date(item.expiry_date).toLocaleString();
-                        row.appendChild(expiryCell);
-
-                        // Status
-                        const statusCell = document.createElement('td');
-                        const statusImg = document.createElement('img');
-                        statusImg.style.width = '32px';
-                        statusImg.style.height = '32px';
-                        if (item.expired) {
-                            statusImg.src = "{% static 'ledger/images/red.png' %}";
-                            statusImg.alt = "Expired";
-                            statusImg.title = "Expired";
-                        } else {
-                            statusImg.src = "{% static 'ledger/images/green.png' %}";
-                            statusImg.alt = "Active";
-                            statusImg.title = "Active";
-                        }
-                        statusCell.appendChild(statusImg);
-                        row.appendChild(statusCell);
-
-                        // Actions
-                        const actionsCell = document.createElement('td');
-                        const switchAlarmButton = document.createElement('button');
-                        switchAlarmButton.textContent = 'Switch Alarm';
-                        switchAlarmButton.className = 'btn btn-primary';
-                        const characterId = item.character_id;
-                        const planetId = item.planet_id;
-                        const url = switchAlarmUrl(characterId, planetId);
-                        const csrfToken = planetarySettings.csrfToken;
-                        var button = '';
-                        button +=
-                            '<form class="d-inline" method="post" action="' + switchAlarmUrl(characterId, planetId) + '" id="switchAlarmForm' + characterId + '_' + planetId + '">' +
-                            csrfToken +
-                            '<button type="button" class="btn btn-primary btn-sm btn-square" aria-label="' + switchAlarm + '" title="' + switchAlarm + '" data-bs-toggle="modal" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '" data-form-id="switchAlarmForm' + characterId + '_' + planetId + '"><span class="fas fa-bullhorn"></span></button></form>';
-                        actionsCell.innerHTML = button;
-                        row.appendChild(actionsCell);
-
-                        tbody.appendChild(row);
-                    });
-                });
-
-                // Add "Switch All Alarms" button if data exists
-                if (data.length > 0) {
-                    const switchAllAlarmsButton = document.createElement('button');
-                    switchAllAlarmsButton.textContent = 'Switch All Alarms';
-                    switchAllAlarmsButton.className = 'btn btn-primary';
-                    switchAllAlarmsButton.style.marginTop = '10px';
-
-                    const switchAllAlarmsForm = document.createElement('form');
-                    switchAllAlarmsForm.method = 'post';
-                    switchAllAlarmsForm.action = switchAlarmUrl(0, 0);
-                    switchAllAlarmsForm.id = 'switchAllAlarmsForm';
-                    switchAllAlarmsForm.className = 'd-inline';
-                    switchAllAlarmsForm.innerHTML = csrfToken +
-                        '<button type="button" class="btn btn-primary btn-sm btn-square" aria-label="' + switchAlarm + '" title="' + switchAlarm + '" data-bs-toggle="modal" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '" data-form-id="switchAllAlarmsForm">' + switchAllAlarmsButton.textContent + '</button>';
-
-                    const tableContainer = document.querySelector('#planets-details').parentElement;
-                    const switchAllAlarmsContainer = document.createElement('div');
-                    switchAllAlarmsContainer.className = 'switch-all-alarms-container';
-                    switchAllAlarmsContainer.appendChild(switchAllAlarmsForm);
-                    tableContainer.appendChild(switchAllAlarmsContainer);
-                }
-
-                // Initialize DataTable with sorting on the expiry column
-                $('#planets-details').DataTable({
-                    "order": [[7, "desc"]],
-                    "pageLength": 25,
-                    "columnDefs": [
-                    { "orderable": false, "targets": 'no-sort' }
-                ]
-                });
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    });
+    // Update the calculation every second
+    setInterval(calculateNextUpdate, 30000);
 </script>
 {% include 'bundles/datatables-js-bs5.html' %}
 {% endblock %}

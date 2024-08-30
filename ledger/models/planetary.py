@@ -58,93 +58,6 @@ class CharacterPlanet(models.Model):
 
 
 class CharacterPlanetDetails(models.Model):
-    _PRODUCTION_IDS = {
-        "P0": [
-            2286,
-            2305,
-            2267,
-            2288,
-            2287,
-            2307,
-            2272,
-            2309,
-            2073,
-            2310,
-            2270,
-            2306,
-            2311,
-            2308,
-            2268,
-        ],
-        "P1": [
-            3645,
-            2397,
-            2398,
-            2396,
-            2395,
-            9828,
-            2400,
-            2390,
-            2393,
-            3683,
-            2399,
-            22401,
-            3779,
-            2392,
-            2389,
-        ],
-        "P2": [
-            9832,
-            2329,
-            3828,
-            9836,
-            44,
-            3693,
-            15317,
-            3725,
-            3689,
-            2327,
-            9842,
-            2463,
-            2317,
-            2321,
-            3695,
-            9830,
-            3697,
-            9838,
-            2312,
-            3691,
-            2319,
-            9840,
-            3775,
-            2328,
-        ],
-        "P3": [
-            2358,
-            2345,
-            2344,
-            2367,
-            17392,
-            2348,
-            9834,
-            2366,
-            2361,
-            17898,
-            2360,
-            2354,
-            2352,
-            9846,
-            9848,
-            2351,
-            2349,
-            2346,
-            12836,
-            17136,
-            28974,
-        ],
-        "P4": [2867, 2868, 2869, 2870, 2871, 2872, 2875, 2876],
-    }
-
     id = models.AutoField(primary_key=True)
 
     planet = models.ForeignKey(
@@ -173,6 +86,9 @@ class CharacterPlanetDetails(models.Model):
 
     def __str__(self):
         return f"Planet Details Data: {self.planet.character.character.character_name} - {self.planet.planet.name}"
+
+    def count_extractors(self):
+        return len([pin for pin in self.pins if pin.get("type_id") == 3060])
 
     def get_planet_install_date(self):
         install_times = [
@@ -206,30 +122,6 @@ class CharacterPlanetDetails(models.Model):
             return False
         return expiry_date < timezone.now()
 
-    def get_production_type(self, type_id):
-        for production_type, ids in self._PRODUCTION_IDS.items():
-            if type_id in ids:
-                return production_type
-        return "Unknown"
-
-    def is_production_type(self, type_id, production_type):
-        return type_id in self._PRODUCTION_IDS.get(production_type, [])
-
-    def is_p0(self, type_id):
-        return self.is_production_type(type_id, "P0")
-
-    def is_p1(self, type_id):
-        return self.is_production_type(type_id, "P1")
-
-    def is_p2(self, type_id):
-        return self.is_production_type(type_id, "P2")
-
-    def is_p3(self, type_id):
-        return self.is_production_type(type_id, "P3")
-
-    def is_p4(self, type_id):
-        return self.is_production_type(type_id, "P4")
-
     def get_types(self) -> list:
         """Get the product types of the routes on the planet"""
         types = []
@@ -244,22 +136,19 @@ class CharacterPlanetDetails(models.Model):
             type_id = c_type_id.get("content_type_id")
             if type_id and type_id not in product_types:
                 type_data, _ = EveType.objects.get_or_create_esi(id=type_id)
-                product_category = self.get_production_type(type_id)
                 product_types[type_id] = {
                     "id": type_id,
                     "name": type_data.name,
-                    "category": product_category,
+                    "category": type_data.eve_group.name,
                 }
         return product_types
-
-    def count_extractors(self):
-        return len([pin for pin in self.pins if pin.get("type_id") == 3060])
 
     def all_extractors_info(self) -> dict:
         extractors = {}
         for pin in self.pins:
-            if pin.get("type_id") == 3060:
-                type_id = pin["extractor_details"].get("product_type_id")
+            extractor_details = pin.get("extractor_details")
+            if extractor_details and "cycle_time" in extractor_details:
+                type_id = extractor_details.get("product_type_id")
                 type_data, _ = EveType.objects.get_or_create_esi(id=type_id)
                 extractors[pin.get("pin_id")] = {
                     "install_time": pin.get("install_time"),

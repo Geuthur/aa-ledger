@@ -1,0 +1,346 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-08-30 22:54+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: models/events.py:22
+msgid "event"
+msgstr ""
+
+#: models/events.py:23
+msgid "events"
+msgstr ""
+
+#: models/general.py:53
+msgid "id"
+msgstr ""
+
+#: models/general.py:56
+msgid "category"
+msgstr ""
+
+#: models/general.py:58
+msgid "name"
+msgstr ""
+
+#: models/planetary.py:27
+msgid "Upgrade level of the planet"
+msgstr ""
+
+#: models/planetary.py:31
+msgid "Number of pins on the planet"
+msgstr ""
+
+#: tasks.py:199
+#, python-format
+msgid "%(charname)s on %(planetname)s"
+msgstr ""
+
+#: tasks.py:214
+msgid "Planetary Extractor Heads Expired"
+msgstr "Planetary Extraktor Köpfe Ausgelaufen"
+
+#: templates/ledger/charledger/admin/character_admin.html:9
+msgid "Ledger Character Overview"
+msgstr "Ledger Character Übersicht"
+
+#: templates/ledger/charledger/admin/character_admin.html:76
+#: templates/ledger/corpledger/admin/corporation_admin.html:73
+msgid "No Permission"
+msgstr "Keine Berechtigung"
+
+#: templates/ledger/charledger/character_ledger.html:8
+#: templates/ledger/charledger/character_ledger.html:25
+#: templates/ledger/partials/menu/char/navigation.html:6
+#: templates/ledger/partials/menu/corp/navigation.html:6
+#: templates/ledger/partials/menu/navigation.html:6
+msgid "Character Ledger"
+msgstr "Character Ledger"
+
+#: templates/ledger/charledger/character_ledger.html:41
+#: templates/ledger/corpledger/corporation_ledger.html:41
+msgid "January"
+msgstr ""
+
+#: templates/ledger/charledger/character_ledger.html:42
+#: templates/ledger/corpledger/corporation_ledger.html:42
+msgid "February"
+msgstr ""
+
+#: templates/ledger/charledger/character_ledger.html:43
+#: templates/ledger/corpledger/corporation_ledger.html:43
+msgid "March"
+msgstr ""
+
+#: templates/ledger/charledger/character_ledger.html:44
+#: templates/ledger/corpledger/corporation_ledger.html:44
+msgid "April"
+msgstr ""
+
+#: templates/ledger/charledger/character_ledger.html:45
+#: templates/ledger/corpledger/corporation_ledger.html:45
+msgid "May"
+msgstr ""
+
+#: templates/ledger/charledger/character_ledger.html:46
+#: templates/ledger/corpledger/corporation_ledger.html:46
+msgid "June"
+msgstr ""
+
+#: templates/ledger/charledger/character_ledger.html:47
+#: templates/ledger/corpledger/corporation_ledger.html:47
+msgid "July"
+msgstr ""
+
+#: templates/ledger/charledger/character_ledger.html:48
+#: templates/ledger/corpledger/corporation_ledger.html:48
+msgid "August"
+msgstr ""
+
+#: templates/ledger/charledger/character_ledger.html:49
+#: templates/ledger/corpledger/corporation_ledger.html:49
+msgid "September"
+msgstr ""
+
+#: templates/ledger/charledger/character_ledger.html:50
+#: templates/ledger/corpledger/corporation_ledger.html:50
+msgid "October"
+msgstr ""
+
+#: templates/ledger/charledger/character_ledger.html:51
+#: templates/ledger/corpledger/corporation_ledger.html:51
+msgid "November"
+msgstr ""
+
+#: templates/ledger/charledger/character_ledger.html:52
+#: templates/ledger/corpledger/corporation_ledger.html:52
+msgid "December"
+msgstr ""
+
+#: templates/ledger/charledger/partials/card.html:34
+msgid "Charakter"
+msgstr ""
+
+#: templates/ledger/charledger/partials/card.html:47
+msgid "Ratting"
+msgstr ""
+
+#: templates/ledger/charledger/partials/card.html:52
+msgid "ESS Payout"
+msgstr ""
+
+#: templates/ledger/charledger/partials/card.html:57
+msgid "Mining"
+msgstr ""
+
+#: templates/ledger/charledger/partials/card.html:62
+msgid "Misc"
+msgstr ""
+
+#: templates/ledger/charledger/partials/card.html:67
+msgid "Costs"
+msgstr "Kosten"
+
+#: templates/ledger/charledger/partials/card.html:72
+#: templates/ledger/charledger/partials/table.html:20
+#: templates/ledger/corpledger/partials/table.html:18
+msgid "Summary"
+msgstr "Summe"
+
+#: templates/ledger/charledger/partials/table.html:29
+#: templates/ledger/corpledger/partials/table.html:24
+msgid "Total"
+msgstr "Total"
+
+#: templates/ledger/corpledger/admin/corporation_admin.html:9
+msgid "Ledger Corporation Overview"
+msgstr "Ledger Corporation Übersicht"
+
+#: templates/ledger/corpledger/corporation_ledger.html:8
+#: templates/ledger/corpledger/corporation_ledger.html:25
+#: templates/ledger/partials/menu/char/navigation.html:10
+#: templates/ledger/partials/menu/corp/navigation.html:10
+#: templates/ledger/partials/menu/navigation.html:10
+msgid "Corporation Ledger"
+msgstr ""
+
+#: templates/ledger/error.html:6
+msgid "Voices of War - Error"
+msgstr ""
+
+#: templates/ledger/error.html:11
+msgid "Index"
+msgstr ""
+
+#: templates/ledger/events/create_event.html:14
+#: templates/ledger/events/create_event.html:43
+msgid "Create Event"
+msgstr "Erstelle Event"
+
+#: templates/ledger/events/create_event.html:20
+#: templates/ledger/events/edit_event.html:20
+msgid "Title"
+msgstr "Titel"
+
+#: templates/ledger/events/create_event.html:24
+#: templates/ledger/events/edit_event.html:24
+msgid "Start Date"
+msgstr "Start Datum"
+
+#: templates/ledger/events/create_event.html:28
+#: templates/ledger/events/edit_event.html:28
+msgid "End Date"
+msgstr "End Datum"
+
+#: templates/ledger/events/create_event.html:32
+#: templates/ledger/events/edit_event.html:32
+msgid "Location"
+msgstr ""
+
+#: templates/ledger/events/create_event.html:36
+#: templates/ledger/events/edit_event.html:36
+msgid "Char Ledger Exclude"
+msgstr ""
+
+#: templates/ledger/events/create_event.html:40
+#: templates/ledger/events/edit_event.html:40
+msgid "Description"
+msgstr "Beschreibung"
+
+#: templates/ledger/events/delete_event.html:13
+msgid "Delete Event"
+msgstr "Lösche Event"
+
+#: templates/ledger/events/delete_event.html:20
+msgid "Ja, löschen"
+msgstr ""
+
+#: templates/ledger/events/delete_event.html:21
+msgid "Nein, abbrechen"
+msgstr ""
+
+#: templates/ledger/events/edit_event.html:14
+msgid "Edit Event"
+msgstr "Editiere Event"
+
+#: templates/ledger/events/edit_event.html:43
+msgid "Save Changes"
+msgstr "Speichere Änderungen"
+
+#: templates/ledger/events/index.html:10
+msgid "Corp Events"
+msgstr ""
+
+#: templates/ledger/events/manage_events.html:11
+msgid "Manage Events"
+msgstr "Verwalte Events"
+
+#: templates/ledger/partials/menu/administration.html:7
+#: templates/ledger/partials/menu/char/administration.html:7
+#: templates/ledger/partials/menu/corp/administration.html:7
+msgid "Add Character"
+msgstr "Character Hinzufügen"
+
+#: templates/ledger/partials/menu/administration.html:15
+#: templates/ledger/partials/menu/corp/administration.html:15
+msgid "Add Corporation"
+msgstr "Corporation Hinzufügen"
+
+#: templates/ledger/partials/menu/administration.html:23
+#: templates/ledger/partials/menu/char/administration.html:15
+msgid "Add All Memberaudit Chars"
+msgstr "Alle Member Audit Chars Hinzufügen"
+
+#: templates/ledger/partials/menu/char/navigation.html:14
+#: templates/ledger/partials/menu/navigation.html:14
+msgid "Planetary Ledger"
+msgstr ""
+
+#: templates/ledger/partials/menu/char/navigation.html:18
+#: templates/ledger/partials/menu/navigation.html:25
+msgid "Character Overview"
+msgstr "Character Übersicht"
+
+#: templates/ledger/partials/menu/corp/navigation.html:14
+#: templates/ledger/partials/menu/navigation.html:28
+msgid "Corporation Overview"
+msgstr "Corporation Übersicht"
+
+#: templates/ledger/partials/menu/navigation.html:18
+msgid "Events"
+msgstr ""
+
+#: templates/ledger/planetary/index.html:8
+#: templates/ledger/planetary/index.html:13
+msgid "Planetary Details"
+msgstr ""
+
+#: templates/ledger/planetary/index.html:51
+msgid "Are you sure to Switch Alarm?"
+msgstr "Bist du sicher das du den Alarm wechselst möchtest?"
+
+#: templates/ledger/planetary/index.html:52
+msgid "Toggle Alarm"
+msgstr "Umschalten Alarm"
+
+#: templates/ledger/planetary/index.html:53
+msgid "Notification Activated"
+msgstr "Notification Aktiviert"
+
+#: templates/ledger/planetary/index.html:54
+msgid "Notification Deactivated"
+msgstr "Notification Deaktiviert"
+
+#: templates/ledger/planetary/partials/table.html:6
+msgid "Character"
+msgstr ""
+
+#: templates/ledger/planetary/partials/table.html:7
+msgid "Planet"
+msgstr ""
+
+#: templates/ledger/planetary/partials/table.html:8
+msgid "Upgrade Level"
+msgstr ""
+
+#: templates/ledger/planetary/partials/table.html:9
+msgid "Products"
+msgstr ""
+
+#: templates/ledger/planetary/partials/table.html:10
+msgid "Extractor"
+msgstr ""
+
+#: templates/ledger/planetary/partials/table.html:11
+msgid "Status"
+msgstr ""
+
+#: templates/ledger/planetary/partials/table.html:12
+msgid "Actions"
+msgstr "Aktionen"
+
+#: templates/ledger/planetary/partials/table.html:24
+msgid "Confirm Action"
+msgstr "Bestötige Aktion"
+
+#: templates/ledger/planetary/partials/table.html:33
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: templates/ledger/planetary/partials/table.html:34
+msgid "Confirm"
+msgstr "Bestätige"

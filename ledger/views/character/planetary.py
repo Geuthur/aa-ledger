@@ -19,8 +19,10 @@ logger = get_extension_logger(__name__)
 
 @login_required
 @permission_required(["ledger.basic_access"])
-def planetary_index(request):
-    context = {}
+def planetary_ledger(request, character_pk):
+    context = {
+        "character_pk": character_pk,
+    }
     context = add_info_to_context(request, context)
     return render(request, "ledger/planetary/index.html", context=context)
 
@@ -29,13 +31,16 @@ def planetary_index(request):
 @permission_required("ledger.basic_access")
 @require_POST
 def switch_alarm(request, character_id: list, planet_id: int):
+    # Retrieve character_pk from GET parameters
+    character_pk = int(request.POST.get("character_pk", 0))
+
     # Check Permission
     perm, main = get_character(request, character_id)
 
     if not perm:
         msg = trans("Permission Denied")
         messages.error(request, msg)
-        return redirect("ledger:planetary_index")
+        return redirect("ledger:planetary_ledger", character_pk=character_pk)
 
     if character_id == 0:
         characters = get_alts_queryset(main)
@@ -58,9 +63,9 @@ def switch_alarm(request, character_id: list, planet_id: int):
     except CharacterPlanetDetails.DoesNotExist:
         msg = trans("Planet/s not found")
         messages.error(request, msg)
-        return redirect("ledger:planetary_index")
+        return redirect("ledger:planetary_ledger", character_pk=character_pk)
 
     msg = trans("Alarm/s successfully switched")
     messages.info(request, msg)
 
-    return redirect("ledger:planetary_index")
+    return redirect("ledger:planetary_ledger", character_pk=character_pk)

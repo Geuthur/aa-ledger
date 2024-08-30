@@ -59,6 +59,7 @@ class CharacterPlanetDetails(Schema):
     character_name: Optional[str] = None
     planet: Optional[str] = None
     planet_id: Optional[int] = None
+    planet_type_id: Optional[int] = None
     upgrade_level: Optional[int] = None
     expiry_date: Optional[datetime] = None
     expired: Optional[bool] = None

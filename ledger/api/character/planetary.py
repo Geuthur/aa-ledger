@@ -101,6 +101,7 @@ class LedgerPlanetaryApiEndpoints:
                         "character_name": p.planet.character.character.character_name,
                         "planet": p.planet.planet.name,
                         "planet_id": p.planet.planet.id,
+                        "planet_type_id": p.planet.planet.eve_type.id,
                         "upgrade_level": p.planet.upgrade_level,
                         "expiry_date": p.get_planet_expiry_date(),
                         "expired": p.is_expired(),

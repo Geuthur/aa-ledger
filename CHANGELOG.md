@@ -16,11 +16,16 @@
     - Progress Bar
     - Item Type
     - Planets
+    - Status
   - Progression Display
+  - Extractor Information Modal
+  - Update Interval Display
 
 - Character Audit Model
 
   - last_update_planetary field
+
+- app settings LEDGER_UPDATE_INTERVAL
 
 ### Moved
 
@@ -31,7 +36,7 @@
 - Character Audit
   - Added Planetary ESI Scope
 - Tasks
-  - Added Planetary Update to Character Update Task
+  - Added Planetary Update Task to Character Update Task
 
 ## \[0.5.9\] - 2024-08-29
 

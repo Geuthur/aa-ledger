@@ -119,6 +119,8 @@ The Following Settings can be setting up in the `local.py`
 
 - LEDGER_CORPSTATS_TWO:     `True / False`   - Set to use Corp Stats Two Application for fetching member data
 
+- LEDGER_UPDATE_INTERVAL:   `3600`           - Set Update Interval Display in Seconds (Should be same as Task Update Cycle)
+
 If you set up LEDGER_LOGGER_USE to `True` you need to add the following code below:
 
 ```python
