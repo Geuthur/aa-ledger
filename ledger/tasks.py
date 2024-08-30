@@ -168,7 +168,7 @@ def check_planetary_alarms(self, runs: int = 0):
     warnings = {}
 
     for planet in all_planets:
-        if planet.is_expired():
+        if planet.is_expired() and not planet.notification_sent and planet.notification:
             character_id = planet.planet.character.character.character_id
 
             # Determine if the character_id is part of any main character's alts
@@ -179,17 +179,22 @@ def check_planetary_alarms(self, runs: int = 0):
                     break
 
             if not main_id:
-                owner = CharacterOwnership.objects.get(
-                    character__character_id=character_id
-                )
-                main = owner.user.profile.main_character
-                alts = main.character_ownership.user.character_ownerships.all()
+                try:
+                    owner = CharacterOwnership.objects.get(
+                        character__character_id=character_id
+                    )
+                    main = owner.user.profile.main_character
+                    alts = main.character_ownership.user.character_ownerships.all()
 
-                owner_ids[main.character_id] = alts.values_list(
-                    "character__character_id", flat=True
-                )
+                    owner_ids[main.character_id] = alts.values_list(
+                        "character__character_id", flat=True
+                    )
 
-                main_id = main.character_id
+                    main_id = main.character_id
+                except CharacterOwnership.DoesNotExist:
+                    continue
+                except AttributeError:
+                    continue
 
             msg = _("%(charname)s on %(planetname)s") % {
                 "charname": planet.planet.character.character.character_name,
@@ -200,6 +205,8 @@ def check_planetary_alarms(self, runs: int = 0):
                 warnings[main_id] = []
 
             warnings[main_id].append(msg)
+            planet.notification_sent = True
+            planet.save()
 
     if warnings:
         for main_id, messages in warnings.items():

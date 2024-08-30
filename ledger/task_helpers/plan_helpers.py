@@ -33,7 +33,7 @@ def update_character_planetary(character_id, force_refresh=False):
     from ledger.tasks import update_char_planets_details
 
     audit_char = CharacterAudit.objects.get(character__character_id=character_id)
-    logger.info("Updating planets for: %s", audit_char.character.character_name)
+    logger.debug("Updating planets for: %s", audit_char.character.character_name)
 
     token = get_token(character_id, CharacterPlanet.get_esi_scopes())
 
@@ -108,8 +108,8 @@ def update_character_planetary(character_id, force_refresh=False):
     for planet in CharacterPlanet.objects.filter(character=audit_char):
         update_char_planets_details.apply_async(
             args=[character_id, planet.planet_id],
-            kwargs={"force_refresh": True},
-            priority=6,
+            kwargs={"force_refresh": False},
+            priority=8,
         )
 
     audit_char.last_update_planetary = timezone.now()
@@ -124,6 +124,13 @@ def update_character_planetary_details(character_id, planet_id, force_refresh=Fa
     planet_char = CharacterPlanet.objects.get(
         character__character__character_id=character_id, planet__id=planet_id
     )
+
+    skip_date = timezone.now() - timezone.timedelta(hours=3)
+    mindt = timezone.now() - timezone.timedelta(days=90)
+
+    if (planet_char.last_update or mindt) <= skip_date or force_refresh:
+        return "Skipped"
+
     logger.debug(
         "Updating planet details %s for: %s",
         planet_char.planet.name,
@@ -167,8 +174,12 @@ def update_character_planetary_details(character_id, planet_id, force_refresh=Fa
                 planet.last_alert = timezone.now()
 
             # Reset Alert after 1 day
-            if planet.last_alert < timezone.now() - timezone.timedelta(days=1):
+            if (
+                planet.last_alert is not None
+                and planet.last_alert < timezone.now() - timezone.timedelta(days=1)
+            ):
                 planet.last_alert = None
+                planet.notification_sent = False
 
             planet.save()
 

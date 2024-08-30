@@ -37,10 +37,6 @@ class CharacterPlanet(models.Model):
 
     last_update = models.DateTimeField(null=True, default=None, blank=True)
 
-    balance = models.DecimalField(
-        max_digits=20, decimal_places=2, null=True, default=None
-    )
-
     # objects = AuditCharacterManager()
 
     class Meta:
@@ -164,7 +160,8 @@ class CharacterPlanetDetails(models.Model):
     last_update = models.DateTimeField(null=True, default=None, blank=True)
     last_alert = models.DateTimeField(null=True, default=None, blank=True)
 
-    alarted = models.BooleanField(default=False)
+    notification = models.BooleanField(default=False)
+    notification_sent = models.BooleanField(default=False)
 
     # objects = AuditCharacterManager()
 
@@ -204,7 +201,10 @@ class CharacterPlanetDetails(models.Model):
         return None
 
     def is_expired(self):
-        return self.get_planet_expiry_date() < timezone.now()
+        expiry_date = self.get_planet_expiry_date()
+        if expiry_date is None:
+            return False
+        return expiry_date < timezone.now()
 
     def get_production_type(self, type_id):
         for production_type, ids in self._PRODUCTION_IDS.items():

@@ -104,7 +104,7 @@ class LedgerPlanetaryApiEndpoints:
                         "upgrade_level": p.planet.upgrade_level,
                         "expiry_date": p.get_planet_expiry_date(),
                         "expired": p.is_expired(),
-                        "alarm": p.alarted,
+                        "alarm": p.notification,
                         "products": types,
                         "extractors": extractors,
                     }

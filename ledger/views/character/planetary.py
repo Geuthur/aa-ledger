@@ -51,7 +51,7 @@ def switch_alarm(request, character_id: list, planet_id: int):
         planets = CharacterPlanetDetails.objects.filter(filters)
         if planets:
             for p in planets:
-                p.alarted = not p.alarted
+                p.notification = not p.notification
                 p.save()
         else:
             raise CharacterPlanetDetails.DoesNotExist

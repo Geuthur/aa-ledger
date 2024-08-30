@@ -71,7 +71,7 @@
             };
         });
 
-        fetch('https://testing.voices-of-war.de/ledger/api/account/0/planetary/0/details/')
+        fetch('/ledger/api/account/0/planetary/0/details/')
             .then(response => response.json())
             .then(data => {
                 const tbody = document.querySelector('#planets-details tbody');
