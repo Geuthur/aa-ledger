@@ -108,9 +108,6 @@ class CorpWalletQuerySet(models.QuerySet):
             output_field=models.JSONField(),
         )
 
-        for main_id, char_ids in main_and_alts.items():
-            logger.debug(f"Main: {main_id} Alts: {char_ids}")
-
         # First annotation step
         queryset = self.filter(second_party_id__in=chars_list).annotate(
             main_character_id=main_subquery,
