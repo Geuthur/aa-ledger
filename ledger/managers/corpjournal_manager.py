@@ -1,6 +1,7 @@
+import json
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.db.models import Case, DecimalField, OuterRef, Q, Subquery, Sum, Value, When
 from django.db.models.functions import Coalesce
 
 from allianceauth.eveonline.models import EveCharacter
@@ -12,7 +13,7 @@ logger = get_extension_logger(__name__)
 
 
 class CorpWalletQuerySet(models.QuerySet):
-    def _get_linked_chars(self, corporations: list) -> dict:
+    def _get_linked_chars(self, corporations: list, chars_ids: list) -> dict:
         linked_chars = EveCharacter.objects.filter(corporation_id__in=corporations)
         linked_chars |= EveCharacter.objects.filter(
             character_ownership__user__profile__main_character__corporation_id__in=corporations
@@ -23,16 +24,17 @@ class CorpWalletQuerySet(models.QuerySet):
 
         corpmember = get_corp_models_and_string()
         char_to_main = {}
-        main_to_alts = {}
+        chars_list = []
         for char in linked_chars:
             try:
                 if char.corporation_id in corporations:
                     main_char = char.character_ownership.user.profile.main_character
                     main_char_id = main_char.character_id
-                    char_to_main[char.character_id] = main_char_id
-                if main_char_id not in main_to_alts:
-                    main_to_alts[main_char_id] = []
-                main_to_alts[main_char_id].append(char.character_id)
+                    if main_char_id not in char_to_main:
+                        char_to_main[main_char_id] = []
+                    if char.character_id in chars_ids:
+                        char_to_main[main_char_id].append(char.character_id)
+                        chars_list.append(char.character_id)
             except ObjectDoesNotExist:
                 continue
             except AttributeError:
@@ -45,21 +47,23 @@ class CorpWalletQuerySet(models.QuerySet):
         )
 
         for character_id in corpmember:
-            char_to_main[character_id] = character_id
-        return char_to_main, main_to_alts
+            if character_id in chars_ids:
+                char_to_main[character_id] = [character_id]
+                chars_list.append(character_id)
+        return char_to_main, chars_list
 
     def annotate_bounty(self, second_party_ids: list) -> models.QuerySet:
         return self.annotate(
             total_bounty=Coalesce(
-                Sum(
+                models.Sum(
                     "amount",
                     filter=(
-                        Q(ref_type="bounty_prizes")
-                        & Q(second_party_id__in=second_party_ids)
+                        models.Q(ref_type="bounty_prizes")
+                        & models.Q(second_party_id__in=second_party_ids)
                     ),
                 ),
-                Value(0),
-                output_field=DecimalField(),
+                models.Value(0),
+                output_field=models.DecimalField(),
             )
         )
 
@@ -67,68 +71,79 @@ class CorpWalletQuerySet(models.QuerySet):
         qs = events_filter(self)
         return qs.annotate(
             total_ess=Coalesce(
-                Sum(
+                models.Sum(
                     "amount",
                     filter=(
-                        Q(ref_type="ess_escrow_transfer")
-                        & Q(second_party_id__in=second_party_ids)
+                        models.Q(ref_type="ess_escrow_transfer")
+                        & models.Q(second_party_id__in=second_party_ids)
                     ),
                 ),
-                Value(0),
-                output_field=DecimalField(),
+                models.Value(0),
+                output_field=models.DecimalField(),
             )
         )
 
     def annotate_ledger(self, corporations: list) -> models.QuerySet:
-        char_to_main, main_to_alts = self._get_linked_chars(corporations)
+        char_ids = self.values_list("second_party_id", flat=True)
+        main_and_alts, chars_list = self._get_linked_chars(corporations, char_ids)
 
-        # Create a subquery to map second_party_id to main_character_id
-        subquery = Case(
+        # Create a subquery to get the main character id
+        main_subquery = models.Case(
             *[
-                When(second_party_id=char_id, then=main_id)
-                for char_id, main_id in char_to_main.items()
+                models.When(second_party_id__in=char_ids, then=main_id)
+                for main_id, char_ids in main_and_alts.items()
             ],
             output_field=models.IntegerField(),
         )
 
+        # Create a subquery to get the alts
+        alts_subquery = models.Case(
+            *[
+                models.When(
+                    second_party_id__in=char_ids,
+                    then=models.Value(json.dumps(char_ids)),
+                )
+                for _, char_ids in main_and_alts.items()
+            ],
+            output_field=models.JSONField(),
+        )
+
+        for main_id, char_ids in main_and_alts.items():
+            logger.debug(f"Main: {main_id} Alts: {char_ids}")
+
+        # First annotation step
+        queryset = self.filter(second_party_id__in=chars_list).annotate(
+            main_character_id=main_subquery,
+            main_character_name=Coalesce(
+                models.Subquery(
+                    EveCharacter.objects.filter(
+                        character_id=models.OuterRef("main_character_id")
+                    ).values("character_name")[:1]
+                ),
+                models.Value("Unknown"),
+            ),
+            alts=alts_subquery,
+        )
+
         return (
-            self.filter(second_party_id__in=char_to_main.keys())
-            .annotate(
-                main_character_id=subquery,
-                main_character_name=Coalesce(
-                    Subquery(
-                        EveCharacter.objects.filter(
-                            character_id=OuterRef("main_character_id")
-                        ).values("character_name")[:1]
-                    ),
-                    Value("Unknown"),
-                ),
-                alts=Value(
-                    [
-                        alt_id
-                        for main_id, alts in main_to_alts.items()
-                        for alt_id in alts
-                        if main_id == OuterRef("main_character_id")
-                    ],
-                    output_field=models.JSONField(),
-                ),
-            )
-            .values(
+            queryset.values(
                 "main_character_id", "main_character_name", "alts"
             )  # Group by main_character_id
             .annotate(
                 total_bounty=Coalesce(
-                    Sum("amount", filter=Q(ref_type="bounty_prizes")),
-                    Value(0),
-                    output_field=DecimalField(),
+                    models.Sum("amount", filter=models.Q(ref_type="bounty_prizes")),
+                    models.Value(0),
+                    output_field=models.DecimalField(),
                 ),
                 total_ess=Coalesce(
-                    Sum("amount", filter=Q(ref_type="ess_escrow_transfer")),
-                    Value(0),
-                    output_field=DecimalField(),
+                    models.Sum(
+                        "amount", filter=models.Q(ref_type="ess_escrow_transfer")
+                    ),
+                    models.Value(0),
+                    output_field=models.DecimalField(),
                 ),
             )
-            .filter(Q(total_bounty__gt=0) | Q(total_ess__gt=0))
+            .filter(models.Q(total_bounty__gt=0) | models.Q(total_ess__gt=0))
         )
 
 

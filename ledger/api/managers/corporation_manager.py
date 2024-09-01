@@ -30,7 +30,7 @@ class CorporationProcess:
             character_id = main.get("main_character_id", 0)
             character_name = main.get("main_character_name", "Unknown")
 
-            # Überprüfen, ob character_name None ist und auf "Unknown" setzen
+            # Add Unknown Characters
             if character_name == "Unknown":
                 unkwowns_ids.add(character_id)
 

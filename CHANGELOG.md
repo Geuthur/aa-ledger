@@ -38,6 +38,11 @@
 - Tasks
   - Added Planetary Update Task to Character Update Task
 
+### Fixed
+
+- Unknown Character not working on Corporation Ledger
+- Included Characters not shown on Corporation Ledger
+
 ## \[0.5.9\] - 2024-08-29
 
 > \[!WARNING\]
@@ -46,7 +51,6 @@
 ### Fixed
 
 - Billboard Wallet Donut Calculation
-- Unknown Character not working on Corporation Ledger
 
 ### Added
 
