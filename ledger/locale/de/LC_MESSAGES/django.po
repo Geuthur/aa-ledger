@@ -291,7 +291,7 @@ msgstr ""
 
 #: templates/ledger/planetary/index.html:51
 msgid "Are you sure to Switch Alarm?"
-msgstr "Bist du sicher das du den Alarm wechselst möchtest?"
+msgstr "Bist du sicher das du den Alarm wechseln möchtest?"
 
 #: templates/ledger/planetary/index.html:52
 msgid "Toggle Alarm"
@@ -335,7 +335,7 @@ msgstr "Aktionen"
 
 #: templates/ledger/planetary/partials/table.html:24
 msgid "Confirm Action"
-msgstr "Bestötige Aktion"
+msgstr "Bestätige Aktion"
 
 #: templates/ledger/planetary/partials/table.html:33
 msgid "Cancel"
