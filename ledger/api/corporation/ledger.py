@@ -3,7 +3,7 @@ from typing import List
 from ninja import NinjaAPI
 
 from ledger.api import schema
-from ledger.api.helpers import get_corporation, get_main_and_alts_corporations
+from ledger.api.helpers import get_corporation, get_main_and_alts_ids_corporations
 from ledger.api.managers.corporation_manager import CorporationProcess
 from ledger.hooks import get_extension_logger
 from ledger.models import CorporationAudit
@@ -28,7 +28,7 @@ class LedgerApiEndpoints:
 
             # pylint: disable=duplicate-code
             if corporation_id == 0:
-                corporations = get_main_and_alts_corporations(request)
+                corporations = get_main_and_alts_ids_corporations(request)
             else:
                 corporations = [corporation_id]
 
@@ -50,7 +50,7 @@ class LedgerApiEndpoints:
 
             # pylint: disable=duplicate-code
             if corporation_id == 0:
-                corporations = get_main_and_alts_corporations(request)
+                corporations = get_main_and_alts_ids_corporations(request)
             else:
                 corporations = [corporation_id]
 

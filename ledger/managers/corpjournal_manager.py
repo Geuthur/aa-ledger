@@ -95,10 +95,13 @@ class CorpWalletQuerySet(models.QuerySet):
             self.filter(second_party_id__in=char_to_main.keys())
             .annotate(
                 main_character_id=subquery,
-                main_character_name=Subquery(
-                    EveCharacter.objects.filter(
-                        character_id=OuterRef("main_character_id")
-                    ).values("character_name")[:1]
+                main_character_name=Coalesce(
+                    Subquery(
+                        EveCharacter.objects.filter(
+                            character_id=OuterRef("main_character_id")
+                        ).values("character_name")[:1]
+                    ),
+                    Value("Unknown"),
                 ),
                 alts=Value(
                     [

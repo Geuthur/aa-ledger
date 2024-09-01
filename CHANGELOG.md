@@ -46,6 +46,7 @@
 ### Fixed
 
 - Billboard Wallet Donut Calculation
+- Unknown Character not working on Corporation Ledger
 
 ### Added
 

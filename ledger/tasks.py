@@ -79,7 +79,7 @@ def create_missing_character(self, chars_list: list, runs: int = 0):
             runs = runs + 1
         except IntegrityError:
             continue
-    logger.debug("Created %s missing Characters", runs)
+    logger.info("Created %s missing Characters", runs)
     return True
 
 

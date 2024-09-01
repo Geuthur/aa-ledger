@@ -1,12 +1,9 @@
-from celery_once import AlreadyQueued
-
 from django.core.exceptions import ObjectDoesNotExist
 
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger import app_settings, models
 from ledger.hooks import get_corp_models_and_string, get_extension_logger
-from ledger.tasks import create_missing_character
 
 logger = get_extension_logger(__name__)
 
@@ -42,7 +39,7 @@ def get_corporation(request, corporation_id):
     """Get Corporation and check permissions"""
     perms = True
     if corporation_id == 0:
-        corporations = get_main_and_alts_corporations(request)
+        corporations = get_main_and_alts_ids_corporations(request)
     else:
         corporations = [corporation_id]
 
@@ -91,40 +88,8 @@ def _get_linked_characters(corporations):
     )
 
 
-def _process_character(
-    char: EveCharacter, characters, chars_list, corporations, missing_chars
-):
-    try:
-        main = char.character_ownership.user.profile.main_character
-        if main and main.character_id not in characters:
-            characters[main.character_id] = {"main": main, "alts": []}
-        if char.corporation_id in corporations:
-            characters[main.character_id]["alts"].append(char)
-            chars_list.add(char.character_id)
-    except ObjectDoesNotExist:
-        if EveCharacter.objects.filter(character_id=char.character_id).exists():
-            char = EveCharacter.objects.get(character_id=char.character_id)
-            characters[char.character_id] = {"main": char, "alts": []}
-            if char.corporation_id in corporations:
-                chars_list.add(char.character_id)
-                characters[char.character_id]["alts"].append(char)
-
-        missing_chars.add(char.character_id)
-    except AttributeError:
-        pass
-
-
-def _process_missing_characters(missing_chars):
-    if missing_chars:
-        try:
-            create_missing_character.apply_async(args=[list(missing_chars)], priority=6)
-        except AlreadyQueued:
-            pass
-
-
-def get_main_and_alts_all(corporations: list):
+def get_main_and_alts_ids_all(corporations: list) -> list:
     """Get all members for given corporations"""
-    characters = {}
     chars_list = set()
     missing_chars = set()
 
@@ -132,25 +97,21 @@ def get_main_and_alts_all(corporations: list):
     corpmember = get_corp_models_and_string()
 
     for char in linked_chars:
-        _process_character(char, characters, chars_list, corporations, missing_chars)
+        chars_list.add(char.character_id)
 
     for member in corpmember.objects.filter(
         corpstats__corp__corporation_id__in=corporations
     ).exclude(character_id__in=chars_list):
         try:
             char = EveCharacter.objects.get(character_id=member.character_id)
-            _process_character(
-                char, characters, chars_list, corporations, missing_chars
-            )
+            chars_list.add(char.character_id)
         except ObjectDoesNotExist:
             missing_chars.add(member.character_id)
 
-    _process_missing_characters(missing_chars)
-
-    return characters, list(chars_list)
+    return list(chars_list)
 
 
-def get_main_and_alts_corporations(request):
+def get_main_and_alts_ids_corporations(request) -> list:
     linked_characters = request.user.profile.main_character.character_ownership.user.character_ownerships.select_related(
         "character", "user"
     ).all()
