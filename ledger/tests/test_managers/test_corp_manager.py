@@ -74,7 +74,7 @@ class CharManagerQuerySetTest(TestCase):
             {
                 "main_character_id": 1001,
                 "main_character_name": "Gneuten",
-                "alts": [],
+                "alts": [1001],
                 "total_bounty": Decimal("400000.00"),
                 "total_ess": Decimal("400000.00"),
             }
@@ -95,7 +95,7 @@ class CharManagerQuerySetTest(TestCase):
             {
                 "main_character_id": 1001,
                 "main_character_name": "Gneuten",
-                "alts": [],
+                "alts": [1001],
                 "total_bounty": Decimal("400000.00"),
                 "total_ess": Decimal("400000.00"),
             }

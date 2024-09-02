@@ -53,7 +53,6 @@ class LedgerPlanetaryApiEndpoints:
                         "upgrade_level": p.upgrade_level,
                         "num_pins": p.num_pins,
                         "last_update": p.last_update,
-                        "balance": p.balance,
                     }
                 )
             return output

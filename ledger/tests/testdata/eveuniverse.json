@@ -148,5 +148,30 @@
             "radius": 1,
             "volume": 16
         }
+    ],
+    "EvePlanet": [
+        {
+            "id":"4001",
+            "name":"Test Planet I",
+            "last_updated":"2024-02-14 22:38:23.813892",
+            "position_x":"1539254041784",
+            "position_y":"-233186718285",
+            "position_z":"-634258364444",
+            "eve_solar_system_id":"30004783",
+            "eve_type_id":"13",
+            "enabled_sections":"0"
+        },
+        {
+            "id":"4002",
+            "name":"Test Planet I",
+            "last_updated":"2024-02-14 22:38:23.813892",
+            "position_x":"1539254041784",
+            "position_y":"-233186718285",
+            "position_z":"-634258364444",
+            "eve_solar_system_id":"30004783",
+            "eve_type_id":"13",
+            "enabled_sections":"0"
+        }
     ]
+
 }

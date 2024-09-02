@@ -9,7 +9,6 @@ from esi.errors import TokenError
 from esi.models import Token
 
 from ledger.task_helpers.char_helpers import (
-    get_token,
     update_character_mining,
     update_character_wallet,
 )
@@ -134,21 +133,6 @@ class TestCharacterHelpers(TestCase):
                 "type_id": 17425,
             },
         ]
-
-    @patch(MODULE_PATH + ".Token.objects.filter")
-    def test_get_token(self, mock_token):
-        mock_token.return_value.require_scopes.return_value.require_valid.return_value.first.return_value = (
-            self.mock_token
-        )
-        token = get_token(1001, "esi-characters.read_notifications.v1")
-
-        self.assertEqual(token.character_id, 1001)
-        self.assertEqual(token.valid_access_token(), "token")
-
-    def test_get_token_no_token(self):
-        token = get_token(1001, "esi-characters.read_notifications.v1")
-
-        self.assertFalse(token)
 
     @patch(MODULE_PATH + ".get_token")
     @patch(MODULE_PATH + ".CharacterWalletJournalEntry.objects")

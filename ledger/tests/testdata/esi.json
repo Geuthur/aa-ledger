@@ -334,5 +334,40 @@
         "type_id": 17425
       }
     }
+  },
+  "Planetary_Interaction": {
+    "get_characters_character_id_planets": {
+      "1001": [
+        {
+            "last_update": "2016-10-29T14:00:00Z",
+            "num_pins": 5,
+            "owner_id": 1001,
+            "planet_id": 40161298,
+            "solar_system_id": 30000142,
+            "upgrade_level": 5,
+            "type_id": 2016
+        },
+        {
+          "last_update": "2016-10-29T14:00:00Z",
+          "num_pins": 5,
+          "owner_id": 1001,
+          "planet_id": 40161298,
+          "solar_system_id": 30000142,
+          "upgrade_level": 5,
+          "type_id": 2016
+        }
+      ],
+      "1002": [
+        {
+            "last_update": "2016-10-29T14:00:00Z",
+            "num_pins": 5,
+            "owner_id": 1001,
+            "planet_id": 40161298,
+            "solar_system_id": 30000142,
+            "upgrade_level": 5,
+            "type_id": 2016
+        }
+      ]
+    }
   }
 }

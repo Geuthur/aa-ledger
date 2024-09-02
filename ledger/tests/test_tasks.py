@@ -158,6 +158,7 @@ class TestTasks(TestCase):
         mock_character = MagicMock()
         mock_character.last_update_mining = timezone.now()
         mock_character.last_update_wallet = timezone.now()
+        mock_character.last_update_planetary = timezone.now()
         mock_character.character = MagicMock()
         mock_character.character.character_id = self.token.character_id
         mock_character.character.character_name = self.token.character_name
@@ -217,6 +218,7 @@ class TestTasks(TestCase):
         mock_character = MagicMock()
         mock_character.last_update_mining = timezone.now() - timedelta(days=1)
         mock_character.last_update_wallet = timezone.now() - timedelta(days=1)
+        mock_character.last_update_planetary = timezone.now() - timedelta(days=1)
         mock_update_or_create.return_value = (mock_character, True)
         # when
         update_character(self.token.character_id)
