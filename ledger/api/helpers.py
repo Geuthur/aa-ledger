@@ -106,6 +106,7 @@ def get_main_and_alts_ids_all(corporations: list) -> list:
             char = EveCharacter.objects.get(character_id=member.character_id)
             chars_list.add(char.character_id)
         except ObjectDoesNotExist:
+            # TODO Maybe Create a new EveCharacter object
             missing_chars.add(member.character_id)
 
     return list(chars_list)

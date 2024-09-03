@@ -35,6 +35,16 @@ def load_planetary():
         },
     )
 
+    CharacterPlanet.objects.update_or_create(
+        character=CharacterAudit.objects.get(character__character_id=1002),
+        planet=EvePlanet.objects.get(id=4001),
+        defaults={
+            "upgrade_level": 5,
+            "num_pins": 5,
+            "last_update": None,
+        },
+    )
+
     CharacterPlanetDetails.objects.all().delete()
     CharacterPlanetDetails.objects.update_or_create(
         planet=CharacterPlanet.objects.get(
@@ -45,6 +55,13 @@ def load_planetary():
     CharacterPlanetDetails.objects.update_or_create(
         planet=CharacterPlanet.objects.get(
             planet__id=4002, character__character__character_name="Gneuten"
+        ),
+        defaults=planetary_data,
+    )
+
+    CharacterPlanetDetails.objects.update_or_create(
+        planet=CharacterPlanet.objects.get(
+            planet__id=4001, character__character__character_id=1002
         ),
         defaults=planetary_data,
     )

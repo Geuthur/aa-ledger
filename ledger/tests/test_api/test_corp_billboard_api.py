@@ -48,6 +48,29 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_get_corporation_billbboard_api_year_2001(self):
+        create_user_from_evecharacter(1010)
+        create_user_from_evecharacter(1011)
+        create_user_from_evecharacter(1012)
+        create_user_from_evecharacter(1013)
+        create_user_from_evecharacter(1014)
+        create_user_from_evecharacter(1015)
+        create_user_from_evecharacter(1016)
+        create_user_from_evecharacter(1017)
+        create_user_from_evecharacter(1018)
+        create_user_from_evecharacter(1019)
+        create_user_from_evecharacter(1020)
+        create_user_from_evecharacter(1021)
+        create_user_from_evecharacter(1022)
+
+        self.client.force_login(self.user)
+        url = "/ledger/api/corporation/2001/billboard/year/2024/month/0/"
+
+        response = self.client.get(url)
+        print(response.json())
+
+        self.assertEqual(response.status_code, 200)
+
     def test_get_corporation_billbboard_api_year_single(self):
         self.client.force_login(self.user)
         url = "/ledger/api/corporation/2002/billboard/year/2024/month/0/"

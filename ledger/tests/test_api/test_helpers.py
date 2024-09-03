@@ -125,6 +125,53 @@ class TestApiHelpers(TestCase):
         # then
         self.assertEqual(data, (False, character))
 
+    @patch(MODULE_PATH + ".EveCharacter.objects.get")
+    def test_get_main_and_alts_all_doesnotexist(self, mock_eve_Character):
+        # given
+        mock_char = MagicMock()
+        mock_char.character_id = 1005
+        mock_char.character_name = "Gerthd"
+        mock_eve_Character.return_value = mock_char
+
+        request = self.factory.get("/")
+        request.user = self.user
+        corp_stats = CorpStats.objects.create(
+            token=Token.objects.get(user=self.user),
+            corp=self.corp,
+        )
+        CorpMember.objects.create(
+            character_id=9998, character_name="Test9999", corpstats=corp_stats
+        )
+
+        mock_eve_Character.side_effect = ObjectDoesNotExist
+
+        # when
+        chars_list = get_main_and_alts_ids_all([self.corp.corporation_id])
+
+        excepted_ids = [
+            1001,
+            1004,
+            1005,
+            1006,
+            1010,
+            1011,
+            1012,
+            1013,
+            1014,
+            1015,
+            1016,
+            1017,
+            1018,
+            1019,
+            1020,
+            1021,
+            1022,
+        ]
+
+        # then
+        mock_eve_Character.assert_called()
+        self.assertEqual(chars_list, excepted_ids)
+
     @patch(MODULE_PATH + ".models.CharacterAudit.objects.visible_eve_characters")
     def test_main_char_not_in_account_chars(self, mock_visible):
         # given

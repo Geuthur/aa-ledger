@@ -104,6 +104,7 @@ def update_character_planetary(character_id, force_refresh=False):
 
     except NotModifiedError:
         logger.debug("No New Planet data for: %s", audit_char.character.character_name)
+        return ("No New Planet data for: %s", audit_char.character.character_name)
 
     for planet in CharacterPlanet.objects.filter(character=audit_char):
         update_char_planets_details.apply_async(
@@ -172,6 +173,11 @@ def update_character_planetary_details(character_id, planet_id, force_refresh=Fa
                 planet.last_alert is not None
                 and planet.last_alert < timezone.now() - timezone.timedelta(days=1)
             ):
+                logger.debug(
+                    "Notification Reseted for %s Planet: %s",
+                    planet.planet.character.character.character_name,
+                    planet.planet.planet.name,
+                )
                 planet.last_alert = None
                 planet.notification_sent = False
 
@@ -179,6 +185,10 @@ def update_character_planetary_details(character_id, planet_id, force_refresh=Fa
 
     except NotModifiedError:
         logger.debug(
+            "No New Planet Details data for: %s",
+            planet_char.character.character.character_name,
+        )
+        return (
             "No New Planet Details data for: %s",
             planet_char.character.character.character_name,
         )

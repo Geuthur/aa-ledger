@@ -178,7 +178,7 @@ def check_planetary_alarms(self, runs: int = 0):
                     main_id = main
                     break
 
-            if not main_id:
+            if main_id is None:
                 try:
                     owner = CharacterOwnership.objects.get(
                         character__character_id=character_id

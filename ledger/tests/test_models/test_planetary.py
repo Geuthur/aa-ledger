@@ -72,3 +72,22 @@ class TestCharacterAuditModel(TestCase):
         self.assertEqual(
             self.planetarydetails.get_types(), [9832, 3645, 2390, 2268, 2309]
         )
+
+    def test_get_planet_install_date_none(self):
+        self.planetarydetails.pins = []
+        self.assertIsNone(self.planetarydetails.get_planet_install_date())
+
+    def test_get_planet_expiry_date_none(self):
+        self.planetarydetails.pins = []
+        self.assertIsNone(self.planetarydetails.get_planet_expiry_date())
+
+    @patch("django.utils.timezone.now")
+    def test_is_expired_false(self, mock_now):
+        mock_now.return_value = timezone.datetime(2023, 10, 1, tzinfo=timezone.utc)
+        future_date = mock_now.return_value + timezone.timedelta(days=10)
+        self.planetarydetails.pins = [{"expiry_time": future_date.isoformat()}]
+        self.assertFalse(self.planetarydetails.is_expired())
+
+    def test_is_expired_empty(self):
+        self.planetarydetails.pins = [{"expiry_time": None}]
+        self.assertFalse(self.planetarydetails.is_expired())

@@ -9,8 +9,9 @@ from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.tests.auth_utils import AuthUtils
 from app_utils.testing import add_character_to_user, create_user_from_evecharacter
 
-from ledger.managers.corpjournal_manager import CorpWalletManager, CorpWalletManagerBase
-from ledger.models import CorporationWalletJournalEntry
+from ledger.managers.corpjournal_manager import CorpWalletManager
+from ledger.models import CorporationWalletDivision, CorporationWalletJournalEntry
+from ledger.models.general import EveEntity
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 from ledger.tests.testdata.load_ledger import load_ledger_all
 
@@ -67,6 +68,60 @@ class CharManagerQuerySetTest(TestCase):
             character_id=9999, character_name="Test9999", corpstats=corp_stats
         )
 
+        CorpMember.objects.create(
+            character_id=9998, character_name="Test9998", corpstats=corp_stats
+        )
+
+        CorpMember.objects.create(
+            character_id=9978, character_name="Test9997", corpstats=corp_stats
+        )
+
+        test9999 = EveEntity.objects.create(
+            eve_id=9999,
+            category=EveEntity.CATEGORY_CHARACTER,
+            name="Test9999",
+        )
+
+        test9998 = EveEntity.objects.create(
+            eve_id=9998,
+            category=EveEntity.CATEGORY_CHARACTER,
+            name="Test9999",
+        )
+
+        # Create CorporationWalletJournalEntry objects
+        CorporationWalletJournalEntry.objects.create(
+            division=CorporationWalletDivision.objects.get(id=1),
+            amount=100_000,
+            balance=100_000_000,
+            context_id=0,
+            context_id_type="division",
+            date="2024-03-19T14:00:00Z",
+            description="Test",
+            first_party=EveEntity.objects.get(eve_id=1000125),
+            entry_id=299,
+            reason="",
+            ref_type="bounty_prizes",
+            second_party=test9999,
+            tax=0,
+            tax_receiver_id=0,
+        )
+        CorporationWalletJournalEntry.objects.create(
+            division=CorporationWalletDivision.objects.get(id=1),
+            amount=100_000,
+            balance=100_000_000,
+            context_id=0,
+            context_id_type="division",
+            date="2024-03-19T14:00:00Z",
+            description="Test",
+            first_party=EveEntity.objects.get(eve_id=1000125),
+            entry_id=298,
+            reason="",
+            ref_type="bounty_prizes",
+            second_party=test9998,
+            tax=0,
+            tax_receiver_id=0,
+        )
+
         self.client.force_login(self.user)
         result = CorporationWalletJournalEntry.objects.all().annotate_ledger([2001])
 
@@ -77,7 +132,21 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1001],
                 "total_bounty": Decimal("400000.00"),
                 "total_ess": Decimal("400000.00"),
-            }
+            },
+            {
+                "main_character_id": 9999,
+                "main_character_name": "Unknown",
+                "alts": [9999],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 9998,
+                "main_character_name": "Unknown",
+                "alts": [9998],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
         ]
 
         self.assertEqual(list(result), expected_result)
