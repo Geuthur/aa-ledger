@@ -29,6 +29,21 @@ def planetary_ledger(request, character_pk):
 
 @login_required
 @permission_required("ledger.basic_access")
+def planetary_admin(request):
+    """
+    Planetary Admin
+    """
+
+    context = {}
+    context = add_info_to_context(request, context)
+
+    return render(
+        request, "ledger/planetary/admin/character_admin.html", context=context
+    )
+
+
+@login_required
+@permission_required("ledger.basic_access")
 @require_POST
 def switch_alarm(request, character_id: list, planet_id: int):
     # Retrieve character_pk from GET parameters

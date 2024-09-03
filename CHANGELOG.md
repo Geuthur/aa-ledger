@@ -6,6 +6,8 @@
 
 - Planetary Interaction System
 
+  - Planetary Admin Overview
+    - Show for each Main all their Alts Planets
   - Planets API
   - Planets Details API
   - Planets Overview

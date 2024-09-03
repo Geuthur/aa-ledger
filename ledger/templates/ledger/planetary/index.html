@@ -49,8 +49,18 @@
 {% block extra_javascript %}
 {% include 'ledger/bundles/table-css.html' %}
 <script type="application/javascript">
+    // Extract the 'main' parameter from the current URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const mainParam = urlParams.get('main');
+
+    // Construct the planetaryUrl with the 'main' parameter
+    let planetaryUrl = '/ledger/api/account/{{ character_pk }}/planetary/0/details/';
+    if (mainParam) {
+        planetaryUrl += '?main=' + mainParam;
+    }
+
 	let planetarySettings = {
-        planetaryUrl: '/ledger/api/account/{{ character_pk }}/planetary/0/details/',
+        planetaryUrl: planetaryUrl,
 		switchAlarmUrl: '{% url "ledger:switch_alarm" character_id=1337 planet_id=1337 %}',
 		csrfToken: '{% csrf_token %}',
 		switchAlarmText: '{% translate "Are you sure to Switch Alarm?" %}',
