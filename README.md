@@ -154,6 +154,10 @@ LOGGING["loggers"].update(LOGGING_LEDGER["loggers"])
 
 ![Screenshot 2024-05-14 121001](https://github.com/Geuthur/aa-ledger/assets/761682/463b9921-150c-42c1-8c3e-eee0f5cfc2bb)
 
+![Screenshot 2024-08-30 220656](https://github.com/user-attachments/assets/c6ca5564-fb5f-407b-bcd2-e8400ce40763)
+
+![Screenshot 2024-09-03 232900](https://github.com/user-attachments/assets/32f7b77e-4a5f-4fa7-9082-1ad2760131d9)
+
 > \[!NOTE\]
 > Contributing
 > You want to improve the project?
