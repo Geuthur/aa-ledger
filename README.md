@@ -71,7 +71,6 @@ CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
     "task": "ledger.tasks.update_all_corps",
     "schedule": crontab(minute=0, hour="*/1"),
 }
-
 CELERYBEAT_SCHEDULE["ledger_check_planetary_alarms"] = {
     "task": "ledger.tasks.check_planetary_alarms",
     "schedule": crontab(minute=0, hour="*/3"),
@@ -81,7 +80,7 @@ CELERYBEAT_SCHEDULE["ledger_check_planetary_alarms"] = {
 > \[!NOTE\]
 > If you have Member Audit installed add this to Fetch Member Audit Chars and Sync with Ledger
 
-```
+```python
 CELERYBEAT_SCHEDULE["ledger_character_member_audit_fetch"] = {
     "task": "ledger.tasks.create_member_audit",
     "schedule": crontab(minute=0, hour="*/1"),
