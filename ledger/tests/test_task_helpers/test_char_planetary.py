@@ -254,11 +254,13 @@ class TestCharacterPlanetaryHelpers(TestCase):
         mock_etag.side_effect = NotModifiedError
 
         # when
-        result = update_character_planetary(1001)
+        result = update_character_planetary(1002)
 
         # then
-        self.assertEqual(result, ("No New Planet data for: %s", "Gneuten"))
-        mock_logger.debug.assert_called_with("No New Planet data for: %s", "Gneuten")
+        self.assertEqual(result, ("Finished planets update for: %s", "rotze Rotineque"))
+        mock_logger.debug.assert_called_with(
+            "No New Planet data for: %s", "rotze Rotineque"
+        )
 
 
 class TestCharacterPlanetaryDetailsHelpers(TestCase):

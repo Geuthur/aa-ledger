@@ -104,7 +104,6 @@ def update_character_planetary(character_id, force_refresh=False):
 
     except NotModifiedError:
         logger.debug("No New Planet data for: %s", audit_char.character.character_name)
-        return ("No New Planet data for: %s", audit_char.character.character_name)
 
     for planet in CharacterPlanet.objects.filter(character=audit_char):
         update_char_planets_details.apply_async(
