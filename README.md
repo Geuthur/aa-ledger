@@ -29,11 +29,12 @@ Character/Corporation Ledger see Statistics for Ratting, Mining, ESS Payout
 - Ratting, Mining, Trading, Costs, etc.
 - Character Ledger
 - Corporation Ledger
+- Planetary Ledger with Notification System
 - Events Calender
 
 ## Upcoming<a name="upcoming"></a>
 
-- Planetary Interaction Statistics and Overview
+- Alliance Overview
 
 ## Installation<a name="installation"></a>
 
