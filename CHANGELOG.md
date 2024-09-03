@@ -7,7 +7,7 @@
 - Planetary Interaction System
 
   - Planetary Admin Overview
-    - Show for each Main all their Alts Planets
+    - List only show Mains with all their Alts Planets
   - Planets API
   - Planets Details API
   - Planets Overview
@@ -39,6 +39,8 @@
   - Added Planetary ESI Scope
 - Tasks
   - Added Planetary Update Task to Character Update Task
+- Character Overview
+  - List now only show Mains and combine calculation with optional single lookup
 
 ### Fixed
 

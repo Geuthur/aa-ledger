@@ -102,8 +102,18 @@
     });
 </script>
 <script type="application/javascript">
+    // Extract the 'main' parameter from the current URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const mainParam = urlParams.get('main');
+
+    let altShow = false;
+    if (mainParam) {
+        altShow = true;
+    }
+
     let charactersettings = {
         character_pk: {{ character_pk }},
+        altShow: altShow,
     };
 </script>
 <script type="application/javascript" src="{% static 'ledger/js/charledger.js' %}"></script>

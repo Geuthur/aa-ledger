@@ -1,9 +1,12 @@
+/* global charactersettings */
+
 var MonthTable, YearTable;
 var bb, d3;
 var BillboardMonth, BillboardYear, BillboardHourly;
 var ActiveBillboardMonth, selectedMode;
-// eslint-disable-next-line no-undef
+
 var characterPk = charactersettings.character_pk;
+var characteraltsShow = charactersettings.altShow;
 
 // Aktuelles Datumobjekt erstellen
 var currentDate = new Date();
@@ -13,9 +16,17 @@ var selectedYear = currentDate.getFullYear();
 var selectedMonth = currentDate.getMonth() + 1;
 var monthText = getMonthName(selectedMonth);
 
+var mainAlts = '';
+// Check if altShow is true and append '?main=True' to the URLs
+if (characteraltsShow) {
+    mainAlts = '?main=True';
+}
+
 // Billboard URLs
-var BillboardUrl = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
-var BillboardUrlYear = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/0/';
+var MonthUrl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
+var YearUrl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/0/' + mainAlts;
+var BillboardUrl = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
+var BillboardUrlYear = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/0/' + mainAlts;
 
 function getMonthName(monthNumber) {
     var months = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -39,7 +50,7 @@ $('#monthDropdown li').click(function() {
     showLoading('Month');
     hideContainer('Month');
 
-    if (characterPk === 0) {
+    if (characterPk === 0 || (characterPk > 0 && characteraltsShow)) {
         MonthTable.clear().draw();
         $('#foot-Month').hide();
     }
@@ -48,8 +59,8 @@ $('#monthDropdown li').click(function() {
     monthText = getMonthName(selectedMonth);
 
     // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
-    var newurl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
-    var BillboardUrl = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
+    var newurl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
+    var BillboardUrl = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
 
     // DataTable neu laden mit den Daten des ausgewählten Monats
     setBillboardData(BillboardUrl, 'Month');
@@ -62,7 +73,7 @@ $('#yearDropdown li').click(function() {
     showLoading('Month');
     hideContainer('Year');
     hideContainer('Month');
-    if (characterPk === 0) {
+    if (characterPk === 0 || (characterPk > 0 && characteraltsShow)) {
         YearTable.clear().draw();
         $('#foot-Year').hide();
         MonthTable.clear().draw();
@@ -72,10 +83,10 @@ $('#yearDropdown li').click(function() {
     selectedYear = $(this).text();
 
     // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
-    var newurl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
-    var newurl_year = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/0/';
-    var BillboardUrl = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
-    var BillboardUrlYear = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/0/';
+    var newurl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
+    var newurl_year = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/0/' + mainAlts;
+    var BillboardUrl = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
+    var BillboardUrlYear = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/0/' + mainAlts;
 
     // DataTable neu laden mit den Daten des ausgewählten Monats
     setBillboardData(BillboardUrl, 'Month');
@@ -140,7 +151,7 @@ function setBillboardData(url, id) {
 }
 
 var MonthAjax = {
-    url: '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/',
+    url: MonthUrl,
     type: 'GET',
     success: function(data) {
         if (MonthTable) {
@@ -156,7 +167,7 @@ var MonthAjax = {
         var total_amount_combined = data[0].total.total_amount_all;
         var total_amount_costs = data[0].total.total_amount_costs;
 
-        if (characterPk > 0) {
+        if (characterPk > 0 && !characteraltsShow) {
             $('#lookup-Month').removeClass('d-none');
             // Daten direkt in die HTML-Elemente einfügen
             $('#portrait-Month').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
@@ -263,6 +274,7 @@ var MonthAjax = {
                     var totalOthersAmountAllChars = parseFloat(total_amount_others);
                     var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
                     var totalCostsAmountAllChars = parseFloat(total_amount_costs);
+
                     $('#foot-Month .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
                     $('#foot-Month .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
                     $('#foot-Month .col-total-mining').html('' + formatAndColor(totalMiningAmountAllChars) + '');
@@ -277,6 +289,7 @@ var MonthAjax = {
                 },
                 initComplete: function(settings, json) {
                     $('#foot-Month').show();
+                    $('#ratting-Month').removeClass('d-none');
                 }
             });
         }
@@ -294,7 +307,7 @@ var MonthAjax = {
 };
 
 var YearAjax = {
-    url: '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/0/',
+    url: YearUrl,
     type: 'GET',
     success: function(data) {
         if (YearTable) {
@@ -311,7 +324,7 @@ var YearAjax = {
         var total_amount_combined = data[0].total.total_amount_all;
         var total_amount_costs = data[0].total.total_amount_costs;
 
-        if (characterPk > 0) {
+        if (characterPk > 0 && !characteraltsShow) {
             $('#lookup-Year').removeClass('d-none');
             // Daten direkt in die HTML-Elemente einfügen
             $('#portrait-Year').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
@@ -428,13 +441,13 @@ var YearAjax = {
                     $('#foot-Year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars_year) + '');
                     $('#foot-Year .col-total-costs').html('' + formatAndColor(totalCostsAmountAllChars_year) + '');
                     $('#foot-Year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
-                    'aria-label="{{ data.main_name }}"' +
-                    'data-ajax_url="/ledger/api/account/' + characterPk + '/ledger/template/year/' + selectedYear + '/month/0/" ' +
-                    'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
+                    'data-ajax_url="/ledger/api/account/' + char_id + '/ledger/template/year/' + selectedYear + '/month/0/" ' +
+                    '"> <span class="fas fa-info"></span></button>')
                         .addClass('text-end');
                 },
                 initComplete: function(settings, json) {
                     $('#foot-Year').show();
+                    $('#ratting-Year').removeClass('d-none');
                 }
             });
         }
