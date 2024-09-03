@@ -44,6 +44,31 @@ class CharacterWalletEvent(Schema):
     reason: Optional[str] = None
 
 
+class CharacterPlanet(Schema):
+    character_id: Optional[int] = None
+    character_name: Optional[str] = None
+    planet: Optional[str] = None
+    planet_id: Optional[int] = None
+    upgrade_level: Optional[int] = None
+    num_pins: Optional[int] = None
+    last_update: Optional[datetime] = None
+
+
+class CharacterPlanetDetails(Schema):
+    character_id: Optional[int] = None
+    character_name: Optional[str] = None
+    planet: Optional[str] = None
+    planet_id: Optional[int] = None
+    planet_type_id: Optional[int] = None
+    upgrade_level: Optional[int] = None
+    expiry_date: Optional[datetime] = None
+    expired: Optional[bool] = None
+    alarm: Optional[bool] = None
+    products: Optional[Dict] = None
+    extractors: Optional[Dict] = None
+    last_update: Optional[datetime] = None
+
+
 class CharacterLedger(Schema):
     ratting: Optional[List] = None
     total: Optional[Dict] = None

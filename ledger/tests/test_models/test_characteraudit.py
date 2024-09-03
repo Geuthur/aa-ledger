@@ -1,4 +1,3 @@
-import datetime
 from unittest.mock import PropertyMock, patch
 
 from django.test import RequestFactory, TestCase
@@ -35,30 +34,62 @@ class TestCharacterAuditModel(TestCase):
 
     def test_is_active_false(self):
         # given/when
-        self.audit.last_update_wallet = timezone.now() - datetime.timedelta(
+        self.audit.last_update_wallet = timezone.now() - timezone.timedelta(
             days=LEDGER_CHAR_MAX_INACTIVE_DAYS + 1
         )
-        self.audit.last_update_mining = timezone.now() - datetime.timedelta(
+        self.audit.last_update_mining = timezone.now() - timezone.timedelta(
             days=LEDGER_CHAR_MAX_INACTIVE_DAYS + 1
         )
         self.audit.save()
         # then
         self.assertFalse(self.audit.is_active())
 
-    def test_is_active_updates_active_field(self):
-        # given/when
-        self.audit.last_update_wallet = timezone.now() - datetime.timedelta(
-            days=LEDGER_CHAR_MAX_INACTIVE_DAYS + 1
+    @patch("django.utils.timezone.now")
+    def test_is_active_all_fields_outside_active_period(self, mock_now):
+        mock_now.return_value = timezone.datetime(2023, 10, 1, tzinfo=timezone.utc)
+        time_ref = mock_now.return_value - timezone.timedelta(
+            days=LEDGER_CHAR_MAX_INACTIVE_DAYS
         )
-        self.audit.last_update_mining = timezone.now() - datetime.timedelta(
-            days=LEDGER_CHAR_MAX_INACTIVE_DAYS + 1
-        )
+
+        self.audit.last_update_wallet = time_ref - timezone.timedelta(days=1)
+        self.audit.last_update_mining = time_ref - timezone.timedelta(days=1)
+        self.audit.last_update_planetary = time_ref - timezone.timedelta(days=1)
         self.audit.active = True
         self.audit.save()
-        # then
+
         self.assertFalse(self.audit.is_active())
+        self.audit.refresh_from_db()
+        self.assertFalse(self.audit.active)
+
+    @patch("django.utils.timezone.now")
+    def test_is_active_one_field_inside_active_period(self, mock_now):
+        mock_now.return_value = timezone.datetime(2023, 10, 1, tzinfo=timezone.utc)
+        time_ref = mock_now.return_value - timezone.timedelta(
+            days=LEDGER_CHAR_MAX_INACTIVE_DAYS
+        )
+
+        self.audit.last_update_wallet = time_ref - timezone.timedelta(days=1)
+        self.audit.last_update_mining = mock_now.return_value
+        self.audit.last_update_planetary = mock_now.return_value
+        self.audit.active = True
+        self.audit.save()
+
+        self.assertTrue(self.audit.is_active())
+        self.audit.refresh_from_db()
+        self.assertTrue(self.audit.active)
+
+    def test_is_active_no_update_when_same(self):
+        # given/when
+        self.audit.active = False
+        self.audit.last_update_wallet = timezone.now() - timezone.timedelta(
+            days=LEDGER_CHAR_MAX_INACTIVE_DAYS + 1
+        )
+        self.audit.save()
+        self.audit.is_active()
 
         self.audit.refresh_from_db()
+
+        # then
         self.assertFalse(self.audit.active)
 
     def test_is_active_exception(self):
@@ -83,6 +114,8 @@ class TestCharacterAuditModel(TestCase):
                 # Wallet / Market /  Contracts
                 "esi-wallet.read_character_wallet.v1",
                 "esi-contracts.read_character_contracts.v1",
+                # Planetary Interaction
+                "esi-planets.manage_planets.v1",
             ],
         )
 

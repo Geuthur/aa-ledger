@@ -2,13 +2,12 @@
 Character Helpers
 """
 
-import time
 from datetime import timedelta
 
 from django.utils import timezone
-from esi.models import Token
 from eveuniverse.models import EveType
 
+from ledger.decorators import log_timing
 from ledger.errors import TokenError
 from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import (
@@ -18,37 +17,14 @@ from ledger.models.characteraudit import (
 )
 from ledger.models.general import EveEntity
 from ledger.providers import esi
+from ledger.task_helpers.core_helpers import get_token
 from ledger.task_helpers.etag_helpers import NotModifiedError, etag_results
 
 logger = get_extension_logger(__name__)
 
 
-def get_token(character_id: int, scopes: list) -> "Token":
-    """
-    Helper method to get a valid token for a specific character with specific scopes.
-
-    Parameters
-    ----------
-    character_id: `int`
-    scopes: `int`
-
-    Returns
-    ----------
-    `class`: esi.models.Token or False
-
-    """
-    token = (
-        Token.objects.filter(character_id=character_id)
-        .require_scopes(scopes)
-        .require_valid()
-        .first()
-    )
-    if token:
-        return token
-    return False
-
-
 # pylint: disable=too-many-locals
+@log_timing(logger)
 def update_character_wallet(character_id, force_refresh=False):
     audit_char = CharacterAudit.objects.get(character__character_id=character_id)
     logger.debug(
@@ -71,7 +47,6 @@ def update_character_wallet(character_id, force_refresh=False):
             journal_items_ob, token, force_refresh=force_refresh
         )
 
-        _st = time.perf_counter()
         _current_journal = CharacterWalletJournalEntry.objects.filter(
             character=audit_char
         ).values_list(
@@ -125,11 +100,6 @@ def update_character_wallet(character_id, force_refresh=False):
             CharacterWalletJournalEntry.objects.bulk_create(items)
         else:
             raise TokenError("ESI Fail")
-        logger.debug(
-            "TIME: %s update_character_wallet %s",
-            time.perf_counter() - _st,
-            character_id,
-        )
     except NotModifiedError:
         logger.debug("No New wallet data for: %s", audit_char.character.character_name)
 
@@ -140,6 +110,7 @@ def update_character_wallet(character_id, force_refresh=False):
     return ("Finished wallet transactions for: %s", audit_char.character.character_name)
 
 
+@log_timing(logger)
 def update_character_mining(character_id, force_refresh=False):
     audit_char = CharacterAudit.objects.get(character__character_id=character_id)
     logger.debug("Updating Mining for: %s", audit_char.character.character_name)
@@ -157,7 +128,6 @@ def update_character_mining(character_id, force_refresh=False):
 
         ledger = etag_results(mining_op, token, force_refresh=force_refresh)
 
-        _st = time.perf_counter()
         existings_pks = set(
             CharacterMiningLedger.objects.filter(
                 character=audit_char, date__gte=timezone.now() - timedelta(days=30)
@@ -190,12 +160,6 @@ def update_character_mining(character_id, force_refresh=False):
 
         if old_events:
             CharacterMiningLedger.objects.bulk_update(old_events, fields=["quantity"])
-
-        logger.debug(
-            "TIME: %s update_character_mining %s",
-            time.perf_counter() - _st,
-            character_id,
-        )
 
     except NotModifiedError:
         logger.debug("No New Mining for: %s", audit_char.character.character_name)

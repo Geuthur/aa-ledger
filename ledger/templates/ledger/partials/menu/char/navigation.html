@@ -11,6 +11,17 @@
     </li>
 
     <li class="nav-item">
+        <a class="nav-link" href="{% url 'ledger:planetary_ledger' character_pk=0 %}">{% translate 'Planetary Ledger' %}</a>
+    </li>
+
+    <li class="nav-item">
+        <span class="nav-link">|</span>
+    </li>
+
+    <li class="nav-item">
         <a class="nav-link" href="{% url 'ledger:character_admin' %}">{% translate 'Character Overview' %}</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'ledger:planetary_admin' %}">{% translate 'Planetary Overview' %}</a>
     </li>
 {% endif %}

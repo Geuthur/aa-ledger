@@ -1,0 +1,121 @@
+{% extends 'ledger/base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load static %}
+{% load ledger %}
+
+{% block page_title %}Planetary Details{% endblock %}
+{% block page_topic %}<h1 class="page-header text-center">{% translate "Planetary Details" %}</h1>{% endblock page_topic %}
+
+{% block vow_block %}
+<div class="card-body container-fluid">
+    <div class="card-body bg-primary rounded-top d-flex">
+        <h3>{% translate "Planetary Details" %} </h3>
+    </div>
+    <div class="card-body bg-secondary tab-content rounded-bottom">
+        <div class="d-flex justify-content-between align-items-center">
+            <span>
+                <i class="fa-solid fa-bullhorn"></i> Notification <span class="text-success">ON</span>/<span class="text-danger">OFF</span>
+            </span>
+            <span id="next-update" class="text-end"></span>
+        </div>
+
+        <br><br>
+
+        <div class="tab-content">
+            {% include 'ledger/planetary/partials/table.html' %}
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-xl fade" id="extractorInfoModal" tabindex="-1" aria-labelledby="extractorInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="extractorInfoModalLabel">Extractor Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Extractor details will be populated here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_javascript %}
+{% include 'ledger/bundles/table-css.html' %}
+<script type="application/javascript">
+    // Extract the 'main' parameter from the current URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const mainParam = urlParams.get('main');
+
+    // Construct the planetaryUrl with the 'main' parameter
+    let planetaryUrl = '/ledger/api/account/{{ character_pk }}/planetary/0/details/';
+    if (mainParam) {
+        planetaryUrl += '?main=' + mainParam;
+    }
+
+	let planetarySettings = {
+        planetaryUrl: planetaryUrl,
+		switchAlarmUrl: '{% url "ledger:switch_alarm" character_id=1337 planet_id=1337 %}',
+		csrfToken: '{% csrf_token %}',
+		switchAlarmText: '{% translate "Are you sure to Switch Alarm?" %}',
+        switchAlarm: '{% translate "Toggle Alarm" %}',
+        alarmActivated: '{% translate "Notification Activated" %}',
+        alarmDeactivated: '{% translate "Notification Deactivated" %}',
+        characterPk: '{{ character_pk }}',
+        updateInterval: '{{ update_interval }}',
+	};
+</script>
+<script src="{% static 'ledger/js/planetary.js' %}"></script>
+{% include 'bundles/datatables-js-bs5.html' %}
+{% endblock %}
+{% block extra_css %}
+<style>
+    .progress-outer {
+        position: relative;
+        background: #fff;
+        border-radius: 50px;
+        box-shadow: 0 0 10px rgba(0, 219, 231, 0.7);
+        overflow: hidden; /* Ensure the inner progress bar doesn't overflow */
+    }
+    .progress {
+        height: 27px;
+        margin: 0;
+        overflow: visible;
+        border-radius: 50px;
+        background: #eaedf3;
+        box-shadow: inset 0 10px 10px rgba(244, 245, 250, 0.9);
+    }
+    .progress .progress-bar {
+        border-radius: 50px;
+    }
+    .progress .progress-value {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 16px;
+        font-weight: bold;
+        color: #fff;
+        letter-spacing: 2px;
+        -webkit-text-stroke: 1px #000;
+    }
+    .progress-bar.active {
+        animation: reverse progress-bar-stripes 0.40s linear infinite, animate-positive 2s;
+    }
+    @-webkit-keyframes animate-positive {
+        0% { width: 0%; }
+    }
+    @keyframes animate-positive {
+        0% { width: 0%; }
+    }
+</style>
+{% endblock %}
+
+{% block extra_script %}
+{% endblock %}

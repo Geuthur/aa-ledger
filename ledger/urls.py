@@ -3,8 +3,13 @@
 from django.urls import path, re_path
 
 from ledger.api import api
-from ledger.views.character.char_audit import add_char, fetch_memberaudit
+from ledger.views.character.char_audit import add_char
 from ledger.views.character.character_ledger import character_admin, character_ledger
+from ledger.views.character.planetary import (
+    planetary_admin,
+    planetary_ledger,
+    switch_alarm,
+)
 from ledger.views.corporation.corp_audit import add_corp
 from ledger.views.corporation.corp_events import (
     create_event,
@@ -28,9 +33,6 @@ urlpatterns = [
     path("", ledger_index, name="index"),
     # -- Character Audit
     path("char/add/", add_char, name="ledger_add_char"),
-    re_path(
-        r"^char/fetch_memberaudit/", fetch_memberaudit, name="ledger_fetch_memberaudit"
-    ),
     # -- Corporation Audit
     path("corporation/add/", add_corp, name="ledger_add_corp"),
     # -- PvE
@@ -56,6 +58,18 @@ urlpatterns = [
     path("events/<int:event_id>/edit/", edit_event, name="edit_event"),
     path("events/<int:event_id>/delete/", delete_event, name="delete_event"),
     path("events/ajax/load_events", load_events, name="load_events"),
+    # -- -- Planetary
+    path(
+        "planetary_ledger/<int:character_pk>/",
+        planetary_ledger,
+        name="planetary_ledger",
+    ),
+    path(
+        "planetary/switch_alarm/<int:character_id>/planet/<int:planet_id>/",
+        switch_alarm,
+        name="switch_alarm",
+    ),
+    path("planetary_admin/", planetary_admin, name="planetary_admin"),
     # -- API System
     re_path(r"^api/", api.urls),
 ]

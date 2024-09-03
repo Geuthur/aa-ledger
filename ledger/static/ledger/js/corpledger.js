@@ -1,8 +1,10 @@
+/* global corporationsettings */
+
 var ledgerData;
 var MonthTable, YearTable;
 var bb, d3;
 var BillboardMonth, BillboardYear;
-// eslint-disable-next-line no-undef
+
 var corporationPk = corporationsettings.corporation_pk;
 
 // Aktuelles Datumobjekt erstellen

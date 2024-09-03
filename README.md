@@ -29,11 +29,12 @@ Character/Corporation Ledger see Statistics for Ratting, Mining, ESS Payout
 - Ratting, Mining, Trading, Costs, etc.
 - Character Ledger
 - Corporation Ledger
+- Planetary Ledger with Notification System
 - Events Calender
 
 ## Upcoming<a name="upcoming"></a>
 
-- Planetary Interaction Statistics and Overview
+- Alliance Overview
 
 ## Installation<a name="installation"></a>
 
@@ -70,12 +71,16 @@ CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
     "task": "ledger.tasks.update_all_corps",
     "schedule": crontab(minute=0, hour="*/1"),
 }
+CELERYBEAT_SCHEDULE["ledger_check_planetary_alarms"] = {
+    "task": "ledger.tasks.check_planetary_alarms",
+    "schedule": crontab(minute=0, hour="*/3"),
+}
 ```
 
 > \[!NOTE\]
 > If you have Member Audit installed add this to Fetch Member Audit Chars and Sync with Ledger
 
-```
+```python
 CELERYBEAT_SCHEDULE["ledger_character_member_audit_fetch"] = {
     "task": "ledger.tasks.create_member_audit",
     "schedule": crontab(minute=0, hour="*/1"),

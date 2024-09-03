@@ -11,8 +11,8 @@ from ledger.api import schema
 from ledger.api.helpers import (
     get_alts_queryset,
     get_character,
-    get_main_and_alts_all,
-    get_main_and_alts_corporations,
+    get_main_and_alts_ids_all,
+    get_main_and_alts_ids_corporations,
 )
 from ledger.api.managers.template_manager import TemplateData, TemplateProcess
 from ledger.hooks import get_extension_logger
@@ -47,7 +47,7 @@ class LedgerTemplateApiEndpoints:
             current_date = timezone.now()
 
             if corporation_id == 0:
-                corporations = get_main_and_alts_corporations(request)
+                corporations = get_main_and_alts_ids_corporations(request)
             else:
                 corporations = [corporation_id]
 
@@ -60,7 +60,7 @@ class LedgerTemplateApiEndpoints:
             overall_mode = main_id == 0
 
             if overall_mode:
-                _, chars_list = get_main_and_alts_all(corporations)
+                chars_list = get_main_and_alts_ids_all(corporations)
                 linked_char = EveCharacter.objects.filter(
                     character_id__in=chars_list,
                 )

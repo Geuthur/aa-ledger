@@ -2,14 +2,13 @@
 Corporation Helpers
 """
 
-import time
-
 from django.utils import timezone
 from esi.errors import TokenError
 from esi.models import Token
 
 from allianceauth.eveonline.models import EveCharacter
 
+from ledger.decorators import log_timing
 from ledger.errors import DatabaseError
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import (
@@ -69,6 +68,7 @@ def get_corp_token(corp_id, scopes, req_roles):
     return False
 
 
+@log_timing(logger)
 def update_corp_wallet_division(corp_id, force_refresh=False):
     audit_corp = CorporationAudit.objects.get(corporation__corporation_id=corp_id)
 
@@ -109,8 +109,6 @@ def update_corp_wallet_division(corp_id, force_refresh=False):
             divisions_items_ob, token, force_refresh=force_refresh
         )
 
-        _st = time.perf_counter()
-
         for division in division_items:
             _division_item, _ = CorporationWalletDivision.objects.update_or_create(
                 corporation=audit_corp,
@@ -126,9 +124,6 @@ def update_corp_wallet_division(corp_id, force_refresh=False):
                     corp_id, division.get("division"), force_refresh=force_refresh
                 )  # inline not async
 
-        logger.debug(
-            "TIME: %s update_corp_wallet %s", time.perf_counter() - _st, corp_id
-        )
     except NotModifiedError:
         logger.debug(
             "No New wallet data for: %s",

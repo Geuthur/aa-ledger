@@ -1,5 +1,55 @@
 # Changelog
 
+## \[0.6.0\] - 2024-09-04
+
+### Added
+
+- Planetary Interaction System
+
+  - Planetary Admin Overview
+    - List only show Mains with all their Alts Planets
+  - Planets API
+  - Planets Details API
+  - Planets Overview
+  - Alarm System for Expired Heads
+    - Alarm Notification for each Planet
+    - Switchable Notification
+  - Graphical Details
+    - Progress Bar
+    - Item Type
+    - Planets
+    - Status
+  - Progression Display
+  - Extractor Information Modal
+
+- Character Audit Model
+
+  - last_update_planetary field
+
+- app settings LEDGER_UPDATE_INTERVAL
+
+### Moved
+
+- get_token function to core_helpers
+
+### Changed
+
+- Character Audit
+  - Added Planetary ESI Scope
+- Tasks
+  - Added Planetary Update Task to Character Update Task
+- Character Overview
+  - List now only show Mains and combine calculation with optional single lookup
+
+### Fixed
+
+- Unknown Character not working on Corporation Ledger
+- Included Characters not shown on Corporation Ledger
+
+### Removed
+
+- Add Member Audit Chars Button (Handled by Task)
+
 ## \[0.5.9\] - 2024-08-29
 
 > \[!WARNING\]

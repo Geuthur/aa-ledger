@@ -4,6 +4,7 @@ from ledger.api.managers.billboard_manager import BillboardData, BillboardLedger
 from ledger.api.managers.core_manager import LedgerDate, LedgerModels, LedgerTotal
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
+from ledger.tasks import create_missing_character
 
 logger = get_extension_logger(__name__)
 
@@ -21,12 +22,17 @@ class CorporationProcess:
         # Create the Dicts for each Character
         corporation_dict = {}
         corporation_total = LedgerTotal()
+        unkwowns_ids = set()
 
         for main in journal:
             total_bounty = main.get("total_bounty", 0)
             total_ess = main.get("total_ess", 0)
             character_id = main.get("main_character_id", 0)
             character_name = main.get("main_character_name", "Unknown")
+
+            # Add Unknown Characters
+            if character_name == "Unknown":
+                unkwowns_ids.add(character_id)
 
             alts = main.get("alts", [])
             summary_amount = total_bounty + total_ess
@@ -47,6 +53,10 @@ class CorporationProcess:
             }
             # Summary all
             corporation_total.get_data(totals)
+
+        # Create Unknown Characters
+        if unkwowns_ids:
+            create_missing_character.apply_async(args=[list(unkwowns_ids)], priority=6)
 
         return corporation_dict, corporation_total
 
