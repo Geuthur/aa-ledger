@@ -50,6 +50,7 @@ planet_many = [
                 "product_name": "Ionic Solutions",
             },
         },
+        "last_update": None,
     },
     {
         "character_id": 1001,
@@ -102,6 +103,7 @@ planet_many = [
                 "product_name": "Ionic Solutions",
             },
         },
+        "last_update": None,
     },
 ]
 
@@ -157,5 +159,6 @@ planet_single = [
                 "product_name": "Ionic Solutions",
             },
         },
+        "last_update": None,
     }
 ]

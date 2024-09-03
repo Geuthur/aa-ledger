@@ -66,6 +66,7 @@ class CharacterPlanetDetails(Schema):
     alarm: Optional[bool] = None
     products: Optional[Dict] = None
     extractors: Optional[Dict] = None
+    last_update: Optional[datetime] = None
 
 
 class CharacterLedger(Schema):

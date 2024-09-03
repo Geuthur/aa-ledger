@@ -3,7 +3,7 @@
 from django.urls import path, re_path
 
 from ledger.api import api
-from ledger.views.character.char_audit import add_char, fetch_memberaudit
+from ledger.views.character.char_audit import add_char
 from ledger.views.character.character_ledger import character_admin, character_ledger
 from ledger.views.character.planetary import (
     planetary_admin,
@@ -33,9 +33,6 @@ urlpatterns = [
     path("", ledger_index, name="index"),
     # -- Character Audit
     path("char/add/", add_char, name="ledger_add_char"),
-    re_path(
-        r"^char/fetch_memberaudit/", fetch_memberaudit, name="ledger_fetch_memberaudit"
-    ),
     # -- Corporation Audit
     path("corporation/add/", add_corp, name="ledger_add_corp"),
     # -- PvE

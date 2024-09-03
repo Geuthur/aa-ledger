@@ -21,7 +21,6 @@
     - Status
   - Progression Display
   - Extractor Information Modal
-  - Update Interval Display
 
 - Character Audit Model
 
@@ -46,6 +45,10 @@
 
 - Unknown Character not working on Corporation Ledger
 - Included Characters not shown on Corporation Ledger
+
+### Removed
+
+- Add Member Audit Chars Button (Handled by Task)
 
 ## \[0.5.9\] - 2024-08-29
 

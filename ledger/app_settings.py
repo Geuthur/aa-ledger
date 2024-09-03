@@ -38,6 +38,3 @@ LEDGER_CHAR_MAX_INACTIVE_DAYS = clean_setting("LEDGER_CHAR_MAX_INACTIVE_DAYS", 3
 
 # Set the Corporation Tax for Corporation & CharacterLedger Caluclation of ESS Payout
 LEDGER_CORP_TAX = clean_setting("LEDGER_CORP_TAX", 15)
-
-# Update Intverval for LEDGER
-LEDGER_UPDATE_INTERVAL = clean_setting("LEDGER_PLANETARY_UPDATE_INTERVAL", 3600)

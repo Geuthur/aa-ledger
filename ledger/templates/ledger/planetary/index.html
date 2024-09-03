@@ -17,7 +17,7 @@
             <span>
                 <i class="fa-solid fa-bullhorn"></i> Notification <span class="text-success">ON</span>/<span class="text-danger">OFF</span>
             </span>
-            <span id="next-update" class="text-end">Next update in: calculating...</span>
+            <span id="next-update" class="text-end"></span>
         </div>
 
         <br><br>
@@ -72,31 +72,6 @@
 	};
 </script>
 <script src="{% static 'ledger/js/planetary.js' %}"></script>
-<script>
-    var updateInterval = planetarySettings.updateInterval;
-    function calculateNextUpdate() {
-        const now = new Date();
-        const minutes = now.getMinutes();
-        const hours = now.getHours();
-        const seconds = now.getSeconds();
-
-        // Calculate the minutes to the next 1-hour interval
-        const nextUpdateHour = Math.ceil((seconds + 1)) * updateInterval;
-        const nextUpdate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), nextUpdateHour, 0, 0);
-
-        const timeDifference = nextUpdate - now;
-        const minutesToNextUpdate = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-        const secondsToNextUpdate = Math.floor((timeDifference % (1000 * 60)) / 1000);
-
-        document.getElementById('next-update').innerText = `Next update in: ${minutesToNextUpdate} minutes and ${secondsToNextUpdate} seconds`;
-    }
-
-    // Initial calculation
-    calculateNextUpdate();
-
-    // Update the calculation every second
-    setInterval(calculateNextUpdate, 30000);
-</script>
 {% include 'bundles/datatables-js-bs5.html' %}
 {% endblock %}
 {% block extra_css %}

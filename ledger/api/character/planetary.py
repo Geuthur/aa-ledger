@@ -111,6 +111,7 @@ class LedgerPlanetaryApiEndpoints:
                         "alarm": p.notification,
                         "products": types,
                         "extractors": extractors,
+                        "last_update": p.planet.last_update,
                     }
                 )
             return output

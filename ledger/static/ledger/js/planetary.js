@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 alarmIcon.style.marginLeft = '5px';
                 alarmIcon.style.color = 'green';
                 alarmIcon.title = alarmActivated;
+                alarmIcon.setAttribute('data-tooltip-toggle', 'tooltip');
                 if (!item.alarm) {
                     alarmIcon.title = alarmDeactivated;
                     alarmIcon.style.color = 'red';
@@ -228,6 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const statusImg = document.createElement('img');
                 statusImg.style.width = '24px';
                 statusImg.style.height = '24px';
+                statusImg.setAttribute('data-tooltip-toggle', 'tooltip');
                 if (item.expired) {
                     statusImg.src = '/static/ledger/images/red.png';
                     statusImg.title = 'Expired';
@@ -238,12 +240,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 statusCell.appendChild(statusImg);
                 row.appendChild(statusCell);
 
+                // Last Updated
+                const lastUpdatedCell = document.createElement('td');
+                lastUpdatedCell.textContent = new Date(item.last_update).toLocaleString();
+                row.appendChild(lastUpdatedCell);
+
                 // Actions
                 const actionsCell = document.createElement('td');
                 actionsCell.className = 'text-end'; // Align the text to the right
                 const switchAlarmButton = document.createElement('button');
                 switchAlarmButton.textContent = 'Switch Alarm';
+                switchAlarmButton.title = switchAlarm;
                 switchAlarmButton.className = 'btn btn-primary';
+                switchAlarmButton.setAttribute('data-tooltip-toggle', 'modal');
                 const characterId = item.character_id;
                 const planetId = item.planet_id;
                 const url = switchAlarmUrl(characterId, planetId);
@@ -254,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     '<form class="d-inline" method="post" action="' + switchAlarmUrl(characterId, planetId) + '" id="switchAlarmForm' + characterId + '_' + planetId + '">' +
                     csrfToken +
                     '<input type="hidden" name="character_pk" value="' + charPk + '">' +
-                    '<button type="button" class="btn btn-primary btn-sm btn-square" aria-label="' + switchAlarm + '" title="' + switchAlarm + '" data-bs-toggle="modal" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '" data-form-id="switchAlarmForm' + characterId + '_' + planetId + '"><span class="fas fa-bullhorn"></span></button></form>';
+                    '<button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="tooltip" title="'+ switchAlarm +'" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '" data-form-id="switchAlarmForm' + characterId + '_' + planetId + '"><span class="fas fa-bullhorn"></span></button></form>';
                 actionsCell.innerHTML = button;
                 row.appendChild(actionsCell);
 
@@ -267,6 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 switchAllAlarmsButton.textContent = 'Switch All Alarms';
                 switchAllAlarmsButton.className = 'btn btn-primary';
                 switchAllAlarmsButton.style.marginTop = '10px';
+                switchAllAlarmsButton.title = switchAlarm;
 
                 const switchAllAlarmsForm = document.createElement('form');
                 switchAllAlarmsForm.method = 'post';
@@ -275,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 switchAllAlarmsForm.className = 'd-inline';
                 switchAllAlarmsForm.innerHTML = csrfToken +
                     '<input type="hidden" name="character_pk" value="' + characterPk + '">' +
-                    '<button type="button" class="btn btn-primary btn-sm btn-square" aria-label="' + switchAlarm + '" title="' + switchAlarm + '" data-bs-toggle="modal" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '" data-form-id="switchAllAlarmsForm">' + switchAllAlarmsButton.textContent + '</button>';
+                    '<button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="tooltip" title="'+ switchAlarm +'" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '" data-form-id="switchAllAlarmsForm">' + switchAllAlarmsButton.textContent + '</button>';
 
                 const tableContainer = document.querySelector('#planets-details').parentElement;
                 const switchAllAlarmsContainer = document.createElement('div');
@@ -285,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Initialize DataTable with sorting on the expiry column
-            $('#planets-details').DataTable({
+            var table = $('#planets-details').DataTable({
                 'order': [[4, 'desc']], // Adjust the column index if needed
                 'pageLength': 25,
                 'columnDefs': [
@@ -293,11 +303,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 ]
             });
 
-            // Initialize Bootstrap tooltips for all elements with a title attribute
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
-            const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
+            // Reinitialize tooltips on draw
+            table.on( 'draw', function () {
+                $('[data-tooltip-toggle="tooltip"]').tooltip();
             });
+            // Init tooltips
+            $('[data-tooltip-toggle="tooltip"]').tooltip();
         })
         .catch(error => console.error('Error fetching data:', error));
 });
