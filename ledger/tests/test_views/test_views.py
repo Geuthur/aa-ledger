@@ -9,6 +9,7 @@ from app_utils.testdata_factories import UserMainFactory
 
 from ledger.models.general import General
 from ledger.views.character.character_ledger import character_admin, character_ledger
+from ledger.views.character.planetary import planetary_admin
 from ledger.views.corporation.corporation_ledger import (
     corporation_admin,
     corporation_ledger,
@@ -59,4 +60,10 @@ class TestViews(TestCase):
         request = self.factory.get(reverse("ledger:corporation_admin"))
         request.user = self.user
         response = corporation_admin(request)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_char_ledger_planetary_admin_view(self):
+        request = self.factory.get(reverse("ledger:planetary_admin"))
+        request.user = self.user
+        response = planetary_admin(request)
         self.assertEqual(response.status_code, HTTPStatus.OK)

@@ -167,9 +167,22 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)
 
+    @patch("ledger.api.character.ledger.CharacterAudit.objects.visible_eve_characters")
+    def test_get_character_admin_no_visible(self, mock_visible_to):
+        self.client.force_login(self.user2)
+        url = "/ledger/api/account/ledger/admin/"
+
+        mock_visible_to.return_value.values_list.return_value = []
+
+        # when
+        response = self.client.get(url)
+        # then
+        self.assertContains(response, "Permission Denied", status_code=403)
+
     def test_get_character_admin(self):
         self.client.force_login(self.user2)
         url = "/ledger/api/account/ledger/admin/"
+
         # when
         response = self.client.get(url)
         # then
@@ -188,25 +201,18 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), excepted_data)
 
-    @patch("ledger.api.character.ledger.CharacterAudit.objects.visible_eve_characters")
-    def test_get_character_admin_no_visible(self, mock_visible_to):
-        self.client.force_login(self.user2)
-        url = "/ledger/api/account/ledger/admin/"
-
-        mock_visible_to.return_value = None
-
-        # when
-        response = self.client.get(url)
-        # then
-        self.assertContains(response, "Permission Denied", status_code=403)
-
-    def test_get_character_admin_exception(self):
+    @patch("ledger.api.character.ledger.UserProfile.objects.filter")
+    def test_get_character_admin_attribute_error(self, mock_user_profile_filter):
+        # given
         self.client.force_login(self.user)
         url = "/ledger/api/account/ledger/admin/"
 
-        EveCorporationInfo.objects.get(corporation_id=2001).delete()
+        # Mock the UserProfile to return a character with missing attributes
+        mock_user_profile_filter.return_value = [MagicMock(main_character="LUL")]
 
         # when
         response = self.client.get(url)
+
         # then
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), [{"character": {}}])

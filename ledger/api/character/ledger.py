@@ -92,7 +92,7 @@ class LedgerApiEndpoints:
                         "corporation_id": character.main_character.corporation_id,
                         "corporation_name": character.main_character.corporation_name,
                     }
-                except Exception:
+                except AttributeError:
                     continue
 
             output = []

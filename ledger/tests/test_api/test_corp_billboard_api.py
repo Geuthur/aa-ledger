@@ -67,7 +67,6 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
         url = "/ledger/api/corporation/2001/billboard/year/2024/month/0/"
 
         response = self.client.get(url)
-        print(response.json())
 
         self.assertEqual(response.status_code, 200)
 
