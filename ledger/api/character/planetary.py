@@ -126,7 +126,7 @@ class LedgerPlanetaryApiEndpoints:
             ).values_list("character_id", flat=True)
 
             users_char_ids = UserProfile.objects.filter(
-                main_character__character_id__in=chars_ids
+                main_character__isnull=False, main_character__character_id__in=chars_ids
             )
 
             if not chars_ids:
