@@ -274,6 +274,10 @@ var MonthAjax = {
                     var totalOthersAmountAllChars = parseFloat(total_amount_others);
                     var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
                     var totalCostsAmountAllChars = parseFloat(total_amount_costs);
+                    var templateUrl = '/ledger/api/account/' + characterPk + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/';
+                    if (characteraltsShow) {
+                        templateUrl += '?main=True';
+                    }
 
                     $('#foot-Month .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
                     $('#foot-Month .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
@@ -283,7 +287,7 @@ var MonthAjax = {
                     $('#foot-Month .col-total-costs').html('' + formatAndColor(totalCostsAmountAllChars) + '');
                     $('#foot-Month .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                         'aria-label="{{ data.main_name }}"' +
-                        'data-ajax_url="/ledger/api/account/' + characterPk + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/" ' +
+                        'data-ajax_url="'+ templateUrl +'" ' +
                         'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
                         .addClass('text-end');
                 },
@@ -433,6 +437,10 @@ var YearAjax = {
                     var totalOthersAmountAllChars_year = parseFloat(total_amount_others);
                     var totalCombinedAmountAllChars_year = parseFloat(total_amount_combined);
                     var totalCostsAmountAllChars_year = parseFloat(total_amount_costs);
+                    var templateUrl = '/ledger/api/account/' + characterPk + '/ledger/template/year/' + selectedYear + '/month/0/';
+                    if (characteraltsShow) {
+                        templateUrl += '?main=True';
+                    }
 
                     $('#foot-Year .col-total-amount').html('' + formatAndColor(totalAmountAllChars_year) + '');
                     $('#foot-Year .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars_year) + '');
@@ -441,7 +449,7 @@ var YearAjax = {
                     $('#foot-Year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars_year) + '');
                     $('#foot-Year .col-total-costs').html('' + formatAndColor(totalCostsAmountAllChars_year) + '');
                     $('#foot-Year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
-                    'data-ajax_url="/ledger/api/account/' + char_id + '/ledger/template/year/' + selectedYear + '/month/0/" ' +
+                    'data-ajax_url="'+ templateUrl +'" ' +
                     '"> <span class="fas fa-info"></span></button>')
                         .addClass('text-end');
                 },

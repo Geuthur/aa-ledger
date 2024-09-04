@@ -1,5 +1,12 @@
 # Changelog
 
+## \[0.6.0.1\] - 2024-09-04 - Hotfix
+
+### Fixed
+
+- Character Information:
+  - On Administration Overview Overall Information not work for Character
+
 ## \[0.6.0\] - 2024-09-04
 
 ### Added

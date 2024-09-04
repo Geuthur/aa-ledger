@@ -29,26 +29,21 @@ class LedgerTemplateApiEndpoints:
         def get_character_ledger_template(
             request, character_id: int, year: int, month: int
         ):
-            overall_mode = character_id == 0
-            # Set the character_id to the main character if the character_id is 0
-            character_id = (
-                request.user.profile.main_character.character_id
-                if character_id == 0
-                else character_id
-            )
-            current_date = timezone.now()
-
+            request_main = request.GET.get("main", False)
             perms, main = get_character(request, character_id)
-            alts = get_alts_queryset(main)
-
-            chars_list = [char.character_id for char in alts]
-
             if not perms:
                 context = {
                     "error_title": "Permission Denied",
                     "error_message": "You don't have permission to view this character's ledger.",
                 }
                 return render(request, "ledger/modals/information/error.html", context)
+
+            alts = get_alts_queryset(main)
+            chars_list = [char.character_id for char in alts]
+
+            overall_mode = character_id == 0 or request_main
+            current_date = timezone.now()
+
             try:
                 if overall_mode:
                     linked_char = EveCharacter.objects.filter(
