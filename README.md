@@ -7,7 +7,7 @@
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W810Q5J4)
 
-Character/Corporation Ledger see Statistics for Ratting, Mining, ESS Payout
+Character and Corporation statistics, including detailed information on ESS, Ratting, Trading, Mining, and other activities.
 
 ## -
 
@@ -101,7 +101,7 @@ With the Following IDs you can set up the permissions for the Ledger
 | ID                         | Description                               |                                                        |
 | :------------------------- | :---------------------------------------- | :----------------------------------------------------- |
 | `basic_access`             | Can access the Ledger module              | All Members with the Permission can access the Ledger. |
-| `admin_access`             | Can access the Administration tools       | Can Add Memberaudit Chars & Add Corporations.          |
+| `admin_access`             | Can access the Administration tools       | Can Add Corporations.                                  |
 | `char_audit_manager`       | Has Access to all characters for own Corp | Can see all Chars from Corps he is in.                 |
 | `corp_audit_manager`       | Has Access to own Corporation             | Can see all Corps he is in.                            |
 | `char_audit_admin_manager` | Has Access to all Characters              | Can see all Chars.                                     |
