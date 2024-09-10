@@ -25,6 +25,11 @@ ______________________________________________________________________
 
 ## Features<a name="features"></a>
 
+- Statistics
+  - Yearly
+  - Monthly
+  - Daily
+  - Hourly
 - Character Ledger
   - Graphical Overview for each Character
     - Graphical Statistics
