@@ -24,7 +24,7 @@ def planetary_ledger(request, character_pk):
         "character_pk": character_pk,
     }
     context = add_info_to_context(request, context)
-    return render(request, "ledger/planetary/index.html", context=context)
+    return render(request, "ledger/planetary/planetary_ledger.html", context=context)
 
 
 @login_required

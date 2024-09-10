@@ -1,5 +1,38 @@
 # Changelog
 
+## \[0.6.1\] - 2024-09-04
+
+### Changed
+
+- Character Ledger
+  - Javascript Optimation
+- Corporation Ledger
+  - Javascript Optimation
+- Planetary Ledger
+  - Javascript Optimation
+
+### Added
+
+- Alliance System
+  - Alliance Overview
+  - Alliance Ledger
+  - Alliance Billboard
+
+### Moved
+
+- Overview Link to each Ledger
+
+### Removed
+
+- All Overview Links from Menu
+- Add Char / Corporation on Ledger View
+
+### Fixed
+
+- Permission Denied if no Data exists
+- Loading Animation url wrong app name
+- Table show on Loading Animation
+
 ## \[0.6.0.1\] - 2024-09-04 - Hotfix
 
 ### Fixed

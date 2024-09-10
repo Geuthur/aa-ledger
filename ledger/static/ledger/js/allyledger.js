@@ -1,8 +1,8 @@
-/* global corporationsettings */
+/* global alliancesettings */
 var bb, d3;
 var BillboardMonth, BillboardYear;
 
-var corporationPk = corporationsettings.corporation_pk;
+var alliancePk = alliancesettings.alliance_pk;
 
 // Aktuelles Datumobjekt erstellen
 var currentDate = new Date();
@@ -13,10 +13,10 @@ var selectedMonth = currentDate.getMonth() + 1;
 var monthText = getMonthName(selectedMonth);
 
 // Billboard URLs
-var MonthUrl = '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
-var YearUrl = '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/0/';
-var BillboardUrl = '/ledger/api/corporation/' + corporationPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
-var BillboardUrlYear = '/ledger/api/corporation/' + corporationPk + '/billboard/year/' + selectedYear + '/month/0/';
+var MonthUrl = '/ledger/api/alliance/' + alliancePk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
+var YearUrl = '/ledger/api/alliance/' + alliancePk + '/ledger/year/' + selectedYear + '/month/0/';
+var BillboardUrl = '/ledger/api/alliance/' + alliancePk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
+var BillboardUrlYear = '/ledger/api/alliance/' + alliancePk + '/billboard/year/' + selectedYear + '/month/0/';
 
 function getMonthName(monthNumber) {
     var months = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -47,8 +47,8 @@ $('#monthDropdown li').click(function() {
     monthText = getMonthName(selectedMonth);
 
     // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
-    var newurl = '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
-    var BillboardUrl = '/ledger/api/corporation/' + corporationPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
+    var newurl = '/ledger/api/alliance/' + alliancePk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
+    var BillboardUrl = '/ledger/api/alliance/' + alliancePk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
 
     // Daten neu laden mit den Daten des ausgewählten Monats
     setBillboardData(BillboardUrl, 'Month');
@@ -71,10 +71,10 @@ $('#yearDropdown li').click(function() {
     selectedYear = $(this).text();
 
     // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
-    var newurl = '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
-    var newurl_year = '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/0/';
-    var BillboardUrl = '/ledger/api/corporation/' + corporationPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
-    var BillboardUrlYear = '/ledger/api/corporation/' + corporationPk + '/billboard/year/' + selectedYear + '/month/0/';
+    var newurl = '/ledger/api/alliance/' + alliancePk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
+    var newurl_year = '/ledger/api/alliance/' + alliancePk + '/ledger/year/' + selectedYear + '/month/0/';
+    var BillboardUrl = '/ledger/api/alliance/' + alliancePk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
+    var BillboardUrlYear = '/ledger/api/alliance/' + alliancePk + '/billboard/year/' + selectedYear + '/month/0/';
 
     // Daten neu laden mit den Daten des ausgewählten Jahres
     setBillboardData(BillboardUrl, 'Month');
@@ -181,7 +181,7 @@ function generateLedger(TableName, url) {
                             return '<button class="btn btn-sm btn-info btn-square" ' +
                                 'data-bs-toggle="modal" ' +
                                 'data-bs-target="#modalViewCharacterContainer" ' +
-                                'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/" ' +
+                                'data-ajax_url="/ledger/api/alliance/'+ alliancePk +'/character/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/" ' +
                                 'title="' + row.main_name + '">' +
                                 '<span class="fas fa-info"></span>' +
                                 '</button>';
@@ -207,7 +207,7 @@ function generateLedger(TableName, url) {
                     $('#foot-'+ TableName +' .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
                     $('#foot-'+ TableName +' .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
                     $('#foot-'+ TableName +' .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
-                        'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/?corp=true" ' +
+                        'data-ajax_url="/ledger/api/alliance/'+ alliancePk +'/character/' + alliancePk + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/?corp=true" ' +
                         'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
                         .addClass('text-end');
                 },

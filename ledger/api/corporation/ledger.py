@@ -3,7 +3,7 @@ from typing import List
 from ninja import NinjaAPI
 
 from ledger.api import schema
-from ledger.api.helpers import get_corporation, get_main_and_alts_ids_corporations
+from ledger.api.helpers import get_corporation
 from ledger.api.managers.corporation_manager import CorporationProcess
 from ledger.hooks import get_extension_logger
 from ledger.models import CorporationAudit
@@ -21,16 +21,10 @@ class LedgerApiEndpoints:
             tags=self.tags,
         )
         def get_corporation_ledger(request, corporation_id: int, year: int, month: int):
-            response, _ = get_corporation(request, corporation_id)
+            response, corporations = get_corporation(request, corporation_id)
 
-            if not response:
+            if response is False:
                 return 403, "Permission Denied"
-
-            # pylint: disable=duplicate-code
-            if corporation_id == 0:
-                corporations = get_main_and_alts_ids_corporations(request)
-            else:
-                corporations = [corporation_id]
 
             ledger = CorporationProcess(year, month, corporations)
             output = ledger.generate_ledger()
@@ -43,16 +37,10 @@ class LedgerApiEndpoints:
             tags=self.tags,
         )
         def get_billboard_ledger(request, corporation_id: int, year: int, month: int):
-            response, _ = get_corporation(request, corporation_id)
+            response, corporations = get_corporation(request, corporation_id)
 
-            if not response:
+            if response is False:
                 return 403, "Permission Denied"
-
-            # pylint: disable=duplicate-code
-            if corporation_id == 0:
-                corporations = get_main_and_alts_ids_corporations(request)
-            else:
-                corporations = [corporation_id]
 
             ledger = CorporationProcess(year, month, corporations)
             output = ledger.generate_billboard(corporations)
@@ -67,7 +55,7 @@ class LedgerApiEndpoints:
         def get_corporation_admin(request):
             corporations = CorporationAudit.objects.visible_to(request.user)
 
-            if not corporations:
+            if corporations is False:
                 return 403, "Permission Denied"
 
             corporation_dict = {}

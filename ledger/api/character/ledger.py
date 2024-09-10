@@ -27,7 +27,7 @@ class LedgerApiEndpoints:
             request_main = request.GET.get("main", False)
             perm, main = get_character(request, character_id)
 
-            if not perm:
+            if perm is False:
                 return 403, "Permission Denied"
 
             # Create the Ledger
@@ -50,7 +50,7 @@ class LedgerApiEndpoints:
             request_main = request.GET.get("main", False)
             perm, main = get_character(request, character_id)
 
-            if not perm:
+            if perm is False:
                 return 403, "Permission Denied"
 
             # Create the Ledger
@@ -78,7 +78,7 @@ class LedgerApiEndpoints:
                 main_character__isnull=False, main_character__character_id__in=chars_ids
             )
 
-            if not chars_ids:
+            if chars_ids is None:
                 return 403, "Permission Denied"
 
             character_dict = {}

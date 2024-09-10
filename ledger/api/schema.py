@@ -87,6 +87,10 @@ class CorporationAdmin(Schema):
     corporation: Optional[dict] = None
 
 
+class AllianceAdmin(Schema):
+    alliance: Optional[dict] = None
+
+
 class CorporationWalletEvent(Schema):
     division: str
     id: int

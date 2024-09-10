@@ -9,13 +9,14 @@ from allianceauth.eveonline.models import EveCharacter
 
 from ledger.api import schema
 from ledger.api.helpers import (
+    get_alliance,
     get_alts_queryset,
     get_character,
-    get_corporation,
     get_main_and_alts_ids_all,
 )
 from ledger.api.managers.template_manager import TemplateData, TemplateProcess
 from ledger.hooks import get_extension_logger
+from ledger.models import CorporationAudit
 
 logger = get_extension_logger(__name__)
 
@@ -24,27 +25,33 @@ logger = get_extension_logger(__name__)
 class LedgerTemplateApiEndpoints:
     tags = ["CorporationLedgerTemplate"]
 
+    # pylint: disable=duplicate-code
     def __init__(self, api: NinjaAPI):
 
         @api.get(
-            "corporation/{corporation_id}/character/{main_id}/ledger/template/year/{year}/month/{month}/",
+            "alliance/{alliance_id}/character/{main_id}/ledger/template/year/{year}/month/{month}/",
             response={200: List[schema.CharacterLedgerTemplate], 403: str},
             tags=self.tags,
         )
-        def get_corporation_ledger_template(
+        def get_alliance_ledger_template(
             request,
-            corporation_id: int,
+            alliance_id: int,
             main_id: int,
             year: int,
             month: int,
             corp: bool = False,
         ):
-            response, corporations = get_corporation(request, corporation_id)
+            response, alliances = get_alliance(request, alliance_id)
 
             if response is False:
                 return 403, "Permission Denied"
 
             current_date = timezone.now()
+
+            # Get all corporations in the alliance
+            corporations = CorporationAudit.objects.filter(
+                corporation__alliance__alliance_id__in=alliances
+            ).values_list("corporation__corporation_id", flat=True)
 
             _, char = get_character(request, main_id)
 
@@ -61,7 +68,7 @@ class LedgerTemplateApiEndpoints:
                 )
             elif corp:
                 linked_char = EveCharacter.objects.filter(
-                    corporation_id__in=[main_id],
+                    alliance_id__in=[main_id],
                 )
                 overall_mode = True
 

@@ -52,7 +52,29 @@ def get_corporation(request, corporation_id):
     common_corps = main_corp.intersection(visible)
     if not common_corps.exists():
         perms = False
-    return perms, main_corp
+    return perms, main_corp.values_list("corporation__corporation_id", flat=True)
+
+
+def get_alliance(request, alliance_id):
+    """Get Alliance and check permissions for each corporation"""
+    perms = True
+    if alliance_id == 0:
+        alliances = get_main_and_alts_ids_alliances(request)
+    else:
+        alliances = [alliance_id]
+
+    main_corp = models.CorporationAudit.objects.filter(
+        corporation__alliance__alliance_id__in=alliances
+    )
+
+    # Check access
+    visible = models.CorporationAudit.objects.visible_to(request.user)
+
+    # Check if there is an intersection between main_corp and visible
+    common_corps = main_corp.intersection(visible)
+    if not common_corps.exists():
+        perms = False
+    return perms, main_corp.values_list("corporation__alliance__alliance_id", flat=True)
 
 
 def get_alts_queryset(main_char, corporations=None):
@@ -126,3 +148,19 @@ def get_main_and_alts_ids_corporations(request) -> list:
         corporations.add(char.corporation_id)
 
     return list(corporations)
+
+
+def get_main_and_alts_ids_alliances(request) -> list:
+    linked_characters = request.user.profile.main_character.character_ownership.user.character_ownerships.select_related(
+        "character", "user"
+    ).all()
+
+    linked_characters = linked_characters.values_list("character_id", flat=True)
+    chars = EveCharacter.objects.filter(id__in=linked_characters)
+
+    alliances = set()
+
+    for char in chars:
+        alliances.add(char.alliance_id)
+
+    return list(alliances)
