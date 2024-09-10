@@ -9,7 +9,7 @@
 
 Character and Corporation statistics, including detailed information on ESS, Ratting, Trading, Mining, and other activities.
 
-## -
+______________________________________________________________________
 
 - [AA Ledger](#aa-ledger)
   - [Features](#features)
@@ -25,16 +25,31 @@ Character and Corporation statistics, including detailed information on ESS, Rat
 
 ## Features<a name="features"></a>
 
-- Graphical Overview
-- Ratting, Mining, Trading, Costs, etc.
 - Character Ledger
+  - Graphical Overview for each Character
+    - Graphical Statistics
+  - Ratting
+  - Encounter Surveillance System Payouts
+  - Mining
+  - Trading & Costs
 - Corporation Ledger
-- Planetary Ledger with Notification System
+  - Graphical Overview for each Member
+  - Ratting Tax
+  - Encounter Surveillance System Tax
+- Alliance Ledger
+  - Graphical Overview for each Corporation
+  - Ratting
+  - Encounter Surveillance System Tax
+- Planetary Ledger
+  - Graphical Overview for each Planet
+  - Notification if Extractor expire
+  - Switchable Notification for each Planet
+  - Products Overview (not include amount)
 - Events Calender
 
 ## Upcoming<a name="upcoming"></a>
 
-- Alliance Overview
+- Bug Fixing, Performance Optimation
 
 ## Installation<a name="installation"></a>
 
