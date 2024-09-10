@@ -31,6 +31,8 @@ def add_ally(request, token) -> HttpResponse:
                     "executor_corp_id": ally_data.executor_corp_id,
                 },
             )
+            # Add/Update All Corporations to eveuniverse model
+            ally.populate_alliance()
             msg = trans("{alliance_name} successfully added to Ledger").format(
                 alliance_name=ally.alliance_name,
             )
