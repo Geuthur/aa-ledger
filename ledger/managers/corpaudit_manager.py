@@ -22,9 +22,9 @@ class CorpAuditQuerySet(models.QuerySet):
         try:
             char = user.profile.main_character
             assert char
-            queries = [models.Q(corporation__corporation_id=char.corporation_id)]
+            queries = []
 
-            if user.has_perm("ledger.corp_audit_manager"):
+            if user.has_perm("ledger.advanced_access"):
                 queries.append(
                     models.Q(corporation__corporation_id=char.corporation_id)
                 )
@@ -32,6 +32,10 @@ class CorpAuditQuerySet(models.QuerySet):
             logger.debug(
                 "%s queries for user %s visible corporations.", len(queries), user
             )
+
+            # if no queries, return none
+            if len(queries) == 0:
+                return self.none()
 
             query = queries.pop()
             for q in queries:

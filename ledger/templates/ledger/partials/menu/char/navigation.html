@@ -1,16 +1,15 @@
 {% load i18n %}
 {% load navactive %}
 
-{% if perms.ledger.basic_access %}
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'ledger:character_ledger' character_pk=0 %}">{% translate 'Character Ledger' %}</a>
-    </li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'ledger:character_ledger' character_pk=0 %}">{% translate 'Character Ledger' %}</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'ledger:planetary_ledger' character_pk=0 %}">{% translate 'Planetary Ledger' %}</a>
+</li>
 
+{% if perms.ledger.advanced_access %}
     <li class="nav-item">
         <a class="nav-link" href="{% url 'ledger:corporation_ledger' corporation_pk=0 %}">{% translate 'Corporation Ledger' %}</a>
-    </li>
-
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'ledger:planetary_ledger' character_pk=0 %}">{% translate 'Planetary Ledger' %}</a>
     </li>
 {% endif %}

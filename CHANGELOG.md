@@ -10,8 +10,16 @@
   - Javascript Optimation
 - Planetary Ledger
   - Javascript Optimation
+- Permission System
+  - Added advanced_access
+    - Access to Corporation Ledger & Alliance Ledger
+- Ledger Guide
+  - More Information how it works
 
 ### Added
+
+> \[!NOTE\]
+> Only Show Corporations that added in Ledger System
 
 - Alliance System
   - Alliance Overview
@@ -26,6 +34,8 @@
 
 - All Overview Links from Menu
 - Add Char / Corporation on Ledger View
+- `basic_access` has access to Corporation & Alliance Ledger
+- `char_audit_manager` Permission now handled by `advanced_access`
 
 ### Fixed
 
