@@ -15,6 +15,7 @@
     - Access to Corporation Ledger & Alliance Ledger
 - Ledger Guide
   - More Information how it works
+- `basic_access` has no longer access to Corporation & Alliance Ledger
 
 ### Added
 
@@ -25,6 +26,8 @@
   - Alliance Overview
   - Alliance Ledger
   - Alliance Billboard
+- `advanced_access` can access Corporation & Alliance Ledger
+  - Gives permission to see Corporations they are in
 
 ### Moved
 
@@ -34,7 +37,6 @@
 
 - All Overview Links from Menu
 - Add Char / Corporation on Ledger View
-- `basic_access` has access to Corporation & Alliance Ledger
 - `char_audit_manager` Permission now handled by `advanced_access`
 
 ### Fixed
