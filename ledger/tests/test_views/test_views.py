@@ -8,6 +8,7 @@ from django.urls import reverse
 from app_utils.testdata_factories import UserMainFactory
 
 from ledger.models.general import General
+from ledger.views.alliance.alliance_ledger import alliance_admin, alliance_ledger
 from ledger.views.character.character_ledger import character_admin, character_ledger
 from ledger.views.character.planetary import planetary_admin
 from ledger.views.corporation.corporation_ledger import (
@@ -25,6 +26,7 @@ class TestViews(TestCase):
         cls.user = UserMainFactory(
             permissions=[
                 "ledger.basic_access",
+                "ledger.advanced_access",
             ]
         )
 
@@ -66,4 +68,18 @@ class TestViews(TestCase):
         request = self.factory.get(reverse("ledger:planetary_admin"))
         request.user = self.user
         response = planetary_admin(request)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_ally_ledger_view(self):
+        request = self.factory.get(
+            reverse("ledger:alliance_ledger", kwargs={"alliance_pk": 0})
+        )
+        request.user = self.user
+        response = alliance_ledger(request, alliance_pk=0)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_ally_ledger_admin_view(self):
+        request = self.factory.get(reverse("ledger:alliance_admin"))
+        request.user = self.user
+        response = alliance_admin(request)
         self.assertEqual(response.status_code, HTTPStatus.OK)

@@ -5,14 +5,10 @@
 <div role="tabpanel" class="tab-pane fade" id="tab-all_month">
     <div class="card-body bg-secondary table-responsive">
         <div id="loadingIndicator-Year" class="d-flex justify-content-center align-items-center">
-            {% if NIGHT_MODE %}
-            <img src="{% static 'killstats/img/Spinner-1s-64px-dark.gif' %}">
-            {% else %}
-                <img src="{% static 'killstats/img/Spinner-1s-64px-light.gif' %}">
-            {% endif %}
+            <img src="{% static 'ledger/images/Spinner-1s-64px-dark.gif' %}">
         </div>
         <div id="errorHandler-Year" class="d-flex d-none justify-content-center align-items-center">
-            You don't have Permission to view this Page
+            {% include 'ledger/permission.html' %}
         </div>
         {% include 'ledger/charledger/partials/table.html' with mode="Year" %}
         {% include 'ledger/charledger/partials/card.html' with mode="Year" %}

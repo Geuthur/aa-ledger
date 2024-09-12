@@ -1,14 +1,19 @@
 {% load i18n %}
 {% load navactive %}
 
-{% if perms.ledger.basic_access %}
 <li class="nav-item">
     <a class="nav-link" href="{% url 'ledger:character_ledger' character_pk=0 %}">{% translate 'Character Ledger' %}</a>
 </li>
 
+{% if perms.ledger.advanced_access %}
 <li class="nav-item">
     <a class="nav-link" href="{% url 'ledger:corporation_ledger' corporation_pk=0 %}">{% translate 'Corporation Ledger' %}</a>
 </li>
+
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'ledger:alliance_ledger' alliance_pk=0 %}">{% translate 'Alliance Ledger' %}</a>
+</li>
+{% endif %}
 
 <li class="nav-item">
     <a class="nav-link" href="{% url 'ledger:planetary_ledger' character_pk=0 %}">{% translate 'Planetary Ledger' %}</a>
@@ -17,18 +22,3 @@
 <li class="nav-item">
     <a class="nav-link" href="{% url 'ledger:events_index' %}">{% translate 'Events' %}</a>
 </li>
-
-<li class="nav-item">
-    <span class="nav-link">|</span>
-</li>
-
-<li class="nav-item">
-    <a class="nav-link" href="{% url 'ledger:character_admin' %}">{% translate 'Character Overview' %}</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="{% url 'ledger:corporation_admin' %}">{% translate 'Corporation Overview' %}</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="{% url 'ledger:planetary_admin' %}">{% translate 'Planetary Overview' %}</a>
-</li>
-{% endif %}

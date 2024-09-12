@@ -1,18 +1,2 @@
 {% load i18n %}
 {% load navactive %}
-
-{% if perms.ledger.basic_access %}
-    <li class="nav-item">
-        <a class="nav-link py-0" href="{% url 'ledger:ledger_add_char' %}">
-            <span class="btn btn-success">{% translate 'Add Character' %}</span>
-        </a>
-    </li>
-{% endif %}
-
-{% if perms.ledger.corp_audit_manager or perms.ledger.admin_access %}
-    <li class="nav-item">
-        <a class="nav-link py-0" href="{% url 'ledger:ledger_add_corp' %}">
-            <span class="btn btn-success">{% translate 'Add Corporation' %}</span>
-        </a>
-    </li>
-{% endif %}

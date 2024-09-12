@@ -1,0 +1,17 @@
+{% load i18n %}
+{% load navactive %}
+
+
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'ledger:character_ledger' character_pk=0 %}">{% translate 'Character Ledger' %}</a>
+</li>
+
+{% if perms.ledger.advanced_access %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'ledger:corporation_ledger' corporation_pk=0 %}">{% translate 'Corporation Ledger' %}</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'ledger:alliance_ledger' alliance_pk=0 %}">{% translate 'Alliance Ledger' %}</a>
+    </li>
+{% endif %}

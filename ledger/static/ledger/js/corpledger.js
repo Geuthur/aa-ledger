@@ -1,7 +1,4 @@
 /* global corporationsettings */
-
-var ledgerData;
-var MonthTable, YearTable;
 var bb, d3;
 var BillboardMonth, BillboardYear;
 
@@ -16,6 +13,8 @@ var selectedMonth = currentDate.getMonth() + 1;
 var monthText = getMonthName(selectedMonth);
 
 // Billboard URLs
+var MonthUrl = '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
+var YearUrl = '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/0/';
 var BillboardUrl = '/ledger/api/corporation/' + corporationPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
 var BillboardUrlYear = '/ledger/api/corporation/' + corporationPk + '/billboard/year/' + selectedYear + '/month/0/';
 
@@ -41,7 +40,7 @@ $('#monthDropdown li').click(function() {
     showLoading('Month');
     hideContainer('Month');
 
-    MonthTable.clear().draw();
+    window['MonthTable'].clear().draw();
     $('#foot-Month').hide();
 
     selectedMonth = $(this).find('a').data('bs-month-id');
@@ -53,7 +52,7 @@ $('#monthDropdown li').click(function() {
 
     // Daten neu laden mit den Daten des ausgewählten Monats
     setBillboardData(BillboardUrl, 'Month');
-    reloadAjax(newurl, MonthAjax);
+    generateLedger('Month', newurl);
     $('#currentMonthLink').text('Month - ' + monthText);
 });
 
@@ -63,10 +62,10 @@ $('#yearDropdown li').click(function() {
     hideContainer('Year');
     hideContainer('Month');
 
-    YearTable.clear().draw();
+    window['YearTable'].clear().draw();
     $('#foot-Year').hide();
 
-    MonthTable.clear().draw();
+    window['MonthTable'].clear().draw();
     $('#foot-Month').hide();
 
     selectedYear = $(this).text();
@@ -80,8 +79,8 @@ $('#yearDropdown li').click(function() {
     // Daten neu laden mit den Daten des ausgewählten Jahres
     setBillboardData(BillboardUrl, 'Month');
     setBillboardData(BillboardUrlYear, 'Year');
-    reloadAjax(newurl, MonthAjax);
-    reloadAjax(newurl_year, YearAjax);
+    generateLedger('Year', newurl_year);
+    generateLedger('Month', newurl);
     $('#currentMonthLink').text('Month - ' + monthText);
     $('#currentYearLink').text('Year - ' + selectedYear);
 });
@@ -108,11 +107,6 @@ function showContainer(id) {
     $('#rattingBarContainer-'+id).removeClass('d-none');
 }
 
-function reloadAjax(newUrl, ajax) {
-    ajax.url = newUrl; // Update URL
-    $.ajax(ajax);
-}
-
 function setBillboardData(url, id) {
     $.ajax({
         url: url,
@@ -129,214 +123,119 @@ function setBillboardData(url, id) {
     });
 }
 
-var MonthAjax = {
-    url: '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/',
-    type: 'GET',
-    success: function(data) {
-        if (MonthTable) {
-            $('#ratting-Month').DataTable().destroy();
-        }
-        hideLoading('Month');
-        var total_amount = data[0].total.total_amount;
-        var total_amount_ess = data[0].total.total_amount_ess;
-        var total_amount_combined = data[0].total.total_amount_all;
-        // Daten für die Billboard-URLs speichern
-
-        MonthTable = $('#ratting-Month').DataTable({
-            data: data[0].ratting,
-            columns: [
-                {
-                    data: 'main_name',
-                    render: function (data, type, row) {
-                        // Initialize alt_names
-                        var alt_portrait = 'Included Characters: ';
-
-                        // Loop through alt_names and add each image
-                        row.alt_names.forEach(function(character_id) {
-                            alt_portrait += '<img src="https://images.evetech.net/characters/' + character_id + '/portrait?size=32" class="rounded-circle" height="30">';
-                        });
-
-                        var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" height="30" data-bs-trigger="hover" data-bs-toggle="popover" data-bs-content=\''+ alt_portrait +'\' >';
-                        return imageHTML + ' ' + data;
-                    }
-                },
-                {   data: 'total_amount',
-                    render: function (data, type, row) {
-                        if (type === 'display') {
-                            return formatAndColor(data);
-                        }
-                        return data;
-                    }
-                },
-                {   data: 'total_amount_ess',
-                    render: function (data, type, row) {
-                        if (type === 'display') {
-                            return formatAndColor(data);
-                        }
-                        return data;
-                    }
-                },
-                {
-                    data: 'col-total-action',
-                    render: function (data, type, row) {
-                        return '<button class="btn btn-sm btn-info btn-square" ' +
-                            'data-bs-toggle="modal" ' +
-                            'data-bs-target="#modalViewCharacterContainer" ' +
-                            'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/" ' +
-                            'title="' + row.main_name + '">' +
-                            '<span class="fas fa-info"></span>' +
-                            '</button>';
-                    }
-                },
-            ],
-            order: [[1, 'desc']],
-            columnDefs: [
-                {
-                    sortable: false,
-                    targets: [3],
-                    className: 'text-end',
-                },
-            ],
-            footerCallback: function (row, data, start, end, display) {
-                var totalAmountAllChars = parseFloat(total_amount);
-                var totalEssAmountAllChars = parseFloat(total_amount_ess);
-                var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
-                $('#foot-Month .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
-                $('#foot-Month .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
-                $('#foot-Month .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
-                $('#foot-Month .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
-                    'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/?corp=true" ' +
-                    'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
-                    .addClass('text-end');
-            },
-            initComplete: function(settings, json) {
-                $('#foot-Month').show();
-                // Initialize popover
-                var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-                var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-                    // eslint-disable-next-line no-undef
-                    return new bootstrap.Popover(popoverTriggerEl, {
-                        html: true
-                    });
-                });
+function generateLedger(TableName, url) {
+    return $.ajax({
+        url: url,
+        type: 'GET',
+        success: function(data) {
+            if (window[TableName + 'Table']) {
+                $('#ratting-'+ TableName +'').DataTable().destroy();
             }
-        });
-    },
-    error: function(xhr, status, error) {
-        if (xhr.status === 403) {
-            hideLoading('Month');
-            $('#ratting-Month').hide();
-            $('#errorHandler').removeClass('d-none');
-            $('.dropdown-toggle').attr('disabled', true);
-        }
-    }
-};
+            hideLoading(TableName);
+            var total_amount = data[0].total.total_amount;
+            var total_amount_ess = data[0].total.total_amount_ess;
+            var total_amount_combined = data[0].total.total_amount_all;
 
-var YearAjax = {
-    url: '/ledger/api/corporation/' + corporationPk + '/ledger/year/' + selectedYear + '/month/0/',
-    type: 'GET',
-    success: function(data) {
-        if (YearTable) {
-            $('#ratting-Year').DataTable().destroy();
-        }
-        hideLoading('Year');
-        // Zusätzliche Daten im DataTable-Objekt speichern
-        var total_amount = data[0].total.total_amount;
-        var total_amount_ess = data[0].total.total_amount_ess;
-        var total_amount_combined = data[0].total.total_amount_all;
+            // Set the month to 0 for the year table
+            var tableMonth = (TableName === 'Year') ? 0 : selectedMonth;
 
-        // DataTable neu initialisieren
-        YearTable = $('#ratting-Year').DataTable({
-            data: data[0].ratting,
-            columns: [
-                {
-                    data: 'main_name',
-                    render: function (data, type, row) {
-                    // Initialize alt_names
-                        var alt_portrait = 'Included Characters: ';
+            // DataTable neu initialisieren
+            var table = TableName + 'Table';
+            window[table] = $('#ratting-'+ TableName +'').DataTable({
+                data: data[0].ratting,
+                columns: [
+                    {
+                        data: 'main_name',
+                        render: function (data, type, row) {
+                            // Initialize alt_names
+                            var alt_portrait = 'Included Characters: ';
 
-                        // Loop through alt_names and add each image
-                        row.alt_names.forEach(function(character_id) {
-                            alt_portrait += '<img src="https://images.evetech.net/characters/' + character_id + '/portrait?size=32" class="rounded-circle" height="30">';
+                            // Loop through alt_names and add each image
+                            row.alt_names.forEach(function(character_id) {
+                                alt_portrait += '<img src="https://images.evetech.net/characters/' + character_id + '/portrait?size=32" class="rounded-circle" height="30">';
+                            });
+
+                            var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" height="30" data-bs-trigger="hover" data-bs-toggle="popover" data-bs-content=\''+ alt_portrait +'\' >';
+                            return imageHTML + ' ' + data;
+                        }
+                    },
+                    {   data: 'total_amount',
+                        render: function (data, type, row) {
+                            if (type === 'display') {
+                                return formatAndColor(data);
+                            }
+                            return data;
+                        }
+                    },
+                    {   data: 'total_amount_ess',
+                        render: function (data, type, row) {
+                            if (type === 'display') {
+                                return formatAndColor(data);
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'col-total-action',
+                        render: function (data, type, row) {
+                            return '<button class="btn btn-sm btn-info btn-square" ' +
+                                'data-bs-toggle="modal" ' +
+                                'data-bs-target="#modalViewCharacterContainer" ' +
+                                'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/" ' +
+                                'title="' + row.main_name + '">' +
+                                '<span class="fas fa-info"></span>' +
+                                '</button>';
+                        }
+                    },
+                ],
+                order: [[1, 'desc']],
+                columnDefs: [
+                    {
+                        sortable: false,
+                        targets: [3],
+                        className: 'text-end',
+                    },
+                ],
+                footerCallback: function (row, data, start, end, display) {
+                    if (data.length === 0) {
+                        return;
+                    }
+                    var totalAmountAllChars = parseFloat(total_amount);
+                    var totalEssAmountAllChars = parseFloat(total_amount_ess);
+                    var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
+                    $('#foot-'+ TableName +' .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
+                    $('#foot-'+ TableName +' .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
+                    $('#foot-'+ TableName +' .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
+                    $('#foot-'+ TableName +' .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
+                        'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/?corp=true" ' +
+                        'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
+                        .addClass('text-end');
+                },
+                initComplete: function(settings, json) {
+                    $('#foot-'+ TableName +'').show();
+                    $('#ratting-'+ TableName +'').removeClass('d-none');
+                    // Initialize popover
+                    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+                    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                        // eslint-disable-next-line no-undef
+                        return new bootstrap.Popover(popoverTriggerEl, {
+                            html: true
                         });
-
-                        var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" height="30" data-bs-trigger="hover" data-bs-toggle="popover" data-bs-content=\''+ alt_portrait +'\' >';
-                        return imageHTML + ' ' + data;
-                    }
-                },
-                {   data: 'total_amount',
-                    render: function (data, type, row) {
-                        if (type === 'display') {
-                            return formatAndColor(data);
-                        }
-                        return data;
-                    }
-                },
-                {   data: 'total_amount_ess',
-                    render: function (data, type, row) {
-                        if (type === 'display') {
-                            return formatAndColor(data);
-                        }
-                        return data;
-                    }
-                },
-                {
-                    data: 'col-total-action',
-                    render: function (data, type, row) {
-                        return '<button class="btn btn-sm btn-info btn-square" ' +
-                        'data-bs-toggle="modal" ' +
-                        'data-bs-target="#modalViewCharacterContainer" ' +
-                        'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/0/" ' +
-                        'title="' + row.main_name + '">' +
-                        '<span class="fas fa-info"></span>' +
-                        '</button>';
-                    }
-                },
-            ],
-            order: [[1, 'desc']],
-            columnDefs: [
-                {
-                    sortable: false,
-                    targets: [3],
-                    className: 'text-end',
-                },
-            ],
-            footerCallback: function (row, data, start, end, display) {
-                var totalAmountAllChars = parseFloat(total_amount);
-                var totalEssAmountAllChars = parseFloat(total_amount_ess);
-                var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
-                $('#foot-Year .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
-                $('#foot-Year .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
-                $('#foot-Year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
-                $('#foot-Year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
-                'aria-label="{{ data.main_name }}"' +
-                'data-ajax_url="/ledger/api/corporation/'+ corporationPk +'/character/' + corporationPk + '/ledger/template/year/' + selectedYear + '/month/0/?corp=true" ' +
-                'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
-                    .addClass('text-end');
-            },
-            initComplete: function(settings, json) {
-                $('#foot-Year').show();
-                // Initialize popover
-                var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-                var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-                // eslint-disable-next-line no-undef
-                    return new bootstrap.Popover(popoverTriggerEl, {
-                        html: true
                     });
-                });
+                }
+            });
+        },
+        error: function(xhr, status, error) {
+            if (xhr.status === 403) {
+                hideLoading(''+ TableName +'');
+                $('#ratting-'+ TableName +'').hide();
+                $('#errorHandler-'+ TableName +'').removeClass('d-none');
+                $('.dropdown-toggle').attr('disabled', true);
+                $('.overview').attr('disabled', true);
             }
-        });
-    },
-    error: function(xhr, status, error) {
-        if (xhr.status === 403) {
-            hideLoading('Year');
-            $('#ratting-Year').hide();
-            $('#errorHandler-Year').removeClass('d-none');
-            $('.dropdown-toggle').attr('disabled', true);
         }
-    }
-};
-
+    });
+}
 
 function loadBillboard(data, id) {
     // Initialize a charts object if it doesn't exist
@@ -449,8 +348,8 @@ document.addEventListener('DOMContentLoaded', function () {
     setBillboardData(BillboardUrlYear, 'Year');
 
     // Initialize DataTable
-    $.ajax(MonthAjax);
-    $.ajax(YearAjax);
+    generateLedger('Month', MonthUrl);
+    generateLedger('Year', YearUrl);
 });
 
 $('#ledger-ratting').on('click', 'a[data-bs-toggle=\'tab\']', function () {

@@ -31,12 +31,14 @@ class CharManagerQuerySetTest(TestCase):
             1001,
             permissions=[
                 "ledger.basic_access",
+                "ledger.advanced_access",
             ],
         )
         cls.user2, _ = create_user_from_evecharacter(
             1002,
             permissions=[
                 "ledger.basic_access",
+                "ledger.advanced_access",
             ],
         )
 

@@ -23,16 +23,19 @@
             "corporation_id": 2002,
             "corporation_name": "Eulenclub",
             "corporation_ticker": "EC",
-            "alliance_id": 3001,
-            "alliance_name": "Voices of War",
-            "alliance_ticker": "VOW"
+            "alliance_id": 3002,
+            "alliance_name": "Eulen of War",
+            "alliance_ticker": "EOW"
         },
         {
             "character_id": 1003,
             "character_name": "Hector Fieramosca",
             "corporation_id": 2003,
             "corporation_name": "Schweinshausen",
-            "corporation_ticker": "SH"
+            "corporation_ticker": "SH",
+            "alliance_id": 3003,
+            "alliance_name": "Schweinshausen of War",
+            "alliance_ticker": "SHW"
         },
         {
             "character_id": 1004,

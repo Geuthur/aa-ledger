@@ -24,19 +24,24 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
             1001,
             permissions=[
                 "ledger.basic_access",
-                "ledger.corp_audit_manager",
+                "ledger.advanced_access",
                 "ledger.corp_audit_admin_manager",
             ],
         )
 
         cls.user2, _ = create_user_from_evecharacter(
             1002,
+            permissions=[
+                "ledger.basic_access",
+                "ledger.advanced_access",
+            ],
         )
 
         cls.user3, _ = create_user_from_evecharacter(
             1003,
             permissions=[
                 "ledger.basic_access",
+                "ledger.advanced_access",
             ],
         )
 

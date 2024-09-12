@@ -11,8 +11,8 @@ from ledger.api import schema
 from ledger.api.helpers import (
     get_alts_queryset,
     get_character,
+    get_corporation,
     get_main_and_alts_ids_all,
-    get_main_and_alts_ids_corporations,
 )
 from ledger.api.managers.template_manager import TemplateData, TemplateProcess
 from ledger.hooks import get_extension_logger
@@ -20,7 +20,7 @@ from ledger.hooks import get_extension_logger
 logger = get_extension_logger(__name__)
 
 
-# pylint: disable=too-many-locals, too-many-branches, too-many-statements
+# pylint: disable=too-many-locals
 class LedgerTemplateApiEndpoints:
     tags = ["CorporationLedgerTemplate"]
 
@@ -39,17 +39,12 @@ class LedgerTemplateApiEndpoints:
             month: int,
             corp: bool = False,
         ):
-            perms = request.user.has_perm("ledger.basic_access")
+            response, corporations = get_corporation(request, corporation_id)
 
-            if not perms:
+            if response is False:
                 return 403, "Permission Denied"
 
             current_date = timezone.now()
-
-            if corporation_id == 0:
-                corporations = get_main_and_alts_ids_corporations(request)
-            else:
-                corporations = [corporation_id]
 
             _, char = get_character(request, main_id)
 

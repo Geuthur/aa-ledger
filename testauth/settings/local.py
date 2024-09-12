@@ -119,12 +119,15 @@ LOGGING = None
 STATICFILES_DIRS = []
 ANALYTICS_DISABLED = True
 
-
 CELERYBEAT_SCHEDULE["ledger_character_audit_update_all"] = {
     "task": "ledger.tasks.update_all_characters",
-    "schedule": crontab(hour="*/1"),
+    "schedule": crontab(minute=0, hour="*/1"),
 }
 CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
     "task": "ledger.tasks.update_all_corps",
-    "schedule": crontab(hour="*/1"),
+    "schedule": crontab(minute=0, hour="*/1"),
+}
+CELERYBEAT_SCHEDULE["ledger_check_planetary_alarms"] = {
+    "task": "ledger.tasks.check_planetary_alarms",
+    "schedule": crontab(minute=0, hour="*/3"),
 }

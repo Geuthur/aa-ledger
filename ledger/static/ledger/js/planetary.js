@@ -35,93 +35,57 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     });
 
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            const tbody = document.querySelector('#planets-details tbody');
+    // Initialize DataTable
+    var table = $('#planets-details').DataTable({
+        'order': [[4, 'desc']], // Adjust the column index if needed
+        'pageLength': 25,
+        'columnDefs': [
+            { 'orderable': false, 'targets': 'no-sort' }
+        ]
+    });
+
+    // Fetch data using AJAX
+    $.ajax({
+        url: url,
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
             const characterIds = new Set();
 
             data.forEach(item => {
                 characterIds.add(item.character_id);
-                const row = document.createElement('tr');
+                const row = [];
 
                 // Character
-                const characterCell = document.createElement('td');
-
-                // Character Icon
-                const characterIconCell = document.createElement('td');
-                const characterIcon = document.createElement('img');
-                characterIcon.src = `https://images.evetech.net/characters/${item.character_id}/portrait?size=32`; // Adjust the path as needed
-                characterIcon.className = 'rounded-circle';
-                characterIcon.style.marginRight = '5px';
-                characterIcon.style.width = '32px'; // Adjust the size as needed
-                characterIcon.style.height = '32px'; // Adjust the size as needed
-                characterCell.appendChild(characterIcon);
-
-                // Character Text
-                const characterText = document.createTextNode(item.character_name);
-                characterCell.appendChild(characterText);
-
-                row.appendChild(characterCell);
+                const characterCell = `
+                    <td>
+                        <img src="https://images.evetech.net/characters/${item.character_id}/portrait?size=32" class="rounded-circle" style="margin-right: 5px; width: 32px; height: 32px;">
+                        ${item.character_name}
+                    </td>
+                `;
 
                 // Planet Type
-                const planetTypeCell = document.createElement('td');
+                const planetTypeCell = `
+                    <td>
+                        <img src="https://images.evetech.net/types/${item.planet_type_id}/icon?size=32" class="rounded-circle" style="margin-right: 5px; width: 24px; height: 24px;">
+                        ${item.planet}
+                        <i class="fa-solid fa-bullhorn" style="margin-left: 5px; color: ${item.alarm ? 'green' : 'red'};" title="${item.alarm ? alarmActivated : alarmDeactivated}" data-tooltip-toggle="tooltip"></i>
+                    </td>
+                `;
 
-                // Planet Icon
-                const planetIcon = document.createElement('img');
-                planetIcon.src = `https://images.evetech.net/types/${item.planet_type_id}/icon?size=32`; // Adjust the path as needed
-                planetIcon.className = 'rounded-circle';
-                planetIcon.style.marginRight = '5px';
-                planetIcon.style.width = '24px'; // Adjust the size as needed
-                planetIcon.style.height = '24px'; // Adjust the size as needed
-
-                planetTypeCell.appendChild(planetIcon);
-
-                // Planet Text
-                const planetText = document.createTextNode(item.planet);
-                planetTypeCell.appendChild(planetText);
-
-                // Alarm Icon
-                const alarmIcon = document.createElement('i');
-                alarmIcon.className = 'fa-solid fa-bullhorn';
-                alarmIcon.style.marginLeft = '5px';
-                alarmIcon.style.color = 'green';
-                alarmIcon.title = alarmActivated;
-                alarmIcon.setAttribute('data-tooltip-toggle', 'tooltip');
-                if (!item.alarm) {
-                    alarmIcon.title = alarmDeactivated;
-                    alarmIcon.style.color = 'red';
-                }
-                planetTypeCell.appendChild(alarmIcon);
-
-                row.appendChild(planetTypeCell);
-
-                // Upgrade Level (assuming you have this data)
-                const upgradeLevelCell = document.createElement('td');
-                upgradeLevelCell.textContent = item.upgrade_level;
-                row.appendChild(upgradeLevelCell);
+                // Upgrade Level
+                const upgradeLevelCell = `<td>${item.upgrade_level}</td>`;
 
                 // Products
-                const productsCell = document.createElement('td');
-                productsCell.innerHTML = Object.values(item.products).map(product => {
-                    const img = document.createElement('img');
-                    img.src = `https://images.evetech.net/types/${product.id}/icon?size=32`;
-                    img.title = product.name;
-                    return img.outerHTML;
-                }).join(' ');
-                row.appendChild(productsCell);
+                const productsCell = `
+                    <td>
+                        ${Object.values(item.products).map(product => `<img src="https://images.evetech.net/types/${product.id}/icon?size=32" data-tooltip-toggle="tooltip" title="${product.name}">`).join(' ')}
+                    </td>
+                `;
 
                 // Extractors
-                const extractorsCell = document.createElement('td');
-                const extractorsList = document.createElement('ul');
-                extractorsList.style.listStyleType = 'none';
-                extractorsList.style.padding = 0;
-                let extractorCount = Object.values(item.extractors).length;
-
-                if (extractorCount === 0) {
-                    extractorsCell.innerHTML = 'No Extractors';
-                } else {
-                    // Calculate total progress
+                let extractorsCell = '<td>No Extractors</td>';
+                if (Object.values(item.extractors).length > 0) {
                     let totalInstallTime = 0;
                     let totalExpiryTime = 0;
                     let currentTime = new Date().getTime();
@@ -132,7 +96,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         totalExpiryTime += new Date(extractor.expiry_time).getTime();
                     });
 
-                    // Calculate average times
                     let averageInstallTime = totalInstallTime / extractorCount;
                     let averageExpiryTime = totalExpiryTime / extractorCount;
 
@@ -140,134 +103,47 @@ document.addEventListener('DOMContentLoaded', function() {
                     const elapsedDuration = currentTime - averageInstallTime;
                     const progressPercentage = Math.min(Math.max((elapsedDuration / totalDuration) * 100, 0), 100);
 
-                    // Create container for progress bar and info button
-                    const progressContainer = document.createElement('div');
-                    progressContainer.style.display = 'flex';
-                    progressContainer.style.alignItems = 'center';
-
-                    const progressBar = document.createElement('div');
-                    progressBar.className = 'progress-outer';
-                    progressBar.style.flexGrow = '1';
-                    progressBar.style.marginRight = '10px'; // Add some space between the progress bar and the icon
-                    progressBar.innerHTML = `
-                        <div class="progress">
-                            <div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" style="width: ${progressPercentage}%; box-shadow: -1px 10px 10px rgba(240, 173, 78, 0.7);" aria-valuenow="${progressPercentage}" aria-valuemin="0" aria-valuemax="100"></div>
-                            <div class="progress-value">${progressPercentage.toFixed(0)}%</div>
-                        </div>
-                    `;
-
-                    // Info Button
-                    const infoButton = document.createElement('button');
-                    infoButton.className = 'btn btn-primary btn-sm btn-square';
-                    infoButton.style.marginLeft = '5px'; // Add 5px margin to the left
-                    infoButton.innerHTML = '<span class="fas fa-info"></span>';
-                    infoButton.setAttribute('data-bs-toggle', 'modal');
-                    infoButton.setAttribute('data-bs-target', '#extractorInfoModal');
-                    infoButton.onclick = function() {
-                        const modalTitle = document.querySelector('#extractorInfoModalLabel');
-                        modalTitle.textContent = `Extractor Information - ${item.character_name} - ${item.planet}`;
-
-                        const modalBody = document.querySelector('#extractorInfoModal .modal-body');
-                        modalBody.innerHTML = ''; // Clear previous content
-
-                        // Create table
-                        const table = document.createElement('table');
-                        table.className = 'table table-striped';
-
-                        // Create table header
-                        const thead = document.createElement('thead');
-                        thead.innerHTML = `
-                            <tr>
-                                <th>Product</th>
-                                <th>Install Time</th>
-                                <th>Expiry Time</th>
-                                <th>Progress</th>
-                            </tr>
-                        `;
-                        table.appendChild(thead);
-
-                        // Create table body
-                        const tbody = document.createElement('tbody');
-
-                        Object.values(item.extractors).forEach(extractor => {
-                            const installTime = new Date(extractor.install_time).getTime();
-                            const expiryTime = new Date(extractor.expiry_time).getTime();
-                            const totalDuration = expiryTime - installTime;
-                            const elapsedDuration = currentTime - installTime;
-                            const progressPercentage = Math.min(Math.max((elapsedDuration / totalDuration) * 100, 0), 100);
-
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td><span class="fas fa-cube"></span> ${extractor.product_name}</td>
-                                <td>${new Date(extractor.install_time).toLocaleString()}</td>
-                                <td>${new Date(extractor.expiry_time).toLocaleString()}</td>
-                                <td>
-                                    <div class="progress" style="position: relative;">
-                                        <div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" style="width: ${progressPercentage}%; box-shadow: -1px 3px 5px rgba(0, 180, 231, 0.9);" aria-valuenow="${progressPercentage}" aria-valuemin="0" aria-valuemax="100"></div>
-                                        <div class="progress-value" style="position: absolute; width: 100%; text-align: center;">${progressPercentage.toFixed(0)}%</div>
+                    extractorsCell = `
+                        <td>
+                            <div style="display: flex; align-items: center;">
+                                <div class="progress-outer" style="flex-grow: 1; margin-right: 10px;">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" style="width: ${progressPercentage}%; box-shadow: -1px 10px 10px rgba(240, 173, 78, 0.7);" aria-valuenow="${progressPercentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-value">${progressPercentage.toFixed(0)}%</div>
                                     </div>
-                                </td>
-                            `;
-                            tbody.appendChild(row);
-                        });
-
-                        table.appendChild(tbody);
-                        modalBody.appendChild(table);
-                    };
-
-                    // Append progress bar and info button to the container
-                    progressContainer.appendChild(progressBar);
-                    progressContainer.appendChild(infoButton);
-
-                    // Append the container to the extractors cell
-                    extractorsCell.appendChild(progressContainer);
+                                </div>
+                                <button class="btn btn-primary btn-sm btn-square" style="margin-left: 5px;" data-bs-toggle="modal" data-bs-target="#extractorInfoModal" data-character-id="${item.character_id}" data-character-name="${item.character_name}" data-planet="${item.planet}" data-extractors='${JSON.stringify(item.extractors)}' onclick="showExtractorInfoModal(this)">                                    <span class="fas fa-info"></span>
+                                </button>
+                            </div>
+                        </td>
+                    `;
                 }
-                row.appendChild(extractorsCell);
 
                 // Status
-                const statusCell = document.createElement('td');
-                const statusImg = document.createElement('img');
-                statusImg.style.width = '24px';
-                statusImg.style.height = '24px';
-                statusImg.setAttribute('data-tooltip-toggle', 'tooltip');
-                if (item.expired) {
-                    statusImg.src = '/static/ledger/images/red.png';
-                    statusImg.title = 'Expired';
-                } else {
-                    statusImg.src = '/static/ledger/images/green.png';
-                    statusImg.title = 'Active';
-                }
-                statusCell.appendChild(statusImg);
-                row.appendChild(statusCell);
+                const statusCell = `
+                    <td>
+                        <img src="/static/ledger/images/${item.expired ? 'red' : 'green'}.png" style="width: 24px; height: 24px;" title="${item.expired ? 'Expired' : 'Active'}" data-tooltip-toggle="tooltip">
+                    </td>
+                `;
 
                 // Last Updated
-                const lastUpdatedCell = document.createElement('td');
-                lastUpdatedCell.textContent = new Date(item.last_update).toLocaleString();
-                row.appendChild(lastUpdatedCell);
+                const lastUpdatedCell = `<td>${new Date(item.last_update).toLocaleString()}</td>`;
 
                 // Actions
-                const actionsCell = document.createElement('td');
-                actionsCell.className = 'text-end'; // Align the text to the right
-                const switchAlarmButton = document.createElement('button');
-                switchAlarmButton.textContent = 'Switch Alarm';
-                switchAlarmButton.title = switchAlarm;
-                switchAlarmButton.className = 'btn btn-primary';
-                switchAlarmButton.setAttribute('data-tooltip-toggle', 'modal');
-                const characterId = item.character_id;
-                const planetId = item.planet_id;
-                const url = switchAlarmUrl(characterId, planetId);
-                const csrfToken = planetarySettings.csrfToken;
-                const charPk = characterPk;
-                var button = '';
-                button +=
-                    '<form class="d-inline" method="post" action="' + switchAlarmUrl(characterId, planetId) + '" id="switchAlarmForm' + characterId + '_' + planetId + '">' +
-                    csrfToken +
-                    '<input type="hidden" name="character_pk" value="' + charPk + '">' +
-                    '<button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="tooltip" title="'+ switchAlarm +'" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '" data-form-id="switchAlarmForm' + characterId + '_' + planetId + '"><span class="fas fa-bullhorn"></span></button></form>';
-                actionsCell.innerHTML = button;
-                row.appendChild(actionsCell);
+                const actionsCell = `
+                    <td class="text-end">
+                        <form class="d-inline" method="post" action="${switchAlarmUrl(item.character_id, item.planet_id)}" id="switchAlarmForm${item.character_id}_${item.planet_id}">
+                            ${csrfToken}
+                            <input type="hidden" name="character_pk" value="${characterPk}">
+                            <button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="tooltip" title="${switchAlarm}" data-bs-target="#confirmModal" data-confirm-text="${switchAlarmText} for ${item.character_name} - ${item.planet}?" data-form-id="switchAlarmForm${item.character_id}_${item.planet_id}">
+                                <span class="fas fa-bullhorn"></span>
+                            </button>
+                        </form>
+                    </td>
+                `;
 
-                tbody.appendChild(row);
+                row.push(characterCell, planetTypeCell, upgradeLevelCell, productsCell, extractorsCell, statusCell, lastUpdatedCell, actionsCell);
+                table.row.add(row).draw();
             });
 
             // Add "Switch All Alarms" button if data exists
@@ -285,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 switchAllAlarmsForm.className = 'd-inline';
                 switchAllAlarmsForm.innerHTML = csrfToken +
                     '<input type="hidden" name="character_pk" value="' + characterPk + '">' +
-                    '<button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="tooltip" title="'+ switchAlarm +'" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '" data-form-id="switchAllAlarmsForm">' + switchAllAlarmsButton.textContent + '</button>';
+                    '<button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="tooltip" title="'+ switchAlarm +'" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '?" data-form-id="switchAllAlarmsForm">' + switchAllAlarmsButton.textContent + '</button>';
 
                 const tableContainer = document.querySelector('#planets-details').parentElement;
                 const switchAllAlarmsContainer = document.createElement('div');
@@ -294,21 +170,73 @@ document.addEventListener('DOMContentLoaded', function() {
                 tableContainer.appendChild(switchAllAlarmsContainer);
             }
 
-            // Initialize DataTable with sorting on the expiry column
-            var table = $('#planets-details').DataTable({
-                'order': [[4, 'desc']], // Adjust the column index if needed
-                'pageLength': 25,
-                'columnDefs': [
-                    { 'orderable': false, 'targets': 'no-sort' }
-                ]
-            });
-
             // Reinitialize tooltips on draw
-            table.on( 'draw', function () {
+            table.on('draw', function () {
                 $('[data-tooltip-toggle="tooltip"]').tooltip();
             });
             // Init tooltips
             $('[data-tooltip-toggle="tooltip"]').tooltip();
-        })
-        .catch(error => console.error('Error fetching data:', error));
+        },
+        error: function(error) {
+            console.error('Error fetching data:', error);
+        }
+    });
 });
+
+function showExtractorInfoModal(button) {
+    const characterId = button.getAttribute('data-character-id');
+    const characterName = button.getAttribute('data-character-name');
+    const planet = button.getAttribute('data-planet');
+    const extractors = JSON.parse(button.getAttribute('data-extractors'));
+
+    const modalTitle = document.querySelector('#extractorInfoModalLabel');
+    modalTitle.textContent = `Extractor Information - ${characterName} - ${planet}`;
+
+    const modalBody = document.querySelector('#extractorInfoModal .modal-body');
+    modalBody.innerHTML = ''; // Clear previous content
+
+    // Create table
+    const table = document.createElement('table');
+    table.className = 'table table-striped';
+
+    // Create table header
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th>Product</th>
+            <th>Install Time</th>
+            <th>Expiry Time</th>
+            <th>Progress</th>
+        </tr>
+    `;
+    table.appendChild(thead);
+
+    // Create table body
+    const tbody = document.createElement('tbody');
+
+    const currentTime = new Date().getTime();
+    Object.values(extractors).forEach(extractor => {
+        const installTime = new Date(extractor.install_time).getTime();
+        const expiryTime = new Date(extractor.expiry_time).getTime();
+        const totalDuration = expiryTime - installTime;
+        const elapsedDuration = currentTime - installTime;
+        const progressPercentage = Math.min(Math.max((elapsedDuration / totalDuration) * 100, 0), 100);
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><span class="fas fa-cube"></span> ${extractor.product_name}</td>
+            <td>${new Date(extractor.install_time).toLocaleString()}</td>
+            <td>${new Date(extractor.expiry_time).toLocaleString()}</td>
+            <td>
+                <div class="progress" style="position: relative;">
+                    <div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" style="width: ${progressPercentage}%; box-shadow: -1px 3px 5px rgba(0, 180, 231, 0.9);" aria-valuenow="${progressPercentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-value" style="position: absolute; width: 100%; text-align: center;">${progressPercentage.toFixed(0)}%</div>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+    modalBody.appendChild(table);
+}

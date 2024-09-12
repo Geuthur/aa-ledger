@@ -21,8 +21,8 @@
 
 {% block vow_block %}
 <div class="card-body container-fluid">
-    <div class="card-body bg-primary rounded-top d-flex">
-        <h3>{% trans "Corporation Ledger" %} </h3>
+    <div class="card-body bg-primary rounded-top d-flex align-items-center">
+        <h3 class="me-3">{% translate "Corporation Ledger" %}</h3>
         <div class="dropdown px-2">
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Year
@@ -33,9 +33,9 @@
                 {% endfor %}
             </ul>
         </div>
-        <div class="dropdown">
+        <div class="dropdown px-2">
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Month
+                Month
             </button>
             <ul class="dropdown-menu" id="monthDropdown">
                 <li><a class="dropdown-item" data-bs-month-id="1" href="#">{% trans "January" %}</a></li>
@@ -51,6 +51,9 @@
                 <li><a class="dropdown-item" data-bs-month-id="11" href="#">{% trans "November" %}</a></li>
                 <li><a class="dropdown-item" data-bs-month-id="12" href="#">{% trans "December" %}</a></li>
             </ul>
+        </div>
+        <div class="ms-auto">
+            <button class="btn btn-secondary overview"><a class="nav-link py-0" href="{% url 'ledger:corporation_admin' %}">{% translate 'Corporation Overview' %}</a></button>
         </div>
     </div>
     <ul class="nav nav-tabs" id="ledger-ratting" role="tablist">

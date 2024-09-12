@@ -32,7 +32,6 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
             1001,
             permissions=[
                 "ledger.basic_access",
-                "ledger.char_audit_manager",
                 "ledger.char_audit_admin_manager",
             ],
         )

@@ -23,7 +23,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
             1001,
             permissions=[
                 "ledger.basic_access",
-                "ledger.char_audit_manager",
+                "ledger.advanced_access",
                 "ledger.char_audit_admin_manager",
             ],
         )

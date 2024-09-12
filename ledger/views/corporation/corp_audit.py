@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.translation import gettext_lazy as trans
 from esi.decorators import token_required
 
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -32,6 +33,8 @@ def add_corp(request, token) -> HttpResponse:
     update_corp.apply_async(
         args=[char.corporation_id], kwargs={"force_refresh": True}, priority=6
     )
-    msg = f"{char.corporation_name} successfully added/updated to Ledger"
+    msg = trans("{corporation_name} successfully added/updated to Ledger").format(
+        corporation_name=corp.corporation_name,
+    )
     messages.info(request, msg)
-    return redirect("ledger:ledger_index")
+    return redirect("ledger:corporation_ledger", corporation_pk=0)

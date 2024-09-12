@@ -1,5 +1,50 @@
 # Changelog
 
+## \[0.6.1\] - 2024-09-04
+
+### Changed
+
+- Character Ledger
+  - Javascript Optimation
+- Corporation Ledger
+  - Javascript Optimation
+- Planetary Ledger
+  - Javascript Optimation
+- Permission System
+  - Added advanced_access
+    - Access to Corporation Ledger & Alliance Ledger
+- Ledger Guide
+  - More Information how it works
+- `basic_access` has no longer access to Corporation & Alliance Ledger
+
+### Added
+
+> \[!NOTE\]
+> Only Show Corporations that added in Ledger System
+
+- Alliance System
+  - Alliance Overview
+  - Alliance Ledger
+  - Alliance Billboard
+- `advanced_access` can access Corporation & Alliance Ledger
+  - Gives permission to see Corporations they are in
+
+### Moved
+
+- Overview Link to each Ledger
+
+### Removed
+
+- All Overview Links from Menu
+- Add Char / Corporation on Ledger View
+- `char_audit_manager` Permission now handled by `advanced_access`
+
+### Fixed
+
+- Permission Denied if no Data exists
+- Loading Animation url wrong app name
+- Table show on Loading Animation
+
 ## \[0.6.0.1\] - 2024-09-04 - Hotfix
 
 ### Fixed

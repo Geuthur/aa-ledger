@@ -3,7 +3,7 @@ from ninja.security import django_auth
 
 from django.conf import settings
 
-from ledger.api import character, corporation
+from ledger.api import alliance, character, corporation
 from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
@@ -22,3 +22,6 @@ character.setup(api)
 
 # Add the corporation endpoints
 corporation.setup(api)
+
+# Add the alliance endpoints
+alliance.setup(api)

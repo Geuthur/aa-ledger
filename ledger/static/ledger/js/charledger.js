@@ -1,6 +1,4 @@
 /* global charactersettings */
-
-var MonthTable, YearTable;
 var bb, d3;
 var BillboardMonth, BillboardYear, BillboardHourly;
 var ActiveBillboardMonth, selectedMode;
@@ -51,7 +49,7 @@ $('#monthDropdown li').click(function() {
     hideContainer('Month');
 
     if (characterPk === 0 || (characterPk > 0 && characteraltsShow)) {
-        MonthTable.clear().draw();
+        window['MonthTable'].clear().draw();
         $('#foot-Month').hide();
     }
 
@@ -64,7 +62,7 @@ $('#monthDropdown li').click(function() {
 
     // DataTable neu laden mit den Daten des ausgewählten Monats
     setBillboardData(BillboardUrl, 'Month');
-    reloadAjax(newurl, MonthAjax);
+    generateLedger('Month', newurl);
     $('#currentMonthLink').text('Month - ' + monthText);
 });
 
@@ -74,9 +72,9 @@ $('#yearDropdown li').click(function() {
     hideContainer('Year');
     hideContainer('Month');
     if (characterPk === 0 || (characterPk > 0 && characteraltsShow)) {
-        YearTable.clear().draw();
+        window['YearTable'].clear().draw();
         $('#foot-Year').hide();
-        MonthTable.clear().draw();
+        window['MonthTable'].clear().draw();
         $('#foot-Month').hide();
     }
 
@@ -91,8 +89,8 @@ $('#yearDropdown li').click(function() {
     // DataTable neu laden mit den Daten des ausgewählten Monats
     setBillboardData(BillboardUrl, 'Month');
     setBillboardData(BillboardUrlYear, 'Year');
-    reloadAjax(newurl, MonthAjax);
-    reloadAjax(newurl_year, YearAjax);
+    generateLedger('Month', newurl);
+    generateLedger('Year', newurl_year);
     $('#currentMonthLink').text('Month - ' + monthText);
     $('#currentYearLink').text('Year - ' + selectedYear);
 });
@@ -128,10 +126,6 @@ function hideContainer(id) {
     $('#workGaugeContainer-'+id).addClass('d-none');
 }
 
-function reloadAjax(newUrl, ajax) {
-    ajax.url = newUrl; // Update URL
-    $.ajax(ajax);
-}
 function setBillboardData(url, id) {
     $.ajax({
         url: url,
@@ -150,327 +144,173 @@ function setBillboardData(url, id) {
     });
 }
 
-var MonthAjax = {
-    url: MonthUrl,
-    type: 'GET',
-    success: function(data) {
-        if (MonthTable) {
-            $('#ratting-Month').DataTable().destroy();
-        }
-        hideLoading('Month');
-        var char_name = data[0].ratting[0]?.main_name || 'No Data';
-        var char_id = data[0].ratting[0]?.main_id || '0';
-        var total_amount = data[0].total.total_amount;
-        var total_amount_ess = data[0].total.total_amount_ess;
-        var total_amount_others = data[0].total.total_amount_others;
-        var total_amount_mining = data[0].total.total_amount_mining;
-        var total_amount_combined = data[0].total.total_amount_all;
-        var total_amount_costs = data[0].total.total_amount_costs;
-
-        if (characterPk > 0 && !characteraltsShow) {
-            $('#lookup-Month').removeClass('d-none');
-            // Daten direkt in die HTML-Elemente einfügen
-            $('#portrait-Month').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
-            $('#character_name-Month').text(char_name);
-            $('#amount_ratting-Month').html('' + formatAndColor(total_amount) + '');
-            $('#amount_ess-Month').html('' + formatAndColor(total_amount_ess) + '');
-            $('#amount_mining-Month').html('' + formatAndColor(total_amount_mining) + '');
-            $('#amount_misc-Month').html('' + formatAndColor(total_amount_others) + '');
-            $('#amount_costs-Month').html('' + formatAndColor(total_amount_costs) + '');
-            $('#amount_summary-Month').html('' + formatAndColor(total_amount_combined) + '');
-            $('#get_template-Month').html('<button class="btn btn-sm btn-info btn-square" id="button-Month" ' +
-                            'data-bs-toggle="modal" ' +
-                            'data-bs-target="#modalViewCharacterContainer" ' +
-                            'aria-label="' + char_name + '" ' +
-                            'data-ajax_url="/ledger/api/account/'+ char_id + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/" ' +
-                            'title="' + char_name + '">' +
-                            '<span class="fas fa-search"></span>' +
-                            '</button>'
-            );
-            var infobutton = document.getElementById('button-Month');
-            if (!data[0].ratting[0]?.main_name) {
-                infobutton.classList.add('disabled');
+function generateLedger(TableName, url) {
+    return $.ajax({
+        url: url,
+        type: 'GET',
+        success: function(data) {
+            if (window[TableName + 'Table']) {
+                $('#ratting-'+ TableName +'').DataTable().destroy();
             }
-        } else {
-            MonthTable = $('#ratting-Month').DataTable({
-                data: data[0].ratting,
-                columns: [
-                    {
-                        data: 'main_name',
-                        render: function (data, type, row) {
-                            var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" title="' + data + '" height="30">';
-                            return imageHTML + ' ' + data + ' <a href="/ledger/character_ledger/' + row.main_id + '/"><button class="btn btn-sm btn-info btn-square" id="lookup-Month" ' +
-                            'title="' + row.main_name + ' Single Lookup">' +
-                            '<span class="fas fa-search"></span>' +
-                            '</button></a>';
-                        }
-                    },
-                    {   data: 'total_amount',
-                        render: function (data, type, row) {
-                            if (type === 'display') {
-                                return formatAndColor(data);
-                            }
-                            return data;
-                        }
-                    },
-                    {   data: 'total_amount_ess',
-                        render: function (data, type, row) {
-                            if (type === 'display') {
-                                return formatAndColor(data);
-                            }
-                            return data;
-                        }
-                    },
-                    {   data: 'total_amount_mining',
-                        render: function (data, type, row) {
-                            if (type === 'display') {
-                                return formatAndColor(data);
-                            }
-                            return data;
-                        }
-                    },
-                    {   data: 'total_amount_others',
-                        render: function (data, type, row) {
-                            if (type === 'display') {
-                                return formatAndColor(data);
-                            }
-                            return data;
-                        }
-                    },
-                    {   data: 'total_amount_costs',
-                        render: function (data, type, row) {
-                            if (type === 'display') {
-                                return formatAndColor(data);
-                            }
-                            return data;
-                        }
-                    },
-                    {
-                        data: 'col-total-action',
-                        render: function (data, type, row) {
-                            return '<button class="btn btn-sm btn-info btn-square" ' +
-                            'data-bs-toggle="modal" ' +
-                            'data-bs-target="#modalViewCharacterContainer" ' +
-                            'aria-label="' + row.main_name + '" ' +
-                            'data-ajax_url="/ledger/api/account/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/" ' +
-                            'title="' + row.main_name + '">' +
-                            '<span class="fas fa-info"></span>' +
-                            '</button>';
-                        }
-                    },
-                ],
-                order: [[1, 'desc']],
-                columnDefs: [
-                    {
-                        sortable: false,
-                        targets: [6],
-                        className: 'text-end',
-                    },
-                ],
-                footerCallback: function (row, data, start, end, display) {
-                    var totalAmountAllChars = parseFloat(total_amount);
-                    var totalEssAmountAllChars = parseFloat(total_amount_ess);
-                    var totalMiningAmountAllChars = parseFloat(total_amount_mining);
-                    var totalOthersAmountAllChars = parseFloat(total_amount_others);
-                    var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
-                    var totalCostsAmountAllChars = parseFloat(total_amount_costs);
-                    var templateUrl = '/ledger/api/account/' + characterPk + '/ledger/template/year/' + selectedYear + '/month/' + selectedMonth + '/';
-                    if (characteraltsShow) {
-                        templateUrl += '?main=True';
-                    }
+            hideLoading(''+ TableName +'');
+            var char_name = data[0].ratting[0]?.main_name || 'No Data';
+            var char_id = data[0].ratting[0]?.main_id || '0';
+            var total_amount = data[0].total.total_amount;
+            var total_amount_ess = data[0].total.total_amount_ess;
+            var total_amount_others = data[0].total.total_amount_others;
+            var total_amount_mining = data[0].total.total_amount_mining;
+            var total_amount_combined = data[0].total.total_amount_all;
+            var total_amount_costs = data[0].total.total_amount_costs;
 
-                    $('#foot-Month .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
-                    $('#foot-Month .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
-                    $('#foot-Month .col-total-mining').html('' + formatAndColor(totalMiningAmountAllChars) + '');
-                    $('#foot-Month .col-total-others').html('' + formatAndColor(totalOthersAmountAllChars) + '');
-                    $('#foot-Month .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
-                    $('#foot-Month .col-total-costs').html('' + formatAndColor(totalCostsAmountAllChars) + '');
-                    $('#foot-Month .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
-                        'aria-label="{{ data.main_name }}"' +
+            // Set the month to 0 for the year table
+            var tableMonth = (TableName === 'Year') ? 0 : selectedMonth;
+
+            if (characterPk > 0 && !characteraltsShow) {
+                $('#lookup-'+ TableName +'').removeClass('d-none');
+                // Daten direkt in die HTML-Elemente einfügen
+                $('#portrait-'+ TableName +'').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
+                $('#character_name-'+ TableName +'').text(char_name);
+                $('#amount_ratting-'+ TableName +'').html('' + formatAndColor(total_amount) + '');
+                $('#amount_ess-'+ TableName +'').html('' + formatAndColor(total_amount_ess) + '');
+                $('#amount_mining-'+ TableName +'').html('' + formatAndColor(total_amount_mining) + '');
+                $('#amount_misc-'+ TableName +'').html('' + formatAndColor(total_amount_others) + '');
+                $('#amount_costs-'+ TableName +'').html('' + formatAndColor(total_amount_costs) + '');
+                $('#amount_summary-'+ TableName +'').html('' + formatAndColor(total_amount_combined) + '');
+                $('#get_template-'+ TableName +'').html('<button class="btn btn-sm btn-info btn-square" id="button-'+ TableName +'" ' +
+                    'data-bs-toggle="modal" ' +
+                    'data-bs-target="#modalViewCharacterContainer" ' +
+                    'aria-label="' + char_name + '" ' +
+                    'data-ajax_url="/ledger/api/account/'+ char_id + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/" ' +
+                    'title="' + char_name + '">' +
+                    '<span class="fas fa-search"></span>' +
+                    '</button>'
+                );
+                var infobutton = document.getElementById('button-'+ TableName +'');
+                if (!data[0].ratting[0]?.main_name) {
+                    infobutton.classList.add('disabled');
+                }
+            } else {
+                var table = TableName + 'Table';
+                window[table] = $('#ratting-'+ TableName +'').DataTable({
+                    data: data[0].ratting,
+                    columns: [
+                        {
+                            data: 'main_name',
+                            render: function (data, type, row) {
+                                var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" title="' + data + '" height="30">';
+                                return imageHTML + ' ' + data + ' <a href="/ledger/character_ledger/' + row.main_id + '/"><button class="btn btn-sm btn-info btn-square" id="lookup-Month" ' +
+                                'title="' + row.main_name + ' Single Lookup">' +
+                                '<span class="fas fa-search"></span>' +
+                                '</button></a>';
+                            }
+                        },
+                        {   data: 'total_amount',
+                            render: function (data, type, row) {
+                                if (type === 'display') {
+                                    return formatAndColor(data);
+                                }
+                                return data;
+                            }
+                        },
+                        {   data: 'total_amount_ess',
+                            render: function (data, type, row) {
+                                if (type === 'display') {
+                                    return formatAndColor(data);
+                                }
+                                return data;
+                            }
+                        },
+                        {   data: 'total_amount_mining',
+                            render: function (data, type, row) {
+                                if (type === 'display') {
+                                    return formatAndColor(data);
+                                }
+                                return data;
+                            }
+                        },
+                        {   data: 'total_amount_others',
+                            render: function (data, type, row) {
+                                if (type === 'display') {
+                                    return formatAndColor(data);
+                                }
+                                return data;
+                            }
+                        },
+                        {   data: 'total_amount_costs',
+                            render: function (data, type, row) {
+                                if (type === 'display') {
+                                    return formatAndColor(data);
+                                }
+                                return data;
+                            }
+                        },
+                        {
+                            data: 'col-total-action',
+                            render: function (data, type, row) {
+                                return '<button class="btn btn-sm btn-info btn-square" ' +
+                                'data-bs-toggle="modal" ' +
+                                'data-bs-target="#modalViewCharacterContainer" ' +
+                                'aria-label="' + row.main_name + '" ' +
+                                'data-ajax_url="/ledger/api/account/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/" ' +
+                                'title="' + row.main_name + '">' +
+                                '<span class="fas fa-info"></span>' +
+                                '</button>';
+                            }
+                        },
+                    ],
+                    order: [[1, 'desc']],
+                    columnDefs: [
+                        {
+                            sortable: false,
+                            targets: [6],
+                            className: 'text-end',
+                        },
+                    ],
+                    footerCallback: function (row, data, start, end, display) {
+                        if (data.length === 0) {
+                            return;
+                        }
+                        var totalAmountAllChars = parseFloat(total_amount);
+                        var totalEssAmountAllChars = parseFloat(total_amount_ess);
+                        var totalMiningAmountAllChars = parseFloat(total_amount_mining);
+                        var totalOthersAmountAllChars = parseFloat(total_amount_others);
+                        var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
+                        var totalCostsAmountAllChars = parseFloat(total_amount_costs);
+                        var templateUrl = '/ledger/api/account/' + characterPk + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/';
+                        if (characteraltsShow) {
+                            templateUrl += '?main=True';
+                        }
+
+
+                        $('#foot-'+ TableName +' .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
+                        $('#foot-'+ TableName +' .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
+                        $('#foot-'+ TableName +' .col-total-mining').html('' + formatAndColor(totalMiningAmountAllChars) + '');
+                        $('#foot-'+ TableName +' .col-total-others').html('' + formatAndColor(totalOthersAmountAllChars) + '');
+                        $('#foot-'+ TableName +' .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
+                        $('#foot-'+ TableName +' .col-total-costs').html('' + formatAndColor(totalCostsAmountAllChars) + '');
+                        $('#foot-'+ TableName +' .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                         'data-ajax_url="'+ templateUrl +'" ' +
-                        'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
-                        .addClass('text-end');
-                },
-                initComplete: function(settings, json) {
-                    $('#foot-Month').show();
-                    $('#ratting-Month').removeClass('d-none');
-                }
-            });
-        }
-    },
-    error: function(xhr, status, error) {
-        if (xhr.status === 403) {
-            hideLoading('Month');
-            if (MonthTable) {
-                $('#ratting-Month').hide();
-            }
-            $('#errorHandler').removeClass('d-none');
-            $('.dropdown-toggle').attr('disabled', true);
-        }
-    }
-};
-
-var YearAjax = {
-    url: YearUrl,
-    type: 'GET',
-    success: function(data) {
-        if (YearTable) {
-            $('#ratting-Year').DataTable().destroy();
-        }
-        hideLoading('Year');
-        // Zusätzliche Daten im DataTable-Objekt speichern
-        var char_name = data[0].ratting[0]?.main_name || 'No Data';
-        var char_id = data[0].ratting[0]?.main_id || '';
-        var total_amount = data[0].total.total_amount;
-        var total_amount_ess = data[0].total.total_amount_ess;
-        var total_amount_mining = data[0].total.total_amount_mining;
-        var total_amount_others = data[0].total.total_amount_others;
-        var total_amount_combined = data[0].total.total_amount_all;
-        var total_amount_costs = data[0].total.total_amount_costs;
-
-        if (characterPk > 0 && !characteraltsShow) {
-            $('#lookup-Year').removeClass('d-none');
-            // Daten direkt in die HTML-Elemente einfügen
-            $('#portrait-Year').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
-            $('#character_name-Year').text(char_name);
-            $('#amount_ratting-Year').html('' + formatAndColor(total_amount) + '');
-            $('#amount_ess-Year').html('' + formatAndColor(total_amount_ess) + '');
-            $('#amount_mining-Year').html('' + formatAndColor(total_amount_mining) + '');
-            $('#amount_misc-Year').html('' + formatAndColor(total_amount_others) + '');
-            $('#amount_costs-Year').html('' + formatAndColor(total_amount_costs) + '');
-            $('#amount_summary-Year').html('' + formatAndColor(total_amount_combined) + '');
-            $('#get_template-Year').html('<button class="btn btn-sm btn-info btn-square" id="button-Year" ' +
-                            'data-bs-toggle="modal" ' +
-                            'data-bs-target="#modalViewCharacterContainer" ' +
-                            'aria-label="' + char_name + '" ' +
-                            'data-ajax_url="/ledger/api/account/'+ char_id + '/ledger/template/year/' + selectedYear + '/month/0/" ' +
-                            'title="' + char_name + '">' +
-                            '<span class="fas fa-search"></span>' +
-                            '</button>'
-            );
-            var infobutton = document.getElementById('button-Year');
-            if (!data[0].ratting[0]?.main_name) {
-                infobutton.classList.add('disabled');
-            }
-
-            $('#foot-Year').show();
-        } else {
-            YearTable = $('#ratting-Year').DataTable({
-                data: data[0].ratting,
-                columns: [
-                    {
-                        data: 'main_name',
-                        render: function (data, type, row) {
-                            var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" title="' + data + '" height="30">';
-                            return imageHTML + ' ' + data + ' <a href="/ledger/character_ledger/' + row.main_id + '/"><button class="btn btn-sm btn-info btn-square" id="lookup-Year" ' +
-                            'title="' + row.main_name + ' Single Lookup">' +
-                            '<span class="fas fa-search"></span>' +
-                            '</button></a>';
-                        }
+                        '"> <span class="fas fa-info"></span></button>')
+                            .addClass('text-end');
                     },
-                    {   data: 'total_amount',
-                        render: function (data, type, row) {
-                            if (type === 'display') {
-                                return formatAndColor(data);
-                            }
-                            return data;
-                        }
-                    },
-                    {   data: 'total_amount_ess',
-                        render: function (data, type, row) {
-                            if (type === 'display') {
-                                return formatAndColor(data);
-                            }
-                            return data;
-                        }
-                    },
-                    {   data: 'total_amount_mining',
-                        render: function (data, type, row) {
-                            if (type === 'display') {
-                                return formatAndColor(data);
-                            }
-                            return data;
-                        }
-                    },
-                    {   data: 'total_amount_others',
-                        render: function (data, type, row) {
-                            if (type === 'display') {
-                                return formatAndColor(data);
-                            }
-                            return data;
-                        }
-                    },
-                    {   data: 'total_amount_costs',
-                        render: function (data, type, row) {
-                            if (type === 'display') {
-                                return formatAndColor(data);
-                            }
-                            return data;
-                        }
-                    },
-                    {
-                        data: 'col-total-action',
-                        render: function (data, type, row) {
-                            return '<button class="btn btn-sm btn-info btn-square" ' +
-                            'data-bs-toggle="modal" ' +
-                            'data-bs-target="#modalViewCharacterContainer" ' +
-                            'aria-label="' + row.main_name + '" ' +
-                            'data-ajax_url="/ledger/api/account/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/0/" ' +
-                            'title="' + row.main_name + '">' +
-                            '<span class="fas fa-info"></span>' +
-                            '</button>';
-                        }
-                    },
-                ],
-                order: [[1, 'desc']],
-                columnDefs: [
-                    {
-                        sortable: false,
-                        targets: [6],
-                        className: 'text-end',
-                    },
-                ],
-                footerCallback: function (row, data, start, end, display) {
-                    var totalAmountAllChars_year = parseFloat(total_amount);
-                    var totalEssAmountAllChars_year = parseFloat(total_amount_ess);
-                    var totalMiningAmountAllChars_year = parseFloat(total_amount_mining);
-                    var totalOthersAmountAllChars_year = parseFloat(total_amount_others);
-                    var totalCombinedAmountAllChars_year = parseFloat(total_amount_combined);
-                    var totalCostsAmountAllChars_year = parseFloat(total_amount_costs);
-                    var templateUrl = '/ledger/api/account/' + characterPk + '/ledger/template/year/' + selectedYear + '/month/0/';
-                    if (characteraltsShow) {
-                        templateUrl += '?main=True';
+                    initComplete: function(settings, json) {
+                        $('#foot-'+ TableName +'').show();
+                        $('#ratting-'+ TableName +'').removeClass('d-none');
                     }
-
-                    $('#foot-Year .col-total-amount').html('' + formatAndColor(totalAmountAllChars_year) + '');
-                    $('#foot-Year .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars_year) + '');
-                    $('#foot-Year .col-total-mining').html('' + formatAndColor(totalMiningAmountAllChars_year) + '');
-                    $('#foot-Year .col-total-others').html('' + formatAndColor(totalOthersAmountAllChars_year) + '');
-                    $('#foot-Year .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars_year) + '');
-                    $('#foot-Year .col-total-costs').html('' + formatAndColor(totalCostsAmountAllChars_year) + '');
-                    $('#foot-Year .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
-                    'data-ajax_url="'+ templateUrl +'" ' +
-                    '"> <span class="fas fa-info"></span></button>')
-                        .addClass('text-end');
-                },
-                initComplete: function(settings, json) {
-                    $('#foot-Year').show();
-                    $('#ratting-Year').removeClass('d-none');
-                }
-            });
-        }
-    },
-    error: function(xhr, status, error) {
-        if (xhr.status === 403) {
-            hideLoading('Year');
-            if (YearTable) {
-                $('#ratting-Year').hide();
+                });
             }
-            $('#errorHandler-Year').removeClass('d-none');
-            $('.dropdown-toggle').attr('disabled', true);
+        },
+        error: function(xhr, status, error) {
+            if (xhr.status === 403) {
+                $('#ratting-'+ TableName +'').DataTable().destroy();
+                hideLoading(''+ TableName +'');
+                $('#errorHandler-'+ TableName +'').removeClass('d-none');
+                $('.dropdown-toggle').attr('disabled', true);
+                $('.overview').attr('disabled', true);
+            }
         }
-    }
-};
+    });
+}
 
 function loadBillboard(data, id) {
     // Initialize a charts object if it doesn't exist
@@ -667,8 +507,8 @@ document.addEventListener('DOMContentLoaded', function () {
     setBillboardData(BillboardUrlYear, 'Year');
 
     // Initialize DataTable
-    $.ajax(MonthAjax);
-    $.ajax(YearAjax);
+    generateLedger('Month', MonthUrl);
+    generateLedger('Year', YearUrl);
 });
 
 $('#ledger-ratting').on('click', 'a[data-bs-toggle=\'tab\']', function () {

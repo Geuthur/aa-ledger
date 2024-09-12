@@ -6,13 +6,10 @@ It gets overwritten by the 'allianceauth update' command.
 If you wish to make changes, overload the setting in your project's settings file (local.py).
 """
 
-# Standard Library
 import os
 
-# Third Party
 from celery.schedules import crontab
 
-# Django
 from django.contrib import messages
 
 INSTALLED_APPS = [
@@ -25,6 +22,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "django_celery_beat",
+    "solo",
     "bootstrapform",
     "django_bootstrap5",  # https://github.com/zostera/django-bootstrap5
     "sortedm2m",
@@ -42,12 +40,13 @@ INSTALLED_APPS = [
     "allianceauth.theme.darkly",
     "allianceauth.theme.flatly",
     "allianceauth.theme.materia",
+    "allianceauth.custom_css",
 ]
 
 SECRET_KEY = "wow I'm a really bad default secret key"
 
 # Celery configuration
-BROKER_URL = "redis://127.0.0.1:6379/0"
+BROKER_URL = "redis://localhost:6379/0"
 CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
 CELERYBEAT_SCHEDULE = {
     "esi_cleanup_callbackredirect": {
@@ -103,6 +102,7 @@ LANGUAGES = (
     ("ja", "Japanese"),
     ("it", "Italian"),
     ("uk", "Ukrainian"),
+    ("pl", "Polish"),
 )
 
 TEMPLATES = [
@@ -238,7 +238,7 @@ LOGGING = {
             "backupCount": 5,  # edit this line to change number of log backups
         },
         "extension_file": {
-            "level": "INFO",
+            "level": "ERROR",
             "class": "logging.handlers.RotatingFileHandler",
             "filename": os.path.join(BASE_DIR, "log/extensions.log"),
             "formatter": "verbose",
@@ -259,11 +259,11 @@ LOGGING = {
     "loggers": {
         "allianceauth": {
             "handlers": ["log_file", "console", "notifications"],
-            "level": "DEBUG",
+            "level": "ERROR",
         },
         "extensions": {
             "handlers": ["extension_file", "console"],
-            "level": "DEBUG",
+            "level": "ERROR",
         },
         "django": {
             "handlers": ["log_file", "console"],
@@ -271,7 +271,7 @@ LOGGING = {
         },
         "esi": {
             "handlers": ["log_file", "console"],
-            "level": "DEBUG",
+            "level": "ERROR",
         },
     },
 }

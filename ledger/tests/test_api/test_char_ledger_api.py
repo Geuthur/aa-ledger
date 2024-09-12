@@ -35,7 +35,6 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
             1001,
             permissions=[
                 "ledger.basic_access",
-                "ledger.char_audit_manager",
                 "ledger.char_audit_admin_manager",
             ],
         )
@@ -172,7 +171,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.client.force_login(self.user2)
         url = "/ledger/api/account/ledger/admin/"
 
-        mock_visible_to.return_value.values_list.return_value = []
+        mock_visible_to.return_value = None
 
         # when
         response = self.client.get(url)

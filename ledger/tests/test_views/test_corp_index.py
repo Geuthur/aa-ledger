@@ -51,7 +51,10 @@ class CharAuditTest(TestCase):
         response = orig_view(request, token)
         # then
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("ledger:ledger_index"))
+        self.assertEqual(
+            response.url,
+            reverse("ledger:corporation_ledger", kwargs={"corporation_pk": 0}),
+        )
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(mock_update_corp.apply_async.called)
         self.assertTrue(

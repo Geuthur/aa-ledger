@@ -3,6 +3,8 @@
 from django.urls import path, re_path
 
 from ledger.api import api
+from ledger.views.alliance.alliance_ledger import alliance_admin, alliance_ledger
+from ledger.views.alliance.ally_audit import add_ally
 from ledger.views.character.char_audit import add_char
 from ledger.views.character.character_ledger import character_admin, character_ledger
 from ledger.views.character.planetary import (
@@ -37,6 +39,14 @@ urlpatterns = [
     path("corporation/add/", add_corp, name="ledger_add_corp"),
     # -- PvE
     path("index", ledger_index, name="ledger_index"),
+    # -- -- Alliance Ledger
+    path(
+        "alliance_ledger/<int:alliance_pk>/",
+        alliance_ledger,
+        name="alliance_ledger",
+    ),
+    path("alliance_admin/", alliance_admin, name="alliance_admin"),
+    path("alliance/add/", add_ally, name="ledger_add_ally"),
     # -- -- Corporation Ledger
     path(
         "corporation_ledger/<int:corporation_pk>/",
