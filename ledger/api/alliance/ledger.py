@@ -66,7 +66,7 @@ class LedgerApiEndpoints:
         def get_alliance_admin(request):
             corporations = CorporationAudit.objects.visible_to(request.user)
 
-            if corporations is False:
+            if corporations is None:
                 return 403, "Permission Denied"
 
             alliance_dict = {}

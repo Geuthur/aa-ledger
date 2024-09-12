@@ -3,6 +3,7 @@ from django.test import TestCase
 from allianceauth.eveonline.models import EveCharacter
 from app_utils.testing import create_user_from_evecharacter
 
+from ledger.managers.corpaudit_manager import CorpAuditQuerySet
 from ledger.models.characteraudit import CharacterAudit, CharacterMiningLedger
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 from ledger.tests.testdata.load_ledger import load_ledger_all

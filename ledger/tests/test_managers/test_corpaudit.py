@@ -1,6 +1,8 @@
+from django.db import models
 from django.test import TestCase
 
-from app_utils.testing import create_user_from_evecharacter
+from allianceauth.eveonline.models import EveCharacter
+from app_utils.testing import add_character_to_user, create_user_from_evecharacter
 
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
@@ -43,13 +45,15 @@ class CorpAuditQuerySetTest(TestCase):
         result = CorporationAudit.objects.visible_to(self.user)
         self.assertEqual(list(result), list(expected_result))
 
-    def test_visible_to_corp_manager_access(self):
+    def test_visible_to_advanced_access(self):
         self.user, self.character_ownership = create_user_from_evecharacter(
             1001,
             permissions=[
-                "ledger.corp_audit_manager",
+                "ledger.advanced_access",
             ],
         )
+        add_character_to_user(self.user, EveCharacter.objects.get(character_id=1002))
+        add_character_to_user(self.user, EveCharacter.objects.get(character_id=1003))
 
         expected_result = CorporationAudit.objects.filter(id=1)
 
@@ -80,4 +84,4 @@ class CorpAuditQuerySetTest(TestCase):
 
         result = CorporationAudit.objects.visible_to(self.user).count()
 
-        self.assertEqual(result, 1)
+        self.assertEqual(result, 0)
