@@ -198,6 +198,10 @@ function generateLedger(TableName, url) {
                 ],
                 footerCallback: function (row, data, start, end, display) {
                     if (data.length === 0) {
+                        $('#foot-'+ TableName +' .col-total-amount').html('');
+                        $('#foot-'+ TableName +' .col-total-ess').html('');
+                        $('#foot-'+ TableName +' .col-total-gesamt').html('');
+                        $('#foot-'+ TableName +' .col-total-button').html('').removeClass('text-end');
                         return;
                     }
                     var totalAmountAllChars = parseFloat(total_amount);
