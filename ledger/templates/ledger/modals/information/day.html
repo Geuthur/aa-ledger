@@ -5,7 +5,7 @@
 {% load ledger %}
 <!--##############################DAILY#######################-->
 
-{% if character.bounty.total_amount_day or character.mission.total_amount_day or character.mining.total_amount_day %}
+{% if character.bounty.total_amount_day or character.ess.total_amount_day or character.mission.total_amount_day or character.mining.total_amount_day %}
     {% if character.bounty.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - {{ mode }}:</div>
@@ -148,10 +148,7 @@
     <div class="row description-row">
         <div class="col-sm-6">Current Day Summary:</div>
         <div class='col-sm-4 text-end'>
-            <span style="{% if character.summary.total_current_day < 0 %}color: red{% else %}color: yellow{% endif %}">
-
-
-
+            <span style="color: yellow">
             {{ character.summary.total_current_day|floatformat:0|intcomma }}
             </span> ISK
         </div>

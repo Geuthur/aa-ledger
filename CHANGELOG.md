@@ -1,5 +1,24 @@
 # Changelog
 
+## \[0.6.2\] - 2024-09-04
+
+### Changed
+
+- Character Ledger
+  - CSS Update
+- Corporation Ledger
+  - CSS Update
+- Planetary Ledger
+  - CSS Update
+- Character Information
+  - CSS Update
+
+### Fixed
+
+- Character Information
+  - Current Day - ESS Amount
+- Month Table Footer display data on year change if empty
+
 ## \[0.6.1\] - 2024-09-04
 
 ### Changed

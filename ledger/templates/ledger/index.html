@@ -3,51 +3,49 @@
     {% load humanize %}
 
 {% block vow_block %}
-    <div class="panel panel-primary">
-        <div class="container-fluid">
-            <div id="container">
-                <br>
-                <div class="line-container">
-                    <div class="line-text"><h4>Character Ledger</h4></div>
-                    <hr class="custom-line">
-                </div>
-                <li>Show Ratting, Encounter Surveillance System(ESS), Mining, Bounty, and other ISK related activities</li>
-                <li>Character Ledger shows all ISK related activities of Main and Alts</li>
-                <li>Display more Information with <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
-                <br>
-                <div class="line-container">
-                    <div class="line-text"><h4>Corporation/Alliance Ledger</h4></div>
-                    <hr class="custom-line">
-                </div>
-                <li>If you have alts in other corporations the Corporation Ledger will show you all Taxes of each Corporation included
-                for single lookup you can use Corporation Overview</li>
-                <li>Corporation Ledger shows all taxes of each main(alts included)
-                with mouseover on portrait you can see the Alts included in the Calculation</li>
-                <li>Display more Information with <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
-                <br>
-                <div class="line-container">
-                    <div class="line-text"><h4>Planetary Ledger</h4></div>
-                    <hr class="custom-line">
-                </div>
-                <li>Planetary Ledger shows all Planets from Main and Alts</li>
-                <li>You can activate/deactivate Notifications for each Planet</li>
-                <li>Display active Extractors and their remaining time on the <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
-                <br>
-                <br>
-                <div class="line-container">
-                    <div class="line-text"><h4>FAQ</h4></div>
-                    <hr class="custom-line">
-                </div>
-                Q: I don't see my Character on the Char Ledger. <br>
-                A: Maybe your Character isn't in the System, Please add it! <br>
-                <br>
-                Q: Why is the ESS Stolen Amount not correctly<br>
-                A: The ESS Stolen information are updated from 'Corporation Ledger' so it can be wrong, cause it has a 3 hours update period<br>
-                <br>
-                Q: I don't see any ESS Payout<br>
-                A: Your Corporation is not in the Ledger System<br>
-                <br>
+    <div class="card-body card-primary">
+        <div id="container">
+            <br>
+            <div class="line-container">
+                <div class="line-text"><h4>Character Ledger</h4></div>
+                <hr class="custom-line">
             </div>
+            <li>Show Ratting, Encounter Surveillance System(ESS), Mining, Bounty, and other ISK related activities</li>
+            <li>Character Ledger shows all ISK related activities of Main and Alts</li>
+            <li>Display more Information with <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
+            <br>
+            <div class="line-container">
+                <div class="line-text"><h4>Corporation/Alliance Ledger</h4></div>
+                <hr class="custom-line">
+            </div>
+            <li>If you have alts in other corporations the Corporation Ledger will show you all Taxes of each Corporation included
+            for single lookup you can use Corporation Overview</li>
+            <li>Corporation Ledger shows all taxes of each main(alts included)
+            with mouseover on portrait you can see the Alts included in the Calculation</li>
+            <li>Display more Information with <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
+            <br>
+            <div class="line-container">
+                <div class="line-text"><h4>Planetary Ledger</h4></div>
+                <hr class="custom-line">
+            </div>
+            <li>Planetary Ledger shows all Planets from Main and Alts</li>
+            <li>You can activate/deactivate Notifications for each Planet</li>
+            <li>Display active Extractors and their remaining time on the <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
+            <br>
+            <br>
+            <div class="line-container">
+                <div class="line-text"><h4>FAQ</h4></div>
+                <hr class="custom-line">
+            </div>
+            Q: I don't see my Character on the Char Ledger. <br>
+            A: Maybe your Character isn't in the System, Please add it! <br>
+            <br>
+            Q: Why is the ESS Stolen Amount not correctly<br>
+            A: The ESS Stolen information are updated from 'Corporation Ledger' so it can be wrong, cause it has a 3 hours update period<br>
+            <br>
+            Q: I don't see any ESS Payout<br>
+            A: Your Corporation is not in the Ledger System<br>
+            <br>
         </div>
     </div>
 {% endblock %}
