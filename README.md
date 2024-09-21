@@ -170,17 +170,17 @@ LOGGING["loggers"].update(LOGGING_LEDGER["loggers"])
 
 ## Highlights<a name="highlights"></a>
 
-![Screenshot 2024-05-14 121014](https://github.com/Geuthur/aa-ledger/assets/761682/d0604260-b672-4bf5-a16a-d1b90557744d)
+![ledger1](https://github.com/user-attachments/assets/a6f89d3e-89c0-410c-b95d-efbd1fd00a0a)
 
-![Screenshot 2024-05-14 121025](https://github.com/Geuthur/aa-ledger/assets/761682/f8f20e6a-d37d-4a50-a1aa-8615c0f8e88b)
+![ledger2](https://github.com/user-attachments/assets/38a8a3ea-6909-49a0-b778-3a18d2af13fc)
 
-![Screenshot 2024-05-14 120944](https://github.com/Geuthur/aa-ledger/assets/761682/2d695369-1331-4be9-8adf-9c6dabf80dda)
+![ledger3](https://github.com/user-attachments/assets/48d5f6e6-91f6-455b-ae01-1b98fd96b1de)
 
-![Screenshot 2024-05-14 121001](https://github.com/Geuthur/aa-ledger/assets/761682/463b9921-150c-42c1-8c3e-eee0f5cfc2bb)
+![ledger4](https://github.com/user-attachments/assets/c32d792e-1240-4dae-a5d9-216fc5f58d26)
 
-![Screenshot 2024-08-30 220656](https://github.com/user-attachments/assets/c6ca5564-fb5f-407b-bcd2-e8400ce40763)
+![ledger5](https://github.com/user-attachments/assets/b37856d6-bd45-4655-9ef8-6f213dc9da24)
 
-![Screenshot 2024-09-03 232900](https://github.com/user-attachments/assets/32f7b77e-4a5f-4fa7-9082-1ad2760131d9)
+![ledger6](https://github.com/user-attachments/assets/5c37eef1-cd93-4682-a8a3-aebd4f7278c8)
 
 > \[!NOTE\]
 > Contributing
