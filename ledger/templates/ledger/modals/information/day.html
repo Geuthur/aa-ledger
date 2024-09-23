@@ -9,40 +9,40 @@
     {% if character.bounty.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - {{ mode }}:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.bounty.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
 
         <div class="row description-row">
             <div class="col-sm-6">Current Day Avg Tick - {{ mode }}:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.bounty.current_day_tick|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty.current_day_tick|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.ess.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - ESS:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.ess.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.ess.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.stolen.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Stolen ESS:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow" data-bs-toggle="tooltip" data-bs-placement="left" title="Estimated only">{{ character.stolen.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning" data-bs-toggle="tooltip" data-bs-placement="left" title="Estimated only">{{ character.stolen.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.mission.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Mission Rewards:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.mission.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.mission.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.mining.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Mining:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.mining.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.mining.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 {% endif %}
@@ -54,28 +54,28 @@
     {% if character.transaction.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Trading:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.transaction.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.transaction.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.contract.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Contracts:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.contract.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.contract.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.donation.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Donations:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.donation.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.donation.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.insurance.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Insurance:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.insurance.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.insurance.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 {% endif %}
@@ -87,56 +87,56 @@
     {% if character.contract_cost.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Contract Cost:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.contract_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.contract_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.production_cost.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Production Cost:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.production_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.production_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.market_cost.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Trading Cost:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.market_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.market_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.traveling_cost.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Traveling Cost:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.traveling_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.traveling_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.asset_cost.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Asset Safety Cost:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.asset_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.asset_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.skill_cost.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Skillbook Cost:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.skill_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.skill_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.insurance_cost.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Insurance Cost:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.insurance_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.insurance_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.planetary_cost.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">Current Day - Planetary Cost:</div>
-            <div class='col-sm-4 text-end'><span style="color: yellow">{{ character.planetary_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.planetary_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 {% endif %}
@@ -148,7 +148,7 @@
     <div class="row description-row">
         <div class="col-sm-6">Current Day Summary:</div>
         <div class='col-sm-4 text-end'>
-            <span style="color: yellow">
+            <span class="text-warning">
             {{ character.summary.total_current_day|floatformat:0|intcomma }}
             </span> ISK
         </div>
