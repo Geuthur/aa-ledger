@@ -165,9 +165,9 @@ function generateLedger(TableName, url) {
                             row.alt_names.forEach(function(character_id) {
                                 alt_portrait += `
                                     <img
-                                        src='https://images.evetech.net/characters/${character_id}/portrait?size=32'
-                                        class='rounded-circle'
-                                        height='30'
+                                        src="https://images.evetech.net/characters/${character_id}/portrait?size=32"
+                                        class="rounded-circle"
+                                        height="30"
                                     >
                                 `;
                             });
@@ -176,7 +176,7 @@ function generateLedger(TableName, url) {
                                 <img
                                     src='https://images.evetech.net/characters/${row.main_id}/portrait?size=32'
                                     class='rounded-circle'
-                                    height='30'
+                                    height="30"
                                     data-bs-toggle='ally-popover'
                                     data-bs-content='${alt_portrait}'> ${data}
                                 `;

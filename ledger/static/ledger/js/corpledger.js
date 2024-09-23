@@ -174,10 +174,10 @@ function generateLedger(TableName, url) {
 
                             var imageHTML = `
                                 <img
-                                    src='https://images.evetech.net/characters/${row.main_id}/portrait?size=32'
-                                    class='rounded-circle'
+                                    src="https://images.evetech.net/characters/${row.main_id}/portrait?size=32"
+                                    class="rounded-circle"
                                     height="30"
-                                    data-bs-toggle='corp-popover'
+                                    data-bs-toggle="corp-popover"
                                     data-bs-content='${alt_portrait}'> ${data}
                                 `;
                             return imageHTML;
@@ -238,7 +238,7 @@ function generateLedger(TableName, url) {
                             class="btn btn-sm btn-info btn-square"
                             data-bs-toggle="modal"
                             data-bs-target="#modalViewCharacterContainer"
-                            data-ajax_url="/ledger/api/corporation/${corporationPk}/ledger/template/year/${selectedYear}/month/${tableMonth}/?corp=true">
+                            data-ajax_url="/ledger/api/corporation/${corporationPk}/character/${corporationPk}/ledger/template/year/${selectedYear}/month/${tableMonth}/?corp=true">
                             <span class="fas fa-info"></span></button>
                         `).addClass('text-end');
                 },
