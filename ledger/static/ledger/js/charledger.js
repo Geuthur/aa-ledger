@@ -1,13 +1,15 @@
 /* global charactersettings */
-var bb, d3;
+/* global bb, d3 */
+
+var MonthUrl, YearUrl, BillboardUrl, BillboardUrlYear;
 var BillboardMonth, BillboardYear, BillboardHourly;
 var ActiveBillboardMonth, selectedMode;
 
-var characterPk = charactersettings.character_pk;
-var characteraltsShow = charactersettings.altShow;
+const characterPk = charactersettings.character_pk;
+const characteraltsShow = charactersettings.altShow;
 
 // Aktuelles Datumobjekt erstellen
-var currentDate = new Date();
+const currentDate = new Date();
 
 // Aktuelles Jahr und Monat abrufen
 var selectedYear = currentDate.getFullYear();
@@ -20,28 +22,32 @@ if (characteraltsShow) {
     mainAlts = '?main=True';
 }
 
-// Billboard URLs
-var MonthUrl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
-var YearUrl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/0/' + mainAlts;
-var BillboardUrl = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
-var BillboardUrlYear = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/0/' + mainAlts;
+function updateUrls() {
+    MonthUrl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
+    YearUrl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/0/' + mainAlts;
+    BillboardUrl = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
+    BillboardUrlYear = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/0/' + mainAlts;
+}
 
 function getMonthName(monthNumber) {
-    var months = ['January', 'February', 'March', 'April', 'May', 'June',
+    const months = ['January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'];
     return months[monthNumber - 1]; // Array ist 0-basiert, daher -1
 }
 
 // Function to format currency and apply color
 function formatAndColor(value) {
-    // Formatieren und Komma-Stellen entfernen
-    var formattedValue = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+    // Ensure data is a number
+    const number = parseInt(value) || 0;
 
-    // Bestimme die Textfarbe basierend auf dem Wert
-    var color = value > 0 ? 'chartreuse' : (value < 0 ? 'red' : 'white');
+    // Format the number to two decimal places
+    const formattedNumber = number.toLocaleString();
 
-    // Rückgabe des formatierten Strings mit Farbe und Einheit
-    return '<span style="color: ' + color + ';">' + formattedValue + '</span> ISK';
+    // Determine the CSS class based on the value
+    const cssClass = number < 0 ? 'text-danger' : 'text-success';
+
+    // Return the formatted number wrapped in a span with the appropriate class
+    return `<span class="${cssClass}">${formattedNumber}</span> ISK`;
 }
 
 $('#monthDropdown li').click(function() {
@@ -56,13 +62,12 @@ $('#monthDropdown li').click(function() {
     selectedMonth = $(this).find('a').data('bs-month-id');
     monthText = getMonthName(selectedMonth);
 
-    // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
-    var newurl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
-    var BillboardUrl = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
+    // Update URL Data
+    updateUrls();
 
     // DataTable neu laden mit den Daten des ausgewählten Monats
     setBillboardData(BillboardUrl, 'Month');
-    generateLedger('Month', newurl);
+    generateLedger('Month', MonthUrl);
     $('#currentMonthLink').text('Month - ' + monthText);
 });
 
@@ -80,18 +85,14 @@ $('#yearDropdown li').click(function() {
 
     selectedYear = $(this).text();
 
-    // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
-    var newurl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
-    var newurl_year = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/0/' + mainAlts;
-    var BillboardUrl = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
-    var BillboardUrlYear = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/0/' + mainAlts;
+    // Update URL Data
+    updateUrls();
 
     // DataTable neu laden mit den Daten des ausgewählten Monats
     setBillboardData(BillboardUrl, 'Month');
     setBillboardData(BillboardUrlYear, 'Year');
-    generateLedger('Month', newurl);
-    generateLedger('Year', newurl_year);
-    $('#currentMonthLink').text('Month - ' + monthText);
+    generateLedger('Month', MonthUrl);
+    generateLedger('Year', YearUrl);
     $('#currentYearLink').text('Year - ' + selectedYear);
 });
 
@@ -153,17 +154,17 @@ function generateLedger(TableName, url) {
                 $('#ratting-'+ TableName +'').DataTable().destroy();
             }
             hideLoading(''+ TableName +'');
-            var char_name = data[0].ratting[0]?.main_name || 'No Data';
-            var char_id = data[0].ratting[0]?.main_id || '0';
-            var total_amount = data[0].total.total_amount;
-            var total_amount_ess = data[0].total.total_amount_ess;
-            var total_amount_others = data[0].total.total_amount_others;
-            var total_amount_mining = data[0].total.total_amount_mining;
-            var total_amount_combined = data[0].total.total_amount_all;
-            var total_amount_costs = data[0].total.total_amount_costs;
+            const char_name = data[0].ratting[0]?.main_name || 'No Data';
+            const char_id = data[0].ratting[0]?.main_id || '0';
+            const total_amount = data[0].total.total_amount;
+            const total_amount_ess = data[0].total.total_amount_ess;
+            const total_amount_others = data[0].total.total_amount_others;
+            const total_amount_mining = data[0].total.total_amount_mining;
+            const total_amount_combined = data[0].total.total_amount_all;
+            const total_amount_costs = data[0].total.total_amount_costs;
 
             // Set the month to 0 for the year table
-            var tableMonth = (TableName === 'Year') ? 0 : selectedMonth;
+            const tableMonth = (TableName === 'Year') ? 0 : selectedMonth;
 
             if (characterPk > 0 && !characteraltsShow) {
                 $('#lookup-'+ TableName +'').removeClass('d-none');
@@ -185,7 +186,7 @@ function generateLedger(TableName, url) {
                     '<span class="fas fa-search"></span>' +
                     '</button>'
                 );
-                var infobutton = document.getElementById('button-'+ TableName +'');
+                const infobutton = document.getElementById('button-'+ TableName +'');
                 if (!data[0].ratting[0]?.main_name) {
                     infobutton.classList.add('disabled');
                 }
@@ -277,24 +278,18 @@ function generateLedger(TableName, url) {
                             $('#foot-'+ TableName +' .col-total-button').html('').removeClass('text-end');
                             return;
                         }
-                        var totalAmountAllChars = parseFloat(total_amount);
-                        var totalEssAmountAllChars = parseFloat(total_amount_ess);
-                        var totalMiningAmountAllChars = parseFloat(total_amount_mining);
-                        var totalOthersAmountAllChars = parseFloat(total_amount_others);
-                        var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
-                        var totalCostsAmountAllChars = parseFloat(total_amount_costs);
                         var templateUrl = '/ledger/api/account/' + characterPk + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/';
                         if (characteraltsShow) {
                             templateUrl += '?main=True';
                         }
 
+                        $('#foot-'+ TableName +' .col-total-amount').html('' + formatAndColor(total_amount) + '');
+                        $('#foot-'+ TableName +' .col-total-ess').html('' + formatAndColor(total_amount_ess) + '');
+                        $('#foot-'+ TableName +' .col-total-mining').html('' + formatAndColor(total_amount_mining) + '');
+                        $('#foot-'+ TableName +' .col-total-others').html('' + formatAndColor(total_amount_others) + '');
+                        $('#foot-'+ TableName +' .col-total-costs').html('' + formatAndColor(total_amount_costs) + '');
+                        $('#foot-'+ TableName +' .col-total-gesamt').html('' + formatAndColor(total_amount_combined) + '');
 
-                        $('#foot-'+ TableName +' .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
-                        $('#foot-'+ TableName +' .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
-                        $('#foot-'+ TableName +' .col-total-mining').html('' + formatAndColor(totalMiningAmountAllChars) + '');
-                        $('#foot-'+ TableName +' .col-total-others').html('' + formatAndColor(totalOthersAmountAllChars) + '');
-                        $('#foot-'+ TableName +' .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
-                        $('#foot-'+ TableName +' .col-total-costs').html('' + formatAndColor(totalCostsAmountAllChars) + '');
                         $('#foot-'+ TableName +' .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
                         'data-ajax_url="'+ templateUrl +'" ' +
                         '"> <span class="fas fa-info"></span></button>')
@@ -510,6 +505,9 @@ function updateBillboard(data, id, selectedMode) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize the URLs
+    updateUrls();
+
     setBillboardData(BillboardUrl, 'Month');
     setBillboardData(BillboardUrlYear, 'Year');
 
