@@ -1,5 +1,14 @@
 # Changelog
 
+### Changed
+
+- JS Ledger
+- Use Bootstrap Class for color changes
+
+### Remove
+
+- Unnecessary JS Variable
+
 ## \[0.6.2\] - 2024-09-04
 
 ### Changed
