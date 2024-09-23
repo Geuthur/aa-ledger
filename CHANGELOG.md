@@ -1,5 +1,10 @@
 # Changelog
 
+### Added
+
+- More strings translatable
+- BS5 Tooltip to Corp & Ally Ledger
+
 ### Changed
 
 - JS Ledger
@@ -8,6 +13,10 @@
 ### Remove
 
 - Unnecessary JS Variable
+
+### Fixed
+
+- BS5 Tooltip & Popover not disappear
 
 ## \[0.6.2\] - 2024-09-04
 
