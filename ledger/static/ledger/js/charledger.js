@@ -7,6 +7,7 @@ var ActiveBillboardMonth, selectedMode;
 
 const characterPk = charactersettings.character_pk;
 const characteraltsShow = charactersettings.altShow;
+const overviewText = charactersettings.overviewText;
 
 // Aktuelles Datumobjekt erstellen
 const currentDate = new Date();
@@ -44,7 +45,7 @@ function formatAndColor(value) {
     const formattedNumber = number.toLocaleString();
 
     // Determine the CSS class based on the value
-    const cssClass = number < 0 ? 'text-danger' : 'text-success';
+    const cssClass = number < 0 ? 'text-danger' : (number > 0 ? 'text-success' : '');
 
     // Return the formatted number wrapped in a span with the appropriate class
     return `<span class="${cssClass}">${formattedNumber}</span> ISK`;
@@ -107,6 +108,12 @@ $('#barDropdown-Month li').click(function() {
     }
     updateBillboard(ActiveBillboardMonth, 'Month', selectedMode);
 });
+
+function initTooltip() {
+    $('[data-tooltip-toggle="char-ledger"]').tooltip({
+        trigger: 'hover',
+    });
+}
 
 function hideLoading(id) {
     $('#bar-loading-'+id).addClass('d-none');
@@ -171,21 +178,24 @@ function generateLedger(TableName, url) {
                 // Daten direkt in die HTML-Elemente einfügen
                 $('#portrait-'+ TableName +'').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
                 $('#character_name-'+ TableName +'').text(char_name);
-                $('#amount_ratting-'+ TableName +'').html('' + formatAndColor(total_amount) + '');
-                $('#amount_ess-'+ TableName +'').html('' + formatAndColor(total_amount_ess) + '');
-                $('#amount_mining-'+ TableName +'').html('' + formatAndColor(total_amount_mining) + '');
-                $('#amount_misc-'+ TableName +'').html('' + formatAndColor(total_amount_others) + '');
-                $('#amount_costs-'+ TableName +'').html('' + formatAndColor(total_amount_costs) + '');
-                $('#amount_summary-'+ TableName +'').html('' + formatAndColor(total_amount_combined) + '');
-                $('#get_template-'+ TableName +'').html('<button class="btn btn-sm btn-info btn-square" id="button-'+ TableName +'" ' +
-                    'data-bs-toggle="modal" ' +
-                    'data-bs-target="#modalViewCharacterContainer" ' +
-                    'aria-label="' + char_name + '" ' +
-                    'data-ajax_url="/ledger/api/account/'+ char_id + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/" ' +
-                    'title="' + char_name + '">' +
-                    '<span class="fas fa-search"></span>' +
-                    '</button>'
-                );
+                $('#amount_ratting-'+ TableName +'').html(formatAndColor(total_amount));
+                $('#amount_ess-'+ TableName +'').html(formatAndColor(total_amount_ess));
+                $('#amount_mining-'+ TableName +'').html(formatAndColor(total_amount_mining));
+                $('#amount_misc-'+ TableName +'').html(formatAndColor(total_amount_others));
+                $('#amount_costs-'+ TableName +'').html(formatAndColor(total_amount_costs));
+                $('#amount_summary-'+ TableName +'').html(formatAndColor(total_amount_combined));
+                $('#get_template-'+ TableName +'').html(`
+                    <button
+                        class="btn btn-sm btn-info btn-square" id="button-${TableName}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalViewCharacterContainer"
+                        aria-label="${char_name}"
+                        data-ajax_url="/ledger/api/account/${char_id}/ledger/template/year/${selectedYear}/month/${tableMonth}/"
+                        title="${char_name}"
+                        data-tooltip-toggle="char-ledger" data-bs-placement="right">
+                        <span class="fas fa-info"></span>
+                    </button>
+                `);
                 const infobutton = document.getElementById('button-'+ TableName +'');
                 if (!data[0].ratting[0]?.main_name) {
                     infobutton.classList.add('disabled');
@@ -197,16 +207,30 @@ function generateLedger(TableName, url) {
                     columns: [
                         {
                             data: 'main_name',
-                            render: function (data, type, row) {
-                                var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" title="' + data + '" height="30">';
-                                return imageHTML + ' ' + data + ' <a href="/ledger/character_ledger/' + row.main_id + '/"><button class="btn btn-sm btn-info btn-square" id="lookup-Month" ' +
-                                'title="' + row.main_name + ' Single Lookup">' +
-                                '<span class="fas fa-search"></span>' +
-                                '</button></a>';
+                            render: function (data, _, row) {
+                                var imageHTML = `
+                                    <img src="https://images.evetech.net/characters/${row.main_id}/portrait?size=32"
+                                        class="rounded-circle"
+                                        title="${data}"
+                                        data-tooltip-toggle="char-ledger" data-bs-placement="right"
+                                        height="30"> ${data}
+                                    `;
+                                return imageHTML +
+                                `
+                                    <a href="/ledger/character_ledger/${row.main_id}/">
+                                        <button
+                                            class="btn btn-sm btn-info btn-square"
+                                            id="lookup-Month"
+                                            title="${overviewText}"
+                                            data-tooltip-toggle="char-ledger" data-bs-placement="right">
+                                            <span class="fas fa-search"></span>
+                                        </button>
+                                    </a>
+                                `;
                             }
                         },
                         {   data: 'total_amount',
-                            render: function (data, type, row) {
+                            render: function (data, type) {
                                 if (type === 'display') {
                                     return formatAndColor(data);
                                 }
@@ -214,7 +238,7 @@ function generateLedger(TableName, url) {
                             }
                         },
                         {   data: 'total_amount_ess',
-                            render: function (data, type, row) {
+                            render: function (data, type) {
                                 if (type === 'display') {
                                     return formatAndColor(data);
                                 }
@@ -222,7 +246,7 @@ function generateLedger(TableName, url) {
                             }
                         },
                         {   data: 'total_amount_mining',
-                            render: function (data, type, row) {
+                            render: function (data, type) {
                                 if (type === 'display') {
                                     return formatAndColor(data);
                                 }
@@ -230,7 +254,7 @@ function generateLedger(TableName, url) {
                             }
                         },
                         {   data: 'total_amount_others',
-                            render: function (data, type, row) {
+                            render: function (data, type) {
                                 if (type === 'display') {
                                     return formatAndColor(data);
                                 }
@@ -238,7 +262,7 @@ function generateLedger(TableName, url) {
                             }
                         },
                         {   data: 'total_amount_costs',
-                            render: function (data, type, row) {
+                            render: function (data, type) {
                                 if (type === 'display') {
                                     return formatAndColor(data);
                                 }
@@ -247,15 +271,19 @@ function generateLedger(TableName, url) {
                         },
                         {
                             data: 'col-total-action',
-                            render: function (data, type, row) {
-                                return '<button class="btn btn-sm btn-info btn-square" ' +
-                                'data-bs-toggle="modal" ' +
-                                'data-bs-target="#modalViewCharacterContainer" ' +
-                                'aria-label="' + row.main_name + '" ' +
-                                'data-ajax_url="/ledger/api/account/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/" ' +
-                                'title="' + row.main_name + '">' +
-                                '<span class="fas fa-info"></span>' +
-                                '</button>';
+                            render: function (data, _, row) {
+                                return `
+                                <button
+                                    class="btn btn-sm btn-info btn-square"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalViewCharacterContainer"
+                                    aria-label="${row.main_name}"
+                                    data-ajax_url="/ledger/api/account/${row.main_id}/ledger/template/year/${selectedYear}/month/${tableMonth}/"
+                                    title="${row.main_name}"
+                                    data-tooltip-toggle="char-ledger" data-bs-placement="left">
+                                    <span class="fas fa-info"></span>
+                                </button>
+                                `;
                             }
                         },
                     ],
@@ -267,7 +295,7 @@ function generateLedger(TableName, url) {
                             className: 'text-end',
                         },
                     ],
-                    footerCallback: function (row, data, start, end, display) {
+                    footerCallback: function (_, data, __, ___, ____) {
                         if (data.length === 0) {
                             $('#foot-'+ TableName +' .col-total-amount').html('');
                             $('#foot-'+ TableName +' .col-total-ess').html('');
@@ -278,31 +306,39 @@ function generateLedger(TableName, url) {
                             $('#foot-'+ TableName +' .col-total-button').html('').removeClass('text-end');
                             return;
                         }
-                        var templateUrl = '/ledger/api/account/' + characterPk + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/';
+                        var templateUrl = `/ledger/api/account/${characterPk}/ledger/template/year/${selectedYear}/month/${tableMonth}/`;
                         if (characteraltsShow) {
                             templateUrl += '?main=True';
                         }
 
-                        $('#foot-'+ TableName +' .col-total-amount').html('' + formatAndColor(total_amount) + '');
-                        $('#foot-'+ TableName +' .col-total-ess').html('' + formatAndColor(total_amount_ess) + '');
-                        $('#foot-'+ TableName +' .col-total-mining').html('' + formatAndColor(total_amount_mining) + '');
-                        $('#foot-'+ TableName +' .col-total-others').html('' + formatAndColor(total_amount_others) + '');
-                        $('#foot-'+ TableName +' .col-total-costs').html('' + formatAndColor(total_amount_costs) + '');
-                        $('#foot-'+ TableName +' .col-total-gesamt').html('' + formatAndColor(total_amount_combined) + '');
+                        $('#foot-'+ TableName +' .col-total-amount').html(formatAndColor(total_amount));
+                        $('#foot-'+ TableName +' .col-total-ess').html(formatAndColor(total_amount_ess));
+                        $('#foot-'+ TableName +' .col-total-mining').html(formatAndColor(total_amount_mining));
+                        $('#foot-'+ TableName +' .col-total-others').html(formatAndColor(total_amount_others));
+                        $('#foot-'+ TableName +' .col-total-costs').html(formatAndColor(total_amount_costs));
+                        $('#foot-'+ TableName +' .col-total-gesamt').html(formatAndColor(total_amount_combined));
 
-                        $('#foot-'+ TableName +' .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
-                        'data-ajax_url="'+ templateUrl +'" ' +
-                        '"> <span class="fas fa-info"></span></button>')
-                            .addClass('text-end');
+                        $('#foot-'+ TableName +' .col-total-button').html(`
+                            <button
+                                class="btn btn-sm btn-info btn-square"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalViewCharacterContainer"
+                                data-ajax_url="${templateUrl}">
+                                <span class="fas fa-info"></span></button>
+                        `).addClass('text-end');
                     },
-                    initComplete: function(settings, json) {
+                    initComplete: function() {
                         $('#foot-'+ TableName +'').show();
                         $('#ratting-'+ TableName +'').removeClass('d-none');
+                        initTooltip();
+                    },
+                    drawCallback: function() {
+                        initTooltip();
                     }
                 });
             }
         },
-        error: function(xhr, status, error) {
+        error: function(xhr, _, __) {
             if (xhr.status === 403) {
                 $('#ratting-'+ TableName +'').DataTable().destroy();
                 hideLoading(''+ TableName +'');

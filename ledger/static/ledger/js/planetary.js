@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>
                         <img src="https://images.evetech.net/types/${item.planet_type_id}/icon?size=32" class="rounded-circle" style="margin-right: 5px; width: 24px; height: 24px;">
                         ${item.planet}
-                        <i class="fa-solid fa-bullhorn" style="margin-left: 5px; color: ${item.alarm ? 'green' : 'red'};" title="${item.alarm ? alarmActivated : alarmDeactivated}" data-tooltip-toggle="tooltip"></i>
+                        <i class="fa-solid fa-bullhorn" style="margin-left: 5px; color: ${item.alarm ? 'green' : 'red'};" title="${item.alarm ? alarmActivated : alarmDeactivated}" data-tooltip-toggle="planetary"></i>
                     </td>
                 `;
 
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Products
                 const productsCell = `
                     <td>
-                        ${Object.values(item.products).map(product => `<img src="https://images.evetech.net/types/${product.id}/icon?size=32" data-tooltip-toggle="tooltip" title="${product.name}">`).join(' ')}
+                        ${Object.values(item.products).map(product => `<img src="https://images.evetech.net/types/${product.id}/icon?size=32" data-tooltip-toggle="planetary" title="${product.name}">`).join(' ')}
                     </td>
                 `;
 
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Status
                 const statusCell = `
                     <td>
-                        <img src="/static/ledger/images/${item.expired ? 'red' : 'green'}.png" style="width: 24px; height: 24px;" title="${item.expired ? 'Expired' : 'Active'}" data-tooltip-toggle="tooltip">
+                        <img src="/static/ledger/images/${item.expired ? 'red' : 'green'}.png" style="width: 24px; height: 24px;" title="${item.expired ? 'Expired' : 'Active'}" data-tooltip-toggle="planetary">
                     </td>
                 `;
 
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <form class="d-inline" method="post" action="${switchAlarmUrl(item.character_id, item.planet_id)}" id="switchAlarmForm${item.character_id}_${item.planet_id}">
                             ${csrfToken}
                             <input type="hidden" name="character_pk" value="${characterPk}">
-                            <button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="tooltip" title="${switchAlarm}" data-bs-target="#confirmModal" data-confirm-text="${switchAlarmText} for ${item.character_name} - ${item.planet}?" data-form-id="switchAlarmForm${item.character_id}_${item.planet_id}">
+                            <button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="planetary" title="${switchAlarm}" data-bs-target="#confirmModal" data-confirm-text="${switchAlarmText} for ${item.character_name} - ${item.planet}?" data-form-id="switchAlarmForm${item.character_id}_${item.planet_id}">
                                 <span class="fas fa-bullhorn"></span>
                             </button>
                         </form>
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 switchAllAlarmsForm.className = 'd-inline';
                 switchAllAlarmsForm.innerHTML = csrfToken +
                     '<input type="hidden" name="character_pk" value="' + characterPk + '">' +
-                    '<button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="tooltip" title="'+ switchAlarm +'" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '?" data-form-id="switchAllAlarmsForm">' + switchAllAlarmsButton.textContent + '</button>';
+                    '<button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="planetary" title="'+ switchAlarm +'" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '?" data-form-id="switchAllAlarmsForm">' + switchAllAlarmsButton.textContent + '</button>';
 
                 const tableContainer = document.querySelector('#planets-details').parentElement;
                 const switchAllAlarmsContainer = document.createElement('div');
@@ -172,10 +172,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Reinitialize tooltips on draw
             table.on('draw', function () {
-                $('[data-tooltip-toggle="tooltip"]').tooltip();
+                $('[data-tooltip-toggle="planetary"]').tooltip({
+                    trigger: 'hover',
+                });
             });
             // Init tooltips
-            $('[data-tooltip-toggle="tooltip"]').tooltip();
+
+            $('[data-tooltip-toggle="planetary"]').tooltip({
+                trigger: 'hover',
+            });
         },
         error: function(error) {
             console.error('Error fetching data:', error);
@@ -184,7 +189,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function showExtractorInfoModal(button) {
-    const characterId = button.getAttribute('data-character-id');
     const characterName = button.getAttribute('data-character-name');
     const planet = button.getAttribute('data-planet');
     const extractors = JSON.parse(button.getAttribute('data-extractors'));

@@ -86,6 +86,16 @@ $('#yearDropdown li').click(function() {
     $('#currentYearLink').text('Year - ' + selectedYear);
 });
 
+function initializeTooltipsAndPopovers() {
+    $('[data-tooltip-toggle="ally-tooltip"]').tooltip({
+        trigger: 'hover',
+    });
+    $('[data-bs-toggle="ally-popover"]').popover({
+        trigger: 'hover',
+        html: true,
+    });
+}
+
 function hideLoading(id) {
     $('#bar-loading-'+id).addClass('d-none');
     $('#chart-loading-'+id).addClass('d-none');
@@ -147,21 +157,34 @@ function generateLedger(TableName, url) {
                 columns: [
                     {
                         data: 'main_name',
-                        render: function (data, type, row) {
+                        render: function (data, _, row) {
                             // Initialize alt_names
                             var alt_portrait = 'Included Characters: ';
 
                             // Loop through alt_names and add each image
                             row.alt_names.forEach(function(character_id) {
-                                alt_portrait += '<img src="https://images.evetech.net/characters/' + character_id + '/portrait?size=32" class="rounded-circle" height="30">';
+                                alt_portrait += `
+                                    <img
+                                        src='https://images.evetech.net/characters/${character_id}/portrait?size=32'
+                                        class='rounded-circle'
+                                        height='30'
+                                    >
+                                `;
                             });
 
-                            var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" height="30" data-bs-trigger="hover" data-bs-toggle="popover" data-bs-content=\''+ alt_portrait +'\' >';
-                            return imageHTML + ' ' + data;
+                            var imageHTML = `
+                                <img
+                                    src='https://images.evetech.net/characters/${row.main_id}/portrait?size=32'
+                                    class='rounded-circle'
+                                    height='30'
+                                    data-bs-toggle='ally-popover'
+                                    data-bs-content='${alt_portrait}'> ${data}
+                                `;
+                            return imageHTML;
                         }
                     },
                     {   data: 'total_amount',
-                        render: function (data, type, row) {
+                        render: function (data, type) {
                             if (type === 'display') {
                                 return formatAndColor(data);
                             }
@@ -169,7 +192,7 @@ function generateLedger(TableName, url) {
                         }
                     },
                     {   data: 'total_amount_ess',
-                        render: function (data, type, row) {
+                        render: function (data, type) {
                             if (type === 'display') {
                                 return formatAndColor(data);
                             }
@@ -178,14 +201,16 @@ function generateLedger(TableName, url) {
                     },
                     {
                         data: 'col-total-action',
-                        render: function (data, type, row) {
-                            return '<button class="btn btn-sm btn-info btn-square" ' +
-                                'data-bs-toggle="modal" ' +
-                                'data-bs-target="#modalViewCharacterContainer" ' +
-                                'data-ajax_url="/ledger/api/alliance/'+ alliancePk +'/character/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/" ' +
-                                'title="' + row.main_name + '">' +
-                                '<span class="fas fa-info"></span>' +
-                                '</button>';
+                        render: function (_, __, row) {
+                            return `
+                                <button class="btn btn-sm btn-info btn-square"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalViewCharacterContainer"
+                                    data-ajax_url="/ledger/api/alliance/${alliancePk}/character/${row.main_id}/ledger/template/year/${selectedYear}/month/${tableMonth}/"
+                                    title="${row.main_name}" data-tooltip-toggle="ally-tooltip" data-bs-placement="left">
+                                    <span class="fas fa-info"></span>
+                                </button>
+                            `;
                         }
                     },
                 ],
@@ -197,7 +222,7 @@ function generateLedger(TableName, url) {
                         className: 'text-end',
                     },
                 ],
-                footerCallback: function (row, data, start, end, display) {
+                footerCallback: function (_, data, __, ___, ____) {
                     if (data.length === 0) {
                         $('#foot-'+ TableName +' .col-total-amount').html('');
                         $('#foot-'+ TableName +' .col-total-ess').html('');
@@ -205,28 +230,30 @@ function generateLedger(TableName, url) {
                         $('#foot-'+ TableName +' .col-total-button').html('').removeClass('text-end');
                         return;
                     }
-                    $('#foot-'+ TableName +' .col-total-amount').html('' + formatAndColor(total_amount) + '');
-                    $('#foot-'+ TableName +' .col-total-ess').html('' + formatAndColor(total_amount_ess) + '');
-                    $('#foot-'+ TableName +' .col-total-gesamt').html('' + formatAndColor(total_amount_combined) + '');
-                    $('#foot-'+ TableName +' .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
-                        'data-ajax_url="/ledger/api/alliance/'+ alliancePk +'/character/' + alliancePk + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/?corp=true"> <span class="fas fa-info"></span></button>')
-                        .addClass('text-end');
+                    $('#foot-'+ TableName +' .col-total-amount').html(formatAndColor(total_amount));
+                    $('#foot-'+ TableName +' .col-total-ess').html(formatAndColor(total_amount_ess));
+                    $('#foot-'+ TableName +' .col-total-gesamt').html(formatAndColor(total_amount_combined));
+                    $('#foot-'+ TableName +' .col-total-button').html(`
+                        <button
+                            class="btn btn-sm btn-info btn-square"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalViewCharacterContainer"
+                            data-ajax_url="/ledger/api/alliance/${alliancePk}/character/${alliancePk}/ledger/template/year/${selectedYear}/month/${tableMonth}/?corp=true">
+                            <span class="fas fa-info"></span>
+                        </button>
+                    `).addClass('text-end');
                 },
-                initComplete: function(settings, json) {
+                initComplete: function() {
                     $('#foot-'+ TableName +'').show();
                     $('#ratting-'+ TableName +'').removeClass('d-none');
-                    // Initialize popover
-                    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-                    popoverTriggerList.map(function (popoverTriggerEl) {
-                        // eslint-disable-next-line no-undef
-                        return new bootstrap.Popover(popoverTriggerEl, {
-                            html: true
-                        });
-                    });
+                    initializeTooltipsAndPopovers();
+                },
+                drawCallback: function() {
+                    initializeTooltipsAndPopovers();
                 }
             });
         },
-        error: function(xhr, status, error) {
+        error: function(xhr, _, __) {
             if (xhr.status === 403) {
                 hideLoading(''+ TableName +'');
                 $('#ratting-'+ TableName +'').hide();
