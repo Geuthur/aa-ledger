@@ -62,6 +62,11 @@ ______________________________________________________________________
 > AA Ledger needs at least Alliance Auth v4.0.0
 > Please make sure to update your Alliance Auth before you install this APP
 
+### Step 0 - Check dependencies are installed<a name="step1"></a>
+
+- Ledger needs the app [django-eveuniverse](https://apps.allianceauth.org/apps/detail/django-eveuniverse) to function. Please make sure it is installed.
+- Ledger needs the app `allianceauth.corputils` it is a optional app for AA and need to be added in (`local.py`) otherwise you can use [corpstats-two](https://apps.allianceauth.org/apps/detail/aa-corpstats-two)
+
 ### Step 1 - Install the Package<a name="step1"></a>
 
 Make sure you're in your virtual environment (venv) of your Alliance Auth then install the pakage.
@@ -74,8 +79,6 @@ pip install aa-ledger
 
 Configure your Alliance Auth settings (`local.py`) as follows:
 
-- Add `'allianceauth.corputils',` to `INSTALLED_APPS`
-- Add `'eveuniverse',` to `INSTALLED_APPS`
 - Add `'ledger',` to `INSTALLED_APPS`
 
 ### Step 3 - Add the Scheduled Tasks<a name="step3"></a>
