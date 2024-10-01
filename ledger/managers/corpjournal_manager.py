@@ -6,7 +6,7 @@ from django.db.models.functions import Coalesce
 
 from allianceauth.eveonline.models import EveCharacter
 
-from ledger.hooks import get_corp_models_and_string, get_extension_logger
+from ledger.hooks import get_extension_logger
 from ledger.view_helpers.core import events_filter
 
 logger = get_extension_logger(__name__)
@@ -22,7 +22,11 @@ class CorpWalletQuerySet(models.QuerySet):
             "character_ownership", "character_ownership__user__profile__main_character"
         ).prefetch_related("character_ownership__user__character_ownerships__character")
 
-        corpmember = get_corp_models_and_string()
+        seond_party_ids = self.filter(
+            division__corporation__corporation__corporation_id__in=corporations,
+            ref_type="bounty_prizes",
+        ).values_list("second_party_id", flat=True)
+
         char_to_main = {}
         chars_list = []
         for char in linked_chars:
@@ -40,16 +44,12 @@ class CorpWalletQuerySet(models.QuerySet):
             except AttributeError:
                 continue
 
-        corpmember = (
-            corpmember.objects.filter(corpstats__corp__corporation_id__in=corporations)
-            .values_list("character_id", flat=True)
-            .exclude(character_id__in=char_to_main)
-        )
-
-        for character_id in corpmember:
-            if character_id in chars_ids:
+        # Add all Chars that not registred
+        for character_id in seond_party_ids:
+            if character_id not in chars_list:
                 char_to_main[character_id] = [character_id]
                 chars_list.append(character_id)
+
         return char_to_main, chars_list
 
     def annotate_bounty(self, second_party_ids: list) -> models.QuerySet:
