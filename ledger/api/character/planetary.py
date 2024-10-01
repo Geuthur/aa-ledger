@@ -1,5 +1,3 @@
-from typing import List
-
 from ninja import NinjaAPI
 
 from django.db.models import Q
@@ -22,7 +20,7 @@ class LedgerPlanetaryApiEndpoints:
 
         @api.get(
             "account/{character_id}/planetary/{planet_id}/",
-            response={200: List[schema.CharacterPlanet], 403: str},
+            response={200: list[schema.CharacterPlanet], 403: str},
             tags=self.tags,
         )
         def get_planetary(request, character_id: int, planet_id: int):
@@ -62,7 +60,7 @@ class LedgerPlanetaryApiEndpoints:
 
         @api.get(
             "account/{character_id}/planetary/{planet_id}/details/",
-            response={200: List[schema.CharacterPlanetDetails], 403: str},
+            response={200: list[schema.CharacterPlanetDetails], 403: str},
             tags=self.tags,
         )
         def get_planetarydetails(request, character_id: int, planet_id: int):
@@ -118,7 +116,7 @@ class LedgerPlanetaryApiEndpoints:
 
         @api.get(
             "account/planetary/admin/",
-            response={200: List[schema.CharacterAdmin], 403: str},
+            response={200: list[schema.CharacterAdmin], 403: str},
             tags=self.tags,
         )
         def get_character_admin(request):

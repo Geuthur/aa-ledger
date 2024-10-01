@@ -3,7 +3,6 @@ Character Audit Model
 """
 
 import datetime
-from typing import List
 
 from django.db import models
 from django.utils import timezone
@@ -56,7 +55,7 @@ class CharacterAudit(models.Model):
         )
 
     @classmethod
-    def get_esi_scopes(cls) -> List[str]:
+    def get_esi_scopes(cls) -> list[str]:
         """Return list of required ESI scopes to fetch."""
         return [
             # Mining Ledger

@@ -1,5 +1,3 @@
-from typing import List
-
 from ninja import NinjaAPI
 
 from django.db.models import Q
@@ -19,7 +17,7 @@ class LedgerJournalApiEndpoints:
 
         @api.get(
             "account/{character_id}/wallet/",
-            response={200: List[schema.CharacterWalletEvent], 403: str},
+            response={200: list[schema.CharacterWalletEvent], 403: str},
             tags=self.tags,
         )
         def get_character_wallet(

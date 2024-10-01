@@ -1,5 +1,3 @@
-from typing import List
-
 from ninja import NinjaAPI
 
 from django.shortcuts import render
@@ -22,7 +20,7 @@ class LedgerTemplateApiEndpoints:
 
         @api.get(
             "account/{character_id}/ledger/template/year/{year}/month/{month}/",
-            response={200: List[schema.CharacterLedgerTemplate], 403: str},
+            response={200: list[schema.CharacterLedgerTemplate], 403: str},
             tags=self.tags,
         )
         def get_character_ledger_template(

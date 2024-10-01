@@ -2,8 +2,6 @@
 Planetary Model
 """
 
-from typing import List
-
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -50,7 +48,7 @@ class CharacterPlanet(models.Model):
         return f"Planet Data: {self.character.character.character_name} - {self.planet.name}"
 
     @classmethod
-    def get_esi_scopes(cls) -> List[str]:
+    def get_esi_scopes(cls) -> list[str]:
         """Return list of required ESI scopes to fetch."""
         return [
             "esi-planets.manage_planets.v1",

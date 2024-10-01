@@ -1,4 +1,4 @@
-from typing import Any, Tuple
+from typing import Any
 
 from django.db import models
 
@@ -11,7 +11,7 @@ logger = get_extension_logger(__name__)
 
 
 class EveEntityManager(models.Manager):
-    def get_or_create_esi(self, *, eve_id: int) -> Tuple[Any, bool]:
+    def get_or_create_esi(self, *, eve_id: int) -> tuple[Any, bool]:
         """gets or creates entity object with data fetched from ESI"""
         # pylint: disable=import-outside-toplevel
         from ledger.models import EveEntity
@@ -52,7 +52,7 @@ class EveEntityManager(models.Manager):
             return True
         return True
 
-    def update_or_create_esi(self, *, eve_id: int) -> Tuple[Any, bool]:
+    def update_or_create_esi(self, *, eve_id: int) -> tuple[Any, bool]:
         """updates or creates entity object with data fetched from ESI"""
         response = esi.client.Universe.post_universe_names(ids=[eve_id]).results()
         if len(response) != 1:
