@@ -3,7 +3,6 @@
 import logging
 
 from ledger import app_settings
-from ledger.errors import LedgerImportError
 
 
 def get_extension_logger(name):
@@ -32,18 +31,3 @@ def get_extension_logger(name):
     logger.level = parent_logger.level
 
     return logger
-
-
-# pylint: disable=import-outside-toplevel
-def get_corp_models_and_string():
-    if app_settings.LEDGER_CORPSTATS_TWO:
-        try:
-            from corpstats.models import CorpMember
-
-            return CorpMember
-        except ImportError as exc:
-            raise LedgerImportError("Corpstats is enabled but not installed") from exc
-
-    from allianceauth.corputils.models import CorpMember
-
-    return CorpMember
