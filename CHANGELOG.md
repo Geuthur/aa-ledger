@@ -13,6 +13,8 @@
 ### Remove
 
 - Unnecessary JS Variable
+- Memberaudit dependencies (Memberaudit Task Adaption still works)
+- Corp UTils dependencies (optional Corp Stats Two dependencies)
 
 ### Fixed
 
