@@ -1,19 +1,14 @@
-from unittest.mock import MagicMock, Mock, patch
-
-from memberaudit.models import Character
+from unittest.mock import Mock, patch
 
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
-from django.utils import timezone
 from esi.models import Token
 
-from allianceauth.eveonline.models import EveCharacter
 from app_utils.testing import create_user_from_evecharacter
 
 from ledger.models.characteraudit import CharacterAudit
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_memberaudit import load_memberaudit
 from ledger.views.character.char_audit import add_char
 
 MODULE_PATH = "ledger.views.character.char_audit"
@@ -24,7 +19,6 @@ class CharAuditTest(TestCase):
     def setUpClass(cls) -> None:
         super().setUpClass()
         load_allianceauth()
-        load_memberaudit()
         cls.factory = RequestFactory()
         cls.user, cls.character_ownership = create_user_from_evecharacter(
             1001,

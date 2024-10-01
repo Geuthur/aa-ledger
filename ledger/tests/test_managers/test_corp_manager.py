@@ -62,22 +62,6 @@ class CharManagerQuerySetTest(TestCase):
         add_character_to_user(self.user, EveCharacter.objects.get(character_id=1003))
         add_character_to_user(self.user, EveCharacter.objects.get(character_id=1006))
 
-        corp_stats = CorpStats.objects.create(
-            token=Token.objects.filter(user=self.user).first(),
-            corp=self.corp,
-        )
-        CorpMember.objects.create(
-            character_id=9999, character_name="Test9999", corpstats=corp_stats
-        )
-
-        CorpMember.objects.create(
-            character_id=9998, character_name="Test9998", corpstats=corp_stats
-        )
-
-        CorpMember.objects.create(
-            character_id=9978, character_name="Test9997", corpstats=corp_stats
-        )
-
         test9999 = EveEntity.objects.create(
             eve_id=9999,
             category=EveEntity.CATEGORY_CHARACTER,
@@ -136,6 +120,97 @@ class CharManagerQuerySetTest(TestCase):
                 "total_ess": Decimal("400000.00"),
             },
             {
+                "main_character_id": 1002,
+                "main_character_name": "rotze Rotineque",
+                "alts": [1002],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1010,
+                "main_character_name": "Test1",
+                "alts": [1010],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1011,
+                "main_character_name": "Test2",
+                "alts": [1011],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1012,
+                "main_character_name": "Test3",
+                "alts": [1012],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1013,
+                "main_character_name": "Test4",
+                "alts": [1013],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1014,
+                "main_character_name": "Test5",
+                "alts": [1014],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1015,
+                "main_character_name": "Test6",
+                "alts": [1015],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1016,
+                "main_character_name": "Test7",
+                "alts": [1016],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1017,
+                "main_character_name": "Test8",
+                "alts": [1017],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1018,
+                "main_character_name": "Test9",
+                "alts": [1018],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1019,
+                "main_character_name": "Test10",
+                "alts": [1019],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1020,
+                "main_character_name": "Test11",
+                "alts": [1020],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1021,
+                "main_character_name": "Test12",
+                "alts": [1021],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
                 "main_character_id": 9998,
                 "main_character_name": "Unknown",
                 "alts": [9998],
@@ -169,13 +244,104 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1001],
                 "total_bounty": Decimal("400000.00"),
                 "total_ess": Decimal("400000.00"),
-            }
+            },
+            {
+                "main_character_id": 1002,
+                "main_character_name": "rotze Rotineque",
+                "alts": [1002],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1010,
+                "main_character_name": "Test1",
+                "alts": [1010],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1011,
+                "main_character_name": "Test2",
+                "alts": [1011],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1012,
+                "main_character_name": "Test3",
+                "alts": [1012],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1013,
+                "main_character_name": "Test4",
+                "alts": [1013],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1014,
+                "main_character_name": "Test5",
+                "alts": [1014],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1015,
+                "main_character_name": "Test6",
+                "alts": [1015],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1016,
+                "main_character_name": "Test7",
+                "alts": [1016],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1017,
+                "main_character_name": "Test8",
+                "alts": [1017],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1018,
+                "main_character_name": "Test9",
+                "alts": [1018],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1019,
+                "main_character_name": "Test10",
+                "alts": [1019],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1020,
+                "main_character_name": "Test11",
+                "alts": [1020],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
+            {
+                "main_character_id": 1021,
+                "main_character_name": "Test12",
+                "alts": [1021],
+                "total_bounty": Decimal("100000.00"),
+                "total_ess": Decimal("0.00"),
+            },
         ]
 
         self.assertEqual(list(result), expected_result)
 
     def test_annotate_ledger_no_data(self):
-        result = CorporationWalletJournalEntry.objects.all().annotate_ledger([9999])
+        result = CorporationWalletJournalEntry.objects.all().annotate_ledger([99999])
 
         self.assertEqual(list(result), [])
 

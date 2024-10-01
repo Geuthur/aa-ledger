@@ -41,7 +41,6 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
             1003,
             permissions=[
                 "ledger.basic_access",
-                "ledger.advanced_access",
             ],
         )
 
@@ -81,7 +80,7 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_get_corporation_ledger_api_no_permission(self):
-        self.client.force_login(self.user2)
+        self.client.force_login(self.user3)
         url = "/ledger/api/corporation/2001/ledger/year/2024/month/3/"
 
         response = self.client.get(url)
@@ -89,23 +88,14 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_get_corporation_ledger_api_no_data(self):
-        self.client.force_login(self.user3)
-        url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
+        self.client.force_login(self.user2)
+        url = "/ledger/api/corporation/0/ledger/year/2000/month/3/"
 
         response = self.client.get(url)
 
         expected_data = noData
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)
-
-    def test_get_corporation_ledger_api_not_found(self):
-        self.client.force_login(self.user3)
-        url = "/ledger/api/corporation/2001/ledger/year/2024/month/3/"
-
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.json(), "Permission Denied")
 
     @patch("ledger.models.CorporationWalletJournalEntry.objects.filter")
     def test_get_corporation_ledger_api_single_with_zero_summary_amount(

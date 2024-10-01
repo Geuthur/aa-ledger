@@ -38,7 +38,6 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
             1003,
             permissions=[
                 "ledger.basic_access",
-                "ledger.advanced_access",
             ],
         )
 
@@ -108,8 +107,8 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_get_alliance_billbboard_api_no_data(self):
-        self.client.force_login(self.user3)
-        url = "/ledger/api/alliance/0/billboard/year/2024/month/3/"
+        self.client.force_login(self.user2)
+        url = "/ledger/api/alliance/0/billboard/year/2000/month/3/"
 
         response = self.client.get(url)
 
