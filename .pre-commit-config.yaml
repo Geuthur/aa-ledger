@@ -123,7 +123,7 @@ repos:
           )
 
   - repo: https://github.com/eslint/eslint
-    rev: v9.9.1
+    rev: v9.6.0
     hooks:
       - id: eslint
         name: ESLint
@@ -133,8 +133,6 @@ repos:
             .min(.js|.js.map)|
             static/(.*)/libs/
           )
-        #args:
-        #  - --fix
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
     rev: v16.9.0
@@ -195,7 +193,7 @@ repos:
           )
 
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.20.0
+    rev: 1.21.0
     hooks:
       - id: django-upgrade
         name: Django upgrade
@@ -210,7 +208,7 @@ repos:
         name: PyUpgrade
         description: Upgrade syntax to newer versions of Python.
         args:
-          - --py38-plus  # Minimum required Python version for AA. Update as needed.
+          - --py310-plus  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/pycqa/flake8
     rev: 7.1.1
@@ -247,7 +245,7 @@ repos:
         name: Black
         description: Format Python code.
         args:
-          - --target-version=py38  # Minimum required Python version for AA. Update as needed.
+          - --target-version=py310  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/asottile/blacken-docs
     rev: 1.18.0
@@ -258,7 +256,7 @@ repos:
         additional_dependencies:
           - black==24.4.2  # https://github.com/psf/black/releases/latest
         args:
-          - --target-version=py38  # Minimum required Python version for AA. Update as needed.
+          - --target-version=py310  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/executablebooks/mdformat
     rev: 0.7.17
@@ -278,14 +276,14 @@ repos:
           - mdformat-shfmt==0.1.0  # Mdformat plugin to format shell code blocks » https://github.com/hukkin/mdformat-shfmt/tags
 
   - repo: https://github.com/tox-dev/tox-ini-fmt
-    rev: 1.3.1
+    rev: 1.4.1
     hooks:
       - id: tox-ini-fmt
         name: tox.ini formatter
         description: Format the tox.ini file.
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: 2.2.1
+    rev: 2.2.4
     hooks:
       - id: pyproject-fmt
         name: pyproject.toml formatter
@@ -296,20 +294,20 @@ repos:
           - tox==4.15.0  # https://github.com/tox-dev/tox/releases/latest
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.19
+    rev: v0.20.2
     hooks:
       - id: validate-pyproject
         name: Validate pyproject.toml
         description: Validate the pyproject.toml file.
 
   - repo: https://github.com/pylint-dev/pylint
-    rev: v3.2.7
+    rev: v3.3.1
     hooks:
       - id: pylint
         name: Pylint
         description: Check for errors and code smells in Python code.
         args:
-          - --py-version=3.8  # Minimum required Python version for AA. Update as needed.
+          - --py-version=3.10  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.29.2
