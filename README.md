@@ -65,7 +65,6 @@ ______________________________________________________________________
 ### Step 0 - Check dependencies are installed<a name="step1"></a>
 
 - Ledger needs the app [django-eveuniverse](https://apps.allianceauth.org/apps/detail/django-eveuniverse) to function. Please make sure it is installed.
-- Ledger needs the app `allianceauth.corputils` it is a optional app for AA and need to be added in (`local.py`) otherwise you can use [corpstats-two](https://apps.allianceauth.org/apps/detail/aa-corpstats-two)
 
 ### Step 1 - Install the Package<a name="step1"></a>
 
@@ -99,6 +98,8 @@ CELERYBEAT_SCHEDULE["ledger_check_planetary_alarms"] = {
     "schedule": crontab(minute=0, hour="*/3"),
 }
 ```
+
+### Step 3.1 - (Optional) Setting up Compatibilies></a>
 
 > \[!NOTE\]
 > If you have Member Audit installed add this to Fetch Member Audit Chars and Sync with Ledger
@@ -143,8 +144,6 @@ The Following Settings can be setting up in the `local.py`
 - LEDGER_CORP_TAX:          `15`             - Set Tax Value for ESS Payout Calculation
 
 - LEDGER_LOGGER_USE:        `True / False`   - Set to use own Logger File
-
-- LEDGER_CORPSTATS_TWO:     `True / False`   - Set to use Corp Stats Two Application for fetching member data
 
 If you set up LEDGER_LOGGER_USE to `True` you need to add the following code below:
 
