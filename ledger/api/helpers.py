@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger import app_settings, models
-from ledger.hooks import get_corp_models_and_string, get_extension_logger
+from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
 
@@ -113,23 +113,11 @@ def _get_linked_characters(corporations):
 def get_main_and_alts_ids_all(corporations: list) -> list:
     """Get all members for given corporations"""
     chars_list = set()
-    missing_chars = set()
 
     linked_chars = _get_linked_characters(corporations)
-    corpmember = get_corp_models_and_string()
 
     for char in linked_chars:
         chars_list.add(char.character_id)
-
-    for member in corpmember.objects.filter(
-        corpstats__corp__corporation_id__in=corporations
-    ).exclude(character_id__in=chars_list):
-        try:
-            char = EveCharacter.objects.get(character_id=member.character_id)
-            chars_list.add(char.character_id)
-        except ObjectDoesNotExist:
-            # TODO Maybe Create a new EveCharacter object
-            missing_chars.add(member.character_id)
 
     return list(chars_list)
 
