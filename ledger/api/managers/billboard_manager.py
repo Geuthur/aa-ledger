@@ -23,6 +23,8 @@ from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
 
+# TODO Handle the filters by Journal Manager
+
 
 @dataclass
 class BillboardSum:
