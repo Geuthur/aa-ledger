@@ -1,8 +1,10 @@
+from collections import defaultdict
 from decimal import Decimal
 
 from django.db import models
 from django.db.models import DecimalField, Q, Sum, Value
 from django.db.models.functions import Coalesce
+from django.utils import timezone
 
 from ledger.hooks import get_extension_logger
 from ledger.view_helpers.core import events_filter
@@ -444,7 +446,84 @@ class CharWalletQuerySet(models.QuerySet):
             "amounts_costs": amounts_costs,
         }
 
-    # Not Implemented
+    def generate_template(
+        self,
+        amounts: defaultdict,
+        character_ids: list,
+        filter_date: timezone.datetime,
+        exclude=None,
+    ) -> dict:
+        """Generate the Billboard for the given characters."""
+        qs = self.filter(
+            Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
+        )
+
+        # Define the types and their respective filters
+        types_filters = {
+            "bounty": Q(ref_type__in=BOUNTY_PRIZES),
+            "market_cost": Q(ref_type__in=MARKET_COST, amount__lt=0),
+            "production_cost": Q(ref_type__in=PRODUCTION_COST, amount__lt=0),
+            "contract_cost": Q(ref_type__in=CONTRACT_COST, amount__lt=0),
+            "traveling_cost": Q(ref_type__in=TRAVELING_COST, amount__lt=0),
+            "asset_cost": Q(ref_type__in=ASSETS_COST, amount__lt=0),
+            "skill_cost": Q(ref_type__in=SKILL_COST, amount__lt=0),
+            "insurance_cost": Q(ref_type__in=INSURANCE_COST, amount__lt=0),
+            "planetary_cost": Q(ref_type__in=PLANETARY_COST, amount__lt=0),
+            "loyality_point_cost": Q(ref_type__in=LP_COST, amount__lt=0),
+            "transaction": Q(ref_type__in=MARKET_TRADE, amount__gt=0),
+            "contract": Q(ref_type__in=CONTRACT_TRADE, amount__gt=0),
+            "donation": (
+                Q(ref_type__in=DONATION_TRADE, amount__gt=0)
+                & ~Q(first_party_id__in=exclude)
+                if exclude is not None
+                else Q(ref_type__in=DONATION_TRADE, amount__gt=0)
+            ),
+            "insurance": Q(ref_type__in=INSURANCE_TRADE, amount__gt=0),
+            "mission": Q(ref_type__in=MISSION_REWARD),
+        }
+
+        # Calculate the amounts for each type
+        for type_name, type_filter in types_filters.items():
+            total_amount = qs.filter(type_filter).aggregate(
+                total_amount=Coalesce(
+                    Sum("amount"), Value(0), output_field=DecimalField()
+                )
+            )["total_amount"]
+
+            total_amount_day = qs.filter(
+                type_filter,
+                date__year=filter_date.year,
+                date__month=filter_date.month,
+                date__day=filter_date.day,
+            ).aggregate(
+                total_amount_day=Coalesce(
+                    Sum("amount"), Value(0), output_field=DecimalField()
+                )
+            )[
+                "total_amount_day"
+            ]
+
+            total_amount_hour = qs.filter(
+                type_filter,
+                date__year=filter_date.year,
+                date__month=filter_date.month,
+                date__day=filter_date.day,
+                date__hour=filter_date.hour,
+            ).aggregate(
+                total_amount_hour=Coalesce(
+                    Sum("amount"), Value(0), output_field=DecimalField()
+                )
+            )[
+                "total_amount_hour"
+            ]
+
+            amounts[type_name]["total_amount"] = total_amount
+            amounts[type_name]["total_amount_day"] = total_amount_day
+            amounts[type_name]["total_amount_hour"] = total_amount_hour
+
+        return amounts
+
+    # TODO: Implement this
     def generate_billboard(
         self, character_ids: list, filter_date=None, exclude=None
     ) -> models.QuerySet:
