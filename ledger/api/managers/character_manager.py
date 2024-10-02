@@ -2,12 +2,7 @@ from django.db.models import Q
 
 from ledger.api.helpers import convert_ess_payout, get_alts_queryset
 from ledger.api.managers.billboard_manager import BillboardData, BillboardLedger
-from ledger.api.managers.core_manager import (
-    LedgerDate,
-    LedgerFilter,
-    LedgerModels,
-    LedgerTotal,
-)
+from ledger.api.managers.core_manager import LedgerDate, LedgerModels, LedgerTotal
 from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import (
     CharacterMiningLedger,
@@ -143,24 +138,23 @@ class CharacterProcess:
         else:
             self.chars_list = [char.character_id for char in self.chars]
 
-        # Get the Filter Settings
-        filters = LedgerFilter(self.chars_list)
-
         filter_date = Q(date__year=self.year)
         if not self.month == 0:
             filter_date &= Q(date__month=self.month)
 
         # Filter for the Character Journal
         journal = CharacterWalletJournalEntry.objects.filter(
-            filters.filter_partys, filter_date
+            Q(first_party_id__in=self.chars_list)
+            | Q(second_party_id__in=self.chars_list),
+            filter_date,
         )
 
         corporation_journal = CorporationWalletJournalEntry.objects.filter(
-            filters.filter_second_party, filter_date
+            Q(second_party_id__in=self.chars_list), filter_date
         )
 
         mining_journal = CharacterMiningLedger.objects.filter(
-            filters.filter_mining, filter_date
+            Q(character__character__character_id__in=self.chars_list), filter_date
         ).annotate_pricing()
 
         # Create Data for Billboard
