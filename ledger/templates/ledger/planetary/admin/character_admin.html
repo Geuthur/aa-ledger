@@ -55,7 +55,7 @@ CharsAjax = {
                 {
                     targets: 0,
                     render: function (data, type, row) {
-                        return '<img src="https://images.evetech.net/characters/' + row.character_id + '/portrait?size=32" class="rounded-circle" title="' + row.character_name + '" height="30">';
+                        return '<img src="https://images.evetech.net/characters/' + row.character_id + '/portrait?size=32" class="rounded-circle" title="' + row.character_name + '" height="30" data-tooltip-toggle="char-tooltip" data-bs-placement="top">';
                     },
                     sortable: false,
                 },
@@ -64,11 +64,21 @@ CharsAjax = {
                     className: 'text-end',
                     sortable: false,
                     render: function (data, type, row) {
-                        return '<a href="/ledger/planetary_ledger/'+ row.character_id +'/?main=True"><button class="btn btn-primary btn-sm" title="Show Information"><i class="fa-solid fa-eye"></i></button></a>';
+                        return '<a href="/ledger/planetary_ledger/'+ row.character_id +'/?main=True"><button class="btn btn-primary btn-sm" title="{% trans "Show" %}" data-tooltip-toggle="char-tooltip" data-bs-placement="left"><i class="fa-solid fa-eye"></i></button></a>';
                     },
                 }
             ],
             order: [[1, 'asc']],
+            initComplete: function() {
+                $('[data-tooltip-toggle="char-tooltip"]').tooltip({
+                    trigger: 'hover',
+                });
+            },
+            drawCallback: function() {
+                $('[data-tooltip-toggle="char-tooltip"]').tooltip({
+                    trigger: 'hover',
+                });
+            }
         });
     },
     error: function(response) {

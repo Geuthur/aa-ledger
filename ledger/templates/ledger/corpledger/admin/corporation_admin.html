@@ -52,7 +52,7 @@ CorpsAjax = {
                 {
                     targets: 0,
                     render: function (data, type, row) {
-                        return '<img src="https://images.evetech.net/corporations/' + row.corporation_id + '/logo?size=32" class="rounded-circle" title="' + row.corporation_name + '" height="30">';
+                        return '<img src="https://images.evetech.net/corporations/' + row.corporation_id + '/logo?size=32" class="rounded-circle" title="' + row.corporation_name + '" height="30" data-tooltip-toggle="corp-tooltip" data-bs-placement="top">';
                     },
                     sortable: false,
                 },
@@ -61,11 +61,21 @@ CorpsAjax = {
                     className: 'text-end',
                     sortable: false,
                     render: function (data, type, row) {
-                        return '<a href="/ledger/corporation_ledger/'+ row.corporation_id +'/"><button class="btn btn-primary btn-sm" title="Edit"><i class="fa-solid fa-eye"></i></button></a>';
+                        return '<a href="/ledger/corporation_ledger/'+ row.corporation_id +'/"><button class="btn btn-primary btn-sm" title="{% trans "Show" %}" data-tooltip-toggle="corp-tooltip" data-bs-placement="left"><i class="fa-solid fa-eye"></i></button></a>';
                     },
                 }
             ],
             order: [[1, 'asc']],
+            initComplete: function() {
+                $('[data-tooltip-toggle="corp-tooltip"]').tooltip({
+                    trigger: 'hover',
+                });
+            },
+            drawCallback: function() {
+                $('[data-tooltip-toggle="corp-tooltip"]').tooltip({
+                    trigger: 'hover',
+                });
+            }
         });
     },
     error: function(response) {
