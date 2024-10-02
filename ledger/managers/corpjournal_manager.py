@@ -1,8 +1,11 @@
 import json
+from collections import defaultdict
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models import DecimalField, Q, Sum, Value
 from django.db.models.functions import Coalesce
+from django.utils import timezone
 
 from allianceauth.eveonline.models import EveCharacter
 
@@ -142,6 +145,66 @@ class CorpWalletQuerySet(models.QuerySet):
             )
             .filter(models.Q(total_bounty__gt=0) | models.Q(total_ess__gt=0))
         )
+
+    def generate_template(
+        self,
+        amounts: defaultdict,
+        character_ids: list,
+        filter_date: timezone.datetime,
+        mode=None,
+    ) -> dict:
+        qs = self.filter(
+            Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
+        )
+
+        # Define the types and their respective filters
+        types_filters = {
+            "ess": Q(ref_type__in=["ess_escrow_transfer"]),
+        }
+
+        if mode == "corporation":
+            types_filters["bounty"] = Q(ref_type__in=["bounty_prizes"])
+
+        # Create the template
+        for type_name, type_filter in types_filters.items():
+            total_amount = qs.filter(type_filter).aggregate(
+                total_amount=Coalesce(
+                    Sum("amount"), Value(0), output_field=DecimalField()
+                )
+            )["total_amount"]
+
+            total_amount_day = qs.filter(
+                type_filter,
+                date__year=filter_date.year,
+                date__month=filter_date.month,
+                date__day=filter_date.day,
+            ).aggregate(
+                total_amount_day=Coalesce(
+                    Sum("amount"), Value(0), output_field=DecimalField()
+                )
+            )[
+                "total_amount_day"
+            ]
+
+            total_amount_hour = qs.filter(
+                type_filter,
+                date__year=filter_date.year,
+                date__month=filter_date.month,
+                date__day=filter_date.day,
+                date__hour=filter_date.hour,
+            ).aggregate(
+                total_amount_hour=Coalesce(
+                    Sum("amount"), Value(0), output_field=DecimalField()
+                )
+            )[
+                "total_amount_hour"
+            ]
+
+            amounts[type_name]["total_amount"] = total_amount
+            amounts[type_name]["total_amount_day"] = total_amount_day
+            amounts[type_name]["total_amount_hour"] = total_amount_hour
+
+        return amounts
 
 
 class CorpWalletManagerBase(models.Manager):
