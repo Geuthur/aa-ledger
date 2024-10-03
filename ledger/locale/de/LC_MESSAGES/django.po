@@ -20,54 +20,52 @@ msgstr ""
 
 #: models/events.py:22
 msgid "event"
-msgstr ""
+msgstr "Veranstaltung"
 
 #: models/events.py:23
 msgid "events"
-msgstr ""
+msgstr "Veranstaltungen"
 
 #: models/general.py:54
 msgid "id"
-msgstr ""
+msgstr "ID"
 
 #: models/general.py:57
 msgid "category"
-msgstr ""
+msgstr "Kategorie"
 
 #: models/general.py:59
 msgid "name"
-msgstr ""
+msgstr "Name"
 
 #: models/planetary.py:25
 msgid "Upgrade level of the planet"
-msgstr ""
+msgstr "Upgrade-Stufe des Planeten"
 
 #: models/planetary.py:29
 msgid "Number of pins on the planet"
-msgstr ""
+msgstr "Anzahl der Pins auf dem Planeten"
 
 #: tasks.py:199
 #, python-format
 msgid "%(charname)s on %(planetname)s"
-msgstr ""
+msgstr "%(charname)s auf %(planetname)s"
 
 #: tasks.py:214 tests/test_tasks.py:359 tests/test_tasks.py:396
 #: tests/test_tasks.py:465 tests/test_tasks.py:602
 msgid "Planetary Extractor Heads Expired"
-msgstr "Planetary Extraktor Köpfe Ausgelaufen"
+msgstr "Planetare Extraktor-Köpfe abgelaufen"
 
 #: templates/ledger/allyledger/admin/alliance_admin.html:9
-#, fuzzy
-#| msgid "Ledger Character Overview"
 msgid "Ledger Alliance Overview"
-msgstr "Ledger Character Übersicht"
+msgstr "Ledger Allianz Übersicht"
 
 #: templates/ledger/allyledger/admin/alliance_admin.html:64
 #: templates/ledger/charledger/admin/character_admin.html:67
 #: templates/ledger/corpledger/admin/corporation_admin.html:64
 #: templates/ledger/planetary/admin/character_admin.html:67
 msgid "Show"
-msgstr ""
+msgstr "Anzeigen"
 
 #: templates/ledger/allyledger/admin/alliance_admin.html:83
 #: templates/ledger/charledger/admin/character_admin.html:86
@@ -81,92 +79,88 @@ msgstr "Keine Berechtigung"
 #: templates/ledger/partials/menu/ally/navigation.html:15
 #: templates/ledger/partials/menu/corp/navigation.html:14
 #: templates/ledger/partials/menu/navigation.html:14
-#, fuzzy
-#| msgid "Character Ledger"
 msgid "Alliance Ledger"
-msgstr "Character Ledger"
+msgstr "Allianz Ledger"
 
 #: templates/ledger/allyledger/alliance_ledger.html:40
 #: templates/ledger/charledger/character_ledger.html:40
 #: templates/ledger/corpledger/corporation_ledger.html:40
 msgid "January"
-msgstr ""
+msgstr "Januar"
 
 #: templates/ledger/allyledger/alliance_ledger.html:41
 #: templates/ledger/charledger/character_ledger.html:41
 #: templates/ledger/corpledger/corporation_ledger.html:41
 msgid "February"
-msgstr ""
+msgstr "Februar"
 
 #: templates/ledger/allyledger/alliance_ledger.html:42
 #: templates/ledger/charledger/character_ledger.html:42
 #: templates/ledger/corpledger/corporation_ledger.html:42
 msgid "March"
-msgstr ""
+msgstr "März"
 
 #: templates/ledger/allyledger/alliance_ledger.html:43
 #: templates/ledger/charledger/character_ledger.html:43
 #: templates/ledger/corpledger/corporation_ledger.html:43
 msgid "April"
-msgstr ""
+msgstr "April"
 
 #: templates/ledger/allyledger/alliance_ledger.html:44
 #: templates/ledger/charledger/character_ledger.html:44
 #: templates/ledger/corpledger/corporation_ledger.html:44
 msgid "May"
-msgstr ""
+msgstr "Mai"
 
 #: templates/ledger/allyledger/alliance_ledger.html:45
 #: templates/ledger/charledger/character_ledger.html:45
 #: templates/ledger/corpledger/corporation_ledger.html:45
 msgid "June"
-msgstr ""
+msgstr "Juni"
 
 #: templates/ledger/allyledger/alliance_ledger.html:46
 #: templates/ledger/charledger/character_ledger.html:46
 #: templates/ledger/corpledger/corporation_ledger.html:46
 msgid "July"
-msgstr ""
+msgstr "Juli"
 
 #: templates/ledger/allyledger/alliance_ledger.html:47
 #: templates/ledger/charledger/character_ledger.html:47
 #: templates/ledger/corpledger/corporation_ledger.html:47
 msgid "August"
-msgstr ""
+msgstr "August"
 
 #: templates/ledger/allyledger/alliance_ledger.html:48
 #: templates/ledger/charledger/character_ledger.html:48
 #: templates/ledger/corpledger/corporation_ledger.html:48
 msgid "September"
-msgstr ""
+msgstr "September"
 
 #: templates/ledger/allyledger/alliance_ledger.html:49
 #: templates/ledger/charledger/character_ledger.html:49
 #: templates/ledger/corpledger/corporation_ledger.html:49
 msgid "October"
-msgstr ""
+msgstr "Oktober"
 
 #: templates/ledger/allyledger/alliance_ledger.html:50
 #: templates/ledger/charledger/character_ledger.html:50
 #: templates/ledger/corpledger/corporation_ledger.html:50
 msgid "November"
-msgstr ""
+msgstr "November"
 
 #: templates/ledger/allyledger/alliance_ledger.html:51
 #: templates/ledger/charledger/character_ledger.html:51
 #: templates/ledger/corpledger/corporation_ledger.html:51
 msgid "December"
-msgstr ""
+msgstr "Dezember"
 
 #: templates/ledger/allyledger/alliance_ledger.html:55
-#, fuzzy
-#| msgid "Character Overview"
 msgid "Alliance Overview"
-msgstr "Character Übersicht"
+msgstr "Allianz Übersicht"
 
 #: templates/ledger/charledger/admin/character_admin.html:9
 msgid "Ledger Character Overview"
-msgstr "Ledger Character Übersicht"
+msgstr "Ledger Charakter Übersicht"
 
 #: templates/ledger/charledger/character_ledger.html:8
 #: templates/ledger/charledger/character_ledger.html:24
@@ -175,41 +169,39 @@ msgstr "Ledger Character Übersicht"
 #: templates/ledger/partials/menu/corp/navigation.html:5
 #: templates/ledger/partials/menu/navigation.html:5
 msgid "Character Ledger"
-msgstr "Character Ledger"
+msgstr "Charakter Ledger"
 
 #: templates/ledger/charledger/character_ledger.html:55
 msgid "Character Overview"
-msgstr "Character Übersicht"
+msgstr "Charakter Übersicht"
 
 #: templates/ledger/charledger/character_ledger.html:118
-#, fuzzy
-#| msgid "Character Overview"
 msgid "Overview"
-msgstr "Character Übersicht"
+msgstr "Übersicht"
 
 #: templates/ledger/charledger/partials/card.html:34
 msgid "Charakter"
-msgstr ""
+msgstr "Charakter"
 
 #: templates/ledger/charledger/partials/card.html:39
 msgid "Detailed Sheet"
-msgstr ""
+msgstr "Detaillierte Übersicht"
 
 #: templates/ledger/charledger/partials/card.html:47
 msgid "Ratting"
-msgstr ""
+msgstr "Ratting"
 
 #: templates/ledger/charledger/partials/card.html:52
 msgid "ESS Payout"
-msgstr ""
+msgstr "ESS Auszahlung"
 
 #: templates/ledger/charledger/partials/card.html:57
 msgid "Mining"
-msgstr ""
+msgstr "Bergbau"
 
 #: templates/ledger/charledger/partials/card.html:62
 msgid "Misc"
-msgstr ""
+msgstr "Verschiedenes"
 
 #: templates/ledger/charledger/partials/card.html:67
 msgid "Costs"
@@ -219,12 +211,12 @@ msgstr "Kosten"
 #: templates/ledger/charledger/partials/table.html:20
 #: templates/ledger/corpledger/partials/table.html:18
 msgid "Summary"
-msgstr "Summe"
+msgstr "Zusammenfassung"
 
 #: templates/ledger/charledger/partials/table.html:29
 #: templates/ledger/corpledger/partials/table.html:24
 msgid "Total"
-msgstr "Total"
+msgstr "Gesamt"
 
 #: templates/ledger/corpledger/admin/corporation_admin.html:9
 msgid "Ledger Corporation Overview"
@@ -237,7 +229,7 @@ msgstr "Ledger Corporation Übersicht"
 #: templates/ledger/partials/menu/corp/navigation.html:10
 #: templates/ledger/partials/menu/navigation.html:10
 msgid "Corporation Ledger"
-msgstr ""
+msgstr "Corporation Ledger"
 
 #: templates/ledger/corpledger/corporation_ledger.html:55
 msgid "Corporation Overview"
@@ -335,7 +327,7 @@ msgstr ""
 
 #: templates/ledger/partials/menu/navigation.html:23
 msgid "Events"
-msgstr ""
+msgstr "Veranstaltungen"
 
 #: templates/ledger/permission.html:3
 msgid "You don't have Permission to view this Page"
@@ -345,11 +337,11 @@ msgstr ""
 #, fuzzy
 #| msgid "Ledger Character Overview"
 msgid "Ledger Planetary Overview"
-msgstr "Ledger Character Übersicht"
+msgstr "Ledger Planetary Übersicht"
 
 #: templates/ledger/planetary/partials/table.html:6
 msgid "Character"
-msgstr ""
+msgstr "Charakter"
 
 #: templates/ledger/planetary/partials/table.html:7
 msgid "Planet"
@@ -357,15 +349,15 @@ msgstr ""
 
 #: templates/ledger/planetary/partials/table.html:8
 msgid "Upgrade Level"
-msgstr ""
+msgstr "Upgrade Stufe"
 
 #: templates/ledger/planetary/partials/table.html:9
 msgid "Products"
-msgstr ""
+msgstr "Produkte"
 
 #: templates/ledger/planetary/partials/table.html:10
 msgid "Extractor"
-msgstr ""
+msgstr "Extraktor"
 
 #: templates/ledger/planetary/partials/table.html:11
 msgid "Status"
@@ -373,7 +365,7 @@ msgstr ""
 
 #: templates/ledger/planetary/partials/table.html:12
 msgid "Last Updated"
-msgstr ""
+msgstr "Letztes Update"
 
 #: templates/ledger/planetary/partials/table.html:13
 msgid "Actions"
@@ -400,7 +392,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Character Overview"
 msgid "Planetary Overview"
-msgstr "Character Übersicht"
+msgstr "Planetary Übersicht"
 
 #: templates/ledger/planetary/planetary_ledger.html:69
 #, fuzzy
@@ -410,7 +402,7 @@ msgstr "Bist du sicher das du den Alarm wechseln möchtest?"
 
 #: templates/ledger/planetary/planetary_ledger.html:70
 msgid "Switch Notification"
-msgstr ""
+msgstr "Schalte Notifikation um"
 
 #: templates/ledger/planetary/planetary_ledger.html:71
 msgid "Notification Activated"
@@ -419,9 +411,3 @@ msgstr "Notification Aktiviert"
 #: templates/ledger/planetary/planetary_ledger.html:72
 msgid "Notification Deactivated"
 msgstr "Notification Deaktiviert"
-
-#~ msgid "Add All Memberaudit Chars"
-#~ msgstr "Alle Member Audit Chars Hinzufügen"
-
-#~ msgid "Toggle Alarm"
-#~ msgstr "Umschalten Alarm"
