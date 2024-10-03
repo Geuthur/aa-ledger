@@ -241,7 +241,7 @@ class CharManagerQuerySetTest(TestCase):
         alts = [4, 5]
 
         # Test with filter
-        qs = self.manager.generate_billboard(character_ids, alts)
+        qs = self.manager.annotate_billboard(character_ids, alts)
         self.assertIsNotNone(qs)
         self.assertIn("total_bounty", qs.query.annotations)
         self.assertIn("total_miscellaneous", qs.query.annotations)
