@@ -1,43 +1,41 @@
 {% extends 'ledger/base.html' %}
-    {% load i18n %}
-    {% load humanize %}
+{% load i18n %}
+{% load humanize %}
 
 {% block vow_block %}
     <div class="card-body card-primary">
         <div class="mb-3">
-            <h4>Character Ledger</h4>
+            <h4>{% trans "Character Ledger" %}</h4>
             <hr class="custom-line">
-            <li class="list-group-item">Show Ratting, Encounter Surveillance System(ESS), Mining, Bounty, and other ISK related activities</li>
-            <li class="list-group-item">Character Ledger shows all ISK related activities of Main and Alts</li>
-            <li class="list-group-item">Display more Information with <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
+            <li class="list-group-item">{% trans "Show Ratting, Encounter Surveillance System(ESS), Mining, Bounty, and other ISK related activities" %}</li>
+            <li class="list-group-item">{% trans "Character Ledger shows all ISK related activities of Main and Alts" %}</li>
+            <li class="list-group-item">{% trans "Display more Information with" %} <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> {% trans "Button" %}</li>
         </div>
         <div class="mb-3">
-            <h4>Corporation/Alliance Ledger</h4>
+            <h4>{% trans "Corporation/Alliance Ledger" %}</h4>
             <hr class="custom-line">
-            <li class="list-group-item">If you have alts in other corporations the Corporation Ledger will show you all Taxes of each Corporation included
-            for single lookup you can use Corporation Overview</li>
-            <li class="list-group-item">Corporation Ledger shows all taxes of each main(alts included)
-            with mouseover on portrait you can see the Alts included in the Calculation</li>
-            <li class="list-group-item">Display more Information with <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
+            <li class="list-group-item">{% trans "If you have alts in other corporations the Corporation Ledger will show you all Taxes of each Corporation included for single lookup you can use Corporation Overview" %}</li>
+            <li class="list-group-item">{% trans "Corporation Ledger shows all taxes of each main(alts included) with mouseover on portrait you can see the Alts included in the Calculation" %}</li>
+            <li class="list-group-item">{% trans "Display more Information with" %} <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> {% trans "Button" %}</li>
         </div>
         <div class="mb-3">
-            <h4>Planetary Ledger</h4>
+            <h4>{% trans "Planetary Ledger" %}</h4>
             <hr class="custom-line">
-            <li class="list-group-item">Planetary Ledger shows all Planets from Main and Alts</li>
-            <li class="list-group-item">You can activate/deactivate Notifications for each Planet</li>
-            <li class="list-group-item">Display active Extractors and their remaining time on the <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
+            <li class="list-group-item">{% trans "Planetary Ledger shows all Planets from Main and Alts" %}</li>
+            <li class="list-group-item">{% trans "You can activate/deactivate Notifications for each Planet" %}</li>
+            <li class="list-group-item">{% trans "Display active Extractors and their remaining time on the" %} <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> {% trans "Button" %}</li>
         </div>
         <div class="mb-3">
-            <h4>FAQ</h4>
+            <h4>{% trans "FAQ" %}</h4>
             <hr class="custom-line">
-            <li class="list-group-item">Q: I don't see my Character on the Char Ledger.</li>
-            <li class="list-group-item">A: Maybe your Character isn't in the System, Please add it!</li>
+            <li class="list-group-item">{% trans "Q: I don't see my Character on the Char Ledger." %}</li>
+            <li class="list-group-item">{% trans "A: Maybe your Character isn't in the System, Please add it!" %}</li>
 
-            <li class="list-group-item">Q: Why is the ESS Stolen Amount not correctly?</li>
-            <li class="list-group-item">A: The ESS Stolen information are updated from 'Corporation Ledger' so it can be wrong, cause it has a 3 hours update period</li>
+            <li class="list-group-item">{% trans "Q: Why is the ESS Stolen Amount not correctly?" %}</li>
+            <li class="list-group-item">{% trans "A: The ESS Stolen information are updated from 'Corporation Ledger' so it can be wrong, cause it has a 3 hours update period" %}</li>
 
-            <li class="list-group-item">Q: I don't see any ESS Payout</li>
-            <li class="list-group-item">A: Your Corporation is not in the Ledger System</li>
+            <li class="list-group-item">{% trans "Q: I don't see any ESS Payout" %}</li>
+            <li class="list-group-item">{% trans "A: Your Corporation is not in the Ledger System" %}</li>
         </div>
     </div>
 {% endblock %}

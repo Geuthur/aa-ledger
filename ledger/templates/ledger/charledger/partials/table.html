@@ -3,12 +3,12 @@
 {% load static %}
 <table class="table table-striped table-hover w-100 d-none" id="ratting-{{ mode }}">
     <thead>
-        <th class="col-main-character w-auto">Main Character</th>
-        <th class="col-total-amount w-auto">Ratting Amount</th>
-        <th class="col-total-ess w-auto">ESS Payout</th>
-        <th class="col-total-mining w-auto">Mining Amount</th>
-        <th class="col-total-others w-auto">Misc. Amount</th>
-        <th class="col-total-singlecosts w-auto">Costs</th>
+        <th class="col-main-character w-auto">{% trans "Main Character" %}</th>
+        <th class="col-total-amount w-auto">{% trans "Ratting Amount" %}</th>
+        <th class="col-total-ess w-auto">{% trans "ESS Payout" %}</th>
+        <th class="col-total-mining w-auto">{% trans "Mining Amount" %}</th>
+        <th class="col-total-others w-auto">{% trans "Misc. Amount" %}</th>
+        <th class="col-total-singlecosts w-auto">{% trans "Costs" %}</th>
         <th class="col-total-action w-auto"></th>
     </thead>
 
@@ -17,7 +17,7 @@
 
     <tfoot id="foot-{{ mode }}" style="display: none;">
         <tr>
-            <th><strong>{% translate "Summary" %}</strong></th>
+            <th><strong>{% trans "Summary" %}</strong></th>
             <th class="col-total-amount"></th>
             <th class="col-total-ess"></th>
             <th class="col-total-mining"></th>
@@ -26,7 +26,7 @@
             <th></th>
         </tr>
         <tr>
-            <th><strong>{% translate "Total" %}</strong></th>
+            <th><strong>{% trans "Total" %}</strong></th>
             <th></th>
             <th></th>
             <th></th>

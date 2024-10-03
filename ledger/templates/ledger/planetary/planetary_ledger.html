@@ -19,7 +19,7 @@
 <div class="card-body bg-secondary tab-content rounded-bottom">
     <div class="d-flex justify-content-between align-items-center">
         <span>
-            <i class="fa-solid fa-bullhorn"></i> Notification <span class="text-success">ON</span>/<span class="text-danger">OFF</span>
+            <i class="fa-solid fa-bullhorn"></i> {% trans "Notification" %} <span class="text-success">{% trans "ON" %}</span>/<span class="text-danger">{% trans "OFF" %}</span>
         </span>
         <span id="next-update" class="text-end"></span>
     </div>
@@ -35,14 +35,14 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="extractorInfoModalLabel">Extractor Information</h5>
+                <h5 class="modal-title" id="extractorInfoModalLabel">{% trans "Extractor Information" %}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <!-- Extractor details will be populated here -->
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
             </div>
         </div>
     </div>

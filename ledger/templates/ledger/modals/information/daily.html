@@ -3,6 +3,13 @@
 {% load humanize %}
 {% load evelinks %}
 {% load ledger %}
+
+{% if mode == "TAX" %}
+    {% trans "TAX" as mode_trans %}
+{% else %}
+    {% trans "Ratting" as mode_trans %}
+{% endif %}
+
 <!--##############################DAILY#######################-->
 <div class="tab-pane panel panel-default" id="tab-daily">
     <div class="card-body modal-tab">
@@ -10,39 +17,39 @@
 
         {% if character.bounty %}
             <div class="row description-row">
-                <div class="col-sm-6">Avg. {{ mode }} per Day:</div>
+                <div class="col-sm-6">{% trans "Avg." %} {{ mode_trans }} {% trans "per Day" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-success">{{ character.bounty.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
             <div class="row description-row">
-                <div class="col-sm-6">Avg. Day Avg Tick - {{ mode }}:</div>
+                <div class="col-sm-6">{% trans "Avg. Day Avg Tick" %} - {{ mode_trans }}:</div>
                 <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty.average_day_tick|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.ess %}
             <div class="row description-row">
-                <div class="col-sm-6">Avg. ESS per Day:</div>
+                <div class="col-sm-6">{% trans "Avg. ESS per Day" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-success">{{ character.ess.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.stolen.average_day %}
             <div class="row description-row">
-                <div class="col-sm-6">Avg. Stolen per Day:</div>
+                <div class="col-sm-6">{% trans "Avg. Stolen per Day" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-warning">{{ character.stolen.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.mission %}
             <div class="row description-row">
-                <div class="col-sm-6">Avg. Mission Rewards per Day:</div>
+                <div class="col-sm-6">{% trans "Avg. Mission Rewards per Day" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-success">{{ character.mission.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.mining %}
             <div class="row description-row">
-                <div class="col-sm-6">Avg. Mining per Day:</div>
+                <div class="col-sm-6">{% trans "Avg. Mining per Day" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-success">{{ character.mining.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
@@ -52,28 +59,28 @@
         {% if character.transaction %}
             <hr>
             <div class="row description-row">
-                <div class="col-sm-6">Avg. Trading per Day:</div>
+                <div class="col-sm-6">{% trans "Avg. Trading per Day" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-success">{{ character.transaction.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.contract %}
                 <div class="row description-row">
-                    <div class="col-sm-6">Avg. Contracts per Day:</div>
+                    <div class="col-sm-6">{% trans "Avg. Contracts per Day" %}:</div>
                     <div class='col-sm-4 text-end'><span class="text-success">{{ character.contract.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 
         {% if character.donation %}
             <div class="row description-row">
-                <div class="col-sm-6">Avg. Donations per Day:</div>
+                <div class="col-sm-6">{% trans "Avg. Donations per Day" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-success">{{ character.donation.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.insurance %}
             <div class="row description-row">
-                <div class="col-sm-6">Avg. Insurance per Day:</div>
+                <div class="col-sm-6">{% trans "Avg. Insurance per Day" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-success">{{ character.insurance.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
@@ -85,56 +92,56 @@
         {% endif %}
         {% if character.contract_cost %}
                 <div class="row description-row">
-                    <div class="col-sm-6">Avg. Contract Cost per Day:</div>
+                    <div class="col-sm-6">{% trans "Avg. Contract Cost per Day" %}:</div>
                     <div class='col-sm-4 text-end'><span class="text-danger">{{ character.contract_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 
         {% if character.production_cost %}
                 <div class="row description-row">
-                    <div class="col-sm-6">Avg. Production Cost per Day:</div>
+                    <div class="col-sm-6">{% trans "Avg. Production Cost per Day" %}:</div>
                     <div class='col-sm-4 text-end'><span class="text-danger">{{ character.production_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 
         {% if character.market_cost %}
             <div class="row description-row">
-                <div class="col-sm-6">Avg. Trading Cost per Day:</div>
+                <div class="col-sm-6">{% trans "Avg. Trading Cost per Day" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-danger">{{ character.market_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.traveling_cost %}
                 <div class="row description-row">
-                    <div class="col-sm-6">Avg. Traveling Cost per Day:</div>
+                    <div class="col-sm-6">{% trans "Avg. Traveling Cost per Day" %}:</div>
                     <div class='col-sm-4 text-end'><span class="text-danger">{{ character.traveling_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 
         {% if character.asset_cost %}
                 <div class="row description-row">
-                    <div class="col-sm-6">Avg. Asset Safety Cost per Day:</div>
+                    <div class="col-sm-6">{% trans "Avg. Asset Safety Cost per Day" %}:</div>
                     <div class='col-sm-4 text-end'><span class="text-danger">{{ character.asset_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 
         {% if character.skill_cost %}
                 <div class="row description-row">
-                    <div class="col-sm-6">Avg. Skillbook Cost per Day:</div>
+                    <div class="col-sm-6">{% trans "Avg. Skillbook Cost per Day" %}:</div>
                     <div class='col-sm-4 text-end'><span class="text-danger">{{ character.skill_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 
         {% if character.insurance_cost %}
                 <div class="row description-row">
-                    <div class="col-sm-6">Avg. Insurance Cost per Day:</div>
+                    <div class="col-sm-6">{% trans "Avg. Insurance Cost per Day" %}:</div>
                     <div class='col-sm-4 text-end'><span class="text-danger">{{ character.insurance_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
 
         {% if character.planetary_cost %}
                 <div class="row description-row">
-                    <div class="col-sm-6">Avg. Planetary Cost per Day:</div>
+                    <div class="col-sm-6">{% trans "Avg. Planetary Cost per Day" %}:</div>
                     <div class='col-sm-4 text-end'><span class="text-danger">{{ character.planetary_cost.average_day|floatformat:0|intcomma }}</span> ISK</div>
                 </div>
         {% endif %}
@@ -142,7 +149,7 @@
         {% if character.date %}
             <hr>
             <div class="row description-row">
-                <div class="col-sm-6">Avg. Summary Day:</div>
+                <div class="col-sm-6">{% trans "Avg. Summary Day" %}:</div>
                 <div class='col-sm-4 text-end'>
                     <span class="{% if character.summary.total_amount_day < 0 %}text-danger{% else %}text-success{% endif %}">
 

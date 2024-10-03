@@ -1,3 +1,5 @@
+{% load i18n %}
+
 {% for event, formatted_description in events %}
     <div class="card-body col-md-6">
         <div class="card bg-light mb-3">
@@ -5,10 +7,10 @@
                 <h2 class="card-title">{{ event.title }}</h2>
             </div>
             <div class="card-body bg-secondary">
-                <p class="card-text"><strong>Datum Start:</strong> {{ event.date_start }}</p>
-                <p class="card-text"><strong>Datum End:</strong> {{ event.date_end }}</p>
-                <p class="card-text"><strong>Ort:</strong> {{ event.location }}</p>
-                <p class="card-text"><strong>Beschreibung:</strong> <br><br> {{ formatted_description|safe }}</p>
+                <p class="card-text"><strong>{% trans "Datum Start:" %}</strong> {{ event.date_start }}</p>
+                <p class="card-text"><strong>{% trans "Datum End:" %}</strong> {{ event.date_end }}</p>
+                <p class="card-text"><strong>{% trans "Location:" %}</strong> {{ event.location }}</p>
+                <p class="card-text"><strong>{% trans "Description:" %}</strong> <br><br> {{ formatted_description|safe }}</p>
             </div>
         </div>
     </div>
@@ -16,9 +18,9 @@
 
 <div class="pagination mb-3 px-2">
     {% if events.has_previous %}
-        <a href="#" onclick="loadEvents('future', {{ events.previous_page_number }})" class="btn btn-primary me-2">Previous</a>
+        <a href="#" onclick="loadEvents('future', {{ events.previous_page_number }})" class="btn btn-primary me-2">{% trans "Previous" %}</a>
     {% endif %}
     {% if events.has_next %}
-        <a href="#" onclick="loadEvents('future', {{ events.next_page_number }})" class="btn btn-primary">Next</a>
+        <a href="#" onclick="loadEvents('future', {{ events.next_page_number }})" class="btn btn-primary">{% trans "Next" %}</a>
     {% endif %}
 </div>

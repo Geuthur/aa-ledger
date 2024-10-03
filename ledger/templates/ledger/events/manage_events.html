@@ -2,26 +2,26 @@
 {% load i18n %}
 {% load humanize %}
 
-{% block page_title %}Manage Events{% endblock %}
+{% block page_title %}{% trans "Manage Events" %}{% endblock %}
 {% block vow_menu %}{% include 'ledger/events/menu.html' %}{% endblock %}
 
 {% block vow_block %}
     <div class="card-body card-primary">
         <div class="card-header bg-primary">
-             <h3><div class="card-title">{% translate "Manage Events" %}</div></h3>
+             <h3><div class="card-title">{% trans "Manage Events" %}</div></h3>
         </div>
         <div class="card-body bg-secondary">
             <table id="event-table">
                 <thead>
                     <tr>
-                        <th style="width: 2%;">ID</th>
-                        <th style="width: 10%;">Title</th>
-                        <th style="width: 10%;">Start Date</th>
-                        <th style="width: 10%;">End Date</th>
-                        <th style="width: 10%;">Location</th>
-                        <th style="width: 50%;">Description</th>
-                        <th style="width: 5%;">Char Ledger Exclude</th>
-                        <th style="width: 10%;">Actions</th>
+                        <th style="width: 2%;">{% trans "ID" %}</th>
+                        <th style="width: 10%;">{% trans "Title" %}</th>
+                        <th style="width: 10%;">{% trans "Start Date" %}</th>
+                        <th style="width: 10%;">{% trans "End Date" %}</th>
+                        <th style="width: 10%;">{% trans "Location" %}</th>
+                        <th style="width: 50%;">{% trans "Description" %}</th>
+                        <th style="width: 5%;">{% trans "Char Ledger Exclude" %}</th>
+                        <th style="width: 10%;">{% trans "Actions" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -35,8 +35,8 @@
                         <td>{{ event.description }}</td>
                         <td>{{ event.char_ledger }}</td>
                         <td class="d-flex">
-                            <a href="{% url 'ledger:edit_event' event.id %}" class="btn btn-primary">Edit</a>
-                            <a href="{% url 'ledger:delete_event' event.id %}" class="btn btn-danger">Delete</a>
+                            <a href="{% url 'ledger:edit_event' event.id %}" class="btn btn-primary">{% trans "Edit" %}</a>
+                            <a href="{% url 'ledger:delete_event' event.id %}" class="btn btn-danger">{% trans "Delete" %}</a>
                         </td>
                     </tr>
                     {% endfor %}

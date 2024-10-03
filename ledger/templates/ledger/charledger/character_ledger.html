@@ -9,13 +9,13 @@
 
 {% block header_nav_collapse_left %}
 
-{% include 'ledger/partials/menu/char/navigation.html' with memberaudit=memberaudit %}
+{% include 'ledger/partials/menu/char/navigation.html' %}
 
 {% endblock header_nav_collapse_left %}
 
 {% block header_nav_collapse_right %}
 
-{% include 'ledger/partials/menu/char/administration.html' with memberaudit=memberaudit %}
+{% include 'ledger/partials/menu/char/administration.html' %}
 
 {% endblock header_nav_collapse_right %}
 
@@ -24,7 +24,7 @@
     <h3 class="me-3">{% translate "Character Ledger" %}</h3>
     <div class="dropdown px-2">
         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Year
+            {% trans "Year" %}
         </button>
         <ul class="dropdown-menu" id="yearDropdown">
             {% for year in years %}
@@ -34,7 +34,7 @@
     </div>
     <div class="dropdown px-2">
         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Month
+            {% trans "Month" %}
         </button>
         <ul class="dropdown-menu" id="monthDropdown">
             <li><a class="dropdown-item" data-bs-month-id="1" href="#">{% trans "January" %}</a></li>
@@ -58,12 +58,12 @@
 <ul class="nav nav-tabs" id="ledger-ratting" role="tablist">
     <li class="nav-item">
         <a id="currentMonthLink" class="nav-link bg-secondary rounded-0 active" href="#tab-current_month" data-bs-toggle="tab" role="tab" data-bs-target="#tab-current_month">
-            Month - {% now "F" %}
+            {% trans "Month" %} - {% now "F" %}
         </a>
     </li>
     <li class="nav-item">
         <a id="currentYearLink" class="nav-link rounded-0 bg-secondary" href="#tab-all_month" data-bs-toggle="tab" role="tab" data-bs-target="#tab-all_month">
-            Year - {% now "Y" %}
+            {% trans "Year" %} - {% now "Y" %}
         </a>
     </li>
 </ul>
