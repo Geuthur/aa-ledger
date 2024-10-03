@@ -2,7 +2,7 @@ from collections import defaultdict
 from decimal import Decimal
 
 from django.db import models
-from django.db.models import DecimalField, Q, Sum, Value
+from django.db.models import Case, DecimalField, Q, Sum, Value, When
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -49,6 +49,45 @@ CONTRACT_TRADE = ["contract_price_payment_corp", "contract_reward", "contract_pr
 DONATION_TRADE = ["player_donation"]
 INSURANCE_TRADE = ["insurance"]
 
+# PVE
+BOUNTY_FILTER = Q(ref_type__in=BOUNTY_PRIZES)
+MISSION_FILTER = Q(ref_type__in=MISSION_REWARD, amount__gt=0)
+ESS_FILTER = Q(ref_type__in=ESS_TRANSFER)
+# COSTS
+CONTRACT_COST_FILTER = Q(ref_type__in=CONTRACT_COST, amount__lt=0)
+MARKET_COST_FILTER = Q(ref_type__in=MARKET_COST, amount__lt=0)
+ASSETS_COST_FILTER = Q(ref_type__in=ASSETS_COST, amount__lt=0)
+TRAVELING_COST_FILTER = Q(ref_type__in=TRAVELING_COST, amount__lt=0)
+PRODUCTION_COST_FILTER = Q(ref_type__in=PRODUCTION_COST, amount__lt=0)
+SKILL_COST_FILTER = Q(ref_type__in=SKILL_COST, amount__lt=0)
+INSURANCE_COST_FILTER = Q(ref_type__in=INSURANCE_COST, amount__lt=0)
+PLANETARY_COST_FILTER = Q(ref_type__in=PLANETARY_COST, amount__lt=0)
+LP_COST_FILTER = Q(ref_type__in=LP_COST, amount__lt=0)
+# TRADES
+MARKET_TRADE_FILTER = Q(ref_type__in=MARKET_TRADE, amount__gt=0)
+CONTRACT_TRADE_FILTER = Q(ref_type__in=CONTRACT_TRADE, amount__gt=0)
+DONATION_TRADE_FILTER = Q(ref_type__in=DONATION_TRADE, amount__gt=0)
+INSURANCE_TRADE_FILTER = Q(ref_type__in=INSURANCE_TRADE, amount__gt=0)
+
+PVE_FILTER = BOUNTY_FILTER | ESS_FILTER
+MISC_FILTER = (
+    MARKET_TRADE_FILTER
+    | CONTRACT_TRADE_FILTER
+    | INSURANCE_TRADE_FILTER
+    | MISSION_FILTER
+)
+COST_FILTER = (
+    CONTRACT_COST_FILTER
+    | MARKET_COST_FILTER
+    | ASSETS_COST_FILTER
+    | TRAVELING_COST_FILTER
+    | PRODUCTION_COST_FILTER
+    | SKILL_COST_FILTER
+    | INSURANCE_COST_FILTER
+    | PLANETARY_COST_FILTER
+    | LP_COST_FILTER
+)
+
 
 class CharWalletQuerySet(models.QuerySet):
     # PvE - Income
@@ -88,9 +127,8 @@ class CharWalletQuerySet(models.QuerySet):
                 Sum(
                     "amount",
                     Q(
-                        ref_type__in=MISSION_REWARD,
+                        MISSION_FILTER,
                         second_party_id__in=character_ids,
-                        amount__gt=0,
                     ),
                 ),
                 Value(0),
@@ -122,8 +160,7 @@ class CharWalletQuerySet(models.QuerySet):
                     Q(
                         Q(first_party_id__in=character_ids)
                         | Q(second_party_id__in=character_ids),
-                        ref_type__in=CONTRACT_COST,
-                        amount__lt=0,
+                        CONTRACT_COST_FILTER,
                     ),
                 ),
                 Value(0),
@@ -139,8 +176,7 @@ class CharWalletQuerySet(models.QuerySet):
                     Q(
                         Q(first_party_id__in=character_ids)
                         | Q(second_party_id__in=character_ids),
-                        ref_type__in=MARKET_COST,
-                        amount__lt=0,
+                        MARKET_COST_FILTER,
                     ),
                 ),
                 Value(0),
@@ -156,8 +192,7 @@ class CharWalletQuerySet(models.QuerySet):
                     Q(
                         Q(first_party_id__in=character_ids)
                         | Q(second_party_id__in=character_ids),
-                        ref_type__in=ASSETS_COST,
-                        amount__lt=0,
+                        ASSETS_COST_FILTER,
                     ),
                 ),
                 Value(0),
@@ -173,8 +208,7 @@ class CharWalletQuerySet(models.QuerySet):
                     Q(
                         Q(first_party_id__in=character_ids)
                         | Q(second_party_id__in=character_ids),
-                        ref_type__in=TRAVELING_COST,
-                        amount__lt=0,
+                        TRAVELING_COST_FILTER,
                     ),
                 ),
                 Value(0),
@@ -190,8 +224,7 @@ class CharWalletQuerySet(models.QuerySet):
                     Q(
                         Q(first_party_id__in=character_ids)
                         | Q(second_party_id__in=character_ids),
-                        ref_type__in=PRODUCTION_COST,
-                        amount__lt=0,
+                        PRODUCTION_COST_FILTER,
                     ),
                 ),
                 Value(0),
@@ -207,8 +240,7 @@ class CharWalletQuerySet(models.QuerySet):
                     Q(
                         Q(first_party_id__in=character_ids)
                         | Q(second_party_id__in=character_ids),
-                        ref_type__in=SKILL_COST,
-                        amount__lt=0,
+                        SKILL_COST_FILTER,
                     ),
                 ),
                 Value(0),
@@ -224,8 +256,7 @@ class CharWalletQuerySet(models.QuerySet):
                     Q(
                         Q(first_party_id__in=character_ids)
                         | Q(second_party_id__in=character_ids),
-                        ref_type__in=INSURANCE_COST,
-                        amount__lt=0,
+                        INSURANCE_COST_FILTER,
                     ),
                 ),
                 Value(0),
@@ -241,8 +272,7 @@ class CharWalletQuerySet(models.QuerySet):
                     Q(
                         Q(first_party_id__in=character_ids)
                         | Q(second_party_id__in=character_ids),
-                        ref_type__in=PLANETARY_COST,
-                        amount__lt=0,
+                        PLANETARY_COST_FILTER,
                     ),
                 ),
                 Value(0),
@@ -258,8 +288,7 @@ class CharWalletQuerySet(models.QuerySet):
                     Q(
                         Q(first_party_id__in=character_ids)
                         | Q(second_party_id__in=character_ids),
-                        ref_type__in=LP_COST,
-                        amount__lt=0,
+                        LP_COST_FILTER,
                     ),
                 ),
                 Value(0),
@@ -276,8 +305,7 @@ class CharWalletQuerySet(models.QuerySet):
                     Q(
                         Q(first_party_id__in=character_ids)
                         | Q(second_party_id__in=character_ids),
-                        ref_type__in=MARKET_TRADE,
-                        amount__gt=0,
+                        MARKET_TRADE_FILTER,
                     ),
                 ),
                 Value(0),
@@ -293,8 +321,7 @@ class CharWalletQuerySet(models.QuerySet):
                     Q(
                         Q(first_party_id__in=character_ids)
                         | Q(second_party_id__in=character_ids),
-                        ref_type__in=CONTRACT_TRADE,
-                        amount__gt=0,
+                        CONTRACT_TRADE_FILTER,
                     ),
                 ),
                 Value(0),
@@ -317,8 +344,7 @@ class CharWalletQuerySet(models.QuerySet):
                     Q(
                         Q(first_party_id__in=character_ids)
                         | Q(second_party_id__in=character_ids),
-                        ref_type__in=DONATION_TRADE,
-                        amount__gt=0,
+                        DONATION_TRADE_FILTER,
                     ),
                 ),
                 Value(0),
@@ -334,8 +360,7 @@ class CharWalletQuerySet(models.QuerySet):
                     Q(
                         Q(first_party_id__in=character_ids)
                         | Q(second_party_id__in=character_ids),
-                        ref_type__in=INSURANCE_TRADE,
-                        amount__gt=0,
+                        INSURANCE_TRADE_FILTER,
                     ),
                 ),
                 Value(0),
@@ -361,47 +386,24 @@ class CharWalletQuerySet(models.QuerySet):
         ledger_data = qs.aggregate(
             total_bounty=Sum("amount", filter=Q(ref_type__in=BOUNTY_PRIZES)),
             total_mission=Sum("amount", filter=Q(ref_type__in=MISSION_REWARD)),
-            total_contract_cost=Sum(
-                "amount", filter=Q(ref_type__in=CONTRACT_COST, amount__lt=0)
-            ),
-            total_market_cost=Sum(
-                "amount", filter=Q(ref_type__in=MARKET_COST, amount__lt=0)
-            ),
-            total_assets_cost=Sum(
-                "amount", filter=Q(ref_type__in=ASSETS_COST, amount__lt=0)
-            ),
-            total_traveling_cost=Sum(
-                "amount", filter=Q(ref_type__in=TRAVELING_COST, amount__lt=0)
-            ),
-            total_production_cost=Sum(
-                "amount", filter=Q(ref_type__in=PRODUCTION_COST, amount__lt=0)
-            ),
-            total_skill_cost=Sum(
-                "amount", filter=Q(ref_type__in=SKILL_COST, amount__lt=0)
-            ),
-            total_insurance_cost=Sum(
-                "amount", filter=Q(ref_type__in=INSURANCE_COST, amount__lt=0)
-            ),
-            total_planetary_cost=Sum(
-                "amount", filter=Q(ref_type__in=PLANETARY_COST, amount__lt=0)
-            ),
-            total_lp=Sum("amount", filter=Q(ref_type__in=LP_COST, amount__lt=0)),
-            total_market_trade=Sum(
-                "amount", filter=Q(ref_type__in=MARKET_TRADE, amount__gt=0)
-            ),
-            total_contract_trade=Sum(
-                "amount", filter=Q(ref_type__in=CONTRACT_TRADE, amount__gt=0)
-            ),
-            total_insurance_trade=Sum(
-                "amount", filter=Q(ref_type__in=INSURANCE_TRADE, amount__gt=0)
-            ),
+            total_contract_cost=Sum("amount", filter=CONTRACT_COST_FILTER),
+            total_market_cost=Sum("amount", filter=MARKET_COST_FILTER),
+            total_assets_cost=Sum("amount", filter=ASSETS_COST_FILTER),
+            total_traveling_cost=Sum("amount", filter=TRAVELING_COST_FILTER),
+            total_production_cost=Sum("amount", filter=PRODUCTION_COST_FILTER),
+            total_skill_cost=Sum("amount", filter=SKILL_COST_FILTER),
+            total_insurance_cost=Sum("amount", filter=INSURANCE_COST_FILTER),
+            total_planetary_cost=Sum("amount", filter=PLANETARY_COST_FILTER),
+            total_lp=Sum("amount", filter=LP_COST_FILTER),
+            total_market_trade=Sum("amount", filter=MARKET_TRADE_FILTER),
+            total_contract_trade=Sum("amount", filter=CONTRACT_TRADE_FILTER),
+            total_insurance_trade=Sum("amount", filter=INSURANCE_TRADE_FILTER),
             total_donation_trade=Sum(
                 "amount",
                 filter=(
-                    Q(ref_type__in=DONATION_TRADE, amount__gt=0)
-                    & ~Q(first_party_id__in=exclude)
+                    DONATION_TRADE_FILTER & ~Q(first_party_id__in=exclude)
                     if exclude is not None
-                    else Q(ref_type__in=DONATION_TRADE, amount__gt=0)
+                    else DONATION_TRADE_FILTER
                 ),
             ),
         )
@@ -460,170 +462,128 @@ class CharWalletQuerySet(models.QuerySet):
 
         # Define the types and their respective filters
         types_filters = {
-            "bounty": Q(ref_type__in=BOUNTY_PRIZES),
-            "market_cost": Q(ref_type__in=MARKET_COST, amount__lt=0),
-            "production_cost": Q(ref_type__in=PRODUCTION_COST, amount__lt=0),
-            "contract_cost": Q(ref_type__in=CONTRACT_COST, amount__lt=0),
-            "traveling_cost": Q(ref_type__in=TRAVELING_COST, amount__lt=0),
-            "asset_cost": Q(ref_type__in=ASSETS_COST, amount__lt=0),
-            "skill_cost": Q(ref_type__in=SKILL_COST, amount__lt=0),
-            "insurance_cost": Q(ref_type__in=INSURANCE_COST, amount__lt=0),
-            "planetary_cost": Q(ref_type__in=PLANETARY_COST, amount__lt=0),
-            "loyality_point_cost": Q(ref_type__in=LP_COST, amount__lt=0),
-            "transaction": Q(ref_type__in=MARKET_TRADE, amount__gt=0),
-            "contract": Q(ref_type__in=CONTRACT_TRADE, amount__gt=0),
+            "bounty": BOUNTY_FILTER,
+            "market_cost": MARKET_COST_FILTER,
+            "production_cost": PRODUCTION_COST_FILTER,
+            "contract_cost": CONTRACT_COST_FILTER,
+            "traveling_cost": TRAVELING_COST_FILTER,
+            "asset_cost": ASSETS_COST_FILTER,
+            "skill_cost": SKILL_COST_FILTER,
+            "insurance_cost": INSURANCE_COST_FILTER,
+            "planetary_cost": PLANETARY_COST_FILTER,
+            "loyality_point_cost": LP_COST_FILTER,
+            "transaction": MARKET_TRADE_FILTER,
+            "contract": CONTRACT_TRADE_FILTER,
             "donation": (
-                Q(ref_type__in=DONATION_TRADE, amount__gt=0)
-                & ~Q(first_party_id__in=exclude)
+                DONATION_TRADE_FILTER & ~Q(first_party_id__in=exclude)
                 if exclude is not None
-                else Q(ref_type__in=DONATION_TRADE, amount__gt=0)
+                else DONATION_TRADE_FILTER
             ),
-            "insurance": Q(ref_type__in=INSURANCE_TRADE, amount__gt=0),
-            "mission": Q(ref_type__in=MISSION_REWARD),
+            "insurance": INSURANCE_TRADE_FILTER,
+            "mission": MISSION_FILTER,
         }
 
-        # Calculate the amounts for each type
+        # Annotate the queryset with the sums for each type
+        annotations = {}
         for type_name, type_filter in types_filters.items():
-            total_amount = qs.filter(type_filter).aggregate(
-                total_amount=Coalesce(
-                    Sum("amount"), Value(0), output_field=DecimalField()
-                )
-            )["total_amount"]
+            annotations[f"{type_name}_total_amount"] = Coalesce(
+                Sum(Case(When(type_filter, then="amount"))),
+                Value(0),
+                output_field=DecimalField(),
+            )
+            annotations[f"{type_name}_total_amount_day"] = Coalesce(
+                Sum(
+                    Case(
+                        When(
+                            type_filter
+                            & Q(
+                                date__year=filter_date.year,
+                                date__month=filter_date.month,
+                                date__day=filter_date.day,
+                            ),
+                            then="amount",
+                        )
+                    )
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            )
+            annotations[f"{type_name}_total_amount_hour"] = Coalesce(
+                Sum(
+                    Case(
+                        When(
+                            type_filter
+                            & Q(
+                                date__year=filter_date.year,
+                                date__month=filter_date.month,
+                                date__day=filter_date.day,
+                                date__hour=filter_date.hour,
+                            ),
+                            then="amount",
+                        )
+                    )
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            )
 
-            total_amount_day = qs.filter(
-                type_filter,
-                date__year=filter_date.year,
-                date__month=filter_date.month,
-                date__day=filter_date.day,
-            ).aggregate(
-                total_amount_day=Coalesce(
-                    Sum("amount"), Value(0), output_field=DecimalField()
-                )
-            )[
-                "total_amount_day"
+        qs = qs.aggregate(**annotations)
+
+        # Assign the results to the amounts dictionary
+        for type_name in types_filters:
+            amounts[type_name]["total_amount"] = qs[f"{type_name}_total_amount"]
+            amounts[type_name]["total_amount_day"] = qs[f"{type_name}_total_amount_day"]
+            amounts[type_name]["total_amount_hour"] = qs[
+                f"{type_name}_total_amount_hour"
             ]
-
-            total_amount_hour = qs.filter(
-                type_filter,
-                date__year=filter_date.year,
-                date__month=filter_date.month,
-                date__day=filter_date.day,
-                date__hour=filter_date.hour,
-            ).aggregate(
-                total_amount_hour=Coalesce(
-                    Sum("amount"), Value(0), output_field=DecimalField()
-                )
-            )[
-                "total_amount_hour"
-            ]
-
-            amounts[type_name]["total_amount"] = total_amount
-            amounts[type_name]["total_amount_day"] = total_amount_day
-            amounts[type_name]["total_amount_hour"] = total_amount_hour
 
         return amounts
 
-    # TODO: Implement this
-    def generate_billboard(
-        self, character_ids: list, filter_date=None, exclude=None
-    ) -> models.QuerySet:
-        """Generate the Billboard for the given characters."""
-        # Combine all filters
-        qs = self.filter(
-            Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
-        )
-
-        if filter_date:
-            qs = qs.filter(filter_date)
-
-        # Annotate all fields except ESS, Mining, and Donation Trade
-        qs = qs.annotate(
+    def annotate_billboard(self, chars: list, alts: list) -> models.QuerySet:
+        qs = self.filter(Q(first_party_id__in=chars) | Q(second_party_id__in=chars))
+        return qs.annotate(
             total_bounty=Coalesce(
-                Sum("amount", filter=Q(ref_type__in=BOUNTY_PRIZES)),
+                Sum(
+                    "amount",
+                    filter=Q(ref_type__in=BOUNTY_PRIZES, second_party_id__in=chars),
+                ),
                 Value(0),
                 output_field=DecimalField(),
             ),
-            total_mission=Coalesce(
-                Sum("amount", filter=Q(ref_type__in=MISSION_REWARD)),
+            total_miscellaneous=Coalesce(
+                Sum(
+                    "amount",
+                    filter=MISC_FILTER
+                    | (DONATION_TRADE_FILTER & ~Q(first_party_id__in=alts)),
+                ),
                 Value(0),
                 output_field=DecimalField(),
             ),
-            total_contract_cost=Coalesce(
-                Sum("amount", filter=Q(ref_type__in=CONTRACT_COST, amount__lt=0)),
+            total_cost=Coalesce(
+                Sum(
+                    "amount",
+                    filter=COST_FILTER,
+                ),
                 Value(0),
                 output_field=DecimalField(),
             ),
             total_market_cost=Coalesce(
-                Sum("amount", filter=Q(ref_type__in=MARKET_COST, amount__lt=0)),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_assets_cost=Coalesce(
-                Sum("amount", filter=Q(ref_type__in=ASSETS_COST, amount__lt=0)),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_traveling_cost=Coalesce(
-                Sum("amount", filter=Q(ref_type__in=TRAVELING_COST, amount__lt=0)),
+                Sum(
+                    "amount",
+                    filter=MARKET_COST_FILTER,
+                ),
                 Value(0),
                 output_field=DecimalField(),
             ),
             total_production_cost=Coalesce(
-                Sum("amount", filter=Q(ref_type__in=PRODUCTION_COST, amount__lt=0)),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_skill_cost=Coalesce(
-                Sum("amount", filter=Q(ref_type__in=SKILL_COST, amount__lt=0)),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_insurance_cost=Coalesce(
-                Sum("amount", filter=Q(ref_type__in=INSURANCE_COST, amount__lt=0)),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_planetary_cost=Coalesce(
-                Sum("amount", filter=Q(ref_type__in=PLANETARY_COST, amount__lt=0)),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_lp=Coalesce(
-                Sum("amount", filter=Q(ref_type__in=LP_COST, amount__lt=0)),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_market_trade=Coalesce(
-                Sum("amount", filter=Q(ref_type__in=MARKET_TRADE, amount__gt=0)),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_contract_trade=Coalesce(
-                Sum("amount", filter=Q(ref_type__in=CONTRACT_TRADE, amount__gt=0)),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_insurance_trade=Coalesce(
-                Sum("amount", filter=Q(ref_type__in=INSURANCE_TRADE, amount__gt=0)),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_donation_trade=Coalesce(
                 Sum(
                     "amount",
-                    filter=(
-                        Q(ref_type__in=DONATION_TRADE, amount__gt=0)
-                        & ~Q(first_party_id__in=exclude)
-                        if exclude is not None
-                        else Q(ref_type__in=DONATION_TRADE, amount__gt=0)
-                    ),
+                    filter=PRODUCTION_COST_FILTER,
                 ),
                 Value(0),
                 output_field=DecimalField(),
             ),
         )
-
-        return qs
 
 
 class CharWalletManagerBase(models.Manager):
