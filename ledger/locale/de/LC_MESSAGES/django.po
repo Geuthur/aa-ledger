@@ -604,7 +604,7 @@ msgstr "Durchschn. ESS pro Tag"
 
 #: templates/ledger/modals/information/daily.html:38
 msgid "Avg. Stolen per Day"
-msgstr "Durchschn. Gestohlen pro Tag"
+msgstr "Durchschn. Gestohlene ESS pro Tag"
 
 #: templates/ledger/modals/information/daily.html:45
 msgid "Avg. Mission Rewards per Day"
@@ -780,7 +780,7 @@ msgstr "Durchschn. ESS pro Stunde"
 
 #: templates/ledger/modals/information/hourly.html:39
 msgid "Avg. Stolen per Hour"
-msgstr "Durchschn. Gestohlen pro Stunde"
+msgstr "Durchschn. Gestohlene ESS pro Stunde"
 
 #: templates/ledger/modals/information/hourly.html:46
 msgid "Avg. Mission Rewards per Hour"
