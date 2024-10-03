@@ -16,7 +16,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: models/events.py:22
 msgid "event"
@@ -54,13 +53,11 @@ msgstr ""
 #: tasks.py:214 tests/test_tasks.py:359 tests/test_tasks.py:396
 #: tests/test_tasks.py:465 tests/test_tasks.py:602
 msgid "Planetary Extractor Heads Expired"
-msgstr "Planetary Extraktor Köpfe Ausgelaufen"
+msgstr ""
 
 #: templates/ledger/allyledger/admin/alliance_admin.html:9
-#, fuzzy
-#| msgid "Ledger Character Overview"
 msgid "Ledger Alliance Overview"
-msgstr "Ledger Character Übersicht"
+msgstr ""
 
 #: templates/ledger/allyledger/admin/alliance_admin.html:64
 #: templates/ledger/charledger/admin/character_admin.html:67
@@ -74,17 +71,15 @@ msgstr ""
 #: templates/ledger/corpledger/admin/corporation_admin.html:83
 #: templates/ledger/planetary/admin/character_admin.html:86
 msgid "No Permission"
-msgstr "Keine Berechtigung"
+msgstr ""
 
 #: templates/ledger/allyledger/alliance_ledger.html:8
 #: templates/ledger/allyledger/alliance_ledger.html:24
 #: templates/ledger/partials/menu/ally/navigation.html:15
 #: templates/ledger/partials/menu/corp/navigation.html:14
 #: templates/ledger/partials/menu/navigation.html:14
-#, fuzzy
-#| msgid "Character Ledger"
 msgid "Alliance Ledger"
-msgstr "Character Ledger"
+msgstr ""
 
 #: templates/ledger/allyledger/alliance_ledger.html:40
 #: templates/ledger/charledger/character_ledger.html:40
@@ -159,14 +154,12 @@ msgid "December"
 msgstr ""
 
 #: templates/ledger/allyledger/alliance_ledger.html:55
-#, fuzzy
-#| msgid "Character Overview"
 msgid "Alliance Overview"
-msgstr "Character Übersicht"
+msgstr ""
 
 #: templates/ledger/charledger/admin/character_admin.html:9
 msgid "Ledger Character Overview"
-msgstr "Ledger Character Übersicht"
+msgstr ""
 
 #: templates/ledger/charledger/character_ledger.html:8
 #: templates/ledger/charledger/character_ledger.html:24
@@ -175,17 +168,15 @@ msgstr "Ledger Character Übersicht"
 #: templates/ledger/partials/menu/corp/navigation.html:5
 #: templates/ledger/partials/menu/navigation.html:5
 msgid "Character Ledger"
-msgstr "Character Ledger"
+msgstr ""
 
 #: templates/ledger/charledger/character_ledger.html:55
 msgid "Character Overview"
-msgstr "Character Übersicht"
+msgstr ""
 
 #: templates/ledger/charledger/character_ledger.html:118
-#, fuzzy
-#| msgid "Character Overview"
 msgid "Overview"
-msgstr "Character Übersicht"
+msgstr ""
 
 #: templates/ledger/charledger/partials/card.html:34
 msgid "Charakter"
@@ -213,22 +204,22 @@ msgstr ""
 
 #: templates/ledger/charledger/partials/card.html:67
 msgid "Costs"
-msgstr "Kosten"
+msgstr ""
 
 #: templates/ledger/charledger/partials/card.html:72
 #: templates/ledger/charledger/partials/table.html:20
 #: templates/ledger/corpledger/partials/table.html:18
 msgid "Summary"
-msgstr "Summe"
+msgstr ""
 
 #: templates/ledger/charledger/partials/table.html:29
 #: templates/ledger/corpledger/partials/table.html:24
 msgid "Total"
-msgstr "Total"
+msgstr ""
 
 #: templates/ledger/corpledger/admin/corporation_admin.html:9
 msgid "Ledger Corporation Overview"
-msgstr "Ledger Corporation Übersicht"
+msgstr ""
 
 #: templates/ledger/corpledger/corporation_ledger.html:8
 #: templates/ledger/corpledger/corporation_ledger.html:24
@@ -241,7 +232,7 @@ msgstr ""
 
 #: templates/ledger/corpledger/corporation_ledger.html:55
 msgid "Corporation Overview"
-msgstr "Corporation Übersicht"
+msgstr ""
 
 #: templates/ledger/error.html:6
 msgid "Voices of War - Error"
@@ -254,22 +245,22 @@ msgstr ""
 #: templates/ledger/events/create_event.html:14
 #: templates/ledger/events/create_event.html:43
 msgid "Create Event"
-msgstr "Erstelle Event"
+msgstr ""
 
 #: templates/ledger/events/create_event.html:20
 #: templates/ledger/events/edit_event.html:20
 msgid "Title"
-msgstr "Titel"
+msgstr ""
 
 #: templates/ledger/events/create_event.html:24
 #: templates/ledger/events/edit_event.html:24
 msgid "Start Date"
-msgstr "Start Datum"
+msgstr ""
 
 #: templates/ledger/events/create_event.html:28
 #: templates/ledger/events/edit_event.html:28
 msgid "End Date"
-msgstr "End Datum"
+msgstr ""
 
 #: templates/ledger/events/create_event.html:32
 #: templates/ledger/events/edit_event.html:32
@@ -284,11 +275,11 @@ msgstr ""
 #: templates/ledger/events/create_event.html:40
 #: templates/ledger/events/edit_event.html:40
 msgid "Description"
-msgstr "Beschreibung"
+msgstr ""
 
 #: templates/ledger/events/delete_event.html:13
 msgid "Delete Event"
-msgstr "Lösche Event"
+msgstr ""
 
 #: templates/ledger/events/delete_event.html:20
 msgid "Ja, löschen"
@@ -300,11 +291,11 @@ msgstr ""
 
 #: templates/ledger/events/edit_event.html:14
 msgid "Edit Event"
-msgstr "Editiere Event"
+msgstr ""
 
 #: templates/ledger/events/edit_event.html:43
 msgid "Save Changes"
-msgstr "Speichere Änderungen"
+msgstr ""
 
 #: templates/ledger/events/index.html:10
 msgid "Corp Events"
@@ -312,12 +303,12 @@ msgstr ""
 
 #: templates/ledger/events/manage_events.html:11
 msgid "Manage Events"
-msgstr "Verwalte Events"
+msgstr ""
 
 #: templates/ledger/partials/menu/ally/administration.html:7
 #: templates/ledger/partials/menu/corp/administration.html:13
 msgid "Add Corporation"
-msgstr "Corporation Hinzufügen"
+msgstr ""
 
 #: templates/ledger/partials/menu/ally/administration.html:13
 msgid "Add Alliance"
@@ -326,7 +317,7 @@ msgstr ""
 #: templates/ledger/partials/menu/char/administration.html:6
 #: templates/ledger/partials/menu/corp/administration.html:6
 msgid "Add Character"
-msgstr "Character Hinzufügen"
+msgstr ""
 
 #: templates/ledger/partials/menu/char/navigation.html:8
 #: templates/ledger/partials/menu/navigation.html:19
@@ -342,10 +333,8 @@ msgid "You don't have Permission to view this Page"
 msgstr ""
 
 #: templates/ledger/planetary/admin/character_admin.html:9
-#, fuzzy
-#| msgid "Ledger Character Overview"
 msgid "Ledger Planetary Overview"
-msgstr "Ledger Character Übersicht"
+msgstr ""
 
 #: templates/ledger/planetary/partials/table.html:6
 msgid "Character"
@@ -377,19 +366,19 @@ msgstr ""
 
 #: templates/ledger/planetary/partials/table.html:13
 msgid "Actions"
-msgstr "Aktionen"
+msgstr ""
 
 #: templates/ledger/planetary/partials/table.html:25
 msgid "Confirm Action"
-msgstr "Bestätige Aktion"
+msgstr ""
 
 #: templates/ledger/planetary/partials/table.html:34
 msgid "Cancel"
-msgstr "Abbrechen"
+msgstr ""
 
 #: templates/ledger/planetary/partials/table.html:35
 msgid "Confirm"
-msgstr "Bestätige"
+msgstr ""
 
 #: templates/ledger/planetary/planetary_ledger.html:8
 #: templates/ledger/planetary/planetary_ledger.html:12
@@ -397,16 +386,12 @@ msgid "Planetary Details"
 msgstr ""
 
 #: templates/ledger/planetary/planetary_ledger.html:15
-#, fuzzy
-#| msgid "Character Overview"
 msgid "Planetary Overview"
-msgstr "Character Übersicht"
+msgstr ""
 
 #: templates/ledger/planetary/planetary_ledger.html:69
-#, fuzzy
-#| msgid "Are you sure to Switch Alarm?"
 msgid "Are you sure to Switch Notification"
-msgstr "Bist du sicher das du den Alarm wechseln möchtest?"
+msgstr ""
 
 #: templates/ledger/planetary/planetary_ledger.html:70
 msgid "Switch Notification"
@@ -414,14 +399,8 @@ msgstr ""
 
 #: templates/ledger/planetary/planetary_ledger.html:71
 msgid "Notification Activated"
-msgstr "Notification Aktiviert"
+msgstr ""
 
 #: templates/ledger/planetary/planetary_ledger.html:72
 msgid "Notification Deactivated"
-msgstr "Notification Deaktiviert"
-
-#~ msgid "Add All Memberaudit Chars"
-#~ msgstr "Alle Member Audit Chars Hinzufügen"
-
-#~ msgid "Toggle Alarm"
-#~ msgstr "Umschalten Alarm"
+msgstr ""
