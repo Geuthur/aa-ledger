@@ -1,9 +1,14 @@
 # Changelog
 
+## \[0.6.3\] - 2024-09-xx
+
 ### Added
 
 - More strings translatable
 - BS5 Tooltip to Corp & Ally Ledger
+- Generating Information Sheet and Billboard handled now by QuerySet Manager
+- Global Filtering for easier modifying^
+- Translations System
 
 ### Changed
 
@@ -15,10 +20,13 @@
 - Unnecessary JS Variable
 - Memberaudit dependencies (Memberaudit Task Adaption still works)
 - Corp UTils dependencies (optional Corp Stats Two dependencies)
+- Filters from Core Manager now handled by QuerySet Manager
 
 ### Fixed
 
 - BS5 Tooltip & Popover not disappear
+- Wrong naming in Overviews
+- CSS Design Settings
 
 ## \[0.6.2\] - 2024-09-04
 
