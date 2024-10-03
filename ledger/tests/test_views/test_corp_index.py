@@ -3,14 +3,12 @@ from unittest.mock import Mock, patch
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
-from django.utils import timezone
 from esi.models import Token
 
 from app_utils.testing import create_user_from_evecharacter
 
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_memberaudit import load_memberaudit
 from ledger.views.corporation.corp_audit import add_corp
 
 MODULE_PATH = "ledger.views.corporation.corp_audit"

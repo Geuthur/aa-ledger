@@ -1,69 +1,60 @@
 {% extends 'ledger/base.html' %}
-    {% load i18n %}
-    {% load humanize %}
+{% load i18n %}
+{% load humanize %}
 
 {% block vow_block %}
     <div class="card-body card-primary">
-        <div id="container">
-            <br>
-            <div class="line-container">
-                <div class="line-text"><h4>Character Ledger</h4></div>
-                <hr class="custom-line">
-            </div>
-            <li>Show Ratting, Encounter Surveillance System(ESS), Mining, Bounty, and other ISK related activities</li>
-            <li>Character Ledger shows all ISK related activities of Main and Alts</li>
-            <li>Display more Information with <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
-            <br>
-            <div class="line-container">
-                <div class="line-text"><h4>Corporation/Alliance Ledger</h4></div>
-                <hr class="custom-line">
-            </div>
-            <li>If you have alts in other corporations the Corporation Ledger will show you all Taxes of each Corporation included
+        <div class="mb-3">
+            {% blocktrans %}
+            <h4>Character Ledger</h4>
+            <hr class="custom-line">
+            <li class="list-group-item">Show Ratting, Encounter Surveillance System(ESS), Mining, Bounty, and other ISK related activities</li>
+            <li class="list-group-item">Character Ledger shows all ISK related activities of Main and Alts</li>
+            <li class="list-group-item">Display more Information with <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
+            {% endblocktrans %}
+        </div>
+        <div class="mb-3">
+            {% blocktrans %}
+            <h4>Corporation/Alliance Ledger</h4>
+            <hr class="custom-line">
+            <li class="list-group-item">If you have alts in other corporations the Corporation Ledger will show you all Taxes of each Corporation included
             for single lookup you can use Corporation Overview</li>
-            <li>Corporation Ledger shows all taxes of each main(alts included)
+            <li class="list-group-item">Corporation Ledger shows all taxes of each main(alts included)
             with mouseover on portrait you can see the Alts included in the Calculation</li>
-            <li>Display more Information with <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
-            <br>
-            <div class="line-container">
-                <div class="line-text"><h4>Planetary Ledger</h4></div>
-                <hr class="custom-line">
-            </div>
-            <li>Planetary Ledger shows all Planets from Main and Alts</li>
-            <li>You can activate/deactivate Notifications for each Planet</li>
-            <li>Display active Extractors and their remaining time on the <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
-            <br>
-            <br>
-            <div class="line-container">
-                <div class="line-text"><h4>FAQ</h4></div>
-                <hr class="custom-line">
-            </div>
-            Q: I don't see my Character on the Char Ledger. <br>
-            A: Maybe your Character isn't in the System, Please add it! <br>
-            <br>
-            Q: Why is the ESS Stolen Amount not correctly<br>
-            A: The ESS Stolen information are updated from 'Corporation Ledger' so it can be wrong, cause it has a 3 hours update period<br>
-            <br>
-            Q: I don't see any ESS Payout<br>
-            A: Your Corporation is not in the Ledger System<br>
-            <br>
+            <li class="list-group-item">Display more Information with <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
+            {% endblocktrans %}
+        </div>
+        <div class="mb-3">
+            {% blocktrans %}
+            <h4>Planetary Ledger</h4>
+            <hr class="custom-line">
+            <li class="list-group-item">Planetary Ledger shows all Planets from Main and Alts</li>
+            <li class="list-group-item">You can activate/deactivate Notifications for each Planet</li>
+            <li class="list-group-item">Display active Extractors and their remaining time on the <button class="btn btn-primary btn-sm btn-square"><span class="fas fa-info"></span></button> Button</li>
+            {% endblocktrans %}
+        </div>
+        <div class="mb-3">
+            {% blocktrans %}
+            <h4>FAQ</h4>
+            <hr class="custom-line">
+            <li class="list-group-item">Q: I don't see my Character on the Char Ledger.</li>
+            <li class="list-group-item">A: Maybe your Character isn't in the System, Please add it!</li>
+
+            <li class="list-group-item">Q: Why is the ESS Stolen Amount not correctly?</li>
+            <li class="list-group-item">A: The ESS Stolen information are updated from 'Corporation Ledger' so it can be wrong, cause it has a 3 hours update period</li>
+
+            <li class="list-group-item">Q: I don't see any ESS Payout</li>
+            <li class="list-group-item">A: Your Corporation is not in the Ledger System</li>
+            {% endblocktrans %}
         </div>
     </div>
 {% endblock %}
 
 {% block extra_javascript %}
 {% include "ledger/modals/modal-full.html" %}
-{% include 'ledger/bundles/ledger-css.html' %}
 <script src="/static/ledger/js/img.js"></script>
 {% endblock %}
 
 {% block extra_css %}
-<style>
-.zoom-size {
-    max-width: 300px;
-    max-height: 300px;
-}
-</style>
-{% endblock %}
-
-{% block extra_script %}
+{% include 'ledger/bundles/ledger-css.html' %}
 {% endblock %}

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-30 22:54+0200\n"
+"POT-Creation-Date: 2024-10-03 11:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,166 +17,332 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: models/events.py:22
 msgid "event"
-msgstr ""
+msgstr "Veranstaltung"
 
 #: models/events.py:23
 msgid "events"
-msgstr ""
+msgstr "Veranstaltungen"
 
-#: models/general.py:53
+#: models/general.py:54
 msgid "id"
-msgstr ""
+msgstr "ID"
 
-#: models/general.py:56
+#: models/general.py:57
 msgid "category"
-msgstr ""
+msgstr "Kategorie"
 
-#: models/general.py:58
+#: models/general.py:59
 msgid "name"
-msgstr ""
+msgstr "Name"
 
-#: models/planetary.py:27
+#: models/planetary.py:25
 msgid "Upgrade level of the planet"
-msgstr ""
+msgstr "Upgrade-Stufe des Planeten"
 
-#: models/planetary.py:31
+#: models/planetary.py:29
 msgid "Number of pins on the planet"
-msgstr ""
+msgstr "Anzahl der Pins auf dem Planeten"
 
 #: tasks.py:199
 #, python-format
 msgid "%(charname)s on %(planetname)s"
-msgstr ""
+msgstr "%(charname)s auf %(planetname)s"
 
-#: tasks.py:214
+#: tasks.py:214 tests/test_tasks.py:359 tests/test_tasks.py:396
+#: tests/test_tasks.py:465 tests/test_tasks.py:602
 msgid "Planetary Extractor Heads Expired"
-msgstr "Planetary Extraktor Köpfe Ausgelaufen"
+msgstr "Planetare Extraktor-Köpfe abgelaufen"
 
-#: templates/ledger/charledger/admin/character_admin.html:9
-msgid "Ledger Character Overview"
-msgstr "Ledger Character Übersicht"
+#: templates/ledger/allyledger/admin/alliance_admin.html:9
+msgid "Ledger Alliance Overview"
+msgstr "Ledger Allianz Übersicht"
 
-#: templates/ledger/charledger/admin/character_admin.html:76
-#: templates/ledger/corpledger/admin/corporation_admin.html:73
+#: templates/ledger/allyledger/admin/alliance_admin.html:18
+#: templates/ledger/charledger/admin/character_admin.html:19
+#: templates/ledger/corpledger/admin/corporation_admin.html:18
+#: templates/ledger/events/manage_events.html:24
+#: templates/ledger/planetary/admin/character_admin.html:19
+#: templates/ledger/planetary/partials/table.html:13
+msgid "Actions"
+msgstr "Aktionen"
+
+#: templates/ledger/allyledger/admin/alliance_admin.html:64
+#: templates/ledger/charledger/admin/character_admin.html:67
+#: templates/ledger/corpledger/admin/corporation_admin.html:64
+#: templates/ledger/planetary/admin/character_admin.html:67
+msgid "Show"
+msgstr "Anzeigen"
+
+#: templates/ledger/allyledger/admin/alliance_admin.html:83
+#: templates/ledger/charledger/admin/character_admin.html:86
+#: templates/ledger/corpledger/admin/corporation_admin.html:83
+#: templates/ledger/planetary/admin/character_admin.html:86
 msgid "No Permission"
 msgstr "Keine Berechtigung"
 
-#: templates/ledger/charledger/character_ledger.html:8
-#: templates/ledger/charledger/character_ledger.html:25
-#: templates/ledger/partials/menu/char/navigation.html:6
-#: templates/ledger/partials/menu/corp/navigation.html:6
-#: templates/ledger/partials/menu/navigation.html:6
-msgid "Character Ledger"
-msgstr "Character Ledger"
+#: templates/ledger/allyledger/alliance_ledger.html:8
+#: templates/ledger/allyledger/alliance_ledger.html:24
+#: templates/ledger/partials/menu/ally/navigation.html:15
+#: templates/ledger/partials/menu/corp/navigation.html:14
+#: templates/ledger/partials/menu/navigation.html:14
+msgid "Alliance Ledger"
+msgstr "Allianz Ledger"
 
+#: templates/ledger/allyledger/alliance_ledger.html:27
+#: templates/ledger/charledger/character_ledger.html:27
+#: templates/ledger/charledger/character_ledger.html:66
+#: templates/ledger/corpledger/corporation_ledger.html:27
+#: templates/ledger/corpledger/corporation_ledger.html:66
+msgid "Year"
+msgstr "Jahr"
+
+#: templates/ledger/allyledger/alliance_ledger.html:37
+#: templates/ledger/charledger/character_ledger.html:37
+#: templates/ledger/charledger/character_ledger.html:61
+#: templates/ledger/charledger/month.html:27
+#: templates/ledger/corpledger/corporation_ledger.html:37
+#: templates/ledger/corpledger/corporation_ledger.html:61
+msgid "Month"
+msgstr "Monat"
+
+#: templates/ledger/allyledger/alliance_ledger.html:40
+#: templates/ledger/charledger/character_ledger.html:40
+#: templates/ledger/corpledger/corporation_ledger.html:40
+msgid "January"
+msgstr "Januar"
+
+#: templates/ledger/allyledger/alliance_ledger.html:41
 #: templates/ledger/charledger/character_ledger.html:41
 #: templates/ledger/corpledger/corporation_ledger.html:41
-msgid "January"
-msgstr ""
+msgid "February"
+msgstr "Februar"
 
+#: templates/ledger/allyledger/alliance_ledger.html:42
 #: templates/ledger/charledger/character_ledger.html:42
 #: templates/ledger/corpledger/corporation_ledger.html:42
-msgid "February"
-msgstr ""
+msgid "March"
+msgstr "März"
 
+#: templates/ledger/allyledger/alliance_ledger.html:43
 #: templates/ledger/charledger/character_ledger.html:43
 #: templates/ledger/corpledger/corporation_ledger.html:43
-msgid "March"
-msgstr ""
+msgid "April"
+msgstr "April"
 
+#: templates/ledger/allyledger/alliance_ledger.html:44
 #: templates/ledger/charledger/character_ledger.html:44
 #: templates/ledger/corpledger/corporation_ledger.html:44
-msgid "April"
-msgstr ""
+msgid "May"
+msgstr "Mai"
 
+#: templates/ledger/allyledger/alliance_ledger.html:45
 #: templates/ledger/charledger/character_ledger.html:45
 #: templates/ledger/corpledger/corporation_ledger.html:45
-msgid "May"
-msgstr ""
+msgid "June"
+msgstr "Juni"
 
+#: templates/ledger/allyledger/alliance_ledger.html:46
 #: templates/ledger/charledger/character_ledger.html:46
 #: templates/ledger/corpledger/corporation_ledger.html:46
-msgid "June"
-msgstr ""
+msgid "July"
+msgstr "Juli"
 
+#: templates/ledger/allyledger/alliance_ledger.html:47
 #: templates/ledger/charledger/character_ledger.html:47
 #: templates/ledger/corpledger/corporation_ledger.html:47
-msgid "July"
-msgstr ""
+msgid "August"
+msgstr "August"
 
+#: templates/ledger/allyledger/alliance_ledger.html:48
 #: templates/ledger/charledger/character_ledger.html:48
 #: templates/ledger/corpledger/corporation_ledger.html:48
-msgid "August"
-msgstr ""
+msgid "September"
+msgstr "September"
 
+#: templates/ledger/allyledger/alliance_ledger.html:49
 #: templates/ledger/charledger/character_ledger.html:49
 #: templates/ledger/corpledger/corporation_ledger.html:49
-msgid "September"
-msgstr ""
+msgid "October"
+msgstr "Oktober"
 
+#: templates/ledger/allyledger/alliance_ledger.html:50
 #: templates/ledger/charledger/character_ledger.html:50
 #: templates/ledger/corpledger/corporation_ledger.html:50
-msgid "October"
-msgstr ""
+msgid "November"
+msgstr "November"
 
+#: templates/ledger/allyledger/alliance_ledger.html:51
 #: templates/ledger/charledger/character_ledger.html:51
 #: templates/ledger/corpledger/corporation_ledger.html:51
-msgid "November"
+msgid "December"
+msgstr "Dezember"
+
+#: templates/ledger/allyledger/alliance_ledger.html:55
+msgid "Alliance Overview"
+msgstr "Allianz Übersicht"
+
+#: templates/ledger/allyledger/month.html:20
+#: templates/ledger/allyledger/year.html:20
+#: templates/ledger/corpledger/month.html:20
+#: templates/ledger/corpledger/year.html:20
+msgid "Ratting Chart"
+msgstr "Ratting Diagramm"
+
+#: templates/ledger/allyledger/month.html:31
+#: templates/ledger/corpledger/month.html:31
+msgid "Ratting 30 Days"
+msgstr "Ratting 30 Tage"
+
+#: templates/ledger/allyledger/year.html:31
+#: templates/ledger/corpledger/year.html:31
+msgid "Ratting Year"
+msgstr "Ratting Jahr"
+
+#: templates/ledger/charledger/admin/character_admin.html:9
+msgid "Ledger Character Overview"
+msgstr "Ledger Charakter Übersicht"
+
+#: templates/ledger/charledger/character_ledger.html:8
+#: templates/ledger/charledger/character_ledger.html:24
+#: templates/ledger/partials/menu/ally/navigation.html:6
+#: templates/ledger/partials/menu/char/navigation.html:5
+#: templates/ledger/partials/menu/corp/navigation.html:5
+#: templates/ledger/partials/menu/navigation.html:5
+msgid "Character Ledger"
+msgstr "Charakter Ledger"
+
+#: templates/ledger/charledger/character_ledger.html:55
+msgid "Character Overview"
+msgstr "Charakter Übersicht"
+
+#: templates/ledger/charledger/character_ledger.html:118
+msgid "Overview"
+msgstr "Übersicht"
+
+#: templates/ledger/charledger/month.html:21
+msgid "Days"
+msgstr "Tage"
+
+#: templates/ledger/charledger/month.html:24
+msgid "Mode"
+msgstr "Modus"
+
+#: templates/ledger/charledger/month.html:28
+#: templates/ledger/modals/information/view_character_content.html:26
+msgid "Hourly"
+msgstr "Stündlich"
+
+#: templates/ledger/charledger/month.html:38
+msgid "Wallet"
 msgstr ""
 
-#: templates/ledger/charledger/character_ledger.html:52
-#: templates/ledger/corpledger/corporation_ledger.html:52
-msgid "December"
+#: templates/ledger/charledger/month.html:46
+msgid "Workflow"
 msgstr ""
 
 #: templates/ledger/charledger/partials/card.html:34
 msgid "Charakter"
-msgstr ""
+msgstr "Charakter"
+
+#: templates/ledger/charledger/partials/card.html:39
+msgid "Detailed Sheet"
+msgstr "Detaillierte Übersicht"
 
 #: templates/ledger/charledger/partials/card.html:47
+#: templates/ledger/modals/information/daily.html:10
+#: templates/ledger/modals/information/day.html:10
+#: templates/ledger/modals/information/hourly.html:10
+#: templates/ledger/modals/information/summary.html:10
 msgid "Ratting"
-msgstr ""
+msgstr "Ratting"
 
 #: templates/ledger/charledger/partials/card.html:52
+#: templates/ledger/charledger/partials/table.html:8
+#: templates/ledger/corpledger/partials/table.html:9
 msgid "ESS Payout"
-msgstr ""
+msgstr "ESS Auszahlung"
 
 #: templates/ledger/charledger/partials/card.html:57
+#: templates/ledger/modals/information/day.html:50
+#: templates/ledger/modals/information/summary.html:54
 msgid "Mining"
-msgstr ""
+msgstr "Bergbau"
 
 #: templates/ledger/charledger/partials/card.html:62
 msgid "Misc"
-msgstr ""
+msgstr "Verschiedenes"
 
 #: templates/ledger/charledger/partials/card.html:67
+#: templates/ledger/charledger/partials/table.html:11
 msgid "Costs"
 msgstr "Kosten"
 
 #: templates/ledger/charledger/partials/card.html:72
 #: templates/ledger/charledger/partials/table.html:20
 #: templates/ledger/corpledger/partials/table.html:18
+#: templates/ledger/modals/information/day.html:155
+#: templates/ledger/modals/information/summary.html:167
+#: templates/ledger/modals/information/view_character_content.html:20
 msgid "Summary"
-msgstr "Summe"
+msgstr "Zusammenfassung"
+
+#: templates/ledger/charledger/partials/table.html:6
+#: templates/ledger/corpledger/partials/table.html:7
+msgid "Main Character"
+msgstr "Haupt Charakter"
+
+#: templates/ledger/charledger/partials/table.html:7
+msgid "Ratting Amount"
+msgstr "Ratting Menge"
+
+#: templates/ledger/charledger/partials/table.html:9
+msgid "Mining Amount"
+msgstr "Bergbau Menge"
+
+#: templates/ledger/charledger/partials/table.html:10
+msgid "Misc. Amount"
+msgstr "Verschiedenes Menge"
 
 #: templates/ledger/charledger/partials/table.html:29
 #: templates/ledger/corpledger/partials/table.html:24
 msgid "Total"
-msgstr "Total"
+msgstr "Gesamt"
+
+#: templates/ledger/charledger/year.html:21
+msgid "Ledger Year"
+msgstr "Ledger Jahr"
+
+#: templates/ledger/charledger/year.html:29
+msgid "Wallet Year"
+msgstr "Wallet Jahr"
+
+#: templates/ledger/charledger/year.html:37
+msgid "Workflow Year"
+msgstr ""
 
 #: templates/ledger/corpledger/admin/corporation_admin.html:9
 msgid "Ledger Corporation Overview"
 msgstr "Ledger Corporation Übersicht"
 
 #: templates/ledger/corpledger/corporation_ledger.html:8
-#: templates/ledger/corpledger/corporation_ledger.html:25
-#: templates/ledger/partials/menu/char/navigation.html:10
+#: templates/ledger/corpledger/corporation_ledger.html:24
+#: templates/ledger/partials/menu/ally/navigation.html:11
+#: templates/ledger/partials/menu/char/navigation.html:13
 #: templates/ledger/partials/menu/corp/navigation.html:10
 #: templates/ledger/partials/menu/navigation.html:10
 msgid "Corporation Ledger"
-msgstr ""
+msgstr "Corporation Ledger"
+
+#: templates/ledger/corpledger/corporation_ledger.html:55
+msgid "Corporation Overview"
+msgstr "Corporation Übersicht"
+
+#: templates/ledger/corpledger/partials/table.html:8
+msgid "TAX Amount"
+msgstr "Steuer Menge"
 
 #: templates/ledger/error.html:6
 msgid "Voices of War - Error"
@@ -188,36 +354,49 @@ msgstr ""
 
 #: templates/ledger/events/create_event.html:14
 #: templates/ledger/events/create_event.html:43
+#: templates/ledger/events/menu.html:14
+#: templates/ledger/partials/menu/events/administration.html:7
 msgid "Create Event"
 msgstr "Erstelle Event"
 
 #: templates/ledger/events/create_event.html:20
 #: templates/ledger/events/edit_event.html:20
+#: templates/ledger/events/index.html:27
+#: templates/ledger/events/manage_events.html:18
 msgid "Title"
 msgstr "Titel"
 
 #: templates/ledger/events/create_event.html:24
 #: templates/ledger/events/edit_event.html:24
+#: templates/ledger/events/index.html:28
+#: templates/ledger/events/manage_events.html:19
 msgid "Start Date"
 msgstr "Start Datum"
 
 #: templates/ledger/events/create_event.html:28
 #: templates/ledger/events/edit_event.html:28
+#: templates/ledger/events/index.html:29
+#: templates/ledger/events/manage_events.html:20
 msgid "End Date"
 msgstr "End Datum"
 
 #: templates/ledger/events/create_event.html:32
 #: templates/ledger/events/edit_event.html:32
+#: templates/ledger/events/index.html:32
+#: templates/ledger/events/manage_events.html:21
 msgid "Location"
 msgstr ""
 
 #: templates/ledger/events/create_event.html:36
 #: templates/ledger/events/edit_event.html:36
+#: templates/ledger/events/manage_events.html:23
 msgid "Char Ledger Exclude"
-msgstr ""
+msgstr "Character Ledger Auschließen"
 
 #: templates/ledger/events/create_event.html:40
 #: templates/ledger/events/edit_event.html:40
+#: templates/ledger/events/index.html:30
+#: templates/ledger/events/manage_events.html:22
 msgid "Description"
 msgstr "Beschreibung"
 
@@ -225,13 +404,18 @@ msgstr "Beschreibung"
 msgid "Delete Event"
 msgstr "Lösche Event"
 
+#: templates/ledger/events/delete_event.html:16
+msgid "Are you sure to delete the event"
+msgstr "Möchten Sie das Event wirklich löschen"
+
 #: templates/ledger/events/delete_event.html:20
-msgid "Ja, löschen"
-msgstr ""
+msgid "Yes"
+msgstr "Ja"
 
 #: templates/ledger/events/delete_event.html:21
-msgid "Nein, abbrechen"
-msgstr ""
+#: templates/ledger/planetary/partials/table.html:34
+msgid "Cancel"
+msgstr "Abbrechen"
 
 #: templates/ledger/events/edit_event.html:14
 msgid "Edit Event"
@@ -241,73 +425,514 @@ msgstr "Editiere Event"
 msgid "Save Changes"
 msgstr "Speichere Änderungen"
 
-#: templates/ledger/events/index.html:10
+#: templates/ledger/events/expired_events.html:10
+#: templates/ledger/events/future_events.html:10
+msgid "Datum Start:"
+msgstr ""
+
+#: templates/ledger/events/expired_events.html:11
+#: templates/ledger/events/future_events.html:11
+msgid "Datum End:"
+msgstr ""
+
+#: templates/ledger/events/expired_events.html:21
+#: templates/ledger/events/future_events.html:21
+#: templates/ledger/modals/modal-full.html:13
+#: templates/ledger/modals/modal-xl.html:13
+#: templates/ledger/modals/modal.html:13
+msgid "Previous"
+msgstr "Vorherige"
+
+#: templates/ledger/events/expired_events.html:24
+#: templates/ledger/events/future_events.html:24
+#: templates/ledger/modals/modal-full.html:14
+#: templates/ledger/modals/modal-xl.html:14
+#: templates/ledger/modals/modal.html:14
+msgid "Next"
+msgstr "Nächste"
+
+#: templates/ledger/events/index.html:5 templates/ledger/events/menu.html:9
+#: templates/ledger/partials/menu/events/navigation.html:9
+#: templates/ledger/partials/menu/navigation.html:23
+msgid "Events"
+msgstr "Veranstaltungen"
+
+#: templates/ledger/events/index.html:22
 msgid "Corp Events"
 msgstr ""
 
+#: templates/ledger/events/index.html:31
+msgid "Char Ledger"
+msgstr "Charakter Ledger"
+
+#: templates/ledger/events/index.html:37
+msgid "Loading..."
+msgstr "Lade..."
+
+#: templates/ledger/events/manage_events.html:5
 #: templates/ledger/events/manage_events.html:11
 msgid "Manage Events"
 msgstr "Verwalte Events"
 
-#: templates/ledger/partials/menu/administration.html:7
-#: templates/ledger/partials/menu/char/administration.html:7
-#: templates/ledger/partials/menu/corp/administration.html:7
-msgid "Add Character"
-msgstr "Character Hinzufügen"
+#: templates/ledger/events/manage_events.html:17
+msgid "ID"
+msgstr ""
 
-#: templates/ledger/partials/menu/administration.html:15
-#: templates/ledger/partials/menu/corp/administration.html:15
+#: templates/ledger/events/manage_events.html:38
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: templates/ledger/events/manage_events.html:39
+msgid "Delete"
+msgstr "Lösche"
+
+#: templates/ledger/events/menu.html:6
+#: templates/ledger/partials/menu/events/navigation.html:6
+msgid "Ledger"
+msgstr "Ledger"
+
+#: templates/ledger/events/menu.html:17
+#: templates/ledger/partials/menu/events/administration.html:12
+msgid "Events Administration"
+msgstr "Veranstaltung Verwaltung"
+
+#: templates/ledger/index.html:8
+msgid ""
+"\n"
+"            <h4>Character Ledger</h4>\n"
+"            <hr class=\"custom-line\">\n"
+"            <li class=\"list-group-item\">Show Ratting, Encounter "
+"Surveillance System(ESS), Mining, Bounty, and other ISK related activities</"
+"li>\n"
+"            <li class=\"list-group-item\">Character Ledger shows all ISK "
+"related activities of Main and Alts</li>\n"
+"            <li class=\"list-group-item\">Display more Information with "
+"<button class=\"btn btn-primary btn-sm btn-square\"><span class=\"fas fa-"
+"info\"></span></button> Button</li>\n"
+"            "
+msgstr ""
+"\n"
+"            <h4>Charakter Ledger</h4>\n"
+"            <hr class=\"custom-line\">\n"
+"            <li class=\"list-group-item\">Zeigt Ratting, Encounter Surveillance System (ESS), Bergbau, Kopfgeld und andere ISK-bezogene Aktivitäten</li>\n"
+"            <li class=\"list-group-item\">Das Charakter Ledger zeigt alle ISK-bezogenen Aktivitäten von Haupt- und Nebencharakteren</li>\n"
+"            <li class=\"list-group-item\">Weitere Informationen anzeigen mit <button class=\"btn btn-primary btn-sm btn-square\"><span class=\"fas fa-info\"></span></button> Button</li>\n"
+"            "
+
+#: templates/ledger/index.html:17
+msgid ""
+"\n"
+"            <h4>Corporation/Alliance Ledger</h4>\n"
+"            <hr class=\"custom-line\">\n"
+"            <li class=\"list-group-item\">If you have alts in other "
+"corporations the Corporation Ledger will show you all Taxes of each "
+"Corporation included\n"
+"            for single lookup you can use Corporation Overview</li>\n"
+"            <li class=\"list-group-item\">Corporation Ledger shows all taxes "
+"of each main(alts included)\n"
+"            with mouseover on portrait you can see the Alts included in the "
+"Calculation</li>\n"
+"            <li class=\"list-group-item\">Display more Information with "
+"<button class=\"btn btn-primary btn-sm btn-square\"><span class=\"fas fa-"
+"info\"></span></button> Button</li>\n"
+"            "
+msgstr ""
+"\n"
+"            <h4>Corporation/Allianz Ledger</h4>\n"
+"            <hr class=\"custom-line\">\n"
+"            <li class=\"list-group-item\">Wenn Sie Alts in anderen Corporations haben, zeigt das Corporation Ledger alle Steuern jeder Corporation an\n"
+"            für eine einzelne Übersicht können Sie die Corporation Übersicht verwenden</li>\n"
+"            <li class=\"list-group-item\">Das Corporation Ledger zeigt alle Steuern jedes Hauptcharakters (einschließlich Alts)\n"
+"            mit Mouseover auf dem Porträt können Sie die in die Berechnung einbezogenen Alts sehen</li>\n"
+"            <li class=\"list-group-item\">Weitere Informationen anzeigen mit <button class=\"btn btn-primary btn-sm btn-square\"><span class=\"fas fa-info\"></span></button> Button</li>\n"
+"            "
+
+#: templates/ledger/index.html:28
+msgid ""
+"\n"
+"            <h4>Planetary Ledger</h4>\n"
+"            <hr class=\"custom-line\">\n"
+"            <li class=\"list-group-item\">Planetary Ledger shows all Planets "
+"from Main and Alts</li>\n"
+"            <li class=\"list-group-item\">You can activate/deactivate "
+"Notifications for each Planet</li>\n"
+"            <li class=\"list-group-item\">Display active Extractors and "
+"their remaining time on the <button class=\"btn btn-primary btn-sm btn-"
+"square\"><span class=\"fas fa-info\"></span></button> Button</li>\n"
+"            "
+msgstr ""
+"\n"
+"            <h4>Planetarisches Ledger</h4>\n"
+"            <hr class=\"custom-line\">\n"
+"            <li class=\"list-group-item\">Das Planetary Ledger zeigt alle Planeten von Haupt- und Nebencharakteren</li>\n"
+"            <li class=\"list-group-item\">Sie können Benachrichtigungen für jeden Planeten aktivieren/deaktivieren</li>\n"
+"            <li class=\"list-group-item\">Aktive Extraktoren und deren verbleibende Zeit anzeigen mit dem <button class=\"btn btn-primary btn-sm btn-square\"><span class=\"fas fa-info\"></span></button> Button</li>\n"
+"            "
+
+#: templates/ledger/index.html:37
+msgid ""
+"\n"
+"            <h4>FAQ</h4>\n"
+"            <hr class=\"custom-line\">\n"
+"            <li class=\"list-group-item\">Q: I don't see my Character on the "
+"Char Ledger.</li>\n"
+"            <li class=\"list-group-item\">A: Maybe your Character isn't in "
+"the System, Please add it!</li>\n"
+"\n"
+"            <li class=\"list-group-item\">Q: Why is the ESS Stolen Amount "
+"not correctly?</li>\n"
+"            <li class=\"list-group-item\">A: The ESS Stolen information are "
+"updated from 'Corporation Ledger' so it can be wrong, cause it has a 3 hours "
+"update period</li>\n"
+"\n"
+"            <li class=\"list-group-item\">Q: I don't see any ESS Payout</"
+"li>\n"
+"            <li class=\"list-group-item\">A: Your Corporation is not in the "
+"Ledger System</li>\n"
+"            "
+msgstr ""
+"\n"
+"            <h4>FAQ</h4>\n"
+"            <hr class=\"custom-line\">\n"
+"            <li class=\"list-group-item\">F: Ich sehe meinen Charakter nicht im Charakter Ledger.</li>\n"
+"            <li class=\"list-group-item\">A: Vielleicht ist Ihr Charakter nicht im System, bitte fügen Sie ihn hinzu!</li>\n"
+"\n"
+"            <li class=\"list-group-item\">F: Warum ist der ESS gestohlene Betrag nicht korrekt?</li>\n"
+"            <li class=\"list-group-item\">A: Die ESS gestohlenen Informationen werden vom 'Corporation Ledger' aktualisiert, daher kann es falsch sein, da es eine 3-stündige Aktualisierungsperiode hat</li>\n"
+"\n"
+"            <li class=\"list-group-item\">F: Ich sehe keine ESS-Auszahlung</li>\n"
+"            <li class=\"list-group-item\">A: Ihre Corporation ist nicht im System</li>\n"
+"            "
+
+#: templates/ledger/modals/information/daily.html:8
+#: templates/ledger/modals/information/day.html:8
+#: templates/ledger/modals/information/hourly.html:8
+#: templates/ledger/modals/information/summary.html:8
+msgid "TAX"
+msgstr "Steuer"
+
+#: templates/ledger/modals/information/daily.html:20
+#: templates/ledger/modals/information/hourly.html:18
+#: templates/ledger/modals/information/hourly.html:25
+#: templates/ledger/modals/information/summary.html:23
+msgid "Avg."
+msgstr ""
+
+#: templates/ledger/modals/information/daily.html:20
+msgid "per Day"
+msgstr "pro Tag"
+
+#: templates/ledger/modals/information/daily.html:24
+msgid "Avg. Day Avg Tick"
+msgstr "Durchschn. Tag Durchschn. Tick"
+
+#: templates/ledger/modals/information/daily.html:31
+msgid "Avg. ESS per Day"
+msgstr "Durchschn. ESS pro Tag"
+
+#: templates/ledger/modals/information/daily.html:38
+msgid "Avg. Stolen per Day"
+msgstr "Durchschn. Gestohlene ESS pro Tag"
+
+#: templates/ledger/modals/information/daily.html:45
+msgid "Avg. Mission Rewards per Day"
+msgstr "Durchschn. Missionsbelohnung pro Tag"
+
+#: templates/ledger/modals/information/daily.html:52
+msgid "Avg. Mining per Day"
+msgstr "Durchschn. Bergbau pro Tag"
+
+#: templates/ledger/modals/information/daily.html:62
+msgid "Avg. Trading per Day"
+msgstr "Durchschn. Handel pro Tag"
+
+#: templates/ledger/modals/information/daily.html:69
+msgid "Avg. Contracts per Day"
+msgstr "Durchschn. Verträge pro Tag"
+
+#: templates/ledger/modals/information/daily.html:76
+msgid "Avg. Donations per Day"
+msgstr "Durchschn. Spenden pro Tag"
+
+#: templates/ledger/modals/information/daily.html:83
+msgid "Avg. Insurance per Day"
+msgstr "Durchschn. Versicherung pro Tag"
+
+#: templates/ledger/modals/information/daily.html:95
+msgid "Avg. Contract Cost per Day"
+msgstr "Durchschn. Vertragskosten pro Tag"
+
+#: templates/ledger/modals/information/daily.html:102
+msgid "Avg. Production Cost per Day"
+msgstr "Durchschn. Produktionskosten pro Tag"
+
+#: templates/ledger/modals/information/daily.html:109
+msgid "Avg. Trading Cost per Day"
+msgstr "Durchschn. Handelskosten pro Tag"
+
+#: templates/ledger/modals/information/daily.html:116
+msgid "Avg. Traveling Cost per Day"
+msgstr "Durchschn. Reisekosten pro Tag"
+
+#: templates/ledger/modals/information/daily.html:123
+msgid "Avg. Asset Safety Cost per Day"
+msgstr "Durchschn. Vermögenssicherheitskosten pro Tag"
+
+#: templates/ledger/modals/information/daily.html:130
+msgid "Avg. Skillbook Cost per Day"
+msgstr "Durchschn. Skillbuchkosten pro Tag"
+
+#: templates/ledger/modals/information/daily.html:137
+msgid "Avg. Insurance Cost per Day"
+msgstr "Durchschn. Versicherungskosten pro Tag"
+
+#: templates/ledger/modals/information/daily.html:144
+msgid "Avg. Planetary Cost per Day"
+msgstr "Durchschn. Planetenkosten pro Tag"
+
+#: templates/ledger/modals/information/daily.html:152
+msgid "Avg. Summary Day"
+msgstr "Avg. Zusammenfassung Tag"
+
+#: templates/ledger/modals/information/day.html:17
+#: templates/ledger/modals/information/day.html:22
+#: templates/ledger/modals/information/day.html:29
+#: templates/ledger/modals/information/day.html:36
+#: templates/ledger/modals/information/day.html:43
+#: templates/ledger/modals/information/day.html:50
+#: templates/ledger/modals/information/day.html:62
+#: templates/ledger/modals/information/day.html:69
+#: templates/ledger/modals/information/day.html:76
+#: templates/ledger/modals/information/day.html:83
+#: templates/ledger/modals/information/day.html:95
+#: templates/ledger/modals/information/day.html:102
+#: templates/ledger/modals/information/day.html:109
+#: templates/ledger/modals/information/day.html:116
+#: templates/ledger/modals/information/day.html:123
+#: templates/ledger/modals/information/day.html:130
+#: templates/ledger/modals/information/day.html:137
+#: templates/ledger/modals/information/day.html:144
+#: templates/ledger/modals/information/day.html:155
+msgid "Current Day"
+msgstr "Aktueller Tag"
+
+#: templates/ledger/modals/information/day.html:22
+msgid "Avg Tick"
+msgstr ""
+
+#: templates/ledger/modals/information/day.html:36
+#: templates/ledger/modals/information/summary.html:45
+msgid "Stolen ESS"
+msgstr "Gestohlene ESS"
+
+#: templates/ledger/modals/information/day.html:37
+#: templates/ledger/modals/information/summary.html:47
+msgid "Estimated only"
+msgstr "Nur geschätzt"
+
+#: templates/ledger/modals/information/day.html:43
+#: templates/ledger/modals/information/summary.html:38
+msgid "Mission Rewards"
+msgstr "Mission Belohnungen"
+
+#: templates/ledger/modals/information/day.html:62
+#: templates/ledger/modals/information/summary.html:64
+msgid "Trading"
+msgstr "Verkauf"
+
+#: templates/ledger/modals/information/day.html:69
+#: templates/ledger/modals/information/summary.html:71
+msgid "Contracts"
+msgstr "Verträge"
+
+#: templates/ledger/modals/information/day.html:76
+#: templates/ledger/modals/information/summary.html:82
+msgid "Donations"
+msgstr "Spenden"
+
+#: templates/ledger/modals/information/day.html:83
+#: templates/ledger/modals/information/summary.html:95
+msgid "Insurance"
+msgstr "Versicherung"
+
+#: templates/ledger/modals/information/day.html:95
+#: templates/ledger/modals/information/summary.html:111
+msgid "Contract Cost"
+msgstr "Verträge Kosten"
+
+#: templates/ledger/modals/information/day.html:102
+#: templates/ledger/modals/information/summary.html:118
+msgid "Production Cost"
+msgstr "Produktion Kosten"
+
+#: templates/ledger/modals/information/day.html:109
+#: templates/ledger/modals/information/summary.html:124
+msgid "Trading Cost"
+msgstr "Verkauf Kosten"
+
+#: templates/ledger/modals/information/day.html:116
+#: templates/ledger/modals/information/summary.html:131
+msgid "Traveling Cost"
+msgstr "Reise Kosten"
+
+#: templates/ledger/modals/information/day.html:123
+#: templates/ledger/modals/information/summary.html:138
+msgid "Asset Safety Cost"
+msgstr "Besitzsicherheits Kosten"
+
+#: templates/ledger/modals/information/day.html:130
+msgid "Skillbook Cost"
+msgstr "Skillbuch Kosten"
+
+#: templates/ledger/modals/information/day.html:137
+#: templates/ledger/modals/information/summary.html:152
+msgid "Insurance Cost"
+msgstr "Versicherung Kosten"
+
+#: templates/ledger/modals/information/day.html:144
+#: templates/ledger/modals/information/summary.html:159
+msgid "Planetary Cost"
+msgstr "Planetary Kosten"
+
+#: templates/ledger/modals/information/hourly.html:18
+msgid "per Hour"
+msgstr "pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:25
+msgid "Tick per Hour"
+msgstr "Tick pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:32
+msgid "Avg. ESS per Hour"
+msgstr "Durchschn. ESS pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:39
+msgid "Avg. Stolen per Hour"
+msgstr "Durchschn. Gestohlene ESS pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:46
+msgid "Avg. Mission Rewards per Hour"
+msgstr "Durchschn. Missionsbelohnung pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:53
+msgid "Avg. Mining per Hour"
+msgstr "Durchschn. Bergbau pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:63
+msgid "Avg. Trading per Hour"
+msgstr "Durchschn. Handel pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:70
+msgid "Avg. Contracts per Hour"
+msgstr "Durchschn. Verträge pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:77
+msgid "Avg. Donations per Hour"
+msgstr "Durchschn. Spenden pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:84
+msgid "Avg. Insurance per Hour"
+msgstr "Durchschn. Versicherung pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:96
+msgid "Avg. Contract Cost per Hour"
+msgstr "Durchschn. Vertragskosten pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:103
+msgid "Avg. Production Cost per Hour"
+msgstr "Durchschn. Produktionskosten pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:110
+msgid "Avg. Trading Cost per Hour"
+msgstr "Durchschn. Handelskosten pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:117
+msgid "Avg. Traveling Cost per Hour"
+msgstr "Durchschn. Reisekosten pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:124
+msgid "Avg. Asset Safety Cost per Hour"
+msgstr "Durchschn. Vermögenssicherheitskosten pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:131
+msgid "Avg. Skill Cost per Hour"
+msgstr "Durchschn. Skillkosten pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:138
+msgid "Avg. Insurance Cost per Hour"
+msgstr "Durchschn. Versicherungskosten pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:145
+msgid "Avg. Planetary Cost per Hour"
+msgstr "Durchschn. Planetenkosten pro Stunde"
+
+#: templates/ledger/modals/information/hourly.html:153
+msgid "Avg. Summary Hour"
+msgstr "Durchschn. Stundenzusammenfassung"
+
+#: templates/ledger/modals/information/summary.html:23
+msgid "- Tick"
+msgstr ""
+
+#: templates/ledger/modals/information/summary.html:31
+msgid "ESS"
+msgstr ""
+
+#: templates/ledger/modals/information/summary.html:145
+msgid "Skill Cost"
+msgstr "Skill Kosten"
+
+#: templates/ledger/modals/information/view_character_content.html:23
+msgid "Daily"
+msgstr "Täglich"
+
+#: templates/ledger/modals/information/view_character_content.html:35
+msgid "Orange Color is for Info only and is not included in the Calculation"
+msgstr ""
+"Die orange Farbe dient nur zur Information und wird nicht in die Berechnung "
+"einbezogen"
+
+#: templates/ledger/modals/information/view_character_content.html:38
+msgid "No ratting data found..."
+msgstr "Keine Ratting daten gefunden..."
+
+#: templates/ledger/modals/modal-full.html:12
+#: templates/ledger/modals/modal-xl.html:12
+#: templates/ledger/modals/modal.html:12
+#: templates/ledger/planetary/planetary_ledger.html:45
+msgid "Close"
+msgstr "Schließen"
+
+#: templates/ledger/partials/menu/ally/administration.html:7
+#: templates/ledger/partials/menu/corp/administration.html:13
 msgid "Add Corporation"
 msgstr "Corporation Hinzufügen"
 
-#: templates/ledger/partials/menu/administration.html:23
-#: templates/ledger/partials/menu/char/administration.html:15
-msgid "Add All Memberaudit Chars"
-msgstr "Alle Member Audit Chars Hinzufügen"
+#: templates/ledger/partials/menu/ally/administration.html:13
+msgid "Add Alliance"
+msgstr "Allianz Hinzufügen"
 
-#: templates/ledger/partials/menu/char/navigation.html:14
-#: templates/ledger/partials/menu/navigation.html:14
+#: templates/ledger/partials/menu/char/administration.html:6
+#: templates/ledger/partials/menu/corp/administration.html:6
+msgid "Add Character"
+msgstr "Character Hinzufügen"
+
+#: templates/ledger/partials/menu/char/navigation.html:8
+#: templates/ledger/partials/menu/navigation.html:19
 msgid "Planetary Ledger"
 msgstr ""
 
-#: templates/ledger/partials/menu/char/navigation.html:18
-#: templates/ledger/partials/menu/navigation.html:25
-msgid "Character Overview"
-msgstr "Character Übersicht"
+#: templates/ledger/permission.html:3
+msgid "You don't have Permission to view this Page"
+msgstr "Du hast keine berechtigung diese Seite zu sehen"
 
-#: templates/ledger/partials/menu/corp/navigation.html:14
-#: templates/ledger/partials/menu/navigation.html:28
-msgid "Corporation Overview"
-msgstr "Corporation Übersicht"
-
-#: templates/ledger/partials/menu/navigation.html:18
-msgid "Events"
-msgstr ""
-
-#: templates/ledger/planetary/index.html:8
-#: templates/ledger/planetary/index.html:13
-msgid "Planetary Details"
-msgstr ""
-
-#: templates/ledger/planetary/index.html:51
-msgid "Are you sure to Switch Alarm?"
-msgstr "Bist du sicher das du den Alarm wechseln möchtest?"
-
-#: templates/ledger/planetary/index.html:52
-msgid "Toggle Alarm"
-msgstr "Umschalten Alarm"
-
-#: templates/ledger/planetary/index.html:53
-msgid "Notification Activated"
-msgstr "Notification Aktiviert"
-
-#: templates/ledger/planetary/index.html:54
-msgid "Notification Deactivated"
-msgstr "Notification Deaktiviert"
+#: templates/ledger/planetary/admin/character_admin.html:9
+msgid "Ledger Planetary Overview"
+msgstr "Ledger Planetary Übersicht"
 
 #: templates/ledger/planetary/partials/table.html:6
 msgid "Character"
-msgstr ""
+msgstr "Charakter"
 
 #: templates/ledger/planetary/partials/table.html:7
 msgid "Planet"
@@ -315,32 +940,72 @@ msgstr ""
 
 #: templates/ledger/planetary/partials/table.html:8
 msgid "Upgrade Level"
-msgstr ""
+msgstr "Upgrade Stufe"
 
 #: templates/ledger/planetary/partials/table.html:9
 msgid "Products"
-msgstr ""
+msgstr "Produkte"
 
 #: templates/ledger/planetary/partials/table.html:10
 msgid "Extractor"
-msgstr ""
+msgstr "Extraktor"
 
 #: templates/ledger/planetary/partials/table.html:11
 msgid "Status"
 msgstr ""
 
 #: templates/ledger/planetary/partials/table.html:12
-msgid "Actions"
-msgstr "Aktionen"
+msgid "Last Updated"
+msgstr "Letztes Update"
 
-#: templates/ledger/planetary/partials/table.html:24
+#: templates/ledger/planetary/partials/table.html:25
 msgid "Confirm Action"
 msgstr "Bestätige Aktion"
 
-#: templates/ledger/planetary/partials/table.html:33
-msgid "Cancel"
-msgstr "Abbrechen"
-
-#: templates/ledger/planetary/partials/table.html:34
+#: templates/ledger/planetary/partials/table.html:35
 msgid "Confirm"
 msgstr "Bestätige"
+
+#: templates/ledger/planetary/planetary_ledger.html:8
+#: templates/ledger/planetary/planetary_ledger.html:12
+msgid "Planetary Details"
+msgstr ""
+
+#: templates/ledger/planetary/planetary_ledger.html:15
+msgid "Planetary Overview"
+msgstr "Planetary Übersicht"
+
+#: templates/ledger/planetary/planetary_ledger.html:22
+msgid "Notification"
+msgstr "Notifikation"
+
+#: templates/ledger/planetary/planetary_ledger.html:22
+msgid "ON"
+msgstr "AN"
+
+#: templates/ledger/planetary/planetary_ledger.html:22
+msgid "OFF"
+msgstr "AUS"
+
+#: templates/ledger/planetary/planetary_ledger.html:38
+msgid "Extractor Information"
+msgstr ""
+
+#: templates/ledger/planetary/planetary_ledger.html:69
+msgid "Are you sure to Switch Notification"
+msgstr "Bist du sicher das du den Alarm wechseln möchtest"
+
+#: templates/ledger/planetary/planetary_ledger.html:70
+msgid "Switch Notification"
+msgstr "Schalte Notifikation um"
+
+#: templates/ledger/planetary/planetary_ledger.html:71
+msgid "Notification Activated"
+msgstr "Notification Aktiviert"
+
+#: templates/ledger/planetary/planetary_ledger.html:72
+msgid "Notification Deactivated"
+msgstr "Notification Deaktiviert"
+
+#~ msgid "Corporation/Alliance Ledger"
+#~ msgstr "Corporation/Alliance Ledger"

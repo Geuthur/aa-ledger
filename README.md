@@ -62,6 +62,10 @@ ______________________________________________________________________
 > AA Ledger needs at least Alliance Auth v4.0.0
 > Please make sure to update your Alliance Auth before you install this APP
 
+### Step 0 - Check dependencies are installed<a name="step1"></a>
+
+- Ledger needs the app [django-eveuniverse](https://apps.allianceauth.org/apps/detail/django-eveuniverse) to function. Please make sure it is installed.
+
 ### Step 1 - Install the Package<a name="step1"></a>
 
 Make sure you're in your virtual environment (venv) of your Alliance Auth then install the pakage.
@@ -74,8 +78,6 @@ pip install aa-ledger
 
 Configure your Alliance Auth settings (`local.py`) as follows:
 
-- Add `'allianceauth.corputils',` to `INSTALLED_APPS`
-- Add `'eveuniverse',` to `INSTALLED_APPS`
 - Add `'ledger',` to `INSTALLED_APPS`
 
 ### Step 3 - Add the Scheduled Tasks<a name="step3"></a>
@@ -96,6 +98,8 @@ CELERYBEAT_SCHEDULE["ledger_check_planetary_alarms"] = {
     "schedule": crontab(minute=0, hour="*/3"),
 }
 ```
+
+### Step 3.1 - (Optional) Setting up Compatibilies></a>
 
 > \[!NOTE\]
 > If you have Member Audit installed add this to Fetch Member Audit Chars and Sync with Ledger
@@ -140,8 +144,6 @@ The Following Settings can be setting up in the `local.py`
 - LEDGER_CORP_TAX:          `15`             - Set Tax Value for ESS Payout Calculation
 
 - LEDGER_LOGGER_USE:        `True / False`   - Set to use own Logger File
-
-- LEDGER_CORPSTATS_TWO:     `True / False`   - Set to use Corp Stats Two Application for fetching member data
 
 If you set up LEDGER_LOGGER_USE to `True` you need to add the following code below:
 

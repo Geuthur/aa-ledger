@@ -1,12 +1,15 @@
 import json
+from collections import defaultdict
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models import DecimalField, Q, Sum, Value
 from django.db.models.functions import Coalesce
+from django.utils import timezone
 
 from allianceauth.eveonline.models import EveCharacter
 
-from ledger.hooks import get_corp_models_and_string, get_extension_logger
+from ledger.hooks import get_extension_logger
 from ledger.view_helpers.core import events_filter
 
 logger = get_extension_logger(__name__)
@@ -22,7 +25,11 @@ class CorpWalletQuerySet(models.QuerySet):
             "character_ownership", "character_ownership__user__profile__main_character"
         ).prefetch_related("character_ownership__user__character_ownerships__character")
 
-        corpmember = get_corp_models_and_string()
+        seond_party_ids = self.filter(
+            division__corporation__corporation__corporation_id__in=corporations,
+            ref_type="bounty_prizes",
+        ).values_list("second_party_id", flat=True)
+
         char_to_main = {}
         chars_list = []
         for char in linked_chars:
@@ -40,16 +47,12 @@ class CorpWalletQuerySet(models.QuerySet):
             except AttributeError:
                 continue
 
-        corpmember = (
-            corpmember.objects.filter(corpstats__corp__corporation_id__in=corporations)
-            .values_list("character_id", flat=True)
-            .exclude(character_id__in=char_to_main)
-        )
-
-        for character_id in corpmember:
-            if character_id in chars_ids:
+        # Add all Chars that not registred
+        for character_id in seond_party_ids:
+            if character_id not in chars_list:
                 char_to_main[character_id] = [character_id]
                 chars_list.append(character_id)
+
         return char_to_main, chars_list
 
     def annotate_bounty(self, second_party_ids: list) -> models.QuerySet:
@@ -142,6 +145,66 @@ class CorpWalletQuerySet(models.QuerySet):
             )
             .filter(models.Q(total_bounty__gt=0) | models.Q(total_ess__gt=0))
         )
+
+    def generate_template(
+        self,
+        amounts: defaultdict,
+        character_ids: list,
+        filter_date: timezone.datetime,
+        mode=None,
+    ) -> dict:
+        qs = self.filter(
+            Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
+        )
+
+        # Define the types and their respective filters
+        types_filters = {
+            "ess": Q(ref_type__in=["ess_escrow_transfer"]),
+        }
+
+        if mode == "corporation":
+            types_filters["bounty"] = Q(ref_type__in=["bounty_prizes"])
+
+        # Create the template
+        for type_name, type_filter in types_filters.items():
+            total_amount = qs.filter(type_filter).aggregate(
+                total_amount=Coalesce(
+                    Sum("amount"), Value(0), output_field=DecimalField()
+                )
+            )["total_amount"]
+
+            total_amount_day = qs.filter(
+                type_filter,
+                date__year=filter_date.year,
+                date__month=filter_date.month,
+                date__day=filter_date.day,
+            ).aggregate(
+                total_amount_day=Coalesce(
+                    Sum("amount"), Value(0), output_field=DecimalField()
+                )
+            )[
+                "total_amount_day"
+            ]
+
+            total_amount_hour = qs.filter(
+                type_filter,
+                date__year=filter_date.year,
+                date__month=filter_date.month,
+                date__day=filter_date.day,
+                date__hour=filter_date.hour,
+            ).aggregate(
+                total_amount_hour=Coalesce(
+                    Sum("amount"), Value(0), output_field=DecimalField()
+                )
+            )[
+                "total_amount_hour"
+            ]
+
+            amounts[type_name]["total_amount"] = total_amount
+            amounts[type_name]["total_amount_day"] = total_amount_day
+            amounts[type_name]["total_amount_hour"] = total_amount_hour
+
+        return amounts
 
 
 class CorpWalletManagerBase(models.Manager):

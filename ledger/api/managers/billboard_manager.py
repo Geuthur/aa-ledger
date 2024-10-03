@@ -3,22 +3,10 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from decimal import Decimal
 
-from django.db.models import DecimalField, Q, Sum, Value
-from django.db.models.functions import (
-    Coalesce,
-    TruncDay,
-    TruncHour,
-    TruncMonth,
-    TruncYear,
-)
+from django.db.models.functions import TruncDay, TruncHour, TruncMonth, TruncYear
 
 from ledger.api.helpers import convert_ess_payout
-from ledger.api.managers.core_manager import (
-    LedgerData,
-    LedgerDate,
-    LedgerFilter,
-    LedgerModels,
-)
+from ledger.api.managers.core_manager import LedgerData, LedgerDate, LedgerModels
 from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
@@ -100,15 +88,11 @@ class BillboardLedger:
         annotations = {"period": trunctype}
         self.tick = tick
 
-        filters = LedgerFilter(self.chars)
-
-        summary = self.process_billboard(
-            annotations, filters, period_format, billboard_values
-        )
+        summary = self.process_billboard(annotations, period_format, billboard_values)
 
         return summary
 
-    def process_billboard(self, annotations, filters, period_format, billboard_values):
+    def process_billboard(self, annotations, period_format, billboard_values):
         self.data_dict = defaultdict(lambda: defaultdict(int))
         summary = BillboardSum()
         if self.models.corp_journal:
@@ -116,7 +100,7 @@ class BillboardLedger:
 
         if not self.is_corp:
             if self.models.char_journal:
-                self._process_char_journal(annotations, filters, period_format)
+                self._process_char_journal(annotations, period_format)
 
         for period, data in self.data_dict.items():
             # Main Data
@@ -171,52 +155,11 @@ class BillboardLedger:
                     self.data_dict[period]["total_ess"]
                 )
 
-    def _process_char_journal(self, annotations, filters, period_format):
-        donations_filter = filters.filter_donation & ~Q(first_party_id__in=self.alts)
+    def _process_char_journal(self, annotations, period_format):
         char_journal = (
             self.models.char_journal.annotate(**annotations)
             .values("period")
-            .annotate(
-                total_bounty=Coalesce(
-                    Sum("amount", filter=filters.filter_bounty),
-                    Value(0),
-                    output_field=DecimalField(),
-                ),
-                total_miscellaneous=Coalesce(
-                    Sum(
-                        "amount",
-                        filter=filters.filter_all_misc
-                        | filters.filter_all_missions
-                        | donations_filter,
-                    ),
-                    Value(0),
-                    output_field=DecimalField(),
-                ),
-                total_cost=Coalesce(
-                    Sum(
-                        "amount",
-                        filter=filters.filter_all_costs,
-                    ),
-                    Value(0),
-                    output_field=DecimalField(),
-                ),
-                total_market_cost=Coalesce(
-                    Sum(
-                        "amount",
-                        filter=filters.filter_market_cost,
-                    ),
-                    Value(0),
-                    output_field=DecimalField(),
-                ),
-                total_production_cost=Coalesce(
-                    Sum(
-                        "amount",
-                        filter=filters.filter_production_cost,
-                    ),
-                    Value(0),
-                    output_field=DecimalField(),
-                ),
-            )
+            .annotate_billboard(self.chars, self.alts)
             .order_by("period")
         )
 

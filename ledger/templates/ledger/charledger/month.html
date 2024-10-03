@@ -18,14 +18,14 @@
         <div class="row g-0">
             <div class="col-md-12 g-2 d-none" id="rattingBarContainer-Month">
                 <div class="card-header bg-primary d-flex justify-content-between align-items-center">
-                    <h3 class="card-title mb-0" id="barTitle-Month">Ledger 30 Days</h3>
+                    <h3 class="card-title mb-0" id="barTitle-Month">Ledger 30 {% trans "Days" %}</h3>
                     <div class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Mode
+                            {% trans "Mode" %}
                         </button>
                         <ul class="dropdown-menu" id="barDropdown-Month">
-                            <li><a class="dropdown-item" href="#">Month</a></li>
-                            <li><a class="dropdown-item" href="#">Hourly</a></li>
+                            <li><a class="dropdown-item" href="#">{% trans "Month" %}</a></li>
+                            <li><a class="dropdown-item" href="#">{% trans "Hourly" %}</a></li>
                         </ul>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
             </div>
             <div class="col-md-6 g-2 d-none" id="ChartContainer-Month">
                 <div class="card-header bg-primary">
-                    <h3 class="card-title">Wallet</h3>
+                    <h3 class="card-title">{% trans "Wallet" %}</h3>
                 </div>
                 <div class="card-body bg-secondary">
                     <div id="rattingChart-Month"></div>
@@ -43,7 +43,7 @@
             </div>
             <div class="col-md-6 g-2 d-none" id="workGaugeContainer-Month">
                 <div class="card-header bg-primary">
-                    <h3 class="card-title">Workflow</h3>
+                    <h3 class="card-title">{% trans "Workflow" %}</h3>
                 </div>
                 <div class="card-body bg-secondary">
                     <div id="rattingworkGauge-Month"></div>

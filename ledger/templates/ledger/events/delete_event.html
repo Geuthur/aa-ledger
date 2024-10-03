@@ -13,12 +13,12 @@
                 <h3><div class="card-title">{% translate "Delete Event" %}</div></h3>
             </div>
             <div class="card-body bg-secondary">
-                <p>Möchten Sie das Event "{{ event.title }}" wirklich löschen?</p>
+                <p>{% trans "Are you sure to delete the event" %} "{{ event.title }}"?</p>
 
                 <form method="post">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">{% translate "Ja, löschen" %}</button>
-                    <a href="{% url 'ledger:event_admin' %}" class="btn btn-secondary">{% translate "Nein, abbrechen" %}</a>
+                    <button type="submit" class="btn btn-danger">{% translate "Yes" %}</button>
+                    <a href="{% url 'ledger:event_admin' %}" class="btn btn-secondary">{% translate "Cancel" %}</a>
                 </form>
             </div>
         </div>

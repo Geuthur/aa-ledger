@@ -105,7 +105,7 @@ class ManageApiLedgerCorpEndpointsTest(TestCase):
 
     def test_get_corporation_billbboard_api_no_data(self):
         self.client.force_login(self.user3)
-        url = "/ledger/api/corporation/0/billboard/year/2024/month/3/"
+        url = "/ledger/api/corporation/0/billboard/year/2000/month/3/"
 
         response = self.client.get(url)
 

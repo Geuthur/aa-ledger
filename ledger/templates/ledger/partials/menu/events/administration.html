@@ -1,0 +1,15 @@
+{% load i18n %}
+{% load navactive %}
+
+{% if perms.ledger.admin_access %}
+    <li class="nav-item">
+        <a class="nav-link py-0" href="{% url 'ledger:create_event' %}">
+            <span class="btn btn-success">{% translate 'Create Event' %}</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link py-0" href="{% url 'ledger:event_admin' %}">
+            <span class="btn btn-success">{% translate 'Events Administration' %}</span>
+        </a>
+    </li>
+{% endif %}

@@ -3,18 +3,17 @@
 
 {% if perms.ledger.basic_access %}
 <li class="nav-item">
-    <a class="nav-link" href="{% url 'ledger:index' %}">Ledger</a>
+    <a class="nav-link" href="{% url 'ledger:index' %}">{% trans "Ledger" %}</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link" href="{% url 'ledger:events_index' %}">Events</a>
+    <a class="nav-link" href="{% url 'ledger:events_index' %}">{% trans "Events" %}</a>
 </li>
 {% endif %}
 {% if perms.ledger.admin_access %}
 <li class="nav-item">
-    <a class="nav-link" href="{% url 'ledger:create_event' %}">Create Event</a>
+    <a class="nav-link" href="{% url 'ledger:create_event' %}">{% trans "Create Event" %}</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link" href="{% url 'ledger:event_admin' %}">Events Administration</a>
+    <a class="nav-link" href="{% url 'ledger:event_admin' %}">{% trans "Events Administration" %}</a>
 </li>
-
 {% endif %}

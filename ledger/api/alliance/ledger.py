@@ -1,5 +1,3 @@
-from typing import List
-
 from ninja import NinjaAPI
 
 from ledger.api import schema
@@ -18,7 +16,7 @@ class LedgerApiEndpoints:
     def __init__(self, api: NinjaAPI):
         @api.get(
             "alliance/{alliance_id}/ledger/year/{year}/month/{month}/",
-            response={200: List[schema.Ledger], 403: str},
+            response={200: list[schema.Ledger], 403: str},
             tags=self.tags,
         )
         def get_alliance_ledger(request, alliance_id: int, year: int, month: int):
@@ -39,7 +37,7 @@ class LedgerApiEndpoints:
 
         @api.get(
             "alliance/{alliance_id}/billboard/year/{year}/month/{month}/",
-            response={200: List[schema.Billboard], 403: str},
+            response={200: list[schema.Billboard], 403: str},
             tags=self.tags,
         )
         def get_billboard_ledger(request, alliance_id: int, year: int, month: int):
@@ -60,7 +58,7 @@ class LedgerApiEndpoints:
 
         @api.get(
             "alliance/ledger/admin/",
-            response={200: List[schema.AllianceAdmin], 403: str},
+            response={200: list[schema.AllianceAdmin], 403: str},
             tags=self.tags,
         )
         def get_alliance_admin(request):

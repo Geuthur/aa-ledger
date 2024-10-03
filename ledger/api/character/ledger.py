@@ -1,5 +1,3 @@
-from typing import List
-
 from ninja import NinjaAPI
 
 from allianceauth.authentication.models import UserProfile
@@ -20,7 +18,7 @@ class LedgerApiEndpoints:
     def __init__(self, api: NinjaAPI):
         @api.get(
             "account/{character_id}/ledger/year/{year}/month/{month}/",
-            response={200: List[schema.Ledger], 403: str},
+            response={200: list[schema.Ledger], 403: str},
             tags=self.tags,
         )
         def get_character_ledger(request, character_id: int, year: int, month: int):
@@ -43,7 +41,7 @@ class LedgerApiEndpoints:
 
         @api.get(
             "account/{character_id}/billboard/year/{year}/month/{month}/",
-            response={200: List[schema.Billboard], 403: str},
+            response={200: list[schema.Billboard], 403: str},
             tags=self.tags,
         )
         def get_billboard_ledger(request, character_id: int, year: int, month: int):
@@ -66,7 +64,7 @@ class LedgerApiEndpoints:
 
         @api.get(
             "account/ledger/admin/",
-            response={200: List[schema.CharacterAdmin], 403: str},
+            response={200: list[schema.CharacterAdmin], 403: str},
             tags=self.tags,
         )
         def get_character_admin(request):

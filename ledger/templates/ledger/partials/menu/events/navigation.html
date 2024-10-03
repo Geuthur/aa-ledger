@@ -1,0 +1,11 @@
+{% load i18n %}
+{% load navactive %}
+
+{% if perms.ledger.basic_access %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'ledger:index' %}">{% trans "Ledger" %}</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'ledger:events_index' %}">{% trans "Events" %}</a>
+    </li>
+{% endif %}

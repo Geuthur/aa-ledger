@@ -2,8 +2,6 @@
 Corporation Audit Model
 """
 
-from typing import List
-
 # Django
 from django.db import models
 
@@ -33,7 +31,7 @@ class CorporationAudit(models.Model):
         return f"{self.corporation.corporation_name}'s Corporation Data"
 
     @classmethod
-    def get_esi_scopes(cls) -> List[str]:
+    def get_esi_scopes(cls) -> list[str]:
         """Return list of required ESI scopes to fetch."""
         return [
             # General

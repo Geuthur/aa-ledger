@@ -1,5 +1,3 @@
-from typing import List
-
 from ninja import NinjaAPI
 
 from ledger.api import schema
@@ -16,7 +14,7 @@ class LedgerJournalApiEndpoints:
 
         @api.get(
             "corporation/{corporation_id}/wallet/",
-            response={200: List[schema.CorporationWalletEvent], 403: str},
+            response={200: list[schema.CorporationWalletEvent], 403: str},
             tags=self.tags,
         )
         def get_corporation_wallet(

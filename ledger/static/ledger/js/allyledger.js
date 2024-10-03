@@ -1,39 +1,44 @@
 /* global alliancesettings */
-var bb, d3;
+/* global bb, d3 */
+var MonthUrl, YearUrl, BillboardUrl, BillboardUrlYear;
 var BillboardMonth, BillboardYear;
 
-var alliancePk = alliancesettings.alliance_pk;
+const alliancePk = alliancesettings.alliance_pk;
 
 // Aktuelles Datumobjekt erstellen
-var currentDate = new Date();
+const currentDate = new Date();
 
 // Aktuelles Jahr und Monat abrufen
 var selectedYear = currentDate.getFullYear();
 var selectedMonth = currentDate.getMonth() + 1;
 var monthText = getMonthName(selectedMonth);
 
-// Billboard URLs
-var MonthUrl = '/ledger/api/alliance/' + alliancePk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
-var YearUrl = '/ledger/api/alliance/' + alliancePk + '/ledger/year/' + selectedYear + '/month/0/';
-var BillboardUrl = '/ledger/api/alliance/' + alliancePk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
-var BillboardUrlYear = '/ledger/api/alliance/' + alliancePk + '/billboard/year/' + selectedYear + '/month/0/';
+function updateUrls() {
+    MonthUrl = '/ledger/api/alliance/' + alliancePk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
+    YearUrl = '/ledger/api/alliance/' + alliancePk + '/ledger/year/' + selectedYear + '/month/0/';
+    BillboardUrl = '/ledger/api/alliance/' + alliancePk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
+    BillboardUrlYear = '/ledger/api/alliance/' + alliancePk + '/billboard/year/' + selectedYear + '/month/0/';
+}
 
 function getMonthName(monthNumber) {
-    var months = ['January', 'February', 'March', 'April', 'May', 'June',
+    const months = ['January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'];
     return months[monthNumber - 1]; // Array ist 0-basiert, daher -1
 }
 
 // Function to format currency and apply color
 function formatAndColor(value) {
-    // Formatieren und Komma-Stellen entfernen
-    var formattedValue = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+    // Ensure data is a number
+    const number = parseInt(value) || 0;
 
-    // Bestimme die Textfarbe basierend auf dem Wert
-    var color = value >= 0 ? 'chartreuse' : 'red';
+    // Format the number to two decimal places
+    const formattedNumber = number.toLocaleString();
 
-    // Rückgabe des formatierten Strings mit Farbe und Einheit
-    return '<span style="color: ' + color + ';">' + formattedValue + '</span> ISK';
+    // Determine the CSS class based on the value
+    const cssClass = number < 0 ? 'text-danger' : 'text-success';
+
+    // Return the formatted number wrapped in a span with the appropriate class
+    return `<span class="${cssClass}">${formattedNumber}</span> ISK`;
 }
 
 $('#monthDropdown li').click(function() {
@@ -46,13 +51,12 @@ $('#monthDropdown li').click(function() {
     selectedMonth = $(this).find('a').data('bs-month-id');
     monthText = getMonthName(selectedMonth);
 
-    // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
-    var newurl = '/ledger/api/alliance/' + alliancePk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
-    var BillboardUrl = '/ledger/api/alliance/' + alliancePk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
+    // Update URLs
+    updateUrls();
 
     // Daten neu laden mit den Daten des ausgewählten Monats
     setBillboardData(BillboardUrl, 'Month');
-    generateLedger('Month', newurl);
+    generateLedger('Month', MonthUrl);
     $('#currentMonthLink').text('Month - ' + monthText);
 });
 
@@ -70,20 +74,27 @@ $('#yearDropdown li').click(function() {
 
     selectedYear = $(this).text();
 
-    // URL für die Daten der ausgewählten Kombination von Jahr und Monat erstellen
-    var newurl = '/ledger/api/alliance/' + alliancePk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/';
-    var newurl_year = '/ledger/api/alliance/' + alliancePk + '/ledger/year/' + selectedYear + '/month/0/';
-    var BillboardUrl = '/ledger/api/alliance/' + alliancePk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/';
-    var BillboardUrlYear = '/ledger/api/alliance/' + alliancePk + '/billboard/year/' + selectedYear + '/month/0/';
+    // Update URLs
+    updateUrls();
 
     // Daten neu laden mit den Daten des ausgewählten Jahres
     setBillboardData(BillboardUrl, 'Month');
     setBillboardData(BillboardUrlYear, 'Year');
-    generateLedger('Year', newurl_year);
-    generateLedger('Month', newurl);
+    generateLedger('Month', MonthUrl);
+    generateLedger('Year', YearUrl);
     $('#currentMonthLink').text('Month - ' + monthText);
     $('#currentYearLink').text('Year - ' + selectedYear);
 });
+
+function initializeTooltipsAndPopovers() {
+    $('[data-tooltip-toggle="ally-tooltip"]').tooltip({
+        trigger: 'hover',
+    });
+    $('[data-bs-toggle="ally-popover"]').popover({
+        trigger: 'hover',
+        html: true,
+    });
+}
 
 function hideLoading(id) {
     $('#bar-loading-'+id).addClass('d-none');
@@ -132,9 +143,9 @@ function generateLedger(TableName, url) {
                 $('#ratting-'+ TableName +'').DataTable().destroy();
             }
             hideLoading(TableName);
-            var total_amount = data[0].total.total_amount;
-            var total_amount_ess = data[0].total.total_amount_ess;
-            var total_amount_combined = data[0].total.total_amount_all;
+            const total_amount = data[0].total.total_amount;
+            const total_amount_ess = data[0].total.total_amount_ess;
+            const total_amount_combined = data[0].total.total_amount_all;
 
             // Set the month to 0 for the year table
             var tableMonth = (TableName === 'Year') ? 0 : selectedMonth;
@@ -146,21 +157,34 @@ function generateLedger(TableName, url) {
                 columns: [
                     {
                         data: 'main_name',
-                        render: function (data, type, row) {
+                        render: function (data, _, row) {
                             // Initialize alt_names
                             var alt_portrait = 'Included Characters: ';
 
                             // Loop through alt_names and add each image
                             row.alt_names.forEach(function(character_id) {
-                                alt_portrait += '<img src="https://images.evetech.net/characters/' + character_id + '/portrait?size=32" class="rounded-circle" height="30">';
+                                alt_portrait += `
+                                    <img
+                                        src="https://images.evetech.net/characters/${character_id}/portrait?size=32"
+                                        class="rounded-circle"
+                                        height="30"
+                                    >
+                                `;
                             });
 
-                            var imageHTML = '<img src="https://images.evetech.net/characters/' + row.main_id + '/portrait?size=32" class="rounded-circle" height="30" data-bs-trigger="hover" data-bs-toggle="popover" data-bs-content=\''+ alt_portrait +'\' >';
-                            return imageHTML + ' ' + data;
+                            var imageHTML = `
+                                <img
+                                    src='https://images.evetech.net/characters/${row.main_id}/portrait?size=32'
+                                    class='rounded-circle'
+                                    height="30"
+                                    data-bs-toggle='ally-popover'
+                                    data-bs-content='${alt_portrait}'> ${data}
+                                `;
+                            return imageHTML;
                         }
                     },
                     {   data: 'total_amount',
-                        render: function (data, type, row) {
+                        render: function (data, type) {
                             if (type === 'display') {
                                 return formatAndColor(data);
                             }
@@ -168,7 +192,7 @@ function generateLedger(TableName, url) {
                         }
                     },
                     {   data: 'total_amount_ess',
-                        render: function (data, type, row) {
+                        render: function (data, type) {
                             if (type === 'display') {
                                 return formatAndColor(data);
                             }
@@ -177,14 +201,16 @@ function generateLedger(TableName, url) {
                     },
                     {
                         data: 'col-total-action',
-                        render: function (data, type, row) {
-                            return '<button class="btn btn-sm btn-info btn-square" ' +
-                                'data-bs-toggle="modal" ' +
-                                'data-bs-target="#modalViewCharacterContainer" ' +
-                                'data-ajax_url="/ledger/api/alliance/'+ alliancePk +'/character/'+ row.main_id + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/" ' +
-                                'title="' + row.main_name + '">' +
-                                '<span class="fas fa-info"></span>' +
-                                '</button>';
+                        render: function (_, __, row) {
+                            return `
+                                <button class="btn btn-sm btn-info btn-square"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalViewCharacterContainer"
+                                    data-ajax_url="/ledger/api/alliance/${alliancePk}/character/${row.main_id}/ledger/template/year/${selectedYear}/month/${tableMonth}/"
+                                    title="${row.main_name}" data-tooltip-toggle="ally-tooltip" data-bs-placement="left">
+                                    <span class="fas fa-info"></span>
+                                </button>
+                            `;
                         }
                     },
                 ],
@@ -196,7 +222,7 @@ function generateLedger(TableName, url) {
                         className: 'text-end',
                     },
                 ],
-                footerCallback: function (row, data, start, end, display) {
+                footerCallback: function (_, data, __, ___, ____) {
                     if (data.length === 0) {
                         $('#foot-'+ TableName +' .col-total-amount').html('');
                         $('#foot-'+ TableName +' .col-total-ess').html('');
@@ -204,32 +230,30 @@ function generateLedger(TableName, url) {
                         $('#foot-'+ TableName +' .col-total-button').html('').removeClass('text-end');
                         return;
                     }
-                    var totalAmountAllChars = parseFloat(total_amount);
-                    var totalEssAmountAllChars = parseFloat(total_amount_ess);
-                    var totalCombinedAmountAllChars = parseFloat(total_amount_combined);
-                    $('#foot-'+ TableName +' .col-total-amount').html('' + formatAndColor(totalAmountAllChars) + '');
-                    $('#foot-'+ TableName +' .col-total-ess').html('' + formatAndColor(totalEssAmountAllChars) + '');
-                    $('#foot-'+ TableName +' .col-total-gesamt').html('' + formatAndColor(totalCombinedAmountAllChars) + '');
-                    $('#foot-'+ TableName +' .col-total-button').html('<button class="btn btn-sm btn-info btn-square" data-bs-toggle="modal" data-bs-target="#modalViewCharacterContainer"' +
-                        'data-ajax_url="/ledger/api/alliance/'+ alliancePk +'/character/' + alliancePk + '/ledger/template/year/' + selectedYear + '/month/' + tableMonth + '/?corp=true" ' +
-                        'title="{{ data.main_name }}"> <span class="fas fa-info"></span></button>')
-                        .addClass('text-end');
+                    $('#foot-'+ TableName +' .col-total-amount').html(formatAndColor(total_amount));
+                    $('#foot-'+ TableName +' .col-total-ess').html(formatAndColor(total_amount_ess));
+                    $('#foot-'+ TableName +' .col-total-gesamt').html(formatAndColor(total_amount_combined));
+                    $('#foot-'+ TableName +' .col-total-button').html(`
+                        <button
+                            class="btn btn-sm btn-info btn-square"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalViewCharacterContainer"
+                            data-ajax_url="/ledger/api/alliance/${alliancePk}/character/${alliancePk}/ledger/template/year/${selectedYear}/month/${tableMonth}/?corp=true">
+                            <span class="fas fa-info"></span>
+                        </button>
+                    `).addClass('text-end');
                 },
-                initComplete: function(settings, json) {
+                initComplete: function() {
                     $('#foot-'+ TableName +'').show();
                     $('#ratting-'+ TableName +'').removeClass('d-none');
-                    // Initialize popover
-                    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-                    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-                        // eslint-disable-next-line no-undef
-                        return new bootstrap.Popover(popoverTriggerEl, {
-                            html: true
-                        });
-                    });
+                    initializeTooltipsAndPopovers();
+                },
+                drawCallback: function() {
+                    initializeTooltipsAndPopovers();
                 }
             });
         },
-        error: function(xhr, status, error) {
+        error: function(xhr, _, __) {
             if (xhr.status === 403) {
                 hideLoading(''+ TableName +'');
                 $('#ratting-'+ TableName +'').hide();
@@ -348,6 +372,9 @@ function loadBillboard(data, id) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Update URLs
+    updateUrls();
+
     setBillboardData(BillboardUrl, 'Month');
     setBillboardData(BillboardUrlYear, 'Year');
 

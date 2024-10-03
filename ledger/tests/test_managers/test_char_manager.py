@@ -238,15 +238,13 @@ class CharManagerQuerySetTest(TestCase):
     def test_generate_billboard(self):
 
         character_ids = [1, 2, 3]
-        filter_date = Q(date__gte="2023-01-01")
-        exclude = [4, 5]
+        alts = [4, 5]
 
         # Test with filter
-        qs = self.manager.generate_billboard(character_ids, filter_date, exclude)
+        qs = self.manager.annotate_billboard(character_ids, alts)
         self.assertIsNotNone(qs)
         self.assertIn("total_bounty", qs.query.annotations)
-
-        # Test without filter
-        qs_no_filter = self.manager.generate_billboard(character_ids)
-        self.assertIsNotNone(qs_no_filter)
-        self.assertIn("total_bounty", qs_no_filter.query.annotations)
+        self.assertIn("total_miscellaneous", qs.query.annotations)
+        self.assertIn("total_cost", qs.query.annotations)
+        self.assertIn("total_market_cost", qs.query.annotations)
+        self.assertIn("total_production_cost", qs.query.annotations)
