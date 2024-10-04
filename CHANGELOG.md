@@ -1,5 +1,14 @@
 # Changelog
 
+### Added
+
+- Planetary Interaction Image on Single Lookup
+
+### Fixed
+
+- Current Day amount show on Year Infomation Sheet
+- Tooltip not shown on Single Lookup
+
 ## \[0.6.3\] - 2024-10-03
 
 ### Added
