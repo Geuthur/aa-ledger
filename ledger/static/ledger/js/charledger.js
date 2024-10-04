@@ -8,6 +8,7 @@ var ActiveBillboardMonth, selectedMode;
 const characterPk = charactersettings.character_pk;
 const characteraltsShow = charactersettings.altShow;
 const overviewText = charactersettings.overviewText;
+const planetaryText = charactersettings.planetaryText;
 
 // Aktuelles Datumobjekt erstellen
 const currentDate = new Date();
@@ -184,6 +185,13 @@ function generateLedger(TableName, url) {
                 $('#amount_misc-'+ TableName +'').html(formatAndColor(total_amount_others));
                 $('#amount_costs-'+ TableName +'').html(formatAndColor(total_amount_costs));
                 $('#amount_summary-'+ TableName +'').html(formatAndColor(total_amount_combined));
+                $('#planetary_interaction-'+ TableName +'').html(`
+                    <a href="/ledger/planetary_ledger/${characterPk}/">
+                        <image src="/static/ledger/images/pi.png"
+                            title="${planetaryText}"
+                            height="256" data-tooltip-toggle="char-ledger" data-bs-placement="top">
+                    </a>
+                `);
                 $('#get_template-'+ TableName +'').html(`
                     <button
                         class="btn btn-sm btn-info btn-square" id="button-${TableName}"
@@ -200,6 +208,7 @@ function generateLedger(TableName, url) {
                 if (!data[0].ratting[0]?.main_name) {
                     infobutton.classList.add('disabled');
                 }
+                initTooltip();
             } else {
                 var table = TableName + 'Table';
                 window[table] = $('#ratting-'+ TableName +'').DataTable({

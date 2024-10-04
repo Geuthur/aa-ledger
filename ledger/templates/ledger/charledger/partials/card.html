@@ -41,7 +41,7 @@
                     </dl>
                 </div>
                 <!-- Costs Info -->
-                <div class="col-md-8 w-auto" id="info-costs-panel-{{ mode }}">
+                <div class="col-md-8 w-auto" id="info-amounts-panel-{{ mode }}">
 
                     <dl class="dl-horizontal">
                         <dt>{% trans "Ratting" %}:</dt>
@@ -71,6 +71,13 @@
                     <dl class="dl-horizontal">
                         <dt>{% trans "Summary" %}:</dt>
                         <dd class="nowrap" id="amount_summary-{{ mode }}"></dd>
+                    </dl>
+                </div>
+                <!-- Additional Costs Info -->
+                <div class="col-md-8 w-auto text-end" id="info-additional-panel-{{ mode }}">
+                    <dl class="dl-horizontal">
+                        <dt></dt>
+                        <dd class="nowrap" id="planetary_interaction-{{ mode }}"></dd>
                     </dl>
                 </div>
             </div>
