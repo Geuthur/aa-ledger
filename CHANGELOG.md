@@ -1,5 +1,9 @@
 # Changelog
 
+### Update
+
+- Translation for Planetary Interaction
+
 ### Added
 
 - Planetary Interaction Image on Single Lookup
