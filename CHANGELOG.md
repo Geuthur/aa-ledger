@@ -3,10 +3,13 @@
 ### Update
 
 - Translation for Planetary Interaction
+- Character Ratting Amount now calculate with tax
+- Planetary JS
 
 ### Added
 
 - Planetary Interaction Image on Single Lookup
+- Planetary Interaction ressource levels
 
 ### Fixed
 
