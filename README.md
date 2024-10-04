@@ -50,7 +50,7 @@ ______________________________________________________________________
   - Graphical Overview for each Planet
   - Notification if Extractor expire
   - Switchable Notification for each Planet
-  - Products Overview (not include amount)
+  - Products Overview
 - Events Calender
 
 ## Upcoming<a name="upcoming"></a>
