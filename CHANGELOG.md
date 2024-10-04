@@ -1,5 +1,7 @@
 # Changelog
 
+## \[0.6.4\] - 2024-10-04
+
 ### Update
 
 - Translation for Planetary Interaction
