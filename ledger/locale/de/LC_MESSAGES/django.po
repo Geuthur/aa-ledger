@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-04 13:43+0200\n"
+"POT-Creation-Date: 2024-10-04 14:37+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -219,6 +219,7 @@ msgid "Character Overview"
 msgstr "Charakter Übersicht"
 
 #: templates/ledger/charledger/character_ledger.html:118
+#: templates/ledger/charledger/partials/card.html:24
 msgid "Overview"
 msgstr "Übersicht"
 
@@ -384,10 +385,10 @@ msgstr "Start Datum"
 msgid "End Date"
 msgstr "End Datum"
 
-#: templates/ledger/events/expired_events.html:12
-#: templates/ledger/events/future_events.html:12
 #: templates/ledger/events/create_event.html:32
 #: templates/ledger/events/edit_event.html:32
+#: templates/ledger/events/expired_events.html:12
+#: templates/ledger/events/future_events.html:12
 #: templates/ledger/events/index.html:32
 #: templates/ledger/events/manage_events.html:21
 msgid "Location"
@@ -401,6 +402,8 @@ msgstr "Character Ledger Auschließen"
 
 #: templates/ledger/events/create_event.html:40
 #: templates/ledger/events/edit_event.html:40
+#: templates/ledger/events/expired_events.html:13
+#: templates/ledger/events/future_events.html:13
 #: templates/ledger/events/index.html:30
 #: templates/ledger/events/manage_events.html:22
 msgid "Description"
