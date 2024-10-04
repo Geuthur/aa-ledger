@@ -20,11 +20,7 @@ planet_many = [
                 "name": "Water",
                 "category": "Basic Commodities - Tier 1",
             },
-            "2390": {
-                "id": 2390,
-                "name": "Electrolytes",
-                "category": "Basic Commodities - Tier 1",
-            },
+            "2390": {"id": 2390, "name": "Electrolytes", "category": "Planet"},
             "2268": {
                 "id": 2268,
                 "name": "Aqueous Liquids",
@@ -34,6 +30,25 @@ planet_many = [
                 "id": 2309,
                 "name": "Ionic Solutions",
                 "category": "Planet Liquid-Gas - Raw Resource",
+            },
+        },
+        "products_info": {
+            "1036002868084": {
+                "product_type_id": 2557,
+                "product_name": "Storm Launchpad",
+                "contents": [
+                    {"amount": 14800, "type_id": 2390, "product_name": "Electrolytes"}
+                ],
+            },
+            "1046238237381": {
+                "product_type_id": 2543,
+                "product_name": "Gas Launchpad",
+                "contents": [],
+            },
+            "1046238237382": {
+                "product_type_id": 2543,
+                "product_name": "Gas Launchpad",
+                "contents": [],
             },
         },
         "extractors": {
@@ -73,11 +88,7 @@ planet_many = [
                 "name": "Water",
                 "category": "Basic Commodities - Tier 1",
             },
-            "2390": {
-                "id": 2390,
-                "name": "Electrolytes",
-                "category": "Basic Commodities - Tier 1",
-            },
+            "2390": {"id": 2390, "name": "Electrolytes", "category": "Planet"},
             "2268": {
                 "id": 2268,
                 "name": "Aqueous Liquids",
@@ -87,6 +98,25 @@ planet_many = [
                 "id": 2309,
                 "name": "Ionic Solutions",
                 "category": "Planet Liquid-Gas - Raw Resource",
+            },
+        },
+        "products_info": {
+            "1036002868084": {
+                "product_type_id": 2557,
+                "product_name": "Storm Launchpad",
+                "contents": [
+                    {"amount": 14800, "type_id": 2390, "product_name": "Electrolytes"}
+                ],
+            },
+            "1046238237381": {
+                "product_type_id": 2543,
+                "product_name": "Gas Launchpad",
+                "contents": [],
+            },
+            "1046238237382": {
+                "product_type_id": 2543,
+                "product_name": "Gas Launchpad",
+                "contents": [],
             },
         },
         "extractors": {
@@ -129,11 +159,7 @@ planet_single = [
                 "name": "Water",
                 "category": "Basic Commodities - Tier 1",
             },
-            "2390": {
-                "id": 2390,
-                "name": "Electrolytes",
-                "category": "Basic Commodities - Tier 1",
-            },
+            "2390": {"id": 2390, "name": "Electrolytes", "category": "Planet"},
             "2268": {
                 "id": 2268,
                 "name": "Aqueous Liquids",
@@ -143,6 +169,25 @@ planet_single = [
                 "id": 2309,
                 "name": "Ionic Solutions",
                 "category": "Planet Liquid-Gas - Raw Resource",
+            },
+        },
+        "products_info": {
+            "1036002868084": {
+                "product_type_id": 2557,
+                "product_name": "Storm Launchpad",
+                "contents": [
+                    {"amount": 14800, "type_id": 2390, "product_name": "Electrolytes"}
+                ],
+            },
+            "1046238237381": {
+                "product_type_id": 2543,
+                "product_name": "Gas Launchpad",
+                "contents": [],
+            },
+            "1046238237382": {
+                "product_type_id": 2543,
+                "product_name": "Gas Launchpad",
+                "contents": [],
             },
         },
         "extractors": {

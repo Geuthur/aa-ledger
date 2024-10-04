@@ -2,7 +2,7 @@ from collections import defaultdict
 from decimal import Decimal
 
 from django.db import models
-from django.db.models import Case, DecimalField, Q, Sum, Value, When
+from django.db.models import Case, DecimalField, F, Q, Sum, Value, When
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -385,6 +385,7 @@ class CharWalletQuerySet(models.QuerySet):
         # Aggregate the results directly from the original fields
         ledger_data = qs.aggregate(
             total_bounty=Sum("amount", filter=Q(ref_type__in=BOUNTY_PRIZES)),
+            total_bounty_tax=Sum("tax", filter=Q(ref_type__in=BOUNTY_PRIZES)),
             total_mission=Sum("amount", filter=Q(ref_type__in=MISSION_REWARD)),
             total_contract_cost=Sum("amount", filter=CONTRACT_COST_FILTER),
             total_market_cost=Sum("amount", filter=MARKET_COST_FILTER),
@@ -416,8 +417,18 @@ class CharWalletQuerySet(models.QuerySet):
             total_mining=Sum("total")
         )
 
+        # Bounty after Tax
+        bounty = Decimal(ledger_data["total_bounty"] or 0) - Decimal(
+            ledger_data["total_bounty_tax"] or 0
+        )
+
+        # NOT IMPLEMENTED
+        # NOTE: Can not calculate Stolen ESS atm
+        # ESS Amounts per Char Journal
+        # ess = (Decimal(ledger_data["total_bounty"] or 0) / 100) * Decimal(66.6667)
+
         amounts = {
-            "bounty": Decimal(ledger_data["total_bounty"] or 0),
+            "bounty": bounty,
             "ess": Decimal(ess_data["total_ess"] or 0),
             "mining": Decimal(mining_data["total_mining"] or 0),
         }
@@ -484,10 +495,19 @@ class CharWalletQuerySet(models.QuerySet):
         }
 
         # Annotate the queryset with the sums for each type
+        # NOTE: TAX Field is only for Bounty and work atm
         annotations = {}
         for type_name, type_filter in types_filters.items():
             annotations[f"{type_name}_total_amount"] = Coalesce(
-                Sum(Case(When(type_filter, then="amount"))),
+                Sum(
+                    Case(
+                        When(
+                            type_filter,
+                            then=F("amount")
+                            - Coalesce(F("tax"), Value(0), output_field=DecimalField()),
+                        )
+                    )
+                ),
                 Value(0),
                 output_field=DecimalField(),
             )
@@ -501,7 +521,8 @@ class CharWalletQuerySet(models.QuerySet):
                                 date__month=filter_date.month,
                                 date__day=filter_date.day,
                             ),
-                            then="amount",
+                            then=F("amount")
+                            - Coalesce(F("tax"), Value(0), output_field=DecimalField()),
                         )
                     )
                 ),
@@ -519,7 +540,8 @@ class CharWalletQuerySet(models.QuerySet):
                                 date__day=filter_date.day,
                                 date__hour=filter_date.hour,
                             ),
-                            then="amount",
+                            then=F("amount")
+                            - Coalesce(F("tax"), Value(0), output_field=DecimalField()),
                         )
                     )
                 ),
@@ -544,7 +566,7 @@ class CharWalletQuerySet(models.QuerySet):
         return qs.annotate(
             total_bounty=Coalesce(
                 Sum(
-                    "amount",
+                    F("amount") - F("tax"),
                     filter=Q(ref_type__in=BOUNTY_PRIZES, second_party_id__in=chars),
                 ),
                 Value(0),

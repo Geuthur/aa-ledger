@@ -64,6 +64,7 @@ class CharacterPlanetDetails(Schema):
     expired: bool | None = None
     alarm: bool | None = None
     products: dict | None = None
+    products_info: dict | None = None
     extractors: dict | None = None
     last_update: datetime | None = None
 

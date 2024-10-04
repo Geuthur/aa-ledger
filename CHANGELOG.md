@@ -1,5 +1,23 @@
 # Changelog
 
+## \[0.6.4\] - 2024-10-04
+
+### Update
+
+- Translation for Planetary Interaction
+- Character Ratting Amount now calculate with tax
+- Planetary JS
+
+### Added
+
+- Planetary Interaction Image on Single Lookup
+- Planetary Interaction ressource levels
+
+### Fixed
+
+- Current Day amount show on Year Infomation Sheet
+- Tooltip not shown on Single Lookup
+
 ## \[0.6.3\] - 2024-10-03
 
 ### Added
