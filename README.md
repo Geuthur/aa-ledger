@@ -15,6 +15,7 @@ ______________________________________________________________________
   - [Features](#features)
   - [Upcoming](#upcoming)
   - [Installation](#features)
+    - [Step 0 - Check dependencies are installed](#step0)
     - [Step 1 - Install the Package](#step1)
     - [Step 2 - Configure Alliance Auth](#step2)
     - [Step 3 - Add the Scheduled Tasks and Settings](#step3)
@@ -62,7 +63,7 @@ ______________________________________________________________________
 > AA Ledger needs at least Alliance Auth v4.0.0
 > Please make sure to update your Alliance Auth before you install this APP
 
-### Step 0 - Check dependencies are installed<a name="step1"></a>
+### Step 0 - Check dependencies are installed<a name="step0"></a>
 
 - Ledger needs the app [django-eveuniverse](https://apps.allianceauth.org/apps/detail/django-eveuniverse) to function. Please make sure it is installed.
 
