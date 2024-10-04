@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-04 11:09+0200\n"
+"POT-Creation-Date: 2024-10-04 13:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -399,8 +399,6 @@ msgstr "Ort"
 msgid "Char Ledger Exclude"
 msgstr "Character Ledger Auschließen"
 
-#: templates/ledger/events/expired_events.html:13
-#: templates/ledger/events/future_events.html:13
 #: templates/ledger/events/create_event.html:40
 #: templates/ledger/events/edit_event.html:40
 #: templates/ledger/events/index.html:30
@@ -435,12 +433,12 @@ msgstr "Speichere Änderungen"
 
 #: templates/ledger/events/expired_events.html:10
 #: templates/ledger/events/future_events.html:10
-msgid "Datum Start:"
+msgid "Datum Start"
 msgstr ""
 
 #: templates/ledger/events/expired_events.html:11
 #: templates/ledger/events/future_events.html:11
-msgid "Datum End:"
+msgid "Datum End"
 msgstr ""
 
 #: templates/ledger/events/expired_events.html:21
@@ -930,7 +928,9 @@ msgstr "Keine Ratting daten gefunden..."
 #: templates/ledger/modals/modal-full.html:12
 #: templates/ledger/modals/modal-xl.html:12
 #: templates/ledger/modals/modal.html:12
-#: templates/ledger/planetary/planetary_ledger.html:45
+#: templates/ledger/planetary/partials/modal/extractor.html:26
+#: templates/ledger/planetary/partials/modal/products.html:8
+#: templates/ledger/planetary/partials/modal/products.html:25
 msgid "Close"
 msgstr "Schließen"
 
@@ -960,6 +960,39 @@ msgstr "Du hast keine berechtigung diese Seite zu sehen"
 #: templates/ledger/planetary/admin/character_admin.html:9
 msgid "Ledger Planetary Overview"
 msgstr "Ledger Planetary Übersicht"
+
+#: templates/ledger/planetary/partials/modal/extractor.html:7
+msgid "Extractor Information"
+msgstr "Extraktor Information"
+
+#: templates/ledger/planetary/partials/modal/extractor.html:14
+#: templates/ledger/planetary/partials/modal/products.html:14
+msgid "Product"
+msgstr "Produkt"
+
+#: templates/ledger/planetary/partials/modal/extractor.html:15
+msgid "Install Time"
+msgstr "Installationszeit"
+
+#: templates/ledger/planetary/partials/modal/extractor.html:16
+msgid "Expiry Time"
+msgstr "Ablaufzeit"
+
+#: templates/ledger/planetary/partials/modal/extractor.html:17
+msgid "Progress"
+msgstr "Fortschritt"
+
+#: templates/ledger/planetary/partials/modal/products.html:7
+msgid "Products Information"
+msgstr "Produkt Information"
+
+#: templates/ledger/planetary/partials/modal/products.html:15
+msgid "Product Name"
+msgstr "Produkt Name"
+
+#: templates/ledger/planetary/partials/modal/products.html:16
+msgid "Amount"
+msgstr "Menge"
 
 #: templates/ledger/planetary/partials/table.html:6
 msgid "Character"
@@ -1018,27 +1051,23 @@ msgstr "AN"
 msgid "OFF"
 msgstr "AUS"
 
-#: templates/ledger/planetary/planetary_ledger.html:38
-msgid "Extractor Information"
-msgstr ""
-
-#: templates/ledger/planetary/planetary_ledger.html:69
+#: templates/ledger/planetary/planetary_ledger.html:57
 msgid "Are you sure to Switch Notification"
 msgstr "Sind Sie sicher, dass Sie die Benachrichtigung umschalten wollen"
 
-#: templates/ledger/planetary/planetary_ledger.html:70
+#: templates/ledger/planetary/planetary_ledger.html:58
 msgid "Switch Notification"
 msgstr "Schalte Notifikation um"
 
-#: templates/ledger/planetary/planetary_ledger.html:71
+#: templates/ledger/planetary/planetary_ledger.html:59
 msgid "Switch All Notifications"
 msgstr "Schalte alle Notifikations um"
 
-#: templates/ledger/planetary/planetary_ledger.html:72
+#: templates/ledger/planetary/planetary_ledger.html:60
 msgid "Notification Activated"
 msgstr "Notification Aktiviert"
 
-#: templates/ledger/planetary/planetary_ledger.html:73
+#: templates/ledger/planetary/planetary_ledger.html:61
 msgid "Notification Deactivated"
 msgstr "Notification Deaktiviert"
 
