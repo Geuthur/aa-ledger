@@ -94,7 +94,7 @@ class LedgerPlanetaryApiEndpoints:
 
             for p in planets:
                 types = p.allocate_products()
-                extractors = p.all_extractors_info()
+                extractors = p.get_extractors_info()
 
                 output.append(
                     {
@@ -108,6 +108,7 @@ class LedgerPlanetaryApiEndpoints:
                         "expired": p.is_expired(),
                         "alarm": p.notification,
                         "products": types,
+                        "products_info": p.get_storage_info(),
                         "extractors": extractors,
                         "last_update": p.planet.last_update,
                     }

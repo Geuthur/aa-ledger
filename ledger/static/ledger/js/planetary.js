@@ -82,6 +82,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>
                         ${Object.values(item.products).map(product => `<img src="https://images.evetech.net/types/${product.id}/icon?size=32" data-tooltip-toggle="planetary" title="${product.name}">`).join(' ')}
                     </td>
+                    <button
+                        class="btn btn-primary btn-sm btn-square"
+                        style="margin-left: 5px;" data-bs-toggle="modal"
+                        data-bs-target="#productsInfoModal"
+                        data-character-id="${item.character_id}"
+                        data-character-name="${item.character_name}"
+                        data-planet="${item.planet}"
+                        data-productsInfo='${JSON.stringify(item.products_info)}'
+                        onclick="showProductsInfoModal(this)"
+                    >
+                        <span class="fas fa-info"></span>
+                    </button>
                 `;
 
                 // Extractors
@@ -113,7 +125,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <div class="progress-value">${progressPercentage.toFixed(0)}%</div>
                                     </div>
                                 </div>
-                                <button class="btn btn-primary btn-sm btn-square" style="margin-left: 5px;" data-bs-toggle="modal" data-bs-target="#extractorInfoModal" data-character-id="${item.character_id}" data-character-name="${item.character_name}" data-planet="${item.planet}" data-extractors='${JSON.stringify(item.extractors)}' onclick="showExtractorInfoModal(this)">                                    <span class="fas fa-info"></span>
+                                <button
+                                    class="btn btn-primary btn-sm btn-square"
+                                    style="margin-left: 5px;" data-bs-toggle="modal"
+                                    data-bs-target="#extractorInfoModal"
+                                    data-character-id="${item.character_id}"
+                                    data-character-name="${item.character_name}"
+                                    data-planet="${item.planet}"
+                                    data-extractors='${JSON.stringify(item.extractors)}'
+                                    onclick="showExtractorInfoModal(this)"
+                                >
+                                    <span class="fas fa-info"></span>
                                 </button>
                             </div>
                         </td>
@@ -189,35 +211,52 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+function showProductsInfoModal(button) {
+    const characterName = button.getAttribute('data-character-name');
+    const planet = button.getAttribute('data-planet');
+    const productsInfo = JSON.parse(button.getAttribute('data-productsInfo'));
+
+    const modalTitle = document.querySelector('#productsInfoModal .character-Info');
+    modalTitle.textContent = `${characterName} - ${planet}`;
+
+    const tableBody = document.querySelector('#productsInfoModal .modal-table-body');
+    tableBody.innerHTML = '';
+
+    Object.values(productsInfo).forEach(item => {
+        item.contents.forEach(content => {
+            const row = document.createElement('tr');
+
+            const productCell = document.createElement('td');
+            productCell.innerHTML = `
+                <img src="https://images.evetech.net/types/${content.type_id}/icon?size=32" class="rounded-circle" style="margin-right: 5px; width: 32px; height: 32px;">
+            `;
+
+            const nameCell = document.createElement('td');
+            nameCell.textContent = content.product_name;
+
+            const quantityCell = document.createElement('td');
+            quantityCell.textContent = content.amount;
+
+            row.appendChild(productCell);
+            row.appendChild(nameCell);
+            row.appendChild(quantityCell);
+            tableBody.appendChild(row);
+        });
+    });
+
+    $('#productsInfoModal').modal('show');
+}
+
 function showExtractorInfoModal(button) {
     const characterName = button.getAttribute('data-character-name');
     const planet = button.getAttribute('data-planet');
     const extractors = JSON.parse(button.getAttribute('data-extractors'));
 
-    const modalTitle = document.querySelector('#extractorInfoModalLabel');
-    modalTitle.textContent = `Extractor Information - ${characterName} - ${planet}`;
+    const modalTitle = document.querySelector('#extractorInfoModal .character-Info');
+    modalTitle.textContent = `${characterName} - ${planet}`;
 
-    const modalBody = document.querySelector('#extractorInfoModal .modal-body');
-    modalBody.innerHTML = ''; // Clear previous content
-
-    // Create table
-    const table = document.createElement('table');
-    table.className = 'table table-striped';
-
-    // Create table header
-    const thead = document.createElement('thead');
-    thead.innerHTML = `
-        <tr>
-            <th>Product</th>
-            <th>Install Time</th>
-            <th>Expiry Time</th>
-            <th>Progress</th>
-        </tr>
-    `;
-    table.appendChild(thead);
-
-    // Create table body
-    const tbody = document.createElement('tbody');
+    const tableBody = document.querySelector('#extractorInfoModal .modal-table-body');
+    tableBody.innerHTML = '';
 
     const currentTime = new Date().getTime();
     Object.values(extractors).forEach(extractor => {
@@ -239,9 +278,6 @@ function showExtractorInfoModal(button) {
                 </div>
             </td>
         `;
-        tbody.appendChild(row);
+        tableBody.appendChild(row);
     });
-
-    table.appendChild(tbody);
-    modalBody.appendChild(table);
 }

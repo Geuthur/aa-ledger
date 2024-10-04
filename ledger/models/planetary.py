@@ -141,7 +141,7 @@ class CharacterPlanetDetails(models.Model):
                 }
         return product_types
 
-    def all_extractors_info(self) -> dict:
+    def get_extractors_info(self) -> dict:
         extractors = {}
         for pin in self.pins:
             extractor_details = pin.get("extractor_details")
@@ -155,3 +155,30 @@ class CharacterPlanetDetails(models.Model):
                     "product_name": type_data.name,
                 }
         return extractors
+
+    def get_storage_info(self) -> dict:
+        storage = {}
+        valid_type_ids = [2256, 2542, 2543, 2544, 2552, 2555, 2556, 2557]
+        for pin in self.pins:
+            if pin.get("type_id") in valid_type_ids:
+                type_id = pin.get("type_id")
+                type_data, _ = EveType.objects.get_or_create_esi(id=type_id)
+                contents_info = []
+                for content in pin.get("contents", []):
+                    content_type_id = content.get("type_id")
+                    content_type_data, _ = EveType.objects.get_or_create_esi(
+                        id=content_type_id
+                    )
+                    contents_info.append(
+                        {
+                            "amount": content.get("amount"),
+                            "type_id": content_type_id,
+                            "product_name": content_type_data.name,
+                        }
+                    )
+                storage[pin.get("pin_id")] = {
+                    "product_type_id": type_id,
+                    "product_name": type_data.name,
+                    "contents": contents_info,
+                }
+        return storage
