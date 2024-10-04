@@ -167,6 +167,8 @@ class TemplateProcess:
                         "total_amount": round(amounts[key]["total_amount"], 2),
                         "total_amount_day": (
                             round(amounts[key]["total_amount_day"], 2)
+                            if self.data.month != 0
+                            else 0  # Only show daily amount if not year
                         ),
                         "total_amount_hour": (
                             round(amounts[key]["total_amount_hour"], 2)
@@ -196,11 +198,14 @@ class TemplateProcess:
                 for key in amounts
             }
         )
+
         self.template_dict["summary"] = {
             "total_amount": round(total_sum, 2),
             "total_amount_day": round(total_sum / current_day, 2),
             "total_amount_hour": round((total_sum / current_day) / 24, 2),
-            "total_current_day": round(total_current_day_sum, 2),
+            "total_current_day": (
+                round(total_current_day_sum, 2) if self.data.month != 0 else 0
+            ),  # Only show daily amount if not year
         }
 
     # Genereate Amounts for each Char
