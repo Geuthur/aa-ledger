@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var url = planetarySettings.planetaryUrl;
     var switchAlarmText = planetarySettings.switchAlarmText;
     var switchAlarm = planetarySettings.switchAlarm;
+    var switchAlarmAll = planetarySettings.switchAlarmAll;
     var alarmActivated = planetarySettings.alarmActivated;
     var alarmDeactivated = planetarySettings.alarmDeactivated;
     var characterPk = planetarySettings.characterPk;
@@ -135,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <form class="d-inline" method="post" action="${switchAlarmUrl(item.character_id, item.planet_id)}" id="switchAlarmForm${item.character_id}_${item.planet_id}">
                             ${csrfToken}
                             <input type="hidden" name="character_pk" value="${characterPk}">
-                            <button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="planetary" title="${switchAlarm}" data-bs-target="#confirmModal" data-confirm-text="${switchAlarmText} for ${item.character_name} - ${item.planet}?" data-form-id="switchAlarmForm${item.character_id}_${item.planet_id}">
+                            <button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="planetary" title="${switchAlarm}" data-bs-target="#confirmModal" data-confirm-text="${switchAlarmText} \n${item.character_name} - ${item.planet}?" data-form-id="switchAlarmForm${item.character_id}_${item.planet_id}">
                                 <span class="fas fa-bullhorn"></span>
                             </button>
                         </form>
@@ -149,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add "Switch All Alarms" button if data exists
             if (data.length > 0) {
                 const switchAllAlarmsButton = document.createElement('button');
-                switchAllAlarmsButton.textContent = 'Switch All Alarms';
+                switchAllAlarmsButton.textContent = switchAlarmAll;
                 switchAllAlarmsButton.className = 'btn btn-primary';
                 switchAllAlarmsButton.style.marginTop = '10px';
                 switchAllAlarmsButton.title = switchAlarm;

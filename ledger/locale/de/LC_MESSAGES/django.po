@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-03 11:20+0200\n"
+"POT-Creation-Date: 2024-10-04 11:09+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -222,6 +222,10 @@ msgstr "Charakter Übersicht"
 msgid "Overview"
 msgstr "Übersicht"
 
+#: templates/ledger/charledger/character_ledger.html:119
+msgid "Show Planetary Interaction"
+msgstr "Zeige Planetary Interaction"
+
 #: templates/ledger/charledger/month.html:21
 msgid "Days"
 msgstr "Tage"
@@ -330,7 +334,7 @@ msgstr "Ledger Corporation Übersicht"
 #: templates/ledger/corpledger/corporation_ledger.html:8
 #: templates/ledger/corpledger/corporation_ledger.html:24
 #: templates/ledger/partials/menu/ally/navigation.html:11
-#: templates/ledger/partials/menu/char/navigation.html:13
+#: templates/ledger/partials/menu/char/navigation.html:10
 #: templates/ledger/partials/menu/corp/navigation.html:10
 #: templates/ledger/partials/menu/navigation.html:10
 msgid "Corporation Ledger"
@@ -380,12 +384,14 @@ msgstr "Start Datum"
 msgid "End Date"
 msgstr "End Datum"
 
+#: templates/ledger/events/expired_events.html:12
+#: templates/ledger/events/future_events.html:12
 #: templates/ledger/events/create_event.html:32
 #: templates/ledger/events/edit_event.html:32
 #: templates/ledger/events/index.html:32
 #: templates/ledger/events/manage_events.html:21
 msgid "Location"
-msgstr ""
+msgstr "Ort"
 
 #: templates/ledger/events/create_event.html:36
 #: templates/ledger/events/edit_event.html:36
@@ -393,6 +399,8 @@ msgstr ""
 msgid "Char Ledger Exclude"
 msgstr "Character Ledger Auschließen"
 
+#: templates/ledger/events/expired_events.html:13
+#: templates/ledger/events/future_events.html:13
 #: templates/ledger/events/create_event.html:40
 #: templates/ledger/events/edit_event.html:40
 #: templates/ledger/events/index.html:30
@@ -514,9 +522,14 @@ msgstr ""
 "\n"
 "            <h4>Charakter Ledger</h4>\n"
 "            <hr class=\"custom-line\">\n"
-"            <li class=\"list-group-item\">Zeigt Ratting, Encounter Surveillance System (ESS), Bergbau, Kopfgeld und andere ISK-bezogene Aktivitäten</li>\n"
-"            <li class=\"list-group-item\">Das Charakter Ledger zeigt alle ISK-bezogenen Aktivitäten von Haupt- und Nebencharakteren</li>\n"
-"            <li class=\"list-group-item\">Weitere Informationen anzeigen mit <button class=\"btn btn-primary btn-sm btn-square\"><span class=\"fas fa-info\"></span></button> Button</li>\n"
+"            <li class=\"list-group-item\">Zeigt Ratting, Encounter "
+"Surveillance System (ESS), Bergbau, Kopfgeld und andere ISK-bezogene "
+"Aktivitäten</li>\n"
+"            <li class=\"list-group-item\">Das Charakter Ledger zeigt alle "
+"ISK-bezogenen Aktivitäten von Haupt- und Nebencharakteren</li>\n"
+"            <li class=\"list-group-item\">Weitere Informationen anzeigen mit "
+"<button class=\"btn btn-primary btn-sm btn-square\"><span class=\"fas fa-"
+"info\"></span></button> Button</li>\n"
 "            "
 
 #: templates/ledger/index.html:17
@@ -540,11 +553,18 @@ msgstr ""
 "\n"
 "            <h4>Corporation/Allianz Ledger</h4>\n"
 "            <hr class=\"custom-line\">\n"
-"            <li class=\"list-group-item\">Wenn Sie Alts in anderen Corporations haben, zeigt das Corporation Ledger alle Steuern jeder Corporation an\n"
-"            für eine einzelne Übersicht können Sie die Corporation Übersicht verwenden</li>\n"
-"            <li class=\"list-group-item\">Das Corporation Ledger zeigt alle Steuern jedes Hauptcharakters (einschließlich Alts)\n"
-"            mit Mouseover auf dem Porträt können Sie die in die Berechnung einbezogenen Alts sehen</li>\n"
-"            <li class=\"list-group-item\">Weitere Informationen anzeigen mit <button class=\"btn btn-primary btn-sm btn-square\"><span class=\"fas fa-info\"></span></button> Button</li>\n"
+"            <li class=\"list-group-item\">Wenn Sie Alts in anderen "
+"Corporations haben, zeigt das Corporation Ledger alle Steuern jeder "
+"Corporation an\n"
+"            für eine einzelne Übersicht können Sie die Corporation Übersicht "
+"verwenden</li>\n"
+"            <li class=\"list-group-item\">Das Corporation Ledger zeigt alle "
+"Steuern jedes Hauptcharakters (einschließlich Alts)\n"
+"            mit Mouseover auf dem Porträt können Sie die in die Berechnung "
+"einbezogenen Alts sehen</li>\n"
+"            <li class=\"list-group-item\">Weitere Informationen anzeigen mit "
+"<button class=\"btn btn-primary btn-sm btn-square\"><span class=\"fas fa-"
+"info\"></span></button> Button</li>\n"
 "            "
 
 #: templates/ledger/index.html:28
@@ -564,9 +584,13 @@ msgstr ""
 "\n"
 "            <h4>Planetarisches Ledger</h4>\n"
 "            <hr class=\"custom-line\">\n"
-"            <li class=\"list-group-item\">Das Planetary Ledger zeigt alle Planeten von Haupt- und Nebencharakteren</li>\n"
-"            <li class=\"list-group-item\">Sie können Benachrichtigungen für jeden Planeten aktivieren/deaktivieren</li>\n"
-"            <li class=\"list-group-item\">Aktive Extraktoren und deren verbleibende Zeit anzeigen mit dem <button class=\"btn btn-primary btn-sm btn-square\"><span class=\"fas fa-info\"></span></button> Button</li>\n"
+"            <li class=\"list-group-item\">Das Planetary Ledger zeigt alle "
+"Planeten von Haupt- und Nebencharakteren</li>\n"
+"            <li class=\"list-group-item\">Sie können Benachrichtigungen für "
+"jeden Planeten aktivieren/deaktivieren</li>\n"
+"            <li class=\"list-group-item\">Aktive Extraktoren und deren "
+"verbleibende Zeit anzeigen mit dem <button class=\"btn btn-primary btn-sm "
+"btn-square\"><span class=\"fas fa-info\"></span></button> Button</li>\n"
 "            "
 
 #: templates/ledger/index.html:37
@@ -594,14 +618,21 @@ msgstr ""
 "\n"
 "            <h4>FAQ</h4>\n"
 "            <hr class=\"custom-line\">\n"
-"            <li class=\"list-group-item\">F: Ich sehe meinen Charakter nicht im Charakter Ledger.</li>\n"
-"            <li class=\"list-group-item\">A: Vielleicht ist Ihr Charakter nicht im System, bitte fügen Sie ihn hinzu!</li>\n"
+"            <li class=\"list-group-item\">F: Ich sehe meinen Charakter nicht "
+"im Charakter Ledger.</li>\n"
+"            <li class=\"list-group-item\">A: Vielleicht ist Ihr Charakter "
+"nicht im System, bitte fügen Sie ihn hinzu!</li>\n"
 "\n"
-"            <li class=\"list-group-item\">F: Warum ist der ESS gestohlene Betrag nicht korrekt?</li>\n"
-"            <li class=\"list-group-item\">A: Die ESS gestohlenen Informationen werden vom 'Corporation Ledger' aktualisiert, daher kann es falsch sein, da es eine 3-stündige Aktualisierungsperiode hat</li>\n"
+"            <li class=\"list-group-item\">F: Warum ist der ESS gestohlene "
+"Betrag nicht korrekt?</li>\n"
+"            <li class=\"list-group-item\">A: Die ESS gestohlenen "
+"Informationen werden vom 'Corporation Ledger' aktualisiert, daher kann es "
+"falsch sein, da es eine 3-stündige Aktualisierungsperiode hat</li>\n"
 "\n"
-"            <li class=\"list-group-item\">F: Ich sehe keine ESS-Auszahlung</li>\n"
-"            <li class=\"list-group-item\">A: Ihre Corporation ist nicht im System</li>\n"
+"            <li class=\"list-group-item\">F: Ich sehe keine ESS-Auszahlung</"
+"li>\n"
+"            <li class=\"list-group-item\">A: Ihre Corporation ist nicht im "
+"System</li>\n"
 "            "
 
 #: templates/ledger/modals/information/daily.html:8
@@ -917,7 +948,7 @@ msgstr "Allianz Hinzufügen"
 msgid "Add Character"
 msgstr "Character Hinzufügen"
 
-#: templates/ledger/partials/menu/char/navigation.html:8
+#: templates/ledger/partials/menu/char/navigation.html:15
 #: templates/ledger/partials/menu/navigation.html:19
 msgid "Planetary Ledger"
 msgstr ""
@@ -993,17 +1024,21 @@ msgstr ""
 
 #: templates/ledger/planetary/planetary_ledger.html:69
 msgid "Are you sure to Switch Notification"
-msgstr "Bist du sicher das du den Alarm wechseln möchtest"
+msgstr "Sind Sie sicher, dass Sie die Benachrichtigung umschalten wollen"
 
 #: templates/ledger/planetary/planetary_ledger.html:70
 msgid "Switch Notification"
 msgstr "Schalte Notifikation um"
 
 #: templates/ledger/planetary/planetary_ledger.html:71
+msgid "Switch All Notifications"
+msgstr "Schalte alle Notifikations um"
+
+#: templates/ledger/planetary/planetary_ledger.html:72
 msgid "Notification Activated"
 msgstr "Notification Aktiviert"
 
-#: templates/ledger/planetary/planetary_ledger.html:72
+#: templates/ledger/planetary/planetary_ledger.html:73
 msgid "Notification Deactivated"
 msgstr "Notification Deaktiviert"
 
