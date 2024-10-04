@@ -36,6 +36,18 @@ planet_many = [
                 "category": "Planet Liquid-Gas - Raw Resource",
             },
         },
+        "products_info": {
+            "1046238237381": {
+                "product_type_id": 2543,
+                "product_name": "Gas Launchpad",
+                "contents": [],
+            },
+            "1046238237382": {
+                "product_type_id": 2543,
+                "product_name": "Gas Launchpad",
+                "contents": [],
+            },
+        },
         "extractors": {
             "1046238237375": {
                 "install_time": "2024-08-12T17:17:02Z",
@@ -87,6 +99,18 @@ planet_many = [
                 "id": 2309,
                 "name": "Ionic Solutions",
                 "category": "Planet Liquid-Gas - Raw Resource",
+            },
+        },
+        "products_info": {
+            "1046238237381": {
+                "product_type_id": 2543,
+                "product_name": "Gas Launchpad",
+                "contents": [],
+            },
+            "1046238237382": {
+                "product_type_id": 2543,
+                "product_name": "Gas Launchpad",
+                "contents": [],
             },
         },
         "extractors": {
@@ -143,6 +167,18 @@ planet_single = [
                 "id": 2309,
                 "name": "Ionic Solutions",
                 "category": "Planet Liquid-Gas - Raw Resource",
+            },
+        },
+        "products_info": {
+            "1046238237381": {
+                "product_type_id": 2543,
+                "product_name": "Gas Launchpad",
+                "contents": [],
+            },
+            "1046238237382": {
+                "product_type_id": 2543,
+                "product_name": "Gas Launchpad",
+                "contents": [],
             },
         },
         "extractors": {
