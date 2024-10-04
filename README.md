@@ -174,7 +174,7 @@ LOGGING["loggers"].update(LOGGING_LEDGER["loggers"])
 
 ![ledger1](https://github.com/user-attachments/assets/a6f89d3e-89c0-410c-b95d-efbd1fd00a0a)
 
-![ledger2](https://github.com/user-attachments/assets/38a8a3ea-6909-49a0-b778-3a18d2af13fc)
+![ledger2](https://github.com/user-attachments/assets/828631f3-07f0-41eb-abad-5e2951f7dd18)
 
 ![ledger3](https://github.com/user-attachments/assets/48d5f6e6-91f6-455b-ae01-1b98fd96b1de)
 
