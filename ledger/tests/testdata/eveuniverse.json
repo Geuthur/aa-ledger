@@ -147,7 +147,25 @@
             "published": true,
             "radius": 1,
             "volume": 16
-        }
+        },
+        {
+            "id": 2390,
+            "name":"Electrolytes",
+            "last_updated":"2024-09-27 14:25:56.675992",
+            "capacity": 0.0,
+            "icon_id":"10019",
+            "mass": 0,
+            "packaged_volume": 0.19,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume": 0.19,
+            "eve_graphic_id": null,
+            "eve_group_id": 7,
+            "eve_market_group_id": null,
+            "enabled_sections": 0,
+            "description":"This conductive liquid is able to carry an electrical current due to its unique ionic properties, making it ideal for use as a reactive coolant, a high-energy fuel, or a transference medium for power plants."
+         }
     ],
     "EvePlanet": [
         {

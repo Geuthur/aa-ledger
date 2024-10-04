@@ -82,6 +82,19 @@ planetary_data = {
             "type_id": 2494,
         },
         {
+            "contents": [{"amount": 14800, "type_id": 2390}],
+            "latitude": 1.0112371444702148,
+            "longitude": 1.8505184650421143,
+            "pin_id": 1036002868084,
+            "type_id": 2557,
+            "expiry_time": None,
+            "extractor_details": None,
+            "factory_details": None,
+            "install_time": None,
+            "last_cycle_start": None,
+            "schematic_id": None,
+        },
+        {
             "contents": [],
             "expiry_time": "2024-08-26T17:17:02Z",
             "extractor_details": {
