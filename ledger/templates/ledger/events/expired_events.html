@@ -7,10 +7,10 @@
                 <h2 class="card-title">{{ event.title }}</h2>
             </div>
             <div class="card-body bg-secondary">
-                <p class="card-text"><strong>{% trans "Datum Start:" %}</strong> {{ event.date_start }}</p>
-                <p class="card-text"><strong>{% trans "Datum End:" %}</strong> {{ event.date_end }}</p>
-                <p class="card-text"><strong>{% trans "Location:" %}</strong> {{ event.location }}</p>
-                <p class="card-text"><strong>{% trans "Description:" %}</strong> <br><br> {{ formatted_description|safe }}</p>
+                <p class="card-text"><strong>{% trans "Datum Start" %}</strong> {{ event.date_start }}</p>
+                <p class="card-text"><strong>{% trans "Datum End" %}</strong> {{ event.date_end }}</p>
+                <p class="card-text"><strong>{% trans "Location" %}</strong> {{ event.location }}</p>
+                <p class="card-text"><strong>{% trans "Description" %}</strong> <br><br> {{ formatted_description|safe }}</p>
             </div>
         </div>
     </div>
