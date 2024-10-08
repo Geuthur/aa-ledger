@@ -1,5 +1,18 @@
 # Changelog
 
+### Added
+
+- Corporation Projects Filter to Ledger
+
+### Fixed
+
+- Market Escrow missing on Market Trade Filter
+- Character not Displayed if only Costs are displaying on Corp Intern Trades
+
+### Update
+
+- German Translation
+
 ## \[0.6.4\] - 2024-10-04
 
 ### Update
