@@ -84,6 +84,13 @@
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.insurance.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
+
+    {% if character.cprojects.total_amount_day %}
+        <div class="row description-row">
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Corp Project" %}:</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.cprojects.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+        </div>
+    {% endif %}
 {% endif %}
 
 <!--############################## COSTS #######################-->

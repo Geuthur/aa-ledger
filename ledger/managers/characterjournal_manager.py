@@ -463,7 +463,7 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             "transaction": Decimal(ledger_data["total_market_trade"] or 0),
             "contract": Decimal(ledger_data["total_contract_trade"] or 0),
             "insurance": Decimal(ledger_data["total_insurance_trade"] or 0),
-            "corp_projects": Decimal(ledger_data["total_cprojects_trade"] or 0),
+            "cprojects": Decimal(ledger_data["total_cprojects_trade"] or 0),
         }
 
         amounts_costs = {
@@ -517,7 +517,7 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             ),
             "insurance": INSURANCE_TRADE_FILTER,
             "mission": MISSION_FILTER,
-            "corp_projects": CORP_PROJECTS_FILTER,
+            "cprojects": CORP_PROJECTS_FILTER,
         }
 
         # Annotate the queryset with the sums for each type

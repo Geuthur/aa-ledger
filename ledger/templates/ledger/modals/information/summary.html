@@ -101,6 +101,17 @@
             </div>
         {% endif %}
 
+        {% if character.cprojects %}
+            <div class="row description-row">
+                <div class="col-sm-6">{% trans "Corp Project" %}:</div>
+                <div class='col-sm-4 text-end'>
+                    <span class="text-success">
+                        {{ character.cprojects.total_amount|floatformat:0|intcomma }}
+                    </span> ISK
+                </div>
+            </div>
+        {% endif %}
+
         <!--############################## Costs #######################-->
 
         {% if character.production_cost or character.market_cost or character.contract_cost or character.asset_cost or character.traveling_cost %}

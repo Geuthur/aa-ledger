@@ -85,6 +85,13 @@
             </div>
         {% endif %}
 
+        {% if character.cprojects %}
+            <div class="row description-row">
+                <div class="col-sm-6">{% trans "Avg. Corp Project per Day" %}:</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.cprojects.average_day|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
+
         <!--############################## COSTS #######################-->
 
         {% if character.production_cost or character.market_cost or character.contract_cost or character.asset_cost or character.traveling_cost %}
