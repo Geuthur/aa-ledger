@@ -44,10 +44,11 @@ PLANETARY_COST = [
 ]
 LP_COST = ["lp_store"]
 # Trading
-MARKET_TRADE = ["market_transaction"]
+MARKET_TRADE = ["market_transaction", "market_escrow"]
 CONTRACT_TRADE = ["contract_price_payment_corp", "contract_reward", "contract_price"]
 DONATION_TRADE = ["player_donation"]
 INSURANCE_TRADE = ["insurance"]
+CORP_PROJECTS = ["milestone_reward_payment"]
 
 # PVE
 BOUNTY_FILTER = Q(ref_type__in=BOUNTY_PRIZES)
@@ -68,6 +69,7 @@ MARKET_TRADE_FILTER = Q(ref_type__in=MARKET_TRADE, amount__gt=0)
 CONTRACT_TRADE_FILTER = Q(ref_type__in=CONTRACT_TRADE, amount__gt=0)
 DONATION_TRADE_FILTER = Q(ref_type__in=DONATION_TRADE, amount__gt=0)
 INSURANCE_TRADE_FILTER = Q(ref_type__in=INSURANCE_TRADE, amount__gt=0)
+CORP_PROJECTS_FILTER = Q(ref_type__in=CORP_PROJECTS, amount__gt=0)
 
 PVE_FILTER = BOUNTY_FILTER | ESS_FILTER
 MISC_FILTER = (
@@ -75,6 +77,7 @@ MISC_FILTER = (
     | CONTRACT_TRADE_FILTER
     | INSURANCE_TRADE_FILTER
     | MISSION_FILTER
+    | CORP_PROJECTS_FILTER
 )
 COST_FILTER = (
     CONTRACT_COST_FILTER
@@ -89,7 +92,7 @@ COST_FILTER = (
 )
 
 
-class CharWalletQuerySet(models.QuerySet):
+class CharWalletQueryFilter(models.QuerySet):
     # PvE - Income
     def annotate_bounty(self, character_ids: list) -> models.QuerySet:
         return self.annotate(
@@ -368,6 +371,26 @@ class CharWalletQuerySet(models.QuerySet):
             )
         )
 
+    def annotate_corporation_projects_trade(
+        self, character_ids: list
+    ) -> models.QuerySet:
+        return self.annotate(
+            total_cprojects_trade=Coalesce(
+                Sum(
+                    "amount",
+                    Q(
+                        Q(first_party_id__in=character_ids)
+                        | Q(second_party_id__in=character_ids),
+                        CORP_PROJECTS_FILTER,
+                    ),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            )
+        )
+
+
+class CharWalletQuerySet(CharWalletQueryFilter):
     # Supports Member Audit Intigration
     def generate_ledger(
         self, character_ids: list, filter_date=None, exclude=None
@@ -407,6 +430,7 @@ class CharWalletQuerySet(models.QuerySet):
                     else DONATION_TRADE_FILTER
                 ),
             ),
+            total_cprojects_trade=Sum("amount", filter=CORP_PROJECTS_FILTER),
         )
 
         # Special cases
@@ -439,6 +463,7 @@ class CharWalletQuerySet(models.QuerySet):
             "transaction": Decimal(ledger_data["total_market_trade"] or 0),
             "contract": Decimal(ledger_data["total_contract_trade"] or 0),
             "insurance": Decimal(ledger_data["total_insurance_trade"] or 0),
+            "corp_projects": Decimal(ledger_data["total_cprojects_trade"] or 0),
         }
 
         amounts_costs = {
@@ -492,6 +517,7 @@ class CharWalletQuerySet(models.QuerySet):
             ),
             "insurance": INSURANCE_TRADE_FILTER,
             "mission": MISSION_FILTER,
+            "corp_projects": CORP_PROJECTS_FILTER,
         }
 
         # Annotate the queryset with the sums for each type
