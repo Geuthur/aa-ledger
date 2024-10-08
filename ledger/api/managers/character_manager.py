@@ -73,7 +73,7 @@ class CharacterProcess:
 
             summary_amount -= abs(costs_amount)
 
-            if summary_amount:
+            if summary_amount or costs_amount:
                 character_dict[char_id] = {
                     "main_id": char_id,
                     "main_name": char_name,
