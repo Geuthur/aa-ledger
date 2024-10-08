@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-04 14:37+0200\n"
+"POT-Creation-Date: 2024-10-08 11:13+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -322,11 +322,11 @@ msgstr "Ledger Jahr"
 
 #: templates/ledger/charledger/year.html:29
 msgid "Wallet Year"
-msgstr "Wallet Jahr"
+msgstr "Konto Jahr"
 
 #: templates/ledger/charledger/year.html:37
 msgid "Workflow Year"
-msgstr ""
+msgstr "Arbeitsaufteilung Jahr"
 
 #: templates/ledger/corpledger/admin/corporation_admin.html:9
 msgid "Ledger Corporation Overview"
@@ -648,15 +648,17 @@ msgstr "Steuer"
 #: templates/ledger/modals/information/hourly.html:25
 #: templates/ledger/modals/information/summary.html:23
 msgid "Avg."
-msgstr ""
+msgstr "Durchschn."
 
 #: templates/ledger/modals/information/daily.html:20
+#: templates/ledger/modals/information/daily.html:24
 msgid "per Day"
 msgstr "pro Tag"
 
 #: templates/ledger/modals/information/daily.html:24
-msgid "Avg. Day Avg Tick"
-msgstr "Durchschn. Tag Durchschn. Tick"
+#: templates/ledger/modals/information/day.html:22
+msgid "Avg. Tick"
+msgstr "Durchschn. Tick pro Tag"
 
 #: templates/ledger/modals/information/daily.html:31
 msgid "Avg. ESS per Day"
@@ -675,8 +677,8 @@ msgid "Avg. Mining per Day"
 msgstr "Durchschn. Bergbau pro Tag"
 
 #: templates/ledger/modals/information/daily.html:62
-msgid "Avg. Trading per Day"
-msgstr "Durchschn. Handel pro Tag"
+msgid "Avg. Market per Day"
+msgstr "Durchschn. Markt pro Tag"
 
 #: templates/ledger/modals/information/daily.html:69
 msgid "Avg. Contracts per Day"
@@ -699,8 +701,8 @@ msgid "Avg. Production Cost per Day"
 msgstr "Durchschn. Produktionskosten pro Tag"
 
 #: templates/ledger/modals/information/daily.html:109
-msgid "Avg. Trading Cost per Day"
-msgstr "Durchschn. Handelskosten pro Tag"
+msgid "Avg. Market Cost per Day"
+msgstr "Durchschn. Marktkosten pro Tag"
 
 #: templates/ledger/modals/information/daily.html:116
 msgid "Avg. Traveling Cost per Day"
@@ -724,7 +726,7 @@ msgstr "Durchschn. Planetenkosten pro Tag"
 
 #: templates/ledger/modals/information/daily.html:152
 msgid "Avg. Summary Day"
-msgstr "Avg. Zusammenfassung Tag"
+msgstr "Durchschn. Zusammenfassung Tag"
 
 #: templates/ledger/modals/information/day.html:17
 #: templates/ledger/modals/information/day.html:22
@@ -748,10 +750,6 @@ msgstr "Avg. Zusammenfassung Tag"
 msgid "Current Day"
 msgstr "Aktueller Tag"
 
-#: templates/ledger/modals/information/day.html:22
-msgid "Avg Tick"
-msgstr ""
-
 #: templates/ledger/modals/information/day.html:36
 #: templates/ledger/modals/information/summary.html:45
 msgid "Stolen ESS"
@@ -769,8 +767,8 @@ msgstr "Mission Belohnungen"
 
 #: templates/ledger/modals/information/day.html:62
 #: templates/ledger/modals/information/summary.html:64
-msgid "Trading"
-msgstr "Verkauf"
+msgid "Market"
+msgstr "Markt"
 
 #: templates/ledger/modals/information/day.html:69
 #: templates/ledger/modals/information/summary.html:71
@@ -799,8 +797,8 @@ msgstr "Produktion Kosten"
 
 #: templates/ledger/modals/information/day.html:109
 #: templates/ledger/modals/information/summary.html:124
-msgid "Trading Cost"
-msgstr "Verkauf Kosten"
+msgid "Market Cost"
+msgstr "Markt Kosten"
 
 #: templates/ledger/modals/information/day.html:116
 #: templates/ledger/modals/information/summary.html:131
@@ -851,8 +849,8 @@ msgid "Avg. Mining per Hour"
 msgstr "Durchschn. Bergbau pro Stunde"
 
 #: templates/ledger/modals/information/hourly.html:63
-msgid "Avg. Trading per Hour"
-msgstr "Durchschn. Handel pro Stunde"
+msgid "Avg. Market per Hour"
+msgstr "Durchschn. Markt pro Stunde"
 
 #: templates/ledger/modals/information/hourly.html:70
 msgid "Avg. Contracts per Hour"
@@ -875,8 +873,8 @@ msgid "Avg. Production Cost per Hour"
 msgstr "Durchschn. Produktionskosten pro Stunde"
 
 #: templates/ledger/modals/information/hourly.html:110
-msgid "Avg. Trading Cost per Hour"
-msgstr "Durchschn. Handelskosten pro Stunde"
+msgid "Avg. Market Cost per Hour"
+msgstr "Durchschn. Marktkosten pro Stunde"
 
 #: templates/ledger/modals/information/hourly.html:117
 msgid "Avg. Traveling Cost per Hour"

@@ -60,7 +60,7 @@
         {% if character.transaction %}
             <hr>
             <div class="row description-row">
-                <div class="col-sm-6">{% trans "Avg. Trading per Hour" %}:</div>
+                <div class="col-sm-6">{% trans "Avg. Market per Hour" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-success">{{ character.transaction.average_hour|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
@@ -107,7 +107,7 @@
 
         {% if character.market_cost %}
             <div class="row description-row">
-                <div class="col-sm-6">{% trans "Avg. Trading Cost per Hour" %}:</div>
+                <div class="col-sm-6">{% trans "Avg. Market Cost per Hour" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-danger">{{ character.market_cost.average_hour|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}

@@ -19,7 +19,7 @@
         </div>
 
         <div class="row description-row">
-            <div class="col-sm-6">{% trans "Current Day" %} {% trans "Avg Tick" %} - {{ mode_trans }}:</div>
+            <div class="col-sm-6">{% trans "Current Day" %} {% trans "Avg. Tick" %} - {{ mode_trans }}:</div>
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty.current_day_tick|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
@@ -59,7 +59,7 @@
     <hr>
     {% if character.transaction.total_amount_day %}
         <div class="row description-row">
-            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Trading" %}:</div>
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Market" %}:</div>
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.transaction.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
@@ -106,7 +106,7 @@
 
     {% if character.market_cost.total_amount_day %}
         <div class="row description-row">
-            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Trading Cost" %}:</div>
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Market Cost" %}:</div>
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.market_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
