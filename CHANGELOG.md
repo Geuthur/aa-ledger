@@ -1,13 +1,19 @@
 # Changelog
 
+## \[0.6.5\] - 2024-10-18
+
 ### Added
 
 - Corporation Projects Filter to Ledger
+- Ref Type Worktree
+- jump_clone_installation_fee Ref Type to Travling Filter
+- contract_reward_refund to Contract Trade Filter
 
 ### Fixed
 
 - Market Escrow missing on Market Trade Filter
 - Character not Displayed if only Costs are displaying on Corp Intern Trades
+- Contracts from Member to Member not working correctly
 
 ### Update
 
