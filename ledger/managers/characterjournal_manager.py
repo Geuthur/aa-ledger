@@ -25,7 +25,11 @@ CONTRACT_COST = [
 ]
 MARKET_COST = ["market_escrow", "transaction_tax", "market_provider_tax", "brokers_fee"]
 ASSETS_COST = ["asset_safety_recovery_tax"]
-TRAVELING_COST = ["structure_gate_jump", "jump_clone_activation_fee"]
+TRAVELING_COST = [
+    "structure_gate_jump",
+    "jump_clone_activation_fee",
+    "jump_clone_installation_fee",
+]
 PRODUCTION_COST = [
     "industry_job_tax",
     "manufacturing",
@@ -45,10 +49,15 @@ PLANETARY_COST = [
 LP_COST = ["lp_store"]
 # Trading
 MARKET_TRADE = ["market_transaction", "market_escrow"]
-CONTRACT_TRADE = ["contract_price_payment_corp", "contract_reward", "contract_price"]
+CONTRACT_TRADE = [
+    "contract_price_payment_corp",
+    "contract_reward",
+    "contract_price",
+    "contract_reward_refund",
+]
 DONATION_TRADE = ["player_donation"]
 INSURANCE_TRADE = ["insurance"]
-CORP_PROJECTS = ["milestone_reward_payment"]
+CORP_PROJECTS = ["milestone_reward_payment"]  # Not Confirmed
 
 # PVE
 BOUNTY_FILTER = Q(ref_type__in=BOUNTY_PRIZES)
