@@ -2,7 +2,7 @@ from collections import defaultdict
 from decimal import Decimal
 
 from django.db import models
-from django.db.models import Case, DecimalField, F, Q, Sum, Value, When
+from django.db.models import Case, DecimalField, F, Q, Subquery, Sum, Value, When
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -414,12 +414,19 @@ class CharWalletQuerySet(CharWalletQueryFilter):
         if filter_date:
             qs = qs.filter(filter_date)
 
+        # Subquery to identify entry_ids in total_contract_trade
+        contract_trade_entry_ids = qs.filter(CONTRACT_TRADE_FILTER).values("entry_id")
+
         # Aggregate the results directly from the original fields
         ledger_data = qs.aggregate(
-            total_bounty=Sum("amount", filter=Q(ref_type__in=BOUNTY_PRIZES)),
-            total_bounty_tax=Sum("tax", filter=Q(ref_type__in=BOUNTY_PRIZES)),
-            total_mission=Sum("amount", filter=Q(ref_type__in=MISSION_REWARD)),
-            total_contract_cost=Sum("amount", filter=CONTRACT_COST_FILTER),
+            total_bounty=Sum("amount", filter=BOUNTY_FILTER),
+            total_bounty_tax=Sum("tax", filter=BOUNTY_FILTER),
+            total_mission=Sum("amount", filter=MISSION_FILTER),
+            total_contract_cost=Sum(
+                "amount",
+                filter=CONTRACT_COST_FILTER
+                & ~Q(entry_id__in=Subquery(contract_trade_entry_ids)),
+            ),
             total_market_cost=Sum("amount", filter=MARKET_COST_FILTER),
             total_assets_cost=Sum("amount", filter=ASSETS_COST_FILTER),
             total_traveling_cost=Sum("amount", filter=TRAVELING_COST_FILTER),
@@ -505,12 +512,16 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
         )
 
+        # Subquery to identify entry_ids in contract filter
+        contract_entry_ids = qs.filter(CONTRACT_TRADE_FILTER).values("entry_id")
+
         # Define the types and their respective filters
         types_filters = {
             "bounty": BOUNTY_FILTER,
             "market_cost": MARKET_COST_FILTER,
             "production_cost": PRODUCTION_COST_FILTER,
-            "contract_cost": CONTRACT_COST_FILTER,
+            "contract_cost": CONTRACT_COST_FILTER
+            & ~Q(entry_id__in=Subquery(contract_entry_ids)),
             "traveling_cost": TRAVELING_COST_FILTER,
             "asset_cost": ASSETS_COST_FILTER,
             "skill_cost": SKILL_COST_FILTER,
