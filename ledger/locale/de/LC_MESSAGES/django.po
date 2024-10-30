@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-29 07:52+0100\n"
+"POT-Creation-Date: 2024-10-30 13:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: models/events.py:22
 msgid "event"
 msgstr "Veranstaltung"
@@ -288,9 +289,9 @@ msgstr "Kosten"
 
 #: templates/ledger/charledger/partials/card.html:72
 #: templates/ledger/charledger/partials/table.html:20
-#: templates/ledger/corpledger/partials/table.html:18
-#: templates/ledger/modals/information/day.html:155
-#: templates/ledger/modals/information/summary.html:167
+#: templates/ledger/corpledger/partials/table.html:19
+#: templates/ledger/modals/information/day.html:179
+#: templates/ledger/modals/information/summary.html:196
 #: templates/ledger/modals/information/view_character_content.html:20
 msgid "Summary"
 msgstr "Zusammenfassung"
@@ -309,11 +310,12 @@ msgid "Mining Amount"
 msgstr "Bergbau Menge"
 
 #: templates/ledger/charledger/partials/table.html:10
+#: templates/ledger/corpledger/partials/table.html:10
 msgid "Misc. Amount"
 msgstr "Verschiedenes Menge"
 
 #: templates/ledger/charledger/partials/table.html:29
-#: templates/ledger/corpledger/partials/table.html:24
+#: templates/ledger/corpledger/partials/table.html:26
 msgid "Total"
 msgstr "Gesamt"
 
@@ -645,6 +647,7 @@ msgid "TAX"
 msgstr "Steuer"
 
 #: templates/ledger/modals/information/daily.html:20
+#: templates/ledger/modals/information/daily.html:24
 #: templates/ledger/modals/information/daily.html:31
 #: templates/ledger/modals/information/daily.html:38
 #: templates/ledger/modals/information/daily.html:45
@@ -655,7 +658,7 @@ msgstr "Steuer"
 #: templates/ledger/modals/information/daily.html:83
 #: templates/ledger/modals/information/daily.html:90
 #: templates/ledger/modals/information/daily.html:97
-#: templates/ledger/modals/information/daily.html:110
+#: templates/ledger/modals/information/daily.html:104
 #: templates/ledger/modals/information/daily.html:117
 #: templates/ledger/modals/information/daily.html:124
 #: templates/ledger/modals/information/daily.html:131
@@ -663,7 +666,9 @@ msgstr "Steuer"
 #: templates/ledger/modals/information/daily.html:145
 #: templates/ledger/modals/information/daily.html:152
 #: templates/ledger/modals/information/daily.html:159
-#: templates/ledger/modals/information/daily.html:167
+#: templates/ledger/modals/information/daily.html:166
+#: templates/ledger/modals/information/daily.html:174
+#: templates/ledger/modals/information/day.html:22
 #: templates/ledger/modals/information/hourly.html:18
 #: templates/ledger/modals/information/hourly.html:25
 #: templates/ledger/modals/information/hourly.html:32
@@ -676,7 +681,7 @@ msgstr "Steuer"
 #: templates/ledger/modals/information/hourly.html:84
 #: templates/ledger/modals/information/hourly.html:91
 #: templates/ledger/modals/information/hourly.html:98
-#: templates/ledger/modals/information/hourly.html:111
+#: templates/ledger/modals/information/hourly.html:105
 #: templates/ledger/modals/information/hourly.html:118
 #: templates/ledger/modals/information/hourly.html:125
 #: templates/ledger/modals/information/hourly.html:132
@@ -684,7 +689,8 @@ msgstr "Steuer"
 #: templates/ledger/modals/information/hourly.html:146
 #: templates/ledger/modals/information/hourly.html:153
 #: templates/ledger/modals/information/hourly.html:160
-#: templates/ledger/modals/information/hourly.html:168
+#: templates/ledger/modals/information/hourly.html:167
+#: templates/ledger/modals/information/hourly.html:175
 #: templates/ledger/modals/information/summary.html:23
 msgid "Avg."
 msgstr "Durchschn."
@@ -701,7 +707,7 @@ msgstr "Durchschn."
 #: templates/ledger/modals/information/daily.html:83
 #: templates/ledger/modals/information/daily.html:90
 #: templates/ledger/modals/information/daily.html:97
-#: templates/ledger/modals/information/daily.html:110
+#: templates/ledger/modals/information/daily.html:104
 #: templates/ledger/modals/information/daily.html:117
 #: templates/ledger/modals/information/daily.html:124
 #: templates/ledger/modals/information/daily.html:131
@@ -709,6 +715,7 @@ msgstr "Durchschn."
 #: templates/ledger/modals/information/daily.html:145
 #: templates/ledger/modals/information/daily.html:152
 #: templates/ledger/modals/information/daily.html:159
+#: templates/ledger/modals/information/daily.html:166
 msgid "per Day"
 msgstr "pro Tag"
 
@@ -729,99 +736,109 @@ msgstr "Mission Belohnung"
 #: templates/ledger/modals/information/daily.html:59
 #: templates/ledger/modals/information/day.html:57
 #: templates/ledger/modals/information/hourly.html:60
+#: templates/ledger/modals/information/summary.html:61
 msgid "Incursion"
 msgstr ""
 
 #: templates/ledger/modals/information/daily.html:69
 #: templates/ledger/modals/information/day.html:70
 #: templates/ledger/modals/information/hourly.html:70
-#: templates/ledger/modals/information/summary.html:64
+#: templates/ledger/modals/information/summary.html:71
 msgid "Market"
 msgstr "Markt"
 
 #: templates/ledger/modals/information/daily.html:76
+#: templates/ledger/modals/information/day.html:77
 #: templates/ledger/modals/information/hourly.html:77
-#: templates/ledger/modals/information/summary.html:71
+#: templates/ledger/modals/information/summary.html:78
 msgid "Contract"
 msgstr "Vertrag"
 
 #: templates/ledger/modals/information/daily.html:83
+#: templates/ledger/modals/information/day.html:84
 #: templates/ledger/modals/information/hourly.html:84
-#: templates/ledger/modals/information/summary.html:82
+#: templates/ledger/modals/information/summary.html:89
 msgid "Donation"
 msgstr "Spende"
 
 #: templates/ledger/modals/information/daily.html:90
 #: templates/ledger/modals/information/day.html:91
 #: templates/ledger/modals/information/hourly.html:91
-#: templates/ledger/modals/information/summary.html:95
+#: templates/ledger/modals/information/summary.html:102
 msgid "Insurance"
 msgstr "Versicherung"
 
 #: templates/ledger/modals/information/daily.html:97
 #: templates/ledger/modals/information/day.html:98
 #: templates/ledger/modals/information/hourly.html:98
-#: templates/ledger/modals/information/summary.html:106
+#: templates/ledger/modals/information/summary.html:113
 msgid "Corp Project"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:110
-#: templates/ledger/modals/information/day.html:111
-#: templates/ledger/modals/information/hourly.html:111
-#: templates/ledger/modals/information/summary.html:135
+#: templates/ledger/modals/information/daily.html:104
+#: templates/ledger/modals/information/day.html:105
+#: templates/ledger/modals/information/hourly.html:105
+#: templates/ledger/modals/information/summary.html:124
+msgid "Daily Goal"
+msgstr "Täglich"
+
+#: templates/ledger/modals/information/daily.html:117
+#: templates/ledger/modals/information/day.html:119
+#: templates/ledger/modals/information/hourly.html:118
+#: templates/ledger/modals/information/summary.html:153
 msgid "Market Cost"
 msgstr "Markt Kosten"
 
-#: templates/ledger/modals/information/daily.html:117
-#: templates/ledger/modals/information/day.html:118
-#: templates/ledger/modals/information/hourly.html:118
-#: templates/ledger/modals/information/summary.html:122
+#: templates/ledger/modals/information/daily.html:124
+#: templates/ledger/modals/information/day.html:126
+#: templates/ledger/modals/information/hourly.html:125
+#: templates/ledger/modals/information/summary.html:140
 msgid "Contract Cost"
 msgstr "Vertrag Kosten"
 
-#: templates/ledger/modals/information/daily.html:124
-#: templates/ledger/modals/information/day.html:125
-#: templates/ledger/modals/information/hourly.html:125
-#: templates/ledger/modals/information/summary.html:129
+#: templates/ledger/modals/information/daily.html:131
+#: templates/ledger/modals/information/day.html:133
+#: templates/ledger/modals/information/hourly.html:132
+#: templates/ledger/modals/information/summary.html:147
 msgid "Production Cost"
 msgstr "Produktion Kosten"
 
-#: templates/ledger/modals/information/daily.html:131
-#: templates/ledger/modals/information/day.html:132
-#: templates/ledger/modals/information/hourly.html:132
-#: templates/ledger/modals/information/summary.html:142
+#: templates/ledger/modals/information/daily.html:138
+#: templates/ledger/modals/information/day.html:140
+#: templates/ledger/modals/information/hourly.html:139
+#: templates/ledger/modals/information/summary.html:160
 msgid "Traveling Cost"
 msgstr "Traveling Kosten"
 
-#: templates/ledger/modals/information/daily.html:138
-#: templates/ledger/modals/information/day.html:139
-#: templates/ledger/modals/information/hourly.html:139
-#: templates/ledger/modals/information/summary.html:149
+#: templates/ledger/modals/information/daily.html:145
+#: templates/ledger/modals/information/day.html:147
+#: templates/ledger/modals/information/hourly.html:146
+#: templates/ledger/modals/information/summary.html:167
 msgid "Asset Safety Cost"
 msgstr "Asset Safety Kosten"
 
-#: templates/ledger/modals/information/daily.html:145
-#: templates/ledger/modals/information/day.html:146
-#: templates/ledger/modals/information/hourly.html:146
-#: templates/ledger/modals/information/summary.html:156
+#: templates/ledger/modals/information/daily.html:152
+#: templates/ledger/modals/information/day.html:154
+#: templates/ledger/modals/information/hourly.html:153
+#: templates/ledger/modals/information/summary.html:174
 msgid "Skillbook Cost"
 msgstr "Skillbuch Kosten"
 
-#: templates/ledger/modals/information/daily.html:152
-#: templates/ledger/modals/information/day.html:153
-#: templates/ledger/modals/information/hourly.html:153
-#: templates/ledger/modals/information/summary.html:163
+#: templates/ledger/modals/information/daily.html:159
+#: templates/ledger/modals/information/day.html:161
+#: templates/ledger/modals/information/hourly.html:160
+#: templates/ledger/modals/information/summary.html:181
 msgid "Insurance Cost"
 msgstr "Versicherung Kosten"
 
-#: templates/ledger/modals/information/daily.html:159
-#: templates/ledger/modals/information/day.html:160
-#: templates/ledger/modals/information/hourly.html:160
-#: templates/ledger/modals/information/summary.html:170
+#: templates/ledger/modals/information/daily.html:166
+#: templates/ledger/modals/information/day.html:168
+#: templates/ledger/modals/information/hourly.html:167
+#: templates/ledger/modals/information/summary.html:188
 msgid "Planetary Cost"
 msgstr "Planetary Kosten"
 
-#: templates/ledger/modals/information/daily.html:167
+#: templates/ledger/modals/information/daily.html:174
 msgid "Summary Day"
 msgstr "Zusammenfassung Tag"
 
@@ -837,15 +854,16 @@ msgstr "Zusammenfassung Tag"
 #: templates/ledger/modals/information/day.html:84
 #: templates/ledger/modals/information/day.html:91
 #: templates/ledger/modals/information/day.html:98
-#: templates/ledger/modals/information/day.html:111
-#: templates/ledger/modals/information/day.html:118
-#: templates/ledger/modals/information/day.html:125
-#: templates/ledger/modals/information/day.html:132
-#: templates/ledger/modals/information/day.html:139
-#: templates/ledger/modals/information/day.html:146
-#: templates/ledger/modals/information/day.html:153
-#: templates/ledger/modals/information/day.html:160
-#: templates/ledger/modals/information/day.html:171
+#: templates/ledger/modals/information/day.html:105
+#: templates/ledger/modals/information/day.html:119
+#: templates/ledger/modals/information/day.html:126
+#: templates/ledger/modals/information/day.html:133
+#: templates/ledger/modals/information/day.html:140
+#: templates/ledger/modals/information/day.html:147
+#: templates/ledger/modals/information/day.html:154
+#: templates/ledger/modals/information/day.html:161
+#: templates/ledger/modals/information/day.html:168
+#: templates/ledger/modals/information/day.html:179
 msgid "Current Day"
 msgstr "Aktueller Tag"
 
@@ -866,7 +884,7 @@ msgstr ""
 #: templates/ledger/modals/information/hourly.html:84
 #: templates/ledger/modals/information/hourly.html:91
 #: templates/ledger/modals/information/hourly.html:98
-#: templates/ledger/modals/information/hourly.html:111
+#: templates/ledger/modals/information/hourly.html:105
 #: templates/ledger/modals/information/hourly.html:118
 #: templates/ledger/modals/information/hourly.html:125
 #: templates/ledger/modals/information/hourly.html:132
@@ -874,10 +892,11 @@ msgstr ""
 #: templates/ledger/modals/information/hourly.html:146
 #: templates/ledger/modals/information/hourly.html:153
 #: templates/ledger/modals/information/hourly.html:160
+#: templates/ledger/modals/information/hourly.html:167
 msgid "per Hour"
-msgstr "per Stunde"
+msgstr "pro Stunde"
 
-#: templates/ledger/modals/information/hourly.html:168
+#: templates/ledger/modals/information/hourly.html:175
 msgid "Summary Hour"
 msgstr "Zusammenfassung Stunde"
 
