@@ -68,7 +68,7 @@ class LedgerTotal:
     def to_dict(self):
         return asdict(self)
 
-    def get_data(self, totals: dict):
+    def get_summary(self, totals: dict):
         self.total_amount += totals.get("total_amount", 0)
         self.total_amount_ess += totals.get("total_amount_ess", 0)
         self.total_amount_all += totals.get("total_amount_all", 0)
