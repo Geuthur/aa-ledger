@@ -215,7 +215,10 @@ class TemplateProcess:
         char_ids = [char.character_id for char in chars]
 
         amounts = corporation_journal.generate_template(
-            amounts, char_ids, self.data.ledger_date, "corporation"
+            amounts=amounts,
+            character_ids=char_ids,
+            filter_date=self.data.ledger_date,
+            mode="corporation",
         )
 
         amounts["stolen"] = defaultdict(Decimal)
