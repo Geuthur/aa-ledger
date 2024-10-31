@@ -15,14 +15,14 @@
     <div class="card-body modal-tab">
         {% if character.bounty %}
             <div class="row description-row">
-                <div class="col-sm-6">{% trans "Avg." %} {{ mode_trans }} {% trans "per Hour" %}:</div>
+                <div class="col-sm-6">{% trans "Avg." %} {% trans "Ratting" %} {% trans "per Hour" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-success">{{ character.bounty.average_hour|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         {% if character.bounty %}
             <div class="row description-row">
-                <div class="col-sm-6">{% trans "Avg." %} {{ mode_trans }} Tick {% trans "per Hour" %}:</div>
+                <div class="col-sm-6">{% trans "Avg." %} {% trans "Ratting" %} Tick {% trans "per Hour" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty.average_hour_tick|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}

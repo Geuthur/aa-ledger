@@ -14,12 +14,12 @@
 {% if character.bounty.total_amount_day or character.ess.total_amount_day or character.mission.total_amount_day or character.mining.total_amount_day %}
     {% if character.bounty.total_amount_day %}
         <div class="row description-row">
-            <div class="col-sm-6">{% trans "Current Day" %} - {{ mode_trans }}:</div>
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Ratting" %}:</div>
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
 
         <div class="row description-row">
-            <div class="col-sm-6">{% trans "Current Day" %} {% trans "Avg." %} Tick - {{ mode_trans }}:</div>
+            <div class="col-sm-6">{% trans "Current Day" %} {% trans "Avg." %} Tick - {% trans "Ratting" %}:</div>
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty.current_day_tick|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}

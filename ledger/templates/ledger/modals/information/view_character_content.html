@@ -26,13 +26,21 @@
                     <a class="nav-link bg-secondary" href="#tab-hourly" data-bs-toggle="tab" role="tab" data-bs-target="#tab-hourly">{% trans "Hourly" %}</a>
                 </li>
             </ul>
-            <div class="card-body bg-secondary rounded-bottom tab-content px-2">
-                {% include "ledger/modals/information/summary.html" with character=character mode=mode %}
-                {% include "ledger/modals/information/daily.html" with character=character mode=mode %}
-                {% include "ledger/modals/information/hourly.html" with character=character mode=mode %}
+            <div class="card-body bg-secondary rounded-bottom tab-content px-2 mb-3">
+                {% include "ledger/modals/information/summary.html" with character=character %}
+                {% include "ledger/modals/information/daily.html" with character=character %}
+                {% include "ledger/modals/information/hourly.html" with character=character %}
             </div>
-            <br>
-            <span class="btn btn-sm btn-info btn-square fas fa-info"></span><span> {% trans "Orange Color is for Info only and is not included in the Calculation" %}.</span>
+            <div class="mb-1">
+                <span class="btn btn-sm btn-info btn-square fas fa-info"></span>
+                <span> {% trans "Orange Color is for Info only and is not included in the Calculation" %}.</span>
+            </div>
+            {% if mode == "TAX" %}
+            <div class="">
+                <span class="btn btn-sm btn-info btn-square fas fa-info"></span>
+                <span> {% trans "All amounts shown are taxes collected from characters." %}.</span>
+            </div>
+            {% endif %}
         </div>
         {% else %}
             {% trans "No ratting data found..." %}

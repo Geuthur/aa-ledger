@@ -4,12 +4,6 @@
 {% load evelinks %}
 {% load ledger %}
 
-{% if mode == "TAX" %}
-    {% trans "TAX" as mode_trans %}
-{% else %}
-    {% trans "Ratting" as mode_trans %}
-{% endif %}
-
 <!--##############################DAILY#######################-->
 <div class="tab-pane panel panel-default" id="tab-daily">
     <div class="card-body modal-tab">
@@ -17,11 +11,11 @@
 
         {% if character.bounty %}
             <div class="row description-row">
-                <div class="col-sm-6">{% trans "Avg." %} {{ mode_trans }} {% trans "per Day" %}:</div>
+                <div class="col-sm-6">{% trans "Avg." %} {% trans "Ratting" %} {% trans "per Day" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-success">{{ character.bounty.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
             <div class="row description-row">
-                <div class="col-sm-6">{% trans "Avg." %} Tick {{ mode_trans }} {% trans "per Day" %}:</div>
+                <div class="col-sm-6">{% trans "Avg." %} Tick {% trans "Ratting" %} {% trans "per Day" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty.average_day_tick|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
