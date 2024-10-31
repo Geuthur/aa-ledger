@@ -28,7 +28,7 @@ INCURSION_FILTER = Q(ref_type__in=INCURSION, amount__gt=0)
 MISSION_FILTER = Q(ref_type__in=MISSION, amount__gt=0)
 DAILY_GOAL_REWARD_FILTER = Q(ref_type__in=DAILY_GOAL_REWARD, amount__gt=0)
 
-MISC_FILTER = INCURSION_FILTER | MISSION_FILTER
+MISC_FILTER = INCURSION_FILTER | MISSION_FILTER | DAILY_GOAL_REWARD_FILTER
 
 
 class CorpWalletQueryFilter(models.QuerySet):
@@ -105,6 +105,33 @@ class CorpWalletQueryFilter(models.QuerySet):
             )
         )
 
+    def annotate_mission(self, second_party_ids: list) -> models.QuerySet:
+        return self.annotate(
+            total_mission=Coalesce(
+                Sum(
+                    "amount",
+                    filter=(MISSION_FILTER & Q(second_party_id__in=second_party_ids)),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            )
+        )
+
+    def annotate_daily_goal_reward(self, second_party_ids: list) -> models.QuerySet:
+        return self.annotate(
+            total_daily_goal_reward=Coalesce(
+                Sum(
+                    "amount",
+                    filter=(
+                        DAILY_GOAL_REWARD_FILTER
+                        & Q(second_party_id__in=second_party_ids)
+                    ),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            )
+        )
+
 
 class CorpWalletQuerySet(CorpWalletQueryFilter):
     def annotate_ledger(self, corporations: list) -> models.QuerySet:
@@ -169,6 +196,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             ),
         )
 
+    # pylint: disable=duplicate-code
     def generate_template(
         self,
         amounts: defaultdict,
@@ -193,6 +221,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             types_filters["bounty"] = BOUNTY_FILTER
             types_filters["mission"] = MISSION_FILTER
             types_filters["incursion"] = INCURSION_FILTER
+            types_filters["daily_goal"] = DAILY_GOAL_REWARD_FILTER
 
         annotations = {}
         # Create the template
