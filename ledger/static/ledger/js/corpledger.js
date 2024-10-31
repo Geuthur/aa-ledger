@@ -145,6 +145,7 @@ function generateLedger(TableName, url) {
             hideLoading(TableName);
             const total_amount = data[0].total.total_amount;
             const total_amount_ess = data[0].total.total_amount_ess;
+            const total_amount_other = data[0].total.total_amount_others;
             const total_amount_combined = data[0].total.total_amount_all;
 
             // Set the month to 0 for the year table
@@ -199,6 +200,14 @@ function generateLedger(TableName, url) {
                             return data;
                         }
                     },
+                    {   data: 'total_amount_others',
+                        render: function (data, type) {
+                            if (type === 'display') {
+                                return formatAndColor(data);
+                            }
+                            return data;
+                        }
+                    },
                     {
                         data: 'col-total-action',
                         render: function (_, __, row) {
@@ -226,12 +235,14 @@ function generateLedger(TableName, url) {
                     if (data.length === 0) {
                         $('#foot-'+ TableName +' .col-total-amount').html('');
                         $('#foot-'+ TableName +' .col-total-ess').html('');
+                        $('#foot-'+ TableName +' .col-total-others').html('');
                         $('#foot-'+ TableName +' .col-total-gesamt').html('');
                         $('#foot-'+ TableName +' .col-total-button').html('').removeClass('text-end');
                         return;
                     }
                     $('#foot-'+ TableName +' .col-total-amount').html(formatAndColor(total_amount));
                     $('#foot-'+ TableName +' .col-total-ess').html(formatAndColor(total_amount_ess));
+                    $('#foot-'+ TableName +' .col-total-others').html(formatAndColor(total_amount_other));
                     $('#foot-'+ TableName +' .col-total-gesamt').html(formatAndColor(total_amount_combined));
                     $('#foot-'+ TableName +' .col-total-button').html(`
                         <button

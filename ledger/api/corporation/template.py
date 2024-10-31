@@ -14,6 +14,7 @@ from ledger.api.helpers import (
 )
 from ledger.api.managers.template_manager import TemplateData, TemplateProcess
 from ledger.hooks import get_extension_logger
+from ledger.models.corporationaudit import CorporationWalletJournalEntry
 
 logger = get_extension_logger(__name__)
 
@@ -54,10 +55,17 @@ class LedgerTemplateApiEndpoints:
             overall_mode = main_id == 0
 
             if overall_mode:
+                second_party_ids = CorporationWalletJournalEntry.objects.filter(
+                    division__corporation__corporation__corporation_id__in=corporations,
+                ).values_list("second_party_id", flat=True)
+
                 chars_list = get_main_and_alts_ids_all(corporations)
+                combined_list = list(set(chars_list) | set(second_party_ids))
+
                 linked_char = EveCharacter.objects.filter(
-                    character_id__in=chars_list,
+                    character_id__in=combined_list,
                 )
+
             elif corp:
                 linked_char = EveCharacter.objects.filter(
                     corporation_id__in=[main_id],
