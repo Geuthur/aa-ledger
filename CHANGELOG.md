@@ -19,6 +19,7 @@
 - Contracts from Member to Member not working correctly
 - Character Information Sheet show empty Template when Main is not in Corporation on Single Corporation Lookup
 - Characters not included in some cases in Corp Ledger
+- Bounty double taxing
 
 ### Update
 
