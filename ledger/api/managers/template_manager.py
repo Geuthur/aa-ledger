@@ -168,7 +168,8 @@ class TemplateProcess:
                         "total_amount_day": (
                             round(amounts[key]["total_amount_day"], 2)
                             if self.data.month != 0
-                            else 0  # Only show daily amount if not year
+                            and self.data.current_date.month == self.data.month
+                            else 0  # Only show daily amount if not year and in the correct month
                         ),
                         "total_amount_hour": (
                             round(amounts[key]["total_amount_hour"], 2)
@@ -204,8 +205,11 @@ class TemplateProcess:
             "total_amount_day": round(total_sum / current_day, 2),
             "total_amount_hour": round((total_sum / current_day) / 24, 2),
             "total_current_day": (
-                round(total_current_day_sum, 2) if self.data.month != 0 else 0
-            ),  # Only show daily amount if not year
+                round(total_current_day_sum, 2)
+                if self.data.month != 0
+                and self.data.current_date.month == self.data.month
+                else 0
+            ),  # Only show daily amount if not year and in the correct month
         }
 
     # Genereate Amounts for each Char
