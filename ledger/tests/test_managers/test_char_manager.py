@@ -168,50 +168,50 @@ class CharManagerQuerySetTest(TestCase):
         self.assertIsNotNone(qs_no_filter)
         self.assertIn("total_lp", qs_no_filter.query.annotations)
 
-    def test_annotate_market_trade(self):
+    def test_annotate_market_income(self):
         character_ids = [1, 2, 3]
 
-        qs = self.manager.annotate_market_trade(character_ids)
+        qs = self.manager.annotate_market_income(character_ids)
         self.assertIsNotNone(qs)
-        self.assertIn("total_market_trade", qs.query.annotations)
+        self.assertIn("total_market_income", qs.query.annotations)
 
-        qs_no_filter = self.manager.annotate_market_trade(character_ids)
+        qs_no_filter = self.manager.annotate_market_income(character_ids)
         self.assertIsNotNone(qs_no_filter)
-        self.assertIn("total_market_trade", qs_no_filter.query.annotations)
+        self.assertIn("total_market_income", qs_no_filter.query.annotations)
 
-    def test_annotate_contract_trade(self):
+    def test_annotate_contract_income(self):
         character_ids = [1, 2, 3]
 
-        qs = self.manager.annotate_contract_trade(character_ids)
+        qs = self.manager.annotate_contract_income(character_ids)
         self.assertIsNotNone(qs)
-        self.assertIn("total_contract_trade", qs.query.annotations)
+        self.assertIn("total_contract_income", qs.query.annotations)
 
-        qs_no_filter = self.manager.annotate_contract_trade(character_ids)
+        qs_no_filter = self.manager.annotate_contract_income(character_ids)
         self.assertIsNotNone(qs_no_filter)
-        self.assertIn("total_contract_trade", qs_no_filter.query.annotations)
+        self.assertIn("total_contract_income", qs_no_filter.query.annotations)
 
-    def test_annotate_donation_trade(self):
+    def test_annotate_donation_income(self):
         character_ids = [1, 2, 3]
         exclude = [4, 5]
 
-        qs = self.manager.annotate_donation_trade(character_ids, exclude)
+        qs = self.manager.annotate_donation_income(character_ids, exclude)
         self.assertIsNotNone(qs)
-        self.assertIn("total_donation_trade", qs.query.annotations)
+        self.assertIn("total_donation_income", qs.query.annotations)
 
-        qs_no_filter = self.manager.annotate_donation_trade(character_ids)
+        qs_no_filter = self.manager.annotate_donation_income(character_ids)
         self.assertIsNotNone(qs_no_filter)
-        self.assertIn("total_donation_trade", qs_no_filter.query.annotations)
+        self.assertIn("total_donation_income", qs_no_filter.query.annotations)
 
-    def test_annotate_insurance_trade(self):
+    def test_annotate_insurance_income(self):
         character_ids = [1, 2, 3]
 
-        qs = self.manager.annotate_insurance_trade(character_ids)
+        qs = self.manager.annotate_insurance_income(character_ids)
         self.assertIsNotNone(qs)
-        self.assertIn("total_insurance_trade", qs.query.annotations)
+        self.assertIn("total_insurance_income", qs.query.annotations)
 
-        qs_no_filter = self.manager.annotate_insurance_trade(character_ids)
+        qs_no_filter = self.manager.annotate_insurance_income(character_ids)
         self.assertIsNotNone(qs_no_filter)
-        self.assertIn("total_insurance_trade", qs_no_filter.query.annotations)
+        self.assertIn("total_insurance_income", qs_no_filter.query.annotations)
 
     def test_generate_ledger(self):
 

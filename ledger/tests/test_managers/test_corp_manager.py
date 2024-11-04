@@ -118,6 +118,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1001],
                 "total_bounty": Decimal("400000.00"),
                 "total_ess": Decimal("400000.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1002,
@@ -125,6 +126,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1002],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1010,
@@ -132,6 +134,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1010],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1011,
@@ -139,6 +142,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1011],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1012,
@@ -146,6 +150,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1012],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1013,
@@ -153,6 +158,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1013],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1014,
@@ -160,6 +166,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1014],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1015,
@@ -167,6 +174,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1015],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1016,
@@ -174,6 +182,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1016],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1017,
@@ -181,6 +190,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1017],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1018,
@@ -188,6 +198,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1018],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1019,
@@ -195,6 +206,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1019],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1020,
@@ -202,6 +214,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1020],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1021,
@@ -209,6 +222,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1021],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 9998,
@@ -216,6 +230,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [9998],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 9999,
@@ -223,6 +238,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [9999],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
         ]
 
@@ -244,6 +260,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1001],
                 "total_bounty": Decimal("400000.00"),
                 "total_ess": Decimal("400000.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1002,
@@ -251,6 +268,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1002],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1010,
@@ -258,6 +276,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1010],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1011,
@@ -265,6 +284,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1011],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1012,
@@ -272,6 +292,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1012],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1013,
@@ -279,6 +300,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1013],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1014,
@@ -286,6 +308,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1014],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1015,
@@ -293,6 +316,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1015],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1016,
@@ -300,6 +324,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1016],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1017,
@@ -307,6 +332,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1017],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1018,
@@ -314,6 +340,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1018],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1019,
@@ -321,6 +348,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1019],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1020,
@@ -328,6 +356,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1020],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
             {
                 "main_character_id": 1021,
@@ -335,6 +364,7 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1021],
                 "total_bounty": Decimal("100000.00"),
                 "total_ess": Decimal("0.00"),
+                "total_miscellaneous": Decimal("0.00"),
             },
         ]
 
