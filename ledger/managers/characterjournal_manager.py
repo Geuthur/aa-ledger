@@ -452,7 +452,6 @@ class CharWalletQuerySet(CharWalletQueryFilter):
         ledger_data = qs.aggregate(
             # PvE
             total_bounty=Sum("amount", filter=BOUNTY_FILTER),
-            total_bounty_tax=Sum("tax", filter=BOUNTY_FILTER),
             total_mission=Sum("amount", filter=MISSION_FILTER),
             total_incursion_income=Sum("amount", filter=INCURSION_FILTER),
             total_lp=Sum("amount", filter=LP_COST_FILTER),
@@ -492,18 +491,13 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             total_mining=Sum("total")
         )
 
-        # Bounty after Tax
-        bounty = Decimal(ledger_data["total_bounty"] or 0) - Decimal(
-            ledger_data["total_bounty_tax"] or 0
-        )
-
         # NOT IMPLEMENTED
         # NOTE: Can not calculate Stolen ESS atm
         # ESS Amounts per Char Journal
         # ess = (Decimal(ledger_data["total_bounty"] or 0) / 100) * Decimal(66.6667)
 
         amounts = {
-            "bounty": bounty,
+            "bounty": Decimal(ledger_data["total_bounty"] or 0),
             "ess": Decimal(ess_data["total_ess"] or 0),
             "mining": Decimal(mining_data["total_mining"] or 0),
             "mission": Decimal(ledger_data["total_mission"] or 0),
@@ -589,8 +583,7 @@ class CharWalletQuerySet(CharWalletQueryFilter):
                     Case(
                         When(
                             type_filter,
-                            then=F("amount")
-                            - Coalesce(F("tax"), Value(0), output_field=DecimalField()),
+                            then=F("amount"),
                         )
                     )
                 ),
@@ -607,8 +600,7 @@ class CharWalletQuerySet(CharWalletQueryFilter):
                                 date__month=filter_date.month,
                                 date__day=filter_date.day,
                             ),
-                            then=F("amount")
-                            - Coalesce(F("tax"), Value(0), output_field=DecimalField()),
+                            then=F("amount"),
                         )
                     )
                 ),
@@ -626,8 +618,7 @@ class CharWalletQuerySet(CharWalletQueryFilter):
                                 date__day=filter_date.day,
                                 date__hour=filter_date.hour,
                             ),
-                            then=F("amount")
-                            - Coalesce(F("tax"), Value(0), output_field=DecimalField()),
+                            then=F("amount"),
                         )
                     )
                 ),
@@ -651,7 +642,7 @@ class CharWalletQuerySet(CharWalletQueryFilter):
         return qs.annotate(
             total_bounty=Coalesce(
                 Sum(
-                    F("amount") - F("tax"),
+                    F("amount"),
                     filter=Q(ref_type__in=BOUNTY_PRIZES, second_party_id__in=chars),
                 ),
                 Value(0),
