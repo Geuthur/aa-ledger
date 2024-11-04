@@ -780,7 +780,7 @@ msgstr ""
 #: templates/ledger/modals/information/hourly.html:105
 #: templates/ledger/modals/information/summary.html:124
 msgid "Daily Goal"
-msgstr "Täglich"
+msgstr "Tägliche Ziele"
 
 #: templates/ledger/modals/information/daily.html:117
 #: templates/ledger/modals/information/day.html:119
