@@ -117,9 +117,9 @@ class CorpWalletQueryFilter(models.QuerySet):
             )
         )
 
-    def annotate_daily_goal_reward(self, second_party_ids: list) -> models.QuerySet:
+    def annotate_daily_goal(self, second_party_ids: list) -> models.QuerySet:
         return self.annotate(
-            total_daily_goal_reward=Coalesce(
+            total_daily_goal=Coalesce(
                 Sum(
                     "amount",
                     filter=(

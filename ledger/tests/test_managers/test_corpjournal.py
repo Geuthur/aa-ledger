@@ -56,6 +56,20 @@ class CharManagerQuerySetTest(TestCase):
         self.assertIsNotNone(qs)
         self.assertIn("total_ess", qs.query.annotations)
 
+    def test_annotate_mission(self):
+        character_ids = [1, 2, 3]
+
+        qs = CorporationWalletJournalEntry.objects.annotate_mission(character_ids)
+        self.assertIsNotNone(qs)
+        self.assertIn("total_mission", qs.query.annotations)
+
+    def test_annotate_daily_goal(self):
+        character_ids = [1, 2, 3]
+
+        qs = CorporationWalletJournalEntry.objects.annotate_daily_goal(character_ids)
+        self.assertIsNotNone(qs)
+        self.assertIn("total_daily_goal", qs.query.annotations)
+
     def test_annotate_ledger(self):
         add_character_to_user(self.user, EveCharacter.objects.get(character_id=1002))
         add_character_to_user(self.user, EveCharacter.objects.get(character_id=1004))
