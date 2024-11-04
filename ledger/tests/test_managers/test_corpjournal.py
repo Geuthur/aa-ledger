@@ -234,7 +234,8 @@ class CharManagerQuerySetTest(TestCase):
 
         self.assertEqual(list(result), expected_result)
 
-    def test_annotate_ledger_with_attribute_error(self):
+        # With Attribute Error
+
         auth_character = EveCharacter.objects.get(character_id=1019)
         user = AuthUtils.create_user(auth_character.character_name.replace(" ", "_"))
         _ = add_character_to_user(user, auth_character, is_main=False, scopes=None)
@@ -242,113 +243,6 @@ class CharManagerQuerySetTest(TestCase):
         self.client.force_login(user)
 
         result = CorporationWalletJournalEntry.objects.all().annotate_ledger([2001])
-
-        expected_result = [
-            {
-                "main_character_id": 1001,
-                "main_character_name": "Gneuten",
-                "alts": [1001],
-                "total_bounty": Decimal("400000.00"),
-                "total_ess": Decimal("400000.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_character_id": 1010,
-                "main_character_name": "Test1",
-                "alts": [1010],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_character_id": 1011,
-                "main_character_name": "Test2",
-                "alts": [1011],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_character_id": 1012,
-                "main_character_name": "Test3",
-                "alts": [1012],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_character_id": 1013,
-                "main_character_name": "Test4",
-                "alts": [1013],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_character_id": 1014,
-                "main_character_name": "Test5",
-                "alts": [1014],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_character_id": 1015,
-                "main_character_name": "Test6",
-                "alts": [1015],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_character_id": 1016,
-                "main_character_name": "Test7",
-                "alts": [1016],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_character_id": 1017,
-                "main_character_name": "Test8",
-                "alts": [1017],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_character_id": 1018,
-                "main_character_name": "Test9",
-                "alts": [1018],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_character_id": 1019,
-                "main_character_name": "Test10",
-                "alts": [1019],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_character_id": 1020,
-                "main_character_name": "Test11",
-                "alts": [1020],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_character_id": 1021,
-                "main_character_name": "Test12",
-                "alts": [1021],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-        ]
 
         self.assertEqual(list(result), expected_result)
 
