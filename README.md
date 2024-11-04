@@ -56,6 +56,7 @@ ______________________________________________________________________
 ## Upcoming<a name="upcoming"></a>
 
 - Bug Fixing, Performance Optimation
+- Costs for Corporation Ledger
 
 ## Installation<a name="installation"></a>
 
