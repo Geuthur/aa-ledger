@@ -56,6 +56,7 @@ ______________________________________________________________________
 ## Upcoming<a name="upcoming"></a>
 
 - Bug Fixing, Performance Optimation
+- Costs for Corporation Ledger
 
 ## Installation<a name="installation"></a>
 
@@ -173,17 +174,17 @@ LOGGING["loggers"].update(LOGGING_LEDGER["loggers"])
 
 ## Highlights<a name="highlights"></a>
 
-![ledger1](https://github.com/user-attachments/assets/a6f89d3e-89c0-410c-b95d-efbd1fd00a0a)
+![ledger1](ledger/docs/images/preview1.png)
 
-![ledger2](https://github.com/user-attachments/assets/828631f3-07f0-41eb-abad-5e2951f7dd18)
+![ledger2](ledger/docs/images/preview2.png)
 
-![ledger3](https://github.com/user-attachments/assets/48d5f6e6-91f6-455b-ae01-1b98fd96b1de)
+![ledger3](ledger/docs/images/preview3.png)
 
-![ledger4](https://github.com/user-attachments/assets/c32d792e-1240-4dae-a5d9-216fc5f58d26)
+![ledger4](ledger/docs/images/preview4.png)
 
-![ledger5](https://github.com/user-attachments/assets/b37856d6-bd45-4655-9ef8-6f213dc9da24)
+![ledger5](ledger/docs/images/preview5.png)
 
-![ledger6](https://github.com/user-attachments/assets/5c37eef1-cd93-4682-a8a3-aebd4f7278c8)
+![ledger6](ledger/docs/images/preview6.png)
 
 > \[!NOTE\]
 > Contributing

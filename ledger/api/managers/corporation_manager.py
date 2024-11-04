@@ -27,6 +27,7 @@ class CorporationProcess:
         for main in journal:
             total_bounty = main.get("total_bounty", 0)
             total_ess = main.get("total_ess", 0)
+            total_other = main.get("total_miscellaneous", 0)
             character_id = main.get("main_character_id", 0)
             character_name = main.get("main_character_name", "Unknown")
 
@@ -35,7 +36,7 @@ class CorporationProcess:
                 unkwowns_ids.add(character_id)
 
             alts = main.get("alts", [])
-            summary_amount = total_bounty + total_ess
+            summary_amount = sum([total_bounty, total_ess, total_other])
 
             if summary_amount > 0:
                 corporation_dict[character_id] = {
@@ -44,15 +45,17 @@ class CorporationProcess:
                     "alt_names": alts,
                     "total_amount": total_bounty,
                     "total_amount_ess": total_ess,
+                    "total_amount_others": total_other,
                 }
 
             totals = {
                 "total_amount": total_bounty,
                 "total_amount_ess": total_ess,
+                "total_amount_others": total_other,
                 "total_amount_all": summary_amount,
             }
             # Summary all
-            corporation_total.get_data(totals)
+            corporation_total.get_summary(totals)
 
         # Create Unknown Characters
         if unkwowns_ids:

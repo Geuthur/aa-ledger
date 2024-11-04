@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 
 from allianceauth.authentication.models import UserProfile
 
@@ -112,7 +112,7 @@ def delete_cache(key_name: str):
     cache.delete(_storage_key(key_name))
 
 
-def events_filter(entries):
+def events_filter(entries) -> "QuerySet":
     """
     Filter out all Entries that are in the time of the Event
     """

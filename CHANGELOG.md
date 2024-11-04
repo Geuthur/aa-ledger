@@ -1,5 +1,35 @@
 # Changelog
 
+## \[0.6.5\] - 2024-10-18
+
+### Added
+
+- Corporation Projects Filter to Ledger
+- Corporation Template Filter System
+- Ref Type Worktree
+- `corporate_reward_payout` Ref-Type to Char & Corp Ledger named `Incursion`
+- `daily_goal_reward` Ref-Type to Corp Ledger
+- `milestone_reward_payment` Ref-Type to Character Ledger
+
+### Changed
+
+- Added `jump_clone_installation_fee` Ref-Type to Travling Filter
+- Added `contract_reward_refund` Ref-Type to Contract Trade Filter
+
+### Fixed
+
+- Market Escrow missing on Market Trade Filter
+- Character not Displayed if only Costs are displaying on Corp Intern Trades
+- Contracts from Member to Member not working correctly
+- Character Information Sheet show empty Template when Main is not in Corporation on Single Corporation Lookup
+- Characters not included in some cases in Corp Ledger
+- Bounty double taxing
+- Current Day show on different months
+
+### Update
+
+- Translation
+
 ## \[0.6.4\] - 2024-10-04
 
 ### Update

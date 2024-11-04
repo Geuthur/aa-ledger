@@ -58,22 +58,20 @@ class CharacterProcess:
             # Convert the ESS Payout for Character
             amounts["ess"] = convert_ess_payout(amounts["ess"])
 
+            # Summing amounts
+            total_amounts = sum(amounts.values())
+
             # Summing amounts_others
             total_amount_others = sum(amounts_others.values())
 
             # Summing amounts_costs
-            costs_amount = sum(amounts_costs.values())
+            total_costs_amount = sum(amounts_costs.values())
 
-            summary_amount = (
-                amounts["bounty"]
-                + amounts["ess"]
-                + amounts["mining"]
-                + total_amount_others
-            )
+            # Calculate the summary amount
+            total_summary_amount = sum([total_amounts, total_amount_others])
+            total_summary_amount -= abs(total_costs_amount)
 
-            summary_amount -= abs(costs_amount)
-
-            if summary_amount:
+            if total_summary_amount or total_costs_amount:
                 character_dict[char_id] = {
                     "main_id": char_id,
                     "main_name": char_name,
@@ -81,19 +79,19 @@ class CharacterProcess:
                     "total_amount_ess": amounts["ess"],
                     "total_amount_mining": amounts["mining"],
                     "total_amount_others": total_amount_others,
-                    "total_amount_costs": costs_amount,
+                    "total_amount_costs": total_costs_amount,
                 }
 
             totals = {
                 "total_amount": amounts["bounty"],
                 "total_amount_ess": amounts["ess"],
-                "total_amount_all": summary_amount,
                 "total_amount_mining": amounts["mining"],
                 "total_amount_others": total_amount_others,
-                "total_amount_costs": costs_amount,
+                "total_amount_costs": total_costs_amount,
+                "total_amount_all": total_summary_amount,
             }
             # Summary all
-            character_totals.get_data(totals)
+            character_totals.get_summary(totals)
 
         for char in self.chars:
             process_char(char)

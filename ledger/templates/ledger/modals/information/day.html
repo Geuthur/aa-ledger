@@ -14,12 +14,12 @@
 {% if character.bounty.total_amount_day or character.ess.total_amount_day or character.mission.total_amount_day or character.mining.total_amount_day %}
     {% if character.bounty.total_amount_day %}
         <div class="row description-row">
-            <div class="col-sm-6">{% trans "Current Day" %} - {{ mode_trans }}:</div>
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Ratting" %}:</div>
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
 
         <div class="row description-row">
-            <div class="col-sm-6">{% trans "Current Day" %} {% trans "Avg Tick" %} - {{ mode_trans }}:</div>
+            <div class="col-sm-6">{% trans "Current Day" %} {% trans "Avg." %} Tick - {% trans "Ratting" %}:</div>
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty.current_day_tick|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
@@ -33,14 +33,14 @@
 
     {% if character.stolen.total_amount_day %}
         <div class="row description-row">
-            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Stolen ESS" %}:</div>
+            <div class="col-sm-6">{% trans "Current Day" %} - ESS {% trans "Stolen" %}:</div>
             <div class='col-sm-4 text-end'><span class="text-warning" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans "Estimated only" %}">{{ character.stolen.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.mission.total_amount_day %}
         <div class="row description-row">
-            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Mission Rewards" %}:</div>
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Mission Reward" %}:</div>
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.mission.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
@@ -51,6 +51,14 @@
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.mining.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
+
+    {% if character.incursion.total_amount_day %}
+        <div class="row description-row">
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Incursion" %}:</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.incursion.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+        </div>
+    {% endif %}
+
 {% endif %}
 
 <!--############################## Misc #######################-->
@@ -59,21 +67,21 @@
     <hr>
     {% if character.transaction.total_amount_day %}
         <div class="row description-row">
-            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Trading" %}:</div>
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Market" %}:</div>
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.transaction.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.contract.total_amount_day %}
         <div class="row description-row">
-            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Contracts" %}:</div>
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Contract" %}:</div>
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.contract.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
     {% if character.donation.total_amount_day %}
         <div class="row description-row">
-            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Donations" %}:</div>
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Donation" %}:</div>
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.donation.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
@@ -84,12 +92,35 @@
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.insurance.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
+
+    {% if character.cproject.total_amount_day %}
+        <div class="row description-row">
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Corp Project" %}:</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.cproject.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+        </div>
+    {% endif %}
+
+    {% if character.daily_goal.total_amount_day %}
+        <div class="row description-row">
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Daily Goal" %}:</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.daily_goal.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+        </div>
+    {% endif %}
+
 {% endif %}
 
 <!--############################## COSTS #######################-->
 
 {% if character.contract_cost.total_amount_day or character.production_cost.total_amount_day or character.market_cost.total_amount_day or character.traveling_cost.total_amount_day or character.asset_cost.total_amount_day or character.skill_cost.total_amount_day or character.insurance_cost.total_amount_day or character.planetary_cost.total_amount_day %}
     <hr>
+
+    {% if character.market_cost.total_amount_day %}
+        <div class="row description-row">
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Market Cost" %}:</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.market_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+        </div>
+    {% endif %}
+
     {% if character.contract_cost.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Contract Cost" %}:</div>
@@ -101,13 +132,6 @@
         <div class="row description-row">
             <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Production Cost" %}:</div>
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.production_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
-        </div>
-    {% endif %}
-
-    {% if character.market_cost.total_amount_day %}
-        <div class="row description-row">
-            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Trading Cost" %}:</div>
-            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.market_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
