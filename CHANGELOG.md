@@ -5,12 +5,16 @@
 ### Added
 
 - Corporation Projects Filter to Ledger
-- Ref Type Worktree
-- jump_clone_installation_fee Ref Type to Travling Filter
-- contract_reward_refund Ref-Type to Contract Trade Filter
-- corporate_reward_payout Ref-Type to Char & Corp Ledger named `Incursion`
-- daily_goal_reward Ref-Type to Corp Ledger
 - Corporation Template Filter System
+- Ref Type Worktree
+- `corporate_reward_payout` Ref-Type to Char & Corp Ledger named `Incursion`
+- `daily_goal_reward` Ref-Type to Corp Ledger
+- `milestone_reward_payment` Ref-Type to Character Ledger
+
+### Changed
+
+- Added `jump_clone_installation_fee` Ref-Type to Travling Filter
+- Added `contract_reward_refund` Ref-Type to Contract Trade Filter
 
 ### Fixed
 
