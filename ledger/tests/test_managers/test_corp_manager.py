@@ -121,14 +121,6 @@ class CharManagerQuerySetTest(TestCase):
                 "total_miscellaneous": Decimal("0.00"),
             },
             {
-                "main_character_id": 1002,
-                "main_character_name": "rotze Rotineque",
-                "alts": [1002],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
                 "main_character_id": 1010,
                 "main_character_name": "Test1",
                 "alts": [1010],
@@ -224,22 +216,6 @@ class CharManagerQuerySetTest(TestCase):
                 "total_ess": Decimal("0.00"),
                 "total_miscellaneous": Decimal("0.00"),
             },
-            {
-                "main_character_id": 9998,
-                "main_character_name": "Unknown",
-                "alts": [9998],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_character_id": 9999,
-                "main_character_name": "Unknown",
-                "alts": [9999],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
         ]
 
         self.assertEqual(list(result), expected_result)
@@ -260,14 +236,6 @@ class CharManagerQuerySetTest(TestCase):
                 "alts": [1001],
                 "total_bounty": Decimal("400000.00"),
                 "total_ess": Decimal("400000.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_character_id": 1002,
-                "main_character_name": "rotze Rotineque",
-                "alts": [1002],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
                 "total_miscellaneous": Decimal("0.00"),
             },
             {
