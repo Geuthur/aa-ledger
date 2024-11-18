@@ -9,7 +9,7 @@ from app_utils.allianceauth import users_with_permission
 
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
-from ledger.tasks import update_all_corps, update_character
+from ledger.tasks import update_character, update_corp
 
 _corp_perms = [
     "ledger.admin_access",
@@ -38,7 +38,9 @@ def _add_character_corp(request, token):
         },
     )
     CorporationAudit.objects.update_or_create(corporation=corp)
-    update_all_corps.apply_async(priority=6)
+    update_corp.apply_async(
+        args=[char.corporation_id], kwargs={"force_refresh": True}, priority=6
+    )
 
 
 def _check_perms_corp(user: User):
