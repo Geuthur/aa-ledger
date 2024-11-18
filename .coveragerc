@@ -13,3 +13,4 @@ omit =
     setup.py
     */tests/*
     */migrations/*
+    */thirdparty/*

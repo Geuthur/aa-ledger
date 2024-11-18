@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from app_utils.testdata_factories import UserMainFactory
 
-from ledger.auth_hooks import LedgerMenuItem
+from ledger.auth_hooks import LedgerMenuItem, register_charlink_hook
 
 
 class TestAuthHooks(TestCase):
@@ -44,3 +44,8 @@ class TestAuthHooks(TestCase):
             "",
             "Expected render method to return an empty string for users without permission",
         )
+
+    def test_register_charlink_hook(self):
+        # Verify that the hook returns the expected value
+        result = register_charlink_hook()
+        self.assertEqual(result, "ledger.thirdparty.charlink_hook")
