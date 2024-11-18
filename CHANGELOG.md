@@ -1,5 +1,11 @@
 # Changelog
 
+## \[0.6.6\] - 2024-11-16
+
+### Added
+
+- Char Link integration
+
 ## \[0.6.5\] - 2024-10-18
 
 ### Added
