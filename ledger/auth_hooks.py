@@ -39,3 +39,8 @@ def register_urls():
     """Register app urls"""
 
     return UrlHook(urls, "ledger", r"^ledger/")
+
+
+@hooks.register("charlink")
+def register_charlink_hook():
+    return "ledger.thirdparty.charlink_hook"
