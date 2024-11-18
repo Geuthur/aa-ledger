@@ -1,4 +1,3 @@
-# pylint: disable=cyclic-import
 from charlink.app_imports.utils import AppImport, LoginImport
 
 from django.contrib.auth.models import Permission, User
