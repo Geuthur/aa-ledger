@@ -6,6 +6,7 @@ from django.db.models import Exists, OuterRef
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from app_utils.allianceauth import users_with_permission
 
+from ledger.app_settings import LEDGER_APP_NAME
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.tasks import update_character, update_corp
@@ -88,7 +89,7 @@ app_import = AppImport(
         LoginImport(
             app_label="ledger",
             unique_id="default",
-            field_label="Character Audit",
+            field_label=LEDGER_APP_NAME + "- Character Audit",
             add_character=_add_character_charaudit,
             scopes=CharacterAudit.get_esi_scopes(),
             check_permissions=lambda user: user.has_perm("ledger.basic_access"),
@@ -101,7 +102,7 @@ app_import = AppImport(
         LoginImport(
             app_label="ledger",
             unique_id="corpaudit",
-            field_label="Corporation Audit",
+            field_label=LEDGER_APP_NAME + "- Corporation Audit",
             add_character=_add_character_corp,
             scopes=CorporationAudit.get_esi_scopes(),
             check_permissions=_check_perms_corp,
