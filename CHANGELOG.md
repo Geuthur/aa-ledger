@@ -1,12 +1,12 @@
 # Changelog
 
-## \[0.6.6\] - 2024-11-16
+## [0.6.6] - 2024-11-16
 
 ### Added
 
 - Char Link integration
 
-## \[0.6.5\] - 2024-10-18
+## [0.6.5] - 2024-10-18
 
 ### Added
 
@@ -36,7 +36,7 @@
 
 - Translation
 
-## \[0.6.4\] - 2024-10-04
+## [0.6.4] - 2024-10-04
 
 ### Update
 
@@ -54,7 +54,7 @@
 - Current Day amount show on Year Infomation Sheet
 - Tooltip not shown on Single Lookup
 
-## \[0.6.3\] - 2024-10-03
+## [0.6.3] - 2024-10-03
 
 ### Added
 
@@ -82,7 +82,7 @@
 - Wrong naming in Overviews
 - CSS Design Settings
 
-## \[0.6.2\] - 2024-09-04
+## [0.6.2] - 2024-09-04
 
 ### Changed
 
@@ -101,7 +101,7 @@
   - Current Day - ESS Amount
 - Month Table Footer display data on year change if empty
 
-## \[0.6.1\] - 2024-09-04
+## [0.6.1] - 2024-09-04
 
 ### Changed
 
@@ -120,7 +120,7 @@
 
 ### Added
 
-> \[!NOTE\]
+> [!NOTE]
 > Only Show Corporations that added in Ledger System
 
 - Alliance System
@@ -146,14 +146,14 @@
 - Loading Animation url wrong app name
 - Table show on Loading Animation
 
-## \[0.6.0.1\] - 2024-09-04 - Hotfix
+## [0.6.0.1] - 2024-09-04 - Hotfix
 
 ### Fixed
 
 - Character Information:
   - On Administration Overview Overall Information not work for Character
 
-## \[0.6.0\] - 2024-09-04
+## [0.6.0] - 2024-09-04
 
 ### Added
 
@@ -203,9 +203,9 @@
 
 - Add Member Audit Chars Button (Handled by Task)
 
-## \[0.5.9\] - 2024-08-29
+## [0.5.9] - 2024-08-29
 
-> \[!WARNING\]
+> [!WARNING]
 > Member Audit support has been dropped, Please Read README
 
 ### Fixed
@@ -232,7 +232,7 @@
 - Ledger Manager
 - Member Audit integration
 
-## \[0.5.8\] - 2024-08-22
+## [0.5.8] - 2024-08-22
 
 ### Fixed
 
@@ -249,14 +249,14 @@
 - Character Update Time from 2 hours to 1
 - Character/Corporation Ledger: Daily, Hourly Summary renamed to Avg. Summary
 
-## \[0.5.7.1\] - 2024-08-13
+## [0.5.7.1] - 2024-08-13
 
 ### Fixed
 
 - Character Information: Insurance Current Day Calculation
 - Character Ledger: ESS Stolen
 
-## \[0.5.7\] - 2024-08-13
+## [0.5.7] - 2024-08-13
 
 ### Added
 
@@ -277,7 +277,7 @@
 - Information Template: Moved Current Day to Top in Daily Tab
 - Calculate ESS Stolen function
 
-## \[0.5.6\] - 2024-08-07
+## [0.5.6] - 2024-08-07
 
 ### Added
 
@@ -320,7 +320,7 @@
 - Optimized Information Template
 - Refactor Template,Ledger Manager
 
-## \[0.5.5\] - 2024-08-02
+## [0.5.5] - 2024-08-02
 
 ### Fixed
 
@@ -330,7 +330,7 @@
 
 - 3.8, 3.9 Python Support
 
-## \[0.5.4\] - 2024-07-23
+## [0.5.4] - 2024-07-23
 
 ### Added
 
@@ -364,7 +364,7 @@
 - Billboard: Calculation Issue
 - Character Information: Summary not show red if negative
 
-## \[0.5.3\] - 2024-07-13
+## [0.5.3] - 2024-07-13
 
 ### Added
 
@@ -408,7 +408,7 @@
 
 - To fast Tab changing calls error on console
 
-## \[0.5.2a2\] - 2024-06-19
+## [0.5.2a2] - 2024-06-19
 
 ### Added
 
@@ -432,7 +432,7 @@
 - Corp, Char Ledger JS to Bootstrap Dropdown
 - Caching Function
 
-## \[0.5.1\] - 2024-06-14
+## [0.5.1] - 2024-06-14
 
 ### Added
 
@@ -455,7 +455,7 @@
 - API Adressing from journal api and ledger api
 - Corporation and Character Ledger access update
 
-## \[0.5.0\] - 2024-06-01
+## [0.5.0] - 2024-06-01
 
 ### Added
 
@@ -477,7 +477,7 @@
 
 https://github.com/geuthur/aa-ledger/compare/v0.4.2...v0.5.0
 
-## \[0.5.0b1\] - 2024-05-27
+## [0.5.0b1] - 2024-05-27
 
 ### Fixed
 
@@ -488,7 +488,7 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.2...v0.5.0
 
 https://github.com/geuthur/aa-ledger/compare/v0.5.0a1...v0.5.0b1
 
-## \[0.5.0a1\] - 2024-05-25
+## [0.5.0a1] - 2024-05-25
 
 ### Added
 
@@ -512,7 +512,7 @@ https://github.com/geuthur/aa-ledger/compare/v0.5.0a1...v0.5.0b1
 
 https://github.com/geuthur/aa-ledger/compare/v0.4.2...v0.5.0a1
 
-## \[0.4.2\] - 2024-05-23
+## [0.4.2] - 2024-05-23
 
 ### Fixed
 
@@ -522,7 +522,7 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.2...v0.5.0a1
 
 https://github.com/geuthur/aa-ledger/compare/v0.4.1...v0.4.2
 
-## \[0.4.1\] - 2024-05-23
+## [0.4.1] - 2024-05-23
 
 ### Fixed
 
@@ -537,7 +537,7 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.1...v0.4.2
 
 https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 
-## \[0.4.0\] - 2024-05-22
+## [0.4.0] - 2024-05-22
 
 ### Added
 
@@ -564,13 +564,13 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 
 - Order By in Querys
 
-## \[0.3.8\] - 2024-05-22
+## [0.3.8] - 2024-05-22
 
 ### Fixed Critical
 
 - TemplateTag Missing
 
-## \[0.3.0-0.3.7\] - 2024-05-20
+## [0.3.0-0.3.7] - 2024-05-20
 
 ### Added
 
