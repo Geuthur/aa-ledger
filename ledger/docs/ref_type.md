@@ -1,4 +1,4 @@
-> \[!NOTE\]
+> [!NOTE]
 > If there are missing Ref Types missing from Ledger please let me know\
 > I don't know any Ref Type and there is no Website to look at
 

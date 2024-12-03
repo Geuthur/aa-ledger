@@ -60,7 +60,7 @@ ______________________________________________________________________
 
 ## Installation<a name="installation"></a>
 
-> \[!NOTE\]
+> [!NOTE]
 > AA Ledger needs at least Alliance Auth v4.0.0
 > Please make sure to update your Alliance Auth before you install this APP
 
@@ -103,7 +103,7 @@ CELERYBEAT_SCHEDULE["ledger_check_planetary_alarms"] = {
 
 ### Step 3.1 - (Optional) Setting up Compatibilies></a>
 
-> \[!NOTE\]
+> [!NOTE]
 > If you have Member Audit installed add this to Fetch Member Audit Chars and Sync with Ledger
 
 ```python
@@ -124,7 +124,7 @@ python manage.py migrate
 
 With the Following IDs you can set up the permissions for the Ledger
 
-> \[!IMPORTANT\]
+> [!IMPORTANT]
 > Character, Corporation, Alliance Ledger only show Data from User has access to
 > `advanced_access` give User access to see own Corporations he is in
 
@@ -141,11 +141,11 @@ With the Following IDs you can set up the permissions for the Ledger
 
 The Following Settings can be setting up in the `local.py`
 
-- LEDGER_APP_NAME:          `"YOURNAME"`     - Set the name of the APP
+- LEDGER_APP_NAME: `"YOURNAME"` - Set the name of the APP
 
-- LEDGER_CORP_TAX:          `15`             - Set Tax Value for ESS Payout Calculation
+- LEDGER_CORP_TAX: `15` - Set Tax Value for ESS Payout Calculation
 
-- LEDGER_LOGGER_USE:        `True / False`   - Set to use own Logger File
+- LEDGER_LOGGER_USE: `True / False` - Set to use own Logger File
 
 If you set up LEDGER_LOGGER_USE to `True` you need to add the following code below:
 
@@ -186,7 +186,7 @@ LOGGING["loggers"].update(LOGGING_LEDGER["loggers"])
 
 ![ledger6](ledger/docs/images/preview6.png)
 
-> \[!NOTE\]
+> [!NOTE]
 > Contributing
 > You want to improve the project?
 > Just Make a [Pull Request](https://github.com/Geuthur/aa-ledger/pulls) with the Guidelines.
