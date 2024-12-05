@@ -13,7 +13,7 @@ def convert_ess_payout(ess: int) -> float:
     return (ess / app_settings.LEDGER_CORP_TAX) * (100 - app_settings.LEDGER_CORP_TAX)
 
 
-def get_character(request, character_id):
+def get_character(request, character_id) -> tuple[bool, EveCharacter]:
     """Get Character and check permissions"""
     perms = True
     if character_id == 0:
@@ -35,7 +35,9 @@ def get_character(request, character_id):
     return perms, main_char
 
 
-def get_corporation(request, corporation_id):
+def get_corporation(
+    request, corporation_id
+) -> tuple[bool, list[models.CorporationAudit]]:
     """Get Corporation and check permissions"""
     perms = True
     if corporation_id == 0:
@@ -55,7 +57,7 @@ def get_corporation(request, corporation_id):
     return perms, main_corp.values_list("corporation__corporation_id", flat=True)
 
 
-def get_alliance(request, alliance_id):
+def get_alliance(request, alliance_id) -> tuple[bool, list[models.CorporationAudit]]:
     """Get Alliance and check permissions for each corporation"""
     perms = True
     if alliance_id == 0:
