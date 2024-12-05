@@ -90,7 +90,7 @@ app_import = AppImport(
         LoginImport(
             app_label="ledger",
             unique_id="default",
-            field_label=LEDGER_APP_NAME + " - " + trans("Character Ledger"),
+            field_label=LEDGER_APP_NAME + " - " + trans("Character") + " Login",
             add_character=_add_character_charaudit,
             scopes=CharacterAudit.get_esi_scopes(),
             check_permissions=lambda user: user.has_perm("ledger.basic_access"),
@@ -103,7 +103,7 @@ app_import = AppImport(
         LoginImport(
             app_label="ledger",
             unique_id="corpaudit",
-            field_label=LEDGER_APP_NAME + " - " + trans("Corporation Ledger"),
+            field_label=LEDGER_APP_NAME + " - " + trans("Corporation") + " Login",
             add_character=_add_character_corp,
             scopes=CorporationAudit.get_esi_scopes(),
             check_permissions=_check_perms_corp,
