@@ -2,7 +2,7 @@ from datetime import datetime
 
 from ninja import Schema
 
-from ledger.api.managers.billboard_manager import BillboardDict
+from ledger.api.api_helper.billboard_helper import BillboardDict
 
 
 class Message(Schema):

@@ -164,35 +164,32 @@ class TemplateProcess:
                 key: {
                     sub_key: value
                     for sub_key, value in {
-                        "total_amount": round(amounts[key]["total_amount"], 2),
+                        "total_amount": amounts[key]["total_amount"],
                         "total_amount_day": (
-                            round(amounts[key]["total_amount_day"], 2)
+                            amounts[key]["total_amount_day"]
                             if self.data.month != 0
                             and self.data.current_date.month == self.data.month
                             else 0  # Only show daily amount if not year and in the correct month
                         ),
                         "total_amount_hour": (
-                            round(amounts[key]["total_amount_hour"], 2)
+                            amounts[key]["total_amount_hour"]
                             if key != "mining"
                             # Bad Fix but it works..
-                            else round(amounts[key]["total_amount_day"], 2)
+                            else amounts[key]["total_amount_day"]
                         ),
-                        "average_day": round(
-                            amounts[key]["total_amount"] / current_day, 2
-                        ),
-                        "average_hour": round(
-                            (amounts[key]["total_amount"] / current_day) / 24, 2
-                        ),
-                        "average_tick": (round((amounts[key]["total_amount"]) / 20, 2)),
-                        "current_day_tick": (
-                            round(amounts[key]["total_amount_day"] / 20, 2)
-                        ),
+                        "average_day": amounts[key]["total_amount"] / current_day,
+                        "average_hour": (amounts[key]["total_amount"] / current_day)
+                        / 24,
+                        "average_tick": ((amounts[key]["total_amount"]) / 20),
+                        "current_day_tick": (amounts[key]["total_amount_day"] / 20),
                         "average_day_tick": (
-                            round(amounts[key]["total_amount"] / current_day / 20, 2)
+                            amounts[key]["total_amount"] / current_day / 20
                         ),
-                        "average_hour_tick": round(
-                            (amounts[key]["total_amount"] / current_day) / 24 / 20, 2
-                        ),
+                        "average_hour_tick": (
+                            amounts[key]["total_amount"] / current_day
+                        )
+                        / 24
+                        / 20,
                     }.items()
                     if value != 0
                 }
@@ -201,11 +198,11 @@ class TemplateProcess:
         )
 
         self.template_dict["summary"] = {
-            "total_amount": round(total_sum, 2),
-            "total_amount_day": round(total_sum / current_day, 2),
-            "total_amount_hour": round((total_sum / current_day) / 24, 2),
+            "total_amount": total_sum,
+            "total_amount_day": total_sum / current_day,
+            "total_amount_hour": (total_sum / current_day) / 24,
             "total_current_day": (
-                round(total_current_day_sum, 2)
+                total_current_day_sum
                 if self.data.month != 0
                 and self.data.current_date.month == self.data.month
                 else 0

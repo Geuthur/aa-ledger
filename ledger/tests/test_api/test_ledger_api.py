@@ -12,8 +12,8 @@ from allianceauth.eveonline.models import (
 )
 from app_utils.testing import add_character_to_user, create_user_from_evecharacter
 
+from ledger.api.api_helper.character_helper import CharacterProcess
 from ledger.api.ledger import LedgerApiEndpoints
-from ledger.api.managers.character_manager import CharacterProcess
 from ledger.models.characteraudit import CharacterMiningLedger
 from ledger.tests.test_api import _ledgercorpdata
 from ledger.tests.test_api._ledgerchardata import (
@@ -26,7 +26,7 @@ from ledger.tests.test_api._ledgerchardata import (
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 from ledger.tests.testdata.load_ledger import load_ledger_all
 
-MODULE_PATH = "ledger.api.managers.character_manager"
+MODULE_PATH = "ledger.api.api_helper.character_helper"
 
 
 class ManageApiLedgerCharEndpointsTest(TestCase):

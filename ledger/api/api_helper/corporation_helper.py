@@ -1,7 +1,7 @@
 from django.db.models import Q
 
-from ledger.api.managers.billboard_manager import BillboardData, BillboardLedger
-from ledger.api.managers.core_manager import LedgerDate, LedgerModels, LedgerTotal
+from ledger.api.api_helper.billboard_helper import BillboardData, BillboardLedger
+from ledger.api.api_helper.core_manager import LedgerDate, LedgerModels, LedgerTotal
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 from ledger.tasks import create_missing_character
@@ -12,10 +12,10 @@ logger = get_extension_logger(__name__)
 class CorporationProcess:
     """JournalProcess class to process the journal entries."""
 
-    def __init__(self, year, month, corporations=None):
+    def __init__(self, corporations, year, month):
+        self.corp = corporations if corporations else []
         self.year = year
         self.month = month
-        self.corp = corporations if corporations else []
 
     # pylint: disable=too-many-locals
     def _process_corporation_chars(self, journal):

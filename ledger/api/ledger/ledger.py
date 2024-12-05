@@ -1,14 +1,14 @@
 from ninja import NinjaAPI
 
 from ledger.api import schema
+from ledger.api.api_helper.character_helper import CharacterProcess
+from ledger.api.api_helper.corporation_helper import CorporationProcess
 from ledger.api.helpers import (
     get_alliance,
     get_alts_queryset,
     get_character,
     get_corporation,
 )
-from ledger.api.managers.character_manager import CharacterProcess
-from ledger.api.managers.corporation_manager import CorporationProcess
 from ledger.hooks import get_extension_logger
 from ledger.models import CorporationAudit
 

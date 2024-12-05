@@ -6,6 +6,7 @@ from django.utils import timezone
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger.api import schema
+from ledger.api.api_helper.template_helper import TemplateData, TemplateProcess
 from ledger.api.helpers import (
     get_alliance,
     get_alts_queryset,
@@ -13,7 +14,6 @@ from ledger.api.helpers import (
     get_corporation,
     get_main_and_alts_ids_all,
 )
-from ledger.api.managers.template_manager import TemplateData, TemplateProcess
 from ledger.hooks import get_extension_logger
 from ledger.models import CorporationAudit
 

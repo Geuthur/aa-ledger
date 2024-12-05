@@ -1,8 +1,8 @@
 from django.db.models import Q
 
+from ledger.api.api_helper.billboard_helper import BillboardData, BillboardLedger
+from ledger.api.api_helper.core_manager import LedgerDate, LedgerModels, LedgerTotal
 from ledger.api.helpers import convert_ess_payout, get_alts_queryset
-from ledger.api.managers.billboard_manager import BillboardData, BillboardLedger
-from ledger.api.managers.core_manager import LedgerDate, LedgerModels, LedgerTotal
 from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import (
     CharacterMiningLedger,
@@ -129,7 +129,8 @@ class CharacterProcess:
 
         return output
 
-    def generate_billboard(self):
+    # pylint: disable=unused-argument
+    def generate_billboard(self, corporations=None):
         # Get the Character IDs
         if self.alts:
             self.chars_list = [char.character_id for char in self.alts]
