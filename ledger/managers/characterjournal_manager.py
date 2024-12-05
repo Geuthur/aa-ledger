@@ -59,7 +59,7 @@ CONTRACT_INCOME = [
 DONATION_INCOME = ["player_donation"]
 INSURANCE_INCOME = ["insurance"]
 # MISC
-CORP_PROJECTS = ["milestone_reward_payment"]  # Not Confirmed
+MILESTONE_REWARD = ["milestone_reward_payment"]
 DAILY_GOAL_REWARD = ["daily_goal_payouts"]
 
 # PVE
@@ -82,7 +82,7 @@ MARKET_INCOME_FILTER = Q(ref_type__in=MARKET_INCOME, amount__gt=0)
 CONTRACT_INCOME_FILTER = Q(ref_type__in=CONTRACT_INCOME, amount__gt=0)
 DONATION_INCOME_FILTER = Q(ref_type__in=DONATION_INCOME, amount__gt=0)
 INSURANCE_INCOME_FILTER = Q(ref_type__in=INSURANCE_INCOME, amount__gt=0)
-CORP_PROJECTS_FILTER = Q(ref_type__in=CORP_PROJECTS, amount__gt=0)
+MILESTONE_REWARD_FILTER = Q(ref_type__in=MILESTONE_REWARD, amount__gt=0)
 DAILY_GOAL_REWARD_FILTER = Q(ref_type__in=DAILY_GOAL_REWARD, amount__gt=0)
 
 PVE_FILTER = BOUNTY_FILTER | ESS_FILTER
@@ -91,7 +91,6 @@ MISC_FILTER = (
     | CONTRACT_INCOME_FILTER
     | INSURANCE_INCOME_FILTER
     | MISSION_FILTER
-    | CORP_PROJECTS_FILTER
     | INCURSION_FILTER
     | DAILY_GOAL_REWARD_FILTER
 )
@@ -411,17 +410,15 @@ class CharWalletQueryFilter(models.QuerySet):
             )
         )
 
-    def annotate_corporation_projects_income(
-        self, character_ids: list
-    ) -> models.QuerySet:
+    def annotate_milestone_income(self, character_ids: list) -> models.QuerySet:
         return self.annotate(
-            total_cproject_income=Coalesce(
+            total_milestone_income=Coalesce(
                 Sum(
                     "amount",
                     Q(
                         Q(first_party_id__in=character_ids)
                         | Q(second_party_id__in=character_ids),
-                        CORP_PROJECTS_FILTER,
+                        MILESTONE_REWARD_FILTER,
                     ),
                 ),
                 Value(0),
@@ -480,7 +477,6 @@ class CharWalletQuerySet(CharWalletQueryFilter):
                     else DONATION_INCOME_FILTER
                 ),
             ),
-            total_cproject_income=Sum("amount", filter=CORP_PROJECTS_FILTER),
         )
 
         # Special cases
@@ -509,7 +505,6 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             "donation": Decimal(ledger_data["total_donation_income"] or 0),
             "transaction": Decimal(ledger_data["total_market_income"] or 0),
             "contract": Decimal(ledger_data["total_contract_income"] or 0),
-            "cproject": Decimal(ledger_data["total_cproject_income"] or 0),
         }
 
         amounts_costs = {
@@ -571,7 +566,6 @@ class CharWalletQuerySet(CharWalletQueryFilter):
                 if exclude is not None
                 else DONATION_INCOME_FILTER
             ),
-            "cproject": CORP_PROJECTS_FILTER,
         }
 
         # Annotate the queryset with the sums for each type
