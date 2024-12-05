@@ -2,12 +2,9 @@ from ninja import NinjaAPI
 
 from django.db.models import Q
 
-from allianceauth.authentication.models import UserProfile
-
 from ledger.api import schema
 from ledger.api.helpers import get_alts_queryset, get_character
 from ledger.hooks import get_extension_logger
-from ledger.models.characteraudit import CharacterAudit
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
 logger = get_extension_logger(__name__)
@@ -19,7 +16,7 @@ class LedgerPlanetaryApiEndpoints:
     def __init__(self, api: NinjaAPI):
 
         @api.get(
-            "account/{character_id}/planetary/{planet_id}/",
+            "character/{character_id}/planetary/{planet_id}/",
             response={200: list[schema.CharacterPlanet], 403: str},
             tags=self.tags,
         )
@@ -59,7 +56,7 @@ class LedgerPlanetaryApiEndpoints:
             return output
 
         @api.get(
-            "account/{character_id}/planetary/{planet_id}/details/",
+            "character/{character_id}/planetary/{planet_id}/details/",
             response={200: list[schema.CharacterPlanetDetails], 403: str},
             tags=self.tags,
         )
@@ -113,40 +110,4 @@ class LedgerPlanetaryApiEndpoints:
                         "last_update": p.planet.last_update,
                     }
                 )
-            return output
-
-        @api.get(
-            "account/planetary/admin/",
-            response={200: list[schema.CharacterAdmin], 403: str},
-            tags=self.tags,
-        )
-        def get_character_admin(request):
-            chars_ids = CharacterAudit.objects.visible_eve_characters(
-                request.user
-            ).values_list("character_id", flat=True)
-
-            users_char_ids = UserProfile.objects.filter(
-                main_character__isnull=False, main_character__character_id__in=chars_ids
-            )
-
-            if not chars_ids:
-                return 403, "Permission Denied"
-
-            character_dict = {}
-
-            for character in users_char_ids:
-                # pylint: disable=broad-exception-caught
-                try:
-                    character_dict[character.main_character.character_id] = {
-                        "character_id": character.main_character.character_id,
-                        "character_name": character.main_character.character_name,
-                        "corporation_id": character.main_character.corporation_id,
-                        "corporation_name": character.main_character.corporation_name,
-                    }
-                except Exception:
-                    continue
-
-            output = []
-            output.append({"character": character_dict})
-
             return output

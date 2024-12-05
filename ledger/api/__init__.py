@@ -3,7 +3,7 @@ from ninja.security import django_auth
 
 from django.conf import settings
 
-from ledger.api import alliance, character, corporation
+from ledger.api import ledger
 from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
@@ -17,11 +17,5 @@ api = NinjaAPI(
     openapi_url=settings.DEBUG and "/openapi.json" or "",
 )
 
-# Add the character endpoints
-character.setup(api)
-
-# Add the corporation endpoints
-corporation.setup(api)
-
-# Add the alliance endpoints
-alliance.setup(api)
+# Add the ledger endpoints
+ledger.setup(api)
