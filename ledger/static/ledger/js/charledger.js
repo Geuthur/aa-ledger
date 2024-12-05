@@ -25,10 +25,10 @@ if (characteraltsShow) {
 }
 
 function updateUrls() {
-    MonthUrl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
-    YearUrl = '/ledger/api/account/' + characterPk + '/ledger/year/' + selectedYear + '/month/0/' + mainAlts;
-    BillboardUrl = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
-    BillboardUrlYear = '/ledger/api/account/' + characterPk + '/billboard/year/' + selectedYear + '/month/0/' + mainAlts;
+    MonthUrl = '/ledger/api/character/' + characterPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
+    YearUrl = '/ledger/api/character/' + characterPk + '/ledger/year/' + selectedYear + '/month/0/' + mainAlts;
+    BillboardUrl = '/ledger/api/character/' + characterPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
+    BillboardUrlYear = '/ledger/api/character/' + characterPk + '/billboard/year/' + selectedYear + '/month/0/' + mainAlts;
 }
 
 function getMonthName(monthNumber) {
@@ -198,7 +198,7 @@ function generateLedger(TableName, url) {
                         data-bs-toggle="modal"
                         data-bs-target="#modalViewCharacterContainer"
                         aria-label="${char_name}"
-                        data-ajax_url="/ledger/api/account/${char_id}/ledger/template/year/${selectedYear}/month/${tableMonth}/"
+                        data-ajax_url="/ledger/api/character/${char_id}/template/year/${selectedYear}/month/${tableMonth}/"
                         title="${char_name}"
                         data-tooltip-toggle="char-ledger" data-bs-placement="right">
                         <span class="fas fa-info"></span>
@@ -287,7 +287,7 @@ function generateLedger(TableName, url) {
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalViewCharacterContainer"
                                     aria-label="${row.main_name}"
-                                    data-ajax_url="/ledger/api/account/${row.main_id}/ledger/template/year/${selectedYear}/month/${tableMonth}/"
+                                    data-ajax_url="/ledger/api/character/${row.main_id}/template/year/${selectedYear}/month/${tableMonth}/"
                                     title="${row.main_name}"
                                     data-tooltip-toggle="char-ledger" data-bs-placement="left">
                                     <span class="fas fa-info"></span>
@@ -315,7 +315,7 @@ function generateLedger(TableName, url) {
                             $('#foot-'+ TableName +' .col-total-button').html('').removeClass('text-end');
                             return;
                         }
-                        var templateUrl = `/ledger/api/account/${characterPk}/ledger/template/year/${selectedYear}/month/${tableMonth}/`;
+                        var templateUrl = `/ledger/api/character/${characterPk}/template/year/${selectedYear}/month/${tableMonth}/`;
                         if (characteraltsShow) {
                             templateUrl += '?main=True';
                         }

@@ -215,7 +215,7 @@ function generateLedger(TableName, url) {
                                 <button class="btn btn-sm btn-info btn-square"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalViewCharacterContainer"
-                                    data-ajax_url="/ledger/api/alliance/${alliancePk}/character/${row.main_id}/ledger/template/year/${selectedYear}/month/${tableMonth}/"
+                                    data-ajax_url="/ledger/api/alliance/${alliancePk}/${row.main_id}/template/year/${selectedYear}/month/${tableMonth}/"
                                     title="${row.main_name}" data-tooltip-toggle="ally-tooltip" data-bs-placement="left">
                                     <span class="fas fa-info"></span>
                                 </button>
@@ -249,7 +249,7 @@ function generateLedger(TableName, url) {
                             class="btn btn-sm btn-info btn-square"
                             data-bs-toggle="modal"
                             data-bs-target="#modalViewCharacterContainer"
-                            data-ajax_url="/ledger/api/alliance/${alliancePk}/character/${alliancePk}/ledger/template/year/${selectedYear}/month/${tableMonth}/?corp=true">
+                            data-ajax_url="/ledger/api/alliance/${alliancePk}/${alliancePk}/template/year/${selectedYear}/month/${tableMonth}/?corp=true">
                             <span class="fas fa-info"></span>
                         </button>
                     `).addClass('text-end');
