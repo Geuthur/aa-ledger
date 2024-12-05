@@ -174,12 +174,12 @@ class CharManagerQuerySetTest(TestCase):
         self.assertIsNotNone(qs)
         self.assertIn("total_insurance_income", qs.query.annotations)
 
-    def test_annotate_corporation_projects_income(self):
+    def test_annotate_milestone_income(self):
         character_ids = [1, 2, 3]
 
-        qs = self.manager.annotate_corporation_projects_income(character_ids)
+        qs = self.manager.annotate_milestone_income(character_ids)
         self.assertIsNotNone(qs)
-        self.assertIn("total_cproject_income", qs.query.annotations)
+        self.assertIn("total_milestone_income", qs.query.annotations)
 
     def test_generate_ledger(self):
 

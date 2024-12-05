@@ -6,9 +6,7 @@ from django.test import TestCase
 
 from app_utils.testing import create_user_from_evecharacter
 
-from ledger.api.character.planetary import LedgerPlanetaryApiEndpoints
-from ledger.api.schema import Character
-from ledger.models.characteraudit import CharacterWalletJournalEntry
+from ledger.api.ledger.planetary import LedgerPlanetaryApiEndpoints
 from ledger.tests.test_api import _planetchardata
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 from ledger.tests.testdata.load_ledger import load_ledger_all
@@ -41,7 +39,7 @@ class ManageApiJournalCharEndpointsTest(TestCase):
 
     def test_get_character_planetary_api(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/account/0/planetary/0/"
+        url = "/ledger/api/character/0/planetary/0/"
 
         response = self.client.get(url)
         expected_data = [
@@ -70,7 +68,7 @@ class ManageApiJournalCharEndpointsTest(TestCase):
 
     def test_get_character_planetary_api_single(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/account/1001/planetary/0/"
+        url = "/ledger/api/character/1001/planetary/0/"
 
         response = self.client.get(url)
 
@@ -100,7 +98,7 @@ class ManageApiJournalCharEndpointsTest(TestCase):
 
     def test_get_character_planetary_api_single_planet(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/account/1001/planetary/4001/"
+        url = "/ledger/api/character/1001/planetary/4001/"
 
         response = self.client.get(url)
 
@@ -121,7 +119,7 @@ class ManageApiJournalCharEndpointsTest(TestCase):
 
     def test_get_character_planetary_api_no_permission(self):
         self.client.force_login(self.user2)
-        url = "/ledger/api/account/1001/planetary/0/"
+        url = "/ledger/api/character/1001/planetary/0/"
 
         response = self.client.get(url)
 
@@ -130,7 +128,7 @@ class ManageApiJournalCharEndpointsTest(TestCase):
 
     def test_get_character_planetary_details_api(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/account/0/planetary/0/details/"
+        url = "/ledger/api/character/0/planetary/0/details/"
 
         response = self.client.get(url)
         expected_data = _planetchardata.planet_many
@@ -140,7 +138,7 @@ class ManageApiJournalCharEndpointsTest(TestCase):
 
     def test_get_character_planetary_details_api_single(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/account/1001/planetary/0/details/"
+        url = "/ledger/api/character/1001/planetary/0/details/"
 
         response = self.client.get(url)
 
@@ -151,7 +149,7 @@ class ManageApiJournalCharEndpointsTest(TestCase):
 
     def test_get_character_planetary_details_api_single_planet(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/account/1001/planetary/4001/details/"
+        url = "/ledger/api/character/1001/planetary/4001/details/"
 
         response = self.client.get(url)
 
@@ -162,17 +160,17 @@ class ManageApiJournalCharEndpointsTest(TestCase):
 
     def test_get_character_planetary_details_api_no_permission(self):
         self.client.force_login(self.user2)
-        url = "/ledger/api/account/1001/planetary/0/details/"
+        url = "/ledger/api/character/1001/planetary/0/details/"
 
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.json(), "Permission Denied")
 
-    @patch("ledger.api.character.ledger.CharacterAudit.objects.visible_eve_characters")
+    @patch("ledger.api.ledger.admin.CharacterAudit.objects.visible_eve_characters")
     def test_get_character_admin_planetary_no_visible(self, mock_visible_to):
         self.client.force_login(self.user2)
-        url = "/ledger/api/account/planetary/admin/"
+        url = "/ledger/api/character/planetary/admin/"
 
         mock_visible_to.return_value.values_list.return_value = []
 
@@ -183,7 +181,7 @@ class ManageApiJournalCharEndpointsTest(TestCase):
 
     def test_get_character_planetary_admin(self):
         self.client.force_login(self.user2)
-        url = "/ledger/api/account/planetary/admin/"
+        url = "/ledger/api/character/planetary/admin/"
 
         # when
         response = self.client.get(url)
@@ -203,13 +201,13 @@ class ManageApiJournalCharEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), excepted_data)
 
-    @patch("ledger.api.character.ledger.UserProfile.objects.filter")
+    @patch("ledger.api.ledger.admin.UserProfile.objects.filter")
     def test_get_character_admin_planetary_attribute_error(
         self, mock_user_profile_filter
     ):
         # given
         self.client.force_login(self.user)
-        url = "/ledger/api/account/planetary/admin/"
+        url = "/ledger/api/character/planetary/admin/"
 
         # Mock the UserProfile to return a character with missing attributes
         mock_user_profile_filter.return_value = [MagicMock(main_character="LUL")]
