@@ -37,35 +37,6 @@ from ledger.task_helpers.plan_helpers import (
 logger = get_extension_logger(__name__)
 
 
-# Member Audit Adaptation
-# pylint: disable=unused-argument
-@shared_task(bind=True, base=QueueOnce)
-@when_esi_is_available
-def create_member_audit(self, runs: int = 0):
-    # pylint: disable=import-outside-toplevel
-    from memberaudit.models import Character
-
-    chars_ids = CharacterAudit.objects.all().values_list(
-        "character__character_id", flat=True
-    )
-    member_ids = Character.objects.all().values_list(
-        "eve_character__character_id", flat=True
-    )
-
-    new_ids = set(member_ids) - set(chars_ids)
-
-    for character_id in new_ids:
-        try:
-            CharacterAudit.objects.update_or_create(
-                character=EveCharacter.objects.get_character_by_id(character_id)
-            )
-            runs = runs + 1
-        except IntegrityError:
-            continue
-    logger.debug("Created %s missing Member Audit Characters", runs)
-    return True
-
-
 # Character Audit - Tasks
 # pylint: disable=unused-argument
 @shared_task(bind=True, base=QueueOnce)

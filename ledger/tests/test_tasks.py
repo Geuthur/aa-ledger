@@ -18,7 +18,6 @@ from ledger.models.corporationaudit import CorporationAudit
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 from ledger.tasks import (
     check_planetary_alarms,
-    create_member_audit,
     create_missing_character,
     update_all_characters,
     update_all_corps,
