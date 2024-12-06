@@ -57,9 +57,10 @@ class LedgerPlanetaryApiEndpoints:
 
         @api.get(
             "character/{character_id}/planetary/{planet_id}/details/",
-            response={200: list[schema.CharacterPlanetDetails], 403: str},
+            response={200: list, 403: str},
             tags=self.tags,
         )
+        # pylint: disable=too-many-locals
         def get_planetarydetails(request, character_id: int, planet_id: int):
             request_main = request.GET.get("main", False)
             perm, main = get_character(request, character_id)
@@ -90,8 +91,15 @@ class LedgerPlanetaryApiEndpoints:
             output = []
 
             for p in planets:
-                types = p.allocate_products()
+                products_types = p.allocate_products()
+                extracts = p.allocate_extracts()
                 extractors = p.get_extractors_info()
+                facility = p.get_facility_info()
+
+                products = {
+                    "raw": extracts,
+                    "processed": products_types,
+                }
 
                 output.append(
                     {
@@ -104,9 +112,10 @@ class LedgerPlanetaryApiEndpoints:
                         "expiry_date": p.get_planet_expiry_date(),
                         "expired": p.is_expired(),
                         "alarm": p.notification,
-                        "products": types,
-                        "products_info": p.get_storage_info(),
                         "extractors": extractors,
+                        "products": products,
+                        "storage": p.get_storage_info(),
+                        "facility": facility,
                         "last_update": p.planet.last_update,
                     }
                 )

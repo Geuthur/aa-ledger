@@ -7,86 +7,17 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from eveuniverse.models import EvePlanet, EveType
 
+from ledger.constants.pi import (
+    COMMAND_CENTER,
+    EXTRACTOR_CONTROL_UNIT,
+    P0_PRODUCTS,
+    SPACEPORTS,
+)
 from ledger.hooks import get_extension_logger
 from ledger.managers.planetary_manager import PlanetaryManager
 from ledger.models.characteraudit import CharacterAudit
 
 logger = get_extension_logger(__name__)
-
-SPACEPORTS = [2256, 2542, 2543, 2544, 2552, 2555, 2556, 2557]
-STORAGE_FACILITY = [2257, 2535, 2536, 2541, 2558, 2560, 2561, 2562]
-EXTRACTOR_CONTROL_UNIT = [2848, 3060, 3061, 3062, 3063, 3064, 3067, 3068]
-P0_PRODUCTS_SOLID = [2267, 2270, 2272, 2306, 2307]
-P0_PRODUCTS_LIQUID_GAS = [2268, 2308, 2309, 2310, 2311]
-P0_PRODUCTS_ORGANIC = [2073, 2286, 2287, 2288, 2305]
-P1_PRODUCTS = [
-    2389,
-    2390,
-    2392,
-    2393,
-    2395,
-    2396,
-    2397,
-    2398,
-    2399,
-    2400,
-    2401,
-    3645,
-    3683,
-    3779,
-    9828,
-]
-P2_PRODUCTS = [
-    44,
-    2312,
-    2317,
-    2319,
-    2321,
-    2327,
-    2328,
-    2329,
-    2463,
-    3689,
-    3691,
-    3693,
-    3695,
-    3697,
-    3725,
-    3775,
-    3828,
-    983,
-    9832,
-    9836,
-    9838,
-    9840,
-    9842,
-    15317,
-]
-P3_PRODUCTS = [
-    2344,
-    2345,
-    2346,
-    2348,
-    2349,
-    2351,
-    2352,
-    2354,
-    2358,
-    2360,
-    2361,
-    2366,
-    2367,
-    9834,
-    9846,
-    9848,
-    12836,
-    17136,
-    17392,
-    17898,
-    28974,
-]
-P4_PRODUCTS = [2867, 2868, 2869, 2870, 2871, 2872, 2875, 2876]
-P5_PRODUCTS = []
 
 
 class CharacterPlanet(models.Model):
@@ -208,10 +139,25 @@ class CharacterPlanetDetails(models.Model):
         return types
 
     def allocate_products(self) -> dict:
+        """Get the product types on the planet"""
         product_types = {}
         for c_type_id in self.routes:
             type_id = c_type_id.get("content_type_id")
-            if type_id and type_id not in product_types:
+            if type_id not in P0_PRODUCTS and type_id not in product_types:
+                type_data, _ = EveType.objects.get_or_create_esi(id=type_id)
+                product_types[type_id] = {
+                    "id": type_id,
+                    "name": type_data.name,
+                    "category": type_data.eve_group.name,
+                }
+        return product_types
+
+    def allocate_extracts(self) -> dict:
+        """Get the extractor raw product types on the planet"""
+        product_types = {}
+        for c_type_id in self.routes:
+            type_id = c_type_id.get("content_type_id")
+            if type_id in P0_PRODUCTS and type_id not in product_types:
                 type_data, _ = EveType.objects.get_or_create_esi(id=type_id)
                 product_types[type_id] = {
                     "id": type_id,
@@ -260,3 +206,58 @@ class CharacterPlanetDetails(models.Model):
                     "contents": contents_info,
                 }
         return storage
+
+    def get_facility_info(self):
+        facility_info = {}
+
+        # Process pins
+        for pin in self.pins:
+            pin_id = pin["pin_id"]
+            item_type, _ = EveType.objects.get_or_create_esi(id=pin["type_id"])
+            if (
+                pin["type_id"] in SPACEPORTS
+                or pin["type_id"] in EXTRACTOR_CONTROL_UNIT
+                or pin["type_id"] in COMMAND_CENTER
+            ):
+                continue
+            facility_info[pin_id] = {
+                "facility_id": item_type.id,
+                "facility_name": item_type.name,
+                "resources": [],
+                "storage": {
+                    content["type_id"]: content["amount"]
+                    for content in pin.get("contents", [])
+                },
+            }
+
+        # Process routes
+        for route in self.routes:
+            destination_pin_id = route["destination_pin_id"]
+            source_pin_id = route["source_pin_id"]
+            content_type, _ = EveType.objects.get_or_create_esi(
+                id=route["content_type_id"]
+            )
+
+            if destination_pin_id in facility_info:
+                req_quantity = route["quantity"]
+                current_quantity = facility_info[destination_pin_id]["storage"].get(
+                    content_type.id, 0
+                )
+                missing_quantity = req_quantity - current_quantity
+                resource = {
+                    "item_id": content_type.id,
+                    "item_name": content_type.name,
+                    "req_quantity": req_quantity,
+                    "current_quantity": current_quantity,
+                    "missing_quantity": max(missing_quantity, 0),
+                }
+                facility_info[destination_pin_id]["resources"].append(resource)
+
+            if source_pin_id in facility_info:
+                facility_info[source_pin_id]["output_product"] = {
+                    "item_id": content_type.id,
+                    "item_name": content_type.name,
+                    "output_quantity": route["quantity"],
+                }
+
+        return facility_info

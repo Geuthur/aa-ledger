@@ -67,6 +67,7 @@ class CharacterPlanetDetails(Schema):
     products_info: dict | None = None
     extractors: dict | None = None
     last_update: datetime | None = None
+    facility: dict | None = None
 
 
 class CharacterLedger(Schema):
