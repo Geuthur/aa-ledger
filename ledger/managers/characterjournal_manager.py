@@ -477,6 +477,7 @@ class CharWalletQuerySet(CharWalletQueryFilter):
                     else DONATION_INCOME_FILTER
                 ),
             ),
+            total_milestone_income=Sum("amount", filter=MILESTONE_REWARD_FILTER),
         )
 
         # Special cases
@@ -505,6 +506,7 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             "donation": Decimal(ledger_data["total_donation_income"] or 0),
             "transaction": Decimal(ledger_data["total_market_income"] or 0),
             "contract": Decimal(ledger_data["total_contract_income"] or 0),
+            "milestone": Decimal(ledger_data["total_milestone_income"] or 0),
         }
 
         amounts_costs = {
@@ -566,6 +568,7 @@ class CharWalletQuerySet(CharWalletQueryFilter):
                 if exclude is not None
                 else DONATION_INCOME_FILTER
             ),
+            "milestone": MILESTONE_REWARD_FILTER,
         }
 
         # Annotate the queryset with the sums for each type

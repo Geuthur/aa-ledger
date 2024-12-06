@@ -93,10 +93,10 @@
             </div>
         {% endif %}
 
-        {% if character.cproject %}
+        {% if character.milestone %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} {% trans "Corp Project" %} {% trans "per Hour" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.cproject.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.milestone.average_hour|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
