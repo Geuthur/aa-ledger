@@ -29,7 +29,13 @@ def add_corp(request, token) -> HttpResponse:
         },
     )
 
-    CorporationAudit.objects.update_or_create(corporation=corp)
+    CorporationAudit.objects.update_or_create(
+        corporation=corp,
+        defaults={
+            "corporation_name": corp.corporation_name,
+        },
+    )
+
     update_corp.apply_async(
         args=[char.corporation_id], kwargs={"force_refresh": True}, priority=6
     )

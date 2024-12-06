@@ -75,6 +75,7 @@ def update_character_planetary(character_id, force_refresh=False):
                 id=prim_key,
                 character=audit_char,
                 planet=eve_planet,
+                planet_name=eve_planet.name,
                 upgrade_level=planet["upgrade_level"],
                 num_pins=planet["num_pins"],
                 last_update=timezone.now(),

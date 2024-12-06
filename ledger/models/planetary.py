@@ -8,14 +8,95 @@ from django.utils.translation import gettext_lazy as _
 from eveuniverse.models import EvePlanet, EveType
 
 from ledger.hooks import get_extension_logger
+from ledger.managers.planetary_manager import PlanetaryManager
 from ledger.models.characteraudit import CharacterAudit
 
 logger = get_extension_logger(__name__)
 
+SPACEPORTS = [2256, 2542, 2543, 2544, 2552, 2555, 2556, 2557]
+STORAGE_FACILITY = [2257, 2535, 2536, 2541, 2558, 2560, 2561, 2562]
+EXTRACTOR_CONTROL_UNIT = [2848, 3060, 3061, 3062, 3063, 3064, 3067, 3068]
+P0_PRODUCTS_SOLID = [2267, 2270, 2272, 2306, 2307]
+P0_PRODUCTS_LIQUID_GAS = [2268, 2308, 2309, 2310, 2311]
+P0_PRODUCTS_ORGANIC = [2073, 2286, 2287, 2288, 2305]
+P1_PRODUCTS = [
+    2389,
+    2390,
+    2392,
+    2393,
+    2395,
+    2396,
+    2397,
+    2398,
+    2399,
+    2400,
+    2401,
+    3645,
+    3683,
+    3779,
+    9828,
+]
+P2_PRODUCTS = [
+    44,
+    2312,
+    2317,
+    2319,
+    2321,
+    2327,
+    2328,
+    2329,
+    2463,
+    3689,
+    3691,
+    3693,
+    3695,
+    3697,
+    3725,
+    3775,
+    3828,
+    983,
+    9832,
+    9836,
+    9838,
+    9840,
+    9842,
+    15317,
+]
+P3_PRODUCTS = [
+    2344,
+    2345,
+    2346,
+    2348,
+    2349,
+    2351,
+    2352,
+    2354,
+    2358,
+    2360,
+    2361,
+    2366,
+    2367,
+    9834,
+    9846,
+    9848,
+    12836,
+    17136,
+    17392,
+    17898,
+    28974,
+]
+P4_PRODUCTS = [2867, 2868, 2869, 2870, 2871, 2872, 2875, 2876]
+P5_PRODUCTS = []
+
 
 class CharacterPlanet(models.Model):
-
     id = models.AutoField(primary_key=True)
+
+    planet_name = models.CharField(max_length=100, null=True, default=None)
+
+    planet = models.ForeignKey(
+        EvePlanet, on_delete=models.CASCADE, related_name="ledger_planet"
+    )
 
     character = models.ForeignKey(
         CharacterAudit, on_delete=models.CASCADE, related_name="ledger_characterplanet"
@@ -29,13 +110,9 @@ class CharacterPlanet(models.Model):
         default=0, help_text=_("Number of pins on the planet")
     )
 
-    planet = models.ForeignKey(
-        EvePlanet, on_delete=models.CASCADE, related_name="ledger_planet"
-    )
-
     last_update = models.DateTimeField(null=True, default=None, blank=True)
 
-    # objects = AuditCharacterManager()
+    # objects = PlanetaryManager()
 
     class Meta:
         default_permissions = ()
@@ -74,7 +151,7 @@ class CharacterPlanetDetails(models.Model):
     notification = models.BooleanField(default=False)
     notification_sent = models.BooleanField(default=False)
 
-    # objects = AuditCharacterManager()
+    objects = PlanetaryManager()
 
     class Meta:
         default_permissions = ()
@@ -86,7 +163,9 @@ class CharacterPlanetDetails(models.Model):
         return f"Planet Details Data: {self.planet.character.character.character_name} - {self.planet.planet.name}"
 
     def count_extractors(self):
-        return len([pin for pin in self.pins if pin.get("type_id") == 3060])
+        return len(
+            [pin for pin in self.pins if pin.get("type_id") in EXTRACTOR_CONTROL_UNIT]
+        )
 
     def get_planet_install_date(self):
         install_times = [
@@ -158,9 +237,8 @@ class CharacterPlanetDetails(models.Model):
 
     def get_storage_info(self) -> dict:
         storage = {}
-        valid_type_ids = [2256, 2542, 2543, 2544, 2552, 2555, 2556, 2557]
         for pin in self.pins:
-            if pin.get("type_id") in valid_type_ids:
+            if pin.get("type_id") in SPACEPORTS:
                 type_id = pin.get("type_id")
                 type_data, _ = EveType.objects.get_or_create_esi(id=type_id)
                 contents_info = []
