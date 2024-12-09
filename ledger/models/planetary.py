@@ -176,8 +176,8 @@ class CharacterPlanetDetails(models.Model):
                 extractors[pin.get("pin_id")] = {
                     "install_time": pin.get("install_time"),
                     "expiry_time": pin.get("expiry_time"),
-                    "product_type_id": type_id,
-                    "product_name": type_data.name,
+                    "item_id": type_id,
+                    "item_name": type_data.name,
                 }
         return extractors
 
@@ -201,8 +201,8 @@ class CharacterPlanetDetails(models.Model):
                         }
                     )
                 storage[pin.get("pin_id")] = {
-                    "product_type_id": type_id,
-                    "product_name": type_data.name,
+                    "facility_id": type_id,
+                    "facility_name": type_data.name,
                     "contents": contents_info,
                 }
         return storage

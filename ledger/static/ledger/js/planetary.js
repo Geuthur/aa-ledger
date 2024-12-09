@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Character
                 const characterCell = `
                     <td>
-                        <img src="https://images.evetech.net/characters/${item.character_id}/portrait?size=32" class="rounded-circle" style="margin-right: 5px; width: 32px; height: 32px;">
+                        <img src="https://images.evetech.net/characters/${item.character_id}/portrait?size=32" class="rounded-circle" style="margin-right: 5px;">
                         ${item.character_name}
                     </td>
                 `;
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Planet Type
                 const planetTypeCell = `
                     <td>
-                        <img src="https://images.evetech.net/types/${item.planet_type_id}/icon?size=32" class="rounded-circle" style="margin-right: 5px; width: 24px; height: 24px;">
+                        <img src="https://images.evetech.net/types/${item.planet_type_id}/icon?size=32" class="rounded-circle" style="margin-right: 5px;" data-tooltip-toggle="planetary" title="${item.planet}">
                         ${item.planet}
                         <i class="fa-solid fa-bullhorn" style="margin-left: 5px; color: ${item.alarm ? 'green' : 'red'};" title="${item.alarm ? alarmActivated : alarmDeactivated}" data-tooltip-toggle="planetary"></i>
                     </td>
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Products
                 const productsCell = `
                     <td>
-                        ${Object.values(item.products).map(product => `<img src="https://images.evetech.net/types/${product.id}/icon?size=32" data-tooltip-toggle="planetary" title="${product.name}">`).join(' ')}
+                        ${Object.values(item.products.processed).map(product => `<img src="https://images.evetech.net/types/${product.id}/icon?size=32" data-tooltip-toggle="planetary" title="${product.name}">`).join(' ')}
                     </td>
                     <button
                         class="btn btn-primary btn-sm btn-square"
@@ -89,7 +89,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         data-character-id="${item.character_id}"
                         data-character-name="${item.character_name}"
                         data-planet="${item.planet}"
-                        data-productsInfo='${JSON.stringify(item.products_info)}'
+                        data-productsInfo='${JSON.stringify(item.storage)}'
+                        data-facilitysInfo='${JSON.stringify(item.facility)}'
                         onclick="showProductsInfoModal(this)"
                     >
                         <span class="fas fa-info"></span>
@@ -116,6 +117,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     const elapsedDuration = currentTime - averageInstallTime;
                     const progressPercentage = Math.min(Math.max((elapsedDuration / totalDuration) * 100, 0), 100);
 
+                    let extractorIcons = Object.values(item.extractors).map(extractor => {
+                        let iconUrl = getIconUrl(extractor.item_id);
+                        return `<img src="${iconUrl}" data-tooltip-toggle="planetary" title="${extractor.item_name}">`;
+                    }).join('');
+
                     extractorsCell = `
                         <td>
                             <div style="display: flex; align-items: center;">
@@ -125,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <div class="progress-value">${progressPercentage.toFixed(0)}%</div>
                                     </div>
                                 </div>
+                                ${extractorIcons}
                                 <button
                                     class="btn btn-primary btn-sm btn-square"
                                     style="margin-left: 5px;" data-bs-toggle="modal"
@@ -211,24 +218,31 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+function getIconUrl(typeId) {
+    return `https://images.evetech.net/types/${typeId}/icon?size=32`;
+}
+
 function showProductsInfoModal(button) {
     const characterName = button.getAttribute('data-character-name');
     const planet = button.getAttribute('data-planet');
     const productsInfo = JSON.parse(button.getAttribute('data-productsInfo'));
+    const facilitysInfo = JSON.parse(button.getAttribute('data-facilitysInfo'));
 
     const modalTitle = document.querySelector('#productsInfoModal .character-Info');
     modalTitle.textContent = `${characterName} - ${planet}`;
 
-    const tableBody = document.querySelector('#productsInfoModal .modal-table-body');
-    tableBody.innerHTML = '';
+    const tableStorageBody = document.querySelector('#productsInfoModal .modal-storage-table-body');
+    tableStorageBody.innerHTML = '';
 
     Object.values(productsInfo).forEach(item => {
         item.contents.forEach(content => {
             const row = document.createElement('tr');
 
             const productCell = document.createElement('td');
+            let iconUrl = getIconUrl(content.type_id);
+
             productCell.innerHTML = `
-                <img src="https://images.evetech.net/types/${content.type_id}/icon?size=32" class="rounded-circle" style="margin-right: 5px; width: 32px; height: 32px;">
+                <img src="${iconUrl}" class="rounded-circle">
             `;
 
             const nameCell = document.createElement('td');
@@ -240,8 +254,59 @@ function showProductsInfoModal(button) {
             row.appendChild(productCell);
             row.appendChild(nameCell);
             row.appendChild(quantityCell);
-            tableBody.appendChild(row);
+            tableStorageBody.appendChild(row);
         });
+    });
+
+    // Facility
+
+    const tableFacilityBody = document.querySelector('#productsInfoModal .modal-facility-table-body');
+    tableFacilityBody.innerHTML = '';
+
+    // Destroy existing DataTable if it exists
+    if ($.fn.DataTable.isDataTable('#productsInfoModal #facility')) {
+        $('#productsInfoModal #facility').DataTable().clear().destroy();
+    }
+
+    Object.values(facilitysInfo).forEach(item => {
+        const row = document.createElement('tr');
+
+        // Facility Name
+        const facilityNameCell = document.createElement('td');
+        facilityNameCell.textContent = item.facility_name;
+        row.appendChild(facilityNameCell);
+
+        // Input Resources
+        const inputCell = document.createElement('td');
+        let inputIcons = item.resources.map(resource => {
+            let iconUrl = getIconUrl(resource.item_id);
+            return `<img src="${iconUrl}" alt="${resource.item_name}" style="margin-right: 5px;">`;
+        }).join('');
+        inputCell.innerHTML = inputIcons;
+        row.appendChild(inputCell);
+
+        // Output Product
+        const outputCell = document.createElement('td');
+        let outputIconUrl = getIconUrl(item.output_product.item_id);
+        outputCell.innerHTML = `<img src="${outputIconUrl}" alt="${item.output_product.item_name}">`;
+        row.appendChild(outputCell);
+
+        // Active Status
+        const activeCell = document.createElement('td');
+        let isActive = item.resources.some(resource => resource.missing_quantity > 0);
+        activeCell.textContent = isActive ? 'No' : 'Yes';
+        row.appendChild(activeCell);
+
+        tableFacilityBody.appendChild(row);
+    });
+
+    // Initialize DataTable after populating the table
+    $('#productsInfoModal #facility').DataTable({
+        'order': [[1, 'desc']], // Adjust the column index if needed
+        'pageLength': 10,
+        'columnDefs': [
+            { 'orderable': false, 'targets': 'no-sort' }
+        ]
     });
 
     $('#productsInfoModal').modal('show');
@@ -267,8 +332,10 @@ function showExtractorInfoModal(button) {
         const progressPercentage = Math.min(Math.max((elapsedDuration / totalDuration) * 100, 0), 100);
 
         const row = document.createElement('tr');
+        let iconUrl = getIconUrl(extractor.item_id);
+
         row.innerHTML = `
-            <td><span class="fas fa-cube"></span> ${extractor.product_name}</td>
+            <td><img src="${iconUrl}" class="rounded-circle"> ${extractor.item_name}</td>
             <td>${new Date(extractor.install_time).toLocaleString()}</td>
             <td>${new Date(extractor.expiry_time).toLocaleString()}</td>
             <td>

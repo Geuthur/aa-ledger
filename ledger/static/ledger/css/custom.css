@@ -25,4 +25,8 @@
 		color: white;
 		border-color: white;
 	}
+
+	.aa-ledger-modal-header > h5 {
+		border-bottom: 1px solid var(--bs-secondary-bg-subtle);
+	}
 }

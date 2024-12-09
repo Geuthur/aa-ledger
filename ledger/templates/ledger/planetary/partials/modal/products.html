@@ -8,7 +8,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans "Close" %}"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-striped">
+                <header class="aa-ledger-modal-header">
+                    <h3>{% trans "Storage" %}</h3>
+                </header>
+                <table class="table table-hover table-striped">
                     <thead>
                         <tr>
                             <th>{% trans "Product" %}</th>
@@ -16,12 +19,29 @@
                             <th>{% trans "Amount" %}</th>
                         </tr>
                     </thead>
-                    <tbody class="modal-table-body">
-                        <!-- details will be populated here -->
+                    <tbody class="modal-storage-table-body">
+                        <!-- storage details will be populated here -->
+                    </tbody>
+                </table>
+                <header class="aa-ledger-modal-header">
+                    <h3>{% trans "Facility" %}</h3>
+                </header>
+                <table class="table table-hover table-striped" id="facility">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Facility" %}</th>
+                            <th>{% trans "Input" %}</th>
+                            <th>{% trans "Output" %}</th>
+                            <th>{% trans "Active" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="modal-facility-table-body">
+                        <!-- facility details will be populated here -->
                     </tbody>
                 </table>
             </div>
             <div class="modal-footer">
+                <span class="text-muted small">Note: Planetary information is only recalculated when the colony is viewed through the client. Information will not update until this criteria is met.</span>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
             </div>
         </div>

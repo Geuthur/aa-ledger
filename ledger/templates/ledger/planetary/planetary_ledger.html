@@ -63,7 +63,7 @@
         updateInterval: '{{ update_interval }}',
 	};
 </script>
-<script src="{% static 'ledger/js/planetary.js' %}"></script>
+{% include 'ledger/planetary/partials/planetary-js.html' %}
 {% include 'bundles/datatables-js-bs5.html' %}
 {% endblock %}
 {% block extra_css %}
