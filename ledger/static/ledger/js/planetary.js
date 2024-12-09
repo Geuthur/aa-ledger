@@ -273,7 +273,11 @@ function showProductsInfoModal(button) {
 
         // Facility Name
         const facilityNameCell = document.createElement('td');
-        facilityNameCell.textContent = item.facility_name;
+        if (item.facility_name) {
+            facilityNameCell.textContent = item.facility_name;
+        } else {
+            facilityNameCell.textContent = 'No facility';
+        }
         row.appendChild(facilityNameCell);
 
         // Input Resources
@@ -308,8 +312,12 @@ function showProductsInfoModal(button) {
 
         // Active Status
         const activeCell = document.createElement('td');
-        let isActive = item.resources.some(resource => resource.missing_quantity > 0);
-        activeCell.textContent = isActive ? 'No' : 'Yes';
+        if (item.resources) {
+            let isActive = item.resources.some(resource => resource.missing_quantity > 0);
+            activeCell.textContent = isActive ? 'No' : 'Yes';
+        } else {
+            activeCell.textContent = 'No Data found';
+        }
         row.appendChild(activeCell);
 
         tableFacilityBody.appendChild(row);
