@@ -242,7 +242,7 @@ function showProductsInfoModal(button) {
             let iconUrl = getIconUrl(content.type_id);
 
             productCell.innerHTML = `
-                <img src="${iconUrl}" class="rounded-circle">
+                <img src="${iconUrl}" class="rounded-circle" title="${content.product_name}" data-tooltip-toggle="planetary">
             `;
 
             const nameCell = document.createElement('td');
@@ -278,17 +278,32 @@ function showProductsInfoModal(button) {
 
         // Input Resources
         const inputCell = document.createElement('td');
-        let inputIcons = item.resources.map(resource => {
-            let iconUrl = getIconUrl(resource.item_id);
-            return `<img src="${iconUrl}" alt="${resource.item_name}" style="margin-right: 5px;">`;
-        }).join('');
-        inputCell.innerHTML = inputIcons;
+        if (item.resources) {
+            let resourceCounts = item.resources.reduce((acc, resource) => {
+                acc[resource.item_id] = acc[resource.item_id] || { ...resource, count: 0 };
+                acc[resource.item_id].count++;
+                return acc;
+            }, {});
+
+            let inputIcons = Object.values(resourceCounts).map(resource => {
+                let iconUrl = getIconUrl(resource.item_id);
+                let countText = resource.count > 1 ? ` <span class="text-muted small">x${resource.count}</span>` : '';
+                return `<img src="${iconUrl}" title="${resource.item_name}" data-tooltip-toggle="planetary" style="margin-right: 5px;">${countText}`;
+            }).join('');
+            inputCell.innerHTML = inputIcons;
+        } else {
+            inputCell.textContent = 'No input';
+        }
         row.appendChild(inputCell);
 
         // Output Product
         const outputCell = document.createElement('td');
-        let outputIconUrl = getIconUrl(item.output_product.item_id);
-        outputCell.innerHTML = `<img src="${outputIconUrl}" alt="${item.output_product.item_name}">`;
+        if (item.output_product) {
+            let outputIconUrl = getIconUrl(item.output_product.item_id);
+            outputCell.innerHTML = `<img src="${outputIconUrl}" title="${item.output_product.item_name}" data-tooltip-toggle="planetary">`;
+        } else {
+            outputCell.innerHTML = 'No output';
+        }
         row.appendChild(outputCell);
 
         // Active Status
@@ -301,12 +316,22 @@ function showProductsInfoModal(button) {
     });
 
     // Initialize DataTable after populating the table
-    $('#productsInfoModal #facility').DataTable({
+    var products_table = $('#productsInfoModal #facility').DataTable({
         'order': [[1, 'desc']], // Adjust the column index if needed
         'pageLength': 10,
         'columnDefs': [
             { 'orderable': false, 'targets': 'no-sort' }
         ]
+    });
+
+    products_table.on('draw', function () {
+        $('[data-tooltip-toggle="planetary"]').tooltip({
+            trigger: 'hover',
+        });
+    });
+
+    $('[data-tooltip-toggle="planetary"]').tooltip({
+        trigger: 'hover',
     });
 
     $('#productsInfoModal').modal('show');
