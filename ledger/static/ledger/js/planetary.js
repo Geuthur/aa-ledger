@@ -268,60 +268,73 @@ function showProductsInfoModal(button) {
         $('#productsInfoModal #facility').DataTable().clear().destroy();
     }
 
-    Object.values(facilitysInfo).forEach(item => {
+    if (!facilitysInfo || Object.keys(facilitysInfo).length === 0) {
         const row = document.createElement('tr');
-
-        // Facility Name
-        const facilityNameCell = document.createElement('td');
-        if (item.facility_name) {
-            facilityNameCell.textContent = item.facility_name;
-        } else {
-            facilityNameCell.textContent = 'No facility';
-        }
-        row.appendChild(facilityNameCell);
-
-        // Input Resources
-        const inputCell = document.createElement('td');
-        if (item.resources) {
-            let resourceCounts = item.resources.reduce((acc, resource) => {
-                acc[resource.item_id] = acc[resource.item_id] || { ...resource, count: 0 };
-                acc[resource.item_id].count++;
-                return acc;
-            }, {});
-
-            let inputIcons = Object.values(resourceCounts).map(resource => {
-                let iconUrl = getIconUrl(resource.item_id);
-                let countText = resource.count > 1 ? ` <span class="text-muted small">x${resource.count}</span>` : '';
-                return `<img src="${iconUrl}" title="${resource.item_name}" data-tooltip-toggle="planetary" style="margin-right: 5px;">${countText}`;
-            }).join('');
-            inputCell.innerHTML = inputIcons;
-        } else {
-            inputCell.textContent = 'No input';
-        }
-        row.appendChild(inputCell);
-
-        // Output Product
-        const outputCell = document.createElement('td');
-        if (item.output_product) {
-            let outputIconUrl = getIconUrl(item.output_product.item_id);
-            outputCell.innerHTML = `<img src="${outputIconUrl}" title="${item.output_product.item_name}" data-tooltip-toggle="planetary">`;
-        } else {
-            outputCell.innerHTML = 'No output';
-        }
-        row.appendChild(outputCell);
-
-        // Active Status
-        const activeCell = document.createElement('td');
-        if (item.resources) {
-            let isActive = item.resources.some(resource => resource.missing_quantity > 0);
-            activeCell.textContent = isActive ? 'No' : 'Yes';
-        } else {
-            activeCell.textContent = 'No Data found';
-        }
-        row.appendChild(activeCell);
-
+        const noDataCell = document.createElement('td');
+        noDataCell.colSpan = 4; // Assuming there are 4 columns in the table
+        noDataCell.textContent = 'No data available';
+        row.appendChild(noDataCell);
         tableFacilityBody.appendChild(row);
-    });
+    } else {
+        Object.values(facilitysInfo).forEach(item => {
+            const row = document.createElement('tr');
+
+            // Facility Name
+            const facilityNameCell = document.createElement('td');
+            if (item.facility_name) {
+                facilityNameCell.textContent = item.facility_name;
+            } else {
+                facilityNameCell.textContent = 'No facility';
+            }
+            row.appendChild(facilityNameCell);
+
+            // Input Resources
+            const inputCell = document.createElement('td');
+            if (item.resources) {
+                let resourceCounts = item.resources.reduce((acc, resource) => {
+                    acc[resource.item_id] = acc[resource.item_id] || { ...resource, count: 0 };
+                    acc[resource.item_id].count++;
+                    return acc;
+                }, {});
+
+                let inputIcons = Object.values(resourceCounts).map(resource => {
+                    let iconUrl = getIconUrl(resource.item_id);
+                    let countText = resource.count > 1 ? ` <span class="text-muted small">x${resource.count}</span>` : '';
+                    return `<img src="${iconUrl}" title="${resource.item_name}" data-tooltip-toggle="planetary" style="margin-right: 5px;">${countText}`;
+                }).join('');
+                inputCell.innerHTML = inputIcons;
+            } else {
+                inputCell.textContent = 'No input';
+            }
+            row.appendChild(inputCell);
+
+            // Output Product
+            const outputCell = document.createElement('td');
+            if (item.output_product) {
+                let outputIconUrl = getIconUrl(item.output_product.item_id);
+                outputCell.innerHTML = `<img src="${outputIconUrl}" title="${item.output_product.item_name}" data-tooltip-toggle="planetary">`;
+            } else {
+                outputCell.innerHTML = 'No output';
+            }
+            row.appendChild(outputCell);
+
+            // Active Status
+            const activeCell = document.createElement('td');
+            if (item.resources) {
+                let producing = item.resources.some(resource => resource.still_producing);
+                var isActive = !item.resources.some(resource => resource.missing_quantity > 0);
+                if (producing && item.resources.some(resource => resource.missing_quantity > 0)) {
+                    isActive = true;
+                }
+                activeCell.innerHTML = `<img src="/static/ledger/images/${isActive ? 'green' : 'red'}.png" style="width: 24px; height: 24px;" title="${isActive ? 'Producing' : 'Offline'}" data-tooltip-toggle="planetary">`;
+            } else {
+                activeCell.textContent = 'No Data found';
+            }
+            row.appendChild(activeCell);
+
+            tableFacilityBody.appendChild(row);
+        });
+    }
 
     // Initialize DataTable after populating the table
     var products_table = $('#productsInfoModal #facility').DataTable({

@@ -94,7 +94,6 @@ class LedgerPlanetaryApiEndpoints:
                 products_types = p.allocate_products()
                 extracts = p.allocate_extracts()
                 extractors = p.get_extractors_info()
-                facility = p.get_facility_info()
 
                 products = {
                     "raw": extracts,
@@ -110,12 +109,12 @@ class LedgerPlanetaryApiEndpoints:
                         "planet_type_id": p.planet.planet.eve_type.id,
                         "upgrade_level": p.planet.upgrade_level,
                         "expiry_date": p.get_planet_expiry_date(),
-                        "expired": p.is_expired(),
+                        "expired": p.is_expired,
                         "alarm": p.notification,
                         "extractors": extractors,
                         "products": products,
                         "storage": p.get_storage_info(),
-                        "facility": facility,
+                        "facility": p.facilitys,
                         "last_update": p.planet.last_update,
                     }
                 )

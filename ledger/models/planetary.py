@@ -7,12 +7,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from eveuniverse.models import EvePlanet, EveType
 
-from ledger.constants.pi import (
-    COMMAND_CENTER,
-    EXTRACTOR_CONTROL_UNIT,
-    P0_PRODUCTS,
-    SPACEPORTS,
-)
+from ledger.constants.pi import EXTRACTOR_CONTROL_UNIT, P0_PRODUCTS, SPACEPORTS
 from ledger.hooks import get_extension_logger
 from ledger.managers.planetary_manager import PlanetaryManager
 from ledger.models.characteraudit import CharacterAudit
@@ -75,6 +70,7 @@ class CharacterPlanetDetails(models.Model):
     links = models.JSONField(null=True, default=None, blank=True)
     pins = models.JSONField(null=True, default=None, blank=True)
     routes = models.JSONField(null=True, default=None, blank=True)
+    facilitys = models.JSONField(null=True, default=None, blank=True)
 
     last_update = models.DateTimeField(null=True, default=None, blank=True)
     last_alert = models.DateTimeField(null=True, default=None, blank=True)
@@ -123,12 +119,6 @@ class CharacterPlanetDetails(models.Model):
             )
             return alert
         return None
-
-    def is_expired(self):
-        expiry_date = self.get_planet_expiry_date()
-        if expiry_date is None:
-            return False
-        return expiry_date < timezone.now()
 
     def get_types(self) -> list:
         """Get the product types of the routes on the planet"""
@@ -184,8 +174,8 @@ class CharacterPlanetDetails(models.Model):
     def get_storage_info(self) -> dict:
         storage = {}
         for pin in self.pins:
-            if pin.get("type_id") in SPACEPORTS:
-                type_id = pin.get("type_id")
+            type_id = pin.get("type_id")
+            if type_id in SPACEPORTS:
                 type_data, _ = EveType.objects.get_or_create_esi(id=type_id)
                 contents_info = []
                 for content in pin.get("contents", []):
@@ -207,57 +197,9 @@ class CharacterPlanetDetails(models.Model):
                 }
         return storage
 
-    def get_facility_info(self):
-        facility_info = {}
-
-        # Process pins
-        for pin in self.pins:
-            pin_id = pin["pin_id"]
-            item_type, _ = EveType.objects.get_or_create_esi(id=pin["type_id"])
-            if (
-                pin["type_id"] in SPACEPORTS
-                or pin["type_id"] in EXTRACTOR_CONTROL_UNIT
-                or pin["type_id"] in COMMAND_CENTER
-            ):
-                continue
-            facility_info[pin_id] = {
-                "facility_id": item_type.id,
-                "facility_name": item_type.name,
-                "resources": [],
-                "storage": {
-                    content["type_id"]: content["amount"]
-                    for content in pin.get("contents", [])
-                },
-            }
-
-        # Process routes
-        for route in self.routes:
-            destination_pin_id = route["destination_pin_id"]
-            source_pin_id = route["source_pin_id"]
-            content_type, _ = EveType.objects.get_or_create_esi(
-                id=route["content_type_id"]
-            )
-
-            if destination_pin_id in facility_info:
-                req_quantity = route["quantity"]
-                current_quantity = facility_info[destination_pin_id]["storage"].get(
-                    content_type.id, 0
-                )
-                missing_quantity = req_quantity - current_quantity
-                resource = {
-                    "item_id": content_type.id,
-                    "item_name": content_type.name,
-                    "req_quantity": req_quantity,
-                    "current_quantity": current_quantity,
-                    "missing_quantity": max(missing_quantity, 0),
-                }
-                facility_info[destination_pin_id]["resources"].append(resource)
-
-            if source_pin_id in facility_info:
-                facility_info[source_pin_id]["output_product"] = {
-                    "item_id": content_type.id,
-                    "item_name": content_type.name,
-                    "output_quantity": route["quantity"],
-                }
-
-        return facility_info
+    @property
+    def is_expired(self):
+        expiry_date = self.get_planet_expiry_date()
+        if expiry_date is None:
+            return False
+        return expiry_date < timezone.now()
