@@ -97,9 +97,9 @@
 
   - insurance
 
-- **Corp Projects**
+- **Mile Stone Reward**
 
-  - milestone_reward_payment (Not Confirmed)
+  - milestone_reward_payment
 
 # Corporation Ledger
 
