@@ -2,7 +2,7 @@ from collections import defaultdict
 from decimal import Decimal
 
 from django.db import models
-from django.db.models import Case, DecimalField, F, Q, Subquery, Sum, Value, When
+from django.db.models import Case, DecimalField, F, Q, Sum, Value, When
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -433,6 +433,8 @@ class CharWalletQuerySet(CharWalletQueryFilter):
         self, character_ids: list, filter_date=None, exclude=None
     ) -> models.QuerySet:
         """Generate the Ledger for the given characters."""
+        # pylint: disable=import-outside-toplevel
+        from ledger.models.corporationaudit import CorporationWalletJournalEntry
 
         # Filter Characters
         qs = self.filter(
@@ -443,7 +445,13 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             qs = qs.filter(filter_date)
 
         # Subquery to identify entry_ids in total_contract_income
-        contract_income_entry_ids = qs.filter(CONTRACT_INCOME_FILTER).values("entry_id")
+        contract_income_entry_ids = qs.filter(CONTRACT_INCOME_FILTER).values_list(
+            "entry_id", flat=True
+        )
+
+        corporation_entry_ids = CorporationWalletJournalEntry.objects.filter(
+            CONTRACT_COST_FILTER
+        ).values_list("entry_id", flat=True)
 
         # Aggregate the results directly from the original fields
         ledger_data = qs.aggregate(
@@ -456,7 +464,8 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             total_contract_cost=Sum(
                 "amount",
                 filter=CONTRACT_COST_FILTER
-                & ~Q(entry_id__in=Subquery(contract_income_entry_ids)),
+                # Exclude Contract Income
+                & ~Q(entry_id__in=contract_income_entry_ids),
             ),
             total_market_cost=Sum("amount", filter=MARKET_COST_FILTER),
             total_assets_cost=Sum("amount", filter=ASSETS_COST_FILTER),
@@ -467,7 +476,12 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             total_planetary_cost=Sum("amount", filter=PLANETARY_COST_FILTER),
             # Misc Income
             total_market_income=Sum("amount", filter=MARKET_INCOME_FILTER),
-            total_contract_income=Sum("amount", filter=CONTRACT_INCOME_FILTER),
+            total_contract_income=Sum(
+                "amount",
+                filter=CONTRACT_INCOME_FILTER
+                # Exclude Corporation Contract Cost
+                & ~Q(entry_id__in=corporation_entry_ids),
+            ),
             total_insurance_income=Sum("amount", filter=INSURANCE_INCOME_FILTER),
             total_donation_income=Sum(
                 "amount",
@@ -535,12 +549,21 @@ class CharWalletQuerySet(CharWalletQueryFilter):
         exclude=None,
     ) -> dict:
         """Generate the Billboard for the given characters."""
+        # pylint: disable=import-outside-toplevel
+        from ledger.models.corporationaudit import CorporationWalletJournalEntry
+
         qs = self.filter(
             Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
         )
 
         # Subquery to identify entry_ids in contract filter
-        contract_entry_ids = qs.filter(CONTRACT_INCOME_FILTER).values("entry_id")
+        contract_income_entry_ids = qs.filter(CONTRACT_INCOME_FILTER).values_list(
+            "entry_id", flat=True
+        )
+
+        corporation_entry_ids = CorporationWalletJournalEntry.objects.filter(
+            CONTRACT_COST_FILTER
+        ).values_list("entry_id", flat=True)
 
         # Define the types and their respective filters
         types_filters = {
@@ -554,7 +577,8 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             "market_cost": MARKET_COST_FILTER,
             "production_cost": PRODUCTION_COST_FILTER,
             "contract_cost": CONTRACT_COST_FILTER
-            & ~Q(entry_id__in=Subquery(contract_entry_ids)),
+            # Exclude Contract Income
+            & ~Q(entry_id__in=contract_income_entry_ids),
             "traveling_cost": TRAVELING_COST_FILTER,
             "asset_cost": ASSETS_COST_FILTER,
             "skill_cost": SKILL_COST_FILTER,
@@ -562,7 +586,9 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             "planetary_cost": PLANETARY_COST_FILTER,
             # Income
             "transaction": MARKET_INCOME_FILTER,
-            "contract": CONTRACT_INCOME_FILTER,
+            "contract": CONTRACT_INCOME_FILTER
+            # Exclude Corporation Contract Cost
+            & ~Q(entry_id__in=corporation_entry_ids),
             "donation": (
                 DONATION_INCOME_FILTER & ~Q(first_party_id__in=exclude)
                 if exclude is not None
