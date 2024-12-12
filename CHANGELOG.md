@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.6.7] - 2024-11-16
+
+### Added
+
+- Planetary Manager
+- Planetary Facility Overview
+
+### Removed
+
+- MemberAudit Support
+
+### Changed
+
+- Optimized API Endpoints
+- Renamed CharLink Hook Names
+- Moved Corp Project Ref Type to Milestone Reward cause it not seems to be Corp Projects
+
+### Fixed
+
+- a Case that a Character become Income if he accept a Contract with Corp
+
 ## [0.6.6] - 2024-11-16
 
 ### Added
