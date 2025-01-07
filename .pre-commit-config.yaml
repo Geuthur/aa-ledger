@@ -123,7 +123,7 @@ repos:
           )
 
   - repo: https://github.com/eslint/eslint
-    rev: v9.16.0
+    rev: v9.17.0
     hooks:
       - id: eslint
         name: ESLint
@@ -135,7 +135,7 @@ repos:
           )
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
-    rev: v16.11.0
+    rev: v16.12.0
     hooks:
       - id: stylelint
         name: Stylelint
@@ -202,7 +202,7 @@ repos:
           - --target-version=4.2  # Minimum supported Django version for AA. Update as needed.
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.0
+    rev: v3.19.1
     hooks:
       - id: pyupgrade
         name: PyUpgrade
@@ -259,7 +259,7 @@ repos:
           - --target-version=py310  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.19
+    rev: 0.7.21
     hooks:
       - id: mdformat
         name: Mdformat
@@ -301,7 +301,7 @@ repos:
         description: Validate the pyproject.toml file.
 
   - repo: https://github.com/pylint-dev/pylint
-    rev: v3.3.2
+    rev: v3.3.3
     hooks:
       - id: pylint
         name: Pylint
