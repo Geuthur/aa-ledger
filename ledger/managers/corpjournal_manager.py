@@ -3,7 +3,17 @@ from collections import defaultdict
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.db.models import Case, DecimalField, F, Q, Subquery, Sum, Value, When
+from django.db.models import (
+    Case,
+    DecimalField,
+    F,
+    OuterRef,
+    Q,
+    Subquery,
+    Sum,
+    Value,
+    When,
+)
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -20,6 +30,7 @@ ESS_TRANSFER = ["ess_escrow_transfer"]
 INCURSION = ["corporate_reward_payout"]
 MISSION = ["agent_mission_reward", "agent_mission_time_bonus_reward"]
 DAILY_GOAL_REWARD = ["daily_goal_payouts"]
+CITADEL_INCOME = ["industry_job_tax", "reprocessing_tax"]
 
 # Filters
 BOUNTY_FILTER = Q(ref_type__in=BOUNTY_PRIZES, amount__gt=0)
@@ -27,8 +38,11 @@ ESS_FILTER = Q(ref_type__in=ESS_TRANSFER, amount__gt=0)
 INCURSION_FILTER = Q(ref_type__in=INCURSION, amount__gt=0)
 MISSION_FILTER = Q(ref_type__in=MISSION, amount__gt=0)
 DAILY_GOAL_REWARD_FILTER = Q(ref_type__in=DAILY_GOAL_REWARD, amount__gt=0)
+CITADEL_FILTER = Q(ref_type__in=CITADEL_INCOME, amount__gt=0)
 
-MISC_FILTER = INCURSION_FILTER | MISSION_FILTER | DAILY_GOAL_REWARD_FILTER
+MISC_FILTER = (
+    INCURSION_FILTER | MISSION_FILTER | DAILY_GOAL_REWARD_FILTER | CITADEL_FILTER
+)
 
 
 class CorpWalletQueryFilter(models.QuerySet):
@@ -132,69 +146,92 @@ class CorpWalletQueryFilter(models.QuerySet):
             )
         )
 
+    def annotate_citadel(self, first_party_ids: list) -> models.QuerySet:
+        return self.annotate(
+            total_citadel=Coalesce(
+                Sum(
+                    "amount",
+                    filter=(CITADEL_FILTER & Q(first_party_id__in=first_party_ids)),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            )
+        )
+
 
 class CorpWalletQuerySet(CorpWalletQueryFilter):
     def annotate_ledger(self, corporations: list) -> models.QuerySet:
         char_ids = self.values_list("second_party_id", flat=True)
-        main_and_alts, chars_list = self._get_linked_chars(corporations, char_ids)
+        main_and_alts, _ = self._get_linked_chars(corporations, char_ids)
 
-        # Create a subquery to get the main character id
-        main_subquery = Case(
-            *[
-                When(second_party_id__in=char_ids, then=main_id)
-                for main_id, char_ids in main_and_alts.items()
-            ],
-            output_field=models.IntegerField(),
-        )
+        # Create a combined filter for all main and alt IDs
+        combined_filter = Q()
+        for _, alt_ids in main_and_alts.items():
+            combined_filter |= Q(second_party_id__in=alt_ids) | Q(
+                first_party_id__in=alt_ids
+            )
 
-        # Create a subquery to get the alts
-        alts_subquery = Case(
-            *[
-                When(
-                    second_party_id__in=char_ids,
-                    then=Value(json.dumps(char_ids)),
-                )
-                for _, char_ids in main_and_alts.items()
-            ],
-            output_field=models.JSONField(),
-        )
+        # Filter the queryset for all main characters and their alts
+        qs = self.filter(combined_filter)
 
         # Exclude Tax Events
-        qs = events_filter(self)
+        qs = events_filter(qs)
 
-        # First annotation step
-        qs = self.filter(second_party_id__in=chars_list).annotate(
-            main_character_id=main_subquery,
-            main_character_name=Coalesce(
-                Subquery(
-                    EveCharacter.objects.filter(
-                        character_id=models.OuterRef("main_character_id")
-                    ).values("character_name")[:1]
+        # Annotate the queryset
+        qs = (
+            qs.annotate(
+                main_character_id=Case(
+                    *[
+                        When(
+                            Q(second_party_id__in=alt_ids)
+                            | Q(first_party_id__in=alt_ids),
+                            then=Value(main_id),
+                        )
+                        for main_id, alt_ids in main_and_alts.items()
+                    ],
+                    output_field=models.IntegerField(),
                 ),
-                Value("Unknown"),
-            ),
-            alts=alts_subquery,
+                main_character_name=Coalesce(
+                    Subquery(
+                        EveCharacter.objects.filter(
+                            character_id=OuterRef("main_character_id")
+                        ).values("character_name")[:1]
+                    ),
+                    Value("Unknown"),
+                ),
+                alts=Case(
+                    *[
+                        When(
+                            Q(second_party_id__in=alt_ids)
+                            | Q(first_party_id__in=alt_ids),
+                            then=Value(json.dumps(alt_ids)),
+                        )
+                        for _, alt_ids in main_and_alts.items()
+                    ],
+                    output_field=models.JSONField(),
+                ),
+            )
+            .values("main_character_id", "main_character_name", "alts")
+            .annotate(
+                total_bounty=Coalesce(
+                    Sum("amount", filter=BOUNTY_FILTER),
+                    Value(0),
+                    output_field=DecimalField(),
+                ),
+                total_ess=Coalesce(
+                    Sum("amount", filter=ESS_FILTER),
+                    Value(0),
+                    output_field=DecimalField(),
+                ),
+                total_miscellaneous=Coalesce(
+                    Sum("amount", filter=MISC_FILTER),
+                    Value(0),
+                    output_field=DecimalField(),
+                ),
+            )
         )
 
-        return qs.values(
-            "main_character_id", "main_character_name", "alts"
-        ).annotate(  # Group by main_character_id
-            total_bounty=Coalesce(
-                Sum("amount", filter=BOUNTY_FILTER),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_ess=Coalesce(
-                Sum("amount", filter=ESS_FILTER),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_miscellaneous=Coalesce(
-                Sum("amount", filter=MISC_FILTER),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-        )
+        return qs
 
     # pylint: disable=duplicate-code
     def generate_template(
@@ -222,6 +259,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             types_filters["mission"] = MISSION_FILTER
             types_filters["incursion"] = INCURSION_FILTER
             types_filters["daily_goal"] = DAILY_GOAL_REWARD_FILTER
+            types_filters["citadel"] = CITADEL_FILTER
 
         annotations = {}
         # Create the template
