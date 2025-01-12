@@ -1,10 +1,16 @@
 from django.db.models import Q
 
+from allianceauth.eveonline.models import (
+    EveAllianceInfo,
+    EveCharacter,
+    EveCorporationInfo,
+)
+
 from ledger.api.api_helper.billboard_helper import BillboardData, BillboardLedger
 from ledger.api.api_helper.core_manager import LedgerDate, LedgerModels, LedgerTotal
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
-from ledger.tasks import create_missing_character
+from ledger.tasks import create_missing_entitys
 
 logger = get_extension_logger(__name__)
 
@@ -28,20 +34,42 @@ class CorporationProcess:
             total_bounty = main.get("total_bounty", 0)
             total_ess = main.get("total_ess", 0)
             total_other = main.get("total_miscellaneous", 0)
-            character_id = main.get("main_character_id", 0)
-            character_name = main.get("main_character_name", "Unknown")
-
-            # Add Unknown Characters
-            if character_name == "Unknown":
-                unkwowns_ids.add(character_id)
-
+            main_entity_id = main.get("main_entity_id", 0)
             alts = main.get("alts", [])
+            character_name = "Unknown"
+            entity_type = "character"
+
+            if not main_entity_id == 0 and main_entity_id is not None:
+                # logger.info("Processing: %s", main_entity_id)
+                try:
+                    character_name = EveCharacter.objects.get(
+                        character_id=main_entity_id
+                    ).character_name
+                except EveCharacter.DoesNotExist:
+                    try:
+                        character_name = EveCorporationInfo.objects.get(
+                            corporation_id=main_entity_id
+                        ).corporation_name
+                        entity_type = "corporation"
+                    except EveCorporationInfo.DoesNotExist:
+                        try:
+                            character_name = EveAllianceInfo.objects.get(
+                                alliance_id=main_entity_id
+                            ).alliance_name
+                            entity_type = "alliance"
+                        except EveAllianceInfo.DoesNotExist:
+                            unkwowns_ids.add(main_entity_id)
+                            continue
+
+            # logger.info("%s %s %s %s %s", total_bounty, total_ess, total_other, character_name, main_entity_id)
+
             summary_amount = sum([total_bounty, total_ess, total_other])
 
             if summary_amount > 0:
-                corporation_dict[character_id] = {
-                    "main_id": character_id,
+                corporation_dict[main_entity_id] = {
+                    "main_id": main_entity_id,
                     "main_name": character_name,
+                    "entity_type": entity_type,
                     "alt_names": alts,
                     "total_amount": total_bounty,
                     "total_amount_ess": total_ess,
@@ -59,7 +87,7 @@ class CorporationProcess:
 
         # Create Unknown Characters
         if unkwowns_ids:
-            create_missing_character.apply_async(args=[list(unkwowns_ids)], priority=6)
+            create_missing_entitys.apply_async(args=[list(unkwowns_ids)], priority=6)
 
         return corporation_dict, corporation_total
 
