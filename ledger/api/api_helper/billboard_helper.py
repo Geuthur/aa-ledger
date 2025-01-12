@@ -367,4 +367,7 @@ class BillboardLedger:
 
         self.generate_wallet_corps_data()
 
+        # Not Implemented
+        self.billboard_dict.standard.workflowgauge = None
+
         return self.billboard_dict
