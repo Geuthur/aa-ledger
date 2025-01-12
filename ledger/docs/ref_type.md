@@ -106,4 +106,10 @@
 # Income
 
 - **Daily Goal Reward**
-  - DAILY_GOAL_REWARD
+
+  - daily_goal_reward
+
+- **Citadel**
+
+  - industry_job_tax
+  - reprocessing_tax
