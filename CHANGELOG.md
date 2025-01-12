@@ -6,6 +6,8 @@
 
 - Planetary Manager
 - Planetary Facility Overview
+- Corporation Ledger
+  - Industry Taxes
 
 ### Removed
 
@@ -16,10 +18,19 @@
 - Optimized API Endpoints
 - Renamed CharLink Hook Names
 - Moved Corp Project Ref Type to Milestone Reward cause it not seems to be Corp Projects
+- Create Missing Character changed to Create Missing Entity
+- JS Portrait Handler
+- JS Optimation Ledger
+- Renamed annotate_ledger to generate_ledger
+- Refactor generate_ledger queryfilter
+- Refactor generate_template queryfilter
 
 ### Fixed
 
 - a Case that a Character become Income if he accept a Contract with Corp
+- Performance Issues on Corporation Ledger
+- Billboard doesn't work in different languages
+- Float Error instead of Decimal in Ledger
 
 ## [0.6.6] - 2024-11-16
 

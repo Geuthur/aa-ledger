@@ -7,7 +7,7 @@
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W810Q5J4)
 
-Character and Corporation statistics, including detailed information on ESS, Ratting, Trading, Mining, and other activities.
+Character and Corporation PvE statistics, including detailed information on ESS, Ratting, Trading, Mining, and other activities.
 
 ______________________________________________________________________
 
@@ -43,6 +43,7 @@ ______________________________________________________________________
     - Graphical Statistics
   - Ratting Tax
   - Encounter Surveillance System Tax
+  - Industry Tax
 - Alliance Ledger
   - Graphical Overview for each Corporation
   - Ratting Tax
