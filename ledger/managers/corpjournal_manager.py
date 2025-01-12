@@ -138,7 +138,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
 
         return char_to_main, set(chars_list)
 
-    def annotate_ledger(self, corporations: list) -> models.QuerySet:
+    def generate_ledger(self, corporations: list) -> models.QuerySet:
         # Filter Corporations6
         qs = self.filter(
             Q(division__corporation__corporation__corporation_id__in=corporations)

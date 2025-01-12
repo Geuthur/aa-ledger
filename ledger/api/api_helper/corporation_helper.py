@@ -103,7 +103,7 @@ class CorporationProcess:
                 "first_party",
                 "second_party",
             )
-            .annotate_ledger(self.corp)
+            .generate_ledger(self.corp)
         )
 
         # Create the Dicts for each Character
@@ -124,7 +124,6 @@ class CorporationProcess:
         return output
 
     def generate_billboard(self, corporations):
-        # TODO - Move to new System
         # Get the Filter Settings
         filter_date = Q(date__year=self.year)
         if not self.month == 0:
@@ -136,7 +135,7 @@ class CorporationProcess:
                 "first_party",
                 "second_party",
             )
-            .annotate_ledger(corporations)
+            .generate_ledger(corporations)
         )
 
         # Create the Dicts for each Character
