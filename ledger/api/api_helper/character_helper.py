@@ -75,6 +75,7 @@ class CharacterProcess:
                 character_dict[char_id] = {
                     "main_id": char_id,
                     "main_name": char_name,
+                    "entity_type": "character",
                     "total_amount": amounts["bounty"],
                     "total_amount_ess": amounts["ess"],
                     "total_amount_mining": amounts["mining"],
