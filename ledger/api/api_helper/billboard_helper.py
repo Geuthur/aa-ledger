@@ -34,7 +34,6 @@ class BillboardSum:
 
 @dataclass
 class _BillboardDict:
-    walletcharts: list = field(default_factory=list)
     charts: list = field(default_factory=list)
     rattingbar: list = field(default_factory=list)
     workflowgauge: list = field(default_factory=list)
@@ -287,7 +286,7 @@ class BillboardLedger:
             ["Misc. Cost", misc_cost],
         ]
 
-        self.billboard_dict.standard.walletcharts = (
+        self.billboard_dict.standard.charts = (
             wallet_chart_data
             if any(item[1] != 0 for item in wallet_chart_data)
             else None
