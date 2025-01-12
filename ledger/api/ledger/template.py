@@ -13,6 +13,7 @@ from ledger.api.helpers import (
     get_character,
     get_corporation,
     get_main_and_alts_ids_all,
+    get_main_and_alts_ids_corporations,
 )
 from ledger.hooks import get_extension_logger
 from ledger.models import CorporationAudit
@@ -50,6 +51,7 @@ class LedgerTemplateApiEndpoints:
         ):
             request_main = request.GET.get("main", False)
             perms, main = get_character(request, character_id)
+            entitys = get_main_and_alts_ids_corporations(request)
 
             if not perms:
                 context = {
@@ -88,7 +90,14 @@ class LedgerTemplateApiEndpoints:
                 )
 
             # Create the Ledger
-            ledger_data = TemplateData(request, main, year, month, current_date)
+            ledger_data = TemplateData(
+                request=request,
+                main=main,
+                year=year,
+                month=month,
+                corporations_ids=entitys,
+                current_date=current_date,
+            )
             ledger = TemplateProcess(linked_char, ledger_data, overall_mode)
             context = {
                 "character": ledger.character_template(),
@@ -155,7 +164,14 @@ class LedgerTemplateApiEndpoints:
 
             # Create the Ledger
 
-            ledger_data = TemplateData(request, char, year, month, current_date)
+            ledger_data = TemplateData(
+                request=request,
+                main=char,
+                year=year,
+                month=month,
+                corporations_ids=entitys,
+                current_date=current_date,
+            )
             ledger = TemplateProcess(linked_char, ledger_data, overall_mode)
             context = {
                 "character": ledger.corporation_template(),

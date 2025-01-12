@@ -26,6 +26,7 @@ class TemplateData:
     main: any
     year: int
     month: int
+    corporations_ids: list = None
     current_date: timezone.datetime = None
 
     def __post_init__(self):
@@ -87,15 +88,13 @@ class TemplateProcess:
         return: dict
         """
 
-        chars = [char.character_id for char in self.chars]
-
         filter_date = Q(date__year=self.data.year)
         if not self.data.month == 0:
             filter_date &= Q(date__month=self.data.month)
 
         corporation_journal = (
             CorporationWalletJournalEntry.objects.filter(
-                filter_date, Q(second_party_id__in=chars)
+                filter_date,
             )
             .select_related("first_party", "second_party")
             .order_by("-date")
@@ -123,8 +122,21 @@ class TemplateProcess:
     # Process the corporation
     def _process_corporation(self, corporation_journal):
         """Process the corporations."""
+        chars = [char.character_id for char in self.chars]
         # Process the amounts
-        amounts = self._process_amounts_corp(self.chars, corporation_journal)
+        amounts = defaultdict(lambda: defaultdict(Decimal))
+
+        amounts = corporation_journal.generate_template(
+            amounts=amounts,
+            character_ids=chars,
+            corporations_ids=self.data.corporations_ids,
+            filter_date=self.data.ledger_date,
+            mode="corporation",
+        )
+
+        amounts["stolen"] = defaultdict(Decimal)
+        amounts = calculate_ess_stolen(amounts)
+
         # Update the template dict
         self._update_template_dict(self.data.main)
         self._generate_amounts_dict(amounts)
@@ -152,11 +164,13 @@ class TemplateProcess:
         current_day = 365 if self.data.month == 0 else self.data.ledger_date.day
         # Calculate the total sum
         total_sum = sum(
-            amounts[key]["total_amount"] for key in amounts if key != "stolen"
+            Decimal(amounts[key]["total_amount"]) for key in amounts if key != "stolen"
         )
 
         total_current_day_sum = sum(
-            amounts[key]["total_amount_day"] for key in amounts if key != "stolen"
+            Decimal(amounts[key]["total_amount_day"])
+            for key in amounts
+            if key != "stolen"
         )
 
         self.template_dict.update(
@@ -209,24 +223,6 @@ class TemplateProcess:
             ),  # Only show daily amount if not year and in the correct month
         }
 
-    # Genereate Amounts for each Char
-    def _process_amounts_corp(self, chars, corporation_journal):
-        amounts = defaultdict(lambda: defaultdict(Decimal))
-
-        char_ids = [char.character_id for char in chars]
-
-        amounts = corporation_journal.generate_template(
-            amounts=amounts,
-            character_ids=char_ids,
-            filter_date=self.data.ledger_date,
-            mode="corporation",
-        )
-
-        amounts["stolen"] = defaultdict(Decimal)
-        amounts = calculate_ess_stolen(amounts)
-
-        return amounts
-
     # Generate Amounts for all Chars
     # pylint: disable=too-many-locals
     def _process_amounts_char(self, models, chars_list):
@@ -237,7 +233,10 @@ class TemplateProcess:
 
         # Generate Template for Character Journal
         amounts = character_journal.generate_template(
-            amounts, chars_list, self.data.ledger_date, chars_list
+            amounts=amounts,
+            character_ids=chars_list,
+            filter_date=self.data.ledger_date,
+            exclude=chars_list,
         )
 
         # Generate Template for Mining Journal
@@ -259,7 +258,10 @@ class TemplateProcess:
 
         # Generate Template for Corporation Journal
         amounts = corporation_journal.generate_template(
-            amounts=amounts, character_ids=chars_list, filter_date=self.data.ledger_date
+            amounts=amounts,
+            character_ids=chars_list,
+            corporations_ids=self.data.corporations_ids,
+            filter_date=self.data.ledger_date,
         )
 
         # Convert ESS Payout for Character Ledger
