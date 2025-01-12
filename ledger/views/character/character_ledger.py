@@ -25,7 +25,8 @@ def character_ledger(request, character_pk):
 
     context = {
         "years": years,
-        "character_pk": character_pk,
+        "entity_pk": character_pk,
+        "entity_type": "character",
     }
     context = add_info_to_context(request, context)
     return render(request, "ledger/charledger/character_ledger.html", context=context)
@@ -37,10 +38,8 @@ def character_admin(request):
     """
     Character Admin
     """
-
     context = {}
     context = add_info_to_context(request, context)
-
     return render(
         request, "ledger/charledger/admin/character_admin.html", context=context
     )

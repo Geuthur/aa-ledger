@@ -112,14 +112,17 @@
         altShow = true;
     }
 
-    let charactersettings = {
-        character_pk: {{ character_pk }},
+    let ledgersettings = {
+        entity_pk: {{ entity_pk }},
+        entity_type: "{{ entity_type }}",
         altShow: altShow,
         overviewText: '{% translate "Overview" %}',
         planetaryText: '{% translate "Show Planetary Interaction" %}',
+        hourlyText: '{% translate "Hour" %}',
+        daysText: '{% translate "Days" %}',
     };
 </script>
-<script type="application/javascript" src="{% static 'ledger/js/charledger.js' %}"></script>
+<script type="application/javascript" src="{% static 'ledger/js/ledger.js' %}"></script>
 {% endblock extra_javascript %}
 {% block extra_script %}
 {% endblock extra_script %}

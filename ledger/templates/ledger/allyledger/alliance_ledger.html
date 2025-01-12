@@ -98,11 +98,12 @@
     });
 </script>
 <script type="application/javascript">
-    let alliancesettings = {
-        alliance_pk: {{ alliance_pk }},
+    let ledgersettings = {
+        entity_pk: {{ entity_pk }},
+        entity_type: "{{ entity_type }}",
     };
 </script>
-<script type="application/javascript" src="{% static 'ledger/js/allyledger.js' %}"></script>
+<script type="application/javascript" src="{% static 'ledger/js/ledger.js' %}"></script>
 {% endblock extra_javascript %}
 {% block extra_script %}
 {% endblock extra_script %}

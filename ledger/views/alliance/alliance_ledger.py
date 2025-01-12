@@ -26,7 +26,8 @@ def alliance_ledger(request, alliance_pk):
 
     context = {
         "years": years,
-        "alliance_pk": alliance_pk,
+        "entity_pk": alliance_pk,
+        "entity_type": "alliance",
     }
     context = add_info_to_context(request, context)
     return render(request, "ledger/allyledger/alliance_ledger.html", context=context)
