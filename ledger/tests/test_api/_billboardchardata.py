@@ -2,21 +2,18 @@ noData = [
     {
         "billboard": {
             "standard": {
-                "walletcharts": None,
                 "charts": [],
                 "rattingbar": None,
                 "workflowgauge": None,
             },
             "weekly": {
-                "walletcharts": [],
                 "charts": [],
                 "rattingbar": [],
                 "workflowgauge": [],
             },
             "hourly": {
-                "walletcharts": [],
                 "charts": [],
-                "rattingbar": None,
+                "rattingbar": [],
                 "workflowgauge": [],
             },
         },
@@ -27,13 +24,12 @@ CharmonthlyMarch = [
     {
         "billboard": {
             "standard": {
-                "walletcharts": [
+                "charts": [
                     ["Income", 1733333],
                     ["Market Cost", 200000],
                     ["Production Cost", 100000],
                     ["Misc. Cost", 100000],
                 ],
-                "charts": [],
                 "rattingbar": [
                     ["x", "2024-03-19", "2024-03-16"],
                     ["Ratting", 200000, 0],
@@ -50,13 +46,11 @@ CharmonthlyMarch = [
                 ],
             },
             "weekly": {
-                "walletcharts": [],
                 "charts": [],
                 "rattingbar": [],
                 "workflowgauge": [],
             },
             "hourly": {
-                "walletcharts": [],
                 "charts": [],
                 "rattingbar": [
                     ["x", "2024-03-19 14:00:00", "2024-03-16 00:00:00"],
@@ -77,13 +71,12 @@ CharmonthlyMarchMulti = [
     {
         "billboard": {
             "standard": {
-                "walletcharts": [
+                "charts": [
                     ["Income", 1833333],
                     ["Market Cost", 200000],
                     ["Production Cost", 100000],
                     ["Misc. Cost", 100000],
                 ],
-                "charts": [],
                 "rattingbar": [
                     ["x", "2024-03-19", "2024-03-16"],
                     ["Ratting", 200000, 0],
@@ -100,13 +93,11 @@ CharmonthlyMarchMulti = [
                 ],
             },
             "weekly": {
-                "walletcharts": [],
                 "charts": [],
                 "rattingbar": [],
                 "workflowgauge": [],
             },
             "hourly": {
-                "walletcharts": [],
                 "charts": [],
                 "rattingbar": [
                     ["x", "2024-03-19 14:00:00", "2024-03-16 00:00:00"],
@@ -126,13 +117,12 @@ Charyearly = [
     {
         "billboard": {
             "standard": {
-                "walletcharts": [
+                "charts": [
                     ["Income", 1833333],
                     ["Market Cost", 200000],
                     ["Production Cost", 100000],
                     ["Misc. Cost", 100000],
                 ],
-                "charts": [],
                 "rattingbar": [
                     ["x", "2024-03", "2024-01"],
                     ["Ratting", 200000, 100000],
@@ -149,13 +139,11 @@ Charyearly = [
                 ],
             },
             "weekly": {
-                "walletcharts": [],
                 "charts": [],
                 "rattingbar": [],
                 "workflowgauge": [],
             },
             "hourly": {
-                "walletcharts": [],
                 "charts": [],
                 "rattingbar": [],
                 "workflowgauge": [],
@@ -168,13 +156,12 @@ CharNoMining = [
     {
         "billboard": {
             "standard": {
-                "walletcharts": [
+                "charts": [
                     ["Income", 1533333],
                     ["Market Cost", 200000],
                     ["Production Cost", 100000],
                     ["Misc. Cost", 100000],
                 ],
-                "charts": [],
                 "rattingbar": [
                     ["x", "2024-03-19"],
                     ["Ratting", 200000],
@@ -191,13 +178,11 @@ CharNoMining = [
                 ],
             },
             "weekly": {
-                "walletcharts": [],
                 "charts": [],
                 "rattingbar": [],
                 "workflowgauge": [],
             },
             "hourly": {
-                "walletcharts": [],
                 "charts": [],
                 "rattingbar": [
                     ["x", "2024-03-19 14:00:00"],
