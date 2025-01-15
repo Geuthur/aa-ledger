@@ -3,18 +3,18 @@ noData = [
         "billboard": {
             "standard": {
                 "charts": None,
-                "rattingbar": [],
-                "workflowgauge": [],
+                "rattingbar": None,
+                "workflowgauge": None,
             },
             "weekly": {
                 "charts": None,
-                "rattingbar": [],
-                "workflowgauge": [],
+                "rattingbar": None,
+                "workflowgauge": None,
             },
             "hourly": {
                 "charts": None,
-                "rattingbar": [],
-                "workflowgauge": [],
+                "rattingbar": None,
+                "workflowgauge": None,
             },
         },
     }
@@ -75,7 +75,7 @@ CorpmonthlyMarch = [
                 ["Miscellaneous"],
                 ["Mining"],
             ],
-            "workflowgauge": [],
+            "workflowgauge": None,
         },
     }
 ]
@@ -136,7 +136,7 @@ Corpyearly = [
                 ["Miscellaneous"],
                 ["Mining"],
             ],
-            "workflowgauge": [],
+            "workflowgauge": None,
         },
     }
 ]
@@ -263,7 +263,7 @@ Corpdatamany = [
                 ["Miscellaneous"],
                 ["Mining"],
             ],
-            "workflowgauge": [],
+            "workflowgauge": None,
         },
     }
 ]

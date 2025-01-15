@@ -18,6 +18,7 @@ CharmonthlyMarch = [
             {
                 "main_id": 1001,
                 "main_name": "Gneuten",
+                "entity_type": "character",
                 "total_amount": "200000.00",
                 "total_amount_ess": "1133333.333333333333333333333",
                 "total_amount_mining": "200000",
@@ -43,6 +44,7 @@ CharmonthlyMarchMulti = [
             {
                 "main_id": 1001,
                 "main_name": "Gneuten",
+                "entity_type": "character",
                 "total_amount": "200000.00",
                 "total_amount_ess": "1133333.333333333333333333333",
                 "total_amount_mining": "200000",
@@ -52,6 +54,7 @@ CharmonthlyMarchMulti = [
             {
                 "main_id": 1002,
                 "main_name": "rotze Rotineque",
+                "entity_type": "character",
                 "total_amount": "0",
                 "total_amount_ess": "0",
                 "total_amount_mining": "100000",
@@ -76,6 +79,7 @@ Charyearly = [
             {
                 "main_id": 1001,
                 "main_name": "Gneuten",
+                "entity_type": "character",
                 "total_amount": "300000.00",
                 "total_amount_ess": "1133333.333333333333333333333",
                 "total_amount_mining": "200000",
@@ -100,6 +104,7 @@ CharNoMining = [
             {
                 "main_id": 1001,
                 "main_name": "Gneuten",
+                "entity_type": "character",
                 "total_amount": "200000.00",
                 "total_amount_ess": "1133333.333333333333333333333",
                 "total_amount_mining": "0",

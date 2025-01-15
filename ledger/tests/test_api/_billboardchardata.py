@@ -2,19 +2,19 @@ noData = [
     {
         "billboard": {
             "standard": {
-                "charts": [],
+                "charts": None,
                 "rattingbar": None,
                 "workflowgauge": None,
             },
             "weekly": {
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
+                "charts": None,
+                "rattingbar": None,
+                "workflowgauge": None,
             },
             "hourly": {
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
+                "charts": None,
+                "rattingbar": None,
+                "workflowgauge": None,
             },
         },
     }
@@ -46,12 +46,12 @@ CharmonthlyMarch = [
                 ],
             },
             "weekly": {
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
+                "charts": None,
+                "rattingbar": None,
+                "workflowgauge": None,
             },
             "hourly": {
-                "charts": [],
+                "charts": None,
                 "rattingbar": [
                     ["x", "2024-03-19 14:00:00", "2024-03-16 00:00:00"],
                     ["Ratting", 200000, 0],
@@ -60,7 +60,7 @@ CharmonthlyMarch = [
                     ["Mining", 0, 200000],
                     ["Tick", 66666, 0],
                 ],
-                "workflowgauge": [],
+                "workflowgauge": None,
             },
         },
     }
@@ -93,12 +93,12 @@ CharmonthlyMarchMulti = [
                 ],
             },
             "weekly": {
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
+                "charts": None,
+                "rattingbar": None,
+                "workflowgauge": None,
             },
             "hourly": {
-                "charts": [],
+                "charts": None,
                 "rattingbar": [
                     ["x", "2024-03-19 14:00:00", "2024-03-16 00:00:00"],
                     ["Ratting", 200000, 0],
@@ -107,7 +107,7 @@ CharmonthlyMarchMulti = [
                     ["Mining", 0, 300000],
                     ["Tick", 66666, 0],
                 ],
-                "workflowgauge": [],
+                "workflowgauge": None,
             },
         },
     }
@@ -139,14 +139,14 @@ Charyearly = [
                 ],
             },
             "weekly": {
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
+                "charts": None,
+                "rattingbar": None,
+                "workflowgauge": None,
             },
             "hourly": {
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
+                "charts": None,
+                "rattingbar": None,
+                "workflowgauge": None,
             },
         },
     }
@@ -178,12 +178,12 @@ CharNoMining = [
                 ],
             },
             "weekly": {
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
+                "charts": None,
+                "rattingbar": None,
+                "workflowgauge": None,
             },
             "hourly": {
-                "charts": [],
+                "charts": None,
                 "rattingbar": [
                     ["x", "2024-03-19 14:00:00"],
                     ["Ratting", 200000],
@@ -192,7 +192,7 @@ CharNoMining = [
                     ["Mining", 0],
                     ["Tick", 66666],
                 ],
-                "workflowgauge": [],
+                "workflowgauge": None,
             },
         },
     }
