@@ -168,7 +168,7 @@ def check_planetary_alarms(self, runs: int = 0):
     warnings = {}
 
     for planet in all_planets:
-        if planet.is_expired() and not planet.notification_sent and planet.notification:
+        if planet.is_expired and not planet.notification_sent and planet.notification:
             character_id = planet.planet.character.character.character_id
 
             # Determine if the character_id is part of any main character's alts
