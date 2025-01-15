@@ -52,21 +52,21 @@ def create_missing_entitys(self, entity_ids: list, runs: int = 0):
     results = esi_entity.results()
 
     for result in results:
-        if result["category"] == "corporation":
-            try:
-                EveCorporationInfo.objects.get(corporation_id=result["id"])
-            except EveCorporationInfo.DoesNotExist:
-                try:
-                    EveCorporationInfo.objects.create_corporation(result["id"])
-                    runs = runs + 1
-                except IntegrityError:
-                    continue
-        elif result["category"] == "character":
+        if result["category"] == "character":
             try:
                 EveCharacter.objects.get(character_id=result["id"])
             except EveCharacter.DoesNotExist:
                 try:
                     EveCharacter.objects.create_character(result["id"])
+                    runs = runs + 1
+                except IntegrityError:
+                    continue
+        elif result["category"] == "corporation":
+            try:
+                EveCorporationInfo.objects.get(corporation_id=result["id"])
+            except EveCorporationInfo.DoesNotExist:
+                try:
+                    EveCorporationInfo.objects.create_corporation(result["id"])
                     runs = runs + 1
                 except IntegrityError:
                     continue
