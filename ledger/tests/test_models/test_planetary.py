@@ -66,7 +66,7 @@ class TestCharacterAuditModel(TestCase):
         )
 
     def test_is_expired(self):
-        self.assertEqual(self.planetarydetails.is_expired(), True)
+        self.assertEqual(self.planetarydetails.is_expired, True)
 
     def test_get_types(self):
         self.assertEqual(
@@ -86,8 +86,8 @@ class TestCharacterAuditModel(TestCase):
         mock_now.return_value = timezone.datetime(2023, 10, 1, tzinfo=timezone.utc)
         future_date = mock_now.return_value + timezone.timedelta(days=10)
         self.planetarydetails.pins = [{"expiry_time": future_date.isoformat()}]
-        self.assertFalse(self.planetarydetails.is_expired())
+        self.assertFalse(self.planetarydetails.is_expired)
 
     def test_is_expired_empty(self):
         self.planetarydetails.pins = [{"expiry_time": None}]
-        self.assertFalse(self.planetarydetails.is_expired())
+        self.assertFalse(self.planetarydetails.is_expired)

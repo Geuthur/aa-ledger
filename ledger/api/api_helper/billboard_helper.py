@@ -34,9 +34,9 @@ class BillboardSum:
 
 @dataclass
 class _BillboardDict:
-    charts: list = field(default_factory=list)
-    rattingbar: list = field(default_factory=list)
-    workflowgauge: list = field(default_factory=list)
+    charts: list = field(default_factory=lambda: None)
+    rattingbar: list = field(default_factory=lambda: None)
+    workflowgauge: list = field(default_factory=lambda: None)
 
 
 @dataclass

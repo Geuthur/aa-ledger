@@ -2,22 +2,19 @@ noData = [
     {
         "billboard": {
             "standard": {
-                "walletcharts": None,
-                "charts": [],
+                "charts": None,
                 "rattingbar": None,
                 "workflowgauge": None,
             },
             "weekly": {
-                "walletcharts": [],
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
+                "charts": None,
+                "rattingbar": None,
+                "workflowgauge": None,
             },
             "hourly": {
-                "walletcharts": [],
-                "charts": [],
+                "charts": None,
                 "rattingbar": None,
-                "workflowgauge": [],
+                "workflowgauge": None,
             },
         },
     }
@@ -27,13 +24,12 @@ CharmonthlyMarch = [
     {
         "billboard": {
             "standard": {
-                "walletcharts": [
+                "charts": [
                     ["Income", 1733333],
                     ["Market Cost", 200000],
                     ["Production Cost", 100000],
                     ["Misc. Cost", 100000],
                 ],
-                "charts": [],
                 "rattingbar": [
                     ["x", "2024-03-19", "2024-03-16"],
                     ["Ratting", 200000, 0],
@@ -50,14 +46,12 @@ CharmonthlyMarch = [
                 ],
             },
             "weekly": {
-                "walletcharts": [],
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
+                "charts": None,
+                "rattingbar": None,
+                "workflowgauge": None,
             },
             "hourly": {
-                "walletcharts": [],
-                "charts": [],
+                "charts": None,
                 "rattingbar": [
                     ["x", "2024-03-19 14:00:00", "2024-03-16 00:00:00"],
                     ["Ratting", 200000, 0],
@@ -66,7 +60,7 @@ CharmonthlyMarch = [
                     ["Mining", 0, 200000],
                     ["Tick", 66666, 0],
                 ],
-                "workflowgauge": [],
+                "workflowgauge": None,
             },
         },
     }
@@ -77,13 +71,12 @@ CharmonthlyMarchMulti = [
     {
         "billboard": {
             "standard": {
-                "walletcharts": [
+                "charts": [
                     ["Income", 1833333],
                     ["Market Cost", 200000],
                     ["Production Cost", 100000],
                     ["Misc. Cost", 100000],
                 ],
-                "charts": [],
                 "rattingbar": [
                     ["x", "2024-03-19", "2024-03-16"],
                     ["Ratting", 200000, 0],
@@ -100,14 +93,12 @@ CharmonthlyMarchMulti = [
                 ],
             },
             "weekly": {
-                "walletcharts": [],
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
+                "charts": None,
+                "rattingbar": None,
+                "workflowgauge": None,
             },
             "hourly": {
-                "walletcharts": [],
-                "charts": [],
+                "charts": None,
                 "rattingbar": [
                     ["x", "2024-03-19 14:00:00", "2024-03-16 00:00:00"],
                     ["Ratting", 200000, 0],
@@ -116,7 +107,7 @@ CharmonthlyMarchMulti = [
                     ["Mining", 0, 300000],
                     ["Tick", 66666, 0],
                 ],
-                "workflowgauge": [],
+                "workflowgauge": None,
             },
         },
     }
@@ -126,13 +117,12 @@ Charyearly = [
     {
         "billboard": {
             "standard": {
-                "walletcharts": [
+                "charts": [
                     ["Income", 1833333],
                     ["Market Cost", 200000],
                     ["Production Cost", 100000],
                     ["Misc. Cost", 100000],
                 ],
-                "charts": [],
                 "rattingbar": [
                     ["x", "2024-03", "2024-01"],
                     ["Ratting", 200000, 100000],
@@ -149,16 +139,14 @@ Charyearly = [
                 ],
             },
             "weekly": {
-                "walletcharts": [],
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
+                "charts": None,
+                "rattingbar": None,
+                "workflowgauge": None,
             },
             "hourly": {
-                "walletcharts": [],
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
+                "charts": None,
+                "rattingbar": None,
+                "workflowgauge": None,
             },
         },
     }
@@ -168,13 +156,12 @@ CharNoMining = [
     {
         "billboard": {
             "standard": {
-                "walletcharts": [
+                "charts": [
                     ["Income", 1533333],
                     ["Market Cost", 200000],
                     ["Production Cost", 100000],
                     ["Misc. Cost", 100000],
                 ],
-                "charts": [],
                 "rattingbar": [
                     ["x", "2024-03-19"],
                     ["Ratting", 200000],
@@ -191,14 +178,12 @@ CharNoMining = [
                 ],
             },
             "weekly": {
-                "walletcharts": [],
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
+                "charts": None,
+                "rattingbar": None,
+                "workflowgauge": None,
             },
             "hourly": {
-                "walletcharts": [],
-                "charts": [],
+                "charts": None,
                 "rattingbar": [
                     ["x", "2024-03-19 14:00:00"],
                     ["Ratting", 200000],
@@ -207,7 +192,7 @@ CharNoMining = [
                     ["Mining", 0],
                     ["Tick", 66666],
                 ],
-                "workflowgauge": [],
+                "workflowgauge": None,
             },
         },
     }
