@@ -7,7 +7,7 @@ from eveuniverse.models import EveType
 from ledger.constants.pi import COMMAND_CENTER, EXTRACTOR_CONTROL_UNIT, SPACEPORTS
 from ledger.hooks import get_extension_logger
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
 logger = get_extension_logger(__name__)
