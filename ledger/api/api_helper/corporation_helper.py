@@ -61,8 +61,6 @@ class CorporationProcess:
                             unkwowns_ids.add(main_entity_id)
                             continue
 
-            # logger.info("%s %s %s %s %s", total_bounty, total_ess, total_other, character_name, main_entity_id)
-
             summary_amount = sum([total_bounty, total_ess, total_other])
 
             if summary_amount > 0:
@@ -97,7 +95,7 @@ class CorporationProcess:
         if not self.month == 0:
             filter_date &= Q(date__month=self.month)
 
-        corporation_journal_year = (
+        journal = (
             CorporationWalletJournalEntry.objects.filter(filter_date)
             .select_related(
                 "first_party",
@@ -107,9 +105,7 @@ class CorporationProcess:
         )
 
         # Create the Dicts for each Character
-        corporation_dict, corporation_total = self._process_corporation_chars(
-            corporation_journal_year
-        )
+        corporation_dict, corporation_total = self._process_corporation_chars(journal)
 
         output = []
         output.append(

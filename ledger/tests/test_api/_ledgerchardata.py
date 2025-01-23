@@ -37,6 +37,30 @@ CharmonthlyMarch = [
     }
 ]
 
+CharmonthlyMarchWithTaxEvent = [
+    {
+        "ratting": [
+            {
+                "main_id": 1001,
+                "main_name": "Gneuten",
+                "entity_type": "character",
+                "total_amount": 200000,
+                "total_amount_ess": 0,
+                "total_amount_mining": 200000,
+                "total_amount_others": 200000,
+                "total_amount_costs": -400000,
+            }
+        ],
+        "total": {
+            "total_amount": 200000,
+            "total_amount_ess": 0,
+            "total_amount_all": 200000,
+            "total_amount_mining": 200000,
+            "total_amount_others": 200000,
+            "total_amount_costs": -400000,
+        },
+    }
+]
 
 CharmonthlyMarchMulti = [
     {

@@ -1,8 +1,10 @@
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 from ninja import NinjaAPI
 
 from django.test import TestCase
+from django.utils import timezone
 from eveuniverse.models import EveMarketPrice
 
 from allianceauth.eveonline.models import (
@@ -14,14 +16,13 @@ from app_utils.testing import add_character_to_user, create_user_from_evecharact
 
 from ledger.api.api_helper.character_helper import CharacterProcess
 from ledger.api.ledger import LedgerApiEndpoints
-from ledger.models.characteraudit import (
-    CharacterMiningLedger,
-    CharacterWalletJournalEntry,
-)
+from ledger.models.characteraudit import CharacterMiningLedger
+from ledger.models.events import Events
 from ledger.tests.test_api import _ledgercorpdata
 from ledger.tests.test_api._ledgerchardata import (
     CharmonthlyMarch,
     CharmonthlyMarchMulti,
+    CharmonthlyMarchWithTaxEvent,
     CharNoMining,
     Charyearly,
     noData,
@@ -81,6 +82,35 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         result = process.get_alts(main)
         self.assertIsNone(result)
         mock_get_alts_queryset.assert_called_once_with(1)
+
+    def test_get_ledger_api_with_tax_event(self):
+        Events.objects.create(
+            title="Test Event",
+            date_start=datetime(2024, 3, 19, 0, 0, 0, tzinfo=timezone.utc),
+            date_end=datetime(2024, 3, 19, 23, 59, 59, tzinfo=timezone.utc),
+            description="This is a test event.",
+            char_ledger=True,
+            location="Test Location",
+        )
+
+        self.client.force_login(self.user)
+        url = "/ledger/api/character/0/ledger/year/2024/month/3/"
+
+        response = self.client.get(url)
+
+        expected_data = CharmonthlyMarchWithTaxEvent
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_data)
+
+        # Corporation
+        url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
+
+        response = self.client.get(url)
+        expected_data = _ledgercorpdata.CorpdatamanyWithTaxEvent
+
+        Events.objects.all().delete()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_data)
 
     def test_get_ledger_api(self):
         self.client.force_login(self.user)
