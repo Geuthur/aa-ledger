@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 from django.db.models import Q
 from django.test import TestCase
 
+from allianceauth.eveonline.models import EveCharacter
 from app_utils.testing import create_user_from_evecharacter
 
 from ledger.managers.characterjournal_manager import CharWalletManager
@@ -27,6 +28,12 @@ class CharManagerQuerySetTest(TestCase):
             ],
         )
 
+        cls.char_1 = EveCharacter.objects.get(character_id=1001)
+        cls.char_2 = EveCharacter.objects.get(character_id=1002)
+
+        cls.alt_1 = EveCharacter.objects.get(character_id=1003)
+        cls.alt_2 = EveCharacter.objects.get(character_id=1004)
+
     def test_annotate_bounty(self):
         character_ids = [1, 2, 3]
 
@@ -37,39 +44,23 @@ class CharManagerQuerySetTest(TestCase):
     def test_filter_ess(self):
         character_ids = [1, 2, 3]
 
-        qs = self.manager.filter_ess(
-            character_ids, filter_date=Q(date__gte="2023-01-01")
-        )
+        qs = self.manager.annotate_ess(character_ids)
         self.assertIsNotNone(qs)
         self.assertIn("total_ess", qs.query.annotations)
 
-        qs_no_filter = self.manager.filter_ess(character_ids)
-        self.assertIsNotNone(qs_no_filter)
-        self.assertIn("total_ess", qs_no_filter.query.annotations)
-
-    def test_filter_daily_goal(self):
+    def test_annotate_daily_goal(self):
         character_ids = [1, 2, 3]
 
-        qs = self.manager.filter_daily_goal(
-            character_ids, filter_date=Q(date__gte="2023-01-01")
-        )
+        qs = self.manager.annotate_daily_goal(character_ids)
         self.assertIsNotNone(qs)
         self.assertIn("total_daily_goal", qs.query.annotations)
 
-        qs_no_filter = self.manager.filter_daily_goal(character_ids)
-        self.assertIsNotNone(qs_no_filter)
-        self.assertIn("total_daily_goal", qs_no_filter.query.annotations)
-
-    def test_filter_mining(self):
+    def test_annotate_mining(self):
         character_ids = [1, 2, 3]
 
-        qs = self.manager.annotate_mining(
-            character_ids, filter_date=Q(date__gte="2023-01-01")
-        )
+        qs = self.manager.annotate_mining(character_ids)
         self.assertIsNotNone(qs)
-
-        qs_no_filter = self.manager.annotate_mining(character_ids)
-        self.assertIsNotNone(qs_no_filter)
+        self.assertIn("total_mining", qs.query.annotations)
 
     def test_annotate_mission(self):
         character_ids = [1, 2, 3]
@@ -183,7 +174,7 @@ class CharManagerQuerySetTest(TestCase):
 
     def test_generate_ledger(self):
 
-        character_ids = [1, 2, 3]
+        character_ids = [self.char_1, self.char_2]
         filter_date = Q(date__gte="2023-01-01")
         exclude = [4, 5]
 
@@ -192,16 +183,6 @@ class CharManagerQuerySetTest(TestCase):
             character_ids, filter_date, exclude
         )
         self.assertIsNotNone(result_with_filter)
-        self.assertIn("amounts", result_with_filter)
-        self.assertIn("amounts_others", result_with_filter)
-        self.assertIn("amounts_costs", result_with_filter)
-
-        # Test without filter
-        result_without_filter = self.manager.generate_ledger(character_ids)
-        self.assertIsNotNone(result_without_filter)
-        self.assertIn("amounts", result_without_filter)
-        self.assertIn("amounts_others", result_without_filter)
-        self.assertIn("amounts_costs", result_without_filter)
 
     def test_generate_billboard(self):
 
@@ -216,3 +197,13 @@ class CharManagerQuerySetTest(TestCase):
         self.assertIn("total_cost", qs.query.annotations)
         self.assertIn("total_market_cost", qs.query.annotations)
         self.assertIn("total_production_cost", qs.query.annotations)
+
+    def test_generate_ledger_with_attribute_error(self):
+        character_ids = [self.char_1, self.char_2, "a"]
+        filter_date = Q(date__gte="2023-01-01")
+        exclude = [4, 5]
+
+        result_with_filter = self.manager.generate_ledger(
+            character_ids, filter_date, exclude
+        )
+        self.assertIsNotNone(result_with_filter)

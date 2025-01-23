@@ -61,6 +61,9 @@ def load_char_audit():
     CharacterAudit.objects.update_or_create(
         id=3, character=EveCharacter.objects.get(character_id=1003)
     )
+    CharacterAudit.objects.update_or_create(
+        id=4, character=EveCharacter.objects.get(character_id=1022)
+    )
 
 
 def load_corp_audit():
@@ -102,7 +105,9 @@ def load_char_mining():
         quantity=100,
     )
     CharacterMiningLedger.objects.create(
-        character=CharacterAudit.objects.get(id=2),
+        character=CharacterAudit.objects.get(
+            character__character_name="rotze Rotineque"
+        ),
         id="20240316-17423-1002-30004785",
         date=date(2024, 3, 16),
         type=EveType.objects.get(id=17425),
@@ -297,6 +302,24 @@ def load_char_journal():
         reason="Test Transfer",
         ref_type="insurance",
         second_party=EveEntity.objects.get(eve_id=1001),
+        tax=0,
+        tax_receiver_id=0,
+    )
+
+    # No Amount
+    CharacterWalletJournalEntry.objects.create(
+        character=CharacterAudit.objects.get(character__character_name="Test13"),
+        amount=-0,
+        balance=0,
+        context_id=61,
+        context_id_type="system_id",
+        date="2024-03-19T14:00:10Z",
+        description="Test",
+        first_party=EveEntity.objects.get(eve_id=1000125),
+        entry_id=61,
+        reason="Test Transfer",
+        ref_type="bounty_prizes",
+        second_party=EveEntity.objects.get(eve_id=1022),
         tax=0,
         tax_receiver_id=0,
     )

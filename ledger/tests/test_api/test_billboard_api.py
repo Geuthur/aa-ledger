@@ -55,7 +55,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         cls.api = NinjaAPI()
         cls.manage_api_endpoints = LedgerApiEndpoints(api=cls.api)
 
-    def test_get_corp_ally_billbboard_api_year_2001(self):
+    def test_get_corp_ally_billbboard_api_many_users(self):
         create_user_from_evecharacter(1010)
         create_user_from_evecharacter(1011)
         create_user_from_evecharacter(1012)
@@ -71,14 +71,14 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         create_user_from_evecharacter(1022)
 
         self.client.force_login(self.user)
-        url = "/ledger/api/corporation/2001/billboard/year/2024/month/0/"
+        url = "/ledger/api/corporation/2001/billboard/year/2023/month/0/"
 
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
 
         self.client.force_login(self.user)
-        url = "/ledger/api/alliance/3001/billboard/year/2024/month/0/"
+        url = "/ledger/api/alliance/3001/billboard/year/2023/month/0/"
 
         response = self.client.get(url)
 

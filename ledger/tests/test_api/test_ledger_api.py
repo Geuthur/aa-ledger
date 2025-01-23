@@ -14,7 +14,10 @@ from app_utils.testing import add_character_to_user, create_user_from_evecharact
 
 from ledger.api.api_helper.character_helper import CharacterProcess
 from ledger.api.ledger import LedgerApiEndpoints
-from ledger.models.characteraudit import CharacterMiningLedger
+from ledger.models.characteraudit import (
+    CharacterMiningLedger,
+    CharacterWalletJournalEntry,
+)
 from ledger.tests.test_api import _ledgercorpdata
 from ledger.tests.test_api._ledgerchardata import (
     CharmonthlyMarch,
@@ -52,10 +55,18 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
                 "ledger.advanced_access",
             ],
         )
-        cls.user3, _ = create_user_from_evecharacter(
+        cls.user_with_no_permission, _ = create_user_from_evecharacter(
             1003,
             permissions=[
                 "ledger.basic_access",
+            ],
+        )
+
+        cls.user_with_no_data, _ = create_user_from_evecharacter(
+            1022,
+            permissions=[
+                "ledger.basic_access",
+                "ledger.advanced_access",
             ],
         )
 
@@ -111,6 +122,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         url = "/ledger/api/character/0/ledger/year/2024/month/3/"
 
         response = self.client.get(url)
+        print(response.json())
 
         expected_data = CharmonthlyMarchMulti
         self.assertEqual(response.status_code, 200)
@@ -173,7 +185,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
     def test_get_ledger_api_no_permission(self):
-        self.client.force_login(self.user3)
+        self.client.force_login(self.user_with_no_permission)
         url = "/ledger/api/character/1001/ledger/year/2024/month/3/"
 
         response = self.client.get(url)
@@ -194,7 +206,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
     def test_get_ledger_api_no_data(self):
         # given
-        self.client.force_login(self.user3)
+        self.client.force_login(self.user_with_no_data)
         url = "/ledger/api/character/0/ledger/year/2024/month/3/"
         # when
         response = self.client.get(url)
@@ -219,6 +231,17 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         response = self.client.get(url)
         # then
         expected_data = _ledgercorpdata.noData
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_data)
+
+    def test_get_ledger_api_amount_is_zero(self):
+        # given
+        self.client.force_login(self.user_with_no_data)
+        url = "/ledger/api/character/0/ledger/year/2024/month/3/"
+        # when
+        response = self.client.get(url)
+        # then
+        expected_data = noData
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)
 
@@ -260,7 +283,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
     @patch("ledger.api.ledger.admin.CharacterAudit.objects.visible_eve_characters")
     def test_get_admin_no_visible(self, mock_visible_to):
-        self.client.force_login(self.user3)
+        self.client.force_login(self.user_with_no_permission)
         url = "/ledger/api/character/ledger/admin/"
 
         mock_visible_to.return_value = None
