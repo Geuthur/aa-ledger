@@ -26,7 +26,7 @@ class LedgerData(LedgerDataCore):
 
 
 class LedgerModels:
-    """LedgerModels class to store the models."""
+    """class to store the models."""
 
     def __init__(
         self, character_journal=None, corporation_journal=None, mining_journal=None
@@ -38,6 +38,8 @@ class LedgerModels:
 
 @dataclass
 class LedgerDate:
+    """class to store the date."""
+
     year: int
     month: int
     monthly: bool = field(init=False)
@@ -58,6 +60,8 @@ class LedgerDate:
 
 @dataclass
 class LedgerTotal:
+    """class to store the total amounts."""
+
     total_amount: int = 0
     total_amount_ess: int = 0
     total_amount_all: int = 0
@@ -75,3 +79,47 @@ class LedgerTotal:
         self.total_amount_mining += totals.get("total_amount_mining", 0)
         self.total_amount_others += totals.get("total_amount_others", 0)
         self.total_amount_costs += totals.get("total_amount_costs", 0)
+
+    def calculate_total_sum(self, characters_dict: dict):
+        for _, char_data in characters_dict.items():
+            self.total_amount_all += (
+                char_data["total_amount"]
+                + char_data["total_amount_ess"]
+                + char_data["total_amount_mining"]
+                + char_data["total_amount_others"]
+                - abs(char_data["total_amount_costs"])
+            )
+
+
+@dataclass
+class LedgerCharacterDict:
+    """class to store the character dictionary."""
+
+    characters: dict = field(default_factory=dict)
+
+    def to_dict(self) -> dict:
+        return self.characters
+
+    def get_default_character_dict(self, char_id=0, char_name="Unknown") -> dict:
+        """Return a default character dictionary."""
+        return {
+            "main_id": char_id,
+            "main_name": char_name,
+            "entity_type": "character",
+            "total_amount": 0,
+            "total_amount_ess": 0,
+            "total_amount_mining": 0,
+            "total_amount_others": 0,
+            "total_amount_costs": 0,
+        }
+
+    def add_or_update_character(self, char_id, char_name, **kwargs):
+        """Add or update a character in the dictionary."""
+        if char_id not in self.characters:
+            self.characters[char_id] = self.get_default_character_dict(
+                char_id, char_name
+            )
+
+        for key, value in kwargs.items():
+            if key in self.characters[char_id]:
+                self.characters[char_id][key] = value

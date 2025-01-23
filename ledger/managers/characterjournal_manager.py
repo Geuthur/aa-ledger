@@ -1,10 +1,22 @@
 from collections import defaultdict
-from decimal import Decimal
 
 from django.db import models
-from django.db.models import Case, DecimalField, F, Q, Sum, Value, When
+from django.db.models import (
+    Case,
+    DecimalField,
+    ExpressionWrapper,
+    F,
+    OuterRef,
+    Q,
+    Subquery,
+    Sum,
+    Value,
+    When,
+)
 from django.db.models.functions import Coalesce
 from django.utils import timezone
+
+from allianceauth.eveonline.models import EveCharacter
 
 from ledger.hooks import get_extension_logger
 from ledger.view_helpers.core import events_filter
@@ -121,47 +133,41 @@ class CharWalletQueryFilter(models.QuerySet):
             )
         )
 
-    def filter_ess(self, character_ids: list, filter_date=None) -> models.QuerySet:
+    def annotate_ess(self, character_ids: list) -> models.QuerySet:
         # pylint: disable=import-outside-toplevel
         from ledger.models.corporationaudit import CorporationWalletJournalEntry
 
-        qs = CorporationWalletJournalEntry.objects.get_queryset()
-
-        if filter_date:
-            qs = qs.filter(filter_date)
-
-        qs = events_filter(qs)
-
-        qs = qs.filter(ref_type__in=ESS_TRANSFER, second_party_id__in=character_ids)
-
-        qs = qs.annotate(
-            total_ess=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
-        )
-        return qs
-
-    def filter_daily_goal(
-        self, character_ids: list, filter_date=None
-    ) -> models.QuerySet:
-        # pylint: disable=import-outside-toplevel
-        from ledger.models.corporationaudit import CorporationWalletJournalEntry
-
-        qs = CorporationWalletJournalEntry.objects.get_queryset()
-
-        if filter_date:
-            qs = qs.filter(filter_date)
-
-        qs = events_filter(qs)
-
-        qs = qs.filter(
-            ref_type__in=DAILY_GOAL_REWARD, second_party_id__in=character_ids
-        )
-
-        qs = qs.annotate(
-            total_daily_goal=Coalesce(
-                Sum("amount"), Value(0), output_field=DecimalField()
+        return CorporationWalletJournalEntry.objects.annotate(
+            total_ess=Coalesce(
+                Sum(
+                    "amount",
+                    filter=Q(
+                        ESS_FILTER,
+                        second_party_id__in=character_ids,
+                    ),
+                ),
+                Value(0),
+                output_field=DecimalField(),
             )
         )
-        return qs
+
+    def annotate_daily_goal(self, character_ids: list) -> models.QuerySet:
+        # pylint: disable=import-outside-toplevel
+        from ledger.models.corporationaudit import CorporationWalletJournalEntry
+
+        return CorporationWalletJournalEntry.objects.annotate(
+            total_daily_goal=Coalesce(
+                Sum(
+                    "amount",
+                    Q(
+                        DAILY_GOAL_REWARD_FILTER,
+                        second_party_id__in=character_ids,
+                    ),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            )
+        )
 
     def annotate_mission(self, character_ids: list) -> models.QuerySet:
         return self.annotate(
@@ -178,19 +184,30 @@ class CharWalletQueryFilter(models.QuerySet):
             )
         )
 
-    def annotate_mining(self, character_ids: list, filter_date=None) -> models.QuerySet:
+    def annotate_mining(self, character_ids: list) -> models.QuerySet:
         # pylint: disable=import-outside-toplevel
         from ledger.models.characteraudit import CharacterMiningLedger
 
-        qs = CharacterMiningLedger.objects.get_queryset()
-
-        qs = qs.filter(character__character__character_id__in=character_ids)
-
-        if filter_date:
-            qs = qs.filter(filter_date)
-
-        return qs.annotate_pricing().values(
-            "character__character__character_id", "total"
+        return self.annotate(
+            total_mining=Coalesce(
+                Subquery(
+                    CharacterMiningLedger.objects.filter(
+                        character__character__character_id__in=character_ids
+                    )
+                    .annotate(
+                        price=F("type__market_price__average_price"),
+                        total=ExpressionWrapper(
+                            F("type__market_price__average_price") * F("quantity"),
+                            output_field=models.FloatField(),
+                        ),
+                    )
+                    .values("character__character__character_id")
+                    .annotate(total_amount=Sum("total"))
+                    .values("total_amount")
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            )
         )
 
     # Costs
@@ -428,21 +445,31 @@ class CharWalletQueryFilter(models.QuerySet):
 
 
 class CharWalletQuerySet(CharWalletQueryFilter):
-    # Supports Member Audit Intigration
+    def _get_main_and_alts(self, character_ids: list) -> tuple[dict, set]:
+
+        characters = {}
+        char_list = []
+        for char in character_ids:
+            try:
+                characters[char.character_id] = char
+                char_list.append(char.character_id)
+            except AttributeError:
+                continue
+        return characters, set(char_list)
+
     def generate_ledger(
-        self, character_ids: list, filter_date=None, exclude=None
-    ) -> models.QuerySet:
-        """Generate the Ledger for the given characters."""
+        self, character_ids: list[EveCharacter], filter_date, exclude: list | None
+    ):
         # pylint: disable=import-outside-toplevel
         from ledger.models.corporationaudit import CorporationWalletJournalEntry
 
-        # Filter Characters
+        characters, char_list = self._get_main_and_alts(character_ids)
+
         qs = self.filter(
-            Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
+            Q(first_party_id__in=char_list) | Q(second_party_id__in=char_list)
         )
 
-        if filter_date:
-            qs = qs.filter(filter_date)
+        qs = qs.filter(filter_date)
 
         # Subquery to identify entry_ids in total_contract_income
         contract_income_entry_ids = qs.filter(CONTRACT_INCOME_FILTER).values_list(
@@ -453,93 +480,97 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             CONTRACT_COST_FILTER
         ).values_list("entry_id", flat=True)
 
-        # Aggregate the results directly from the original fields
-        ledger_data = qs.aggregate(
-            # PvE
-            total_bounty=Sum("amount", filter=BOUNTY_FILTER),
-            total_mission=Sum("amount", filter=MISSION_FILTER),
-            total_incursion_income=Sum("amount", filter=INCURSION_FILTER),
-            total_lp=Sum("amount", filter=LP_COST_FILTER),
-            # Costs
-            total_contract_cost=Sum(
-                "amount",
-                filter=CONTRACT_COST_FILTER
-                # Exclude Contract Income
-                & ~Q(entry_id__in=contract_income_entry_ids),
-            ),
-            total_market_cost=Sum("amount", filter=MARKET_COST_FILTER),
-            total_assets_cost=Sum("amount", filter=ASSETS_COST_FILTER),
-            total_traveling_cost=Sum("amount", filter=TRAVELING_COST_FILTER),
-            total_production_cost=Sum("amount", filter=PRODUCTION_COST_FILTER),
-            total_skill_cost=Sum("amount", filter=SKILL_COST_FILTER),
-            total_insurance_cost=Sum("amount", filter=INSURANCE_COST_FILTER),
-            total_planetary_cost=Sum("amount", filter=PLANETARY_COST_FILTER),
-            # Misc Income
-            total_market_income=Sum("amount", filter=MARKET_INCOME_FILTER),
-            total_contract_income=Sum(
-                "amount",
-                filter=CONTRACT_INCOME_FILTER
-                # Exclude Corporation Contract Cost
-                & ~Q(entry_id__in=corporation_entry_ids),
-            ),
-            total_insurance_income=Sum("amount", filter=INSURANCE_INCOME_FILTER),
-            total_donation_income=Sum(
-                "amount",
-                filter=(
-                    DONATION_INCOME_FILTER & ~Q(first_party_id__in=exclude)
-                    if exclude is not None
-                    else DONATION_INCOME_FILTER
+        # Fiter Tax Events
+        corporations_qs = CorporationWalletJournalEntry.objects.filter(
+            ESS_FILTER,
+            filter_date,
+        )
+        corporations_qs = events_filter(corporations_qs)
+
+        characters = (
+            qs.annotate(
+                char_id=Case(
+                    *[
+                        When(
+                            (Q(second_party_id=main_id) | (Q(first_party_id=main_id))),
+                            then=Value(char.character_id),
+                        )
+                        for main_id, char in characters.items()
+                    ],
+                    output_field=models.IntegerField(),
                 ),
+                char_name=Case(
+                    *[
+                        When(
+                            (Q(second_party_id=main_id) | (Q(first_party_id=main_id))),
+                            then=Value(char.character_name),
+                        )
+                        for main_id, char in characters.items()
+                    ],
+                    output_field=models.CharField(),
+                ),
+            )
+            .values("char_id", "char_name")
+            .distinct()
+        )
+
+        qs = characters.annotate(
+            total_bounty=Coalesce(
+                Sum("amount", filter=BOUNTY_FILTER),
+                Value(0),
+                output_field=DecimalField(),
             ),
-            total_milestone_income=Sum("amount", filter=MILESTONE_REWARD_FILTER),
+            total_ess=Coalesce(
+                Subquery(
+                    corporations_qs.filter(second_party_id=OuterRef("char_id"))
+                    .values("second_party_id")
+                    .annotate(total_amount=Sum("amount"))
+                    .values("total_amount")
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            ),
+            total_others=Coalesce(
+                Sum(
+                    "amount",
+                    filter=(
+                        MISSION_FILTER
+                        | INCURSION_FILTER
+                        | LP_COST_FILTER
+                        | DAILY_GOAL_REWARD_FILTER
+                        | MARKET_INCOME_FILTER
+                        | CONTRACT_INCOME_FILTER
+                        & ~Q(entry_id__in=corporation_entry_ids)
+                        | INSURANCE_INCOME_FILTER
+                        | DONATION_INCOME_FILTER & ~Q(first_party_id__in=exclude)
+                        if exclude
+                        else DONATION_INCOME_FILTER | MILESTONE_REWARD_FILTER
+                    ),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            ),
+            total_costs=Coalesce(
+                Sum(
+                    "amount",
+                    filter=(
+                        CONTRACT_COST_FILTER
+                        & ~Q(entry_id__in=contract_income_entry_ids)
+                        | MARKET_COST_FILTER
+                        | ASSETS_COST_FILTER
+                        | TRAVELING_COST_FILTER
+                        | PRODUCTION_COST_FILTER
+                        | SKILL_COST_FILTER
+                        | INSURANCE_COST_FILTER
+                        | PLANETARY_COST_FILTER
+                    ),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            ),
         )
 
-        # Special cases
-        ess_data = self.filter_ess(character_ids, filter_date).aggregate(
-            total_ess=Sum("amount")
-        )
-        mining_data = self.annotate_mining(character_ids, filter_date).aggregate(
-            total_mining=Sum("total")
-        )
-
-        # NOT IMPLEMENTED
-        # NOTE: Can not calculate Stolen ESS atm
-        # ESS Amounts per Char Journal
-        # ess = (Decimal(ledger_data["total_bounty"] or 0) / 100) * Decimal(66.6667)
-
-        amounts = {
-            "bounty": Decimal(ledger_data["total_bounty"] or 0),
-            "ess": Decimal(ess_data["total_ess"] or 0),
-            "mining": Decimal(mining_data["total_mining"] or 0),
-            "mission": Decimal(ledger_data["total_mission"] or 0),
-            "incursion": Decimal(ledger_data["total_incursion_income"] or 0),
-            "insurance": Decimal(ledger_data["total_insurance_income"] or 0),
-        }
-
-        amounts_others = {
-            "donation": Decimal(ledger_data["total_donation_income"] or 0),
-            "transaction": Decimal(ledger_data["total_market_income"] or 0),
-            "contract": Decimal(ledger_data["total_contract_income"] or 0),
-            "milestone": Decimal(ledger_data["total_milestone_income"] or 0),
-        }
-
-        amounts_costs = {
-            "contract_cost": Decimal(ledger_data["total_contract_cost"] or 0),
-            "market_cost": Decimal(ledger_data["total_market_cost"] or 0),
-            "assets_cost": Decimal(ledger_data["total_assets_cost"] or 0),
-            "traveling_cost": Decimal(ledger_data["total_traveling_cost"] or 0),
-            "production_cost": Decimal(ledger_data["total_production_cost"] or 0),
-            "skill_cost": Decimal(ledger_data["total_skill_cost"] or 0),
-            "insurance_cost": Decimal(ledger_data["total_insurance_cost"] or 0),
-            "planetary_cost": Decimal(ledger_data["total_planetary_cost"] or 0),
-            "lp_cost": Decimal(ledger_data["total_lp"] or 0),
-        }
-
-        return {
-            "amounts": amounts,
-            "amounts_others": amounts_others,
-            "amounts_costs": amounts_costs,
-        }
+        return qs
 
     def generate_template(
         self,
@@ -548,7 +579,7 @@ class CharWalletQuerySet(CharWalletQueryFilter):
         filter_date: timezone.datetime,
         exclude=None,
     ) -> dict:
-        """Generate the Billboard for the given characters."""
+        """Generate data template for the ledger character information view"""
         # pylint: disable=import-outside-toplevel
         from ledger.models.corporationaudit import CorporationWalletJournalEntry
 

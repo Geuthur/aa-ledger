@@ -1,7 +1,12 @@
-from django.db.models import Q
+from django.db.models import ExpressionWrapper, F, FloatField, Q, Sum
 
 from ledger.api.api_helper.billboard_helper import BillboardData, BillboardLedger
-from ledger.api.api_helper.core_manager import LedgerDate, LedgerModels, LedgerTotal
+from ledger.api.api_helper.core_manager import (
+    LedgerCharacterDict,
+    LedgerDate,
+    LedgerModels,
+    LedgerTotal,
+)
 from ledger.api.helpers import convert_ess_payout, get_alts_queryset
 from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import (
@@ -38,66 +43,87 @@ class CharacterProcess:
 
     def process_character_chars(self, journal):
         """Process the characters for the Journal"""
-        character_dict = {}
+        # Initialize character_dict with default values
+        character_dict = LedgerCharacterDict()
         character_totals = LedgerTotal()
 
-        # Step 1: Annotated the Journal Entries
-        def process_char(char):
-            char_name = char.character_name
-            char_id = char.character_id
+        # Call annotate_ledger and store the result
+        journal = journal.generate_ledger(
+            character_ids=self.chars,
+            filter_date=self.filter_date,
+            exclude=self.chars_list,
+        )
 
-            # Call annotate_ledger and store the result
-            result = journal.generate_ledger(
-                [char_id], self.filter_date, self.chars_list
+        # Call annotate_ledger and store the result
+        char_mining_journal = (
+            CharacterMiningLedger.objects.filter(
+                self.filter_date, character__character__character_id__in=self.chars_list
+            )
+            .annotate(
+                price=F("type__market_price__average_price"),
+                total=ExpressionWrapper(
+                    F("type__market_price__average_price") * F("quantity"),
+                    output_field=FloatField(),
+                ),
+            )
+            .values("character__character__character_id")
+            .annotate(total_amount=Sum("total"))
+            .values(
+                "character__character__character_id",
+                "character__character__character_name",
+                "total_amount",
+            )
+        )
+
+        for mining_char in char_mining_journal:
+            char_id = mining_char["character__character__character_id"]
+            char_name = mining_char["character__character__character_name"]
+            total_amount_mining = round(mining_char["total_amount"])
+
+            character_dict.add_or_update_character(
+                char_id,
+                char_name,
+                total_amount_mining=total_amount_mining,
             )
 
-            amounts = result["amounts"]
-            amounts_others = result["amounts_others"]
-            amounts_costs = result["amounts_costs"]
-
-            # Convert the ESS Payout for Character
-            amounts["ess"] = convert_ess_payout(amounts["ess"])
-
-            # Summing amounts
-            total_amounts = sum(amounts.values())
-
-            # Summing amounts_others
-            total_amount_others = sum(amounts_others.values())
-
-            # Summing amounts_costs
-            total_costs_amount = sum(amounts_costs.values())
-
-            # Calculate the summary amount
-            total_summary_amount = sum([total_amounts, total_amount_others])
-            total_summary_amount -= abs(total_costs_amount)
-
-            if total_summary_amount or total_costs_amount:
-                character_dict[char_id] = {
-                    "main_id": char_id,
-                    "main_name": char_name,
-                    "entity_type": "character",
-                    "total_amount": amounts["bounty"],
-                    "total_amount_ess": amounts["ess"],
-                    "total_amount_mining": amounts["mining"],
-                    "total_amount_others": total_amount_others,
-                    "total_amount_costs": total_costs_amount,
-                }
-
             totals = {
-                "total_amount": amounts["bounty"],
-                "total_amount_ess": amounts["ess"],
-                "total_amount_mining": amounts["mining"],
-                "total_amount_others": total_amount_others,
-                "total_amount_costs": total_costs_amount,
-                "total_amount_all": total_summary_amount,
+                "total_amount_mining": total_amount_mining,
             }
             # Summary all
             character_totals.get_summary(totals)
 
-        for char in self.chars:
-            process_char(char)
+        for char in journal:
+            char_name = char.get("char_name", "Unknown")
+            char_id = char.get("char_id", 0)
 
-        return character_dict, character_totals.to_dict()
+            total_bounty = round(char.get("total_bounty", 0))
+            total_ess = round(convert_ess_payout(char.get("total_ess", 0)))
+            total_others = round(char.get("total_others", 0))
+            total_costs = round(char.get("total_costs", 0))
+
+            if total_bounty or total_ess or total_others or total_costs:
+                character_dict.add_or_update_character(
+                    char_id,
+                    char_name,
+                    total_amount=total_bounty,
+                    total_amount_ess=total_ess,
+                    total_amount_others=total_others,
+                    total_amount_costs=total_costs,
+                )
+
+            totals = {
+                "total_amount": total_bounty,
+                "total_amount_ess": total_ess,
+                "total_amount_others": total_others,
+                "total_amount_costs": total_costs,
+            }
+            # Summary all
+            character_totals.get_summary(totals)
+
+        # Generate the total sum
+        character_totals.calculate_total_sum(character_dict.to_dict())
+
+        return character_dict.to_dict(), character_totals.to_dict()
 
     def generate_ledger(self):
         # Get the Character IDs
