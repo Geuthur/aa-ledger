@@ -131,8 +131,6 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
                     if char.character_id in chars_ids:
                         char_to_main[main_char_id].append(char.character_id)
                         chars_list.append(char.character_id)
-            except ObjectDoesNotExist:
-                continue
             except AttributeError:
                 continue
 
