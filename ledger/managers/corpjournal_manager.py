@@ -214,7 +214,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         filter_date: timezone.datetime,
         character_ids: list,
         corporations_ids: list,
-        mode=None,
+        entity_type=None,
     ) -> dict:
         """Generate the template for the corporation journal"""
         # Filter Corporations
@@ -236,7 +236,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         }
 
         # Only Corp Ledger
-        if mode == "corporation":
+        if entity_type == "corporation":
             types_filters["bounty"] = BOUNTY_FILTER
             types_filters["mission"] = MISSION_FILTER
             types_filters["incursion"] = INCURSION_FILTER
@@ -290,11 +290,24 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
 
         # Assign the results to the amounts dictionary
         for type_name in types_filters:
-            amounts[type_name]["total_amount"] = qs[f"{type_name}_total_amount"]
-            amounts[type_name]["total_amount_day"] = qs[f"{type_name}_total_amount_day"]
-            amounts[type_name]["total_amount_hour"] = qs[
-                f"{type_name}_total_amount_hour"
-            ]
+            if entity_type != "corporation":
+                amounts[type_name]["total_amount"] = self._convert_corp_tax(
+                    qs[f"{type_name}_total_amount"]
+                )
+                amounts[type_name]["total_amount_day"] = self._convert_corp_tax(
+                    qs[f"{type_name}_total_amount_day"]
+                )
+                amounts[type_name]["total_amount_hour"] = self._convert_corp_tax(
+                    qs[f"{type_name}_total_amount_hour"]
+                )
+            else:
+                amounts[type_name]["total_amount"] = qs[f"{type_name}_total_amount"]
+                amounts[type_name]["total_amount_day"] = qs[
+                    f"{type_name}_total_amount_day"
+                ]
+                amounts[type_name]["total_amount_hour"] = qs[
+                    f"{type_name}_total_amount_hour"
+                ]
 
         return amounts
 
