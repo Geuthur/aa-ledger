@@ -30,9 +30,7 @@ MISSION_FILTER = Q(ref_type__in=MISSION, amount__gt=0)
 DAILY_GOAL_REWARD_FILTER = Q(ref_type__in=DAILY_GOAL_REWARD, amount__gt=0)
 CITADEL_FILTER = Q(ref_type__in=CITADEL_INCOME, amount__gt=0)
 
-MISC_FILTER = (
-    INCURSION_FILTER | MISSION_FILTER | DAILY_GOAL_REWARD_FILTER | CITADEL_FILTER
-)
+MISC_FILTER = INCURSION_FILTER | MISSION_FILTER | CITADEL_FILTER
 
 
 class CorpWalletQueryFilter(models.QuerySet):
@@ -106,7 +104,10 @@ class CorpWalletQueryFilter(models.QuerySet):
 
 
 class CorpWalletQuerySet(CorpWalletQueryFilter):
-    def _get_linked_chars(self, corporations: list, chars_ids: list) -> tuple:
+    def _get_linked_chars(
+        self, corporations: list, chars_ids: list
+    ) -> tuple[dict, set]:
+        """Get all linked characters to the given corporations and characters"""
         linked_chars = EveCharacter.objects.filter(corporation_id__in=corporations)
         linked_chars |= EveCharacter.objects.filter(
             character_ownership__user__profile__main_character__corporation_id__in=corporations
@@ -137,6 +138,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         return char_to_main, set(chars_list)
 
     def generate_ledger(self, corporations: list) -> models.QuerySet:
+        """Generate the ledger for the corporation"""
         # Filter Corporations6
         qs = self.filter(
             Q(division__corporation__corporation__corporation_id__in=corporations)
@@ -150,7 +152,6 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
 
         # Filter queryset with the linked characters
         qs = qs.filter(Q(first_party_id__in=char_ids) | Q(second_party_id__in=char_ids))
-
         # Exclude Tax Events
         qs = events_filter(qs)
 
@@ -216,6 +217,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         corporations_ids: list,
         mode=None,
     ) -> dict:
+        """Generate the template for the corporation journal"""
         # Filter Corporations
         qs = self.filter(
             Q(division__corporation__corporation__corporation_id__in=corporations_ids)
@@ -225,7 +227,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
         )
 
-        # Exclude Tax Events
+        # Exclude Corp Tax Events
         qs = events_filter(qs)
 
         # Define the types and their respective filters
@@ -233,13 +235,15 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             "ess": ESS_FILTER,
         }
 
-        # Ensure that amounts not overriden from corp journal
+        # Only Corp Ledger
         if mode == "corporation":
             types_filters["bounty"] = BOUNTY_FILTER
             types_filters["mission"] = MISSION_FILTER
             types_filters["incursion"] = INCURSION_FILTER
-            types_filters["daily_goal"] = DAILY_GOAL_REWARD_FILTER
             types_filters["citadel"] = CITADEL_FILTER
+        else:
+            # Only Char Ledger
+            types_filters["daily_goal"] = DAILY_GOAL_REWARD_FILTER
 
         annotations = {}
         # Create the template
@@ -296,6 +300,38 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             ]
 
         return amounts
+
+    def annotate_billboard(self, chars: list) -> models.QuerySet:
+        qs = self.filter(Q(first_party_id__in=chars) | Q(second_party_id__in=chars))
+
+        # Exclude Corp Tax Events
+        qs = events_filter(qs)
+        return qs.annotate(
+            total_bounty=Coalesce(
+                Sum(
+                    F("amount"),
+                    filter=(BOUNTY_FILTER & Q(second_party_id__in=chars)),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            ),
+            total_ess=Coalesce(
+                Sum(
+                    F("amount"),
+                    filter=(ESS_FILTER & Q(second_party_id__in=chars)),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            ),
+            total_daily=Coalesce(
+                Sum(
+                    "amount",
+                    filter=(DAILY_GOAL_REWARD_FILTER & Q(second_party_id__in=chars)),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            ),
+        )
 
 
 class CorpWalletManagerBase(models.Manager):
