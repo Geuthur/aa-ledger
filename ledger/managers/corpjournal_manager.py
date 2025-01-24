@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from allianceauth.eveonline.models import EveCharacter
 
+from ledger import app_settings
 from ledger.hooks import get_extension_logger
 from ledger.view_helpers.core import events_filter
 
@@ -106,6 +107,12 @@ class CorpWalletQueryFilter(models.QuerySet):
 
 
 class CorpWalletQuerySet(CorpWalletQueryFilter):
+    def _convert_corp_tax(self, ess: int) -> float:
+        """Convert ESS payout"""
+        return (ess / app_settings.LEDGER_CORP_TAX) * (
+            100 - app_settings.LEDGER_CORP_TAX
+        )
+
     def _get_linked_chars(self, corporations: list, chars_ids: list) -> tuple:
         linked_chars = EveCharacter.objects.filter(corporation_id__in=corporations)
         linked_chars |= EveCharacter.objects.filter(
