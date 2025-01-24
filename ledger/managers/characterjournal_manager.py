@@ -95,16 +95,14 @@ CONTRACT_INCOME_FILTER = Q(ref_type__in=CONTRACT_INCOME, amount__gt=0)
 DONATION_INCOME_FILTER = Q(ref_type__in=DONATION_INCOME, amount__gt=0)
 INSURANCE_INCOME_FILTER = Q(ref_type__in=INSURANCE_INCOME, amount__gt=0)
 MILESTONE_REWARD_FILTER = Q(ref_type__in=MILESTONE_REWARD, amount__gt=0)
-DAILY_GOAL_REWARD_FILTER = Q(ref_type__in=DAILY_GOAL_REWARD, amount__gt=0)
 
 PVE_FILTER = BOUNTY_FILTER | ESS_FILTER
 MISC_FILTER = (
     MARKET_INCOME_FILTER
-    | CONTRACT_INCOME_FILTER
     | INSURANCE_INCOME_FILTER
     | MISSION_FILTER
     | INCURSION_FILTER
-    | DAILY_GOAL_REWARD_FILTER
+    | MILESTONE_REWARD_FILTER
 )
 COST_FILTER = (
     CONTRACT_COST_FILTER
@@ -143,24 +141,6 @@ class CharWalletQueryFilter(models.QuerySet):
                     "amount",
                     filter=Q(
                         ESS_FILTER,
-                        second_party_id__in=character_ids,
-                    ),
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            )
-        )
-
-    def annotate_daily_goal(self, character_ids: list) -> models.QuerySet:
-        # pylint: disable=import-outside-toplevel
-        from ledger.models.corporationaudit import CorporationWalletJournalEntry
-
-        return CorporationWalletJournalEntry.objects.annotate(
-            total_daily_goal=Coalesce(
-                Sum(
-                    "amount",
-                    Q(
-                        DAILY_GOAL_REWARD_FILTER,
                         second_party_id__in=character_ids,
                     ),
                 ),
@@ -445,25 +425,42 @@ class CharWalletQueryFilter(models.QuerySet):
 
 
 class CharWalletQuerySet(CharWalletQueryFilter):
-    def _get_main_and_alts(self, character_ids: list) -> tuple[dict, set]:
-
-        characters = {}
+    def _get_main_and_alts(self, characters: list[EveCharacter]) -> tuple[dict, set]:
+        characters_dict = {}
         char_list = []
-        for char in character_ids:
+        for char in characters:
             try:
-                characters[char.character_id] = char
+                characters_dict[char.character_id] = char
                 char_list.append(char.character_id)
             except AttributeError:
                 continue
-        return characters, set(char_list)
+        return characters_dict, set(char_list)
+
+    def _get_models_qs(
+        self, character_ids: list, filter_date: Q
+    ) -> tuple[models.QuerySet, models.QuerySet]:
+        """Get the models queryset for the character ledger"""
+        # pylint: disable=import-outside-toplevel
+        from ledger.models.characteraudit import CharacterMiningLedger
+        from ledger.models.corporationaudit import CorporationWalletJournalEntry
+
+        # Call annotate_ledger and store the result
+        char_mining_journal = CharacterMiningLedger.objects.filter(
+            filter_date, character__character__character_id__in=character_ids
+        )
+
+        corp_character_journal = CorporationWalletJournalEntry.objects.filter(
+            Q(second_party_id__in=character_ids), filter_date
+        )
+        return char_mining_journal, corp_character_journal
 
     def generate_ledger(
-        self, character_ids: list[EveCharacter], filter_date, exclude: list | None
-    ):
+        self, characters: list[EveCharacter], filter_date, exclude: list | None
+    ) -> tuple[models.QuerySet, models.QuerySet, models.QuerySet]:
         # pylint: disable=import-outside-toplevel
         from ledger.models.corporationaudit import CorporationWalletJournalEntry
 
-        characters, char_list = self._get_main_and_alts(character_ids)
+        characters, char_list = self._get_main_and_alts(characters)
 
         qs = self.filter(
             Q(first_party_id__in=char_list) | Q(second_party_id__in=char_list)
@@ -476,12 +473,15 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             "entry_id", flat=True
         )
 
+        mining_qs, corp_qs = self._get_models_qs(char_list, filter_date)
+
+        # Check all Contracts from Corporations Member and Exclude them from be calculated
         corporation_entry_ids = CorporationWalletJournalEntry.objects.filter(
             CONTRACT_COST_FILTER
         ).values_list("entry_id", flat=True)
 
         # Fiter Tax Events
-        corporations_qs = CorporationWalletJournalEntry.objects.filter(
+        corporations_qs = corp_qs.filter(
             ESS_FILTER,
             filter_date,
         )
@@ -514,7 +514,7 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             .distinct()
         )
 
-        qs = characters.annotate(
+        char_qs = characters.annotate(
             total_bounty=Coalesce(
                 Sum("amount", filter=BOUNTY_FILTER),
                 Value(0),
@@ -537,7 +537,6 @@ class CharWalletQuerySet(CharWalletQueryFilter):
                         MISSION_FILTER
                         | INCURSION_FILTER
                         | LP_COST_FILTER
-                        | DAILY_GOAL_REWARD_FILTER
                         | MARKET_INCOME_FILTER
                         | CONTRACT_INCOME_FILTER
                         & ~Q(entry_id__in=corporation_entry_ids)
@@ -570,7 +569,7 @@ class CharWalletQuerySet(CharWalletQueryFilter):
             ),
         )
 
-        return qs
+        return char_qs, mining_qs, corp_qs
 
     def generate_template(
         self,
@@ -692,7 +691,14 @@ class CharWalletQuerySet(CharWalletQueryFilter):
         return amounts
 
     def annotate_billboard(self, chars: list, alts: list) -> models.QuerySet:
+        # pylint: disable=import-outside-toplevel
+        from ledger.models.corporationaudit import CorporationWalletJournalEntry
+
         qs = self.filter(Q(first_party_id__in=chars) | Q(second_party_id__in=chars))
+        # Subquery to identify entry_ids in contract filter
+        corporation_entry_ids = CorporationWalletJournalEntry.objects.filter(
+            CONTRACT_COST_FILTER
+        ).values_list("entry_id", flat=True)
         return qs.annotate(
             total_bounty=Coalesce(
                 Sum(
@@ -706,7 +712,8 @@ class CharWalletQuerySet(CharWalletQueryFilter):
                 Sum(
                     "amount",
                     filter=MISC_FILTER
-                    | (DONATION_INCOME_FILTER & ~Q(first_party_id__in=alts)),
+                    | (DONATION_INCOME_FILTER & ~Q(first_party_id__in=alts))
+                    | (CONTRACT_INCOME_FILTER & ~Q(entry_id__in=corporation_entry_ids)),
                 ),
                 Value(0),
                 output_field=DecimalField(),
