@@ -126,6 +126,7 @@ class LedgerTemplateApiEndpoints:
             corp: bool = False,
         ):
             perm, entitys = ledger_api_process(request, entity_type, entity_id)
+            corp_template = False
 
             if not perm:
                 context = {
@@ -138,7 +139,19 @@ class LedgerTemplateApiEndpoints:
 
             current_date = timezone.now()
 
-            _, char = get_character(request, main_id)
+            if entity_id == main_id:
+                corp_template = True
+
+            _, char = get_character(request, main_id, corp=corp_template)
+
+            if char is None:
+                context = {
+                    "error_title": "403 Error",
+                    "error_message": "Character not found.",
+                }
+                return render(
+                    request, "ledger/modals/information/error.html", context, status=403
+                )
 
             # Get all Chars from the main (including the main char itself)
             alts = get_alts_queryset(char, corporations=entitys)

@@ -14,20 +14,24 @@ def convert_corp_tax(ess: int) -> float:
     return (ess / app_settings.LEDGER_CORP_TAX) * (100 - app_settings.LEDGER_CORP_TAX)
 
 
-def get_character(request, character_id) -> tuple[bool, EveCharacter]:
+def get_character(request, character_id, corp=False) -> tuple[bool, EveCharacter]:
     """Get Character and check permissions"""
     perms = True
     if character_id == 0:
         character_id = request.user.profile.main_character.character_id
 
     try:
-        main_char = EveCharacter.objects.get(character_id=character_id)
+        # Corporation Tempalte
+        if corp:
+            main_char = EveCharacter.objects.select_related(
+                "character_ownership",
+                "character_ownership__user__profile",
+                "character_ownership__user__profile__main_character",
+            ).get(character_id=request.user.profile.main_character.character_id)
+        else:
+            main_char = EveCharacter.objects.get(character_id=character_id)
     except ObjectDoesNotExist:
-        main_char = EveCharacter.objects.select_related(
-            "character_ownership",
-            "character_ownership__user__profile",
-            "character_ownership__user__profile__main_character",
-        ).get(character_id=request.user.profile.main_character.character_id)
+        return False, None
 
     # check access
     visible = models.CharacterAudit.objects.visible_eve_characters(request.user)
