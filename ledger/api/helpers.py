@@ -8,7 +8,8 @@ from ledger.hooks import get_extension_logger
 logger = get_extension_logger(__name__)
 
 
-def convert_ess_payout(ess: int) -> float:
+# TODO Handle it from generate_ledger
+def convert_corp_tax(ess: int) -> float:
     """Convert ESS payout"""
     return (ess / app_settings.LEDGER_CORP_TAX) * (100 - app_settings.LEDGER_CORP_TAX)
 

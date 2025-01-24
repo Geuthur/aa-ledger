@@ -6,7 +6,7 @@ from decimal import Decimal
 from django.db.models.functions import TruncDay, TruncHour, TruncMonth, TruncYear
 
 from ledger.api.api_helper.core_manager import LedgerData, LedgerDate, LedgerModels
-from ledger.api.helpers import convert_ess_payout
+from ledger.api.helpers import convert_corp_tax
 from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
@@ -146,14 +146,17 @@ class BillboardLedger:
             if self.is_corp:
                 self.data_dict[period]["total_bounty"] = entry["total_bounty"]
             self.data_dict[period]["total_ess"] = entry["total_ess"]
+            self.data_dict[period]["total_daily"] = entry["total_daily"]
 
             if not self.is_corp:
                 # Convert the ESS Payout for Character
-                self.data_dict[period]["total_ess"] = convert_ess_payout(
+                self.data_dict[period]["total_ess"] = convert_corp_tax(
                     self.data_dict[period]["total_ess"]
                 )
-                # ADD Daily Goal to Character
-                self.data_dict[period]["total_daily"] = entry["total_daily"]
+                # Convert the Daily Goal Payout for Character
+                self.data_dict[period]["total_daily"] = convert_corp_tax(
+                    self.data_dict[period]["total_daily"]
+                )
 
     def _process_char_journal(self, annotations, period_format):
         char_journal = (

@@ -30,7 +30,9 @@ MISSION_FILTER = Q(ref_type__in=MISSION, amount__gt=0)
 DAILY_GOAL_REWARD_FILTER = Q(ref_type__in=DAILY_GOAL_REWARD, amount__gt=0)
 CITADEL_FILTER = Q(ref_type__in=CITADEL_INCOME, amount__gt=0)
 
-MISC_FILTER = INCURSION_FILTER | MISSION_FILTER | CITADEL_FILTER
+MISC_FILTER = (
+    INCURSION_FILTER | MISSION_FILTER | DAILY_GOAL_REWARD_FILTER | CITADEL_FILTER
+)
 
 
 class CorpWalletQueryFilter(models.QuerySet):
@@ -104,10 +106,7 @@ class CorpWalletQueryFilter(models.QuerySet):
 
 
 class CorpWalletQuerySet(CorpWalletQueryFilter):
-    def _get_linked_chars(
-        self, corporations: list, chars_ids: list
-    ) -> tuple[dict, set]:
-        """Get all linked characters to the given corporations and characters"""
+    def _get_linked_chars(self, corporations: list, chars_ids: list) -> tuple:
         linked_chars = EveCharacter.objects.filter(corporation_id__in=corporations)
         linked_chars |= EveCharacter.objects.filter(
             character_ownership__user__profile__main_character__corporation_id__in=corporations
@@ -233,6 +232,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         # Define the types and their respective filters
         types_filters = {
             "ess": ESS_FILTER,
+            "daily_goal": DAILY_GOAL_REWARD_FILTER,
         }
 
         # Only Corp Ledger
@@ -241,9 +241,6 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             types_filters["mission"] = MISSION_FILTER
             types_filters["incursion"] = INCURSION_FILTER
             types_filters["citadel"] = CITADEL_FILTER
-        else:
-            # Only Char Ledger
-            types_filters["daily_goal"] = DAILY_GOAL_REWARD_FILTER
 
         annotations = {}
         # Create the template

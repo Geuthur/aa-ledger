@@ -7,7 +7,7 @@ from ledger.api.api_helper.core_manager import (
     LedgerModels,
     LedgerTotal,
 )
-from ledger.api.helpers import convert_ess_payout, get_alts_queryset
+from ledger.api.helpers import convert_corp_tax, get_alts_queryset
 from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import CharacterWalletJournalEntry
 
@@ -109,7 +109,7 @@ class CharacterProcess:
             char_id = char.get("char_id", 0)
 
             total_bounty = round(char.get("total_bounty", 0))
-            total_ess = round(convert_ess_payout(char.get("total_ess", 0)))
+            total_ess = round(convert_corp_tax(char.get("total_ess", 0)))
             total_others = round(char.get("total_others", 0))
             total_costs = round(char.get("total_costs", 0))
 
@@ -136,7 +136,7 @@ class CharacterProcess:
             char_name = char.get("second_party__name", "Unknown")
             char_id = char.get("second_party__eve_id", 0)
 
-            total_daily_goal = round(char.get("total_amount", 0))
+            total_daily_goal = round(convert_corp_tax(char.get("total_amount", 0)))
 
             if total_daily_goal:
                 character_dict.add_amount_to_character(

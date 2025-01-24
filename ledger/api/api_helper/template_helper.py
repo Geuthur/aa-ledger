@@ -6,7 +6,7 @@ from django.db.models import DecimalField, F, Q, Sum
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
-from ledger.api.helpers import convert_ess_payout, get_alts_queryset
+from ledger.api.helpers import convert_corp_tax, get_alts_queryset
 from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import CharacterWalletJournalEntry
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
@@ -255,13 +255,22 @@ class TemplateProcess:
         )
 
         # Convert ESS Payout for Character Ledger
-        amounts["ess"]["total_amount"] = convert_ess_payout(
+        amounts["ess"]["total_amount"] = convert_corp_tax(
             amounts["ess"]["total_amount"]
         )
 
-        amounts["ess"]["total_amount_day"] = convert_ess_payout(
+        amounts["ess"]["total_amount_day"] = convert_corp_tax(
             amounts["ess"]["total_amount_day"]
         )
+        # Convert Daily Goal Payout for Character Ledger
+        amounts["daily_goal"]["total_amount"] = convert_corp_tax(
+            amounts["daily_goal"]["total_amount"]
+        )
+
+        amounts["daily_goal"]["total_amount_day"] = convert_corp_tax(
+            amounts["daily_goal"]["total_amount_day"]
+        )
+
         # Calculate the stolen ESS
         amounts["stolen"] = defaultdict(Decimal)
         amounts = calculate_ess_stolen(amounts)
