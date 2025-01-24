@@ -123,3 +123,8 @@ class LedgerCharacterDict:
         for key, value in kwargs.items():
             if key in self.characters[char_id]:
                 self.characters[char_id][key] = value
+
+    def add_amount_to_character(self, char_id, amount, key):
+        """Add an amount to a character."""
+        if char_id in self.characters:
+            self.characters[char_id][key] += amount
