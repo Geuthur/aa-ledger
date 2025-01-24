@@ -8,12 +8,9 @@ from django.utils import timezone
 
 from ledger.api.helpers import convert_ess_payout, get_alts_queryset
 from ledger.hooks import get_extension_logger
-from ledger.models.characteraudit import (
-    CharacterMiningLedger,
-    CharacterWalletJournalEntry,
-)
+from ledger.models.characteraudit import CharacterWalletJournalEntry
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
-from ledger.view_helpers.core import calculate_ess_stolen, events_filter
+from ledger.view_helpers.core import calculate_ess_stolen
 
 logger = get_extension_logger(__name__)
 
@@ -52,32 +49,25 @@ class TemplateProcess:
         return: dict
         """
         # Create Char List
-        chars = [char.character_id for char in self.chars]
+        chars = self.chars
+        chars_ids = [char.character_id for char in self.chars]
 
         filter_date = Q(date__year=self.data.year)
         if not self.data.month == 0:
             filter_date &= Q(date__month=self.data.month)
 
-        # Filter the entries for the current day/month
-        character_journal = CharacterWalletJournalEntry.objects.filter(
-            Q(first_party_id__in=chars) | Q(second_party_id__in=chars), filter_date
-        ).select_related("first_party", "second_party")
-
-        corporation_journal = (
-            CorporationWalletJournalEntry.objects.filter(
-                Q(first_party_id__in=chars) | Q(second_party_id__in=chars), filter_date
+        character_journal, mining_journal, corporation_journal = (
+            CharacterWalletJournalEntry.objects.filter(
+                filter_date,
             )
             .select_related("first_party", "second_party")
-            .order_by("-date")
-        )
-
-        # Exclude Events to avoid wrong stats
-        corporation_journal = events_filter(corporation_journal)
-        mining_journal = (
-            CharacterMiningLedger.objects.filter(
-                Q(character__character__character_id__in=chars), filter_date
+            .generate_ledger(
+                characters=chars,
+                filter_date=filter_date,
+                exclude=chars_ids,
             )
-        ).annotate_pricing()
+        )
+        mining_journal = mining_journal.annotate_pricing()
 
         self._process_characters(character_journal, corporation_journal, mining_journal)
         return self.template_dict
