@@ -137,8 +137,7 @@ class BillboardLedger:
         corp_journal = (
             self.models.corp_journal.annotate(**annotations)
             .values("period")
-            .annotate_bounty(self.chars)
-            .annotate_ess(self.chars)
+            .annotate_billboard(self.chars)
             .order_by("period")
         )
 
@@ -153,6 +152,8 @@ class BillboardLedger:
                 self.data_dict[period]["total_ess"] = convert_ess_payout(
                     self.data_dict[period]["total_ess"]
                 )
+                # ADD Daily Goal to Character
+                self.data_dict[period]["total_daily"] = entry["total_daily"]
 
     def _process_char_journal(self, annotations, period_format):
         char_journal = (
@@ -171,6 +172,11 @@ class BillboardLedger:
             self.data_dict[period]["total_production_cost"] = entry[
                 "total_production_cost"
             ]
+            # ADD Daily to Character Billboard
+            if self.data_dict[period]["total_daily"]:
+                self.data_dict[period]["total_miscellaneous"] += self.data_dict[period][
+                    "total_daily"
+                ]
 
         if self.models.mining_journal:
             for entry in self.models.mining_journal.values("total", "date"):
