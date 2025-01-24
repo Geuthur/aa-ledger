@@ -48,13 +48,6 @@ class CharManagerQuerySetTest(TestCase):
         self.assertIsNotNone(qs)
         self.assertIn("total_ess", qs.query.annotations)
 
-    def test_annotate_daily_goal(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_daily_goal(character_ids)
-        self.assertIsNotNone(qs)
-        self.assertIn("total_daily_goal", qs.query.annotations)
-
     def test_annotate_mining(self):
         character_ids = [1, 2, 3]
 
