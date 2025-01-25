@@ -108,10 +108,10 @@ class CharacterProcess:
             char_name = char.get("char_name", "Unknown")
             char_id = char.get("char_id", 0)
 
-            total_bounty = round(char.get("total_bounty", 0))
-            total_ess = round(convert_corp_tax(char.get("total_ess", 0)))
-            total_others = round(char.get("total_others", 0))
-            total_costs = round(char.get("total_costs", 0))
+            total_bounty = round(char.get("bounty", 0))
+            total_ess = round(convert_corp_tax(char.get("ess", 0)))
+            total_others = round(char.get("miscellanous", 0))
+            total_costs = round(char.get("costs", 0))
 
             if total_bounty or total_ess or total_others or total_costs:
                 character_dict.add_or_update_character(
