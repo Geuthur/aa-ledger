@@ -89,7 +89,7 @@ class CharacterMiningLedgerEntryQueryset(models.QuerySet):
             .annotate(
                 total=ExpressionWrapper(
                     F("type__market_price__average_price") * F("quantity"),
-                    output_field=models.FloatField(),
+                    output_field=models.DecimalField(),
                 ),
             )
         )
