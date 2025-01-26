@@ -37,68 +37,63 @@ MISC_FILTER = (
 
 
 class CorpWalletQueryFilter(models.QuerySet):
-    def annotate_bounty(self, second_party_ids: list) -> models.QuerySet:
+    def annotate_bounty(self) -> models.QuerySet:
         return self.annotate(
-            total_bounty=Coalesce(
+            bounty=Coalesce(
                 Sum(
                     "amount",
-                    filter=(BOUNTY_FILTER & Q(second_party_id__in=second_party_ids)),
+                    filter=(BOUNTY_FILTER),
                 ),
                 Value(0),
                 output_field=DecimalField(),
             )
         )
 
-    def annotate_ess(self, second_party_ids: list) -> models.QuerySet:
-        qs = self
-
+    def annotate_ess(self) -> models.QuerySet:
         # Exclude Tax Events
         qs = events_filter(self)
 
         return qs.annotate(
-            total_ess=Coalesce(
+            ess=Coalesce(
                 Sum(
                     "amount",
-                    filter=(ESS_FILTER & Q(second_party_id__in=second_party_ids)),
+                    filter=(ESS_FILTER),
                 ),
                 Value(0),
                 output_field=DecimalField(),
             )
         )
 
-    def annotate_mission(self, second_party_ids: list) -> models.QuerySet:
+    def annotate_mission(self) -> models.QuerySet:
         return self.annotate(
-            total_mission=Coalesce(
+            mission=Coalesce(
                 Sum(
                     "amount",
-                    filter=(MISSION_FILTER & Q(second_party_id__in=second_party_ids)),
+                    filter=(MISSION_FILTER),
                 ),
                 Value(0),
                 output_field=DecimalField(),
             )
         )
 
-    def annotate_daily_goal(self, second_party_ids: list) -> models.QuerySet:
+    def annotate_daily_goal(self) -> models.QuerySet:
         return self.annotate(
-            total_daily_goal=Coalesce(
+            daily_goal=Coalesce(
                 Sum(
                     "amount",
-                    filter=(
-                        DAILY_GOAL_REWARD_FILTER
-                        & Q(second_party_id__in=second_party_ids)
-                    ),
+                    filter=(DAILY_GOAL_REWARD_FILTER),
                 ),
                 Value(0),
                 output_field=DecimalField(),
             )
         )
 
-    def annotate_citadel(self, first_party_ids: list) -> models.QuerySet:
+    def annotate_citadel(self) -> models.QuerySet:
         return self.annotate(
-            total_citadel=Coalesce(
+            citadel=Coalesce(
                 Sum(
                     "amount",
-                    filter=(CITADEL_FILTER & Q(first_party_id__in=first_party_ids)),
+                    filter=(CITADEL_FILTER),
                 ),
                 Value(0),
                 output_field=DecimalField(),
