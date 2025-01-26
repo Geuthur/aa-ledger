@@ -534,7 +534,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         characters = self.get_ledger_data(characters, exclude)
 
         char_qs = characters.annotate(
-            miscellanous=Coalesce(
+            miscellaneous=Coalesce(
                 F("mission_income")
                 + F("incursion_income")
                 + F("insurance_income")
@@ -668,12 +668,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         qs = self.filter(Q(first_party_id__in=chars) | Q(second_party_id__in=chars))
         qs = self.get_ledger_data(qs, alts)
         return qs.annotate(
-            total_bounty=Coalesce(
-                F("bounty"),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_miscellaneous=Coalesce(
+            miscellaneous=Coalesce(
                 F("mission_income")
                 + F("incursion_income")
                 + F("insurance_income")
@@ -684,7 +679,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
                 Value(0),
                 output_field=DecimalField(),
             ),
-            total_cost=Coalesce(
+            cost=Coalesce(
                 F("market_cost")
                 + F("production_cost")
                 + F("contract_cost")
@@ -694,16 +689,6 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
                 + F("skill_cost")
                 + F("insurance_cost")
                 + F("planetary_cost"),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_market_cost=Coalesce(
-                F("market_cost"),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_production_cost=Coalesce(
-                F("production_cost"),
                 Value(0),
                 output_field=DecimalField(),
             ),

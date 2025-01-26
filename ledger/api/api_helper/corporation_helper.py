@@ -31,9 +31,9 @@ class CorporationProcess:
         unkwowns_ids = set()
 
         for main in journal:
-            total_bounty = main.get("total_bounty", 0)
-            total_ess = main.get("total_ess", 0)
-            total_other = main.get("total_miscellaneous", 0)
+            total_bounty = main.get("bounty", 0)
+            total_ess = main.get("ess", 0)
+            total_other = main.get("miscellaneous", 0)
             main_entity_id = main.get("main_entity_id", 0)
             alts = main.get("alts", [])
             character_name = "Unknown"

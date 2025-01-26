@@ -98,7 +98,7 @@ class CharacterProcess:
             char_id = char.get("char_id", 0)
 
             total_bounty = char.get("bounty", 0)
-            total_others = char.get("miscellanous", 0)
+            total_others = char.get("miscellaneous", 0)
             total_costs = char.get("costs", 0)
 
             if total_bounty or total_others or total_costs:

@@ -103,17 +103,17 @@ class BillboardLedger:
 
         for period, data in self.data_dict.items():
             # Main Data
-            self.data.total_bounty = data.get("total_bounty", 0)
-            self.data.total_ess_payout = data.get("total_ess", 0)
-            self.data.total_miscellaneous = data.get("total_miscellaneous", 0)
+            self.data.bounty = data.get("bounty", 0)
+            self.data.ess_payout = data.get("ess", 0)
+            self.data.total_miscellaneous = data.get("miscellaneous", 0)
             self.data.total_mining = data.get("total_mining", 0)
             # Costs
-            self.data.total_cost = data.get("total_cost", 0)
-            self.data.total_market_cost = data.get("total_market_cost", 0)
-            self.data.total_production_cost = data.get("total_production_cost", 0)
+            self.data.total_cost = data.get("cost", 0)
+            self.data.total_market_cost = data.get("market_cost", 0)
+            self.data.total_production_cost = data.get("production_cost", 0)
 
-            summary.sum_amount.append(int(self.data.total_bounty))
-            summary.sum_amount_ess.append(int(self.data.total_ess_payout))
+            summary.sum_amount.append(int(self.data.bounty))
+            summary.sum_amount_ess.append(int(self.data.ess_payout))
 
             summary.sum_amount_costs.append(int(self.data.total_cost))
             summary.sum_amounts_market_costs.append(int(self.data.total_market_cost))
@@ -125,7 +125,7 @@ class BillboardLedger:
                 summary.sum_amount_misc.append(int(self.data.total_miscellaneous))
                 summary.sum_amount_mining.append(int(self.data.total_mining))
             if self.tick:
-                summary.sum_amount_tick.append(int(self.data.total_bounty / 3))
+                summary.sum_amount_tick.append(int(self.data.bounty / 3))
 
             billboard_values.append(period)
 
@@ -144,18 +144,18 @@ class BillboardLedger:
         for entry in corp_journal:
             period = entry["period"].strftime(period_format)
             if self.is_corp:
-                self.data_dict[period]["total_bounty"] = entry["total_bounty"]
-            self.data_dict[period]["total_ess"] = entry["total_ess"]
-            self.data_dict[period]["total_daily"] = entry["total_daily"]
+                self.data_dict[period]["bounty"] = entry["bounty"]
+            self.data_dict[period]["ess"] = entry["ess"]
+            self.data_dict[period]["daily_goal"] = entry["daily_goal"]
 
             if not self.is_corp:
                 # Convert the ESS Payout for Character
-                self.data_dict[period]["total_ess"] = convert_corp_tax(
-                    self.data_dict[period]["total_ess"]
+                self.data_dict[period]["ess"] = convert_corp_tax(
+                    self.data_dict[period]["ess"]
                 )
                 # Convert the Daily Goal Payout for Character
-                self.data_dict[period]["total_daily"] = convert_corp_tax(
-                    self.data_dict[period]["total_daily"]
+                self.data_dict[period]["daily_goal"] = convert_corp_tax(
+                    self.data_dict[period]["daily_goal"]
                 )
 
     def _process_char_journal(self, annotations, period_format):
@@ -168,17 +168,15 @@ class BillboardLedger:
 
         for entry in char_journal:
             period = entry["period"].strftime(period_format)
-            self.data_dict[period]["total_bounty"] = entry["total_bounty"]
-            self.data_dict[period]["total_miscellaneous"] = entry["total_miscellaneous"]
-            self.data_dict[period]["total_cost"] = entry["total_cost"]
-            self.data_dict[period]["total_market_cost"] = entry["total_market_cost"]
-            self.data_dict[period]["total_production_cost"] = entry[
-                "total_production_cost"
-            ]
+            self.data_dict[period]["bounty"] = entry["bounty"]
+            self.data_dict[period]["miscellaneous"] = entry["miscellaneous"]
+            self.data_dict[period]["cost"] = entry["cost"]
+            self.data_dict[period]["market_cost"] = entry["market_cost"]
+            self.data_dict[period]["production_cost"] = entry["production_cost"]
             # ADD Daily to Character Billboard
-            if self.data_dict[period]["total_daily"]:
-                self.data_dict[period]["total_miscellaneous"] += self.data_dict[period][
-                    "total_daily"
+            if self.data_dict[period]["daily_goal"]:
+                self.data_dict[period]["miscellaneous"] += self.data_dict[period][
+                    "daily"
                 ]
 
         if self.models.mining_journal:

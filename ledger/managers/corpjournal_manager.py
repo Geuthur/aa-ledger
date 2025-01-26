@@ -100,6 +100,19 @@ class CorpWalletQueryFilter(models.QuerySet):
             )
         )
 
+    # pylint: disable=duplicate-code
+    def annotate_miscellaneous(self) -> models.QuerySet:
+        return self.annotate(
+            miscellaneous=Coalesce(
+                Sum(
+                    "amount",
+                    filter=(MISC_FILTER),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            )
+        )
+
 
 class CorpWalletQuerySet(CorpWalletQueryFilter):
     def _convert_corp_tax(self, ess: int) -> float:
@@ -138,6 +151,17 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
 
         return char_to_main, set(chars_list)
 
+    def get_ledger_data(self, queryset) -> models.QuerySet:
+        """Get the ledger data"""
+        return (
+            queryset.annotate_bounty()
+            .annotate_ess()
+            .annotate_mission()
+            .annotate_daily_goal()
+            .annotate_citadel()
+            .annotate_miscellaneous()
+        )
+
     def generate_ledger(self, corporations: list) -> models.QuerySet:
         """Generate the ledger for the corporation"""
         # Filter Corporations6
@@ -157,55 +181,37 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         qs = events_filter(qs)
 
         # Annotate the queryset
-        qs = (
-            qs.annotate(
-                main_entity_id=Case(
-                    *[
-                        When(
-                            (
-                                Q(second_party_id__in=alt_ids)
-                                | (Q(first_party_id__in=alt_ids))
-                            ),
-                            then=Value(main_id),
-                        )
-                        for main_id, alt_ids in main_and_alts.items()
-                    ],
-                    output_field=models.IntegerField(),
-                ),
-                alts=Case(
-                    *[
-                        When(
-                            (
-                                Q(second_party_id__in=alt_ids)
-                                | (Q(first_party_id__in=alt_ids))
-                            ),
-                            then=Value(json.dumps(alt_ids)),
-                        )
-                        for _, alt_ids in main_and_alts.items()
-                    ],
-                    default=Value("[]"),
-                    output_field=models.JSONField(),
-                ),
-            )
-            .values("main_entity_id", "alts")
-            .annotate(
-                total_bounty=Coalesce(
-                    Sum("amount", filter=BOUNTY_FILTER),
-                    Value(0),
-                    output_field=DecimalField(),
-                ),
-                total_ess=Coalesce(
-                    Sum("amount", filter=ESS_FILTER),
-                    Value(0),
-                    output_field=DecimalField(),
-                ),
-                total_miscellaneous=Coalesce(
-                    Sum("amount", filter=MISC_FILTER),
-                    Value(0),
-                    output_field=DecimalField(),
-                ),
-            )
-        )
+        qs = qs.annotate(
+            main_entity_id=Case(
+                *[
+                    When(
+                        (
+                            Q(second_party_id__in=alt_ids)
+                            | (Q(first_party_id__in=alt_ids))
+                        ),
+                        then=Value(main_id),
+                    )
+                    for main_id, alt_ids in main_and_alts.items()
+                ],
+                output_field=models.IntegerField(),
+            ),
+            alts=Case(
+                *[
+                    When(
+                        (
+                            Q(second_party_id__in=alt_ids)
+                            | (Q(first_party_id__in=alt_ids))
+                        ),
+                        then=Value(json.dumps(alt_ids)),
+                    )
+                    for _, alt_ids in main_and_alts.items()
+                ],
+                default=Value("[]"),
+                output_field=models.JSONField(),
+            ),
+        ).values("main_entity_id", "alts")
+
+        qs = self.get_ledger_data(qs)
 
         return qs
 
@@ -218,7 +224,16 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         corporations_ids: list,
         entity_type=None,
     ) -> dict:
-        """Generate the template for the corporation journal"""
+        """Generate data template for the ledger character information view"""
+        # Define the type names
+        type_names = [
+            "ess",
+            "daily_goal",
+        ]
+
+        if entity_type == "corporation":
+            type_names += ["bounty", "mission", "citadel"]
+
         # Filter Corporations
         qs = self.filter(
             Q(division__corporation__corporation__corporation_id__in=corporations_ids)
@@ -231,24 +246,23 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         # Exclude Corp Tax Events
         qs = events_filter(qs)
 
-        # Define the types and their respective filters
-        types_filters = {
-            "ess": ESS_FILTER,
-            "daily_goal": DAILY_GOAL_REWARD_FILTER,
-        }
-
-        # Only Corp Ledger
-        if entity_type == "corporation":
-            types_filters["bounty"] = BOUNTY_FILTER
-            types_filters["mission"] = MISSION_FILTER
-            types_filters["incursion"] = INCURSION_FILTER
-            types_filters["citadel"] = CITADEL_FILTER
+        # Annotate the queryset
+        qs = self.get_ledger_data(qs)
 
         annotations = {}
-        # Create the template
-        for type_name, type_filter in types_filters.items():
+        for type_name in type_names:
             annotations[f"{type_name}_total_amount"] = Coalesce(
-                Sum(Case(When(type_filter, then=F("amount")))),
+                Sum(
+                    Case(
+                        When(
+                            **{
+                                f"{type_name}__isnull": False,
+                                "date__year": filter_date.year,
+                            },
+                            then=F(type_name),
+                        )
+                    )
+                ),
                 Value(0),
                 output_field=DecimalField(),
             )
@@ -256,13 +270,13 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
                 Sum(
                     Case(
                         When(
-                            type_filter
-                            & Q(
-                                date__year=filter_date.year,
-                                date__month=filter_date.month,
-                                date__day=filter_date.day,
-                            ),
-                            then=F("amount"),
+                            **{
+                                f"{type_name}__isnull": False,
+                                "date__year": filter_date.year,
+                                "date__month": filter_date.month,
+                                "date__day": filter_date.day,
+                            },
+                            then=F(type_name),
                         )
                     )
                 ),
@@ -273,14 +287,14 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
                 Sum(
                     Case(
                         When(
-                            type_filter
-                            & Q(
-                                date__year=filter_date.year,
-                                date__month=filter_date.month,
-                                date__day=filter_date.day,
-                                date__hour=filter_date.hour,
-                            ),
-                            then=F("amount"),
+                            **{
+                                f"{type_name}__isnull": False,
+                                "date__year": filter_date.year,
+                                "date__month": filter_date.month,
+                                "date__day": filter_date.day,
+                                "date__hour": filter_date.hour,
+                            },
+                            then=F(type_name),
                         )
                     )
                 ),
@@ -291,7 +305,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         qs = qs.aggregate(**annotations)
 
         # Assign the results to the amounts dictionary
-        for type_name in types_filters:
+        for type_name in type_names:
             if entity_type != "corporation":
                 amounts[type_name]["total_amount"] = self._convert_corp_tax(
                     qs[f"{type_name}_total_amount"]
@@ -315,35 +329,11 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
 
     def annotate_billboard(self, chars: list) -> models.QuerySet:
         qs = self.filter(Q(first_party_id__in=chars) | Q(second_party_id__in=chars))
-
         # Exclude Corp Tax Events
         qs = events_filter(qs)
-        return qs.annotate(
-            total_bounty=Coalesce(
-                Sum(
-                    F("amount"),
-                    filter=(BOUNTY_FILTER & Q(second_party_id__in=chars)),
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_ess=Coalesce(
-                Sum(
-                    F("amount"),
-                    filter=(ESS_FILTER & Q(second_party_id__in=chars)),
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            total_daily=Coalesce(
-                Sum(
-                    "amount",
-                    filter=(DAILY_GOAL_REWARD_FILTER & Q(second_party_id__in=chars)),
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-        )
+
+        qs = self.get_ledger_data(qs)
+        return qs
 
 
 class CorpWalletManagerBase(models.Manager):
