@@ -27,19 +27,19 @@
             </div>
         {% endif %}
 
-        {% if character.mission %}
-            <div class="row description-row">
-                <div class="col-sm-6">{% trans "Mission Reward" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.mission.total_amount|floatformat:0|intcomma }}</span> ISK</div>
-            </div>
-        {% endif %}
-
         {% if character.stolen.total_amount %}
             <div class="row description-row">
                 <div class="col-sm-6">ESS {% trans "Stolen" %}:</div>
                 <div class='col-sm-4 text-end'>
                     <span class="text-warning" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans "Estimated only" %}">{{ character.stolen.total_amount|floatformat:0|intcomma }}</span> ISK
                 </div>
+            </div>
+        {% endif %}
+
+        {% if character.mission %}
+            <div class="row description-row">
+                <div class="col-sm-6">{% trans "Mission Reward" %}:</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.mission.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
