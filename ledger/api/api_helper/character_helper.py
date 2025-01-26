@@ -1,4 +1,4 @@
-from django.db.models import ExpressionWrapper, F, FloatField, Q, Sum
+from django.db.models import Q, Sum
 
 from ledger.api.api_helper.billboard_helper import BillboardData, BillboardLedger
 from ledger.api.api_helper.core_manager import (
@@ -57,16 +57,9 @@ class CharacterProcess:
             )
         )
 
-        # TODO - Make a easier way to handle this (lazy for to for)
-        # Call annotate_ledger and store the result
+        # Annotate Mining for Characters
         mining_char_journal = (
-            mining_journal.annotate(
-                price=F("type__market_price__average_price"),
-                total=ExpressionWrapper(
-                    F("type__market_price__average_price") * F("quantity"),
-                    output_field=FloatField(),
-                ),
-            )
+            mining_journal.annotate_pricing()
             .values("character__character__character_id")
             .annotate(total_amount=Sum("total"))
             .values(
@@ -76,21 +69,17 @@ class CharacterProcess:
             )
         )
 
+        # Annotate Corp Journal for Characters
         corp_character_journal = (
-            corp_journal.filter(ref_type="daily_goal_payouts")
-            .values("second_party_id")
-            .annotate(total_amount=Sum("amount"))
-            .values(
-                "second_party__eve_id",
-                "second_party__name",
-                "total_amount",
-            )
+            corp_journal.annotate_daily_goal()
+            .annotate_ess()
+            .values("second_party__eve_id", "second_party__name", "ess", "daily_goal")
         )
 
         for mining_char in mining_char_journal:
             char_id = mining_char["character__character__character_id"]
             char_name = mining_char["character__character__character_name"]
-            total_amount_mining = round(mining_char["total_amount"])
+            total_amount_mining = mining_char["total_amount"]
 
             character_dict.add_or_update_character(
                 char_id,
@@ -108,24 +97,21 @@ class CharacterProcess:
             char_name = char.get("char_name", "Unknown")
             char_id = char.get("char_id", 0)
 
-            total_bounty = round(char.get("bounty", 0))
-            total_ess = round(convert_corp_tax(char.get("ess", 0)))
-            total_others = round(char.get("miscellanous", 0))
-            total_costs = round(char.get("costs", 0))
+            total_bounty = char.get("bounty", 0)
+            total_others = char.get("miscellanous", 0)
+            total_costs = char.get("costs", 0)
 
-            if total_bounty or total_ess or total_others or total_costs:
+            if total_bounty or total_others or total_costs:
                 character_dict.add_or_update_character(
                     char_id,
                     char_name,
                     total_amount=total_bounty,
-                    total_amount_ess=total_ess,
                     total_amount_others=total_others,
                     total_amount_costs=total_costs,
                 )
 
             totals = {
                 "total_amount": total_bounty,
-                "total_amount_ess": total_ess,
                 "total_amount_others": total_others,
                 "total_amount_costs": total_costs,
             }
@@ -136,7 +122,8 @@ class CharacterProcess:
             char_name = char.get("second_party__name", "Unknown")
             char_id = char.get("second_party__eve_id", 0)
 
-            total_daily_goal = round(convert_corp_tax(char.get("total_amount", 0)))
+            total_ess = convert_corp_tax(char.get("ess", 0))
+            total_daily_goal = convert_corp_tax(char.get("daily_goal", 0))
 
             if total_daily_goal:
                 character_dict.add_amount_to_character(
@@ -145,7 +132,15 @@ class CharacterProcess:
                     "total_amount_others",
                 )
 
+            if total_ess:
+                character_dict.add_amount_to_character(
+                    char_id,
+                    total_ess,
+                    "total_amount_ess",
+                )
+
             totals = {
+                "total_amount_ess": total_ess,
                 "total_amount_others": total_daily_goal,
             }
             # Summary all

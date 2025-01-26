@@ -6,7 +6,6 @@ from django.db.models import (
     DecimalField,
     ExpressionWrapper,
     F,
-    OuterRef,
     Q,
     Subquery,
     Sum,
@@ -446,11 +445,11 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
 
         # Call annotate_ledger and store the result
         char_mining_journal = CharacterMiningLedger.objects.filter(
-            filter_date, character__character__character_id__in=character_ids
+            Q(character__character__character_id__in=character_ids) & Q(filter_date)
         )
 
         corp_character_journal = CorporationWalletJournalEntry.objects.filter(
-            Q(second_party_id__in=character_ids), filter_date
+            Q(second_party_id__in=character_ids) & Q(filter_date)
         )
         return char_mining_journal, corp_character_journal
 
@@ -506,51 +505,35 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         mining_qs, corp_qs = self._get_models_qs(char_list, filter_date)
 
         # Fiter Tax Events
-        corporations_qs = events_filter(corp_qs)
+        corp_qs = events_filter(corp_qs)
 
-        characters = (
-            qs.annotate(
-                char_id=Case(
-                    *[
-                        When(
-                            (Q(second_party_id=main_id) | (Q(first_party_id=main_id))),
-                            then=Value(char.character_id),
-                        )
-                        for main_id, char in characters.items()
-                    ],
-                    output_field=models.IntegerField(),
-                ),
-                char_name=Case(
-                    *[
-                        When(
-                            (Q(second_party_id=main_id) | (Q(first_party_id=main_id))),
-                            then=Value(char.character_name),
-                        )
-                        for main_id, char in characters.items()
-                    ],
-                    output_field=models.CharField(),
-                ),
-            )
-            .values("char_id", "char_name")
-            .distinct()
-        )
+        characters = qs.annotate(
+            char_id=Case(
+                *[
+                    When(
+                        (Q(second_party_id=main_id) | (Q(first_party_id=main_id))),
+                        then=Value(char.character_id),
+                    )
+                    for main_id, char in characters.items()
+                ],
+                output_field=models.IntegerField(),
+            ),
+            char_name=Case(
+                *[
+                    When(
+                        (Q(second_party_id=main_id) | (Q(first_party_id=main_id))),
+                        then=Value(char.character_name),
+                    )
+                    for main_id, char in characters.items()
+                ],
+                output_field=models.CharField(),
+            ),
+        ).values("char_id", "char_name")
 
         # Annotate All Ledger Data
         characters = self.get_ledger_data(characters, exclude)
 
         char_qs = characters.annotate(
-            ess=Coalesce(
-                Subquery(
-                    corporations_qs.filter(
-                        ESS_FILTER & Q(second_party_id=OuterRef("char_id"))
-                    )
-                    .values("second_party_id")
-                    .annotate(total_amount=Sum("amount"))
-                    .values("total_amount")
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            ),
             miscellanous=Coalesce(
                 F("mission_income")
                 + F("incursion_income")
