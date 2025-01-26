@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 
 from allianceauth.eveonline.models import EveCharacter
 
@@ -103,30 +104,52 @@ def get_alts_queryset(main_char, corporations=None):
         return EveCharacter.objects.filter(pk=main_char.pk)
 
 
-def _get_linked_characters(corporations):
-    linked_chars = EveCharacter.objects.filter(corporation_id__in=corporations)
-    linked_chars |= EveCharacter.objects.filter(
-        character_ownership__user__profile__main_character__corporation_id__in=corporations
-    )
-    return (
-        linked_chars.select_related(
-            "character_ownership", "character_ownership__user__profile__main_character"
+def get_corp_alts_queryset(main_char, corporations=None):
+    """Get all alts for a main character, optionally filtered by corporations."""
+    try:
+        linked_characters = (
+            main_char.character_ownership.user.character_ownerships.all()
         )
-        .prefetch_related("character_ownership__user__character_ownerships")
-        .order_by("character_name")
-    )
+        chars_list = set()
+
+        if corporations:
+            linked_characters = linked_characters.filter(
+                character__corporation_id__in=corporations
+            )
+
+        for char in linked_characters:
+            char, _ = models.general.EveEntity.objects.get_or_create(
+                eve_id=char.character.character_id,
+                defaults={
+                    "name": char.character.character_name,
+                    "category": "character",
+                },
+            )
+            chars_list.add(char.eve_id)
+        return list(models.general.EveEntity.objects.filter(eve_id__in=chars_list))
+    except ObjectDoesNotExist:
+        chars = EveCharacter.objects.filter(pk=main_char.pk).values("character_id")
+        return list(models.general.EveEntity.objects.filter(eve_id__in=chars))
 
 
-def get_main_and_alts_ids_all(corporations: list) -> list:
-    """Get all members for given corporations"""
-    chars_list = set()
+def get_journal_entitys(year, month, corporations=None):
+    """Get all alts for a main character, optionally filtered by corporations."""
+    filter_date = Q(date__year=year)
+    if not month == 0:
+        filter_date &= Q(date__month=month)
 
-    linked_chars = _get_linked_characters(corporations)
+    first_party_ids = models.CorporationWalletJournalEntry.objects.filter(
+        filter_date,
+        division__corporation__corporation__corporation_id__in=corporations,
+    ).values_list("first_party_id", flat=True)
 
-    for char in linked_chars:
-        chars_list.add(char.character_id)
+    second_party_ids = models.CorporationWalletJournalEntry.objects.filter(
+        filter_date, division__corporation__corporation__corporation_id__in=corporations
+    ).values_list("second_party_id", flat=True)
 
-    return list(chars_list)
+    entity_ids = set(first_party_ids) | set(second_party_ids)
+
+    return entity_ids
 
 
 def get_main_and_alts_ids_corporations(request) -> list:

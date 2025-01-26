@@ -11,12 +11,14 @@ from ledger.api.helpers import (
     get_alliance,
     get_alts_queryset,
     get_character,
+    get_corp_alts_queryset,
     get_corporation,
-    get_main_and_alts_ids_all,
+    get_journal_entitys,
     get_main_and_alts_ids_corporations,
 )
 from ledger.hooks import get_extension_logger
 from ledger.models import CorporationAudit
+from ledger.models.general import EveEntity
 
 logger = get_extension_logger(__name__)
 
@@ -153,30 +155,22 @@ class LedgerTemplateApiEndpoints:
                     request, "ledger/modals/information/error.html", context, status=403
                 )
 
-            # Get all Chars from the main (including the main char itself)
-            alts = get_alts_queryset(char, corporations=entitys)
-            linked_char = list(alts)
-
             overall_mode = main_id == 0
 
             if overall_mode:
-                chars_list = get_main_and_alts_ids_all(entitys)
-                linked_char = EveCharacter.objects.filter(
-                    character_id__in=chars_list,
+                chars_list = get_journal_entitys(year, month, corporations=entitys)
+                linked_char = EveEntity.objects.filter(
+                    eve_id__in=chars_list,
                 )
             elif corp:
-                if entity_type == "corporation":
-                    linked_char = EveCharacter.objects.filter(
-                        corporation_id__in=[main_id],
-                    )
-                else:
-                    linked_char = EveCharacter.objects.filter(
-                        alliance_id__in=[main_id],
-                    )
+                linked_char = EveEntity.objects.filter(
+                    eve_id__in=[main_id],
+                )
                 overall_mode = True
+            else:
+                linked_char = get_corp_alts_queryset(char, corporations=None)
 
             # Create the Ledger
-
             ledger_data = TemplateData(
                 request=request,
                 main=char,

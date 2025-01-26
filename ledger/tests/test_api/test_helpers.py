@@ -48,20 +48,6 @@ class TestApiHelpers(TestCase):
         )
         cls.corp = EveCorporationInfo.objects.get(corporation_id=2001)
 
-    def test_get_main_and_alts_all_char_in_chars(self):
-        # given
-        request = self.factory.get("/")
-        request.user = self.user
-
-        chars = EveCharacter.objects.filter(
-            corporation_id__in=[self.corp.corporation_id]
-        ).values_list("character_id", flat=True)
-
-        # when
-        data = get_main_and_alts_ids_all([self.corp.corporation_id])
-        # then
-        self.assertEqual(data, list(chars))
-
     def test_get_main_character(self):
         # given
         request = self.factory.get("/")

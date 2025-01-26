@@ -11,6 +11,7 @@ from allianceauth.eveonline.models import EveCharacter
 
 from ledger import app_settings
 from ledger.hooks import get_extension_logger
+from ledger.models.general import EveEntity
 from ledger.view_helpers.core import events_filter
 
 logger = get_extension_logger(__name__)
@@ -76,6 +77,18 @@ class CorpWalletQueryFilter(models.QuerySet):
             )
         )
 
+    def annotate_incursion(self) -> models.QuerySet:
+        return self.annotate(
+            incursion=Coalesce(
+                Sum(
+                    "amount",
+                    filter=(INCURSION_FILTER),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            )
+        )
+
     def annotate_daily_goal(self) -> models.QuerySet:
         return self.annotate(
             daily_goal=Coalesce(
@@ -121,35 +134,51 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             100 - app_settings.LEDGER_CORP_TAX
         )
 
-    def _get_linked_chars(self, corporations: list, chars_ids: list) -> tuple:
-        linked_chars = EveCharacter.objects.filter(corporation_id__in=corporations)
+    def _get_linked_chars(self, entity_ids: list) -> tuple:
+        char_to_main = {}
+        entity_list = []
+
+        linked_chars = EveCharacter.objects.filter(character_id__in=entity_ids)
         linked_chars |= EveCharacter.objects.filter(
-            character_ownership__user__profile__main_character__corporation_id__in=corporations
+            character_ownership__user__profile__main_character__character_id__in=entity_ids
         )
         linked_chars = linked_chars.select_related(
             "character_ownership", "character_ownership__user__profile__main_character"
         ).prefetch_related("character_ownership__user__character_ownerships__character")
 
-        char_to_main = {}
-        chars_list = []
-
+        # Get Registered Characters
         for char in linked_chars:
             try:
-                if char.corporation_id in corporations:
-                    try:
-                        main_char = char.character_ownership.user.profile.main_character
-                    except ObjectDoesNotExist:
-                        main_char = char
-                    main_char_id = main_char.character_id
-                    if main_char_id not in char_to_main:
-                        char_to_main[main_char_id] = []
-                    if char.character_id in chars_ids:
-                        char_to_main[main_char_id].append(char.character_id)
-                        chars_list.append(char.character_id)
+                try:
+                    main_char = char.character_ownership.user.profile.main_character
+                except ObjectDoesNotExist:
+                    main_char = char
+                main_char_id = main_char.character_id
+                if main_char_id not in char_to_main:
+                    char_to_main[main_char_id] = []
+                if char.character_id in entity_ids:
+                    char_to_main[main_char_id].append(char.character_id)
+                    entity_list.append(char.character_id)
             except AttributeError:
                 continue
 
-        return char_to_main, set(chars_list)
+        missing_entitys = set(entity_ids) - set(entity_list)
+
+        entitys = EveEntity.objects.filter(eve_id__in=missing_entitys)
+        # Get All Eve Entities
+        for entity in entitys:
+            try:
+                main_char_id = entity.eve_id
+                if main_char_id not in char_to_main:
+                    char_to_main[main_char_id] = []
+                char_to_main[main_char_id].append(entity.eve_id)
+                entity_list.append(entity.eve_id)
+            except AttributeError:
+                continue
+
+        missing_entitys = set(entity_ids) - set(entity_list)
+
+        return char_to_main, set(entity_list)
 
     def get_ledger_data(self, queryset) -> models.QuerySet:
         """Get the ledger data"""
@@ -157,6 +186,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             queryset.annotate_bounty()
             .annotate_ess()
             .annotate_mission()
+            .annotate_incursion()
             .annotate_daily_goal()
             .annotate_citadel()
             .annotate_miscellaneous()
@@ -169,14 +199,16 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             Q(division__corporation__corporation__corporation_id__in=corporations)
         )
         # Get all Character IDs
-        char_ids_second = self.values_list("second_party_id", flat=True).distinct()
-        char_ids_first = self.values_list("first_party_id", flat=True).distinct()
-        char_ids = set(char_ids_first) | set(char_ids_second)
+        entity_ids_second = self.values_list("second_party_id", flat=True).distinct()
+        entity_ids_first = self.values_list("first_party_id", flat=True).distinct()
+        entity_ids = set(entity_ids_first) | set(entity_ids_second)
         # Get all linked Characters
-        main_and_alts, char_ids = self._get_linked_chars(corporations, char_ids)
+        main_and_alts, entity_ids = self._get_linked_chars(entity_ids)
 
         # Filter queryset with the linked characters
-        qs = qs.filter(Q(first_party_id__in=char_ids) | Q(second_party_id__in=char_ids))
+        qs = qs.filter(
+            Q(first_party_id__in=entity_ids) | Q(second_party_id__in=entity_ids)
+        )
         # Exclude Tax Events
         qs = events_filter(qs)
 
@@ -232,7 +264,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         ]
 
         if entity_type == "corporation":
-            type_names += ["bounty", "mission", "citadel"]
+            type_names += ["bounty", "mission", "citadel", "incursion"]
 
         # Filter Corporations
         qs = self.filter(

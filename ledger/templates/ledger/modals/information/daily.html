@@ -34,10 +34,10 @@
             </div>
         {% endif %}
 
-        {% if character.mission_income %}
+        {% if character.mission %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} {% trans "Mission Reward" %} {% trans "per Day" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.mission_income.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.mission.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
@@ -48,10 +48,10 @@
             </div>
         {% endif %}
 
-        {% if character.incursion_income %}
+        {% if character.incursion %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} {% trans "Incursion" %} {% trans "per Day" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.incursion_income.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.incursion.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 

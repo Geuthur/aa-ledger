@@ -86,10 +86,10 @@
             </div>
         {% endif %}
 
-        {% if character.incursion_income %}
+        {% if character.insurance_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} {% trans "Insurance" %} {% trans "per Hour" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.incursion_income.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.insurance_income.average_hour|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 

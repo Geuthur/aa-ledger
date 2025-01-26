@@ -106,13 +106,16 @@ class TemplateProcess:
         # Process the amounts
         amounts = self._process_amounts_char(models, chars_list)
 
-        self._update_template_dict(self.data.main)
+        main_name = self.data.main.character_name if not self.show_year else "Summary"
+        main_id = self.data.main.character_id if not self.show_year else 0
+
+        self._update_template_dict(main_id, main_name)
         self._generate_amounts_dict(amounts)
 
     # Process the corporation
     def _process_corporation(self, corporation_journal):
         """Process the corporations."""
-        chars = [char.character_id for char in self.chars]
+        chars = [char.eve_id for char in self.chars]
         # Process the amounts
         amounts = defaultdict(lambda: defaultdict(Decimal))
 
@@ -127,14 +130,15 @@ class TemplateProcess:
         amounts["stolen"] = defaultdict(Decimal)
         amounts = calculate_ess_stolen(amounts)
 
+        main_name = self.data.main.character_name if not self.show_year else "Summary"
+        main_id = self.data.main.character_id if not self.show_year else 0
+
         # Update the template dict
-        self._update_template_dict(self.data.main)
+        self._update_template_dict(main_id, main_name)
         self._generate_amounts_dict(amounts)
 
     # Update Core Dict
-    def _update_template_dict(self, char):
-        main_name = char.character_name if not self.show_year else "Summary"
-        main_id = char.character_id if not self.show_year else 0
+    def _update_template_dict(self, main_id=0, main_name="Unknown"):
         date = (
             str(self.data.ledger_date.year)
             if self.data.month == 0
