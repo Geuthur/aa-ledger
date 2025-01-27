@@ -1,6 +1,7 @@
 import calendar
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from decimal import Decimal
 
 from django.utils import timezone
 
@@ -11,18 +12,18 @@ logger = get_extension_logger(__name__)
 
 @dataclass
 class LedgerDataCore:
-    total_bounty: int = 0
-    total_ess_payout: int = 0
-    total_mining: int = 0
-    total_miscellaneous: int = 0
-    total_isk: int = 0
+    total_bounty: Decimal = Decimal("0.00")
+    total_ess_payout: Decimal = Decimal("0.00")
+    total_mining: Decimal = Decimal("0.00")
+    total_miscellaneous: Decimal = Decimal("0.00")
+    total_isk: Decimal = Decimal("0.00")
 
 
 @dataclass
 class LedgerData(LedgerDataCore):
-    total_cost: int = 0
-    total_production_cost: int = 0
-    total_market_cost: int = 0
+    total_cost: Decimal = Decimal(0)
+    total_production_cost: Decimal = Decimal(0)
+    total_market_cost: Decimal = Decimal(0)
 
 
 class LedgerModels:
@@ -62,12 +63,12 @@ class LedgerDate:
 class LedgerTotal:
     """class to store the total amounts."""
 
-    total_amount: int = 0
-    total_amount_ess: int = 0
-    total_amount_all: int = 0
-    total_amount_mining: int = 0
-    total_amount_others: int = 0
-    total_amount_costs: int = 0
+    total_amount: Decimal = Decimal("0.00")
+    total_amount_ess: Decimal = Decimal("0.00")
+    total_amount_all: Decimal = Decimal("0.00")
+    total_amount_mining: Decimal = Decimal("0.00")
+    total_amount_others: Decimal = Decimal("0.00")
+    total_amount_costs: Decimal = Decimal("0.00")
 
     def to_dict(self):
         return asdict(self)
@@ -92,7 +93,7 @@ class LedgerTotal:
 
 
 @dataclass
-class LedgerCharacterDict:
+class LedgerCharacterDict(LedgerTotal):
     """class to store the character dictionary."""
 
     characters: dict = field(default_factory=dict)
@@ -106,11 +107,11 @@ class LedgerCharacterDict:
             "main_id": char_id,
             "main_name": char_name,
             "entity_type": "character",
-            "total_amount": 0,
-            "total_amount_ess": 0,
-            "total_amount_mining": 0,
-            "total_amount_others": 0,
-            "total_amount_costs": 0,
+            "total_amount": self.total_amount,
+            "total_amount_ess": self.total_amount_ess,
+            "total_amount_mining": self.total_amount_mining,
+            "total_amount_others": self.total_amount_others,
+            "total_amount_costs": self.total_amount_costs,
         }
 
     def add_or_update_character(self, char_id, char_name, **kwargs):
