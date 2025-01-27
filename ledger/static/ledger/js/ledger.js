@@ -43,7 +43,10 @@ function getMonthName(monthNumber) {
 // Function to format currency and apply color
 function formatAndColor(value) {
     // Ensure data is a number
-    const number = parseInt(value) || 0;
+    let number = parseFloat(value) || 0;
+
+    // Round the number to the nearest integer
+    number = Math.round(number);
 
     // Format the number to two decimal places
     const formattedNumber = number.toLocaleString();
