@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 
@@ -10,9 +12,11 @@ logger = get_extension_logger(__name__)
 
 
 # TODO Handle it from generate_ledger
-def convert_corp_tax(ess: int) -> float:
-    """Convert ESS payout"""
-    return (ess / app_settings.LEDGER_CORP_TAX) * (100 - app_settings.LEDGER_CORP_TAX)
+def convert_corp_tax(amount: Decimal) -> Decimal:
+    """Convert corp tax to correct amount for character ledger"""
+    return (amount / app_settings.LEDGER_CORP_TAX) * (
+        100 - app_settings.LEDGER_CORP_TAX
+    )
 
 
 def get_character(request, character_id, corp=False) -> tuple[bool, EveCharacter]:
