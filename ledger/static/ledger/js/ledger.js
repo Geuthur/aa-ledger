@@ -393,7 +393,7 @@ function generateLedger(TableName, url) {
                             $('#foot-'+ TableName +' .col-total-mining').html(formatAndColor(total_amount_mining));
                             $('#foot-'+ TableName +' .col-total-costs').html(formatAndColor(total_amount_costs));
                         } else {
-                            templateUrl = `/ledger/api/${entityType}/${entityPk}/${entityPk}/template/year/${selectedYear}/month/${tableMonth}/?corp=true`;
+                            templateUrl = `/ledger/api/${entityType}/${entityPk}/0/template/year/${selectedYear}/month/${tableMonth}/?corp=true`;
                         }
 
                         $('#foot-'+ TableName +' .col-total-amount').html(formatAndColor(total_amount));
