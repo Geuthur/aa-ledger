@@ -334,6 +334,12 @@ def load_corp_journal():
         balance=100_000,
         division=1,
     )
+    CorporationWalletDivision.objects.update_or_create(
+        id=2,
+        corporation=CorporationAudit.objects.get(id=2),
+        balance=100_000,
+        division=2,
+    )
     CorporationWalletJournalEntry.objects.create(
         division=CorporationWalletDivision.objects.get(id=1),
         amount=100_000,
@@ -469,13 +475,13 @@ def load_corp_journal():
 
     # Many Test Entries
     CorporationWalletJournalEntry.objects.create(
-        division=CorporationWalletDivision.objects.get(id=1),
+        division=CorporationWalletDivision.objects.get(id=2),
         amount=100_000,
         balance=100_000_000,
         context_id=0,
         context_id_type="division",
         date="2024-03-19T14:00:00Z",
-        description="Test",
+        description="Ratting Rotze",
         first_party=EveEntity.objects.get(eve_id=1000125),
         entry_id=203,
         reason="",

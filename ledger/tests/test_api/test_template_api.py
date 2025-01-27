@@ -121,7 +121,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         # Summary
         self.assertContains(response, "200,000", status_code=200)
 
-        url = "/ledger/api/corporation/2001/2001/template/year/2024/month/3/?corp=True"
+        url = "/ledger/api/corporation/2001/0/template/year/2024/month/3/?corp=True"
         # when
         response = self.client.get(url)
         # then
@@ -156,7 +156,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         # Summary
         self.assertContains(response, "200,000", status_code=200)
 
-        url = "/ledger/api/alliance/3001/3001/template/year/2024/month/3/?corp=True"
+        url = "/ledger/api/alliance/3001/0/template/year/2024/month/3/?corp=True"
         # when
         response = self.client.get(url)
         # then
@@ -248,4 +248,4 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
 
         response = self.client.get(url)
 
-        self.assertContains(response, "403 Error", status_code=403)
+        self.assertContains(response, "Permission", status_code=403)

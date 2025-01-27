@@ -2,12 +2,12 @@ noData = [
     {
         "ratting": [],
         "total": {
-            "total_amount": 0,
-            "total_amount_ess": 0,
-            "total_amount_all": 0,
-            "total_amount_mining": 0,
-            "total_amount_others": 0,
-            "total_amount_costs": 0,
+            "total_amount": "0.00",
+            "total_amount_ess": "0.00",
+            "total_amount_all": "0.00",
+            "total_amount_mining": "0.00",
+            "total_amount_others": "0.00",
+            "total_amount_costs": "0.00",
         },
     }
 ]
@@ -28,9 +28,9 @@ CorpmonthlyMarch = [
             "total_amount": "200000.00",
             "total_amount_ess": "200000.00",
             "total_amount_all": "400000.00",
-            "total_amount_mining": 0,
-            "total_amount_others": 0,
-            "total_amount_costs": 0,
+            "total_amount_mining": "0.00",
+            "total_amount_others": "0.00",
+            "total_amount_costs": "0.00",
         },
     }
 ]
@@ -52,9 +52,9 @@ Corpyearly = [
             "total_amount": "200000.00",
             "total_amount_ess": "200000.00",
             "total_amount_all": "400000.00",
-            "total_amount_mining": 0,
-            "total_amount_others": 0,
-            "total_amount_costs": 0,
+            "total_amount_mining": "0.00",
+            "total_amount_others": "0.00",
+            "total_amount_costs": "0.00",
         },
     }
 ]
@@ -184,9 +184,9 @@ Corpdatamany = [
             "total_amount": "1400000.00",
             "total_amount_ess": "200000.00",
             "total_amount_all": "1600000.00",
-            "total_amount_mining": 0,
+            "total_amount_mining": "0.00",
             "total_amount_others": "0.00",
-            "total_amount_costs": 0,
+            "total_amount_costs": "0.00",
         },
     }
 ]
@@ -316,9 +316,9 @@ CorpdatamanyWithTaxEvent = [
             "total_amount": "1400000.00",
             "total_amount_ess": "0.00",
             "total_amount_all": "1400000.00",
-            "total_amount_mining": 0,
+            "total_amount_mining": "0.00",
             "total_amount_others": "0.00",
-            "total_amount_costs": 0,
+            "total_amount_costs": "0.00",
         },
     }
 ]

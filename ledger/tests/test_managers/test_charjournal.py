@@ -35,135 +35,108 @@ class CharManagerQuerySetTest(TestCase):
         cls.alt_2 = EveCharacter.objects.get(character_id=1004)
 
     def test_annotate_bounty(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_bounty(character_ids)
+        qs = self.manager.annotate_bounty()
         self.assertIsNotNone(qs)
-        self.assertIn("total_bounty", qs.query.annotations)
+        self.assertIn("bounty", qs.query.annotations)
 
     def test_filter_ess(self):
         character_ids = [1, 2, 3]
 
         qs = self.manager.annotate_ess(character_ids)
         self.assertIsNotNone(qs)
-        self.assertIn("total_ess", qs.query.annotations)
+        self.assertIn("ess", qs.query.annotations)
 
     def test_annotate_mining(self):
         character_ids = [1, 2, 3]
 
         qs = self.manager.annotate_mining(character_ids)
         self.assertIsNotNone(qs)
-        self.assertIn("total_mining", qs.query.annotations)
+        self.assertIn("mining", qs.query.annotations)
 
-    def test_annotate_mission(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_mission(character_ids)
+    def test_annotate_mission_income(self):
+        qs = self.manager.annotate_mission_income()
         self.assertIsNotNone(qs)
-        self.assertIn("total_mission", qs.query.annotations)
+        self.assertIn("mission_income", qs.query.annotations)
 
-    def test_annotate_contract_cost(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_contract_cost(character_ids)
+    def test_annotate_incursion_income(self):
+        qs = self.manager.annotate_incursion_income()
         self.assertIsNotNone(qs)
-        self.assertIn("total_contract_cost", qs.query.annotations)
-
-    def test_annotate_market_cost(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_market_cost(character_ids)
-        self.assertIsNotNone(qs)
-        self.assertIn("total_market_cost", qs.query.annotations)
-
-    def test_annotate_assets_cost(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_assets_cost(character_ids)
-        self.assertIsNotNone(qs)
-        self.assertIn("total_assets_cost", qs.query.annotations)
-
-    def test_annotate_traveling_cost(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_traveling_cost(character_ids)
-        self.assertIsNotNone(qs)
-        self.assertIn("total_traveling_cost", qs.query.annotations)
-
-    def test_annotate_production_cost(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_production_cost(character_ids)
-        self.assertIsNotNone(qs)
-        self.assertIn("total_production_cost", qs.query.annotations)
-
-    def test_annotate_skill_cost(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_skill_cost(character_ids)
-        self.assertIsNotNone(qs)
-        self.assertIn("total_skill_cost", qs.query.annotations)
-
-    def test_annotate_insurance_cost(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_insurance_cost(character_ids)
-        self.assertIsNotNone(qs)
-        self.assertIn("total_insurance_cost", qs.query.annotations)
-
-    def test_annotate_planetary_cost(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_planetary_cost(character_ids)
-        self.assertIsNotNone(qs)
-        self.assertIn("total_planetary_cost", qs.query.annotations)
-
-    def test_annotate_lp_cost(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_lp_cost(character_ids)
-        self.assertIsNotNone(qs)
-        self.assertIn("total_lp", qs.query.annotations)
+        self.assertIn("incursion_income", qs.query.annotations)
 
     def test_annotate_market_income(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_market_income(character_ids)
+        qs = self.manager.annotate_market_income()
         self.assertIsNotNone(qs)
-        self.assertIn("total_market_income", qs.query.annotations)
+        self.assertIn("market_income", qs.query.annotations)
 
     def test_annotate_contract_income(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_contract_income(character_ids)
+        qs = self.manager.annotate_contract_income()
         self.assertIsNotNone(qs)
-        self.assertIn("total_contract_income", qs.query.annotations)
+        self.assertIn("contract_income", qs.query.annotations)
 
     def test_annotate_donation_income(self):
-        character_ids = [1, 2, 3]
         exclude = [4, 5]
-
-        qs = self.manager.annotate_donation_income(character_ids, exclude)
+        qs = self.manager.annotate_donation_income(exclude)
         self.assertIsNotNone(qs)
-        self.assertIn("total_donation_income", qs.query.annotations)
+        self.assertIn("donation_income", qs.query.annotations)
 
-        qs_no_filter = self.manager.annotate_donation_income(character_ids)
+        qs_no_filter = self.manager.annotate_donation_income()
         self.assertIsNotNone(qs_no_filter)
-        self.assertIn("total_donation_income", qs_no_filter.query.annotations)
+        self.assertIn("donation_income", qs_no_filter.query.annotations)
 
     def test_annotate_insurance_income(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_insurance_income(character_ids)
+        qs = self.manager.annotate_insurance_income()
         self.assertIsNotNone(qs)
-        self.assertIn("total_insurance_income", qs.query.annotations)
+        self.assertIn("insurance_income", qs.query.annotations)
 
     def test_annotate_milestone_income(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_milestone_income(character_ids)
+        qs = self.manager.annotate_milestone_income()
         self.assertIsNotNone(qs)
-        self.assertIn("total_milestone_income", qs.query.annotations)
+        self.assertIn("milestone_income", qs.query.annotations)
+
+    def test_annotate_contract_cost(self):
+        qs = self.manager.annotate_contract_cost()
+        self.assertIsNotNone(qs)
+        self.assertIn("contract_cost", qs.query.annotations)
+
+    def test_annotate_market_cost(self):
+        qs = self.manager.annotate_market_cost()
+        self.assertIsNotNone(qs)
+        self.assertIn("market_cost", qs.query.annotations)
+
+    def test_annotate_assets_cost(self):
+        qs = self.manager.annotate_asset_cost()
+        self.assertIsNotNone(qs)
+        self.assertIn("asset_cost", qs.query.annotations)
+
+    def test_annotate_traveling_cost(self):
+        qs = self.manager.annotate_traveling_cost()
+        self.assertIsNotNone(qs)
+        self.assertIn("traveling_cost", qs.query.annotations)
+
+    def test_annotate_production_cost(self):
+        qs = self.manager.annotate_production_cost()
+        self.assertIsNotNone(qs)
+        self.assertIn("production_cost", qs.query.annotations)
+
+    def test_annotate_skill_cost(self):
+        qs = self.manager.annotate_skill_cost()
+        self.assertIsNotNone(qs)
+        self.assertIn("skill_cost", qs.query.annotations)
+
+    def test_annotate_insurance_cost(self):
+        qs = self.manager.annotate_insurance_cost()
+        self.assertIsNotNone(qs)
+        self.assertIn("insurance_cost", qs.query.annotations)
+
+    def test_annotate_planetary_cost(self):
+        qs = self.manager.annotate_planetary_cost()
+        self.assertIsNotNone(qs)
+        self.assertIn("planetary_cost", qs.query.annotations)
+
+    def test_annotate_lp_cost(self):
+        qs = self.manager.annotate_lp_cost()
+        self.assertIsNotNone(qs)
+        self.assertIn("lp_cost", qs.query.annotations)
 
     def test_generate_ledger(self):
 
@@ -185,11 +158,11 @@ class CharManagerQuerySetTest(TestCase):
         # Test with filter
         qs = self.manager.annotate_billboard(character_ids, alts)
         self.assertIsNotNone(qs)
-        self.assertIn("total_bounty", qs.query.annotations)
-        self.assertIn("total_miscellaneous", qs.query.annotations)
-        self.assertIn("total_cost", qs.query.annotations)
-        self.assertIn("total_market_cost", qs.query.annotations)
-        self.assertIn("total_production_cost", qs.query.annotations)
+        self.assertIn("bounty", qs.query.annotations)
+        self.assertIn("miscellaneous", qs.query.annotations)
+        self.assertIn("cost", qs.query.annotations)
+        self.assertIn("market_cost", qs.query.annotations)
+        self.assertIn("production_cost", qs.query.annotations)
 
     def test_generate_ledger_with_attribute_error(self):
         character_ids = [self.char_1, self.char_2, "a"]

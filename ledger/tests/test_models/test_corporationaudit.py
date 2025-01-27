@@ -51,6 +51,9 @@ class TestCorporationWalletJournal(TestCase):
 
         query = CorporationWalletJournalEntry.get_visible(request.user)
 
-        excepted_corporation = CorporationWalletJournalEntry.objects.all()
+        expected_corporation = CorporationWalletJournalEntry.objects.all()
 
-        self.assertEqual(list(query), list(excepted_corporation))
+        self.assertEqual(
+            sorted(list(query), key=lambda x: x.entry_id),
+            sorted(list(expected_corporation), key=lambda x: x.entry_id),
+        )

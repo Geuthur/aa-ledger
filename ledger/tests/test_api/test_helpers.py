@@ -8,11 +8,7 @@ from allianceauth.corputils.models import CorpMember, CorpStats
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from app_utils.testing import add_character_to_user, create_user_from_evecharacter
 
-from ledger.api.helpers import (
-    get_alts_queryset,
-    get_character,
-    get_main_and_alts_ids_all,
-)
+from ledger.api.helpers import get_alts_queryset, get_character
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 
 MODULE_PATH = "ledger.api.helpers"

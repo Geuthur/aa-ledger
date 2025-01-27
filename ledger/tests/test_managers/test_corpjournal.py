@@ -43,32 +43,24 @@ class CharManagerQuerySetTest(TestCase):
         )
 
     def test_annotate_bounty(self):
-        character_ids = [1, 2, 3]
-
-        qs = CorporationWalletJournalEntry.objects.annotate_bounty(character_ids)
+        qs = CorporationWalletJournalEntry.objects.annotate_bounty()
         self.assertIsNotNone(qs)
-        self.assertIn("total_bounty", qs.query.annotations)
+        self.assertIn("bounty", qs.query.annotations)
 
     def test_annotate_ess(self):
-        character_ids = [1, 2, 3]
-
-        qs = CorporationWalletJournalEntry.objects.annotate_ess(character_ids)
+        qs = CorporationWalletJournalEntry.objects.annotate_ess()
         self.assertIsNotNone(qs)
-        self.assertIn("total_ess", qs.query.annotations)
+        self.assertIn("ess", qs.query.annotations)
 
     def test_annotate_mission(self):
-        character_ids = [1, 2, 3]
-
-        qs = CorporationWalletJournalEntry.objects.annotate_mission(character_ids)
+        qs = CorporationWalletJournalEntry.objects.annotate_mission()
         self.assertIsNotNone(qs)
-        self.assertIn("total_mission", qs.query.annotations)
+        self.assertIn("mission", qs.query.annotations)
 
     def test_annotate_daily_goal(self):
-        character_ids = [1, 2, 3]
-
-        qs = CorporationWalletJournalEntry.objects.annotate_daily_goal(character_ids)
+        qs = CorporationWalletJournalEntry.objects.annotate_daily_goal()
         self.assertIsNotNone(qs)
-        self.assertIn("total_daily_goal", qs.query.annotations)
+        self.assertIn("daily_goal", qs.query.annotations)
 
     def test_annotate_ledger(self):
         add_character_to_user(self.user, EveCharacter.objects.get(character_id=1002))
@@ -128,201 +120,170 @@ class CharManagerQuerySetTest(TestCase):
         expected_result = [
             {
                 "main_entity_id": 1001,
-                "alts": [1001],
-                "total_bounty": Decimal("400000.00"),
-                "total_ess": Decimal("400000.00"),
-                "total_miscellaneous": Decimal("0.00"),
+                "alts": [1001, 1002],
+                "bounty": Decimal("400000.00"),
+                "ess": Decimal("400000.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
             },
             {
                 "main_entity_id": 1010,
                 "alts": [1010],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
+                "bounty": Decimal("100000.00"),
+                "ess": Decimal("0.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
             },
             {
                 "main_entity_id": 1011,
                 "alts": [1011],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
+                "bounty": Decimal("100000.00"),
+                "ess": Decimal("0.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
             },
             {
                 "main_entity_id": 1012,
                 "alts": [1012],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
+                "bounty": Decimal("100000.00"),
+                "ess": Decimal("0.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
             },
             {
                 "main_entity_id": 1013,
                 "alts": [1013],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
+                "bounty": Decimal("100000.00"),
+                "ess": Decimal("0.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
             },
             {
                 "main_entity_id": 1014,
                 "alts": [1014],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
+                "bounty": Decimal("100000.00"),
+                "ess": Decimal("0.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
             },
             {
                 "main_entity_id": 1015,
                 "alts": [1015],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
+                "bounty": Decimal("100000.00"),
+                "ess": Decimal("0.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
             },
             {
                 "main_entity_id": 1016,
                 "alts": [1016],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
+                "bounty": Decimal("100000.00"),
+                "ess": Decimal("0.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
             },
             {
                 "main_entity_id": 1017,
                 "alts": [1017],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
+                "bounty": Decimal("100000.00"),
+                "ess": Decimal("0.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
             },
             {
                 "main_entity_id": 1018,
                 "alts": [1018],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
+                "bounty": Decimal("100000.00"),
+                "ess": Decimal("0.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
             },
             {
                 "main_entity_id": 1019,
                 "alts": [1019],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
+                "bounty": Decimal("100000.00"),
+                "ess": Decimal("0.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
             },
             {
                 "main_entity_id": 1020,
                 "alts": [1020],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
+                "bounty": Decimal("100000.00"),
+                "ess": Decimal("0.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
             },
             {
                 "main_entity_id": 1021,
                 "alts": [1021],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
+                "bounty": Decimal("100000.00"),
+                "ess": Decimal("0.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
+            },
+            {
+                "main_entity_id": 9998,
+                "alts": [9998],
+                "bounty": Decimal("100000.00"),
+                "ess": Decimal("0.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
+            },
+            {
+                "main_entity_id": 9999,
+                "alts": [9999],
+                "bounty": Decimal("100000.00"),
+                "ess": Decimal("0.00"),
+                "mission": Decimal("0.00"),
+                "incursion": Decimal("0.00"),
+                "daily_goal": Decimal("0.00"),
+                "citadel": Decimal("0.00"),
+                "miscellaneous": Decimal("0.00"),
             },
         ]
-
-        sorted_result = sorted(list(result), key=lambda x: x["main_entity_id"])
-        sorted_expected_result = sorted(
-            expected_result, key=lambda x: x["main_entity_id"]
-        )
-
-        self.assertEqual(sorted_result, sorted_expected_result)
-
-        # With Attribute Error
-
-        auth_character = EveCharacter.objects.get(character_id=1019)
-        user = AuthUtils.create_user(auth_character.character_name.replace(" ", "_"))
-        _ = add_character_to_user(user, auth_character, is_main=False, scopes=None)
-
-        self.client.force_login(user)
-
-        result = CorporationWalletJournalEntry.objects.all().generate_ledger([2001])
-
-        expected_result = [
-            {
-                "main_entity_id": 1001,
-                "alts": [1001],
-                "total_bounty": Decimal("400000.00"),
-                "total_ess": Decimal("400000.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_entity_id": 1010,
-                "alts": [1010],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_entity_id": 1011,
-                "alts": [1011],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_entity_id": 1012,
-                "alts": [1012],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_entity_id": 1013,
-                "alts": [1013],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_entity_id": 1014,
-                "alts": [1014],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_entity_id": 1015,
-                "alts": [1015],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_entity_id": 1016,
-                "alts": [1016],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_entity_id": 1017,
-                "alts": [1017],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_entity_id": 1018,
-                "alts": [1018],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_entity_id": 1020,
-                "alts": [1020],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-            {
-                "main_entity_id": 1021,
-                "alts": [1021],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
-            },
-        ]
-        #    [{'main_entity_id': 1001, 'alts': [1001], 'total_bounty': Decimal('400000.00'), 'total_ess': Decimal('400000.00'), 'total_miscellaneous': Decimal('0.00')}, {'main_entity_id': 1010, 'alts': [1010], 'total_bounty': Decimal('100000.00'), 'total_ess': Decimal('0.00'), 'total_miscellaneous': Decimal('0.00')}, {'main_entity_id': 1011, 'alts': [1011], 'total_bounty': Decimal('100000.00'), 'total_ess': Decimal('0.00'), 'total_miscellaneous': Decimal('0.00')}, {'main_entity_id': 1012, 'alts': [1012], 'total_bounty': Decimal('100000.00'), 'total_ess': Decimal('0.00'), 'total_miscellaneous': Decimal('0.00')}, {'main_entity_id': 1013, 'alts': [1013], 'total_bounty': Decimal('100000.00'), 'total_ess': Decimal('0.00'), 'total_miscellaneous': Decimal('0.00')}, {'main_entity_id': 1014, 'alts': [1014], 'total_bounty': Decimal('100000.00'), 'total_ess': Decimal('0.00'), 'total_miscellaneous': Decimal('0.00')}, {'main_entity_id': 1015, 'alts': [1015], 'total_bounty': Decimal('100000.00'), 'total_ess': Decimal('0.00'), 'total_miscellaneous': Decimal('0.00')}, {'main_entity_id': 1016, 'alts': [1016], 'total_bounty': Decimal('100000.00'), 'total_ess': Decimal('0.00'), 'total_miscellaneous': Decimal('0.00')}, {'main_entity_id': 1017, 'alts': [1017], 'total_bounty': Decimal('100000.00'), 'total_ess': Decimal('0.00'), 'total_miscellaneous': Decimal('0.00')}, {'main_entity_id': 1018, 'alts': [1018], 'total_bounty': Decimal('100000.00'), 'total_ess': Decimal('0.00'), 'total_miscellaneous': Decimal('0.00')}, {'main_entity_id': 1020, 'alts': [1020], 'total_bounty': Decimal('100000.00'), 'total_ess': Decimal('0.00'), 'total_miscellaneous': Decimal('0.00')}, {'main_entity_id': 1021, 'alts': [1021], 'total_bounty': Decimal('100000.00'), 'total_ess': Decimal('0.00'), 'total_miscellaneous': Decimal('0.00')}]
 
         sorted_result = sorted(list(result), key=lambda x: x["main_entity_id"])
         sorted_expected_result = sorted(
