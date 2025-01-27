@@ -35,6 +35,7 @@ class CorporationProcess:
             if not main_entity_id == 0 and main_entity_id is not None:
                 try:
                     character_name = EveEntity.objects.get(eve_id=main_entity_id).name
+                    entity_type = EveEntity.objects.get(eve_id=main_entity_id).category
                 except EveEntity.DoesNotExist:
                     pass
 
