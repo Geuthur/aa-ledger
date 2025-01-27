@@ -147,7 +147,6 @@ class CharacterProcess:
     def generate_ledger(self):
         # Get the All Alt Characters from Main
         if self.alts:
-            self.chars = self.alts
             self.chars_list = [char.character_id for char in self.alts]
         else:
             self.chars_list = [char.character_id for char in self.chars]
@@ -175,7 +174,6 @@ class CharacterProcess:
     def generate_billboard(self, corporations=None):
         # Get the Character IDs
         if self.alts:
-            self.chars = self.alts
             self.chars_list = [char.character_id for char in self.alts]
         else:
             self.chars_list = [char.character_id for char in self.chars]
