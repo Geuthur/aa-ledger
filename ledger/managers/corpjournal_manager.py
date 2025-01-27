@@ -1,10 +1,11 @@
 import json
 from collections import defaultdict
+from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Case, DecimalField, F, Q, Sum, Value, When
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, Round
 from django.utils import timezone
 
 from allianceauth.eveonline.models import EveCharacter
@@ -38,6 +39,13 @@ MISC_FILTER = (
 
 
 class CorpWalletQueryFilter(models.QuerySet):
+    def _convert_corp_tax(self, ess: models.QuerySet) -> Decimal:
+        """Convert corp tax to correct amount for character ledger"""
+        amount = (ess / app_settings.LEDGER_CORP_TAX) * (
+            100 - app_settings.LEDGER_CORP_TAX
+        )
+        return amount
+
     def annotate_bounty(self) -> models.QuerySet:
         return self.annotate(
             bounty=Coalesce(
@@ -50,14 +58,28 @@ class CorpWalletQueryFilter(models.QuerySet):
             )
         )
 
-    def annotate_ess(self) -> models.QuerySet:
+    def annotate_ess(self, is_character_ledger: bool = False) -> models.QuerySet:
         # Exclude Tax Events
         qs = events_filter(self)
 
+        if is_character_ledger:
+            return qs.annotate(
+                ess=Round(
+                    Coalesce(
+                        Sum(
+                            self._convert_corp_tax(F("amount")),
+                            filter=(ESS_FILTER),
+                        ),
+                        Value(0),
+                        output_field=DecimalField(),
+                    ),
+                    precision=2,
+                )
+            )
         return qs.annotate(
             ess=Coalesce(
                 Sum(
-                    "amount",
+                    F("amount"),
                     filter=(ESS_FILTER),
                 ),
                 Value(0),
@@ -89,11 +111,25 @@ class CorpWalletQueryFilter(models.QuerySet):
             )
         )
 
-    def annotate_daily_goal(self) -> models.QuerySet:
+    def annotate_daily_goal(self, is_character_ledger: bool = False) -> models.QuerySet:
+        if is_character_ledger:
+            return self.annotate(
+                daily_goal=Round(
+                    Coalesce(
+                        Sum(
+                            self._convert_corp_tax(F("amount")),
+                            filter=(DAILY_GOAL_REWARD_FILTER),
+                        ),
+                        Value(0),
+                        output_field=DecimalField(),
+                    ),
+                    precision=2,
+                )
+            )
         return self.annotate(
             daily_goal=Coalesce(
                 Sum(
-                    "amount",
+                    F("amount"),
                     filter=(DAILY_GOAL_REWARD_FILTER),
                 ),
                 Value(0),
@@ -128,12 +164,6 @@ class CorpWalletQueryFilter(models.QuerySet):
 
 
 class CorpWalletQuerySet(CorpWalletQueryFilter):
-    def _convert_corp_tax(self, ess: int) -> float:
-        """Convert ESS payout"""
-        return (ess / app_settings.LEDGER_CORP_TAX) * (
-            100 - app_settings.LEDGER_CORP_TAX
-        )
-
     def _get_linked_chars(self, entity_ids: list) -> tuple:
         char_to_main = {}
         entity_list = []

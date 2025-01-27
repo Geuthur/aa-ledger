@@ -2,8 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
 
-from django.db.models import DecimalField, F, Q, Sum
-from django.db.models.functions import Coalesce
+from django.db.models import Q
 from django.utils import timezone
 
 from ledger.api.helpers import get_alts_queryset
@@ -158,13 +157,11 @@ class TemplateProcess:
         current_day = 365 if self.data.month == 0 else self.data.ledger_date.day
         # Calculate the total sum
         total_sum = sum(
-            Decimal(amounts[key]["total_amount"]) for key in amounts if key != "stolen"
+            amounts[key]["total_amount"] for key in amounts if key != "stolen"
         )
 
         total_current_day_sum = sum(
-            Decimal(amounts[key]["total_amount_day"])
-            for key in amounts
-            if key != "stolen"
+            amounts[key]["total_amount_day"] for key in amounts if key != "stolen"
         )
 
         self.template_dict.update(
@@ -234,21 +231,11 @@ class TemplateProcess:
         )
 
         # Generate Template for Mining Journal
-        amounts["mining"] = defaultdict(Decimal)
-        mining_aggregated = (
-            mining_journal.filter(Q(character__character__character_id__in=chars_list))
-            .values("total", "date")
-            .aggregate(
-                total_amount=Coalesce(Sum(F("total")), 0, output_field=DecimalField()),
-                total_amount_day=Coalesce(
-                    Sum(F("total"), filter=Q(date__day=self.data.current_date.day)),
-                    0,
-                    output_field=DecimalField(),
-                ),
-            )
+        amounts = mining_journal.generate_template(
+            amounts=amounts,
+            chars_list=chars_list,
+            filter_date=self.data.ledger_date,
         )
-        amounts["mining"]["total_amount"] += mining_aggregated["total_amount"]
-        amounts["mining"]["total_amount_day"] += mining_aggregated["total_amount_day"]
 
         # Generate Template for Corporation Journal
         amounts = corporation_journal.generate_template(
@@ -261,5 +248,4 @@ class TemplateProcess:
         # Calculate the stolen ESS
         amounts["stolen"] = defaultdict(Decimal)
         amounts = calculate_ess_stolen(amounts)
-
         return amounts

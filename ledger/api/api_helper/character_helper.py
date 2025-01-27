@@ -1,4 +1,4 @@
-from django.db.models import Q, Sum
+from django.db.models import Q
 
 from ledger.api.api_helper.billboard_helper import BillboardData, BillboardLedger
 from ledger.api.api_helper.core_manager import (
@@ -7,7 +7,7 @@ from ledger.api.api_helper.core_manager import (
     LedgerModels,
     LedgerTotal,
 )
-from ledger.api.helpers import convert_corp_tax, get_alts_queryset
+from ledger.api.helpers import get_alts_queryset
 from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import CharacterWalletJournalEntry
 
@@ -58,28 +58,21 @@ class CharacterProcess:
         )
 
         # Annotate Mining for Characters
-        mining_char_journal = (
-            mining_journal.annotate_pricing()
-            .values("character__character__character_id")
-            .annotate(total_amount=Sum("total"))
-            .values(
-                "character__character__character_id",
-                "character__character__character_name",
-                "total_amount",
-            )
-        )
+        mining_char_journal = mining_journal.annotate_mining()
 
         # Annotate Corp Journal for Characters
         corp_character_journal = (
-            corp_journal.annotate_daily_goal()
-            .annotate_ess()
-            .values("second_party__eve_id", "second_party__name", "ess", "daily_goal")
+            corp_journal.values("second_party__eve_id", "second_party__name")
+            .annotate_daily_goal(is_character_ledger=True)
+            .annotate_ess(is_character_ledger=True)
         )
 
         for mining_char in mining_char_journal:
-            char_id = mining_char["character__character__character_id"]
-            char_name = mining_char["character__character__character_name"]
-            total_amount_mining = mining_char["total_amount"]
+            char_name = mining_char.get(
+                "character__character__character_name", "Unknown"
+            )
+            char_id = mining_char.get("character__character__character_id", 0)
+            total_amount_mining = mining_char.get("total_amount", 0)
 
             character_dict.add_or_update_character(
                 char_id,
@@ -118,12 +111,12 @@ class CharacterProcess:
             # Summary all
             character_totals.get_summary(totals)
 
-        for char in corp_character_journal:
-            char_name = char.get("second_party__name", "Unknown")
-            char_id = char.get("second_party__eve_id", 0)
+        for corp_char in corp_character_journal:
+            char_name = corp_char.get("second_party__name", "Unknown")
+            char_id = corp_char.get("second_party__eve_id", 0)
 
-            total_ess = convert_corp_tax(char.get("ess", 0))
-            total_daily_goal = convert_corp_tax(char.get("daily_goal", 0))
+            total_ess = corp_char.get("ess", 0)
+            total_daily_goal = corp_char.get("daily_goal", 0)
 
             if total_daily_goal:
                 character_dict.add_amount_to_character(
