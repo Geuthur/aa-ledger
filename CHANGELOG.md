@@ -35,6 +35,7 @@
 - Billboard doesn't work in different languages
 - Float Error instead of Decimal in Ledger
 - Character Information Error Handler now works
+- Diff. Amounts in Ledger & Character Information cause no round up on Ledger
 
 ## [0.6.6] - 2024-11-16
 
