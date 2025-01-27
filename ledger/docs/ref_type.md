@@ -13,6 +13,8 @@
   - agent_mission_time_bonus_reward
 - **Incursion**
   - corporate_reward_payout
+- **Daily Goal**
+  - daily_goal_reward
 
 <hr>
 
@@ -104,10 +106,6 @@
 # Corporation Ledger
 
 # Income
-
-- **Daily Goal Reward**
-
-  - daily_goal_reward
 
 - **Citadel**
 
