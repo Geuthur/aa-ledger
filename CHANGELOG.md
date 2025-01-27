@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.6.7] - 2024-11-16
+## [0.7.0] - 2025-01-27
 
 ### Added
 
@@ -8,6 +8,8 @@
 - Planetary Facility Overview
 - Corporation Ledger
   - Industry Taxes
+- Character Ledger
+  - Daily Goal
 
 ### Removed
 
@@ -24,6 +26,7 @@
 - Renamed annotate_ledger to generate_ledger
 - Refactor generate_ledger queryfilter
 - Refactor generate_template queryfilter
+- All Amounts are Decimal now
 
 ### Fixed
 
@@ -31,6 +34,7 @@
 - Performance Issues on Corporation Ledger
 - Billboard doesn't work in different languages
 - Float Error instead of Decimal in Ledger
+- Character Information Error Handler now works
 
 ## [0.6.6] - 2024-11-16
 
