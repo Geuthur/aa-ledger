@@ -17,7 +17,6 @@ from django.utils import timezone
 
 from allianceauth.eveonline.models import EveCharacter
 
-from ledger import app_settings
 from ledger.hooks import get_extension_logger
 from ledger.view_helpers.core import events_filter
 
@@ -418,12 +417,6 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
 
 
 class CharWalletQuerySet(CharWalletCostQueryFilter):
-    def _convert_corp_tax(self, ess: int) -> float:
-        """Convert ESS payout"""
-        return (ess / app_settings.LEDGER_CORP_TAX) * (
-            100 - app_settings.LEDGER_CORP_TAX
-        )
-
     def _get_main_and_alts(self, characters: list[EveCharacter]) -> tuple[dict, set]:
         characters_dict = {}
         char_list = []
