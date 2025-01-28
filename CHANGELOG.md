@@ -12,7 +12,7 @@
 - `annotate_billboard` for Corporation Ledger
 - Python 3.13 Support
 - SRI integrity
-- Cache Busting thanks to (@ppfeufer)
+- Cache Busting by [@ppfeufer](https://github.com/ppfeufer)
 
 ### Removed
 
