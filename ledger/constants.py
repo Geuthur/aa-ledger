@@ -1,3 +1,13 @@
+"""
+Constants
+"""
+
+# Standard Library
+import os
+
+AA_LEDGER_BASE_DIR = os.path.join(os.path.dirname(__file__))
+AA_LEDGER_STATIC_DIR = os.path.join(AA_LEDGER_BASE_DIR, "static", "ledger")
+
 COMMAND_CENTER = [
     2129,
     2130,

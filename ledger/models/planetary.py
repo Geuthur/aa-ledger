@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from eveuniverse.models import EvePlanet, EveType
 
-from ledger.constants.pi import EXTRACTOR_CONTROL_UNIT, P0_PRODUCTS, SPACEPORTS
+from ledger.constants import EXTRACTOR_CONTROL_UNIT, P0_PRODUCTS, SPACEPORTS
 from ledger.hooks import get_extension_logger
 from ledger.managers.planetary_manager import PlanetaryManager
 from ledger.models.characteraudit import CharacterAudit

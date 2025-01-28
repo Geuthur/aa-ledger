@@ -4,7 +4,7 @@ from django.db import models
 from django.utils import timezone
 from eveuniverse.models import EveType
 
-from ledger.constants.pi import COMMAND_CENTER, EXTRACTOR_CONTROL_UNIT, SPACEPORTS
+from ledger.constants import COMMAND_CENTER, EXTRACTOR_CONTROL_UNIT, SPACEPORTS
 from ledger.hooks import get_extension_logger
 
 if TYPE_CHECKING:  # pragma: no cover

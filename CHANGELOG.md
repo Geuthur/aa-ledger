@@ -8,12 +8,15 @@
 - Planetary Facility Overview
 - Corporation Ledger
   - Industry Taxes
-- Character Ledger
-  - Daily Goal
+- `daily_goal_reward` Ref-Type to Char Ledger
+- `annotate_billboard` for Corporation Ledger
+- Python 3.13 Support
+- SRI integrity
+- Cache Busting thanks to (@ppfeufer)
 
 ### Removed
 
-- MemberAudit Support
+- MemberAudit Support - `Char Link` is the new Linking System
 
 ### Changed
 
@@ -23,19 +26,31 @@
 - Create Missing Character changed to Create Missing Entity
 - JS Portrait Handler
 - JS Optimation Ledger
-- Renamed annotate_ledger to generate_ledger
-- Refactor generate_ledger queryfilter
-- Refactor generate_template queryfilter
+- Renamed `annotate_ledger` to `generate_ledger`
+- Refactor `generate_ledger` queryfilter
+- Refactor `generate_template` queryfilter
+- Refactor Character Helper
+- Corporation Billboard now use `annotate_billboard` from Corp Journal
+- Template Helper use Standardized `generate_ledger` Queryset
+- Standardized Ledger Backend Process
 - All Amounts are Decimal now
+- Dependencies updated
+  - AA 4.6.1
+- Minimum Requirments
+  - AA 4.6.0
+- Use `django-sri` for sri hash
 
 ### Fixed
 
-- a Case that a Character become Income if he accept a Contract with Corp
-- Performance Issues on Corporation Ledger
+- A Case that a Character become Income if he accept a Contract with Corp
+- Long loading times on Corporation Ledger & Character Ledger
 - Billboard doesn't work in different languages
 - Float Error instead of Decimal in Ledger
-- Character Information Error Handler now works
-- Diff. Amounts in Ledger & Character Information cause no round up on Ledger
+- Corp Tax Event Filter filtered all instead of ESS only
+- Billboard member to member contracts transactions are calculated wrong
+- Character Information Error Handler not work
+- Corp Ledger Unknown entities are not displayed
+- No decimal Rounding in Ledger View
 
 ## [0.6.6] - 2024-11-16
 
