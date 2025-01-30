@@ -46,7 +46,7 @@ class CorpWalletQueryFilter(models.QuerySet):
         )
         return amount
 
-    def annotate_bounty(self) -> models.QuerySet:
+    def annotate_bounty_income(self) -> models.QuerySet:
         return self.annotate(
             bounty_income=Coalesce(
                 Sum(
@@ -58,7 +58,7 @@ class CorpWalletQueryFilter(models.QuerySet):
             )
         )
 
-    def annotate_ess(self, is_character_ledger: bool = False) -> models.QuerySet:
+    def annotate_ess_income(self, is_character_ledger: bool = False) -> models.QuerySet:
         # Exclude Tax Events
         qs = events_filter(self)
         if is_character_ledger:
@@ -112,7 +112,9 @@ class CorpWalletQueryFilter(models.QuerySet):
             )
         )
 
-    def annotate_daily_goal(self, is_character_ledger: bool = False) -> models.QuerySet:
+    def annotate_daily_goal_income(
+        self, is_character_ledger: bool = False
+    ) -> models.QuerySet:
         if is_character_ledger:
             return self.annotate(
                 daily_goal_income=Round(
@@ -138,7 +140,7 @@ class CorpWalletQueryFilter(models.QuerySet):
             )
         )
 
-    def annotate_citadel(self) -> models.QuerySet:
+    def annotate_citadel_income(self) -> models.QuerySet:
         return self.annotate(
             citadel_income=Coalesce(
                 Sum(
@@ -214,12 +216,12 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
     def get_ledger_data(self, queryset) -> models.QuerySet:
         """Get the ledger data"""
         return (
-            queryset.annotate_bounty()
-            .annotate_ess()
+            queryset.annotate_bounty_income()
+            .annotate_ess_income()
             .annotate_mission_income()
-            .annotate_incursion()
-            .annotate_daily_goal()
-            .annotate_citadel()
+            .annotate_incursion_income()
+            .annotate_daily_goal_income()
+            .annotate_citadel_income()
             .annotate_miscellaneous()
         )
 

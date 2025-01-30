@@ -80,8 +80,8 @@ class CharacterProcess:
         # Annotate Corp Journal for Characters
         corp_character_journal = (
             self.corp_journal.values("second_party__eve_id", "second_party__name")
-            .annotate_daily_goal(is_character_ledger=True)
-            .annotate_ess(is_character_ledger=True)
+            .annotate_daily_goal_income(is_character_ledger=True)
+            .annotate_ess_income(is_character_ledger=True)
         )
 
         character_journal = self.char_journal
