@@ -1,5 +1,5 @@
-/* global ledgersettings */
-/* global bb, d3 */
+/* global ledgersettings, load_or_create_Chart, setBillboardData */
+/* eslint-disable */
 
 var MonthUrl, YearUrl, BillboardUrl, BillboardUrlYear;
 var BillboardMonth, BillboardYear, BillboardHourly;
@@ -19,6 +19,7 @@ const currentDate = new Date();
 // Aktuelles Jahr und Monat abrufen
 var selectedYear = currentDate.getFullYear();
 var selectedMonth = currentDate.getMonth() + 1;
+var selectedDay = 1;
 var monthText = getMonthName(selectedMonth);
 
 var mainAlts = '';
@@ -28,10 +29,10 @@ if (characteraltsShow) {
 }
 
 function updateUrls() {
-    MonthUrl = '/ledger/api/'+ entityType +'/' + entityPk + '/ledger/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
-    YearUrl = '/ledger/api/'+ entityType +'/' + entityPk + '/ledger/year/' + selectedYear + '/month/0/' + mainAlts;
-    BillboardUrl = '/ledger/api/'+ entityType +'/' + entityPk + '/billboard/year/' + selectedYear + '/month/' + selectedMonth + '/' + mainAlts;
-    BillboardUrlYear = '/ledger/api/'+ entityType +'/' + entityPk + '/billboard/year/' + selectedYear + '/month/0/' + mainAlts;
+    MonthUrl = `/ledger/api/${entityType}/${entityPk}/ledger/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/month/${mainAlts}`;
+    YearUrl = `/ledger/api/${entityType}/${entityPk}/ledger/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/year/${mainAlts}`;
+    BillboardUrl = `/ledger/api/${entityType}/${entityPk}/billboard/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/month/${mainAlts}`;
+    BillboardUrlYear = `/ledger/api/${entityType}/${entityPk}/billboard/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/year/${mainAlts}`;
 }
 
 function getMonthName(monthNumber) {
@@ -108,14 +109,19 @@ $('#yearDropdown li').click(function() {
 
 $('#barDropdown-Month li').click(function() {
     selectedMode = $(this).text();
+    var div = 'rattingBar-Month';
     if (selectedMode === hourlyText) {
-        $('#barTitle-Month').text('Ledger ' + selectedMode);
-        ActiveBillboardMonth = BillboardHourly;
+        var data = BillboardHourly.rattingbar;
     } else {
-        $('#barTitle-Month').text('Ledger 30 '+ daysText +'');
-        ActiveBillboardMonth = BillboardMonth;
+        var data = BillboardMonth.rattingbar;
     }
-    updateBillboard(ActiveBillboardMonth, 'Month', selectedMode);
+    const success = load_or_create_Chart(div=div, data=data, id='Month', chart='bar');
+    if (success) {
+        $('#barTitle-Month').text('Ledger ' + selectedMode);
+        console.log('Chart loaded successfully');
+    } else {
+        console.error('Failed to load chart');
+    }
 });
 
 function initTooltip() {
@@ -149,26 +155,6 @@ function hideContainer(id) {
     $('#workGaugeContainer-'+id).addClass('d-none');
 }
 
-function setBillboardData(url, id) {
-    $.ajax({
-        url: url,
-        type: 'GET',
-        success: function(data) {
-            if (id === 'Month') {
-                BillboardMonth = data[0].billboard.standard;
-                if (entityType === 'character') {
-                    BillboardHourly = data[0].billboard.hourly;
-                    ActiveBillboardMonth = BillboardMonth;
-                }
-                loadBillboard(data[0].billboard.standard, 'Month');
-            } else {
-                BillboardYear = data[0].billboard.standard;
-                loadBillboard(data[0].billboard.standard, 'Year');
-            }
-        }
-    });
-}
-
 function generateLedger(TableName, url) {
     return $.ajax({
         url: url,
@@ -188,7 +174,7 @@ function generateLedger(TableName, url) {
             const total_amount_costs = data[0].total.total_amount_costs;
 
             // Set the month to 0 for the year table
-            const tableMonth = (TableName === 'Year') ? 0 : selectedMonth;
+            const tableView = TableName.toLowerCase();
 
             if (entityPk > 0 && !characteraltsShow && entityType === 'character') {
                 $('#lookup-'+ TableName +'').removeClass('d-none');
@@ -214,7 +200,7 @@ function generateLedger(TableName, url) {
                         data-bs-toggle="modal"
                         data-bs-target="#modalViewCharacterContainer"
                         aria-label="${char_name}"
-                        data-ajax_url="/ledger/api/${entityType}/${char_id}/template/year/${selectedYear}/month/${tableMonth}/"
+                        data-ajax_url="/ledger/api/${entityType}/${char_id}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${tableView}/"
                         title="${char_name}"
                         data-tooltip-toggle="ledger-tooltip" data-bs-placement="right">
                         <span class="fas fa-info"></span>
@@ -347,9 +333,9 @@ function generateLedger(TableName, url) {
                                 var chartemplateUrl = '';
 
                                 if (entityType === 'character') {
-                                    chartemplateUrl = `/ledger/api/character/${row.main_id}/template/year/${selectedYear}/month/${tableMonth}/`;
+                                    chartemplateUrl = `/ledger/api/character/${row.main_id}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${tableView}/`;
                                 } else {
-                                    chartemplateUrl = `/ledger/api/${entityType}/${entityPk}/${row.main_id}/template/year/${selectedYear}/month/${tableMonth}/`;
+                                    chartemplateUrl = `/ledger/api/${entityType}/${entityPk}/${row.main_id}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${tableView}/`;
                                 }
 
                                 return `
@@ -389,14 +375,14 @@ function generateLedger(TableName, url) {
 
                         var templateUrl = '';
                         if (entityType === 'character') {
-                            templateUrl = `/ledger/api/character/${entityPk}/template/year/${selectedYear}/month/${tableMonth}/`;
+                            templateUrl = `/ledger/api/character/${entityPk}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${tableView}/`;
                             if (characteraltsShow) {
                                 templateUrl += '?main=True';
                             }
                             $('#foot-'+ TableName +' .col-total-mining').html(formatAndColor(total_amount_mining));
                             $('#foot-'+ TableName +' .col-total-costs').html(formatAndColor(total_amount_costs));
                         } else {
-                            templateUrl = `/ledger/api/${entityType}/${entityPk}/0/template/year/${selectedYear}/month/${tableMonth}/?corp=true`;
+                            templateUrl = `/ledger/api/${entityType}/${entityPk}/0/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${tableView}/?corp=true`;
                         }
 
                         $('#foot-'+ TableName +' .col-total-amount').html(formatAndColor(total_amount));
@@ -416,6 +402,7 @@ function generateLedger(TableName, url) {
                     initComplete: function() {
                         $('#foot-'+ TableName +'').show();
                         $('#ratting-'+ TableName +'').removeClass('d-none');
+
                         initTooltip();
                     },
                     drawCallback: function() {
@@ -436,200 +423,6 @@ function generateLedger(TableName, url) {
     });
 }
 
-function loadBillboard(data, id) {
-    // Initialize a charts object if it doesn't exist
-    if (window.charts === undefined) {
-        window.charts = {};
-    }
-
-    if (!data) {
-        return;
-    }
-
-    // Billboard
-    if (data.charts) {
-        $('#ChartContainer-' + id).removeClass('d-none');
-        var maxpg = 0;
-        data.charts.forEach(function (arr) {
-            if (maxpg < arr[0]) {
-                maxpg = arr[0];
-            }
-        });
-        // Store the chart in the charts object using id as the key
-        window.charts['chart' + id] = bb.generate({
-            data: {
-                columns: data.charts,
-                type: 'donut'
-            },
-            donut: {
-                title: ''
-            },
-            bindto: '#rattingChart-' + id,
-            legend: {
-                show: false
-            }
-        });
-    } else {
-        $('#ChartContainer-'+id).addClass('d-none');
-    }
-
-    // Initialize a bar object if it doesn't exist
-    if (window.bar === undefined) {
-        window.bar = {};
-    }
-
-    // Ratting Bar
-    if (data.rattingbar) {
-        $('#rattingBarContainer-' + id).removeClass('d-none');
-        var columnCount = 0;
-        let baseRatio = 1.0; // Basiswert für den ratio
-        let decreaseFactor = 0.2; // Gewünschter Abnahmefaktor
-
-        // Count 'x' arrays
-        var xArray = data.rattingbar.find(function(arr) {
-            return arr[0] === 'x';
-        });
-
-        if (xArray) {
-            // Subtract 'x' array from the total count
-            columnCount = xArray.length - 1;
-        }
-
-        // ---- Stacks Bar Optional ----
-        var groups = data.rattingbar.filter(function(arr) {
-            return arr[0] !== 'x';
-        }).map(function(arr) {
-            return arr[0]; // Nur die Bezeichnungen extrahieren
-        });
-
-        window.bar['bar' + id] = bb.generate({
-            data: {
-                x: 'x',
-                columns: data.rattingbar,
-                type: 'bar',
-                groups: [groups],
-            },
-            axis: {
-                x: {
-                    type: 'timeseries',
-                    tick: {
-                        format: '%Y-%m' + (id === 'Month' ? '-%d' : ''),
-                        rotate: 45,
-                    },
-                    padding: { mode: 'fit' },
-                },
-                y: {
-                    tick: { format: function(x) {
-                        return d3.format(',')(x);
-                    } },
-                    label: 'ISK'
-                },
-            },
-            bar: {
-                width: {
-                    ratio: baseRatio / (1 + decreaseFactor * columnCount),
-                    max: 25
-                }
-            },
-            bindto: '#rattingBar-'+id,
-            legend: {
-                show: true
-            }
-        });
-    } else {
-        $('#rattingBarContainer-'+id).addClass('d-none');
-    }
-
-    // Initialize a gauge object if it doesn't exist
-    if (window.gauge === undefined) {
-        window.gauge = {};
-    }
-
-    // Workflow Gauge
-    if (data.workflowgauge) {
-        $('#workGaugeContainer-' + id).removeClass('d-none');
-        var maxpg2 = 0;
-        data.workflowgauge.forEach(function(arr) {
-            if (maxpg2 < arr[0]) {
-                maxpg2 = arr[0];
-            }
-        });
-        window.gauge['gauge' + id] = bb.generate({
-            data: {
-                columns: data.workflowgauge,
-                type: 'gauge'
-            },
-            bindto: '#rattingworkGauge-'+id,
-            legend: {
-                show: true
-            }
-        });
-    } else {
-        $('#workGaugeContainer-'+id).addClass('d-none');
-    }
-}
-
-function updateBillboard(data, id, selectedMode) {
-    // Update Bar Chart
-    if (data.rattingbar && window.bar && window.bar['bar' + id]) {
-        var columnCount = 0;
-        let baseRatio = 1.0; // Basiswert für den ratio
-        let decreaseFactor = 0.2 * (selectedMode === 'Hourly' ? 0.1:1); // Gewünschter Abnahmefaktor
-
-        // Count 'x' arrays
-        var xArray = data.rattingbar.find(function(arr) {
-            return arr[0] === 'x';
-        });
-
-        if (xArray) {
-            // Subtract 'x' array from the total count
-            columnCount = xArray.length - 1;
-        }
-
-        // ---- Stacks Bar Optional ----
-        var groups = data.rattingbar.filter(function(arr) {
-            return arr[0] !== 'x' && arr[0] !== 'Tick';
-        }).map(function(arr) {
-            return arr[0]; // Nur die Bezeichnungen extrahieren
-        });
-
-
-        window.bar['bar' + id] = bb.generate({
-            data: {
-                x: 'x',
-                columns: data.rattingbar,
-                type: 'bar',
-                groups: [groups],
-            },
-            axis: {
-                x: {
-                    type: 'timeseries',
-                    tick: {
-                        format: '%Y-%m' + (id === 'Month' ? '-%d' : '') + (selectedMode === 'Hourly' ? ' %H:00:00' : ''),
-                        rotate: 45,
-                    },
-                    padding: { mode: 'fit' },
-                },
-                y: {
-                    tick: { format: function(x) { return d3.format(',')(x); } },
-                    label: 'ISK',
-                },
-            },
-            bar: {
-                width: {
-                    ratio: baseRatio / (1 + decreaseFactor * columnCount),
-                    max: 25
-                },
-            },
-            padding: true,
-            bindto: '#rattingBar-'+id,
-            legend: {
-                show: true
-            }
-        });
-    }
-}
-
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize the URLs
     updateUrls();
@@ -643,20 +436,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 $('#ledger-ratting').on('click', 'a[data-bs-toggle=\'tab\']', function () {
-    // Warten, um sicherzustellen, dass das Tab gewechselt hat
-    setTimeout(function() {
-        // Überprüfen, ob das spezifische Tab aktiv ist
-        if ($('#currentYearLink').hasClass('active')) {
-            loadBillboard(BillboardYear, 'Year');
-        }
-    }, 100);
-    setTimeout(function() {
-        // Überprüfen, ob das spezifische Tab aktiv ist
-        if ($('#currentMonthLink').hasClass('active')) {
-            loadBillboard(BillboardMonth, 'Month');
-            if (entityType === 'character') {
-                updateBillboard(ActiveBillboardMonth, 'Month', selectedMode);
-            }
-        }
-    }, 100);
+    const target = $(this).attr('data-bs-target');
+    console.log(target);
 });

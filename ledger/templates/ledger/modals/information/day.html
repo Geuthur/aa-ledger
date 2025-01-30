@@ -11,23 +11,23 @@
 {% endif %}
 
 <!--##############################DAILY#######################-->
-{% if character.bounty.total_amount_day or character.ess.total_amount_day or character.mission.total_amount_day or character.mining.total_amount_day %}
-    {% if character.bounty.total_amount_day %}
+{% if character.bounty_income.total_amount_day or character.ess_income.total_amount_day or character.mission.total_amount_day or character.mining.total_amount_day %}
+    {% if character.bounty_income.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Ratting" %}:</div>
-            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty_income.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
 
         <div class="row description-row">
             <div class="col-sm-6">{% trans "Current Day" %} {% trans "Avg." %} Tick - {% trans "Ratting" %}:</div>
-            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty.current_day_tick|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty_income.current_day_tick|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
-    {% if character.ess.total_amount_day %}
+    {% if character.ess_income.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">{% trans "Current Day" %} - ESS:</div>
-            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.ess.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.ess_income.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
@@ -100,10 +100,10 @@
         </div>
     {% endif %}
 
-    {% if character.daily_goal.total_amount_day %}
+    {% if character.daily_goal_income.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Daily Goal" %}:</div>
-            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.daily_goal.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.daily_goal_income.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
@@ -199,6 +199,6 @@
     </div>
 {% endif %}
 
-{% if character.bounty.total_amount_day or character.mission.total_amount_day or character.mining.total_amount_day or character.contract_cost.total_amount_day or character.production_cost.total_amount_day or character.market_cost.total_amount_day or character.traveling_cost.total_amount_day or character.asset_cost.total_amount_day or character.skill_cost.total_amount_day or character.insurance_cost.total_amount_day or character.planetary_cost.total_amount_day or character.market_income.total_amount_day or character.contract_income.total_amount_day or character.insurance_income.total_amount_day or character.milestone_income.total_amount_day or character.donation_income.total_amount_day or character.incursion.total_amount_day %}
+{% if character.bounty_income.total_amount_day or character.mission.total_amount_day or character.mining.total_amount_day or character.contract_cost.total_amount_day or character.production_cost.total_amount_day or character.market_cost.total_amount_day or character.traveling_cost.total_amount_day or character.asset_cost.total_amount_day or character.skill_cost.total_amount_day or character.insurance_cost.total_amount_day or character.planetary_cost.total_amount_day or character.market_income.total_amount_day or character.contract_income.total_amount_day or character.insurance_income.total_amount_day or character.milestone_income.total_amount_day or character.donation_income.total_amount_day or character.incursion.total_amount_day %}
 <hr>
 {% endif %}

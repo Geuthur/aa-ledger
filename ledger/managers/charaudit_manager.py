@@ -144,6 +144,20 @@ class CharacterMiningLedgerEntryQueryset(models.QuerySet):
 
         return amounts
 
+    def annotate_billboard(self, chars_list: list) -> models.QuerySet:
+        """Annotate billboard columns."""
+        qs = self.filter(Q(character__character__character_id__in=chars_list))
+        return qs.annotate(
+            total_amount=Round(
+                Coalesce(
+                    Sum(F("total")),
+                    Value(0),
+                    output_field=DecimalField(),
+                ),
+                precision=2,
+            )
+        )
+
 
 class CharacterMiningLedgerEntryManagerBase(models.Manager):
     pass

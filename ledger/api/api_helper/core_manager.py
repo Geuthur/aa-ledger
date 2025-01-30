@@ -65,10 +65,10 @@ class LedgerTotal:
 
     total_amount: Decimal = Decimal("0.00")
     total_amount_ess: Decimal = Decimal("0.00")
-    total_amount_all: Decimal = Decimal("0.00")
     total_amount_mining: Decimal = Decimal("0.00")
     total_amount_others: Decimal = Decimal("0.00")
     total_amount_costs: Decimal = Decimal("0.00")
+    total_amount_all: Decimal = Decimal("0.00")
 
     def to_dict(self):
         return asdict(self)
@@ -125,7 +125,12 @@ class LedgerCharacterDict(LedgerTotal):
             if key in self.characters[char_id]:
                 self.characters[char_id][key] = value
 
-    def add_amount_to_character(self, char_id, amount, key):
+    def add_amount_to_character(self, char_id, char_name, amount, key):
         """Add an amount to a character."""
+        if char_id not in self.characters:
+            self.characters[char_id] = self.get_default_character_dict(
+                char_id, char_name
+            )
+
         if char_id in self.characters:
             self.characters[char_id][key] += amount

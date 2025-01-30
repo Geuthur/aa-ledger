@@ -73,7 +73,7 @@
         {% include 'ledger/charledger/year.html' with character_pk=character_pk years=years %}
     </div>
 </div>
-
+<div id="chartdiv"></div>
 <!-- Tab Session -->
 {% include 'ledger/modals/modal_dialog.html' with name="ViewCharacter" %}
 {% endblock %}
@@ -81,13 +81,6 @@
 {% include 'ledger/bundles/table-css.html' %}
 {% endblock %}
 {% block extra_javascript %}
-{% if NIGHT_MODE or theme == "allianceauth.theme.darkly.auth_hooks.DarklyThemeHook" %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/3.12.4/theme/dark.min.css" integrity="sha512-TqGQ+TI2SXQF94++95bI8awt0VEW3pPOMmg66zzy57g0i82qe4BdHvMz6Fh7BbkMFiqq0TQ2yO/bnhC4yBCvhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-{% else %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/3.12.4/billboard.min.css" integrity="sha512-ECDNDgViBSnrgXOO8/eOIqHkrbWKhmlgN1yfDrWUgJI9zOX0nK8k0bLAGdPrfCANd+xhvrusvblcvawG7cqlzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-{% endif %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" integrity="sha512-vc58qvvBdrDR4etbxMdlTt4GBQk1qjvyORR2nrsPsFPyrs+/u5c3+1Ct6upOgdZoIl7eq6k3a1UPDSNAQi/32A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/3.12.4/billboard.min.js" integrity="sha512-/cNN6+3RhTdLjXMj9HAsHESe8G3AokZzjc06eexZBWgXZHcq5Bmp8BFnmajTFOk2QVVVH+DbHXqCNj5IKshkzg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 {% include 'bundles/datatables-js-bs5.html' %}
 <script type="application/javascript">
@@ -102,6 +95,7 @@
         });
     });
 </script>
+
 <script type="application/javascript">
     // Extract the 'main' parameter from the current URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -122,7 +116,7 @@
         daysText: '{% translate "Days" %}',
     };
 </script>
-{% ledger_static 'js/ledger.js' %}
+{% include 'ledger/bundles/ledger-js.html' %}
 
 {% endblock extra_javascript %}
 {% block extra_script %}

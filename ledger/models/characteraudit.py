@@ -174,7 +174,7 @@ class CharacterMiningLedger(models.Model):
     character = models.ForeignKey(
         CharacterAudit, on_delete=models.CASCADE, related_name="ledger_character"
     )
-    date = models.DateField()
+    date = models.DateTimeField()
     type = models.ForeignKey(
         EveType, on_delete=models.CASCADE, related_name="ledger_evetype"
     )

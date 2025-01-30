@@ -9,21 +9,21 @@
     <div class="card-body modal-tab">
         {% include "ledger/modals/information/day.html" with character=character mode=mode %}
 
-        {% if character.bounty %}
+        {% if character.bounty_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} {% trans "Ratting" %} {% trans "per Day" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.bounty.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.bounty_income.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} Tick {% trans "Ratting" %} {% trans "per Day" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty.average_day_tick|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty_income.average_day_tick|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
-        {% if character.ess %}
+        {% if character.ess_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} ESS {% trans "per Day" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.ess.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.ess_income.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
@@ -93,10 +93,10 @@
             </div>
         {% endif %}
 
-        {% if character.daily_goal %}
+        {% if character.daily_goal_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} {% trans "Daily Goal" %} {% trans "per Day" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.daily_goal.average_day|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.daily_goal_income.average_day|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 

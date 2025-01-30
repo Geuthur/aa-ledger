@@ -1,9 +1,10 @@
+from datetime import datetime
+
 from django.db.models import Q
 
 from ledger.api.api_helper.billboard_helper import BillboardData, BillboardLedger
 from ledger.api.api_helper.core_manager import (
     LedgerCharacterDict,
-    LedgerDate,
     LedgerModels,
     LedgerTotal,
 )
@@ -17,14 +18,43 @@ logger = get_extension_logger(__name__)
 class CharacterProcess:
     """JournalProcess class to process the journal entries."""
 
-    def __init__(self, chars, year, month, corporations=None):
-        self.year = year
-        self.month = month
+    def __init__(self, chars, date: datetime, view=None):
+        self.date = date
         self.chars = chars
+        self.view = view
         self.alts = self.get_alts(chars)
         self.chars_list = []
-        self.corp = corporations if corporations else []
         self.summary_total = LedgerTotal()
+        self.create_queryset()
+
+    def create_queryset(self):
+        """Create the Queryset for the Model"""
+        # Get the All Alt Characters from Main
+        if self.alts:
+            self.chars_list = [char.character_id for char in self.alts]
+        else:
+            self.chars_list = [char.character_id for char in self.chars]
+
+        # pylint: disable=duplicate-code
+        filter_date = Q(date__year=self.date.year)
+        if self.view == "month":
+            filter_date &= Q(date__month=self.date.month)
+        elif self.view == "day":
+            filter_date &= Q(date__month=self.date.month)
+            filter_date &= Q(date__day=self.date.day)
+
+        # Process Ledger Models
+        self.char_journal, self.mining_journal, self.corp_journal = (
+            CharacterWalletJournalEntry.objects.filter(
+                filter_date,
+            )
+            .select_related("first_party", "second_party")
+            .generate_ledger(
+                characters=self.chars,
+                filter_date=filter_date,
+                exclude=self.chars_list,
+            )
+        )
 
     def get_alts(self, main):
         """Get the Alts for the Main Character"""
@@ -44,28 +74,17 @@ class CharacterProcess:
         character_dict = LedgerCharacterDict()
         character_totals = LedgerTotal()
 
-        # Process Ledger Models
-        char_journal, mining_journal, corp_journal = (
-            CharacterWalletJournalEntry.objects.filter(
-                self.filter_date,
-            )
-            .select_related("first_party", "second_party")
-            .generate_ledger(
-                characters=self.chars,
-                filter_date=self.filter_date,
-                exclude=self.chars_list,
-            )
-        )
-
         # Annotate Mining for Characters
-        mining_char_journal = mining_journal.annotate_mining()
+        mining_char_journal = self.mining_journal.annotate_mining()
 
         # Annotate Corp Journal for Characters
         corp_character_journal = (
-            corp_journal.values("second_party__eve_id", "second_party__name")
+            self.corp_journal.values("second_party__eve_id", "second_party__name")
             .annotate_daily_goal(is_character_ledger=True)
             .annotate_ess(is_character_ledger=True)
         )
+
+        character_journal = self.char_journal
 
         for mining_char in mining_char_journal:
             char_name = mining_char.get(
@@ -86,11 +105,11 @@ class CharacterProcess:
             # Summary all
             character_totals.get_summary(totals)
 
-        for char in char_journal:
+        for char in character_journal:
             char_name = char.get("char_name", "Unknown")
             char_id = char.get("char_id", 0)
 
-            total_bounty = char.get("bounty", 0)
+            total_bounty = char.get("bounty_income", 0)
             total_others = char.get("miscellaneous", 0)
             total_costs = char.get("costs", 0)
 
@@ -115,12 +134,13 @@ class CharacterProcess:
             char_name = corp_char.get("second_party__name", "Unknown")
             char_id = corp_char.get("second_party__eve_id", 0)
 
-            total_ess = corp_char.get("ess", 0)
-            total_daily_goal = corp_char.get("daily_goal", 0)
+            total_ess = corp_char.get("ess_income", 0)
+            total_daily_goal = corp_char.get("daily_goal_income", 0)
 
             if total_daily_goal:
                 character_dict.add_amount_to_character(
                     char_id,
+                    char_name,
                     total_daily_goal,
                     "total_amount_others",
                 )
@@ -128,6 +148,7 @@ class CharacterProcess:
             if total_ess:
                 character_dict.add_amount_to_character(
                     char_id,
+                    char_name,
                     total_ess,
                     "total_amount_ess",
                 )
@@ -145,16 +166,6 @@ class CharacterProcess:
         return character_dict.to_dict(), character_totals.to_dict()
 
     def generate_ledger(self):
-        # Get the All Alt Characters from Main
-        if self.alts:
-            self.chars_list = [char.character_id for char in self.alts]
-        else:
-            self.chars_list = [char.character_id for char in self.chars]
-
-        self.filter_date = Q(date__year=self.year)
-        if not self.month == 0:
-            self.filter_date &= Q(date__month=self.month)
-
         # Create the Dicts for each Character
         character_dict, character_totals = self.process_character_chars()
 
@@ -172,40 +183,19 @@ class CharacterProcess:
 
     # pylint: disable=unused-argument
     def generate_billboard(self, corporations=None):
-        # Get the Character IDs
-        if self.alts:
-            self.chars_list = [char.character_id for char in self.alts]
-        else:
-            self.chars_list = [char.character_id for char in self.chars]
-
-        filter_date = Q(date__year=self.year)
-        if not self.month == 0:
-            filter_date &= Q(date__month=self.month)
-
-        # Process Ledger Models
-        char_journal, mining_journal, corp_journal = (
-            CharacterWalletJournalEntry.objects.filter(
-                filter_date,
-            )
-            .select_related("first_party", "second_party")
-            .generate_ledger(
-                characters=self.chars, filter_date=filter_date, exclude=self.chars_list
-            )
-        )
-        mining_journal = mining_journal.annotate_pricing()
+        mining_journal = self.mining_journal.annotate_pricing()
 
         # Create Data for Billboard
-        date_data = LedgerDate(self.year, self.month)
         data = BillboardData()
         models = LedgerModels(
-            character_journal=char_journal,
-            corporation_journal=corp_journal,
+            character_journal=self.char_journal,
+            corporation_journal=self.corp_journal,
             mining_journal=mining_journal,
         )
 
         # Create the Billboard for the Characters
-        ledger = BillboardLedger(date_data, models, data, corp=False)
-        billboard_dict = ledger.billboard_char_ledger(self.chars, self.chars_list)
+        ledger = BillboardLedger(view=self.view, models=models, data=data, corp=False)
+        billboard_dict = ledger.billboard_ledger(self.chars_list, self.chars_list)
 
         output = []
         output.append(

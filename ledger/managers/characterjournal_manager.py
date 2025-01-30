@@ -121,7 +121,7 @@ class CharWalletIncomeFilter(models.QuerySet):
     # PvE - Income
     def annotate_bounty(self) -> models.QuerySet:
         return self.annotate(
-            bounty=Coalesce(
+            bounty_income=Coalesce(
                 Sum(
                     "amount",
                     filter=BOUNTY_FILTER,
@@ -168,14 +168,19 @@ class CharWalletIncomeFilter(models.QuerySet):
             )
         )
 
-    def annotate_contract_income(self, costs=None) -> models.QuerySet:
-        qs = self
+    def annotate_contract_income(self) -> models.QuerySet:
+        # pylint: disable=import-outside-toplevel
+        from ledger.models.corporationaudit import CorporationWalletJournalEntry
 
-        contract_income_filter = CONTRACT_INCOME_FILTER
-        if costs:
-            contract_income_filter &= ~Q(entry_id__in=costs)
+        # Check all Contracts from Corporations Member and Exclude them from be calculated
+        corporation_entry_ids = CorporationWalletJournalEntry.objects.filter(
+            CONTRACT_COST_FILTER
+        ).values_list("entry_id", flat=True)
 
-        return qs.annotate(
+        contract_income_filter = CONTRACT_INCOME_FILTER & ~Q(
+            entry_id__in=corporation_entry_ids
+        )
+        return self.annotate(
             contract_income=Coalesce(
                 Sum(
                     "amount",
@@ -301,14 +306,16 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
 
 class CharWalletCostQueryFilter(CharWalletOutSideFilter):
     # Costs
-    def annotate_contract_cost(self, income=None) -> models.QuerySet:
-        qs = self
+    def annotate_contract_cost(self) -> models.QuerySet:
+        # Subquery to identify entry_ids that are contract income
+        contract_income_entry_ids = self.filter(CONTRACT_INCOME_FILTER).values_list(
+            "entry_id", flat=True
+        )
+        contract_cost_filter = CONTRACT_COST_FILTER & ~Q(
+            entry_id__in=contract_income_entry_ids
+        )
 
-        contract_cost_filter = CONTRACT_COST_FILTER
-        if income:
-            contract_cost_filter &= ~Q(entry_id__in=income)
-
-        return qs.annotate(
+        return self.annotate(
             contract_cost=Coalesce(
                 Sum(
                     "amount",
@@ -448,18 +455,6 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
 
     def get_ledger_data(self, queryset, exclude: list | None) -> models.QuerySet:
         """Get the ledger data"""
-        # pylint: disable=import-outside-toplevel
-        from ledger.models.corporationaudit import CorporationWalletJournalEntry
-
-        # Subquery to identify entry_ids in total_contract_income
-        contract_income_entry_ids = self.filter(CONTRACT_INCOME_FILTER).values_list(
-            "entry_id", flat=True
-        )
-        # Check all Contracts from Corporations Member and Exclude them from be calculated
-        corporation_entry_ids = CorporationWalletJournalEntry.objects.filter(
-            CONTRACT_COST_FILTER
-        ).values_list("entry_id", flat=True)
-
         return (
             queryset
             # PvE
@@ -469,13 +464,13 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             .annotate_incursion_income()
             .annotate_insurance_income()
             .annotate_market_income()
-            .annotate_contract_income(costs=corporation_entry_ids)
+            .annotate_contract_income()
             .annotate_donation_income(exclude=exclude)
             .annotate_milestone_income()
             # Costs
             .annotate_market_cost()
             .annotate_production_cost()
-            .annotate_contract_cost(income=contract_income_entry_ids)
+            .annotate_contract_cost()
             .annotate_lp_cost()
             .annotate_traveling_cost()
             .annotate_asset_cost()
@@ -552,7 +547,6 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
                 output_field=DecimalField(),
             ),
         )
-
         return char_qs, mining_qs, corp_qs
 
     def generate_template(
@@ -566,7 +560,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         # Define the types and their respective filters
         type_names = [
             # PvE
-            "bounty",
+            "bounty_income",
             # Costs
             "market_cost",
             "production_cost",
@@ -657,10 +651,10 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
 
         return amounts
 
-    def annotate_billboard(self, chars: list, alts: list) -> models.QuerySet:
+    def annotate_billboard(self, chars: list, exclude: list) -> models.QuerySet:
         qs = self.filter(Q(first_party_id__in=chars) | Q(second_party_id__in=chars))
-        qs = self.get_ledger_data(qs, alts)
-        return qs.annotate(
+        qs = self.get_ledger_data(qs, exclude)
+        qs = qs.annotate(
             miscellaneous=Coalesce(
                 F("mission_income")
                 + F("incursion_income")
@@ -672,7 +666,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
                 Value(0),
                 output_field=DecimalField(),
             ),
-            cost=Coalesce(
+            costs=Coalesce(
                 F("market_cost")
                 + F("production_cost")
                 + F("contract_cost")
@@ -686,6 +680,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
                 output_field=DecimalField(),
             ),
         )
+        return qs
 
 
 class CharWalletManagerBase(models.Manager):

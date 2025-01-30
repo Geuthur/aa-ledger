@@ -13,10 +13,12 @@
 - Python 3.13 Support
 - SRI integrity
 - Cache Busting by [@ppfeufer](https://github.com/ppfeufer)
+- AmChart5 JS
 
 ### Removed
 
 - MemberAudit Support - `Char Link` is the new Linking System
+- Billboard JS
 
 ### Changed
 
@@ -39,6 +41,9 @@
 - Minimum Requirments
   - AA 4.6.0
 - Use `django-sri` for sri hash
+- Refactor Chart System
+- API Endpoint addressing
+- MiningMiningLedger - `DateField` to `DateTimeField`
 
 ### Fixed
 

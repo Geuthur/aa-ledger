@@ -10,31 +10,25 @@
         <div id="errorHandler-Year" class="d-flex d-none justify-content-center align-items-center">
             {% include 'ledger/permission.html' %}
         </div>
-        {% include 'ledger/corpledger/partials/table.html' with mode="Year" %}
+            {% include 'ledger/corpledger/partials/table.html' with mode="Year" %}
     </div>
     <br>
     <div class="rounded-top">
         <div class="row g-0">
-            <div class="col-md-6 g-2 d-none" id="ChartContainer-Year">
+            <div class="col-md-12 g-2 d-none" id="rattingBarContainer-Year">
                 <div class="card-header bg-primary">
-                    <h3 class="card-title">{% trans "Ratting Chart" %}</h3>
+                    <h3 class="card-title">{% trans "Ledger Year" %}</h3>
                 </div>
                 <div class="card-body bg-secondary">
-                    <div id="chart-loading-Year" class="d-flex justify-content-center align-items-center">
-                        <img src="{% static 'ledger/images/Spinner-1s-64px-dark.gif' %}">
-                    </div>
-                    <div id="rattingChart-Year"></div>
+                    <div id="rattingBar-Year" class="w-100" style="height: 300px;"></div>
                 </div>
             </div>
-            <div class="col-md-6 g-2 d-none" id="rattingBarContainer-Year">
+            <div class="col-md-6 g-2 d-none" id="ChartContainer-Year">
                 <div class="card-header bg-primary">
-                    <h3 class="card-title">{% trans "Ratting Year" %}</h3>
+                    <h3 class="card-title">{% trans "Wallet Year" %}</h3>
                 </div>
                 <div class="card-body bg-secondary">
-                    <div id="bar-loading-Year" class="d-flex justify-content-center align-items-center">
-                        <img src="{% static 'ledger/images/Spinner-1s-64px-dark.gif' %}">
-                    </div>
-                    <div id="rattingBar-Year"></div>
+                    <div id="rattingChart-Year" class="w-100" style="height: 300px;"></div>
                 </div>
             </div>
             <div class="col-md-6 g-2 d-none" id="workGaugeContainer-Year">
@@ -42,7 +36,7 @@
                     <h3 class="card-title">{% trans "Workflow Year" %}</h3>
                 </div>
                 <div class="card-body bg-secondary">
-                    <div id="rattingworkGauge-Year"></div>
+                    <div id="rattingworkGauge-Year" class="w-100" style="height: 300px;"></div>
                 </div>
             </div>
         </div>

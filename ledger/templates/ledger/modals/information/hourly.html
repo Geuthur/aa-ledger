@@ -13,24 +13,24 @@
 <!--############################## HOURLY #######################-->
 <div class="tab-pane panel panel-default" id="tab-hourly">
     <div class="card-body modal-tab">
-        {% if character.bounty %}
+        {% if character.bounty_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} {% trans "Ratting" %} {% trans "per Hour" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.bounty.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.bounty_income.average_hour|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
-        {% if character.bounty %}
+        {% if character.bounty_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} {% trans "Ratting" %} Tick {% trans "per Hour" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty.average_hour_tick|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-warning">{{ character.bounty_income.average_hour_tick|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
-        {% if character.ess %}
+        {% if character.ess_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} ESS {% trans "per Hour" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.ess.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.ess_income.average_hour|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 

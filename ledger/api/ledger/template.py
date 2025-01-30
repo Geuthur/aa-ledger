@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from ninja import NinjaAPI
 
 from django.shortcuts import render
@@ -44,13 +46,18 @@ class LedgerTemplateApiEndpoints:
     def __init__(self, api: NinjaAPI):
 
         @api.get(
-            "character/{character_id}/template/year/{year}/month/{month}/",
+            "character/{character_id}/template/date/{date}/view/{view}/",
             response={200: list[schema.CharacterLedgerTemplate], 403: str},
             tags=self.tags,
         )
         def get_ledger_char_details_information(
-            request, character_id: int, year: int, month: int
+            request, character_id: int, date: str, view: str
         ):
+            try:
+                date_obj = datetime.strptime(date, "%Y-%m-%d").date()
+            except ValueError:
+                return 403, "Invalid Date format. Use YYYY-MM-DD"
+
             request_main = request.GET.get("main", False)
             perms, main = get_character(request, character_id)
             entitys = get_main_and_alts_ids_corporations(request)
@@ -95,8 +102,8 @@ class LedgerTemplateApiEndpoints:
             ledger_data = TemplateData(
                 request=request,
                 main=main,
-                year=year,
-                month=month,
+                date=date_obj,
+                view=view,
                 corporations_ids=entitys,
                 current_date=current_date,
             )
@@ -113,7 +120,7 @@ class LedgerTemplateApiEndpoints:
             )
 
         @api.get(
-            "{entity_type}/{entity_id}/{main_id}/template/year/{year}/month/{month}/",
+            "{entity_type}/{entity_id}/{main_id}/template/date/{date}/view/{view}/",
             response={200: list[schema.CharacterLedgerTemplate], 403: str},
             tags=self.tags,
         )
@@ -123,10 +130,15 @@ class LedgerTemplateApiEndpoints:
             entity_type: str,
             entity_id: int,
             main_id: int,
-            year: int,
-            month: int,
+            date: str,
+            view: str,
             corp: bool = False,
         ):
+            try:
+                date_obj = datetime.strptime(date, "%Y-%m-%d").date()
+            except ValueError:
+                return 403, "Invalid Date format. Use YYYY-MM-DD"
+
             perm, entitys = ledger_api_process(request, entity_type, entity_id)
             corp_template = False
 
@@ -158,7 +170,9 @@ class LedgerTemplateApiEndpoints:
             overall_mode = main_id == 0
 
             if overall_mode:
-                chars_list = get_journal_entitys(year, month, corporations=entitys)
+                chars_list = get_journal_entitys(
+                    date=date_obj, view=view, corporations=entitys
+                )
                 linked_char = EveEntity.objects.filter(
                     eve_id__in=chars_list,
                 )
@@ -174,8 +188,8 @@ class LedgerTemplateApiEndpoints:
             ledger_data = TemplateData(
                 request=request,
                 main=char,
-                year=year,
-                month=month,
+                date=date_obj,
+                view=view,
                 corporations_ids=entitys,
                 current_date=current_date,
             )

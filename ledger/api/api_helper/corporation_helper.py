@@ -1,7 +1,9 @@
+from datetime import datetime
+
 from django.db.models import Q
 
 from ledger.api.api_helper.billboard_helper import BillboardData, BillboardLedger
-from ledger.api.api_helper.core_manager import LedgerDate, LedgerModels, LedgerTotal
+from ledger.api.api_helper.core_manager import LedgerModels, LedgerTotal
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 from ledger.models.general import EveEntity
@@ -12,10 +14,20 @@ logger = get_extension_logger(__name__)
 class CorporationProcess:
     """JournalProcess class to process the journal entries."""
 
-    def __init__(self, corporations, year, month):
+    def __init__(self, corporations, date: datetime, view=None):
         self.corp = corporations if corporations else []
-        self.year = year
-        self.month = month
+        self.date = date
+        self.view = view
+
+    def _filter_date(self):
+        """Filter the date."""
+        filter_date = Q(date__year=self.date.year)
+        if self.view == "month":
+            filter_date &= Q(date__month=self.date.month)
+        elif self.view == "day":
+            filter_date &= Q(date__month=self.date.month)
+            filter_date &= Q(date__day=self.date.day)
+        return filter_date
 
     # pylint: disable=too-many-locals
     def _process_corporation_chars(self, journal):
@@ -24,8 +36,8 @@ class CorporationProcess:
         corporation_total = LedgerTotal()
 
         for main in journal:
-            total_bounty = main.get("bounty", 0)
-            total_ess = main.get("ess", 0)
+            total_bounty = main.get("bounty_income", 0)
+            total_ess = main.get("ess_income", 0)
             total_other = main.get("miscellaneous", 0)
             main_entity_id = main.get("main_entity_id", 0)
             alts = main.get("alts", [])
@@ -65,9 +77,7 @@ class CorporationProcess:
 
     def generate_ledger(self):
         # Get the Filter Settings
-        filter_date = Q(date__year=self.year)
-        if not self.month == 0:
-            filter_date &= Q(date__month=self.month)
+        filter_date = self._filter_date()
 
         journal = (
             CorporationWalletJournalEntry.objects.filter(filter_date)
@@ -95,9 +105,7 @@ class CorporationProcess:
 
     def generate_billboard(self, corporations):
         # Get the Filter Settings
-        filter_date = Q(date__year=self.year)
-        if not self.month == 0:
-            filter_date &= Q(date__month=self.month)
+        filter_date = self._filter_date()
 
         corporation_journal = (
             CorporationWalletJournalEntry.objects.filter(filter_date)
@@ -116,7 +124,6 @@ class CorporationProcess:
         chars_list = list(corporation_journal.values_list("second_party_id", flat=True))
 
         # Create Data for Billboard
-        date_data = LedgerDate(self.year, self.month)
         data = BillboardData(
             corporation_dict=corporation_dict,
             total_amount=corporation_total.total_amount,
@@ -124,9 +131,9 @@ class CorporationProcess:
         models = LedgerModels(corporation_journal=corporation_journal)
 
         # Create the Billboard for the Corporation
-        ledger = BillboardLedger(date_data, models, data, corp=True)
+        ledger = BillboardLedger(view=self.view, models=models, data=data, corp=True)
 
-        billboard_dict = ledger.billboard_corp_ledger(chars_list)
+        billboard_dict = ledger.billboard_ledger(chars_list)
 
         output = []
         output.append(

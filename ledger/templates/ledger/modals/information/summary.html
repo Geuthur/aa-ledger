@@ -13,17 +13,17 @@
 <!--############################## SUMMARY #######################-->
 <div class="tab-pane panel panel-default active" id="tab-summary">
     <div class="card-body modal-tab">
-        {% if character.bounty %}
+        {% if character.bounty_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Ratting" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.bounty.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.bounty_income.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
-        {% if character.ess %}
+        {% if character.ess_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "ESS" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.ess.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.ess_income.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
@@ -113,12 +113,12 @@
             </div>
         {% endif %}
 
-        {% if character.daily_goal %}
+        {% if character.daily_goal_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Daily Goal" %}:</div>
                 <div class='col-sm-4 text-end'>
                     <span class="text-success">
-                        {{ character.daily_goal.total_amount|floatformat:0|intcomma }}
+                        {{ character.daily_goal_income.total_amount|floatformat:0|intcomma }}
                     </span> ISK
                 </div>
             </div>

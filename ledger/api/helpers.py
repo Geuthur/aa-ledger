@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -136,11 +137,14 @@ def get_corp_alts_queryset(main_char, corporations=None):
         return list(models.general.EveEntity.objects.filter(eve_id__in=chars))
 
 
-def get_journal_entitys(year, month, corporations=None):
+def get_journal_entitys(date: datetime, view, corporations=None):
     """Get all alts for a main character, optionally filtered by corporations."""
-    filter_date = Q(date__year=year)
-    if not month == 0:
-        filter_date &= Q(date__month=month)
+    filter_date = Q(date__year=date.year)
+    if view == "month":
+        filter_date &= Q(date__month=date.month)
+    elif view == "day":
+        filter_date &= Q(date__month=date.month)
+        filter_date &= Q(date__day=date.day)
 
     first_party_ids = models.CorporationWalletJournalEntry.objects.filter(
         filter_date,

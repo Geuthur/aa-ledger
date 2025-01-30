@@ -103,7 +103,7 @@
         entity_type: "{{ entity_type }}",
     };
 </script>
-{% ledger_static 'js/ledger.js' %}
+{% include 'ledger/bundles/ledger-js.html' %}
 
 {% endblock extra_javascript %}
 {% block extra_script %}

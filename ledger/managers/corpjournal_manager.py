@@ -48,7 +48,7 @@ class CorpWalletQueryFilter(models.QuerySet):
 
     def annotate_bounty(self) -> models.QuerySet:
         return self.annotate(
-            bounty=Coalesce(
+            bounty_income=Coalesce(
                 Sum(
                     "amount",
                     filter=(BOUNTY_FILTER),
@@ -61,10 +61,9 @@ class CorpWalletQueryFilter(models.QuerySet):
     def annotate_ess(self, is_character_ledger: bool = False) -> models.QuerySet:
         # Exclude Tax Events
         qs = events_filter(self)
-
         if is_character_ledger:
             return qs.annotate(
-                ess=Round(
+                ess_income=Round(
                     Coalesce(
                         Sum(
                             self._convert_corp_tax(F("amount")),
@@ -77,7 +76,7 @@ class CorpWalletQueryFilter(models.QuerySet):
                 )
             )
         return qs.annotate(
-            ess=Coalesce(
+            ess_income=Coalesce(
                 Sum(
                     F("amount"),
                     filter=(ESS_FILTER),
@@ -87,9 +86,10 @@ class CorpWalletQueryFilter(models.QuerySet):
             )
         )
 
-    def annotate_mission(self) -> models.QuerySet:
+    # pylint: disable=duplicate-code
+    def annotate_mission_income(self) -> models.QuerySet:
         return self.annotate(
-            mission=Coalesce(
+            mission_income=Coalesce(
                 Sum(
                     "amount",
                     filter=(MISSION_FILTER),
@@ -99,9 +99,10 @@ class CorpWalletQueryFilter(models.QuerySet):
             )
         )
 
-    def annotate_incursion(self) -> models.QuerySet:
+    # pylint: disable=duplicate-code
+    def annotate_incursion_income(self) -> models.QuerySet:
         return self.annotate(
-            incursion=Coalesce(
+            incursion_income=Coalesce(
                 Sum(
                     "amount",
                     filter=(INCURSION_FILTER),
@@ -114,7 +115,7 @@ class CorpWalletQueryFilter(models.QuerySet):
     def annotate_daily_goal(self, is_character_ledger: bool = False) -> models.QuerySet:
         if is_character_ledger:
             return self.annotate(
-                daily_goal=Round(
+                daily_goal_income=Round(
                     Coalesce(
                         Sum(
                             self._convert_corp_tax(F("amount")),
@@ -127,7 +128,7 @@ class CorpWalletQueryFilter(models.QuerySet):
                 )
             )
         return self.annotate(
-            daily_goal=Coalesce(
+            daily_goal_income=Coalesce(
                 Sum(
                     F("amount"),
                     filter=(DAILY_GOAL_REWARD_FILTER),
@@ -139,7 +140,7 @@ class CorpWalletQueryFilter(models.QuerySet):
 
     def annotate_citadel(self) -> models.QuerySet:
         return self.annotate(
-            citadel=Coalesce(
+            citadel_income=Coalesce(
                 Sum(
                     "amount",
                     filter=(CITADEL_FILTER),
@@ -215,7 +216,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         return (
             queryset.annotate_bounty()
             .annotate_ess()
-            .annotate_mission()
+            .annotate_mission_income()
             .annotate_incursion()
             .annotate_daily_goal()
             .annotate_citadel()
@@ -232,6 +233,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         entity_ids_second = self.values_list("second_party_id", flat=True).distinct()
         entity_ids_first = self.values_list("first_party_id", flat=True).distinct()
         entity_ids = set(entity_ids_first) | set(entity_ids_second)
+
         # Get all linked Characters
         main_and_alts, entity_ids = self._get_linked_chars(entity_ids)
 
@@ -289,12 +291,20 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         """Generate data template for the ledger character information view"""
         # Define the type names
         type_names = [
-            "ess",
-            "daily_goal",
+            "ess_income",
+            "daily_goal_income",
         ]
 
         if entity_type == "corporation":
-            type_names += ["bounty", "mission", "citadel", "incursion"]
+            type_names += [
+                "bounty_income",
+                "mission_income",
+                "citadel_income",
+                "incursion_income",
+            ]
+        qs = self
+        logger.info(character_ids)
+        logger.info(corporations_ids)
 
         # Filter Corporations
         qs = self.filter(

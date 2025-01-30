@@ -1,5 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import datetime
 from decimal import Decimal
 
 from django.db.models import Q
@@ -20,16 +21,20 @@ class TemplateData:
 
     request: any
     main: any
-    year: int
-    month: int
+    date: datetime
+    view: str
     corporations_ids: list = None
     current_date: timezone.datetime = None
 
     def __post_init__(self):
         self.ledger_date = self.current_date
-        self.ledger_date = self.ledger_date.replace(year=self.year)
-        if self.month != 0:
-            self.ledger_date = self.ledger_date.replace(month=self.month)
+        self.ledger_date = self.ledger_date.replace(year=self.date.year)
+        if self.view == "month":
+            self.ledger_date = self.ledger_date.replace(month=self.date.month)
+        elif self.view == "day":
+            self.ledger_date = self.ledger_date.replace(
+                month=self.date.month, day=self.date.day
+            )
 
 
 class TemplateProcess:
@@ -41,6 +46,16 @@ class TemplateProcess:
         self.show_year = show_year
         self.template_dict = {}
 
+    def filter_date(self):
+        """Filter the date."""
+        filter_date = Q(date__year=self.data.date.year)
+        if self.data.view == "month":
+            filter_date &= Q(date__month=self.data.date.month)
+        elif self.data.view == "day":
+            filter_date &= Q(date__month=self.data.date.month)
+            filter_date &= Q(date__day=self.data.date.day)
+        return filter_date
+
     # pylint: disable=duplicate-code
     def character_template(self):
         """
@@ -51,9 +66,7 @@ class TemplateProcess:
         chars = self.chars
         chars_ids = [char.character_id for char in self.chars]
 
-        filter_date = Q(date__year=self.data.year)
-        if not self.data.month == 0:
-            filter_date &= Q(date__month=self.data.month)
+        filter_date = self.filter_date()
 
         character_journal, mining_journal, corporation_journal = (
             CharacterWalletJournalEntry.objects.filter(
@@ -66,6 +79,7 @@ class TemplateProcess:
                 exclude=chars_ids,
             )
         )
+        logger.info(len(corporation_journal))
         mining_journal = mining_journal.annotate_pricing()
 
         self._process_characters(character_journal, corporation_journal, mining_journal)
@@ -77,9 +91,7 @@ class TemplateProcess:
         return: dict
         """
 
-        filter_date = Q(date__year=self.data.year)
-        if not self.data.month == 0:
-            filter_date &= Q(date__month=self.data.month)
+        filter_date = self.filter_date()
 
         corporation_journal = (
             CorporationWalletJournalEntry.objects.filter(
@@ -100,6 +112,7 @@ class TemplateProcess:
         # Get the alts of the main character
         alts = get_alts_queryset(self.data.main)
         chars_list = [char.character_id for char in alts]
+
         # Get journals
         models = character_journal, corporation_journal, mining_journal
         # Process the amounts
@@ -140,7 +153,7 @@ class TemplateProcess:
     def _update_template_dict(self, main_id=0, main_name="Unknown"):
         date = (
             str(self.data.ledger_date.year)
-            if self.data.month == 0
+            if self.data.view == "year"
             else self.data.ledger_date.strftime("%B")
         )
         self.template_dict.update(
@@ -154,7 +167,7 @@ class TemplateProcess:
     # Add Amounts to Dict
     def _generate_amounts_dict(self, amounts):
         """Generate the amounts dictionary."""
-        current_day = 365 if self.data.month == 0 else self.data.ledger_date.day
+        current_day = 365 if self.data.view == "year" else self.data.ledger_date.day
         # Calculate the total sum
         total_sum = sum(
             amounts[key]["total_amount"] for key in amounts if key != "stolen"
@@ -172,8 +185,8 @@ class TemplateProcess:
                         "total_amount": amounts[key]["total_amount"],
                         "total_amount_day": (
                             amounts[key]["total_amount_day"]
-                            if self.data.month != 0
-                            and self.data.current_date.month == self.data.month
+                            if self.data.view == "month"
+                            and self.data.current_date.month == self.data.date.month
                             else 0  # Only show daily amount if not year and in the correct month
                         ),
                         "total_amount_hour": (
@@ -208,8 +221,8 @@ class TemplateProcess:
             "total_amount_hour": (total_sum / current_day) / 24,
             "total_current_day": (
                 total_current_day_sum
-                if self.data.month != 0
-                and self.data.current_date.month == self.data.month
+                if self.data.view == "month"
+                and self.data.current_date.month == self.data.date.month
                 else 0
             ),  # Only show daily amount if not year and in the correct month
         }

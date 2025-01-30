@@ -1,11 +1,10 @@
-import math
-from collections import defaultdict
 from dataclasses import dataclass, field
-from decimal import Decimal
+from typing import Any
 
 from django.db.models.functions import TruncDay, TruncHour, TruncMonth, TruncYear
+from django.utils import timezone
 
-from ledger.api.api_helper.core_manager import LedgerData, LedgerDate, LedgerModels
+from ledger.api.api_helper.core_manager import LedgerData, LedgerModels
 from ledger.api.helpers import convert_corp_tax
 from ledger.hooks import get_extension_logger
 
@@ -13,51 +12,21 @@ logger = get_extension_logger(__name__)
 
 
 @dataclass
-class BillboardSum:
-    # Income
-    sum_amount: list = field(default_factory=lambda: ["Ratting"])
-    sum_amount_ess: list = field(default_factory=lambda: ["ESS Payout"])
-    sum_amount_misc: list = field(default_factory=lambda: ["Miscellaneous"])
-    sum_amount_mining: list = field(default_factory=lambda: ["Mining"])
-    # Tick - Ratting
-    sum_amount_tick: list = field(default_factory=lambda: ["Tick"])
-    # Costs
-    sum_amount_costs: list = field(default_factory=lambda: ["Costs"])
-    sum_amounts_production_costs: list = field(
-        default_factory=lambda: ["Production Costs"]
-    )
-    sum_amounts_market_costs: list = field(default_factory=lambda: ["Market Costs"])
-    # Total
-    total_sum: int = None
-    total_costs: int = None
-
-
-@dataclass
 class _BillboardDict:
-    charts: list = field(default_factory=lambda: None)
-    rattingbar: list = field(default_factory=lambda: None)
-    workflowgauge: list = field(default_factory=lambda: None)
+    charts: Any = field(default_factory=lambda: None)
+    rattingbar: Any = field(default_factory=lambda: None)
+    workflowgauge: Any = field(default_factory=lambda: None)
 
 
 @dataclass
 class BillboardDict:
     standard: _BillboardDict = field(default_factory=_BillboardDict)
-    weekly: _BillboardDict = field(default_factory=_BillboardDict)
-    hourly: _BillboardDict = field(default_factory=_BillboardDict)
 
 
 @dataclass
 class BillboardData(LedgerData):
     corporation_dict: dict = field(default_factory=dict)
     total_amount: int = 0
-
-
-@dataclass
-class BillboardBar:
-    standard: list = field(default_factory=lambda: ["x"])
-    weekly: list = field(default_factory=lambda: ["x"])
-    daily: list = field(default_factory=lambda: ["x"])
-    hourly: list = field(default_factory=lambda: ["x"])
 
 
 @dataclass
@@ -71,310 +40,298 @@ class BillboardTrunc:
     )
 
 
+@dataclass
+class ChartData:
+    title: str
+    date: str
+    categories: list[str]
+    series: list[dict[str, Any]]
+
+
+@dataclass
+class BillboardSystem:
+    data_points: dict[str, dict[str, float]] = field(default_factory=dict)
+
+    def _clean_category(self, category: str) -> str:
+        if "_" in category:
+            parts = category.split("_")
+            display_category = parts[0].lower()
+        else:
+            display_category = category.lower()
+        return display_category
+
+    def add_or_update_data_point(self, date: str, category: str, value: float):
+        mode = "income" if "income" in category.lower() else "cost"
+        display_category = self._clean_category(category)
+
+        # Skip zero values
+        if value == 0.0:
+            return
+
+        # Create a new data point if it does not exist
+        if date not in self.data_points:
+            self.data_points[date] = {}
+        if category not in self.data_points[date]:
+            self.data_points[date][display_category] = {"value": value, "mode": mode}
+            return
+        # Update the existing data point
+        self.data_points[date][display_category]["value"] += value
+
+    def to_xy(self, is_character=False) -> ChartData:
+        """Convert the data points to a XY chart."""
+        # Define the specific categories we are interested in
+        character_categories = ["bounty", "ess", "miscellaneous", "mining"]
+        corporation_categories = ["bounty", "ess", "miscellaneous"]
+        category_names_character = ["Bounty", "ESS", "Miscellaneous", "Mining"]
+        category_names_corporation = ["Bounty", "ESS", "Miscellaneous"]
+
+        if is_character:
+            specific_categories = character_categories
+            category_names = category_names_character
+        else:
+            specific_categories = corporation_categories
+            category_names = category_names_corporation
+
+        # Create series data
+        series = []
+        for date, categories in self.data_points.items():
+            data_entry = {"date": date}
+            for category in specific_categories:
+                value = categories.get(category, {}).get("value", 0.0)
+                if value != 0.0:
+                    data_entry[category] = round(value)
+            series.append(data_entry)
+
+        # Sort series data by date
+        series.sort(key=lambda x: x["date"])
+
+        # Ensure categories are in the correct order
+        categories = category_names
+
+        date = timezone.datetime.now().strftime("%Y-%m-%d")
+        return ChartData(
+            title="Billboard Chart", date=date, categories=categories, series=series
+        )
+
+    def to_percent(self, included_categories: set) -> ChartData:
+        """Convert the data points to a percentage chart."""
+        # Initialize a dictionary to hold the aggregated values
+        aggregated_data = {
+            category: {"value": 0.0, "mode": None} for category in included_categories
+        }
+
+        # Aggregate the values for each category across all dates
+        for date, categories in self.data_points.items():
+            for category, data in categories.items():
+                if category in included_categories:
+                    aggregated_data[category]["value"] += abs(data["value"])
+                    aggregated_data[category]["mode"] = data["mode"]
+
+        # Filter out categories with all zero values
+        filtered_aggregated_data = {
+            category: value
+            for category, value in aggregated_data.items()
+            if value["value"] != 0.0
+        }
+
+        # Create a single data entry with the aggregated values
+        total_value = sum(value["value"] for value in filtered_aggregated_data.values())
+        data_entry = {"date": timezone.datetime.now().strftime("%Y-%m-%d")}
+        total_percentage = 0
+        last_category = None
+
+        for category, value in filtered_aggregated_data.items():
+            if total_value != 0:
+                percentage = round((value["value"] / total_value) * 100, 2)
+            else:
+                percentage = 0
+
+            display_category = category.upper()
+            data_entry[display_category] = {"value": percentage, "mode": value["mode"]}
+            total_percentage += percentage
+            last_category = display_category
+
+        # Adjust the last category to ensure the total is exactly 100%
+        if last_category and total_percentage != 100:
+            data_entry[last_category]["value"] += 100 - total_percentage
+
+        # Create series data with a single entry
+        series = [data_entry]
+
+        # Ensure categories are in the correct order
+        categories = sorted(filtered_aggregated_data.keys())
+
+        date = timezone.datetime.now().strftime("%Y-%m-%d")
+        return ChartData(
+            title="Billboard Chart", date=date, categories=categories, series=series
+        )
+
+    def to_chart(self, included_categories: set) -> ChartData:
+        """Convert the data points to a chart."""
+        # Initialize a dictionary to hold the aggregated values
+        aggregated_data = {category: 0.0 for category in included_categories}
+
+        # Aggregate the values for each category across all dates
+        for date, categories in self.data_points.items():
+            for category, data in categories.items():
+                if category in included_categories:
+                    aggregated_data[category] += data["value"]
+
+        # Filter out categories with all zero values
+        filtered_aggregated_data = {
+            category: value
+            for category, value in aggregated_data.items()
+            if value != 0.0
+        }
+
+        # Create a single data entry with the aggregated values
+        total_value = sum(filtered_aggregated_data.values())
+        data_entry = {"date": timezone.datetime.now().strftime("%Y-%m-%d")}
+        for category, value in filtered_aggregated_data.items():
+            if total_value != 0:
+                amount = abs(value)
+            else:
+                amount = 0
+
+            display_category = category.upper()
+
+            # Determine mode based on category
+            mode = "income" if "income" in category.lower() else "cost"
+
+            data_entry[display_category] = {"value": amount, "mode": mode}
+
+        # Create series data with a single entry
+        series = [data_entry]
+
+        # Ensure categories are in the correct order
+        categories = sorted(filtered_aggregated_data.keys())
+
+        date = timezone.datetime.now().strftime("%Y-%m-%d")
+        return ChartData(
+            title="Billboard Chart", date=date, categories=categories, series=series
+        )
+
+    def to_chart_data(self) -> ChartData:
+        excluded_categories = {"costs", "miscellaneous"}
+        all_categories = set()
+
+        # Collect all unique categories from the data points
+        for categories in self.data_points.values():
+            all_categories.update(categories.keys())
+
+        included_categories = all_categories - excluded_categories
+        return self.to_percent(included_categories)
+
+    def to_gauge_data(self) -> ChartData:
+        included_categories = {"bounty", "ess", "mining", "miscellaneous"}
+        return self.to_percent(included_categories)
+
+
 class BillboardLedger:
     def __init__(
-        self, date: LedgerDate, models: LedgerModels, data: BillboardData, corp=False
+        self, view: str, models: LedgerModels, data: BillboardData, corp=False
     ):
-        self.is_corp = corp
+        self.view = view
         self.models = models
-        self.date = date
         self.data = data
+        self.is_corp = corp
         self.billboard_dict = BillboardDict()
-        self.date_billboard = BillboardBar()
 
-    def annotate_days(self, period, billboard_values, tick=False):
+    def annotate_days(self, period, billboard_dict: _BillboardDict, tick=False):
         trunctype, period_format = period
         annotations = {"period": trunctype}
         self.tick = tick
 
-        summary = self.process_billboard(annotations, period_format, billboard_values)
+        billboard = BillboardSystem()
+        billboard = self._process_billboard(billboard, annotations, period_format)
 
-        return summary
+        if billboard:
+            # Create the Ratting Bar
+            rattingbar = billboard.to_xy()
+            billboard_dict.rattingbar = rattingbar
 
-    def process_billboard(self, annotations, period_format, billboard_values):
-        self.data_dict = defaultdict(lambda: defaultdict(int))
-        summary = BillboardSum()
-        if self.models.corp_journal:
-            self._process_corp_journal(annotations, period_format)
+            # Create the Chart
+            chart = billboard.to_chart_data()
+            billboard_dict.charts = chart
 
-        if not self.is_corp:
-            if self.models.char_journal:
-                self._process_char_journal(annotations, period_format)
+            # Create the Gauge
+            gauge = billboard.to_gauge_data()
+            billboard_dict.workflowgauge = gauge
+        return billboard_dict
 
-        for period, data in self.data_dict.items():
-            # Main Data
-            self.data.bounty = data.get("bounty", 0)
-            self.data.ess_payout = data.get("ess", 0)
-            self.data.total_miscellaneous = data.get("miscellaneous", 0)
-            self.data.total_mining = data.get("total_mining", 0)
-            # Costs
-            self.data.total_cost = data.get("cost", 0)
-            self.data.total_market_cost = data.get("market_cost", 0)
-            self.data.total_production_cost = data.get("production_cost", 0)
-
-            summary.sum_amount.append(int(self.data.bounty))
-            summary.sum_amount_ess.append(int(self.data.ess_payout))
-
-            summary.sum_amount_costs.append(int(self.data.total_cost))
-            summary.sum_amounts_market_costs.append(int(self.data.total_market_cost))
-            summary.sum_amounts_production_costs.append(
-                int(self.data.total_production_cost)
-            )
-
-            if not self.is_corp:
-                summary.sum_amount_misc.append(int(self.data.total_miscellaneous))
-                summary.sum_amount_mining.append(int(self.data.total_mining))
-            if self.tick:
-                summary.sum_amount_tick.append(int(self.data.bounty / 3))
-
-            billboard_values.append(period)
-
-        summary.total_sum = self.calculate_total_sum(summary)
-        summary.total_costs = self.calculate_total_costs(summary)
-        return summary
-
-    def _process_corp_journal(self, annotations, period_format):
-        corp_journal = (
+    # pylint: disable=too-many-branches
+    def _process_billboard(
+        self, billboard: BillboardSystem, annotations, period_format
+    ):
+        """Process the queryset for the billboard."""
+        corp_qs = (
             self.models.corp_journal.annotate(**annotations)
             .values("period")
             .annotate_billboard(self.chars)
-            .order_by("period")
         )
 
-        for entry in corp_journal:
-            period = entry["period"].strftime(period_format)
-            if self.is_corp:
-                self.data_dict[period]["bounty"] = entry["bounty"]
-            self.data_dict[period]["ess"] = entry["ess"]
-            self.data_dict[period]["daily_goal"] = entry["daily_goal"]
-
-            if not self.is_corp:
-                # Convert the ESS Payout for Character
-                self.data_dict[period]["ess"] = convert_corp_tax(
-                    self.data_dict[period]["ess"]
-                )
-                # Convert the Daily Goal Payout for Character
-                self.data_dict[period]["daily_goal"] = convert_corp_tax(
-                    self.data_dict[period]["daily_goal"]
-                )
-
-    def _process_char_journal(self, annotations, period_format):
-        char_journal = (
-            self.models.char_journal.annotate(**annotations)
-            .values("period")
-            .annotate_billboard(self.chars, self.alts)
-            .order_by("period")
-        )
-
-        for entry in char_journal:
-            period = entry["period"].strftime(period_format)
-            self.data_dict[period]["bounty"] = entry["bounty"]
-            self.data_dict[period]["miscellaneous"] = entry["miscellaneous"]
-            self.data_dict[period]["cost"] = entry["cost"]
-            self.data_dict[period]["market_cost"] = entry["market_cost"]
-            self.data_dict[period]["production_cost"] = entry["production_cost"]
-            # ADD Daily to Character Billboard
-            if self.data_dict[period]["daily_goal"]:
-                self.data_dict[period]["miscellaneous"] += self.data_dict[period][
-                    "daily"
-                ]
-
-        if self.models.mining_journal:
-            for entry in self.models.mining_journal.values("total", "date"):
-                period = entry["date"].strftime(period_format)
-                self.data_dict[period]["total_mining"] += (
-                    entry["total"] if entry["total"] else 0
-                )
-
-    def calculate_total_sum(self, summary: BillboardSum):
-        total_sum = sum(
-            sum(filter(lambda x: isinstance(x, (int, Decimal)), lst))
-            for lst in [
-                summary.sum_amount,
-                summary.sum_amount_ess,
-                summary.sum_amount_misc,
-                summary.sum_amount_mining,
-            ]
-        )
-        return total_sum
-
-    def calculate_total_costs(self, summary: BillboardSum):
-        total_costs = sum(
-            sum(filter(lambda x: isinstance(x, (int, Decimal)), lst))
-            for lst in [
-                summary.sum_amount_costs,
-            ]
-        )
-        return total_costs
-
-    def calculate_total_production_costs(self, summary: BillboardSum):
-        total_production_costs = sum(
-            sum(filter(lambda x: isinstance(x, (int, Decimal)), lst))
-            for lst in [
-                summary.sum_amounts_production_costs,
-            ]
-        )
-        return total_production_costs
-
-    def calculate_total_market_costs(self, summary: BillboardSum):
-        total_market_costs = sum(
-            sum(filter(lambda x: isinstance(x, (int, Decimal)), lst))
-            for lst in [
-                summary.sum_amounts_market_costs,
-            ]
-        )
-        return total_market_costs
-
-    def calculate_percentages(self, summary: BillboardSum):
-        percentages = [
-            (
-                (
-                    sum(filter(lambda x: isinstance(x, (int, Decimal)), lst))
-                    / summary.total_sum
-                    * 100
-                )
-                if summary.total_sum > 0
-                else 0
+        # Get Character Data
+        if not self.is_corp:
+            char_qs = (
+                self.models.char_journal.annotate(**annotations)
+                .values("period")
+                .annotate_billboard(self.chars, self.alts)
             )
-            for lst in [
-                summary.sum_amount,
-                summary.sum_amount_ess,
-                summary.sum_amount_misc,
-                summary.sum_amount_mining,
-            ]
-        ]
-        return [math.floor(perc * 10) / 10 for perc in percentages]
 
-    def generate_gauge_data(self, rounded_percentages):
-        self.billboard_dict.standard.workflowgauge = (
-            [
-                ["Ratting", rounded_percentages[0]],
-                ["ESS Payout", rounded_percentages[1]],
-                ["Miscellaneous", rounded_percentages[2]],
-                ["Mining", rounded_percentages[3]],
-            ]
-            if sum(rounded_percentages)
-            else None
-        )
-
-    def generate_wallet_ratting_bar(
-        self, billboard_dict: _BillboardDict, billboard_values, summary: BillboardSum
-    ):
-        billboard_dict.rattingbar = (
-            (
-                [
-                    billboard_values,
-                    summary.sum_amount,
-                    summary.sum_amount_ess,
-                    summary.sum_amount_misc,
-                    summary.sum_amount_mining,
-                    summary.sum_amount_tick,
-                ]
+            mining_qs = (
+                self.models.mining_journal.annotate(**annotations)
+                .values("period")
+                .annotate_billboard(self.chars)
             )
-            if summary.total_sum
-            else None
-        )
+            for entry in char_qs:
+                date = entry["period"].strftime(period_format)
+                for key, value in entry.items():
+                    if key not in ["period"]:
+                        billboard.add_or_update_data_point(
+                            date=date, category=key, value=float(value)
+                        )
 
-    # Generate Charts Billboard for Character Ledger
-    def generate_wallet_charts_data(self, summary: BillboardSum):
-        total_costs = abs(summary.total_costs)
-        total_income = abs(summary.total_sum)
-        total_market_costs = abs(self.calculate_total_market_costs(summary))
-        total_production_costs = abs(self.calculate_total_production_costs(summary))
+            for entry in mining_qs:
+                date = entry["period"].strftime(period_format)
+                for key, value in entry.items():
+                    if key not in ["period"]:
+                        billboard.add_or_update_data_point(
+                            date=date, category="mining", value=float(value)
+                        )
+        # Corp Data
+        for entry in corp_qs:
+            date = entry["period"].strftime(period_format)
+            for key, value in entry.items():
+                if key not in ["period", "cost"]:
+                    if not self.is_corp and key in ["bounty_income"]:
+                        continue
+                    if not self.is_corp:
+                        value = convert_corp_tax(value)
+                    billboard.add_or_update_data_point(
+                        date=date, category=key, value=float(value)
+                    )
 
-        misc_cost = total_costs - total_market_costs - total_production_costs
+        if not billboard.data_points:
+            return None
+        return billboard
 
-        wallet_chart_data = [
-            # Earns
-            ["Income", total_income],
-            # Costs
-            ["Market Cost", total_market_costs],
-            ["Production Cost", total_production_costs],
-            ["Misc. Cost", misc_cost],
-        ]
-
-        self.billboard_dict.standard.charts = (
-            wallet_chart_data
-            if any(item[1] != 0 for item in wallet_chart_data)
-            else None
-        )
-
-    # Generate Charts Billboard for Corporation Ledger
-    def generate_wallet_corps_data(self):
-        if not self.data.corporation_dict:
-            self.billboard_dict.standard.charts = None
-            return
-        others_percentage = 0
-        others_name = "Others"
-        chart_entries = []
-
-        sorted_entries = sorted(
-            self.data.corporation_dict.values(),
-            key=lambda x: x["total_amount"],
-            reverse=True,
-        )
-
-        for i, entry in enumerate(sorted_entries, start=1):
-            percentage = (entry["total_amount"] / self.data.total_amount) * 100
-            if i <= 10:
-                chart_entries.append([entry["main_name"], percentage])
-            else:
-                others_percentage += percentage
-
-        if len(self.data.corporation_dict) > 10:
-            chart_entries.append([others_name, others_percentage])
-
-        self.billboard_dict.standard.charts = chart_entries
-
-    # Create the Billboard Char Ledger
-    def billboard_char_ledger(self, chars, alts: list):
-        self.chars = [char.character_id for char in chars]
-        self.alts = alts
+    # Create the Billboard
+    def billboard_ledger(self, chars, alts: list = None):
+        """Generate the Billboard Ledger."""
         periods = BillboardTrunc()
-
-        if self.date.month == 0:
-            summary = self.annotate_days(periods.month, self.date_billboard.standard)
-        else:
-            summary = self.annotate_days(
-                periods.hour, self.date_billboard.hourly, tick=True
-            )
-            self.generate_wallet_ratting_bar(
-                self.billboard_dict.hourly, self.date_billboard.hourly, summary
-            )
-
-            summary = self.annotate_days(periods.day, self.date_billboard.standard)
-
-        # Create Gauge Billboard
-        rounded_percentages = self.calculate_percentages(summary)
-        self.generate_gauge_data(rounded_percentages)
-
-        # Create Ratting Bar Billboard
-        self.generate_wallet_ratting_bar(
-            self.billboard_dict.standard, self.date_billboard.standard, summary
-        )
-
-        # Create Wallet Charts Billboard
-        self.generate_wallet_charts_data(summary)
-
-        return self.billboard_dict
-
-    # Create the Billboard Corp Ledger
-    def billboard_corp_ledger(self, chars: list):
         self.chars = chars
-        periods = BillboardTrunc()
+        self.alts = alts
+        standard = None
 
-        if self.date.month == 0:
-            summary = self.annotate_days(periods.month, self.date_billboard.standard)
-        else:
-            summary = self.annotate_days(periods.day, self.date_billboard.standard)
+        # Create Billboard Month
+        if self.view == "year":
+            standard = self.annotate_days(periods.month, self.billboard_dict.standard)
+        elif self.view == "month":
+            standard = self.annotate_days(periods.day, self.billboard_dict.standard)
+        elif self.view == "hour":
+            standard = self.annotate_days(periods.hour, self.billboard_dict.standard)
 
-        self.generate_wallet_ratting_bar(
-            self.billboard_dict.standard, self.date_billboard.standard, summary
-        )
-
-        self.generate_wallet_corps_data()
-
-        # Not Implemented
-        self.billboard_dict.standard.workflowgauge = None
+        # Generate Billboard
+        self.billboard_dict.standard = standard
 
         return self.billboard_dict
