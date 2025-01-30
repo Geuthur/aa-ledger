@@ -43,24 +43,24 @@ class CharManagerQuerySetTest(TestCase):
         )
 
     def test_annotate_bounty(self):
-        qs = CorporationWalletJournalEntry.objects.annotate_bounty()
+        qs = CorporationWalletJournalEntry.objects.annotate_bounty_income()
         self.assertIsNotNone(qs)
-        self.assertIn("bounty", qs.query.annotations)
+        self.assertIn("bounty_income", qs.query.annotations)
 
     def test_annotate_ess(self):
-        qs = CorporationWalletJournalEntry.objects.annotate_ess()
+        qs = CorporationWalletJournalEntry.objects.annotate_ess_income()
         self.assertIsNotNone(qs)
-        self.assertIn("ess", qs.query.annotations)
+        self.assertIn("ess_income", qs.query.annotations)
 
     def test_annotate_mission(self):
-        qs = CorporationWalletJournalEntry.objects.annotate_mission()
+        qs = CorporationWalletJournalEntry.objects.annotate_mission_income()
         self.assertIsNotNone(qs)
-        self.assertIn("mission", qs.query.annotations)
+        self.assertIn("mission_income", qs.query.annotations)
 
     def test_annotate_daily_goal(self):
-        qs = CorporationWalletJournalEntry.objects.annotate_daily_goal()
+        qs = CorporationWalletJournalEntry.objects.annotate_daily_goal_income()
         self.assertIsNotNone(qs)
-        self.assertIn("daily_goal", qs.query.annotations)
+        self.assertIn("daily_goal_income", qs.query.annotations)
 
     def test_annotate_ledger(self):
         add_character_to_user(self.user, EveCharacter.objects.get(character_id=1002))

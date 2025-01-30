@@ -1,9 +1,10 @@
 """Generate AllianceAuth test objects from allianceauth.json."""
 
 import json
-from datetime import date, datetime
+from datetime import datetime
 from pathlib import Path
 
+from django.utils import timezone
 from eveuniverse.models import EveMarketPrice, EveSolarSystem, EveType
 
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -91,7 +92,7 @@ def load_char_mining():
     CharacterMiningLedger.objects.create(
         character=CharacterAudit.objects.get(character__character_name="Gneuten"),
         id="20240316-17425-1001-30004783",
-        date=date(2024, 3, 16),
+        date=timezone.make_aware(timezone.datetime(2024, 3, 16)),
         type=EveType.objects.get(id=17425),
         system=EveSolarSystem.objects.get(id=30004783),
         quantity=100,
@@ -99,7 +100,7 @@ def load_char_mining():
     CharacterMiningLedger.objects.create(
         character=CharacterAudit.objects.get(character__character_name="Gneuten"),
         id="20240316-17423-1001-30004785",
-        date=date(2024, 3, 16),
+        date=timezone.make_aware(timezone.datetime(2024, 3, 16)),
         type=EveType.objects.get(id=17425),
         system=EveSolarSystem.objects.get(id=30002063),
         quantity=100,
@@ -109,7 +110,7 @@ def load_char_mining():
             character__character_name="rotze Rotineque"
         ),
         id="20240316-17423-1002-30004785",
-        date=date(2024, 3, 16),
+        date=timezone.make_aware(timezone.datetime(2024, 3, 16)),
         type=EveType.objects.get(id=17425),
         system=EveSolarSystem.objects.get(id=30002063),
         quantity=100,

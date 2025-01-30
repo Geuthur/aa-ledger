@@ -1,12 +1,10 @@
-from unittest.mock import MagicMock, patch
-
 from django.db.models import Q
 from django.test import TestCase
+from django.utils import timezone
 
 from allianceauth.eveonline.models import EveCharacter
 from app_utils.testing import create_user_from_evecharacter
 
-from ledger.managers.characterjournal_manager import CharWalletManager
 from ledger.models.characteraudit import CharacterWalletJournalEntry
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 from ledger.tests.testdata.load_ledger import load_ledger_all
@@ -37,14 +35,14 @@ class CharManagerQuerySetTest(TestCase):
     def test_annotate_bounty(self):
         qs = self.manager.annotate_bounty()
         self.assertIsNotNone(qs)
-        self.assertIn("bounty", qs.query.annotations)
+        self.assertIn("bounty_income", qs.query.annotations)
 
     def test_filter_ess(self):
         character_ids = [1, 2, 3]
 
         qs = self.manager.annotate_ess(character_ids)
         self.assertIsNotNone(qs)
-        self.assertIn("ess", qs.query.annotations)
+        self.assertIn("ess_income", qs.query.annotations)
 
     def test_annotate_mining(self):
         character_ids = [1, 2, 3]
@@ -141,7 +139,7 @@ class CharManagerQuerySetTest(TestCase):
     def test_generate_ledger(self):
 
         character_ids = [self.char_1, self.char_2]
-        filter_date = Q(date__gte="2023-01-01")
+        filter_date = Q(date__gte=timezone.make_aware(timezone.datetime(2023, 1, 1)))
         exclude = [4, 5]
 
         # Test with filter
@@ -158,15 +156,15 @@ class CharManagerQuerySetTest(TestCase):
         # Test with filter
         qs = self.manager.annotate_billboard(character_ids, alts)
         self.assertIsNotNone(qs)
-        self.assertIn("bounty", qs.query.annotations)
+        self.assertIn("bounty_income", qs.query.annotations)
         self.assertIn("miscellaneous", qs.query.annotations)
-        self.assertIn("cost", qs.query.annotations)
+        self.assertIn("costs", qs.query.annotations)
         self.assertIn("market_cost", qs.query.annotations)
         self.assertIn("production_cost", qs.query.annotations)
 
     def test_generate_ledger_with_attribute_error(self):
         character_ids = [self.char_1, self.char_2, "a"]
-        filter_date = Q(date__gte="2023-01-01")
+        filter_date = Q(date__gte=timezone.make_aware(timezone.datetime(2023, 1, 1)))
         exclude = [4, 5]
 
         result_with_filter = self.manager.generate_ledger(
