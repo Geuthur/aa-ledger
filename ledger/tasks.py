@@ -7,19 +7,13 @@ import datetime
 # pylint: disable=no-name-in-module
 from celery import shared_task
 
-from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from esi.errors import TokenExpiredError
 from esi.models import Token
 
-from allianceauth.authentication.models import (
-    CharacterOwnership,
-    EveAllianceInfo,
-    EveCharacter,
-    EveCorporationInfo,
-)
+from allianceauth.authentication.models import CharacterOwnership, EveCharacter
 from allianceauth.notifications import notify
 from allianceauth.services.tasks import QueueOnce
 
@@ -28,7 +22,6 @@ from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.models.planetary import CharacterPlanetDetails
-from ledger.providers import esi
 from ledger.task_helpers.char_helpers import (
     update_character_mining,
     update_character_wallet,
@@ -41,46 +34,6 @@ from ledger.task_helpers.plan_helpers import (
 )
 
 logger = get_extension_logger(__name__)
-
-
-# Character Audit - Tasks
-# pylint: disable=unused-argument
-@shared_task(bind=True, base=QueueOnce)
-@when_esi_is_available
-def create_missing_entitys(self, entity_ids: list, runs: int = 0):
-    esi_entity = esi.client.Universe.post_universe_names(ids=entity_ids)
-    results = esi_entity.results()
-
-    for result in results:
-        if result["category"] == "character":
-            try:
-                EveCharacter.objects.get(character_id=result["id"])
-            except EveCharacter.DoesNotExist:
-                try:
-                    EveCharacter.objects.create_character(result["id"])
-                    runs = runs + 1
-                except IntegrityError:
-                    continue
-        elif result["category"] == "corporation":
-            try:
-                EveCorporationInfo.objects.get(corporation_id=result["id"])
-            except EveCorporationInfo.DoesNotExist:
-                try:
-                    EveCorporationInfo.objects.create_corporation(result["id"])
-                    runs = runs + 1
-                except IntegrityError:
-                    continue
-        elif result["category"] == "alliance":
-            try:
-                EveAllianceInfo.objects.get(alliance_id=result["id"])
-            except EveAllianceInfo.DoesNotExist:
-                try:
-                    EveAllianceInfo.objects.create_alliance(result["id"])
-                    runs = runs + 1
-                except IntegrityError:
-                    continue
-    logger.info("Created %s missing Entitys", runs)
-    return True
 
 
 @shared_task
