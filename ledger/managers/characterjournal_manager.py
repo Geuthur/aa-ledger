@@ -1,17 +1,7 @@
 from collections import defaultdict
 
 from django.db import models
-from django.db.models import (
-    Case,
-    DecimalField,
-    ExpressionWrapper,
-    F,
-    Q,
-    Subquery,
-    Sum,
-    Value,
-    When,
-)
+from django.db.models import Case, DecimalField, F, Q, Sum, Value, When
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -119,7 +109,7 @@ COST_FILTER = (
 
 class CharWalletIncomeFilter(models.QuerySet):
     # PvE - Income
-    def annotate_bounty(self) -> models.QuerySet:
+    def annotate_bounty_income(self) -> models.QuerySet:
         return self.annotate(
             bounty_income=Coalesce(
                 Sum(
@@ -235,50 +225,6 @@ class CharWalletIncomeFilter(models.QuerySet):
 
 
 class CharWalletOutSideFilter(CharWalletIncomeFilter):
-    def annotate_ess(self, character_ids: list) -> models.QuerySet:
-        # pylint: disable=import-outside-toplevel
-        from ledger.models.corporationaudit import CorporationWalletJournalEntry
-
-        return CorporationWalletJournalEntry.objects.annotate(
-            ess=Coalesce(
-                Sum(
-                    "amount",
-                    filter=Q(
-                        ESS_FILTER,
-                        second_party_id__in=character_ids,
-                    ),
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            )
-        )
-
-    def annotate_mining(self, character_ids: list) -> models.QuerySet:
-        # pylint: disable=import-outside-toplevel
-        from ledger.models.characteraudit import CharacterMiningLedger
-
-        return self.annotate(
-            mining=Coalesce(
-                Subquery(
-                    CharacterMiningLedger.objects.filter(
-                        character__character__character_id__in=character_ids
-                    )
-                    .annotate(
-                        price=F("type__market_price__average_price"),
-                        total=ExpressionWrapper(
-                            F("type__market_price__average_price") * F("quantity"),
-                            output_field=models.FloatField(),
-                        ),
-                    )
-                    .values("character__character__character_id")
-                    .annotate(total_amount=Sum("total"))
-                    .values("total_amount")
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            )
-        )
-
     def annotate_miscellaneous(self) -> models.QuerySet:
         return self.annotate(
             miscellaneous=Coalesce(
@@ -458,7 +404,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         return (
             queryset
             # PvE
-            .annotate_bounty()
+            .annotate_bounty_income()
             # Income
             .annotate_mission_income()
             .annotate_incursion_income()
