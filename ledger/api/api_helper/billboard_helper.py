@@ -293,7 +293,7 @@ class BillboardLedger:
             standard = self.annotate_days(periods.month, self.billboard_dict.standard)
         elif self.view == "month":
             standard = self.annotate_days(periods.day, self.billboard_dict.standard)
-        elif self.view == "hour":
+        elif self.view == "day":
             standard = self.annotate_days(periods.hour, self.billboard_dict.standard)
 
         # Generate Billboard
