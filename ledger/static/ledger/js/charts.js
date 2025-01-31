@@ -14,7 +14,7 @@ function disposeRoot(rootId) {
 
 function load_or_create_Chart(div, data, chart) {
     if (!data || !Array.isArray(data.series)) {
-        console.error('Data is not in the expected format:', data);
+        console.debug('Data is not in the expected format:', data);
         return false;
     }
 
