@@ -6,16 +6,6 @@ noData = [
                 "rattingbar": None,
                 "workflowgauge": None,
             },
-            "weekly": {
-                "charts": None,
-                "rattingbar": None,
-                "workflowgauge": None,
-            },
-            "hourly": {
-                "charts": None,
-                "rattingbar": None,
-                "workflowgauge": None,
-            },
         },
     }
 ]

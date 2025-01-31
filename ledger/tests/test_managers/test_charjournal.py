@@ -33,23 +33,9 @@ class CharManagerQuerySetTest(TestCase):
         cls.alt_2 = EveCharacter.objects.get(character_id=1004)
 
     def test_annotate_bounty(self):
-        qs = self.manager.annotate_bounty()
+        qs = self.manager.annotate_bounty_income()
         self.assertIsNotNone(qs)
         self.assertIn("bounty_income", qs.query.annotations)
-
-    def test_filter_ess(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_ess(character_ids)
-        self.assertIsNotNone(qs)
-        self.assertIn("ess_income", qs.query.annotations)
-
-    def test_annotate_mining(self):
-        character_ids = [1, 2, 3]
-
-        qs = self.manager.annotate_mining(character_ids)
-        self.assertIsNotNone(qs)
-        self.assertIn("mining", qs.query.annotations)
 
     def test_annotate_mission_income(self):
         qs = self.manager.annotate_mission_income()

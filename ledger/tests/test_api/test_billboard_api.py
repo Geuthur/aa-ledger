@@ -71,14 +71,14 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         create_user_from_evecharacter(1022)
 
         self.client.force_login(self.user)
-        url = "/ledger/api/corporation/2001/billboard/year/2023/month/0/"
+        url = "/ledger/api/corporation/2001/billboard/date/2023-01-01/view/year/"
 
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
 
         self.client.force_login(self.user)
-        url = "/ledger/api/alliance/3001/billboard/year/2023/month/0/"
+        url = "/ledger/api/alliance/3001/billboard/date/2023-01-01/view/year/"
 
         response = self.client.get(url)
 
@@ -86,7 +86,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
     def test_get_character_billbboard_api(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/character/0/billboard/year/2024/month/3/"
+        url = "/ledger/api/character/0/billboard/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -96,14 +96,14 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
         # Corporation
-        url = "/ledger/api/corporation/0/billboard/year/2024/month/3/"
+        url = "/ledger/api/corporation/0/billboard/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
 
         # Alliance
-        url = "/ledger/api/alliance/0/billboard/year/2024/month/3/"
+        url = "/ledger/api/alliance/0/billboard/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -111,7 +111,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
     def test_get_character_billbboard_api_single(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/character/1001/billboard/year/2024/month/3/"
+        url = "/ledger/api/character/1001/billboard/date/2024-03-01/view/month/"
         # when
         response = self.client.get(url)
         # then
@@ -121,7 +121,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
         # Corporation
         self.client.force_login(self.user)
-        url = "/ledger/api/corporation/2002/billboard/year/2024/month/0/"
+        url = "/ledger/api/corporation/2002/billboard/date/2024-01-01/view/year/"
 
         response = self.client.get(url)
 
@@ -131,7 +131,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.client.force_login(self.user)
 
         # Corporation
-        url = "/ledger/api/corporation/0/billboard/year/2024/month/0/"
+        url = "/ledger/api/corporation/0/billboard/date/2024-01-01/view/year/"
 
         response = self.client.get(url)
 
@@ -139,7 +139,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
         # Alliance
 
-        url = "/ledger/api/alliance/0/billboard/year/2024/month/0/"
+        url = "/ledger/api/alliance/0/billboard/date/2024-01-01/view/year/"
 
         response = self.client.get(url)
 
@@ -148,7 +148,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
     def test_get_billbboard_api_year_single(self):
         # given
         self.client.force_login(self.user)
-        url = "/ledger/api/character/1001/billboard/year/2024/month/0/"
+        url = "/ledger/api/character/1001/billboard/date/2024-01-01/view/year/"
         expected_data = Charyearly
         # when
         response = self.client.get(url)
@@ -157,14 +157,14 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
         # Corporation
-        url = "/ledger/api/corporation/2002/billboard/year/2024/month/0/"
+        url = "/ledger/api/corporation/2002/billboard/date/2024-01-01/view/year/"
 
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
 
         # Alliance
-        url = "/ledger/api/alliance/3002/billboard/year/2024/month/0/"
+        url = "/ledger/api/alliance/3002/billboard/date/2024-01-01/view/year/"
 
         response = self.client.get(url)
 
@@ -175,7 +175,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         for char in chars:
             add_character_to_user(self.user, char)
         self.client.force_login(self.user)
-        url = "/ledger/api/character/0/billboard/year/2024/month/3/"
+        url = "/ledger/api/character/0/billboard/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -185,21 +185,21 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
     def test_get_character_billbboard_api_no_permission(self):
         self.client.force_login(self.user2)
-        url = "/ledger/api/character/1001/billboard/year/2024/month/3/"
+        url = "/ledger/api/character/1001/billboard/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 403)
 
         # Corporation
-        url = "/ledger/api/corporation/2001/billboard/year/2024/month/3/"
+        url = "/ledger/api/corporation/2001/billboard/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 403)
 
         # Alliance
-        url = "/ledger/api/alliance/3001/billboard/year/2024/month/3/"
+        url = "/ledger/api/alliance/3001/billboard/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -208,7 +208,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
     def test_get_character_billbboard_api_no_data(self):
         # given
         self.client.force_login(self.user3)
-        url = "/ledger/api/character/0/billboard/year/2024/month/3/"
+        url = "/ledger/api/character/0/billboard/date/2024-03-01/view/month/"
         # when
         response = self.client.get(url)
         # then
@@ -217,7 +217,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
         # Corporation
-        url = "/ledger/api/corporation/0/billboard/year/2000/month/3/"
+        url = "/ledger/api/corporation/0/billboard/date/2000-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -226,7 +226,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
         # Alliance
-        url = "/ledger/api/alliance/0/billboard/year/2000/month/3/"
+        url = "/ledger/api/alliance/0/billboard/date/2000-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -237,7 +237,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
     def test_get_character_billbboard_api_no_mining(self):
         # given
         self.client.force_login(self.user)
-        url = "/ledger/api/character/0/billboard/year/2024/month/3/"
+        url = "/ledger/api/character/0/billboard/date/2024-03-01/view/month/"
         CharacterMiningLedger.objects.all().delete()
         EveMarketPrice.objects.all().delete()
         # when
@@ -251,7 +251,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.client.force_login(self.user2)
 
         # Corporation
-        url = "/ledger/api/corporation/2001/billboard/year/2024/month/3/"
+        url = "/ledger/api/corporation/2001/billboard/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -260,7 +260,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
         # Alliance
 
-        url = "/ledger/api/alliance/3001/billboard/year/2024/month/3/"
+        url = "/ledger/api/alliance/3001/billboard/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 

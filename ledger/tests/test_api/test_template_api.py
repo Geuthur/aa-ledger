@@ -41,7 +41,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
     def test_get_ledger_template_api(self):
         # given
         self.client.force_login(self.user)
-        url = "/ledger/api/character/0/template/year/2024/month/3/"
+        url = "/ledger/api/character/0/template/date/2024-03-01/view/month/"
         # when
         response = self.client.get(url)
         # then
@@ -56,7 +56,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertContains(response, "Donation", status_code=200)
 
         # Corporation
-        url = "/ledger/api/corporation/0/0/template/year/2024/month/3/"
+        url = "/ledger/api/corporation/0/0/template/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -70,7 +70,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertContains(response, "Summary", status_code=200)
 
         # Alliance
-        url = "/ledger/api/alliance/0/0/template/year/2024/month/3/"
+        url = "/ledger/api/alliance/0/0/template/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -86,7 +86,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
     def test_get_ledger_template_api_single(self):
         # given
         self.client.force_login(self.user)
-        url = "/ledger/api/character/1001/template/year/2024/month/3/"
+        url = "/ledger/api/character/1001/template/date/2024-03-01/view/month/"
         # when
         response = self.client.get(url)
         # then
@@ -104,7 +104,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertContains(response, "200,000", status_code=200)
 
         # Corporation
-        url = "/ledger/api/corporation/0/1001/template/year/2024/month/3/"
+        url = "/ledger/api/corporation/0/1001/template/date/2024-03-01/view/month/"
         # when
         response = self.client.get(url)
         # then
@@ -121,7 +121,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         # Summary
         self.assertContains(response, "200,000", status_code=200)
 
-        url = "/ledger/api/corporation/2001/0/template/year/2024/month/3/?corp=True"
+        url = "/ledger/api/corporation/2001/0/template/date/2024-03-01/view/month/?corp=True"
         # when
         response = self.client.get(url)
         # then
@@ -139,7 +139,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertContains(response, "200,000", status_code=200)
 
         # Alliance
-        url = "/ledger/api/alliance/0/1001/template/year/2024/month/3/"
+        url = "/ledger/api/alliance/0/1001/template/date/2024-03-01/view/month/"
         # when
         response = self.client.get(url)
         # then
@@ -156,7 +156,9 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         # Summary
         self.assertContains(response, "200,000", status_code=200)
 
-        url = "/ledger/api/alliance/3001/0/template/year/2024/month/3/?corp=True"
+        url = (
+            "/ledger/api/alliance/3001/0/template/date/2024-03-01/view/month/?corp=True"
+        )
         # when
         response = self.client.get(url)
         # then
@@ -176,7 +178,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
     def test_get_ledger_template_api_year(self):
         # given
         self.client.force_login(self.user)
-        url = "/ledger/api/character/1001/template/year/2024/month/0/"
+        url = "/ledger/api/character/1001/template/date/2024-01-01/view/year/"
         # when
         response = self.client.get(url)
         # then
@@ -193,7 +195,9 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertContains(response, "300,000", count=1, status_code=200)
 
         # Corporation
-        url = "/ledger/api/corporation/0/0/template/year/2024/month/0/?corp=true"
+        url = (
+            "/ledger/api/corporation/0/0/template/date/2024-01-01/view/year/?corp=true"
+        )
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -207,7 +211,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
         self.assertContains(response, "2024", status_code=200)
 
         # Alliance
-        url = "/ledger/api/alliance/0/0/template/year/2024/month/0/?corp=true"
+        url = "/ledger/api/alliance/0/0/template/date/2024-01-01/view/year/?corp=true"
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -222,21 +226,21 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
 
     def test_get_character_ledger_api_no_permission(self):
         self.client.force_login(self.user2)
-        url = "/ledger/api/character/1001/template/year/2024/month/3/"
+        url = "/ledger/api/character/1001/template/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
         self.assertContains(response, "Permission Denied", status_code=403)
 
         # Corporation
-        url = "/ledger/api/corporation/2001/1001/template/year/2024/month/3/"
+        url = "/ledger/api/corporation/2001/1001/template/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 403)
 
         # Alliance
-        url = "/ledger/api/alliance/3001/1001/template/year/2024/month/3/"
+        url = "/ledger/api/alliance/3001/1001/template/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -244,7 +248,7 @@ class ManageApiTemplateCharEndpointsTest(TestCase):
 
     def test_get_character_ledger_api_not_exist(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/character/999999/template/year/2024/month/3/"
+        url = "/ledger/api/character/999999/template/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 

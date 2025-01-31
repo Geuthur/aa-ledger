@@ -6,16 +6,6 @@ noData = [
                 "rattingbar": None,
                 "workflowgauge": None,
             },
-            "weekly": {
-                "charts": None,
-                "rattingbar": None,
-                "workflowgauge": None,
-            },
-            "hourly": {
-                "charts": None,
-                "rattingbar": None,
-                "workflowgauge": None,
-            },
         },
     }
 ]
@@ -24,45 +14,63 @@ CharmonthlyMarch = [
     {
         "billboard": {
             "standard": {
-                "charts": [
-                    ["Income", 1733333],
-                    ["Market Cost", 200000],
-                    ["Production Cost", 100000],
-                    ["Misc. Cost", 100000],
-                ],
-                "rattingbar": [
-                    ["x", "2024-03-19", "2024-03-16"],
-                    ["Ratting", 200000, 0],
-                    ["ESS Payout", 1133333, 0],
-                    ["Miscellaneous", 200000, 0],
-                    ["Mining", 0, 200000],
-                    ["Tick"],
-                ],
-                "workflowgauge": [
-                    ["Ratting", 11.5],
-                    ["ESS Payout", 65.3],
-                    ["Miscellaneous", 11.5],
-                    ["Mining", 11.5],
-                ],
-            },
-            "weekly": {
-                "charts": None,
-                "rattingbar": None,
-                "workflowgauge": None,
-            },
-            "hourly": {
-                "charts": None,
-                "rattingbar": [
-                    ["x", "2024-03-19 14:00:00", "2024-03-16 00:00:00"],
-                    ["Ratting", 200000, 0],
-                    ["ESS Payout", 1133333, 0],
-                    ["Miscellaneous", 200000, 0],
-                    ["Mining", 0, 200000],
-                    ["Tick", 66666, 0],
-                ],
-                "workflowgauge": None,
-            },
-        },
+                "charts": {
+                    "title": "Billboard Chart",
+                    "date": "2025-01-31",
+                    "categories": [
+                        "bounty",
+                        "contract",
+                        "donation",
+                        "ess",
+                        "insurance",
+                        "market",
+                        "mining",
+                        "production",
+                    ],
+                    "series": [
+                        {
+                            "date": "2025-01-31",
+                            "BOUNTY": {"value": 9, "mode": "income"},
+                            "CONTRACT": {"value": 5, "mode": "income"},
+                            "DONATION": {"value": 5, "mode": "income"},
+                            "ESS": {"value": 53, "mode": "income"},
+                            "INSURANCE": {"value": 5, "mode": "cost"},
+                            "MARKET": {"value": 9, "mode": "cost"},
+                            "MINING": {"value": 9, "mode": "cost"},
+                            "PRODUCTION": {"value": 5, "mode": "cost"},
+                        }
+                    ],
+                },
+                "rattingbar": {
+                    "title": "Billboard Chart",
+                    "date": "2025-01-31",
+                    "categories": ["Bounty", "ESS", "Miscellaneous", "Mining"],
+                    "series": [
+                        {"date": "2024-03-16", "mining": 200000},
+                        {
+                            "date": "2024-03-19",
+                            "bounty": 200000,
+                            "ess": 1133333,
+                            "miscellaneous": 200000,
+                        },
+                    ],
+                },
+                "workflowgauge": {
+                    "title": "Billboard Chart",
+                    "date": "2025-01-31",
+                    "categories": ["bounty", "ess", "mining", "miscellaneous"],
+                    "series": [
+                        {
+                            "date": "2025-01-31",
+                            "BOUNTY": {"value": 12, "mode": "income"},
+                            "ESS": {"value": 65, "mode": "income"},
+                            "MINING": {"value": 12, "mode": "cost"},
+                            "MISCELLANEOUS": {"value": 12, "mode": "cost"},
+                        }
+                    ],
+                },
+            }
+        }
     }
 ]
 
@@ -71,45 +79,63 @@ CharmonthlyMarchMulti = [
     {
         "billboard": {
             "standard": {
-                "charts": [
-                    ["Income", 1833333],
-                    ["Market Cost", 200000],
-                    ["Production Cost", 100000],
-                    ["Misc. Cost", 100000],
-                ],
-                "rattingbar": [
-                    ["x", "2024-03-19", "2024-03-16"],
-                    ["Ratting", 200000, 0],
-                    ["ESS Payout", 1133333, 0],
-                    ["Miscellaneous", 200000, 0],
-                    ["Mining", 0, 300000],
-                    ["Tick"],
-                ],
-                "workflowgauge": [
-                    ["Ratting", 10.9],
-                    ["ESS Payout", 61.8],
-                    ["Miscellaneous", 10.9],
-                    ["Mining", 16.3],
-                ],
-            },
-            "weekly": {
-                "charts": None,
-                "rattingbar": None,
-                "workflowgauge": None,
-            },
-            "hourly": {
-                "charts": None,
-                "rattingbar": [
-                    ["x", "2024-03-19 14:00:00", "2024-03-16 00:00:00"],
-                    ["Ratting", 200000, 0],
-                    ["ESS Payout", 1133333, 0],
-                    ["Miscellaneous", 200000, 0],
-                    ["Mining", 0, 300000],
-                    ["Tick", 66666, 0],
-                ],
-                "workflowgauge": None,
-            },
-        },
+                "charts": {
+                    "title": "Billboard Chart",
+                    "date": "2025-01-31",
+                    "categories": [
+                        "bounty",
+                        "contract",
+                        "donation",
+                        "ess",
+                        "insurance",
+                        "market",
+                        "mining",
+                        "production",
+                    ],
+                    "series": [
+                        {
+                            "date": "2025-01-31",
+                            "BOUNTY": {"value": 9, "mode": "income"},
+                            "CONTRACT": {"value": 4, "mode": "income"},
+                            "DONATION": {"value": 4, "mode": "income"},
+                            "ESS": {"value": 51, "mode": "income"},
+                            "INSURANCE": {"value": 4, "mode": "cost"},
+                            "MARKET": {"value": 9, "mode": "cost"},
+                            "MINING": {"value": 13, "mode": "cost"},
+                            "PRODUCTION": {"value": 4, "mode": "cost"},
+                        }
+                    ],
+                },
+                "rattingbar": {
+                    "title": "Billboard Chart",
+                    "date": "2025-01-31",
+                    "categories": ["Bounty", "ESS", "Miscellaneous", "Mining"],
+                    "series": [
+                        {"date": "2024-03-16", "mining": 300000},
+                        {
+                            "date": "2024-03-19",
+                            "bounty": 200000,
+                            "ess": 1133333,
+                            "miscellaneous": 200000,
+                        },
+                    ],
+                },
+                "workflowgauge": {
+                    "title": "Billboard Chart",
+                    "date": "2025-01-31",
+                    "categories": ["bounty", "ess", "mining", "miscellaneous"],
+                    "series": [
+                        {
+                            "date": "2025-01-31",
+                            "BOUNTY": {"value": 11, "mode": "income"},
+                            "ESS": {"value": 62, "mode": "income"},
+                            "MINING": {"value": 16, "mode": "cost"},
+                            "MISCELLANEOUS": {"value": 11, "mode": "cost"},
+                        }
+                    ],
+                },
+            }
+        }
     }
 ]
 
@@ -117,38 +143,64 @@ Charyearly = [
     {
         "billboard": {
             "standard": {
-                "charts": [
-                    ["Income", 1833333],
-                    ["Market Cost", 200000],
-                    ["Production Cost", 100000],
-                    ["Misc. Cost", 100000],
-                ],
-                "rattingbar": [
-                    ["x", "2024-03", "2024-01"],
-                    ["Ratting", 200000, 100000],
-                    ["ESS Payout", 1133333, 0],
-                    ["Miscellaneous", 200000, 0],
-                    ["Mining", 200000, 0],
-                    ["Tick"],
-                ],
-                "workflowgauge": [
-                    ["Ratting", 16.3],
-                    ["ESS Payout", 61.8],
-                    ["Miscellaneous", 10.9],
-                    ["Mining", 10.9],
-                ],
-            },
-            "weekly": {
-                "charts": None,
-                "rattingbar": None,
-                "workflowgauge": None,
-            },
-            "hourly": {
-                "charts": None,
-                "rattingbar": None,
-                "workflowgauge": None,
-            },
-        },
+                "charts": {
+                    "title": "Billboard Chart",
+                    "date": "2025-01-31",
+                    "categories": [
+                        "bounty",
+                        "contract",
+                        "donation",
+                        "ess",
+                        "insurance",
+                        "market",
+                        "mining",
+                        "production",
+                    ],
+                    "series": [
+                        {
+                            "date": "2025-01-31",
+                            "BOUNTY": {"value": 13, "mode": "income"},
+                            "CONTRACT": {"value": 4, "mode": "income"},
+                            "DONATION": {"value": 4, "mode": "income"},
+                            "ESS": {"value": 51, "mode": "income"},
+                            "INSURANCE": {"value": 4, "mode": "cost"},
+                            "MARKET": {"value": 9, "mode": "cost"},
+                            "MINING": {"value": 9, "mode": "cost"},
+                            "PRODUCTION": {"value": 4, "mode": "cost"},
+                        }
+                    ],
+                },
+                "rattingbar": {
+                    "title": "Billboard Chart",
+                    "date": "2025-01-31",
+                    "categories": ["Bounty", "ESS", "Miscellaneous", "Mining"],
+                    "series": [
+                        {"date": "2024-01", "bounty": 100000},
+                        {
+                            "date": "2024-03",
+                            "bounty": 200000,
+                            "ess": 1133333,
+                            "miscellaneous": 200000,
+                            "mining": 200000,
+                        },
+                    ],
+                },
+                "workflowgauge": {
+                    "title": "Billboard Chart",
+                    "date": "2025-01-31",
+                    "categories": ["bounty", "ess", "mining", "miscellaneous"],
+                    "series": [
+                        {
+                            "date": "2025-01-31",
+                            "BOUNTY": {"value": 16, "mode": "income"},
+                            "ESS": {"value": 62, "mode": "income"},
+                            "MINING": {"value": 11, "mode": "cost"},
+                            "MISCELLANEOUS": {"value": 11, "mode": "cost"},
+                        }
+                    ],
+                },
+            }
+        }
     }
 ]
 
@@ -156,44 +208,58 @@ CharNoMining = [
     {
         "billboard": {
             "standard": {
-                "charts": [
-                    ["Income", 1533333],
-                    ["Market Cost", 200000],
-                    ["Production Cost", 100000],
-                    ["Misc. Cost", 100000],
-                ],
-                "rattingbar": [
-                    ["x", "2024-03-19"],
-                    ["Ratting", 200000],
-                    ["ESS Payout", 1133333],
-                    ["Miscellaneous", 200000],
-                    ["Mining", 0],
-                    ["Tick"],
-                ],
-                "workflowgauge": [
-                    ["Ratting", 13.0],
-                    ["ESS Payout", 73.9],
-                    ["Miscellaneous", 13.0],
-                    ["Mining", 0.0],
-                ],
-            },
-            "weekly": {
-                "charts": None,
-                "rattingbar": None,
-                "workflowgauge": None,
-            },
-            "hourly": {
-                "charts": None,
-                "rattingbar": [
-                    ["x", "2024-03-19 14:00:00"],
-                    ["Ratting", 200000],
-                    ["ESS Payout", 1133333],
-                    ["Miscellaneous", 200000],
-                    ["Mining", 0],
-                    ["Tick", 66666],
-                ],
-                "workflowgauge": None,
-            },
-        },
+                "charts": {
+                    "title": "Billboard Chart",
+                    "date": "2025-01-31",
+                    "categories": [
+                        "bounty",
+                        "contract",
+                        "donation",
+                        "ess",
+                        "insurance",
+                        "market",
+                        "production",
+                    ],
+                    "series": [
+                        {
+                            "date": "2025-01-31",
+                            "BOUNTY": {"value": 10, "mode": "income"},
+                            "CONTRACT": {"value": 5, "mode": "income"},
+                            "DONATION": {"value": 5, "mode": "income"},
+                            "ESS": {"value": 59, "mode": "income"},
+                            "INSURANCE": {"value": 5, "mode": "cost"},
+                            "MARKET": {"value": 10, "mode": "cost"},
+                            "PRODUCTION": {"value": 5, "mode": "cost"},
+                        }
+                    ],
+                },
+                "rattingbar": {
+                    "title": "Billboard Chart",
+                    "date": "2025-01-31",
+                    "categories": ["Bounty", "ESS", "Miscellaneous", "Mining"],
+                    "series": [
+                        {
+                            "date": "2024-03-19",
+                            "bounty": 200000,
+                            "ess": 1133333,
+                            "miscellaneous": 200000,
+                        }
+                    ],
+                },
+                "workflowgauge": {
+                    "title": "Billboard Chart",
+                    "date": "2025-01-31",
+                    "categories": ["bounty", "ess", "miscellaneous"],
+                    "series": [
+                        {
+                            "date": "2025-01-31",
+                            "BOUNTY": {"value": 13, "mode": "income"},
+                            "ESS": {"value": 74, "mode": "income"},
+                            "MISCELLANEOUS": {"value": 13, "mode": "cost"},
+                        }
+                    ],
+                },
+            }
+        }
     }
 ]

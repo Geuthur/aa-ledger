@@ -76,7 +76,9 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
     @patch(MODULE_PATH + ".get_alts_queryset")
     def test_get_alts_with_exception(self, mock_get_alts_queryset):
-        process = CharacterProcess(chars=[], year=2024, month=3)
+        process = CharacterProcess(
+            chars=[], date=timezone.datetime(2024, 3, 19, 0, 0, 0, tzinfo=timezone.utc)
+        )
         main = [1]
         mock_get_alts_queryset.side_effect = Exception("Test exception")
         result = process.get_alts(main)
@@ -94,7 +96,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         )
 
         self.client.force_login(self.user)
-        url = "/ledger/api/character/0/ledger/year/2024/month/3/"
+        url = "/ledger/api/character/0/ledger/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -103,7 +105,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
         # Corporation
-        url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
+        url = "/ledger/api/corporation/0/ledger/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
         expected_data = _ledgercorpdata.CorpdatamanyWithTaxEvent
@@ -114,7 +116,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
     def test_get_ledger_api(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/character/0/ledger/year/2024/month/3/"
+        url = "/ledger/api/character/0/ledger/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -123,7 +125,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
         # Corporation
-        url = "/ledger/api/corporation/0/ledger/year/2024/month/3/"
+        url = "/ledger/api/corporation/0/ledger/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
         expected_data = _ledgercorpdata.Corpdatamany
@@ -131,7 +133,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
         # Alliance
-        url = "/ledger/api/alliance/0/ledger/year/2024/month/3/"
+        url = "/ledger/api/alliance/0/ledger/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
         expected_data = _ledgercorpdata.Corpdatamany
@@ -139,7 +141,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
         # Wrong Type
-        url = "/ledger/api/test/0/ledger/year/2024/month/3/"
+        url = "/ledger/api/test/0/ledger/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
         self.assertContains(response, "No Entity Type found", status_code=403)
@@ -149,7 +151,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         for char in chars:
             add_character_to_user(self.user, char)
         self.client.force_login(self.user)
-        url = "/ledger/api/character/0/ledger/year/2024/month/3/"
+        url = "/ledger/api/character/0/ledger/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -159,7 +161,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
     def test_get_ledger_api_single(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/character/1001/ledger/year/2024/month/3/"
+        url = "/ledger/api/character/1001/ledger/date/2024-03-01/view/month/"
         # when
         response = self.client.get(url)
         # then
@@ -168,7 +170,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
         # Corporation
-        url = "/ledger/api/corporation/2001/ledger/year/2024/month/3/"
+        url = "/ledger/api/corporation/2001/ledger/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
         expected_data = _ledgercorpdata.Corpdatamany
@@ -176,7 +178,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
         # Alliance
-        url = "/ledger/api/alliance/3001/ledger/year/2024/month/3/"
+        url = "/ledger/api/alliance/3001/ledger/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -187,7 +189,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
     def test_get_ledger_api_year(self):
         # given
         self.client.force_login(self.user)
-        url = "/ledger/api/character/1001/ledger/year/2024/month/0/"
+        url = "/ledger/api/character/1001/ledger/date/2024-01-01/view/year/"
         expected_data = Charyearly
         # when
         response = self.client.get(url)
@@ -196,7 +198,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
         # Corporation
-        url = "/ledger/api/corporation/2001/ledger/year/2024/month/0/"
+        url = "/ledger/api/corporation/2001/ledger/date/2024-01-01/view/year/"
 
         response = self.client.get(url)
 
@@ -205,7 +207,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
         # Alliance
-        url = "/ledger/api/alliance/3001/ledger/year/2024/month/0/"
+        url = "/ledger/api/alliance/3001/ledger/date/2024-01-01/view/year/"
 
         response = self.client.get(url)
 
@@ -215,19 +217,19 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
     def test_get_ledger_api_no_permission(self):
         self.client.force_login(self.user_with_no_permission)
-        url = "/ledger/api/character/1001/ledger/year/2024/month/3/"
+        url = "/ledger/api/character/1001/ledger/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 403)
 
-        url = "/ledger/api/corporation/2001/ledger/year/2024/month/3/"
+        url = "/ledger/api/corporation/2001/ledger/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 403)
 
-        url = "/ledger/api/alliance/3001/ledger/year/2024/month/3/"
+        url = "/ledger/api/alliance/3001/ledger/date/2024-03-01/view/month/"
 
         response = self.client.get(url)
 
@@ -236,7 +238,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
     def test_get_ledger_api_no_data(self):
         # given
         self.client.force_login(self.user_with_no_data)
-        url = "/ledger/api/character/0/ledger/year/2024/month/3/"
+        url = "/ledger/api/character/0/ledger/date/2024-03-01/view/month/"
         # when
         response = self.client.get(url)
         # then
@@ -246,7 +248,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
         self.client.force_login(self.user)
         # Corporation
-        url = "/ledger/api/corporation/0/ledger/year/2024/month/12/"
+        url = "/ledger/api/corporation/0/ledger/date/2024-12-01/view/month/"
         # when
         response = self.client.get(url)
         # then
@@ -255,7 +257,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), expected_data)
 
         # Alliance
-        url = "/ledger/api/alliance/0/ledger/year/2024/month/12/"
+        url = "/ledger/api/alliance/0/ledger/date/2024-12-01/view/month/"
         # when
         response = self.client.get(url)
         # then
@@ -266,7 +268,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
     def test_get_ledger_api_amount_is_zero(self):
         # given
         self.client.force_login(self.user_with_no_data)
-        url = "/ledger/api/character/0/ledger/year/2024/month/3/"
+        url = "/ledger/api/character/0/ledger/date/2024-03-01/view/month/"
         # when
         response = self.client.get(url)
         # then
@@ -277,7 +279,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
     def test_get_character_ledger_api_no_mining(self):
         # given
         self.client.force_login(self.user)
-        url = "/ledger/api/character/0/ledger/year/2024/month/3/"
+        url = "/ledger/api/character/0/ledger/date/2024-03-01/view/month/"
         CharacterMiningLedger.objects.all().delete()
         EveMarketPrice.objects.all().delete()
         # when
@@ -292,7 +294,7 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self, mock_filter
     ):
         self.client.force_login(self.user)
-        url = "/ledger/api/corporation/2002/ledger/year/2024/month/3/"
+        url = "/ledger/api/corporation/2002/ledger/date/2024-03-01/view/month/"
 
         # Mock the queryset to return a journal entry with zero summary amount
         mock_entry = MagicMock()
