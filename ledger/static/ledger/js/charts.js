@@ -68,7 +68,7 @@ function setBillboardData(url, id) {
 
 function createRattingChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {
-        console.error('Data is not in the expected format:', data);
+        console.debug('Data is not in the expected format:', data);
         return;
     }
 
@@ -189,7 +189,7 @@ function createRattingChart(root, data, id) {
 
 function createRattingBarChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {
-        console.error('Data is not in the expected format:', data);
+        console.debug('Data is not in the expected format:', data);
         return;
     }
 
@@ -277,7 +277,7 @@ function createRattingBarChart(root, data, id) {
 
 function createWorkflowGaugeChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {
-        console.error('Data is not in the expected format:', data);
+        console.debug('Data is not in the expected format:', data);
         return;
     }
 
