@@ -23,18 +23,18 @@
 <div class="card-body bg-primary rounded-top d-flex align-items-center">
     <h3 class="me-3">{% translate "Character Ledger" %}</h3>
     <div class="dropdown px-2">
-        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            {% trans "Year" %}
+        <button id="yearDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% now "Y" %}
         </button>
         <ul class="dropdown-menu" id="yearDropdown">
             {% for year in years %}
-                <li><a class="dropdown-item" href="#">{{ year }}</a></li>
+                <li><a class="dropdown-item" data-bs-year-id="{{ year }}" href="#">{{ year }}</a></li>
             {% endfor %}
         </ul>
     </div>
     <div class="dropdown px-2">
-        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            {% trans "Month" %}
+        <button id="monthDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% now "F" %}
         </button>
         <ul class="dropdown-menu" id="monthDropdown">
             <li><a class="dropdown-item" data-bs-month-id="1" href="#">{% trans "January" %}</a></li>
@@ -51,29 +51,21 @@
             <li><a class="dropdown-item" data-bs-month-id="12" href="#">{% trans "December" %}</a></li>
         </ul>
     </div>
+    <div class="dropdown px-2">
+        <button id="dayDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% trans "Day" %}
+        </button>
+        <ul class="dropdown-menu" id="dayDropdown">
+            <!-- Days will be populated here -->
+        </ul>
+    </div>
     <div class="ms-auto">
             <button class="btn btn-secondary overview"><a class="nav-link py-0" href="{% url 'ledger:character_admin' %}">{% translate 'Character Overview' %}</a></button>
     </div>
 </div>
-<ul class="nav nav-tabs" id="ledger-ratting" role="tablist">
-    <li class="nav-item">
-        <a id="currentMonthLink" class="nav-link bg-secondary rounded-0 active" href="#tab-current_month" data-bs-toggle="tab" role="tab" data-bs-target="#tab-current_month">
-            {% trans "Month" %} - {% now "F" %}
-        </a>
-    </li>
-    <li class="nav-item">
-        <a id="currentYearLink" class="nav-link rounded-0 bg-secondary" href="#tab-all_month" data-bs-toggle="tab" role="tab" data-bs-target="#tab-all_month">
-            {% trans "Year" %} - {% now "Y" %}
-        </a>
-    </li>
-</ul>
-<div class="tab-content rounded-bottom">
-    <div class="tab-content">
-        {% include 'ledger/charledger/month.html' with character_pk=character_pk %}
-        {% include 'ledger/charledger/year.html' with character_pk=character_pk years=years %}
-    </div>
+<div class="card-body rounded-bottom">
+    {% include 'ledger/view.html' with character_pk=character_pk entity_type=entity_type %}
 </div>
-<div id="chartdiv"></div>
 <!-- Tab Session -->
 {% include 'ledger/modals/modal_dialog.html' with name="ViewCharacter" %}
 {% endblock %}
@@ -112,8 +104,6 @@
         altShow: altShow,
         overviewText: '{% translate "Overview" %}',
         planetaryText: '{% translate "Show Planetary Interaction" %}',
-        hourlyText: '{% translate "Hour" %}',
-        daysText: '{% translate "Days" %}',
     };
 </script>
 {% include 'ledger/bundles/ledger-js.html' %}

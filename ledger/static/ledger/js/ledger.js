@@ -1,8 +1,7 @@
 /* global ledgersettings, load_or_create_Chart, setBillboardData */
 /* eslint-disable */
 
-var MonthUrl, YearUrl, BillboardUrl, BillboardUrlYear;
-var BillboardMonth, BillboardYear, BillboardHourly;
+var LedgerUrl, ChartUrl
 var ActiveBillboardMonth, selectedMode;
 
 const entityPk = ledgersettings.entity_pk;
@@ -10,8 +9,18 @@ const entityType = ledgersettings.entity_type;
 const characteraltsShow = ledgersettings.altShow;
 const overviewText = ledgersettings.overviewText;
 const planetaryText = ledgersettings.planetaryText;
-const hourlyText = ledgersettings.hourlyText;
-const daysText = ledgersettings.daysText;
+
+var monthText = getMonthName(selectedMonth);
+var mainAlts = '';
+// Check if altShow is true and append '?main=True' to the URLs
+if (characteraltsShow) {
+    mainAlts = '?main=True';
+}
+
+const barDropdownMode = document.getElementById('barDropdownMode');
+const yearDropdown = document.getElementById('yearDropdown');
+const monthDropdown = document.getElementById('monthDropdown');
+const dayDropdown = document.getElementById('dayDropdown');
 
 // Aktuelles Datumobjekt erstellen
 const currentDate = new Date();
@@ -20,19 +29,11 @@ const currentDate = new Date();
 var selectedYear = currentDate.getFullYear();
 var selectedMonth = currentDate.getMonth() + 1;
 var selectedDay = 1;
-var monthText = getMonthName(selectedMonth);
-
-var mainAlts = '';
-// Check if altShow is true and append '?main=True' to the URLs
-if (characteraltsShow) {
-    mainAlts = '?main=True';
-}
+var selectedviewMode = 'month';
 
 function updateUrls() {
-    MonthUrl = `/ledger/api/${entityType}/${entityPk}/ledger/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/month/${mainAlts}`;
-    YearUrl = `/ledger/api/${entityType}/${entityPk}/ledger/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/year/${mainAlts}`;
-    BillboardUrl = `/ledger/api/${entityType}/${entityPk}/billboard/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/month/${mainAlts}`;
-    BillboardUrlYear = `/ledger/api/${entityType}/${entityPk}/billboard/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/year/${mainAlts}`;
+    LedgerUrl = `/ledger/api/${entityType}/${entityPk}/ledger/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/${mainAlts}`;
+    ChartUrl = `/ledger/api/${entityType}/${entityPk}/billboard/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/${mainAlts}`;
 }
 
 function getMonthName(monthNumber) {
@@ -59,70 +60,23 @@ function formatAndColor(value) {
     return `<span class="${cssClass}">${formattedNumber}</span> ISK`;
 }
 
-$('#monthDropdown li').click(function() {
-    showLoading('Month');
-    hideContainer('Month');
+function populateDays(selectedMonth) {
+    const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
 
-    if (entityPk === 0 || (entityPk > 0 && characteraltsShow && entityType !== 'character')) {
-        window['MonthTable'].clear().draw();
-        $('#foot-Month').hide();
+    // Clear existing options
+    dayDropdown.innerHTML = '';
+
+    // Populate the day dropdown with the correct number of days
+    for (let day = 1; day <= daysInMonth; day++) {
+        const listItem = document.createElement('li');
+        const anchor = document.createElement('a');
+        anchor.className = 'dropdown-item';
+        anchor.href = '#';
+        anchor.textContent = day;
+        listItem.appendChild(anchor);
+        dayDropdown.appendChild(listItem);
     }
-
-    selectedMonth = $(this).find('a').data('bs-month-id');
-    monthText = getMonthName(selectedMonth);
-
-    // Update URL Data
-    updateUrls();
-
-    // DataTable neu laden mit den Daten des ausgewählten Monats
-    setBillboardData(BillboardUrl, 'Month');
-    generateLedger('Month', MonthUrl);
-    $('#currentMonthLink').text('Month - ' + monthText);
-});
-
-$('#yearDropdown li').click(function() {
-    showLoading('Year');
-    showLoading('Month');
-    hideContainer('Year');
-    hideContainer('Month');
-
-    if (entityPk === 0 || (entityPk > 0 && characteraltsShow && entityType !== 'character')) {
-        window['YearTable'].clear().draw();
-        $('#foot-Year').hide();
-        window['MonthTable'].clear().draw();
-        $('#foot-Month').hide();
-    }
-
-    selectedYear = $(this).text();
-
-    // Update URL Data
-    updateUrls();
-
-    // DataTable neu laden mit den Daten des ausgewählten Monats
-    setBillboardData(BillboardUrl, 'Month');
-    setBillboardData(BillboardUrlYear, 'Year');
-    generateLedger('Month', MonthUrl);
-    generateLedger('Year', YearUrl);
-    $('#currentMonthLink').text('Month - ' + monthText);
-    $('#currentYearLink').text('Year - ' + selectedYear);
-});
-
-$('#barDropdown-Month li').click(function() {
-    selectedMode = $(this).text();
-    var div = 'rattingBar-Month';
-    if (selectedMode === hourlyText) {
-        var data = BillboardHourly.rattingbar;
-    } else {
-        var data = BillboardMonth.rattingbar;
-    }
-    const success = load_or_create_Chart(div=div, data=data, id='Month', chart='bar');
-    if (success) {
-        $('#barTitle-Month').text('Ledger ' + selectedMode);
-        console.log('Chart loaded successfully');
-    } else {
-        console.error('Failed to load chart');
-    }
-});
+}
 
 function initTooltip() {
     $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({
@@ -136,23 +90,23 @@ function initTooltip() {
     }
 }
 
-function hideLoading(id) {
-    $('#bar-loading-'+id).addClass('d-none');
-    $('#chart-loading-'+id).addClass('d-none');
-    $('#loadingIndicator-'+id).addClass('d-none');
+function hideLoading() {
+    $('#bar-loading').addClass('d-none');
+    $('#chart-loading').addClass('d-none');
+    $('#loadingIndicator').addClass('d-none');
 }
 
-function showLoading(id) {
-    $('#bar-loading-'+id).removeClass('d-none');
-    $('#chart-loading-'+id).removeClass('d-none');
-    $('#loadingIndicator-'+id).removeClass('d-none');
+function showLoading() {
+    $('#bar-loading').removeClass('d-none');
+    $('#chart-loading').removeClass('d-none');
+    $('#loadingIndicator').removeClass('d-none');
 }
 
-function hideContainer(id) {
-    $('#lookup-'+id).addClass('d-none');
-    $('#ChartContainer-'+id).addClass('d-none');
-    $('#rattingBarContainer-'+id).addClass('d-none');
-    $('#workGaugeContainer-'+id).addClass('d-none');
+function hideContainer() {
+    $('#lookup').addClass('d-none');
+    $('#ChartContainer').addClass('d-none');
+    $('#rattingBarContainer').addClass('d-none');
+    $('#workGaugeContainer').addClass('d-none');
 }
 
 function generateLedger(TableName, url) {
@@ -161,9 +115,9 @@ function generateLedger(TableName, url) {
         type: 'GET',
         success: function(data) {
             if (window[TableName + 'Table']) {
-                $('#ratting-'+ TableName +'').DataTable().destroy();
+                $('#ratting').DataTable().destroy();
             }
-            hideLoading(''+ TableName +'');
+            hideLoading();
             const char_name = data[0].ratting[0]?.main_name || 'No Data';
             const char_id = data[0].ratting[0]?.main_id || '0';
             const total_amount = data[0].total.total_amount;
@@ -173,34 +127,31 @@ function generateLedger(TableName, url) {
             const total_amount_combined = data[0].total.total_amount_all;
             const total_amount_costs = data[0].total.total_amount_costs;
 
-            // Set the month to 0 for the year table
-            const tableView = TableName.toLowerCase();
-
             if (entityPk > 0 && !characteraltsShow && entityType === 'character') {
-                $('#lookup-'+ TableName +'').removeClass('d-none');
+                $('#lookup').removeClass('d-none');
                 // Daten direkt in die HTML-Elemente einfügen
-                $('#portrait-'+ TableName +'').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
-                $('#character_name-'+ TableName +'').text(char_name);
-                $('#amount_ratting-'+ TableName +'').html(formatAndColor(total_amount));
-                $('#amount_ess-'+ TableName +'').html(formatAndColor(total_amount_ess));
-                $('#amount_mining-'+ TableName +'').html(formatAndColor(total_amount_mining));
-                $('#amount_misc-'+ TableName +'').html(formatAndColor(total_amount_others));
-                $('#amount_costs-'+ TableName +'').html(formatAndColor(total_amount_costs));
-                $('#amount_summary-'+ TableName +'').html(formatAndColor(total_amount_combined));
-                $('#planetary_interaction-'+ TableName +'').html(`
+                $('#portrait').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
+                $('#character_name').text(char_name);
+                $('#amount_ratting').html(formatAndColor(total_amount));
+                $('#amount_ess').html(formatAndColor(total_amount_ess));
+                $('#amount_mining').html(formatAndColor(total_amount_mining));
+                $('#amount_misc').html(formatAndColor(total_amount_others));
+                $('#amount_costs').html(formatAndColor(total_amount_costs));
+                $('#amount_summary').html(formatAndColor(total_amount_combined));
+                $('#planetary_interaction').html(`
                     <a href="/ledger/planetary_ledger/${entityPk}/">
                         <image src="/static/ledger/images/pi.png"
                             title="${planetaryText}"
                             height="256" data-tooltip-toggle="ledger-tooltip" data-bs-placement="top">
                     </a>
                 `);
-                $('#get_template-'+ TableName +'').html(`
+                $('#get_template').html(`
                     <button
                         class="btn btn-sm btn-info btn-square" id="button-${TableName}"
                         data-bs-toggle="modal"
                         data-bs-target="#modalViewCharacterContainer"
                         aria-label="${char_name}"
-                        data-ajax_url="/ledger/api/${entityType}/${char_id}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${tableView}/"
+                        data-ajax_url="/ledger/api/${entityType}/${char_id}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/"
                         title="${char_name}"
                         data-tooltip-toggle="ledger-tooltip" data-bs-placement="right">
                         <span class="fas fa-info"></span>
@@ -213,7 +164,7 @@ function generateLedger(TableName, url) {
                 initTooltip();
             } else {
                 var table = TableName + 'Table';
-                window[table] = $('#ratting-'+ TableName +'').DataTable({
+                window[table] = $('#ratting').DataTable({
                     data: data[0].ratting,
                     columns: [
                         {
@@ -269,7 +220,7 @@ function generateLedger(TableName, url) {
                                             <a href="/ledger/character_ledger/${row.main_id}/">
                                                 <button
                                                     class="btn btn-sm btn-info btn-square"
-                                                    id="lookup-Month"
+                                                    id="lookup"
                                                     title="${overviewText}"
                                                     data-tooltip-toggle="ledger-tooltip" data-bs-placement="right">
                                                     <span class="fas fa-search"></span>
@@ -333,9 +284,9 @@ function generateLedger(TableName, url) {
                                 var chartemplateUrl = '';
 
                                 if (entityType === 'character') {
-                                    chartemplateUrl = `/ledger/api/character/${row.main_id}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${tableView}/`;
+                                    chartemplateUrl = `/ledger/api/character/${row.main_id}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/`;
                                 } else {
-                                    chartemplateUrl = `/ledger/api/${entityType}/${entityPk}/${row.main_id}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${tableView}/`;
+                                    chartemplateUrl = `/ledger/api/${entityType}/${entityPk}/${row.main_id}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/`;
                                 }
 
                                 return `
@@ -354,43 +305,43 @@ function generateLedger(TableName, url) {
                     columnDefs: [
                         {
                             sortable: false,
-                            targets: entityType === 'character' ? [6] : [3],
+                            targets: entityType === 'character' ? [6] : [4],
                             className: 'text-end',
                         },
                     ],
                     footerCallback: function (_, data, __, ___, ____) {
                         if (data.length === 0) {
-                            $('#foot-'+ TableName +' .col-total-amount').html('');
-                            $('#foot-'+ TableName +' .col-total-ess').html('');
-                            $('#foot-'+ TableName +' .col-total-others').html('');
-                            $('#foot-'+ TableName +' .col-total-gesamt').html('');
-                            $('#foot-'+ TableName +' .col-total-button').html('').removeClass('text-end');
+                            $('#foot .col-total-amount').html('');
+                            $('#foot .col-total-ess').html('');
+                            $('#foot .col-total-others').html('');
+                            $('#foot .col-total-gesamt').html('');
+                            $('#foot .col-total-button').html('').removeClass('text-end');
 
                             if (entityType === 'character') {
-                                $('#foot-'+ TableName +' .col-total-mining').html('');
-                                $('#foot-'+ TableName +' .col-total-costs').html('');
+                                $('#foot .col-total-mining').html('');
+                                $('#foot .col-total-costs').html('');
                             }
                             return;
                         }
 
                         var templateUrl = '';
                         if (entityType === 'character') {
-                            templateUrl = `/ledger/api/character/${entityPk}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${tableView}/`;
+                            templateUrl = `/ledger/api/character/${entityPk}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/`;
                             if (characteraltsShow) {
                                 templateUrl += '?main=True';
                             }
-                            $('#foot-'+ TableName +' .col-total-mining').html(formatAndColor(total_amount_mining));
-                            $('#foot-'+ TableName +' .col-total-costs').html(formatAndColor(total_amount_costs));
+                            $('#foot .col-total-mining').html(formatAndColor(total_amount_mining));
+                            $('#foot .col-total-costs').html(formatAndColor(total_amount_costs));
                         } else {
-                            templateUrl = `/ledger/api/${entityType}/${entityPk}/0/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${tableView}/?corp=true`;
+                            templateUrl = `/ledger/api/${entityType}/${entityPk}/0/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/?corp=true`;
                         }
 
-                        $('#foot-'+ TableName +' .col-total-amount').html(formatAndColor(total_amount));
-                        $('#foot-'+ TableName +' .col-total-ess').html(formatAndColor(total_amount_ess));
-                        $('#foot-'+ TableName +' .col-total-others').html(formatAndColor(total_amount_others));
-                        $('#foot-'+ TableName +' .col-total-gesamt').html(formatAndColor(total_amount_combined));
+                        $('#foot .col-total-amount').html(formatAndColor(total_amount));
+                        $('#foot .col-total-ess').html(formatAndColor(total_amount_ess));
+                        $('#foot .col-total-others').html(formatAndColor(total_amount_others));
+                        $('#foot .col-total-gesamt').html(formatAndColor(total_amount_combined));
 
-                        $('#foot-'+ TableName +' .col-total-button').html(`
+                        $('#foot .col-total-button').html(`
                             <button
                                 class="btn btn-sm btn-info btn-square"
                                 data-bs-toggle="modal"
@@ -400,8 +351,8 @@ function generateLedger(TableName, url) {
                         `).addClass('text-end');
                     },
                     initComplete: function() {
-                        $('#foot-'+ TableName +'').show();
-                        $('#ratting-'+ TableName +'').removeClass('d-none');
+                        $('#foot').show();
+                        $('#ratting').removeClass('d-none');
 
                         initTooltip();
                     },
@@ -413,9 +364,9 @@ function generateLedger(TableName, url) {
         },
         error: function(xhr, _, __) {
             if (xhr.status === 403) {
-                $('#ratting-'+ TableName +'').DataTable().destroy();
-                hideLoading(''+ TableName +'');
-                $('#errorHandler-'+ TableName +'').removeClass('d-none');
+                $('#ratting').DataTable().destroy();
+                hideLoading();
+                $('#errorHandler').removeClass('d-none');
                 $('.dropdown-toggle').attr('disabled', true);
                 $('.overview').attr('disabled', true);
             }
@@ -427,15 +378,109 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize the URLs
     updateUrls();
 
-    setBillboardData(BillboardUrl, 'Month');
-    setBillboardData(BillboardUrlYear, 'Year');
+    setBillboardData(ChartUrl, 'Ledger');
+    generateLedger('Ledger', LedgerUrl);
+    populateDays(selectedMonth);
 
-    // Initialize DataTable
-    generateLedger('Month', MonthUrl);
-    generateLedger('Year', YearUrl);
-});
+    barDropdownMode.addEventListener('click', function(event) {
+        selectedMode = event.target.textContent;
+        var div = 'rattingBar';
+        if (selectedMode === hourlyText) {
+            var data = BillboardHourly.rattingbar;
+        } else {
+            var data = BillboardMonth.rattingbar;
+        }
+        const success = load_or_create_Chart(div=div, data=data, id='Ledger', chart='bar');
+        if (success) {
+            $('#barTitle').text('Ledger ' + selectedMode);
+            console.log('Chart loaded successfully');
+        } else {
+            console.error('Failed to load chart');
+        }
+    });
 
-$('#ledger-ratting').on('click', 'a[data-bs-toggle=\'tab\']', function () {
-    const target = $(this).attr('data-bs-target');
-    console.log(target);
+    yearDropdown.addEventListener('click', function(event) {
+        if (event.target && event.target.matches('a.dropdown-item')) {
+            // Remove the active class from all items
+            const items = yearDropdown.querySelectorAll('a.dropdown-item');
+            items.forEach(item => item.classList.remove('active'));
+
+            // Add the active class to the selected item
+            event.target.classList.add('active');
+            // Set the text content
+            $('#yearDropDownButton').text(event.target.textContent);
+            $('#monthDropDownButton').text("Month");
+            $('#dayDropDownButton').text("Day");
+        }
+        selectedYear = event.target.dataset.bsYearId;
+        selectedviewMode = 'year';
+        showLoading('Ledger');
+        hideContainer('Ledger');
+
+        if (entityPk === 0 || (entityPk > 0 && characteraltsShow && entityType !== 'character')) {
+            window['LedgerTable'].clear().draw();
+            $('#foot').hide();
+        }
+
+        // Update URL Data
+        updateUrls();
+
+        // DataTable neu laden mit den Daten des ausgewählten Monats
+        setBillboardData(ChartUrl, 'Ledger');
+        generateLedger('Ledger', LedgerUrl);
+    });
+
+    monthDropdown.addEventListener('click', function(event) {
+        if (event.target && event.target.matches('a.dropdown-item')) {
+            // Remove the active class from all items
+            const items = monthDropdown.querySelectorAll('a.dropdown-item');
+            items.forEach(item => item.classList.remove('active'));
+
+            // Add the active class to the selected item
+            event.target.classList.add('active');
+            // Set the text content
+            $('#monthDropDownButton').text(event.target.textContent);
+            $('#dayDropDownButton').text("Day");
+        }
+        selectedMonth = event.target.dataset.bsMonthId;
+        showLoading('Ledger');
+        hideContainer('Ledger');
+
+        if (entityPk === 0 || (entityPk > 0 && characteraltsShow && entityType !== 'character')) {
+            window['LedgerTable'].clear().draw();
+            $('#foot').hide();
+            populateDays(selectedMonth);
+        }
+        selectedviewMode = 'month';
+
+        // Update URL Data
+        updateUrls();
+
+        // DataTable neu laden mit den Daten des ausgewählten Monats
+        setBillboardData(ChartUrl, 'Ledger');
+        generateLedger('Ledger', LedgerUrl);
+    });
+
+    dayDropdown.addEventListener('click', function(event) {
+        if (event.target && event.target.matches('a.dropdown-item')) {
+            // Remove the active class from all items
+            const items = dayDropdown.querySelectorAll('a.dropdown-item');
+            items.forEach(item => item.classList.remove('active'));
+
+            // Add the active class to the selected item
+            event.target.classList.add('active');
+            // Set the text content
+            $('#dayDropDownButton').text(event.target.textContent);
+        }
+
+        selectedDay = event.target.textContent;
+        selectedviewMode = 'day';
+
+        // Update URL Data
+        updateUrls();
+
+        // DataTable neu laden mit den Daten des ausgewählten Monats
+        setBillboardData(ChartUrl, 'Ledger');
+        generateLedger('Ledger', LedgerUrl);
+    });
 });

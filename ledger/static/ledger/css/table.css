@@ -1,40 +1,39 @@
 /* stylelint-disable selector-id-pattern, color-no-hex */
 
 @media all {
-    #ratting-Month, #ratting-Year {
+    #ratting {
         table-layout: fixed;
         word-wrap: break-word;
     }
 
-    #ratting-Month th, #ratting-Year th,
-    #ratting-Month td, #ratting-Year td {
+    #ratting th,
+    #ratting td {
         padding: 0.75rem;
         vertical-align: top;
     }
 
-    #ratting-Month thead th, #ratting-Year thead th {
+    #ratting thead th {
         text-align: center;
     }
 
-    #ratting-Month thead th.col-main-character,
-    #ratting-Year thead th.col-main-character {
+    #ratting thead th.col-main-character {
         text-align: left;
     }
 
-    #ratting-Month tbody td, #ratting-Year tbody td {
+    #ratting tbody td {
         text-align: right;
     }
 
-    #ratting-Month tbody td:nth-child(1), #ratting-Year tbody td:nth-child(1) {
+    #ratting tbody td:nth-child(1) {
         text-align: left;
     }
 
-    #ratting-Month tfoot th, #ratting-Year tfoot th {
+    #ratting tfoot th {
         text-align: right;
         border-top: 1px solid #dee2e6;
     }
 
-    #ratting-Month tfoot th:nth-child(1), #ratting-Year tfoot th:nth-child(1) {
+    #ratting tfoot th:nth-child(1) {
         text-align: left;
     }
 

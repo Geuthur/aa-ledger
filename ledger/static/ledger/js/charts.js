@@ -4,19 +4,18 @@
 /* global am5percent */
 /* global am5xy */
 
+// Function to dispose of a root instance if it exists
+function disposeRoot(rootId) {
+    const rootElement = am5.registry.rootElements.find(root => root.dom.id === rootId);
+    if (rootElement) {
+        rootElement.dispose();
+    }
+}
 
-function load_or_create_Chart(div, data, id, chart) {
+function load_or_create_Chart(div, data, chart) {
     if (!data || !Array.isArray(data.series)) {
         console.error('Data is not in the expected format:', data);
         return false;
-    }
-
-    // Function to dispose of a root instance if it exists
-    function disposeRoot(rootId) {
-        const rootElement = am5.registry.rootElements.find(root => root.dom.id === rootId);
-        if (rootElement) {
-            rootElement.dispose();
-        }
     }
 
     // Dispose existing Root instances
@@ -26,29 +25,29 @@ function load_or_create_Chart(div, data, id, chart) {
     root.setThemes([am5themes_Animated.new(root), am5themes_Dark.new(root)]);
 
     if (chart === 'bar') {
-        return createRattingBarChart(root, data, id);
+        return createRattingBarChart(root, data, div);
     } else if (chart === 'gauge') {
-        return createWorkflowGaugeChart(root, data, id);
+        return createWorkflowGaugeChart(root, data, div);
     } else if (chart === 'chart') {
-        return createRattingChart(root, data, id);
+        return createRattingChart(root, data, div);
     }
 
     return true;
 }
 
-function initCharts(data, id) {
+function initCharts(data) {
     const billboard = data;
     if (!billboard) return;
 
     // Dispose of existing Root instances with the same id if they exist
-    const rootChartId = 'rattingChart-' + id;
-    const rootBarId = 'rattingBar-' + id;
-    const rootGaugeId = 'rattingworkGauge-' + id;
+    const rootChartId = 'rattingChart';
+    const rootBarId = 'rattingBar';
+    const rootGaugeId = 'rattingworkGauge';
 
     // Create the chart
-    const chart = load_or_create_Chart(rootChartId, billboard.charts, id, 'chart');
-    const barChart = load_or_create_Chart(rootBarId, billboard.rattingbar, id, 'bar');
-    const gaugeChart = load_or_create_Chart(rootGaugeId, billboard.workflowgauge, id, 'gauge');
+    const chart = load_or_create_Chart(rootChartId, billboard.charts, 'chart');
+    const barChart = load_or_create_Chart(rootBarId, billboard.rattingbar, 'bar');
+    const gaugeChart = load_or_create_Chart(rootGaugeId, billboard.workflowgauge, 'gauge');
 }
 
 function setBillboardData(url, id) {
@@ -56,7 +55,6 @@ function setBillboardData(url, id) {
         url: url,
         type: 'GET',
         success: function(data) {
-            console.log(data);
             if (id === 'Month') {
                 var BillboardMonth = data[0].billboard.standard;
                 initCharts(data[0].billboard.standard, 'Month');
@@ -180,8 +178,8 @@ function createRattingChart(root, data, id) {
         legend.data.setAll(series.dataItems);
 
         // Remove Hide the chart container
-        $('#ChartContainer-' + id).removeClass('d-none');
-        $('#ChartContainer-' + id).addClass('active');
+        $('#ChartContainer').removeClass('d-none');
+        $('#ChartContainer').addClass('active');
 
         series.appear();
         chart.appear(1000, 100);
@@ -269,8 +267,8 @@ function createRattingBarChart(root, data, id) {
         data.categories.forEach((name, i) => makeSeries(name, name.toLowerCase()));
 
         // Remove Hide the chart container
-        $('#rattingBarContainer-' + id).removeClass('d-none');
-        $('#rattingBarContainer-' + id).addClass('active');
+        $('#rattingBarContainer').removeClass('d-none');
+        $('#rattingBarContainer').addClass('active');
 
         chart.appear(1000, 100);
     }
@@ -361,8 +359,8 @@ function createWorkflowGaugeChart(root, data, id) {
 
     legend.data.setAll(series.dataItems);
 
-    $('#workGaugeContainer-' + id).removeClass('d-none');
-    $('#workGaugeContainer-' + id).addClass('active');
+    $('#workGaugeContainer').removeClass('d-none');
+    $('#workGaugeContainer').addClass('active');
 
     series.appear();
     chart.appear(1000, 100);
