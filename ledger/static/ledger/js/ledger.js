@@ -404,6 +404,10 @@ document.addEventListener('DOMContentLoaded', function () {
             // Remove the active class from all items
             const items = yearDropdown.querySelectorAll('a.dropdown-item');
             items.forEach(item => item.classList.remove('active'));
+            const monthitems = monthDropdown.querySelectorAll('a.dropdown-item');
+            monthitems.forEach(item => item.classList.remove('active'));
+            const dayitems = dayDropdown.querySelectorAll('a.dropdown-item');
+            dayitems.forEach(item => item.classList.remove('active'));
 
             // Add the active class to the selected item
             event.target.classList.add('active');
@@ -435,6 +439,8 @@ document.addEventListener('DOMContentLoaded', function () {
             // Remove the active class from all items
             const items = monthDropdown.querySelectorAll('a.dropdown-item');
             items.forEach(item => item.classList.remove('active'));
+            const dayitems = dayDropdown.querySelectorAll('a.dropdown-item');
+            dayitems.forEach(item => item.classList.remove('active'));
 
             // Add the active class to the selected item
             event.target.classList.add('active');
