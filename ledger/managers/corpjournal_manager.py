@@ -305,8 +305,6 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
                 "incursion_income",
             ]
         qs = self
-        logger.info(character_ids)
-        logger.info(corporations_ids)
 
         # Filter Corporations
         qs = self.filter(

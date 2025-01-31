@@ -79,7 +79,6 @@ class TemplateProcess:
                 exclude=chars_ids,
             )
         )
-        logger.info(len(corporation_journal))
         mining_journal = mining_journal.annotate_pricing()
 
         self._process_characters(character_journal, corporation_journal, mining_journal)
