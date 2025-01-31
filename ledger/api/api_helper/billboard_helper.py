@@ -134,26 +134,24 @@ class BillboardSystem:
             if value["value"] != 0.0
         }
 
-        # Create a single data entry with the aggregated values
+        # Calculate percentages
         total_value = sum(value["value"] for value in filtered_aggregated_data.values())
         data_entry = {"date": timezone.datetime.now().strftime("%Y-%m-%d")}
         total_percentage = 0
-        last_category = None
 
-        for category, value in filtered_aggregated_data.items():
+        # Collect all values in a list
+        values_list = list(filtered_aggregated_data.items())
+
+        # Calculate percentages for each category
+        for category, value in values_list:
             if total_value != 0:
-                percentage = round((value["value"] / total_value) * 100, 2)
+                percentage = round((value["value"] / total_value) * 100)
             else:
                 percentage = 0
 
             display_category = category.upper()
             data_entry[display_category] = {"value": percentage, "mode": value["mode"]}
             total_percentage += percentage
-            last_category = display_category
-
-        # Adjust the last category to ensure the total is exactly 100%
-        if last_category and total_percentage != 100:
-            data_entry[last_category]["value"] += 100 - total_percentage
 
         # Create series data with a single entry
         series = [data_entry]
@@ -252,12 +250,23 @@ class BillboardLedger:
 
             # Create the Chart
             chart = billboard.to_chart_data()
-            billboard_dict.charts = chart
+            billboard_dict.charts = self._sort_series(chart)
 
             # Create the Gauge
             gauge = billboard.to_gauge_data()
-            billboard_dict.workflowgauge = gauge
+            billboard_dict.workflowgauge = self._sort_series(gauge)
         return billboard_dict
+
+    def _sort_series(self, chart_data: ChartData) -> ChartData:
+        """Sort the series data by category names."""
+        for series_item in chart_data.series:
+            sorted_series = {
+                k: v for k, v in sorted(series_item.items()) if k != "date"
+            }
+            sorted_series = {"date": series_item["date"], **sorted_series}
+            series_item.clear()
+            series_item.update(sorted_series)
+        return chart_data
 
     # pylint: disable=too-many-branches
     def _process_billboard(
