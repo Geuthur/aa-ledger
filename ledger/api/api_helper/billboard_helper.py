@@ -80,40 +80,41 @@ class BillboardSystem:
     def to_xy(self, is_character=False) -> ChartData:
         """Convert the data points to a XY chart."""
         # Define the specific categories we are interested in
-        character_categories = ["bounty", "ess", "miscellaneous", "mining"]
-        corporation_categories = ["bounty", "ess", "miscellaneous"]
-        category_names_character = ["Bounty", "ESS", "Miscellaneous", "Mining"]
-        category_names_corporation = ["Bounty", "ESS", "Miscellaneous"]
+        categories = {
+            True: (
+                ["bounty", "ess", "miscellaneous"],
+                ["Bounty", "ESS", "Miscellaneous"],
+            ),
+            False: (
+                ["bounty", "ess", "miscellaneous", "mining"],
+                ["Bounty", "ESS", "Miscellaneous", "Mining"],
+            ),
+        }
 
-        if is_character:
-            specific_categories = character_categories
-            category_names = category_names_character
-        else:
-            specific_categories = corporation_categories
-            category_names = category_names_corporation
+        specific_categories, category_names = categories[is_character]
 
         # Create series data
-        series = []
-        for date, categories in self.data_points.items():
-            data_entry = {"date": date}
-            for category in specific_categories:
-                value = categories.get(category, {}).get("value", 0.0)
-                if value != 0.0:
-                    data_entry[category] = round(value)
-            series.append(data_entry)
+        series = [
+            {
+                "date": date,
+                **{
+                    category: round(categories.get(category, {}).get("value", 0.0))
+                    for category in specific_categories
+                    if categories.get(category, {}).get("value", 0.0) != 0.0
+                },
+            }
+            for date, categories in self.data_points.items()
+        ]
 
         # Sort series data by date
         series.sort(key=lambda x: x["date"])
 
-        # Ensure categories are in the correct order
-        categories = category_names
-
         date = timezone.datetime.now().strftime("%Y-%m-%d")
         return ChartData(
-            title="Billboard Chart", date=date, categories=categories, series=series
+            title="Billboard Chart", date=date, categories=category_names, series=series
         )
 
-    def to_percent(self, included_categories: set) -> ChartData:
+    def to_percentage(self, included_categories: set) -> ChartData:
         """Convert the data points to a percentage chart."""
         # Initialize a dictionary to hold the aggregated values
         aggregated_data = {
@@ -164,51 +165,6 @@ class BillboardSystem:
             title="Billboard Chart", date=date, categories=categories, series=series
         )
 
-    def to_chart(self, included_categories: set) -> ChartData:
-        """Convert the data points to a chart."""
-        # Initialize a dictionary to hold the aggregated values
-        aggregated_data = {category: 0.0 for category in included_categories}
-
-        # Aggregate the values for each category across all dates
-        for date, categories in self.data_points.items():
-            for category, data in categories.items():
-                if category in included_categories:
-                    aggregated_data[category] += data["value"]
-
-        # Filter out categories with all zero values
-        filtered_aggregated_data = {
-            category: value
-            for category, value in aggregated_data.items()
-            if value != 0.0
-        }
-
-        # Create a single data entry with the aggregated values
-        total_value = sum(filtered_aggregated_data.values())
-        data_entry = {"date": timezone.datetime.now().strftime("%Y-%m-%d")}
-        for category, value in filtered_aggregated_data.items():
-            if total_value != 0:
-                amount = abs(value)
-            else:
-                amount = 0
-
-            display_category = category.upper()
-
-            # Determine mode based on category
-            mode = "income" if "income" in category.lower() else "cost"
-
-            data_entry[display_category] = {"value": amount, "mode": mode}
-
-        # Create series data with a single entry
-        series = [data_entry]
-
-        # Ensure categories are in the correct order
-        categories = sorted(filtered_aggregated_data.keys())
-
-        date = timezone.datetime.now().strftime("%Y-%m-%d")
-        return ChartData(
-            title="Billboard Chart", date=date, categories=categories, series=series
-        )
-
     def to_chart_data(self) -> ChartData:
         excluded_categories = {"costs", "miscellaneous"}
         all_categories = set()
@@ -218,11 +174,11 @@ class BillboardSystem:
             all_categories.update(categories.keys())
 
         included_categories = all_categories - excluded_categories
-        return self.to_percent(included_categories)
+        return self.to_percentage(included_categories)
 
     def to_gauge_data(self) -> ChartData:
         included_categories = {"bounty", "ess", "mining", "miscellaneous"}
-        return self.to_percent(included_categories)
+        return self.to_percentage(included_categories)
 
 
 class BillboardLedger:
@@ -234,28 +190,6 @@ class BillboardLedger:
         self.data = data
         self.is_corp = corp
         self.billboard_dict = BillboardDict()
-
-    def annotate_days(self, period, billboard_dict: _BillboardDict, tick=False):
-        trunctype, period_format = period
-        annotations = {"period": trunctype}
-        self.tick = tick
-
-        billboard = BillboardSystem()
-        billboard = self._process_billboard(billboard, annotations, period_format)
-
-        if billboard:
-            # Create the Ratting Bar
-            rattingbar = billboard.to_xy()
-            billboard_dict.rattingbar = rattingbar
-
-            # Create the Chart
-            chart = billboard.to_chart_data()
-            billboard_dict.charts = self._sort_series(chart)
-
-            # Create the Gauge
-            gauge = billboard.to_gauge_data()
-            billboard_dict.workflowgauge = self._sort_series(gauge)
-        return billboard_dict
 
     def _sort_series(self, chart_data: ChartData) -> ChartData:
         """Sort the series data by category names."""
@@ -323,6 +257,28 @@ class BillboardLedger:
         if not billboard.data_points:
             return None
         return billboard
+
+    def annotate_days(self, period, billboard_dict: _BillboardDict, tick=False):
+        trunctype, period_format = period
+        annotations = {"period": trunctype}
+        self.tick = tick
+
+        billboard = BillboardSystem()
+        billboard = self._process_billboard(billboard, annotations, period_format)
+
+        if billboard:
+            # Create the Ratting Bar
+            rattingbar = billboard.to_xy(self.is_corp)
+            billboard_dict.rattingbar = rattingbar
+
+            # Create the Chart
+            chart = billboard.to_chart_data()
+            billboard_dict.charts = self._sort_series(chart)
+
+            # Create the Gauge
+            gauge = billboard.to_gauge_data()
+            billboard_dict.workflowgauge = self._sort_series(gauge)
+        return billboard_dict
 
     # Create the Billboard
     def billboard_ledger(self, chars, alts: list = None):
