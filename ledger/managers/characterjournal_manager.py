@@ -183,7 +183,6 @@ class CharWalletIncomeFilter(models.QuerySet):
 
     def annotate_donation_income(self, exclude=None) -> models.QuerySet:
         qs = self
-
         exclude_filter = DONATION_INCOME_FILTER
         if exclude:
             exclude_filter &= ~Q(first_party_id__in=exclude)
@@ -399,10 +398,10 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         )
         return char_mining_journal, corp_character_journal
 
-    def get_ledger_data(self, queryset, exclude: list | None) -> models.QuerySet:
+    def annotate_ledger_data(self, exclude: list | None) -> models.QuerySet:
         """Get the ledger data"""
         return (
-            queryset
+            self
             # PvE
             .annotate_bounty_income()
             # Income
@@ -465,7 +464,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         ).values("char_id", "char_name")
 
         # Annotate All Ledger Data
-        characters = self.get_ledger_data(characters, exclude)
+        characters = characters.annotate_ledger_data(exclude)
 
         char_qs = characters.annotate(
             miscellaneous=Coalesce(
@@ -531,7 +530,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
         )
 
-        qs = self.get_ledger_data(qs, exclude)
+        qs = qs.annotate_ledger_data(exclude)
 
         annotations = {}
         for type_name in type_names:
@@ -599,7 +598,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
 
     def annotate_billboard(self, chars: list, exclude: list) -> models.QuerySet:
         qs = self.filter(Q(first_party_id__in=chars) | Q(second_party_id__in=chars))
-        qs = self.get_ledger_data(qs, exclude)
+        qs = qs.annotate_ledger_data(exclude)
         qs = qs.annotate(
             miscellaneous=Coalesce(
                 F("mission_income")
