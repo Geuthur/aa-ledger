@@ -59,10 +59,8 @@ class CorpWalletQueryFilter(models.QuerySet):
         )
 
     def annotate_ess_income(self, is_character_ledger: bool = False) -> models.QuerySet:
-        # Exclude Tax Events
-        qs = events_filter(self)
         if is_character_ledger:
-            return qs.annotate(
+            return self.annotate(
                 ess_income=Round(
                     Coalesce(
                         Sum(
@@ -75,7 +73,7 @@ class CorpWalletQueryFilter(models.QuerySet):
                     precision=2,
                 )
             )
-        return qs.annotate(
+        return self.annotate(
             ess_income=Coalesce(
                 Sum(
                     F("amount"),
@@ -243,45 +241,59 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         entity_ids = set(entity_ids_first) | set(entity_ids_second)
 
         # Get all linked Characters
-        main_and_alts, entity_ids = self._get_linked_chars(entity_ids, corporations)
+        main_and_alts, chars_list = self._get_linked_chars(entity_ids, corporations)
 
         # Filter queryset with the linked characters
         qs = qs.filter(
-            Q(first_party_id__in=entity_ids) | Q(second_party_id__in=entity_ids)
+            Q(first_party_id__in=chars_list) | Q(second_party_id__in=chars_list)
         )
         # Exclude Tax Events
         qs = events_filter(qs)
 
+        # Create annotation cases
+        main_entity_id_cases = []
+        main_entity_name_cases = []
+        alts_cases = []
+
+        # Create the cases for the annotations
+        for main, alts in main_and_alts.items():
+            # Filter alts to include only those present in entity_ids
+            filtered_alts = [alt for alt in alts if alt in entity_ids]
+            if filtered_alts:
+                main_entity_id_cases.append(
+                    When(
+                        Q(second_party_id__in=filtered_alts)
+                        | Q(first_party_id__in=filtered_alts),
+                        then=Value(main.eve_id),
+                    )
+                )
+                main_entity_name_cases.append(
+                    When(
+                        Q(second_party_id__in=filtered_alts)
+                        | Q(first_party_id__in=filtered_alts),
+                        then=Value(main.name),
+                    )
+                )
+                alts_cases.append(
+                    When(
+                        Q(second_party_id__in=filtered_alts)
+                        | Q(first_party_id__in=filtered_alts),
+                        then=Value(json.dumps(filtered_alts)),
+                    )
+                )
+
         # Annotate the queryset
         qs = qs.annotate(
             main_entity_id=Case(
-                *[
-                    When(
-                        Q(second_party_id__in=alts) | Q(first_party_id__in=alts),
-                        then=Value(main.eve_id),
-                    )
-                    for main, alts in main_and_alts.items()
-                ],
+                *main_entity_id_cases,
                 output_field=models.IntegerField(),
             ),
             main_entity_name=Case(
-                *[
-                    When(
-                        Q(second_party_id__in=alts) | Q(first_party_id__in=alts),
-                        then=Value(main.name),
-                    )
-                    for main, alts in main_and_alts.items()
-                ],
+                *main_entity_name_cases,
                 output_field=models.CharField(),
             ),
             alts=Case(
-                *[
-                    When(
-                        Q(second_party_id__in=alts) | Q(first_party_id__in=alts),
-                        then=Value(json.dumps(list(alts))),
-                    )
-                    for _, alts in main_and_alts.items()
-                ],
+                *alts_cases,
                 default=Value("[]"),
                 output_field=models.JSONField(),
             ),
