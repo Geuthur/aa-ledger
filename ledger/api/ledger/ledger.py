@@ -98,5 +98,4 @@ class LedgerApiEndpoints:
                 return 403, ledger
 
             output = ledger.generate_billboard(entitys)
-
             return output

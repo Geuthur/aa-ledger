@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', function () {
             $('#barTitle').text('Ledger ' + selectedMode);
             console.log('Chart loaded successfully');
         } else {
-            console.error('Failed to load chart');
+            console.log('Failed to load chart');
         }
     });
 

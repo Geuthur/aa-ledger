@@ -41,10 +41,10 @@
             </div>
         {% endif %}
 
-        {% if character.mission %}
+        {% if character.mission_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} {% trans "Mission Reward" %} {% trans "per Hour" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.mission.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.mission_income.average_hour|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
@@ -55,10 +55,10 @@
         </div>
         {% endif %}
 
-        {% if character.incursion %}
+        {% if character.incursion_income %}
         <div class="row description-row">
             <div class="col-sm-6">{% trans "Avg." %} {% trans "Incursion" %} {% trans "per Hour" %}:</div>
-            <div class='col-sm-4 text-end'><span class="text-success">{{ character.incursion.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+            <div class='col-sm-4 text-end'><span class="text-success">{{ character.incursion_income.average_hour|floatformat:0|intcomma }}</span> ISK</div>
         </div>
         {% endif %}
 
@@ -107,10 +107,10 @@
             </div>
         {% endif %}
 
-        {% if character.citadel %}
+        {% if character.citadel_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} {% trans "Citadel" %} {% trans "per Hour" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.citadel.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.citadel_income.average_hour|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 

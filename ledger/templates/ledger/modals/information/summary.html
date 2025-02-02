@@ -36,10 +36,10 @@
             </div>
         {% endif %}
 
-        {% if character.mission %}
+        {% if character.mission_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Mission Reward" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.mission.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.mission_income.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
@@ -50,10 +50,10 @@
             </div>
         {% endif %}
 
-        {% if character.incursion %}
+        {% if character.incursion_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Incursion" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.incursion.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.incursion_income.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
@@ -124,12 +124,12 @@
             </div>
         {% endif %}
 
-        {% if character.citadel %}
+        {% if character.citadel_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Citadel" %}:</div>
                 <div class='col-sm-4 text-end'>
                     <span class="text-success">
-                        {{ character.citadel.total_amount|floatformat:0|intcomma }}
+                        {{ character.citadel_income.total_amount|floatformat:0|intcomma }}
                     </span> ISK
                 </div>
             </div>

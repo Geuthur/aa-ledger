@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.db.models import Q
 
-from ledger.api.api_helper.billboard_helper import BillboardData, BillboardLedger
+from ledger.api.api_helper.billboard_helper import BillboardLedger
 from ledger.api.api_helper.core_manager import (
     LedgerCharacterDict,
     LedgerModels,
@@ -186,7 +186,6 @@ class CharacterProcess:
         mining_journal = self.mining_journal.annotate_pricing()
 
         # Create Data for Billboard
-        data = BillboardData()
         models = LedgerModels(
             character_journal=self.char_journal,
             corporation_journal=self.corp_journal,
@@ -194,7 +193,7 @@ class CharacterProcess:
         )
 
         # Create the Billboard for the Characters
-        ledger = BillboardLedger(view=self.view, models=models, data=data, corp=False)
+        ledger = BillboardLedger(view=self.view, models=models, corp=False)
         billboard_dict = ledger.billboard_ledger(self.chars_list, self.chars_list)
 
         output = []

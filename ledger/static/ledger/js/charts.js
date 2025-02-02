@@ -1,4 +1,5 @@
 /* global am5 */
+/* global am5flow */
 /* global am5themes_Animated */
 /* global am5themes_Dark */
 /* global am5percent */
@@ -26,10 +27,10 @@ function load_or_create_Chart(div, data, chart) {
 
     if (chart === 'bar') {
         return createRattingBarChart(root, data, div);
-    } else if (chart === 'gauge') {
-        return createWorkflowGaugeChart(root, data, div);
     } else if (chart === 'chart') {
         return createRattingChart(root, data, div);
+    } else if (chart === 'gauge') {
+        return createWorkflowGaugeChart(root, data, div);
     }
 
     return true;
@@ -45,8 +46,8 @@ function initCharts(data) {
     const rootGaugeId = 'rattingworkGauge';
 
     // Create the chart
-    const chart = load_or_create_Chart(rootChartId, billboard.charts, 'chart');
     const barChart = load_or_create_Chart(rootBarId, billboard.rattingbar, 'bar');
+    const chart = load_or_create_Chart(rootChartId, billboard.charts, 'chart');
     const gaugeChart = load_or_create_Chart(rootGaugeId, billboard.workflowgauge, 'gauge');
 }
 
@@ -65,6 +66,71 @@ function setBillboardData(url, id) {
         }
     });
 }
+
+
+function createChordChart(root, data, id) {
+    if (!data || !Array.isArray(data.series)) {
+        console.debug('Data is not in the expected format:', data);
+        return;
+    }
+    console.log('Creating Chord Chart with data:', data);
+
+    // Store the root object globally
+    window.chordsRoots = window.chordsRoots || {};
+    window.chordsRoots[id] = root;
+
+    var series = root.container.children.push(
+        am5flow.ChordDirected.new(root, {
+            startAngle: 80,
+            padAngle: 1,
+            sourceIdField: 'from',
+            targetIdField: 'to',
+            valueField: 'value',
+            categoryField: 'category',
+        })
+    );
+
+    series.links.template.set('fillStyle', 'source');
+
+    series.nodes.get('colors').set('step', 2);
+
+    series.bullets.push(function (_root, _series, dataItem) {
+        var bullet = am5.Bullet.new(root, {
+            locationY: Math.random(),
+            sprite: am5.Circle.new(root, {
+                radius: 5,
+                fill: dataItem.get('source').get('fill')
+            })
+        });
+
+        bullet.animate({
+            key: 'locationY',
+            to: 1,
+            from: 0,
+            duration: Math.random() * 1000 + 2000,
+            loops: Infinity
+        });
+
+        return bullet;
+    });
+
+    series.nodes.labels.template.setAll({
+        textType: 'radial',
+        centerX: 0,
+        fontSize: 10
+    });
+
+    series.children.moveValue(series.bulletsContainer, 0);
+    series.data.setAll(data.series);
+
+    // Remove Hide the chart container
+    $('#ChartContainer').removeClass('d-none');
+    $('#ChartContainer').addClass('active');
+
+    // Make stuff animate on load
+    series.appear(1000, 100);
+}
+
 
 function createRattingChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {

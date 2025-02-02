@@ -47,7 +47,7 @@
                     <h3 class="card-title">{% trans "Wallet" %}</h3>
                 </div>
                 <div class="card-body bg-secondary">
-                    <div id="rattingChart" class="w-100" style="height: 300px;"></div>
+                    <div id="rattingChart" class="w-100" style="height: {% if entity_type == 'character' %}300px{% else %} 500px {% endif %};"></div>
                 </div>
             </div>
             <div class="col-md-6 g-2 d-none" id="workGaugeContainer">

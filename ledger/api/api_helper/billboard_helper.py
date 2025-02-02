@@ -1,10 +1,11 @@
 from dataclasses import dataclass, field
 from typing import Any
 
+from django.db.models import F
 from django.db.models.functions import TruncDay, TruncHour, TruncMonth, TruncYear
 from django.utils import timezone
 
-from ledger.api.api_helper.core_manager import LedgerData, LedgerModels
+from ledger.api.api_helper.core_manager import LedgerModels
 from ledger.api.helpers import convert_corp_tax
 from ledger.hooks import get_extension_logger
 
@@ -21,12 +22,6 @@ class _BillboardDict:
 @dataclass
 class BillboardDict:
     standard: _BillboardDict = field(default_factory=_BillboardDict)
-
-
-@dataclass
-class BillboardData(LedgerData):
-    corporation_dict: dict = field(default_factory=dict)
-    total_amount: int = 0
 
 
 @dataclass
@@ -60,7 +55,9 @@ class BillboardSystem:
             display_category = category.lower()
         return display_category
 
-    def add_or_update_data_point(self, date: str, category: str, value: float):
+    def add_or_update_data_point(
+        self, date: str, category: str, value: float, data: dict = None
+    ):
         mode = "income" if "income" in category.lower() else "cost"
         display_category = self._clean_category(category)
 
@@ -71,11 +68,15 @@ class BillboardSystem:
         # Create a new data point if it does not exist
         if date not in self.data_points:
             self.data_points[date] = {}
-        if category not in self.data_points[date]:
-            self.data_points[date][display_category] = {"value": value, "mode": mode}
-            return
-        # Update the existing data point
-        self.data_points[date][display_category]["value"] += value
+        if display_category not in self.data_points[date]:
+            self.data_points[date][display_category] = {
+                "value": value,
+                "mode": mode,
+                "data": data,
+            }
+        else:
+            # Update the existing data point
+            self.data_points[date][display_category]["value"] += value
 
     def to_xy(self, is_character=False) -> ChartData:
         """Convert the data points to a XY chart."""
@@ -114,7 +115,7 @@ class BillboardSystem:
             title="Billboard Chart", date=date, categories=category_names, series=series
         )
 
-    def to_percentage(self, included_categories: set) -> ChartData:
+    def _to_percentage(self, included_categories: set) -> ChartData:
         """Convert the data points to a percentage chart."""
         # Initialize a dictionary to hold the aggregated values
         aggregated_data = {
@@ -165,6 +166,42 @@ class BillboardSystem:
             title="Billboard Chart", date=date, categories=categories, series=series
         )
 
+    def _to_chord_chart(self, included_categories: set) -> ChartData:
+        """Convert the data points to a bubble chart."""
+        series = []
+        max_chords = []
+
+        # Iterate through each date and category to create series entries
+        for date, categories in self.data_points.items():
+            for category, data in categories.items():
+                main_char = data["data"].get("main_id", 0)
+                if len(max_chords) <= 15:
+                    max_chords.append(main_char)
+                if main_char in max_chords:
+                    series.append(
+                        {
+                            "date": date,
+                            "from": main_char,
+                            "to": data["data"].get("second_party", "Unknown"),
+                            "value": abs(data["value"]),
+                            "category": category,
+                            "mode": data["mode"],
+                            "main": main_char,
+                        }
+                    )
+
+        date = timezone.datetime.now().strftime("%Y-%m-%d")
+        return ChartData(
+            title="Billboard Chart",
+            date=date,
+            categories=list(included_categories),
+            series=series,
+        )
+
+    def to_chord_data(self) -> ChartData:
+        included_categories = {"bounty", "ess", "mining", "miscellaneous"}
+        return self._to_chord_chart(included_categories)
+
     def to_chart_data(self) -> ChartData:
         excluded_categories = {"costs", "miscellaneous"}
         all_categories = set()
@@ -174,20 +211,17 @@ class BillboardSystem:
             all_categories.update(categories.keys())
 
         included_categories = all_categories - excluded_categories
-        return self.to_percentage(included_categories)
+        return self._to_percentage(included_categories)
 
     def to_gauge_data(self) -> ChartData:
         included_categories = {"bounty", "ess", "mining", "miscellaneous"}
-        return self.to_percentage(included_categories)
+        return self._to_percentage(included_categories)
 
 
 class BillboardLedger:
-    def __init__(
-        self, view: str, models: LedgerModels, data: BillboardData, corp=False
-    ):
+    def __init__(self, view: str, models: LedgerModels, corp=False):
         self.view = view
         self.models = models
-        self.data = data
         self.is_corp = corp
         self.billboard_dict = BillboardDict()
 
@@ -202,7 +236,7 @@ class BillboardLedger:
             series_item.update(sorted_series)
         return chart_data
 
-    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches, too-many-locals
     def _process_billboard(
         self, billboard: BillboardSystem, annotations, period_format
     ):
@@ -210,8 +244,68 @@ class BillboardLedger:
         corp_qs = (
             self.models.corp_journal.annotate(**annotations)
             .values("period")
-            .annotate_billboard(self.chars)
+            .annotate_bounty_income()
+            .annotate_ess_income()
+            .annotate_miscellaneous()
+            .annotate_daily_goal_income()
         )
+
+        if self.is_corp:
+            # TODO make a better way to handle this
+            # Generate Chord Data
+            corp_chord_qs = (
+                self.models.corp_journal.annotate(
+                    corporation=F(
+                        "division__corporation__corporation__corporation_name"
+                    )
+                )
+                .annotate_bounty_income()
+                .annotate_ess_income()
+                .annotate_miscellaneous()
+            )
+            # Max Mains
+            max_chords = []
+            output = []
+            for w in corp_chord_qs:
+                main_char = w.get("main_entity_id", 0)
+                main_char_name = w.get("main_entity_name", "Unknown")
+                if len(max_chords) <= 15:
+                    max_chords.append(main_char)
+                if main_char in max_chords:
+                    bounty = w.get("bounty_income", 0)
+                    ess = w.get("ess_income", 0)
+                    miscellaneous = w.get("miscellaneous", 0)
+                    values = bounty + ess + miscellaneous
+                    if values > 0:
+                        output.append(
+                            {
+                                "from": main_char_name,
+                                "to": w.get("corporation", "Unknown"),
+                                "value": values,
+                                "main": main_char_name,
+                            }
+                        )
+                else:
+                    bounty = w.get("bounty_income", 0)
+                    ess = w.get("ess_income", 0)
+                    miscellaneous = w.get("miscellaneous", 0)
+                    values = bounty + ess + miscellaneous
+                    if values > 0:
+                        output.append(
+                            {
+                                "from": "Others",
+                                "to": w.get("corporation", "Unknown"),
+                                "value": values,
+                                "main": "Others",
+                            }
+                        )
+
+                self.output = {
+                    "title": "Test",
+                    "date": timezone.datetime.now().strftime("%Y-%m-%d"),
+                    "categories": ["bounty", "ess", "mining", "miscellaneous"],
+                    "series": output,
+                }
 
         # Get Character Data
         if not self.is_corp:
@@ -244,18 +338,28 @@ class BillboardLedger:
         # Corp Data
         for entry in corp_qs:
             date = entry["period"].strftime(period_format)
+            second_party_id = entry.get("main_entity_id", 0)
+            first_party_name = "Voices of War"
+            main_id = entry.get("main_entity_id", 0)
+            data = {
+                "first_party": first_party_name,
+                "second_party": second_party_id,
+                "main_id": main_id,
+            }
             for key, value in entry.items():
-                if key not in ["period", "cost"]:
-                    if not self.is_corp and key in ["bounty_income"]:
-                        continue
-                    if not self.is_corp:
-                        value = convert_corp_tax(value)
-                    billboard.add_or_update_data_point(
-                        date=date, category=key, value=float(value)
-                    )
+                if key in ["period", "main_entity_id", "alts"]:
+                    continue
+                if not self.is_corp and key in ["bounty_income"]:
+                    continue
+                if not self.is_corp:
+                    value = convert_corp_tax(value)
+                billboard.add_or_update_data_point(
+                    date=date, category=key, value=float(value), data=data
+                )
 
         if not billboard.data_points:
             return None
+
         return billboard
 
     def annotate_days(self, period, billboard_dict: _BillboardDict, tick=False):
@@ -267,13 +371,18 @@ class BillboardLedger:
         billboard = self._process_billboard(billboard, annotations, period_format)
 
         if billboard:
+            # Create the Chart
+            if self.is_corp:
+                # chart = billboard.to_chord_data()
+                chart = self.output
+            else:
+                chart = billboard.to_chart_data()
+                chart = self._sort_series(chart)
+            billboard_dict.charts = chart
+
             # Create the Ratting Bar
             rattingbar = billboard.to_xy(self.is_corp)
             billboard_dict.rattingbar = rattingbar
-
-            # Create the Chart
-            chart = billboard.to_chart_data()
-            billboard_dict.charts = self._sort_series(chart)
 
             # Create the Gauge
             gauge = billboard.to_gauge_data()

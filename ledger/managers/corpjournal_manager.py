@@ -8,7 +8,7 @@ from django.db.models import Case, DecimalField, F, Q, Sum, Value, When
 from django.db.models.functions import Coalesce, Round
 from django.utils import timezone
 
-from allianceauth.eveonline.models import EveCharacter
+from allianceauth.authentication.models import UserProfile
 
 from ledger import app_settings
 from ledger.hooks import get_extension_logger
@@ -167,33 +167,36 @@ class CorpWalletQueryFilter(models.QuerySet):
 
 
 class CorpWalletQuerySet(CorpWalletQueryFilter):
-    def _get_linked_chars(self, entity_ids: list) -> tuple:
-        char_to_main = {}
+    def _get_linked_chars(self, entity_ids: list, corporations=None) -> tuple:
+        main_and_alts = {}
         entity_list = []
 
-        linked_chars = EveCharacter.objects.filter(character_id__in=entity_ids)
-        linked_chars |= EveCharacter.objects.filter(
-            character_ownership__user__profile__main_character__character_id__in=entity_ids
+        accounts = UserProfile.objects.filter(
+            main_character__corporation_id__in=corporations
+        ).select_related(
+            "user__profile__main_character",
+            "main_character__character_ownership",
+            "main_character__character_ownership__user__profile",
+            "main_character__character_ownership__user__profile__main_character",
         )
-        linked_chars = linked_chars.select_related(
-            "character_ownership", "character_ownership__user__profile__main_character"
-        ).prefetch_related("character_ownership__user__character_ownerships__character")
 
-        # Get Registered Characters
-        for char in linked_chars:
+        for account in accounts:
+            alts = account.user.character_ownerships.all().values_list(
+                "character__character_id", flat=True
+            )
+            main = account.main_character
+
             try:
-                try:
-                    main_char = char.character_ownership.user.profile.main_character
-                except ObjectDoesNotExist:
-                    main_char = char
-                main_char_id = main_char.character_id
-                if main_char_id not in char_to_main:
-                    char_to_main[main_char_id] = []
-                if char.character_id in entity_ids:
-                    char_to_main[main_char_id].append(char.character_id)
-                    entity_list.append(char.character_id)
-            except AttributeError:
-                continue
+                main_char = EveEntity.objects.get(eve_id=main.character_id)
+            except ObjectDoesNotExist:
+                main_char = EveEntity(
+                    eve_id=main.character_id,
+                    name=main.character_name,
+                    category="character",
+                )
+
+            main_and_alts[main_char] = alts
+            entity_list.extend(alts)
 
         missing_entitys = set(entity_ids) - set(entity_list)
 
@@ -201,17 +204,20 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         # Get All Eve Entities
         for entity in entitys:
             try:
-                main_char_id = entity.eve_id
-                if main_char_id not in char_to_main:
-                    char_to_main[main_char_id] = []
-                char_to_main[main_char_id].append(entity.eve_id)
-                entity_list.append(entity.eve_id)
+                entity_id = entity.eve_id
+                main_and_alts[entity] = [entity_id]
+                entity_list.append(entity_id)
             except AttributeError:
                 continue
 
-        missing_entitys = set(entity_ids) - set(entity_list)
+        # Move Concord & ESS System to the end of the dictionary
+        if 1000125 in main_and_alts:
+            logger.info("Moving Concord to the end of the dictionary")
+            main_and_alts[1000125] = main_and_alts.pop(1000125)
+        if 1000132 in main_and_alts:
+            main_and_alts[1000132] = main_and_alts.pop(1000132)
 
-        return char_to_main, set(entity_list)
+        return main_and_alts, set(entity_list)
 
     def get_ledger_data(self, queryset) -> models.QuerySet:
         """Get the ledger data"""
@@ -232,12 +238,12 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             Q(division__corporation__corporation__corporation_id__in=corporations)
         )
         # Get all Character IDs
-        entity_ids_second = self.values_list("second_party_id", flat=True).distinct()
-        entity_ids_first = self.values_list("first_party_id", flat=True).distinct()
+        entity_ids_second = self.values_list("second_party_id", flat=True)
+        entity_ids_first = self.values_list("first_party_id", flat=True)
         entity_ids = set(entity_ids_first) | set(entity_ids_second)
 
         # Get all linked Characters
-        main_and_alts, entity_ids = self._get_linked_chars(entity_ids)
+        main_and_alts, entity_ids = self._get_linked_chars(entity_ids, corporations)
 
         # Filter queryset with the linked characters
         qs = qs.filter(
@@ -251,33 +257,39 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             main_entity_id=Case(
                 *[
                     When(
-                        (
-                            Q(second_party_id__in=alt_ids)
-                            | (Q(first_party_id__in=alt_ids))
-                        ),
-                        then=Value(main_id),
+                        Q(second_party_id__in=alts) | Q(first_party_id__in=alts),
+                        then=Value(main.eve_id),
                     )
-                    for main_id, alt_ids in main_and_alts.items()
+                    for main, alts in main_and_alts.items()
                 ],
                 output_field=models.IntegerField(),
+            ),
+            main_entity_name=Case(
+                *[
+                    When(
+                        Q(second_party_id__in=alts) | Q(first_party_id__in=alts),
+                        then=Value(main.name),
+                    )
+                    for main, alts in main_and_alts.items()
+                ],
+                output_field=models.CharField(),
             ),
             alts=Case(
                 *[
                     When(
-                        (
-                            Q(second_party_id__in=alt_ids)
-                            | (Q(first_party_id__in=alt_ids))
-                        ),
-                        then=Value(json.dumps(alt_ids)),
+                        Q(second_party_id__in=alts) | Q(first_party_id__in=alts),
+                        then=Value(json.dumps(list(alts))),
                     )
-                    for _, alt_ids in main_and_alts.items()
+                    for _, alts in main_and_alts.items()
                 ],
                 default=Value("[]"),
                 output_field=models.JSONField(),
             ),
-        ).values("main_entity_id", "alts")
-
-        qs = self.get_ledger_data(qs)
+        ).values(
+            "main_entity_id",
+            "main_entity_name",
+            "alts",
+        )
 
         return qs
 
@@ -403,8 +415,6 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         qs = self.filter(Q(first_party_id__in=chars) | Q(second_party_id__in=chars))
         # Exclude Corp Tax Events
         qs = events_filter(qs)
-
-        qs = self.get_ledger_data(qs)
         return qs
 
 

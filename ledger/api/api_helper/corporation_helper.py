@@ -2,11 +2,10 @@ from datetime import datetime
 
 from django.db.models import Q
 
-from ledger.api.api_helper.billboard_helper import BillboardData, BillboardLedger
+from ledger.api.api_helper.billboard_helper import BillboardLedger
 from ledger.api.api_helper.core_manager import LedgerModels, LedgerTotal
 from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
-from ledger.models.general import EveEntity
 
 logger = get_extension_logger(__name__)
 
@@ -35,21 +34,20 @@ class CorporationProcess:
         corporation_dict = {}
         corporation_total = LedgerTotal()
 
+        # Annotate Data
+        journal = (
+            journal.annotate_bounty_income()
+            .annotate_ess_income()
+            .annotate_miscellaneous()
+        )
         for main in journal:
-            total_bounty = main.get("bounty_income", 0)
-            total_ess = main.get("ess_income", 0)
-            total_other = main.get("miscellaneous", 0)
-            main_entity_id = main.get("main_entity_id", 0)
+            total_bounty = main.get("bounty_income") or 0
+            total_ess = main.get("ess_income") or 0
+            total_other = main.get("miscellaneous") or 0
+            main_entity_id = main.get("main_entity_id") or 0
+            character_name = main.get("main_entity_name") or "Unknown"
             alts = main.get("alts", [])
-            character_name = "Unknown"
             entity_type = "character"
-
-            if not main_entity_id == 0 and main_entity_id is not None:
-                try:
-                    character_name = EveEntity.objects.get(eve_id=main_entity_id).name
-                    entity_type = EveEntity.objects.get(eve_id=main_entity_id).category
-                except EveEntity.DoesNotExist:
-                    pass
 
             summary_amount = sum([total_bounty, total_ess, total_other])
 
@@ -116,22 +114,12 @@ class CorporationProcess:
             .generate_ledger(corporations)
         )
 
-        # Create the Dicts for each Character
-        corporation_dict, corporation_total = self._process_corporation_chars(
-            corporation_journal
-        )
-
         chars_list = list(corporation_journal.values_list("second_party_id", flat=True))
 
-        # Create Data for Billboard
-        data = BillboardData(
-            corporation_dict=corporation_dict,
-            total_amount=corporation_total.total_amount,
-        )
         models = LedgerModels(corporation_journal=corporation_journal)
 
         # Create the Billboard for the Corporation
-        ledger = BillboardLedger(view=self.view, models=models, data=data, corp=True)
+        ledger = BillboardLedger(view=self.view, models=models, corp=True)
 
         billboard_dict = ledger.billboard_ledger(chars_list)
 
