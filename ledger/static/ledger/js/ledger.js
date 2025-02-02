@@ -367,6 +367,14 @@ function generateLedger(TableName, url) {
                 $('#ratting').DataTable().destroy();
                 hideLoading();
                 $('#errorHandler').removeClass('d-none');
+                $('#errorHandler').text('You have no permission to view this page');
+                $('.dropdown-toggle').attr('disabled', true);
+                $('.overview').attr('disabled', true);
+            } else if (xhr.status === 404) {
+                $('#ratting').DataTable().destroy();
+                hideLoading();
+                $('#errorHandler').removeClass('d-none');
+                $('#errorHandler').text('No data found');
                 $('.dropdown-toggle').attr('disabled', true);
                 $('.overview').attr('disabled', true);
             }

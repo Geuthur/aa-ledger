@@ -59,6 +59,10 @@ def get_corporation(
     main_corp = models.CorporationAudit.objects.filter(
         corporation__corporation_id__in=corporations
     )
+
+    if not main_corp.exists():
+        return None, None
+
     # Check access
     visible = models.CorporationAudit.objects.visible_to(request.user)
     # Check if there is an intersection between main_corp and visible
@@ -76,18 +80,21 @@ def get_alliance(request, alliance_id) -> tuple[bool, list[models.CorporationAud
     else:
         alliances = [alliance_id]
 
-    main_corp = models.CorporationAudit.objects.filter(
+    main_ally = models.CorporationAudit.objects.filter(
         corporation__alliance__alliance_id__in=alliances
     )
+
+    if not main_ally.exists():
+        return None, None
 
     # Check access
     visible = models.CorporationAudit.objects.visible_to(request.user)
 
     # Check if there is an intersection between main_corp and visible
-    common_corps = main_corp.intersection(visible)
+    common_corps = main_ally.intersection(visible)
     if not common_corps.exists():
         perms = False
-    return perms, main_corp.values_list("corporation__alliance__alliance_id", flat=True)
+    return perms, main_ally.values_list("corporation__alliance__alliance_id", flat=True)
 
 
 def get_alts_queryset(main_char, corporations=None):
@@ -166,14 +173,11 @@ def get_main_and_alts_ids_corporations(request) -> list:
     ).all()
 
     linked_characters = linked_characters.values_list("character_id", flat=True)
-    chars = EveCharacter.objects.filter(id__in=linked_characters)
+    corp_ids = EveCharacter.objects.filter(id__in=linked_characters).values_list(
+        "corporation_id", flat=True
+    )
 
-    corporations = set()
-
-    for char in chars:
-        corporations.add(char.corporation_id)
-
-    return list(corporations)
+    return set(corp_ids)
 
 
 def get_main_and_alts_ids_alliances(request) -> list:
@@ -182,11 +186,8 @@ def get_main_and_alts_ids_alliances(request) -> list:
     ).all()
 
     linked_characters = linked_characters.values_list("character_id", flat=True)
-    chars = EveCharacter.objects.filter(id__in=linked_characters)
+    ally_ids = EveCharacter.objects.filter(id__in=linked_characters).values_list(
+        "alliance_id", flat=True
+    )
 
-    alliances = set()
-
-    for char in chars:
-        alliances.add(char.alliance_id)
-
-    return list(alliances)
+    return set(ally_ids)

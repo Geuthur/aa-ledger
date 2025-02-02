@@ -29,12 +29,16 @@ def ledger_api_process(request, entity_type: str, entity_id: int, date: str, vie
     elif entity_type == "alliance":
         perm, entitys = get_alliance(request, entity_id)
         # Get all corporations in the alliance
-        entitys = CorporationAudit.objects.filter(
-            corporation__alliance__alliance_id__in=entitys
-        ).values_list("corporation__corporation_id", flat=True)
+        if entitys:
+            entitys = CorporationAudit.objects.filter(
+                corporation__alliance__alliance_id__in=entitys
+            ).values_list("corporation__corporation_id", flat=True)
 
     if perm is False:
         return "Permission Denied", None
+
+    if perm is None:
+        return None, None
 
     if entity_type == "character":
         if entity_id == 0 or request_main:
@@ -58,7 +62,7 @@ class LedgerApiEndpoints:
     def __init__(self, api: NinjaAPI):
         @api.get(
             "{entity_type}/{entity_id}/ledger/date/{date}/view/{view}/",
-            response={200: list[schema.Ledger], 403: str},
+            response={200: list[schema.Ledger], 403: str, 404: str},
             tags=self.tags,
         )
         def get_ledger(request, entity_type: str, entity_id: int, date: str, view: str):
@@ -74,12 +78,15 @@ class LedgerApiEndpoints:
             if isinstance(ledger, str):
                 return 403, ledger
 
+            if ledger is None:
+                return 404, "No data found"
+
             output = ledger.generate_ledger()
             return output
 
         @api.get(
             "{entity_type}/{entity_id}/billboard/date/{date}/view/{view}/",
-            response={200: list[schema.Billboard], 403: str},
+            response={200: list[schema.Billboard], 403: str, 404: str},
             tags=self.tags,
         )
         def get_billboard_ledger(
@@ -96,6 +103,9 @@ class LedgerApiEndpoints:
 
             if isinstance(ledger, str):
                 return 403, ledger
+
+            if ledger is None:
+                return 404, "No data found"
 
             output = ledger.generate_billboard(entitys)
             return output
