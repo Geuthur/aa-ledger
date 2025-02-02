@@ -208,13 +208,6 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             except AttributeError:
                 continue
 
-        # Move Concord & ESS System to the end of the dictionary
-        if 1000125 in main_and_alts:
-            logger.info("Moving Concord to the end of the dictionary")
-            main_and_alts[1000125] = main_and_alts.pop(1000125)
-        if 1000132 in main_and_alts:
-            main_and_alts[1000132] = main_and_alts.pop(1000132)
-
         return main_and_alts, set(entity_list)
 
     def get_ledger_data(self, queryset) -> models.QuerySet:
