@@ -20,7 +20,9 @@ def convert_corp_tax(amount: Decimal) -> Decimal:
     )
 
 
-def get_character(request, character_id, corp=False) -> tuple[bool, EveCharacter]:
+def get_character(
+    request, character_id, corp=False
+) -> tuple[bool, EveCharacter | None]:
     """Get Character and check permissions"""
     perms = True
     if character_id == 0:
@@ -48,8 +50,8 @@ def get_character(request, character_id, corp=False) -> tuple[bool, EveCharacter
 
 def get_corporation(
     request, corporation_id
-) -> tuple[bool, list[models.CorporationAudit]]:
-    """Get Corporation and check permissions"""
+) -> tuple[bool | None, list[models.CorporationAudit] | None]:
+    """Get Corporation and check permissions for each corporation"""
     perms = True
     if corporation_id == 0:
         corporations = get_main_and_alts_ids_corporations(request)
@@ -72,7 +74,9 @@ def get_corporation(
     return perms, main_corp.values_list("corporation__corporation_id", flat=True)
 
 
-def get_alliance(request, alliance_id) -> tuple[bool, list[models.CorporationAudit]]:
+def get_alliance(
+    request, alliance_id
+) -> tuple[bool | None, list[models.CorporationAudit] | None]:
     """Get Alliance and check permissions for each corporation"""
     perms = True
     if alliance_id == 0:
@@ -97,7 +101,7 @@ def get_alliance(request, alliance_id) -> tuple[bool, list[models.CorporationAud
     return perms, main_ally.values_list("corporation__alliance__alliance_id", flat=True)
 
 
-def get_alts_queryset(main_char, corporations=None):
+def get_alts_queryset(main_char, corporations=None) -> list[EveCharacter]:
     """Get all alts for a main character, optionally filtered by corporations."""
     try:
         linked_corporations = (
@@ -116,7 +120,9 @@ def get_alts_queryset(main_char, corporations=None):
         return EveCharacter.objects.filter(pk=main_char.pk)
 
 
-def get_corp_alts_queryset(main_char, corporations=None):
+def get_corp_alts_queryset(
+    main_char, corporations=None
+) -> list[models.general.EveEntity]:
     """Get all alts for a main character, optionally filtered by corporations."""
     try:
         linked_characters = (
@@ -144,8 +150,8 @@ def get_corp_alts_queryset(main_char, corporations=None):
         return list(models.general.EveEntity.objects.filter(eve_id__in=chars))
 
 
-def get_journal_entitys(date: datetime, view, corporations=None):
-    """Get all alts for a main character, optionally filtered by corporations."""
+def get_journal_entitys(date: datetime, view, corporations=None) -> set:
+    """Get all entity ids from Corporation Journal Queryset filtered by date."""
     filter_date = Q(date__year=date.year)
     if view == "month":
         filter_date &= Q(date__month=date.month)
@@ -167,7 +173,8 @@ def get_journal_entitys(date: datetime, view, corporations=None):
     return entity_ids
 
 
-def get_main_and_alts_ids_corporations(request) -> list:
+def get_main_and_alts_ids_corporations(request) -> set:
+    """Get all corporation ids for main and alts."""
     linked_characters = request.user.profile.main_character.character_ownership.user.character_ownerships.select_related(
         "character", "user"
     ).all()
@@ -180,7 +187,8 @@ def get_main_and_alts_ids_corporations(request) -> list:
     return set(corp_ids)
 
 
-def get_main_and_alts_ids_alliances(request) -> list:
+def get_main_and_alts_ids_alliances(request) -> set:
+    """Get all alliance ids for main and alts."""
     linked_characters = request.user.profile.main_character.character_ownership.user.character_ownerships.select_related(
         "character", "user"
     ).all()
