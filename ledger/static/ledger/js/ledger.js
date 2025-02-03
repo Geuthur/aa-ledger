@@ -10,6 +10,10 @@ const characteraltsShow = ledgersettings.altShow;
 const overviewText = ledgersettings.overviewText;
 const planetaryText = ledgersettings.planetaryText;
 
+// Translations
+const dayTextTrans = window.translations.dayText
+const monthTextTrans = window.translations.monthText
+
 var monthText = getMonthName(selectedMonth);
 var mainAlts = '';
 // Check if altShow is true and append '?main=True' to the URLs
@@ -37,8 +41,7 @@ function updateUrls() {
 }
 
 function getMonthName(monthNumber) {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'];
+    const months = window.translations.months;
     return months[monthNumber - 1]; // Array ist 0-basiert, daher -1
 }
 
@@ -421,8 +424,8 @@ document.addEventListener('DOMContentLoaded', function () {
             event.target.classList.add('active');
             // Set the text content
             $('#yearDropDownButton').text(event.target.textContent);
-            $('#monthDropDownButton').text("Month");
-            $('#dayDropDownButton').text("Day");
+            $('#monthDropDownButton').text(monthTextTrans);
+            $('#dayDropDownButton').text(dayTextTrans);
         }
         selectedYear = event.target.dataset.bsYearId;
         selectedviewMode = 'year';
@@ -454,7 +457,7 @@ document.addEventListener('DOMContentLoaded', function () {
             event.target.classList.add('active');
             // Set the text content
             $('#monthDropDownButton').text(event.target.textContent);
-            $('#dayDropDownButton').text("Day");
+            $('#dayDropDownButton').text(dayTextTrans);
         }
         selectedMonth = event.target.dataset.bsMonthId;
         showLoading('Ledger');

@@ -5,6 +5,7 @@ from decimal import Decimal
 
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.translation import gettext as trans
 
 from ledger.api.helpers import get_alts_queryset
 from ledger.hooks import get_extension_logger
@@ -117,7 +118,9 @@ class TemplateProcess:
         # Process the amounts
         amounts = self._process_amounts_char(models, chars_list)
 
-        main_name = self.data.main.character_name if not self.show_year else "Summary"
+        main_name = (
+            self.data.main.character_name if not self.show_year else trans("Summary")
+        )
         main_id = self.data.main.character_id if not self.show_year else 0
 
         self._update_template_dict(main_id, main_name)
@@ -141,7 +144,9 @@ class TemplateProcess:
         amounts["stolen"] = defaultdict(Decimal)
         amounts = calculate_ess_stolen(amounts)
 
-        main_name = self.data.main.character_name if not self.show_year else "Summary"
+        main_name = (
+            self.data.main.character_name if not self.show_year else trans("Summary")
+        )
         main_id = self.data.main.character_id if not self.show_year else 0
 
         # Update the template dict
@@ -149,7 +154,7 @@ class TemplateProcess:
         self._generate_amounts_dict(amounts)
 
     # Update Core Dict
-    def _update_template_dict(self, main_id=0, main_name="Unknown"):
+    def _update_template_dict(self, main_id=0, main_name=trans("Unknown")):
         date = (
             str(self.data.ledger_date.year)
             if self.data.view == "year"

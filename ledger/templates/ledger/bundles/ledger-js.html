@@ -1,6 +1,20 @@
 
 {% load ledger %}
+{% load i18n %}
 {% load static %}
+
+<script>
+    // Embed translations in a global JavaScript object
+    window.translations = {
+        months: [
+            "{% trans 'January' %}", "{% trans 'February' %}", "{% trans 'March' %}", "{% trans 'April' %}",
+            "{% trans 'May' %}", "{% trans 'June' %}", "{% trans 'July' %}", "{% trans 'August' %}",
+            "{% trans 'September' %}", "{% trans 'October' %}", "{% trans 'November' %}", "{% trans 'December' %}"
+        ],
+        dayText: "{% trans 'Day' %}",
+        monthText: "{% trans 'Month' %}"
+    };
+</script>
 
 <!-- Chart Resources -->
 {% ledger_static 'assets/index.js' %}
