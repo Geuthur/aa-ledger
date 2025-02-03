@@ -1,4 +1,4 @@
-""" AA Hooks"""
+"""AA Hooks"""
 
 import logging
 
