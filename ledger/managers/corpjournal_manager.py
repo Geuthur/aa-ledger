@@ -168,6 +168,8 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
     def _get_linked_chars(self, entity_ids: list, corporations=None) -> tuple:
         main_and_alts = {}
         entity_list = []
+        # ESS, Daily, Bounty Payout Corps
+        eve_npc_entities = [1000125, 1000132, 1000413]
 
         accounts = UserProfile.objects.filter(
             main_character__corporation_id__in=corporations
@@ -201,6 +203,9 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         entitys = EveEntity.objects.filter(eve_id__in=missing_entitys)
         # Get All Eve Entities
         for entity in entitys:
+            # Ensure we don't include NPC entities
+            if entity.eve_id in eve_npc_entities:
+                continue
             try:
                 entity_id = entity.eve_id
                 main_and_alts[entity] = [entity_id]
