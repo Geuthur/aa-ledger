@@ -75,18 +75,6 @@
 {% block extra_javascript %}
 
 {% include 'bundles/datatables-js-bs5.html' %}
-<script type="application/javascript">
-    $('#modalViewCharacterContainer').on('show.bs.modal', function (event) {
-        let button = $(event.relatedTarget)
-        let ajax_url = button.data('ajax_url');
-
-        $("#modalViewCharacterContent").load(ajax_url, function(response, status, xhr) {
-            if (xhr.status === 403) {
-                $("#modalViewCharacterContent").html(response);
-            }
-        });
-    });
-</script>
 
 <script type="application/javascript">
     // Extract the 'main' parameter from the current URL

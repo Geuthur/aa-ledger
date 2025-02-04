@@ -150,7 +150,7 @@ function generateLedger(TableName, url) {
                 `);
                 $('#get_template').html(`
                     <button
-                        class="btn btn-sm btn-info btn-square" id="button-${TableName}"
+                        class="btn btn-primary btn-sm btn-square" id="button-${TableName}"
                         data-bs-toggle="modal"
                         data-bs-target="#modalViewCharacterContainer"
                         aria-label="${char_name}"
@@ -222,7 +222,7 @@ function generateLedger(TableName, url) {
                                         imageHTML += `
                                             <a href="/ledger/character_ledger/${row.main_id}/">
                                                 <button
-                                                    class="btn btn-sm btn-info btn-square"
+                                                    class="btn btn-primary btn-sm btn-square"
                                                     id="lookup"
                                                     title="${overviewText}"
                                                     data-tooltip-toggle="ledger-tooltip" data-bs-placement="right">
@@ -293,7 +293,7 @@ function generateLedger(TableName, url) {
                                 }
 
                                 return `
-                                    <button class="btn btn-sm btn-info btn-square"
+                                    <button class="btn btn-primary btn-sm btn-square"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modalViewCharacterContainer"
                                         data-ajax_url="${chartemplateUrl}"
@@ -346,7 +346,7 @@ function generateLedger(TableName, url) {
 
                         $('#foot .col-total-button').html(`
                             <button
-                                class="btn btn-sm btn-info btn-square"
+                                class="btn btn-primary btn-sm btn-square"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalViewCharacterContainer"
                                 data-ajax_url="${templateUrl}">
