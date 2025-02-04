@@ -4,6 +4,7 @@
 /* global am5themes_Dark */
 /* global am5percent */
 /* global am5xy */
+/* global entityType */
 
 // Function to dispose of a root instance if it exists
 function disposeRoot(rootId) {
@@ -15,7 +16,7 @@ function disposeRoot(rootId) {
 
 function load_or_create_Chart(div, data, chart) {
     if (!data || !Array.isArray(data.series)) {
-        console.debug('Data is not in the expected format:', data);
+        console.log('Data is not in the expected format:', data);
         return false;
     }
 
@@ -28,7 +29,10 @@ function load_or_create_Chart(div, data, chart) {
     if (chart === 'bar') {
         return createRattingBarChart(root, data, div);
     } else if (chart === 'chart') {
-        return createRattingChart(root, data, div);
+        if (entityType === 'character') {
+            return createRattingChart(root, data, div);
+        }
+        return createChordChart(root, data, div);
     } else if (chart === 'gauge') {
         return createWorkflowGaugeChart(root, data, div);
     }
@@ -67,10 +71,9 @@ function setBillboardData(url, id) {
     });
 }
 
-
 function createChordChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {
-        console.debug('Data is not in the expected format:', data);
+        console.log('Data is not in the expected format:', data);
         return;
     }
     console.log('Creating Chord Chart with data:', data);
@@ -131,10 +134,10 @@ function createChordChart(root, data, id) {
     series.appear(1000, 100);
 }
 
-
 function createRattingChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {
-        console.debug('Data is not in the expected format:', data);
+        console.log('Data is not in the expected format:', data);
+        disposeRoot(id);
         return;
     }
 
@@ -256,6 +259,7 @@ function createRattingChart(root, data, id) {
 function createRattingBarChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {
         console.debug('Data is not in the expected format:', data);
+        disposeRoot(id);
         return;
     }
 
@@ -344,6 +348,7 @@ function createRattingBarChart(root, data, id) {
 function createWorkflowGaugeChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {
         console.debug('Data is not in the expected format:', data);
+        disposeRoot(id);
         return;
     }
 
