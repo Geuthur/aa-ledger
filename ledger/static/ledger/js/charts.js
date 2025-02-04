@@ -76,7 +76,6 @@ function createChordChart(root, data, id) {
         console.log('Data is not in the expected format:', data);
         return;
     }
-    console.log('Creating Chord Chart with data:', data);
 
     // Store the root object globally
     window.chordsRoots = window.chordsRoots || {};
