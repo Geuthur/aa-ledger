@@ -15,12 +15,14 @@ planet_many = [
                 "expiry_time": "2024-08-26T17:17:02Z",
                 "item_id": 2268,
                 "item_name": "Aqueous Liquids",
+                "progress_percentage": 100.0,
             },
             "1046238237378": {
                 "install_time": "2024-08-12T17:17:02Z",
                 "expiry_time": "2024-08-26T17:17:02Z",
                 "item_id": 2309,
                 "item_name": "Ionic Solutions",
+                "progress_percentage": 100.0,
             },
         },
         "products": {
@@ -88,12 +90,14 @@ planet_many = [
                 "expiry_time": "2024-08-26T17:17:02Z",
                 "item_id": 2268,
                 "item_name": "Aqueous Liquids",
+                "progress_percentage": 100.0,
             },
             "1046238237378": {
                 "install_time": "2024-08-12T17:17:02Z",
                 "expiry_time": "2024-08-26T17:17:02Z",
                 "item_id": 2309,
                 "item_name": "Ionic Solutions",
+                "progress_percentage": 100.0,
             },
         },
         "products": {
@@ -156,7 +160,7 @@ planet_single = [
         "planet_type_id": 13,
         "upgrade_level": 5,
         "expiry_date": "2024-08-26T17:17:02Z",
-        "expired": True,
+        "expired": False,
         "alarm": False,
         "extractors": {
             "1046238237375": {
@@ -164,12 +168,14 @@ planet_single = [
                 "expiry_time": "2024-08-26T17:17:02Z",
                 "item_id": 2268,
                 "item_name": "Aqueous Liquids",
+                "progress_percentage": 57.14,
             },
             "1046238237378": {
                 "install_time": "2024-08-12T17:17:02Z",
                 "expiry_time": "2024-08-26T17:17:02Z",
                 "item_id": 2309,
                 "item_name": "Ionic Solutions",
+                "progress_percentage": 57.14,
             },
         },
         "products": {

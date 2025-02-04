@@ -110,7 +110,7 @@ class BillboardSystem:
         # Sort series data by date
         series.sort(key=lambda x: x["date"])
 
-        date = timezone.datetime.now().strftime("%Y-%m-%d")
+        date = timezone.now().strftime("%Y-%m-%d")
         return ChartData(
             title="Billboard Chart", date=date, categories=category_names, series=series
         )
@@ -138,7 +138,7 @@ class BillboardSystem:
 
         # Calculate percentages
         total_value = sum(value["value"] for value in filtered_aggregated_data.values())
-        data_entry = {"date": timezone.datetime.now().strftime("%Y-%m-%d")}
+        data_entry = {"date": timezone.now().strftime("%Y-%m-%d")}
         total_percentage = 0
 
         # Collect all values in a list
@@ -161,7 +161,7 @@ class BillboardSystem:
         # Ensure categories are in the correct order
         categories = sorted(filtered_aggregated_data.keys())
 
-        date = timezone.datetime.now().strftime("%Y-%m-%d")
+        date = timezone.now().strftime("%Y-%m-%d")
         return ChartData(
             title="Billboard Chart", date=date, categories=categories, series=series
         )
@@ -190,7 +190,7 @@ class BillboardSystem:
                         }
                     )
 
-        date = timezone.datetime.now().strftime("%Y-%m-%d")
+        date = timezone.now().strftime("%Y-%m-%d")
         return ChartData(
             title="Billboard Chart",
             date=date,
@@ -302,7 +302,7 @@ class BillboardLedger:
 
                 self.output = {
                     "title": "Test",
-                    "date": timezone.datetime.now().strftime("%Y-%m-%d"),
+                    "date": timezone.now().strftime("%Y-%m-%d"),
                     "categories": ["bounty", "ess", "mining", "miscellaneous"],
                     "series": output,
                 }

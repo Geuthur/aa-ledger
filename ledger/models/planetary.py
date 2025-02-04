@@ -159,7 +159,8 @@ class CharacterPlanetDetails(models.Model):
 
     def get_extractors_info(self) -> dict:
         extractors = {}
-        current_time = timezone.datetime.now().timestamp()
+        current_time = timezone.now().timestamp()
+
         for pin in self.pins:
             extractor_details = pin.get("extractor_details")
             if extractor_details and "cycle_time" in extractor_details:
@@ -172,9 +173,16 @@ class CharacterPlanetDetails(models.Model):
                 install_time = parse_datetime(install_time_str).timestamp()
                 expiry_time = parse_datetime(expiry_time_str).timestamp()
 
-                progress_percentage = (
-                    (current_time - install_time) / (expiry_time - install_time)
-                ) * 100
+                # Calculate progress percentage (0-100)
+                if current_time >= expiry_time:
+                    progress_percentage = 100.0
+                else:
+                    progress_percentage = round(
+                        ((current_time - install_time) / (expiry_time - install_time))
+                        * 100,
+                        2,
+                    )
+
                 extractors[pin.get("pin_id")] = {
                     "install_time": install_time_str,
                     "expiry_time": expiry_time_str,

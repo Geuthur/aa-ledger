@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 from ninja import NinjaAPI
 
 from django.test import TestCase
+from django.utils import timezone
 
 from app_utils.testing import create_user_from_evecharacter
 
@@ -136,7 +137,7 @@ class ManageApiJournalCharEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)
 
-    def test_get_character_planetary_details_api_single(self):
+    def test_planetary_details_all_planets(self):
         self.client.force_login(self.user)
         url = "/ledger/api/character/1001/planetary/0/details/"
 
@@ -147,16 +148,20 @@ class ManageApiJournalCharEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)
 
-    def test_get_character_planetary_details_api_single_planet(self):
+    def test_planetary_details_single_planet_with_no_expired_mock(self):
         self.client.force_login(self.user)
         url = "/ledger/api/character/1001/planetary/4001/details/"
 
-        response = self.client.get(url)
+        # Set the fixed date as a timezone-aware datetime object
+        fixed_date = timezone.make_aware(timezone.datetime(2024, 8, 20, 17, 17, 2))
 
-        expected_data = _planetchardata.planet_single
+        # Mock the timezone.now() method to return the fixed date
+        with patch("django.utils.timezone.now", return_value=fixed_date):
+            response = self.client.get(url)
+            expected_data = _planetchardata.planet_single
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), expected_data)
 
     def test_get_character_planetary_details_api_no_permission(self):
         self.client.force_login(self.user2)
