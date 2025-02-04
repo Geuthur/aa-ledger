@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.7.0] - 2025-01-27
+## [0.7.1] - 2025-02-04
 
 ### Added
 
@@ -44,6 +44,8 @@
 - Refactor Chart System
 - API Endpoint addressing
 - MiningMiningLedger - `DateField` to `DateTimeField`
+- Refactor Planetary Interaction System
+- Refactor Modal System
 
 ### Fixed
 
@@ -53,9 +55,10 @@
 - Float Error instead of Decimal in Ledger
 - Corp Tax Event Filter filtered all instead of ESS only
 - Billboard member to member contracts transactions are calculated wrong
-- Character Information Error Handler not work
 - Corp Ledger Unknown entities are not displayed
 - No decimal Rounding in Ledger View
+- Modal Loading Animation
+- Modal Error Handler
 
 ## [0.6.6] - 2024-11-16
 

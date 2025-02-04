@@ -1,8 +1,11 @@
 from ninja import NinjaAPI
 
 from django.db.models import Q
+from django.shortcuts import render
+from django.utils.translation import gettext as trans
 
 from ledger.api import schema
+from ledger.api.api_helper.planetary_helper import get_facilities_info
 from ledger.api.helpers import get_alts_queryset, get_character
 from ledger.hooks import get_extension_logger
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
@@ -13,8 +16,8 @@ logger = get_extension_logger(__name__)
 class LedgerPlanetaryApiEndpoints:
     tags = ["CharacterPlanet"]
 
+    # pylint: disable=too-many-statements
     def __init__(self, api: NinjaAPI):
-
         @api.get(
             "character/{character_id}/planetary/{planet_id}/",
             response={200: list[schema.CharacterPlanet], 403: str},
@@ -119,3 +122,93 @@ class LedgerPlanetaryApiEndpoints:
                     }
                 )
             return output
+
+        @api.get(
+            "character/{character_id}/planetary/{planet_id}/factory/",
+            response={200: dict, 403: str},
+            tags=self.tags,
+        )
+        def get_factory_info(request, character_id: int, planet_id: int):
+            # Get the character
+            perm, character = get_character(request, character_id)
+
+            if not perm:
+                return 403, "Permission Denied"
+
+            filters = Q(planet__character__character=character)
+            if planet_id != 0:
+                filters &= Q(planet__planet__id=planet_id)
+
+            try:
+                planet = CharacterPlanetDetails.objects.get(filters)
+                storage = planet.get_storage_info()
+                facilities = get_facilities_info(planet)
+
+                output = {
+                    "title": trans("Factory Information"),
+                    "character_id": planet.planet.character.character.character_id,
+                    "character_name": planet.planet.character.character.character_name,
+                    "planet_id": planet.planet.planet.id,
+                    "planet_name": planet.planet.planet.name,
+                    "facilities": facilities,
+                    "storage": storage,
+                    "last_update": planet.planet.last_update,
+                }
+            except CharacterPlanetDetails.DoesNotExist:
+                output = {
+                    "title": trans("Planet not Found"),
+                }
+
+            context = {
+                "character": output,
+                "mode": "factory",
+            }
+
+            return render(
+                request,
+                "ledger/planetary/partials/modal/view_factory.html",
+                context,
+            )
+
+        @api.get(
+            "character/{character_id}/planetary/{planet_id}/extractor/",
+            response={200: dict, 403: str},
+            tags=self.tags,
+        )
+        def get_extractor_info(request, character_id: int, planet_id: int):
+            perm, character = get_character(request, character_id)
+
+            if not perm:
+                return 403, "Permission Denied"
+
+            filters = Q(planet__character__character=character)
+            if not planet_id == 0:
+                filters &= Q(planet__planet__id=planet_id)
+
+            try:
+                planet = CharacterPlanetDetails.objects.get(filters)
+                output = {
+                    "title": trans("Extractor Information"),
+                    "character_id": planet.planet.character.character.character_id,
+                    "character_name": planet.planet.character.character.character_name,
+                    "planet_id": planet.planet.planet.id,
+                    "planet_name": planet.planet.planet.name,
+                    "extractors": planet.get_extractors_info(),
+                    "last_update": planet.planet.last_update,
+                }
+            except CharacterPlanetDetails.DoesNotExist:
+                output = {
+                    "title": trans("Planet not Found"),
+                }
+                return output
+
+            context = {
+                "character": output,
+                "mode": "extractor",
+            }
+
+            return render(
+                request,
+                "ledger/planetary/partials/modal/view_extractor.html",
+                context,
+            )

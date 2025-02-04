@@ -4,6 +4,7 @@ Planetary Model
 
 from django.db import models
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 from eveuniverse.models import EvePlanet, EveType
 
@@ -158,16 +159,28 @@ class CharacterPlanetDetails(models.Model):
 
     def get_extractors_info(self) -> dict:
         extractors = {}
+        current_time = timezone.datetime.now().timestamp()
         for pin in self.pins:
             extractor_details = pin.get("extractor_details")
             if extractor_details and "cycle_time" in extractor_details:
                 type_id = extractor_details.get("product_type_id")
                 type_data, _ = EveType.objects.get_or_create_esi(id=type_id)
+
+                install_time_str = pin.get("install_time")
+                expiry_time_str = pin.get("expiry_time")
+
+                install_time = parse_datetime(install_time_str).timestamp()
+                expiry_time = parse_datetime(expiry_time_str).timestamp()
+
+                progress_percentage = (
+                    (current_time - install_time) / (expiry_time - install_time)
+                ) * 100
                 extractors[pin.get("pin_id")] = {
-                    "install_time": pin.get("install_time"),
-                    "expiry_time": pin.get("expiry_time"),
+                    "install_time": install_time_str,
+                    "expiry_time": expiry_time_str,
                     "item_id": type_id,
                     "item_name": type_data.name,
+                    "progress_percentage": progress_percentage,
                 }
         return extractors
 

@@ -57,6 +57,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 characterIds.add(item.character_id);
                 const row = [];
 
+                const viewFactoryUrl = `/ledger/api/character/${item.character_id}/planetary/${item.planet_id}/factory/`;
+                const viewExtractorUrl = `/ledger/api/character/${item.character_id}/planetary/${item.planet_id}/extractor/`;
+
                 // Character
                 const characterCell = `
                     <td>
@@ -82,17 +85,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>
                         ${Object.values(item.products.processed).map(product => `<img src="https://images.evetech.net/types/${product.id}/icon?size=32" data-tooltip-toggle="planetary" title="${product.name}">`).join(' ')}
                     </td>
-                    <button
-                        class="btn btn-primary btn-sm btn-square"
-                        style="margin-left: 5px;" data-bs-toggle="modal"
-                        data-bs-target="#productsInfoModal"
-                        data-character-id="${item.character_id}"
-                        data-character-name="${item.character_name}"
-                        data-planet="${item.planet}"
-                        data-productsInfo='${JSON.stringify(item.storage)}'
-                        data-facilitysInfo='${JSON.stringify(item.facility)}'
-                        onclick="showProductsInfoModal(this)"
-                    >
+                    <button class="btn btn-primary btn-sm btn-square"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalViewFactoryContainer"
+                        data-ajax_factory="${viewFactoryUrl}"
+                        title="${row.main_name}" data-tooltip-toggle="ledger-tooltip" data-bs-placement="left">
                         <span class="fas fa-info"></span>
                     </button>
                 `;
@@ -144,6 +141,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                 >
                                     <span class="fas fa-info"></span>
                                 </button>
+                                <button class="btn btn-primary btn-sm btn-square"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalViewExtractorContainer"
+                                    data-ajax_extractor="${viewExtractorUrl}"
+                                    title="${row.main_name}" data-tooltip-toggle="ledger-tooltip" data-bs-placement="left">
+                                    <span class="fas fa-info"></span>
+                                </button>
                             </div>
                         </td>
                     `;
@@ -161,8 +165,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Actions
                 const actionsCell = `
-                    <td class="text-end">
-                        <form class="d-inline" method="post" action="${switchAlarmUrl(item.character_id, item.planet_id)}" id="switchAlarmForm${item.character_id}_${item.planet_id}">
+                    <td>
+                        <form class="text-end" method="post" action="${switchAlarmUrl(item.character_id, item.planet_id)}" id="switchAlarmForm${item.character_id}_${item.planet_id}">
                             ${csrfToken}
                             <input type="hidden" name="character_pk" value="${characterPk}">
                             <button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="planetary" title="${switchAlarm}" data-bs-target="#confirmModal" data-confirm-text="${switchAlarmText} \n${item.character_name} - ${item.planet}?" data-form-id="switchAlarmForm${item.character_id}_${item.planet_id}">
@@ -220,177 +224,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function getIconUrl(typeId) {
     return `https://images.evetech.net/types/${typeId}/icon?size=32`;
-}
-
-function showProductsInfoModal(button) {
-    const characterName = button.getAttribute('data-character-name');
-    const planet = button.getAttribute('data-planet');
-    const productsInfo = JSON.parse(button.getAttribute('data-productsInfo'));
-    const facilitysInfo = JSON.parse(button.getAttribute('data-facilitysInfo'));
-
-    const modalTitle = document.querySelector('#productsInfoModal .character-Info');
-    modalTitle.textContent = `${characterName} - ${planet}`;
-
-    const tableStorageBody = document.querySelector('#productsInfoModal .modal-storage-table-body');
-    tableStorageBody.innerHTML = '';
-
-    Object.values(productsInfo).forEach(item => {
-        item.contents.forEach(content => {
-            const row = document.createElement('tr');
-
-            const productCell = document.createElement('td');
-            let iconUrl = getIconUrl(content.type_id);
-
-            productCell.innerHTML = `
-                <img src="${iconUrl}" class="rounded-circle" title="${content.product_name}" data-tooltip-toggle="planetary">
-            `;
-
-            const nameCell = document.createElement('td');
-            nameCell.textContent = content.product_name;
-
-            const quantityCell = document.createElement('td');
-            quantityCell.textContent = content.amount;
-
-            row.appendChild(productCell);
-            row.appendChild(nameCell);
-            row.appendChild(quantityCell);
-            tableStorageBody.appendChild(row);
-        });
-    });
-
-    // Facility
-
-    const tableFacilityBody = document.querySelector('#productsInfoModal .modal-facility-table-body');
-    tableFacilityBody.innerHTML = '';
-
-    // Destroy existing DataTable if it exists
-    if ($.fn.DataTable.isDataTable('#productsInfoModal #facility')) {
-        $('#productsInfoModal #facility').DataTable().clear().destroy();
-    }
-
-    if (!facilitysInfo || Object.keys(facilitysInfo).length === 0) {
-        const row = document.createElement('tr');
-        const noDataCell = document.createElement('td');
-        noDataCell.colSpan = 4; // Assuming there are 4 columns in the table
-        noDataCell.textContent = 'No data available';
-        row.appendChild(noDataCell);
-        tableFacilityBody.appendChild(row);
-    } else {
-        Object.values(facilitysInfo).forEach(item => {
-            const row = document.createElement('tr');
-
-            // Facility Name
-            const facilityNameCell = document.createElement('td');
-            if (item.facility_name) {
-                facilityNameCell.textContent = item.facility_name;
-            } else {
-                facilityNameCell.textContent = 'No facility';
-            }
-            row.appendChild(facilityNameCell);
-
-            // Input Resources
-            const inputCell = document.createElement('td');
-            if (item.resources) {
-                let resourceCounts = item.resources.reduce((acc, resource) => {
-                    acc[resource.item_id] = acc[resource.item_id] || { ...resource, count: 0 };
-                    acc[resource.item_id].count++;
-                    return acc;
-                }, {});
-
-                let inputIcons = Object.values(resourceCounts).map(resource => {
-                    let iconUrl = getIconUrl(resource.item_id);
-                    let countText = resource.count > 1 ? ` <span class="text-muted small">x${resource.count}</span>` : '';
-                    return `<img src="${iconUrl}" title="${resource.item_name}" data-tooltip-toggle="planetary" style="margin-right: 5px;">${countText}`;
-                }).join('');
-                inputCell.innerHTML = inputIcons;
-            } else {
-                inputCell.textContent = 'No input';
-            }
-            row.appendChild(inputCell);
-
-            // Output Product
-            const outputCell = document.createElement('td');
-            if (item.output_product) {
-                let outputIconUrl = getIconUrl(item.output_product.item_id);
-                outputCell.innerHTML = `<img src="${outputIconUrl}" title="${item.output_product.item_name}" data-tooltip-toggle="planetary">`;
-            } else {
-                outputCell.innerHTML = 'No output';
-            }
-            row.appendChild(outputCell);
-
-            // Active Status
-            const activeCell = document.createElement('td');
-            if (item.resources) {
-                let producing = item.resources.some(resource => resource.still_producing);
-                var isActive = !item.resources.some(resource => resource.missing_quantity > 0);
-                if (producing && item.resources.some(resource => resource.missing_quantity > 0)) {
-                    isActive = true;
-                }
-                activeCell.innerHTML = `<img src="/static/ledger/images/${isActive ? 'green' : 'red'}.png" style="width: 24px; height: 24px;" title="${isActive ? 'Producing' : 'Offline'}" data-tooltip-toggle="planetary">`;
-            } else {
-                activeCell.textContent = 'No Data found';
-            }
-            row.appendChild(activeCell);
-
-            tableFacilityBody.appendChild(row);
-        });
-    }
-
-    // Initialize DataTable after populating the table
-    var products_table = $('#productsInfoModal #facility').DataTable({
-        'order': [[1, 'desc']], // Adjust the column index if needed
-        'pageLength': 10,
-        'columnDefs': [
-            { 'orderable': false, 'targets': 'no-sort' }
-        ]
-    });
-
-    products_table.on('draw', function () {
-        $('[data-tooltip-toggle="planetary"]').tooltip({
-            trigger: 'hover',
-        });
-    });
-
-    $('[data-tooltip-toggle="planetary"]').tooltip({
-        trigger: 'hover',
-    });
-
-    $('#productsInfoModal').modal('show');
-}
-
-function showExtractorInfoModal(button) {
-    const characterName = button.getAttribute('data-character-name');
-    const planet = button.getAttribute('data-planet');
-    const extractors = JSON.parse(button.getAttribute('data-extractors'));
-
-    const modalTitle = document.querySelector('#extractorInfoModal .character-Info');
-    modalTitle.textContent = `${characterName} - ${planet}`;
-
-    const tableBody = document.querySelector('#extractorInfoModal .modal-table-body');
-    tableBody.innerHTML = '';
-
-    const currentTime = new Date().getTime();
-    Object.values(extractors).forEach(extractor => {
-        const installTime = new Date(extractor.install_time).getTime();
-        const expiryTime = new Date(extractor.expiry_time).getTime();
-        const totalDuration = expiryTime - installTime;
-        const elapsedDuration = currentTime - installTime;
-        const progressPercentage = Math.min(Math.max((elapsedDuration / totalDuration) * 100, 0), 100);
-
-        const row = document.createElement('tr');
-        let iconUrl = getIconUrl(extractor.item_id);
-
-        row.innerHTML = `
-            <td><img src="${iconUrl}" class="rounded-circle"> ${extractor.item_name}</td>
-            <td>${new Date(extractor.install_time).toLocaleString()}</td>
-            <td>${new Date(extractor.expiry_time).toLocaleString()}</td>
-            <td>
-                <div class="progress" style="position: relative;">
-                    <div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" style="width: ${progressPercentage}%; box-shadow: -1px 3px 5px rgba(0, 180, 231, 0.9);" aria-valuenow="${progressPercentage}" aria-valuemin="0" aria-valuemax="100"></div>
-                    <div class="progress-value" style="position: absolute; width: 100%; text-align: center;">${progressPercentage.toFixed(0)}%</div>
-                </div>
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
 }
