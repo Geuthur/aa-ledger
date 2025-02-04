@@ -20,7 +20,7 @@ logger = get_extension_logger(__name__)
 # pylint: disable=too-many-function-args
 def ledger_api_process(request, entity_type: str, entity_id: int, date: str, view: str):
     request_main = request.GET.get("main", False)
-    perm = None
+    perm = True
 
     if entity_type == "corporation":
         perm, entitys = get_corporation(request, entity_id)
@@ -53,7 +53,7 @@ def ledger_api_process(request, entity_type: str, entity_id: int, date: str, vie
     if entity_type == "alliance":
         return CorporationProcess(entitys, date, view), entitys
 
-    return "No Entity Type found", None
+    return "Wrong Entity Type", None
 
 
 class LedgerApiEndpoints:

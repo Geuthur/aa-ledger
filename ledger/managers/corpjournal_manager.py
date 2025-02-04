@@ -210,8 +210,8 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
 
         return main_and_alts, set(entity_list)
 
-    def get_ledger_data(self, queryset) -> models.QuerySet:
-        """Get the ledger data"""
+    def annotate_ledger_data(self, queryset) -> models.QuerySet:
+        """Annotate the queryset with ledger data"""
         return (
             queryset.annotate_bounty_income()
             .annotate_ess_income()
@@ -276,24 +276,28 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
                 )
 
         # Annotate the queryset
-        qs = qs.annotate(
-            main_entity_id=Case(
-                *main_entity_id_cases,
-                output_field=models.IntegerField(),
-            ),
-            main_entity_name=Case(
-                *main_entity_name_cases,
-                output_field=models.CharField(),
-            ),
-            alts=Case(
-                *alts_cases,
-                default=Value("[]"),
-                output_field=models.JSONField(),
-            ),
-        ).values(
-            "main_entity_id",
-            "main_entity_name",
-            "alts",
+        qs = (
+            qs.annotate(
+                main_entity_id=Case(
+                    *main_entity_id_cases,
+                    output_field=models.IntegerField(),
+                ),
+                main_entity_name=Case(
+                    *main_entity_name_cases,
+                    output_field=models.CharField(),
+                ),
+                alts=Case(
+                    *alts_cases,
+                    default=Value("[]"),
+                    output_field=models.JSONField(),
+                ),
+            )
+            .values(
+                "main_entity_id",
+                "main_entity_name",
+                "alts",
+            )
+            .distinct()
         )
 
         return qs
@@ -336,7 +340,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         qs = events_filter(qs)
 
         # Annotate the queryset
-        qs = self.get_ledger_data(qs)
+        qs = self.annotate_ledger_data(qs)
 
         annotations = {}
         for type_name in type_names:

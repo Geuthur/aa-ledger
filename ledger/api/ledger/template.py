@@ -140,7 +140,7 @@ class LedgerTemplateApiEndpoints:
                 return 403, "Invalid Date format. Use YYYY-MM-DD"
 
             perm, entitys = ledger_api_process(request, entity_type, entity_id)
-            corp_template = False
+            corp_view = False
 
             if not perm:
                 context = {
@@ -154,14 +154,14 @@ class LedgerTemplateApiEndpoints:
             current_date = timezone.now()
 
             if entity_id == main_id:
-                corp_template = True
+                corp_view = True
 
-            _, char = get_character(request, main_id, corp=corp_template)
+            _, char = get_character(request, main_id, corp=corp_view)
 
             if char is None:
                 context = {
                     "error_title": "403 Error",
-                    "error_message": "Character not found.",
+                    "error_message": "Entity not found.",
                 }
                 return render(
                     request, "ledger/modals/information/error.html", context, status=403

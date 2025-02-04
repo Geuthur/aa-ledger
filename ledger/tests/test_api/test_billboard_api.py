@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 from ninja import NinjaAPI
 
 from django.test import TestCase
+from django.utils import timezone
 from eveuniverse.models import EveMarketPrice
 
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -88,44 +89,61 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.client.force_login(self.user)
         url = "/ledger/api/character/0/billboard/date/2024-03-01/view/month/"
 
-        response = self.client.get(url)
+        fixed_date = timezone.datetime(2025, 1, 31)
 
-        expected_data = CharmonthlyMarch
+        with patch("django.utils.timezone.datetime") as mock_datetime:
+            mock_datetime.now.return_value = fixed_date
+            mock_datetime.side_effect = lambda *args, **kw: timezone.datetime(
+                *args, **kw
+            )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
+            response = self.client.get(url)
 
-        # Corporation
-        url = "/ledger/api/corporation/0/billboard/date/2024-03-01/view/month/"
+            expected_data = CharmonthlyMarch
 
-        response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), expected_data)
 
-        self.assertEqual(response.status_code, 200)
+            # Corporation
+            url = "/ledger/api/corporation/0/billboard/date/2024-03-01/view/month/"
 
-        # Alliance
-        url = "/ledger/api/alliance/0/billboard/date/2024-03-01/view/month/"
+            response = self.client.get(url)
 
-        response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.status_code, 200)
+            # Alliance
+            url = "/ledger/api/alliance/0/billboard/date/2024-03-01/view/month/"
+
+            response = self.client.get(url)
+
+            self.assertEqual(response.status_code, 200)
 
     def test_get_character_billbboard_api_single(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/character/1001/billboard/date/2024-03-01/view/month/"
-        # when
-        response = self.client.get(url)
-        # then
-        expected_data = CharmonthlyMarch
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
 
-        # Corporation
-        self.client.force_login(self.user)
-        url = "/ledger/api/corporation/2002/billboard/date/2024-01-01/view/year/"
+        fixed_date = timezone.make_aware(timezone.datetime(2025, 1, 31))
 
-        response = self.client.get(url)
+        with patch("django.utils.timezone.datetime") as mock_datetime:
+            mock_datetime.now.return_value = fixed_date
+            mock_datetime.side_effect = lambda *args, **kw: timezone.make_aware(
+                timezone.datetime(*args, **kw)
+            )
 
-        self.assertEqual(response.status_code, 200)
+            url = "/ledger/api/character/1001/billboard/date/2024-03-01/view/month/"
+            # when
+            response = self.client.get(url)
+            # then
+            expected_data = CharmonthlyMarch
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), expected_data)
+
+            # Corporation
+            self.client.force_login(self.user)
+            url = "/ledger/api/corporation/2002/billboard/date/2024-01-01/view/year/"
+
+            response = self.client.get(url)
+
+            self.assertEqual(response.status_code, 200)
 
     def test_get_billbboard_api_year(self):
         self.client.force_login(self.user)
@@ -150,25 +168,35 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.client.force_login(self.user)
         url = "/ledger/api/character/1001/billboard/date/2024-01-01/view/year/"
         expected_data = Charyearly
-        # when
-        response = self.client.get(url)
-        # then
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
 
-        # Corporation
-        url = "/ledger/api/corporation/2002/billboard/date/2024-01-01/view/year/"
+        fixed_date = timezone.datetime(2025, 1, 31)
 
-        response = self.client.get(url)
+        with patch("django.utils.timezone.datetime") as mock_datetime:
+            mock_datetime.now.return_value = fixed_date
+            mock_datetime.side_effect = lambda *args, **kw: timezone.datetime(
+                *args, **kw
+            )
 
-        self.assertEqual(response.status_code, 200)
+            # when
+            response = self.client.get(url)
 
-        # Alliance
-        url = "/ledger/api/alliance/3002/billboard/date/2024-01-01/view/year/"
+            # then
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), expected_data)
 
-        response = self.client.get(url)
+            # Corporation
+            url = "/ledger/api/corporation/2002/billboard/date/2024-01-01/view/year/"
 
-        self.assertEqual(response.status_code, 200)
+            response = self.client.get(url)
+
+            self.assertEqual(response.status_code, 200)
+
+            # Alliance
+            url = "/ledger/api/alliance/3002/billboard/date/2024-01-01/view/year/"
+
+            response = self.client.get(url)
+
+            self.assertEqual(response.status_code, 200)
 
     def test_get_character_billbboard_api_multi(self):
         chars = EveCharacter.objects.filter(character_id__in=[1002, 1003])
@@ -177,11 +205,19 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         self.client.force_login(self.user)
         url = "/ledger/api/character/0/billboard/date/2024-03-01/view/month/"
 
-        response = self.client.get(url)
+        fixed_date = timezone.datetime(2025, 1, 31)
 
-        expected_data = CharmonthlyMarchMulti
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
+        with patch("django.utils.timezone.datetime") as mock_datetime:
+            mock_datetime.now.return_value = fixed_date
+            mock_datetime.side_effect = lambda *args, **kw: timezone.datetime(
+                *args, **kw
+            )
+
+            response = self.client.get(url)
+
+            expected_data = CharmonthlyMarchMulti
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), expected_data)
 
     def test_get_character_billbboard_api_no_permission(self):
         self.client.force_login(self.user2)
@@ -208,31 +244,41 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
     def test_get_character_billbboard_api_no_data(self):
         # given
         self.client.force_login(self.user3)
-        url = "/ledger/api/character/0/billboard/date/2024-03-01/view/month/"
-        # when
-        response = self.client.get(url)
-        # then
-        expected_data = noData
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
 
-        # Corporation
-        url = "/ledger/api/corporation/0/billboard/date/2000-03-01/view/month/"
+        fixed_date = timezone.datetime(2025, 1, 31)
 
-        response = self.client.get(url)
+        with patch("django.utils.timezone.datetime") as mock_datetime:
+            mock_datetime.now.return_value = fixed_date
+            mock_datetime.side_effect = lambda *args, **kw: timezone.datetime(
+                *args, **kw
+            )
 
-        expected_data = _billboardcorpdata.noData
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
+            url = "/ledger/api/character/0/billboard/date/2024-03-01/view/month/"
 
-        # Alliance
-        url = "/ledger/api/alliance/0/billboard/date/2000-03-01/view/month/"
+            # when
+            response = self.client.get(url)
+            # then
+            expected_data = noData
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), expected_data)
 
-        response = self.client.get(url)
+            # Corporation
+            url = "/ledger/api/corporation/0/billboard/date/2000-03-01/view/month/"
 
-        expected_data = _billboardcorpdata.noData
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
+            response = self.client.get(url)
+
+            expected_data = _billboardcorpdata.noData
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), expected_data)
+
+            # Alliance
+            url = "/ledger/api/alliance/0/billboard/date/2000-03-01/view/month/"
+
+            response = self.client.get(url)
+
+            expected_data = _billboardcorpdata.noData
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), expected_data)
 
     def test_get_character_billbboard_api_no_mining(self):
         # given
@@ -240,12 +286,21 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
         url = "/ledger/api/character/0/billboard/date/2024-03-01/view/month/"
         CharacterMiningLedger.objects.all().delete()
         EveMarketPrice.objects.all().delete()
-        # when
-        response = self.client.get(url)
-        # then
-        expected_data = CharNoMining
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
+
+        fixed_date = timezone.datetime(2025, 1, 31)
+
+        with patch("django.utils.timezone.datetime") as mock_datetime:
+            mock_datetime.now.return_value = fixed_date
+            mock_datetime.side_effect = lambda *args, **kw: timezone.datetime(
+                *args, **kw
+            )
+
+            # when
+            response = self.client.get(url)
+            # then
+            expected_data = CharNoMining
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), expected_data)
 
     def test_get_corporation_billbboard_api_not_found(self):
         self.client.force_login(self.user2)

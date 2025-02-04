@@ -41,10 +41,10 @@ class CorporationProcess:
             .annotate_miscellaneous()
         )
         for main in journal:
-            total_bounty = main.get("bounty_income") or 0
-            total_ess = main.get("ess_income") or 0
-            total_other = main.get("miscellaneous") or 0
-            main_entity_id = main.get("main_entity_id") or 0
+            total_bounty = main.get("bounty_income", 0)
+            total_ess = main.get("ess_income", 0)
+            total_other = main.get("miscellaneous", 0)
+            main_entity_id = main.get("main_entity_id", 0)
             character_name = main.get("main_entity_name") or "Unknown"
             alts = main.get("alts", [])
             entity_type = "character"

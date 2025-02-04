@@ -116,35 +116,45 @@ class ManageApiLedgerCharEndpointsTest(TestCase):
 
     def test_get_ledger_api(self):
         self.client.force_login(self.user)
-        url = "/ledger/api/character/0/ledger/date/2024-03-01/view/month/"
 
-        response = self.client.get(url)
+        fixed_date = timezone.datetime(2025, 1, 31)
 
-        expected_data = CharmonthlyMarch
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
+        with patch("django.utils.timezone.datetime") as mock_datetime:
+            mock_datetime.now.return_value = fixed_date
+            mock_datetime.side_effect = lambda *args, **kw: timezone.datetime(
+                *args, **kw
+            )
 
-        # Corporation
-        url = "/ledger/api/corporation/0/ledger/date/2024-03-01/view/month/"
+            url = "/ledger/api/character/0/ledger/date/2024-03-01/view/month/"
 
-        response = self.client.get(url)
-        expected_data = _ledgercorpdata.Corpdatamany
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
+            response = self.client.get(url)
 
-        # Alliance
-        url = "/ledger/api/alliance/0/ledger/date/2024-03-01/view/month/"
+            expected_data = CharmonthlyMarch
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), expected_data)
 
-        response = self.client.get(url)
-        expected_data = _ledgercorpdata.Corpdatamany
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), expected_data)
+            # Corporation
+            url = "/ledger/api/corporation/0/ledger/date/2024-03-01/view/month/"
 
-        # Wrong Type
-        url = "/ledger/api/test/0/ledger/date/2024-03-01/view/month/"
+            response = self.client.get(url)
 
-        response = self.client.get(url)
-        self.assertContains(response, "No Entity Type found", status_code=403)
+            expected_data = _ledgercorpdata.Corpdatamany
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), expected_data)
+
+            # Alliance
+            url = "/ledger/api/alliance/0/ledger/date/2024-03-01/view/month/"
+
+            response = self.client.get(url)
+            expected_data = _ledgercorpdata.Corpdatamany
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), expected_data)
+
+            # Wrong Type
+            url = "/ledger/api/test/0/ledger/date/2024-03-01/view/month/"
+
+            response = self.client.get(url)
+            self.assertContains(response, "Wrong Entity Type", status_code=403)
 
     def test_get_ledger_api_multi(self):
         chars = EveCharacter.objects.filter(character_id__in=[1002, 1003])

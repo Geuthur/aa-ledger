@@ -29,7 +29,7 @@ def get_character(
         character_id = request.user.profile.main_character.character_id
 
     try:
-        # Corporation Tempalte
+        # Corporation View
         if corp:
             main_char = EveCharacter.objects.select_related(
                 "character_ownership",
