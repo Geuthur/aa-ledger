@@ -15,7 +15,7 @@ CharmonthlyMarch = [
         "billboard": {
             "standard": {
                 "charts": {
-                    "title": "Billboard Chart",
+                    "title": "Donut Chart",
                     "date": "2025-01-31",
                     "categories": [
                         "bounty",
@@ -42,7 +42,7 @@ CharmonthlyMarch = [
                     ],
                 },
                 "rattingbar": {
-                    "title": "Billboard Chart",
+                    "title": "Ratting Chart",
                     "date": "2025-01-31",
                     "categories": ["Bounty", "ESS", "Miscellaneous", "Mining"],
                     "series": [
@@ -56,7 +56,7 @@ CharmonthlyMarch = [
                     ],
                 },
                 "workflowgauge": {
-                    "title": "Billboard Chart",
+                    "title": "Workflow Chart",
                     "date": "2025-01-31",
                     "categories": ["bounty", "ess", "mining", "miscellaneous"],
                     "series": [
@@ -80,7 +80,7 @@ CharmonthlyMarchMulti = [
         "billboard": {
             "standard": {
                 "charts": {
-                    "title": "Billboard Chart",
+                    "title": "Donut Chart",
                     "date": "2025-01-31",
                     "categories": [
                         "bounty",
@@ -107,7 +107,7 @@ CharmonthlyMarchMulti = [
                     ],
                 },
                 "rattingbar": {
-                    "title": "Billboard Chart",
+                    "title": "Ratting Chart",
                     "date": "2025-01-31",
                     "categories": ["Bounty", "ESS", "Miscellaneous", "Mining"],
                     "series": [
@@ -121,7 +121,7 @@ CharmonthlyMarchMulti = [
                     ],
                 },
                 "workflowgauge": {
-                    "title": "Billboard Chart",
+                    "title": "Workflow Chart",
                     "date": "2025-01-31",
                     "categories": ["bounty", "ess", "mining", "miscellaneous"],
                     "series": [
@@ -144,7 +144,7 @@ Charyearly = [
         "billboard": {
             "standard": {
                 "charts": {
-                    "title": "Billboard Chart",
+                    "title": "Donut Chart",
                     "date": "2025-01-31",
                     "categories": [
                         "bounty",
@@ -171,7 +171,7 @@ Charyearly = [
                     ],
                 },
                 "rattingbar": {
-                    "title": "Billboard Chart",
+                    "title": "Ratting Chart",
                     "date": "2025-01-31",
                     "categories": ["Bounty", "ESS", "Miscellaneous", "Mining"],
                     "series": [
@@ -186,7 +186,7 @@ Charyearly = [
                     ],
                 },
                 "workflowgauge": {
-                    "title": "Billboard Chart",
+                    "title": "Workflow Chart",
                     "date": "2025-01-31",
                     "categories": ["bounty", "ess", "mining", "miscellaneous"],
                     "series": [
@@ -209,7 +209,7 @@ CharNoMining = [
         "billboard": {
             "standard": {
                 "charts": {
-                    "title": "Billboard Chart",
+                    "title": "Donut Chart",
                     "date": "2025-01-31",
                     "categories": [
                         "bounty",
@@ -234,7 +234,7 @@ CharNoMining = [
                     ],
                 },
                 "rattingbar": {
-                    "title": "Billboard Chart",
+                    "title": "Ratting Chart",
                     "date": "2025-01-31",
                     "categories": ["Bounty", "ESS", "Miscellaneous", "Mining"],
                     "series": [
@@ -247,7 +247,7 @@ CharNoMining = [
                     ],
                 },
                 "workflowgauge": {
-                    "title": "Billboard Chart",
+                    "title": "Workflow Chart",
                     "date": "2025-01-31",
                     "categories": ["bounty", "ess", "miscellaneous"],
                     "series": [
