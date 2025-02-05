@@ -89,10 +89,20 @@ function createChordChart(root, data, id) {
             targetIdField: 'to',
             valueField: 'value',
             categoryField: 'category',
+            radius: am5.percent(80),
         })
     );
 
-    series.links.template.set('fillStyle', 'source');
+    series.links.template.set(
+        'fillStyle',
+        'source'
+    );
+
+    series.links.template.setAll({
+        fillOpacity: 0.5,
+        tension: 0.7,
+        tooltipText: '[Bold]{sourceId}[/] \nTo: {targetId} ([Bold]{value.formatNumber("#,###.")}[/] ISK)'
+    });
 
     series.nodes.get('colors').set('step', 2);
 
@@ -119,7 +129,9 @@ function createChordChart(root, data, id) {
     series.nodes.labels.template.setAll({
         textType: 'radial',
         centerX: 0,
-        fontSize: 10
+        fontSize: 10,
+        maxWidth: 150,
+        wrap: true,
     });
 
     series.children.moveValue(series.bulletsContainer, 0);
@@ -393,7 +405,7 @@ function createWorkflowGaugeChart(root, data, id) {
 
     series.labels.template.setAll({
         textType: 'circular',
-        text: '{category}',
+        text: '',
         radius: am5.percent(-30),
         inside: false,
         centerX: am5.percent(50),
