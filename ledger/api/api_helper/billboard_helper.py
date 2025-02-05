@@ -45,7 +45,8 @@ class ChartData:
 
 @dataclass
 class BillboardSystem:
-    data_points: dict[str, dict[str, float]] = field(default_factory=dict)
+    data_points: dict = field(default_factory=dict)
+    chord_data_points: dict = field(default_factory=dict)
 
     def _clean_category(self, category: str) -> str:
         if "_" in category:
@@ -78,7 +79,25 @@ class BillboardSystem:
             # Update the existing data point
             self.data_points[date][display_category]["value"] += value
 
-    def to_xy(self, is_character=False) -> ChartData:
+    def add_chord_data_point(self, from_char: str, to: str, value: float):
+        if value == 0.0:
+            return
+
+        if from_char not in self.chord_data_points:
+            self.chord_data_points[from_char] = []
+
+        # Check if from char has already a value for the 'to' value
+        for data_point in self.chord_data_points[from_char]:
+            if data_point["to"] == to:
+                data_point["value"] += value
+                break
+        else:
+            # Add a new data point
+            self.chord_data_points[from_char].append(
+                {"from": from_char, "to": to, "value": value}
+            )
+
+    def to_xy(self, title: str, is_character=False) -> ChartData:
         """Convert the data points to a XY chart."""
         # Define the specific categories we are interested in
         categories = {
@@ -112,10 +131,10 @@ class BillboardSystem:
 
         date = timezone.now().strftime("%Y-%m-%d")
         return ChartData(
-            title="Billboard Chart", date=date, categories=category_names, series=series
+            title=title, date=date, categories=category_names, series=series
         )
 
-    def _to_percentage(self, included_categories: set) -> ChartData:
+    def _to_percentage(self, title: str, included_categories: set) -> ChartData:
         """Convert the data points to a percentage chart."""
         # Initialize a dictionary to hold the aggregated values
         aggregated_data = {
@@ -162,45 +181,58 @@ class BillboardSystem:
         categories = sorted(filtered_aggregated_data.keys())
 
         date = timezone.now().strftime("%Y-%m-%d")
-        return ChartData(
-            title="Billboard Chart", date=date, categories=categories, series=series
-        )
+        return ChartData(title=title, date=date, categories=categories, series=series)
 
-    def _to_chord_chart(self, included_categories: set) -> ChartData:
+    def _to_chord_chart(self, title: str) -> ChartData:
         """Convert the data points to a bubble chart."""
         series = []
         max_chords = []
+        others_summary = {}
 
-        # Iterate through each date and category to create series entries
-        for date, categories in self.data_points.items():
-            for category, data in categories.items():
-                main_char = data["data"].get("main_id", 0)
-                if len(max_chords) <= 15:
-                    max_chords.append(main_char)
+        # Fügen Sie die aggregierten Werte zur Ausgabe hinzu
+        for main_char, summaries in self.chord_data_points.items():
+            if len(max_chords) <= 15:
+                max_chords.append(main_char)
+            for summary in summaries:
                 if main_char in max_chords:
                     series.append(
                         {
-                            "date": date,
-                            "from": main_char,
-                            "to": data["data"].get("second_party", "Unknown"),
-                            "value": abs(data["value"]),
-                            "category": category,
-                            "mode": data["mode"],
-                            "main": main_char,
+                            "from": summary["from"],
+                            "to": summary["to"],
+                            "value": summary["value"],
+                            "main": summary["from"],
                         }
                     )
+                else:
+                    to = summary["to"]
+                    if to not in others_summary:
+                        others_summary[to] = 0
+                    others_summary[to] += summary["value"]
+
+        # Add summarized "Others" entries to output
+        for to_corp, values in others_summary.items():
+            series.append(
+                {
+                    "from": "Others",
+                    "to": to_corp,
+                    "value": values,
+                    "main": "Others",
+                }
+            )
 
         date = timezone.now().strftime("%Y-%m-%d")
         return ChartData(
-            title="Billboard Chart",
+            title=title,
             date=date,
-            categories=list(included_categories),
+            categories=None,
             series=series,
         )
 
+    def to_xy_data(self, is_character: bool) -> ChartData:
+        return self.to_xy(title="Ratting Chart", is_character=is_character)
+
     def to_chord_data(self) -> ChartData:
-        included_categories = {"bounty", "ess", "mining", "miscellaneous"}
-        return self._to_chord_chart(included_categories)
+        return self._to_chord_chart(title="Chord Chart")
 
     def to_chart_data(self) -> ChartData:
         excluded_categories = {"costs", "miscellaneous"}
@@ -211,11 +243,15 @@ class BillboardSystem:
             all_categories.update(categories.keys())
 
         included_categories = all_categories - excluded_categories
-        return self._to_percentage(included_categories)
+        return self._to_percentage(
+            title="Donut Chart", included_categories=included_categories
+        )
 
     def to_gauge_data(self) -> ChartData:
         included_categories = {"bounty", "ess", "mining", "miscellaneous"}
-        return self._to_percentage(included_categories)
+        return self._to_percentage(
+            title="Workflow Chart", included_categories=included_categories
+        )
 
 
 class BillboardLedger:
@@ -236,76 +272,73 @@ class BillboardLedger:
             series_item.update(sorted_series)
         return chart_data
 
+    def _process_corp_chart(self, billboard: BillboardSystem, corp_qs, period_format):
+        """Process Corporation Chart from Corporation Journal."""
+        for entry in corp_qs:
+            date = entry["period"].strftime(period_format)
+            main_char_name = entry.get("main_entity_name", "Unknown")
+            corporation = entry.get("corporation", "Unknown")
+            bounty = entry.get("bounty_income", 0)
+            ess = entry.get("ess_income", 0)
+            miscellaneous = entry.get("miscellaneous", 0)
+            values = bounty + ess + miscellaneous
+
+            for key, value in entry.items():
+                if key in [
+                    "period",
+                    "alts",
+                    "main_entity_name",
+                    "main_entity_id",
+                    "corporation",
+                ]:
+                    continue
+                billboard.add_or_update_data_point(
+                    date=date, category=key, value=float(value)
+                )
+
+            billboard.add_chord_data_point(
+                from_char=main_char_name, to=corporation, value=values
+            )
+
+    def _process_char_chart(self, billboard: BillboardSystem, corp_qs, period_format):
+        """Process Character Chart from Corporation Journal."""
+        for entry in corp_qs:
+            date = entry["period"].strftime(period_format)
+            for key, value in entry.items():
+                if key in [
+                    "period",
+                    "alts",
+                ]:
+                    continue
+                if not self.is_corp and key in ["bounty_income"]:
+                    continue
+                value = convert_corp_tax(value)
+                billboard.add_or_update_data_point(
+                    date=date, category=key, value=float(value)
+                )
+
     # pylint: disable=too-many-branches, too-many-locals
     def _process_billboard(
         self, billboard: BillboardSystem, annotations, period_format
-    ):
+    ) -> BillboardSystem:
         """Process the queryset for the billboard."""
+        corp_qs = self.models.corp_journal.annotate(**annotations)
+
+        if self.is_corp:
+            corp_qs = corp_qs.values(
+                "period", "main_entity_id", "main_entity_name"
+            ).annotate(
+                corporation=F("division__corporation__corporation__corporation_name")
+            )
+        else:
+            corp_qs = corp_qs.values("period")
+
         corp_qs = (
-            self.models.corp_journal.annotate(**annotations)
-            .values("period")
-            .annotate_bounty_income()
+            corp_qs.annotate_bounty_income()
             .annotate_ess_income()
             .annotate_miscellaneous()
             .annotate_daily_goal_income()
         )
-
-        if self.is_corp:
-            # TODO make a better way to handle this
-            # Generate Chord Data
-            corp_chord_qs = (
-                self.models.corp_journal.annotate(
-                    corporation=F(
-                        "division__corporation__corporation__corporation_name"
-                    )
-                )
-                .annotate_bounty_income()
-                .annotate_ess_income()
-                .annotate_miscellaneous()
-            )
-            # Max Mains
-            max_chords = []
-            output = []
-            for w in corp_chord_qs:
-                main_char = w.get("main_entity_id", 0)
-                main_char_name = w.get("main_entity_name", "Unknown")
-                if len(max_chords) <= 15:
-                    max_chords.append(main_char)
-                if main_char in max_chords:
-                    bounty = w.get("bounty_income", 0)
-                    ess = w.get("ess_income", 0)
-                    miscellaneous = w.get("miscellaneous", 0)
-                    values = bounty + ess + miscellaneous
-                    if values > 0:
-                        output.append(
-                            {
-                                "from": main_char_name,
-                                "to": w.get("corporation", "Unknown"),
-                                "value": values,
-                                "main": main_char_name,
-                            }
-                        )
-                else:
-                    bounty = w.get("bounty_income", 0)
-                    ess = w.get("ess_income", 0)
-                    miscellaneous = w.get("miscellaneous", 0)
-                    values = bounty + ess + miscellaneous
-                    if values > 0:
-                        output.append(
-                            {
-                                "from": "Others",
-                                "to": w.get("corporation", "Unknown"),
-                                "value": values,
-                                "main": "Others",
-                            }
-                        )
-
-                self.output = {
-                    "title": "Test",
-                    "date": timezone.now().strftime("%Y-%m-%d"),
-                    "categories": ["bounty", "ess", "mining", "miscellaneous"],
-                    "series": output,
-                }
 
         # Get Character Data
         if not self.is_corp:
@@ -320,6 +353,8 @@ class BillboardLedger:
                 .values("period")
                 .annotate_billboard(self.chars)
             )
+
+            # Process Mining Journal
             for entry in char_qs:
                 date = entry["period"].strftime(period_format)
                 for key, value in entry.items():
@@ -327,7 +362,7 @@ class BillboardLedger:
                         billboard.add_or_update_data_point(
                             date=date, category=key, value=float(value)
                         )
-
+            # Process Mining Journal
             for entry in mining_qs:
                 date = entry["period"].strftime(period_format)
                 for key, value in entry.items():
@@ -335,27 +370,10 @@ class BillboardLedger:
                         billboard.add_or_update_data_point(
                             date=date, category="mining", value=float(value)
                         )
-        # Corp Data
-        for entry in corp_qs:
-            date = entry["period"].strftime(period_format)
-            second_party_id = entry.get("main_entity_id", 0)
-            first_party_name = "Voices of War"
-            main_id = entry.get("main_entity_id", 0)
-            data = {
-                "first_party": first_party_name,
-                "second_party": second_party_id,
-                "main_id": main_id,
-            }
-            for key, value in entry.items():
-                if key in ["period", "main_entity_id", "alts"]:
-                    continue
-                if not self.is_corp and key in ["bounty_income"]:
-                    continue
-                if not self.is_corp:
-                    value = convert_corp_tax(value)
-                billboard.add_or_update_data_point(
-                    date=date, category=key, value=float(value), data=data
-                )
+            # Process Corp Journal
+            self._process_char_chart(billboard, corp_qs, period_format)
+        if self.is_corp:
+            self._process_corp_chart(billboard, corp_qs, period_format)
 
         if not billboard.data_points:
             return None
@@ -363,6 +381,7 @@ class BillboardLedger:
         return billboard
 
     def annotate_days(self, period, billboard_dict: _BillboardDict, tick=False):
+        """Generate the Billboard Data."""
         trunctype, period_format = period
         annotations = {"period": trunctype}
         self.tick = tick
@@ -373,15 +392,14 @@ class BillboardLedger:
         if billboard:
             # Create the Chart
             if self.is_corp:
-                # chart = billboard.to_chord_data()
-                chart = self.output
+                chart = billboard.to_chord_data()
             else:
                 chart = billboard.to_chart_data()
                 chart = self._sort_series(chart)
             billboard_dict.charts = chart
 
             # Create the Ratting Bar
-            rattingbar = billboard.to_xy(self.is_corp)
+            rattingbar = billboard.to_xy_data(is_character=self.is_corp)
             billboard_dict.rattingbar = rattingbar
 
             # Create the Gauge
