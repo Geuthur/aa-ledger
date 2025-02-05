@@ -1,5 +1,6 @@
 from unittest.mock import MagicMock, call, patch
 
+from django.core.cache import cache
 from django.test import TestCase
 from django.utils import timezone
 from esi.models import Token
@@ -49,6 +50,8 @@ class TestCharacterPlanetaryHelpers(TestCase):
         ]
 
         cls.planetarydetails = planetary_data
+
+        cache.clear()
 
     @patch(MODULE_PATH + ".get_token")
     @patch(MODULE_PATH + ".CharacterPlanet.objects.filter")
@@ -302,7 +305,7 @@ class TestCharacterPlanetaryDetailsHelpers(TestCase):
     @patch(MODULE_PATH + ".get_token")
     @patch(MODULE_PATH + ".esi")
     @patch(MODULE_PATH + ".etag_results")
-    @patch(MODULE_PATH + ".CharacterPlanetDetails.objects.update_or_create")
+    @patch(MODULE_PATH + ".CharacterPlanetDetails.objects.update_or_create_layout")
     def test_update_character_planetarydetails_exist(
         self,
         mock_update_or_create,
@@ -339,7 +342,7 @@ class TestCharacterPlanetaryDetailsHelpers(TestCase):
     @patch(MODULE_PATH + ".get_token")
     @patch(MODULE_PATH + ".esi")
     @patch(MODULE_PATH + ".etag_results")
-    @patch(MODULE_PATH + ".CharacterPlanetDetails.objects.update_or_create")
+    @patch(MODULE_PATH + ".CharacterPlanetDetails.objects.update_or_create_layout")
     def test_update_character_planetarydetails_new_details(
         self,
         mock_update_or_create,
@@ -395,7 +398,7 @@ class TestCharacterPlanetaryDetailsHelpers(TestCase):
     @patch(MODULE_PATH + ".get_token")
     @patch(MODULE_PATH + ".esi")
     @patch(MODULE_PATH + ".etag_results")
-    @patch(MODULE_PATH + ".CharacterPlanetDetails.objects.update_or_create")
+    @patch(MODULE_PATH + ".CharacterPlanetDetails.objects.update_or_create_layout")
     @patch(MODULE_PATH + ".logger")
     def test_update_character_planetarydetails_expired_no_alert(
         self,
@@ -439,7 +442,7 @@ class TestCharacterPlanetaryDetailsHelpers(TestCase):
     @patch(MODULE_PATH + ".get_token")
     @patch(MODULE_PATH + ".esi")
     @patch(MODULE_PATH + ".etag_results")
-    @patch(MODULE_PATH + ".CharacterPlanetDetails.objects.update_or_create")
+    @patch(MODULE_PATH + ".CharacterPlanetDetails.objects.update_or_create_layout")
     @patch(MODULE_PATH + ".logger")
     def test_update_character_planetarydetails_alert_reset(
         self,

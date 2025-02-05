@@ -1,0 +1,86 @@
+{% load i18n %}
+{% load humanize %}
+{% load static %}
+<!-- Style -->
+<style>
+    @media (min-width: 768px) {
+        .dl-horizontal dt {
+            float: left;
+            width: 140px;
+            clear: left;
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 8px;
+        }
+        .dl-horizontal dd {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+</style>
+
+<div class="card d-none" id="lookup">
+    <div class="card-header bg-primary text-center" id="title"><h3>{% trans "Overview" %}</h3></div>
+    <div class="card-body d-flex">
+        <!-- Bildbereich -->
+        <div class="text-center" id="portrait">
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Main Info -->
+                <div class="col-md-8 w-auto" id="info-panel">
+                    <dl class="dl-horizontal">
+                        <dt>{% trans "Charakter" %}:</dt>
+                        <dd class="nowrap" id="character_name"></dd>
+                    </dl>
+
+                    <dl class="dl-horizontal">
+                        <dt>{% trans "Detailed Sheet" %}:</dt>
+                        <dd class="nowrap" id="get_template"></dd>
+                    </dl>
+                </div>
+                <!-- Costs Info -->
+                <div class="col-md-8 w-auto" id="info-amounts-panel">
+
+                    <dl class="dl-horizontal">
+                        <dt>{% trans "Ratting" %}:</dt>
+                        <dd class="nowrap" id="amount_ratting"></dd>
+                    </dl>
+
+                    <dl class="dl-horizontal">
+                        <dt>{% trans "ESS Payout" %}:</dt>
+                        <dd class="nowrap" id="amount_ess"></dd>
+                    </dl>
+
+                    <dl class="dl-horizontal">
+                        <dt>{% trans "Mining" %}:</dt>
+                        <dd class="nowrap" id="amount_mining"></dd>
+                    </dl>
+
+                    <dl class="dl-horizontal">
+                        <dt>{% trans "Misc" %}:</dt>
+                        <dd class="nowrap" id="amount_misc"></dd>
+                    </dl>
+
+                    <dl class="dl-horizontal">
+                        <dt>{% trans "Costs" %}:</dt>
+                        <dd class="nowrap" id="amount_costs"></dd>
+                    </dl>
+
+                    <dl class="dl-horizontal">
+                        <dt>{% trans "Summary" %}:</dt>
+                        <dd class="nowrap" id="amount_summary"></dd>
+                    </dl>
+                </div>
+                <!-- Additional Costs Info -->
+                <div class="col-md-8 w-auto text-end" id="info-additional-panel">
+                    <dl class="dl-horizontal">
+                        <dt></dt>
+                        <dd class="nowrap" id="planetary_interaction"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

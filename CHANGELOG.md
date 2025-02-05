@@ -1,5 +1,68 @@
 # Changelog
 
+## [0.7.1] - 2025-02-04
+
+### Added
+
+- Planetary Manager
+- Planetary Facility Overview
+- Corporation Ledger
+  - Industry Taxes
+- `daily_goal_reward` Ref-Type to Char Ledger
+- `annotate_billboard` for Corporation Ledger
+- Python 3.13 Support
+- SRI integrity
+- Cache Busting by [@ppfeufer](https://github.com/ppfeufer)
+- AmChart5 JS
+  - Corporation Ledger show now Activitys to each Corporation
+  - Ratting Chart can now be zoom'd
+  - Daily Chart
+
+### Removed
+
+- MemberAudit Support - `Char Link` is the new Linking System
+- Billboard JS
+
+### Changed
+
+- Optimized API Endpoints
+- Renamed CharLink Hook Names
+- Moved Corp Project Ref Type to Milestone Reward cause it not seems to be Corp Projects
+- Create Missing Character changed to Create Missing Entity
+- JS Portrait Handler
+- JS Optimation Ledger
+- Renamed `annotate_ledger` to `generate_ledger`
+- Refactor `generate_ledger` queryfilter
+- Refactor `generate_template` queryfilter
+- Refactor Character Helper
+- Corporation Billboard now use `annotate_billboard` from Corp Journal
+- Template Helper use Standardized `generate_ledger` Queryset
+- Standardized Ledger Backend Process
+- All Amounts are Decimal now
+- Dependencies updated
+  - AA 4.6.1
+- Minimum Requirments
+  - AA 4.6.0
+- Use `django-sri` for sri hash
+- Refactor Chart System
+- API Endpoint addressing
+- MiningMiningLedger - `DateField` to `DateTimeField`
+- Refactor Planetary Interaction System
+- Refactor Modal System
+
+### Fixed
+
+- A Case that a Character become Income if he accept a Contract with Corp
+- Long loading times on Corporation Ledger & Character Ledger
+- Billboard doesn't work in different languages
+- Float Error instead of Decimal in Ledger
+- Corp Tax Event Filter filtered all instead of ESS only
+- Billboard member to member contracts transactions are calculated wrong
+- Corp Ledger Unknown entities are not displayed
+- No decimal Rounding in Ledger View
+- Modal Loading Animation
+- Modal Error Handler
+
 ## [0.6.6] - 2024-11-16
 
 ### Added

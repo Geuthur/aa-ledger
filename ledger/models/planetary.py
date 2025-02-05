@@ -4,18 +4,26 @@ Planetary Model
 
 from django.db import models
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 from eveuniverse.models import EvePlanet, EveType
 
+from ledger.constants import EXTRACTOR_CONTROL_UNIT, P0_PRODUCTS, SPACEPORTS
 from ledger.hooks import get_extension_logger
+from ledger.managers.planetary_manager import PlanetaryManager
 from ledger.models.characteraudit import CharacterAudit
 
 logger = get_extension_logger(__name__)
 
 
 class CharacterPlanet(models.Model):
-
     id = models.AutoField(primary_key=True)
+
+    planet_name = models.CharField(max_length=100, null=True, default=None)
+
+    planet = models.ForeignKey(
+        EvePlanet, on_delete=models.CASCADE, related_name="ledger_planet"
+    )
 
     character = models.ForeignKey(
         CharacterAudit, on_delete=models.CASCADE, related_name="ledger_characterplanet"
@@ -29,13 +37,9 @@ class CharacterPlanet(models.Model):
         default=0, help_text=_("Number of pins on the planet")
     )
 
-    planet = models.ForeignKey(
-        EvePlanet, on_delete=models.CASCADE, related_name="ledger_planet"
-    )
-
     last_update = models.DateTimeField(null=True, default=None, blank=True)
 
-    # objects = AuditCharacterManager()
+    # objects = PlanetaryManager()
 
     class Meta:
         default_permissions = ()
@@ -67,6 +71,7 @@ class CharacterPlanetDetails(models.Model):
     links = models.JSONField(null=True, default=None, blank=True)
     pins = models.JSONField(null=True, default=None, blank=True)
     routes = models.JSONField(null=True, default=None, blank=True)
+    facilitys = models.JSONField(null=True, default=None, blank=True)
 
     last_update = models.DateTimeField(null=True, default=None, blank=True)
     last_alert = models.DateTimeField(null=True, default=None, blank=True)
@@ -74,7 +79,7 @@ class CharacterPlanetDetails(models.Model):
     notification = models.BooleanField(default=False)
     notification_sent = models.BooleanField(default=False)
 
-    # objects = AuditCharacterManager()
+    objects = PlanetaryManager()
 
     class Meta:
         default_permissions = ()
@@ -86,7 +91,9 @@ class CharacterPlanetDetails(models.Model):
         return f"Planet Details Data: {self.planet.character.character.character_name} - {self.planet.planet.name}"
 
     def count_extractors(self):
-        return len([pin for pin in self.pins if pin.get("type_id") == 3060])
+        return len(
+            [pin for pin in self.pins if pin.get("type_id") in EXTRACTOR_CONTROL_UNIT]
+        )
 
     def get_planet_install_date(self):
         install_times = [
@@ -114,12 +121,6 @@ class CharacterPlanetDetails(models.Model):
             return alert
         return None
 
-    def is_expired(self):
-        expiry_date = self.get_planet_expiry_date()
-        if expiry_date is None:
-            return False
-        return expiry_date < timezone.now()
-
     def get_types(self) -> list:
         """Get the product types of the routes on the planet"""
         types = []
@@ -129,10 +130,25 @@ class CharacterPlanetDetails(models.Model):
         return types
 
     def allocate_products(self) -> dict:
+        """Get the product types on the planet"""
         product_types = {}
         for c_type_id in self.routes:
             type_id = c_type_id.get("content_type_id")
-            if type_id and type_id not in product_types:
+            if type_id not in P0_PRODUCTS and type_id not in product_types:
+                type_data, _ = EveType.objects.get_or_create_esi(id=type_id)
+                product_types[type_id] = {
+                    "id": type_id,
+                    "name": type_data.name,
+                    "category": type_data.eve_group.name,
+                }
+        return product_types
+
+    def allocate_extracts(self) -> dict:
+        """Get the extractor raw product types on the planet"""
+        product_types = {}
+        for c_type_id in self.routes:
+            type_id = c_type_id.get("content_type_id")
+            if type_id in P0_PRODUCTS and type_id not in product_types:
                 type_data, _ = EveType.objects.get_or_create_esi(id=type_id)
                 product_types[type_id] = {
                     "id": type_id,
@@ -143,25 +159,44 @@ class CharacterPlanetDetails(models.Model):
 
     def get_extractors_info(self) -> dict:
         extractors = {}
+        current_time = timezone.now().timestamp()
+
         for pin in self.pins:
             extractor_details = pin.get("extractor_details")
             if extractor_details and "cycle_time" in extractor_details:
                 type_id = extractor_details.get("product_type_id")
                 type_data, _ = EveType.objects.get_or_create_esi(id=type_id)
+
+                install_time_str = pin.get("install_time")
+                expiry_time_str = pin.get("expiry_time")
+
+                install_time = parse_datetime(install_time_str).timestamp()
+                expiry_time = parse_datetime(expiry_time_str).timestamp()
+
+                # Calculate progress percentage (0-100)
+                if current_time >= expiry_time:
+                    progress_percentage = 100.0
+                else:
+                    progress_percentage = round(
+                        ((current_time - install_time) / (expiry_time - install_time))
+                        * 100,
+                        2,
+                    )
+
                 extractors[pin.get("pin_id")] = {
-                    "install_time": pin.get("install_time"),
-                    "expiry_time": pin.get("expiry_time"),
-                    "product_type_id": type_id,
-                    "product_name": type_data.name,
+                    "install_time": install_time_str,
+                    "expiry_time": expiry_time_str,
+                    "item_id": type_id,
+                    "item_name": type_data.name,
+                    "progress_percentage": progress_percentage,
                 }
         return extractors
 
     def get_storage_info(self) -> dict:
         storage = {}
-        valid_type_ids = [2256, 2542, 2543, 2544, 2552, 2555, 2556, 2557]
         for pin in self.pins:
-            if pin.get("type_id") in valid_type_ids:
-                type_id = pin.get("type_id")
+            type_id = pin.get("type_id")
+            if type_id in SPACEPORTS:
                 type_data, _ = EveType.objects.get_or_create_esi(id=type_id)
                 contents_info = []
                 for content in pin.get("contents", []):
@@ -177,8 +212,15 @@ class CharacterPlanetDetails(models.Model):
                         }
                     )
                 storage[pin.get("pin_id")] = {
-                    "product_type_id": type_id,
-                    "product_name": type_data.name,
+                    "facility_id": type_id,
+                    "facility_name": type_data.name,
                     "contents": contents_info,
                 }
         return storage
+
+    @property
+    def is_expired(self):
+        expiry_date = self.get_planet_expiry_date()
+        if expiry_date is None:
+            return False
+        return expiry_date < timezone.now()

@@ -35,6 +35,7 @@ class CharAuditTest(TestCase):
         self.client.force_login(self.user)
         token = Mock(spec=Token)
         token.character_id = self.character_ownership.character.character_id
+        token.character_name = self.character_ownership.character.character_name
         request = self.factory.get(reverse("ledger:ledger_add_char"))
         request.user = self.user
         request.token = token

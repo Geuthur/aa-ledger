@@ -2,22 +2,9 @@ noData = [
     {
         "billboard": {
             "standard": {
-                "walletcharts": [],
                 "charts": None,
                 "rattingbar": None,
-                "workflowgauge": [],
-            },
-            "weekly": {
-                "walletcharts": [],
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
-            },
-            "hourly": {
-                "walletcharts": [],
-                "charts": [],
-                "rattingbar": [],
-                "workflowgauge": [],
+                "workflowgauge": None,
             },
         },
     }
@@ -26,7 +13,6 @@ noData = [
 CorpmonthlyMarch = [
     {
         "billboard": {
-            "walletcharts": [],
             "charts": [
                 ["Gneuten", "100"],
             ],
@@ -79,7 +65,7 @@ CorpmonthlyMarch = [
                 ["Miscellaneous"],
                 ["Mining"],
             ],
-            "workflowgauge": [],
+            "workflowgauge": None,
         },
     }
 ]
@@ -88,7 +74,6 @@ CorpmonthlyMarch = [
 Corpyearly = [
     {
         "billboard": {
-            "walletcharts": [],
             "charts": [
                 ["Gneuten", "100"],
             ],
@@ -141,7 +126,7 @@ Corpyearly = [
                 ["Miscellaneous"],
                 ["Mining"],
             ],
-            "workflowgauge": [],
+            "workflowgauge": None,
         },
     }
 ]
@@ -149,7 +134,6 @@ Corpyearly = [
 Corpdatamany = [
     {
         "billboard": {
-            "walletcharts": [],
             "charts": [
                 ["Gneuten", "14.28571428571428571428571429"],
                 ["Test1", "7.142857142857142857142857143"],
@@ -269,7 +253,7 @@ Corpdatamany = [
                 ["Miscellaneous"],
                 ["Mining"],
             ],
-            "workflowgauge": [],
+            "workflowgauge": None,
         },
     }
 ]

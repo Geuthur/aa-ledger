@@ -4,49 +4,41 @@
 {% load evelinks %}
 {% load ledger %}
 
-<div class="modal-content">
-    <button type="button" class="btn-close py-3 px-3" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true"></button>
-    <div class="modal-header">
-        <h4 class="modal-title" id="modalTitle"><img src="{{ character.main_id|character_portrait_url:32 }}" class="img-circle" alt="{{ data.main_name }}"> {{character.main_name}} - {{character.date}}</h4>
+{% if character %}
+    <div>
+        <h4 id="modal-title">
+            <img src="{{ character.main_id|character_portrait_url:32 }}" class="rounded-circle" alt="{{ data.main_name }}">
+            {{character.main_name}} - {{character.date}}
+        </h4>
     </div>
-    <div class="card-body">
-        <div class="row description-row">
-            <h4 id="character-title"></h4>
+    <div>
+        <ul class="nav nav-tabs" id="ledger-character-info" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link bg-secondary active" href="#tab-summary" data-bs-toggle="tab" role="tab" data-bs-target="#tab-summary">{% trans "Summary" %}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link bg-secondary" href="#tab-daily" data-bs-toggle="tab" role="tab" data-bs-target="#tab-daily">{% trans "Daily" %}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link bg-secondary" href="#tab-hourly" data-bs-toggle="tab" role="tab" data-bs-target="#tab-hourly">{% trans "Hourly" %}</a>
+            </li>
+        </ul>
+        <div class="card-body bg-secondary rounded-bottom tab-content px-2 mb-3">
+            {% include "ledger/modals/information/summary.html" with character=character %}
+            {% include "ledger/modals/information/daily.html" with character=character %}
+            {% include "ledger/modals/information/hourly.html" with character=character %}
         </div>
-        {% if character %}
-        <div>
-            <ul class="nav nav-tabs" id="ledger-character-info" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link bg-secondary active" href="#tab-summary" data-bs-toggle="tab" role="tab" data-bs-target="#tab-summary">{% trans "Summary" %}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link bg-secondary" href="#tab-daily" data-bs-toggle="tab" role="tab" data-bs-target="#tab-daily">{% trans "Daily" %}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link bg-secondary" href="#tab-hourly" data-bs-toggle="tab" role="tab" data-bs-target="#tab-hourly">{% trans "Hourly" %}</a>
-                </li>
-            </ul>
-            <div class="card-body bg-secondary rounded-bottom tab-content px-2 mb-3">
-                {% include "ledger/modals/information/summary.html" with character=character %}
-                {% include "ledger/modals/information/daily.html" with character=character %}
-                {% include "ledger/modals/information/hourly.html" with character=character %}
-            </div>
-            <div class="mb-1">
-                <span class="btn btn-sm btn-info btn-square fas fa-info"></span>
-                <span> {% trans "Orange Color is for Info only and is not included in the Calculation" %}.</span>
-            </div>
-            {% if mode == "TAX" %}
-            <div class="">
-                <span class="btn btn-sm btn-info btn-square fas fa-info"></span>
-                <span> {% trans "All amounts shown are taxes collected from characters" %}.</span>
-            </div>
-            {% endif %}
+        <div class="mb-1">
+            <span class="btn btn-primary btn-sm btn-square fas fa-info"></span>
+            <span> {% trans "Orange Color is for Info only and is not included in the Calculation" %}.</span>
         </div>
-        {% else %}
-            {% trans "No ratting data found..." %}
+        {% if mode == "TAX" %}
+        <div class="">
+            <span class="btn btn-primary btn-sm btn-square fas fa-info"></span>
+            <span> {% trans "All amounts shown are taxes collected from characters" %}.</span>
+        </div>
         {% endif %}
     </div>
-
-    <div class="modal-footer">
-    </div>
-</div>
+{% else %}
+    {% trans "No ratting data found..." %}
+{% endif %}

@@ -96,6 +96,11 @@
             "category": "character"
         },
         {
+            "eve_id": 1022,
+            "name": "Test13",
+            "category": "character"
+        },
+        {
             "eve_id": 2001,
             "name": "Hell RiderZ",
             "category": "corporation"

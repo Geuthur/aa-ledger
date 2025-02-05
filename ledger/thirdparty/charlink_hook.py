@@ -20,7 +20,10 @@ _corp_perms = [
 # pylint: disable=unused-argument, duplicate-code
 def _add_character_charaudit(request, token):
     CharacterAudit.objects.update_or_create(
-        character=EveCharacter.objects.get_character_by_id(token.character_id)
+        character=EveCharacter.objects.get_character_by_id(token.character_id),
+        defaults={
+            "character_name": token.character_name,
+        },
     )
     update_character.apply_async(
         args=[token.character_id], kwargs={"force_refresh": True}, priority=6
@@ -38,7 +41,12 @@ def _add_character_corp(request, token):
             "corporation_name": char.corporation_name,
         },
     )
-    CorporationAudit.objects.update_or_create(corporation=corp)
+    CorporationAudit.objects.update_or_create(
+        corporation=corp,
+        defaults={
+            "corporation_name": corp.corporation_name,
+        },
+    )
     update_corp.apply_async(
         args=[char.corporation_id], kwargs={"force_refresh": True}, priority=6
     )
@@ -90,7 +98,7 @@ app_import = AppImport(
         LoginImport(
             app_label="ledger",
             unique_id="default",
-            field_label=LEDGER_APP_NAME + " - " + trans("Character Ledger"),
+            field_label=LEDGER_APP_NAME + " - " + trans("Character") + " Login",
             add_character=_add_character_charaudit,
             scopes=CharacterAudit.get_esi_scopes(),
             check_permissions=lambda user: user.has_perm("ledger.basic_access"),
@@ -103,7 +111,7 @@ app_import = AppImport(
         LoginImport(
             app_label="ledger",
             unique_id="corpaudit",
-            field_label=LEDGER_APP_NAME + " - " + trans("Corporation Ledger"),
+            field_label=LEDGER_APP_NAME + " - " + trans("Corporation") + " Login",
             add_character=_add_character_corp,
             scopes=CorporationAudit.get_esi_scopes(),
             check_permissions=_check_perms_corp,

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-04 13:24+0100\n"
+"POT-Creation-Date: 2025-02-05 18:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,503 +20,383 @@ msgstr ""
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: models/events.py:22
+#: ledger/models/events.py:22
 msgid "event"
 msgstr ""
 
-#: models/events.py:23
+#: ledger/models/events.py:23
 msgid "events"
 msgstr ""
 
-#: models/general.py:54
+#: ledger/models/general.py:54
 msgid "id"
 msgstr ""
 
-#: models/general.py:57
+#: ledger/models/general.py:57
 msgid "category"
 msgstr ""
 
-#: models/general.py:59
+#: ledger/models/general.py:59
 msgid "name"
 msgstr ""
 
-#: models/planetary.py:25
+#: ledger/models/planetary.py:33
 msgid "Upgrade level of the planet"
 msgstr ""
 
-#: models/planetary.py:29
+#: ledger/models/planetary.py:37
 msgid "Number of pins on the planet"
 msgstr ""
 
-#: tasks.py:199
+#: ledger/tasks.py:152
 #, python-format
 msgid "%(charname)s on %(planetname)s"
 msgstr ""
 
-#: tasks.py:214 tests/test_tasks.py:359 tests/test_tasks.py:396
-#: tests/test_tasks.py:465 tests/test_tasks.py:602
+#: ledger/tasks.py:167 ledger/tests/test_tasks.py:336
+#: ledger/tests/test_tasks.py:373 ledger/tests/test_tasks.py:442
+#: ledger/tests/test_tasks.py:579
 msgid "Planetary Extractor Heads Expired"
 msgstr ""
 
-#: templates/ledger/allyledger/admin/alliance_admin.html:9
+#: ledger/templates/ledger/allyledger/admin/alliance_admin.html:9
 msgid "Ledger Alliance Overview"
 msgstr ""
 
-#: templates/ledger/allyledger/admin/alliance_admin.html:18
-#: templates/ledger/charledger/admin/character_admin.html:19
-#: templates/ledger/corpledger/admin/corporation_admin.html:18
-#: templates/ledger/events/manage_events.html:24
-#: templates/ledger/planetary/admin/character_admin.html:19
-#: templates/ledger/planetary/partials/table.html:13
+#: ledger/templates/ledger/allyledger/admin/alliance_admin.html:18
+#: ledger/templates/ledger/charledger/admin/character_admin.html:19
+#: ledger/templates/ledger/corpledger/admin/corporation_admin.html:18
+#: ledger/templates/ledger/events/manage_events.html:24
+#: ledger/templates/ledger/planetary/admin/character_admin.html:19
+#: ledger/templates/ledger/planetary/partials/table.html:13
 msgid "Actions"
 msgstr ""
 
-#: templates/ledger/allyledger/admin/alliance_admin.html:64
-#: templates/ledger/charledger/admin/character_admin.html:67
-#: templates/ledger/corpledger/admin/corporation_admin.html:64
-#: templates/ledger/planetary/admin/character_admin.html:67
+#: ledger/templates/ledger/allyledger/admin/alliance_admin.html:64
+#: ledger/templates/ledger/charledger/admin/character_admin.html:67
+#: ledger/templates/ledger/corpledger/admin/corporation_admin.html:64
+#: ledger/templates/ledger/planetary/admin/character_admin.html:67
 msgid "Show"
 msgstr ""
 
-#: templates/ledger/allyledger/admin/alliance_admin.html:83
-#: templates/ledger/charledger/admin/character_admin.html:86
-#: templates/ledger/corpledger/admin/corporation_admin.html:83
-#: templates/ledger/planetary/admin/character_admin.html:86
+#: ledger/templates/ledger/allyledger/admin/alliance_admin.html:83
+#: ledger/templates/ledger/charledger/admin/character_admin.html:86
+#: ledger/templates/ledger/corpledger/admin/corporation_admin.html:83
+#: ledger/templates/ledger/planetary/admin/character_admin.html:86
 msgid "No Permission"
 msgstr ""
 
-#: templates/ledger/allyledger/alliance_ledger.html:8
-#: templates/ledger/allyledger/alliance_ledger.html:24
-#: templates/ledger/partials/menu/ally/navigation.html:15
-#: templates/ledger/partials/menu/corp/navigation.html:14
-#: templates/ledger/partials/menu/navigation.html:14
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:8
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:24
+#: ledger/templates/ledger/partials/menu/ally/navigation.html:15
+#: ledger/templates/ledger/partials/menu/corp/navigation.html:14
+#: ledger/templates/ledger/partials/menu/navigation.html:14
 msgid "Alliance Ledger"
 msgstr ""
 
-#: templates/ledger/allyledger/alliance_ledger.html:27
-#: templates/ledger/charledger/character_ledger.html:27
-#: templates/ledger/charledger/character_ledger.html:66
-#: templates/ledger/corpledger/corporation_ledger.html:27
-#: templates/ledger/corpledger/corporation_ledger.html:66
-msgid "Year"
-msgstr ""
-
-#: templates/ledger/allyledger/alliance_ledger.html:37
-#: templates/ledger/charledger/character_ledger.html:37
-#: templates/ledger/charledger/character_ledger.html:61
-#: templates/ledger/charledger/month.html:27
-#: templates/ledger/corpledger/corporation_ledger.html:37
-#: templates/ledger/corpledger/corporation_ledger.html:61
-msgid "Month"
-msgstr ""
-
-#: templates/ledger/allyledger/alliance_ledger.html:40
-#: templates/ledger/charledger/character_ledger.html:40
-#: templates/ledger/corpledger/corporation_ledger.html:40
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:40
+#: ledger/templates/ledger/bundles/ledger-js.html:38
+#: ledger/templates/ledger/charledger/character_ledger.html:40
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:40
 msgid "January"
 msgstr ""
 
-#: templates/ledger/allyledger/alliance_ledger.html:41
-#: templates/ledger/charledger/character_ledger.html:41
-#: templates/ledger/corpledger/corporation_ledger.html:41
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:41
+#: ledger/templates/ledger/bundles/ledger-js.html:38
+#: ledger/templates/ledger/charledger/character_ledger.html:41
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:41
 msgid "February"
 msgstr ""
 
-#: templates/ledger/allyledger/alliance_ledger.html:42
-#: templates/ledger/charledger/character_ledger.html:42
-#: templates/ledger/corpledger/corporation_ledger.html:42
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:42
+#: ledger/templates/ledger/bundles/ledger-js.html:38
+#: ledger/templates/ledger/charledger/character_ledger.html:42
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:42
 msgid "March"
 msgstr ""
 
-#: templates/ledger/allyledger/alliance_ledger.html:43
-#: templates/ledger/charledger/character_ledger.html:43
-#: templates/ledger/corpledger/corporation_ledger.html:43
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:43
+#: ledger/templates/ledger/bundles/ledger-js.html:38
+#: ledger/templates/ledger/charledger/character_ledger.html:43
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:43
 msgid "April"
 msgstr ""
 
-#: templates/ledger/allyledger/alliance_ledger.html:44
-#: templates/ledger/charledger/character_ledger.html:44
-#: templates/ledger/corpledger/corporation_ledger.html:44
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:44
+#: ledger/templates/ledger/bundles/ledger-js.html:39
+#: ledger/templates/ledger/charledger/character_ledger.html:44
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:44
 msgid "May"
 msgstr ""
 
-#: templates/ledger/allyledger/alliance_ledger.html:45
-#: templates/ledger/charledger/character_ledger.html:45
-#: templates/ledger/corpledger/corporation_ledger.html:45
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:45
+#: ledger/templates/ledger/bundles/ledger-js.html:39
+#: ledger/templates/ledger/charledger/character_ledger.html:45
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:45
 msgid "June"
 msgstr ""
 
-#: templates/ledger/allyledger/alliance_ledger.html:46
-#: templates/ledger/charledger/character_ledger.html:46
-#: templates/ledger/corpledger/corporation_ledger.html:46
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:46
+#: ledger/templates/ledger/bundles/ledger-js.html:39
+#: ledger/templates/ledger/charledger/character_ledger.html:46
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:46
 msgid "July"
 msgstr ""
 
-#: templates/ledger/allyledger/alliance_ledger.html:47
-#: templates/ledger/charledger/character_ledger.html:47
-#: templates/ledger/corpledger/corporation_ledger.html:47
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:47
+#: ledger/templates/ledger/bundles/ledger-js.html:39
+#: ledger/templates/ledger/charledger/character_ledger.html:47
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:47
 msgid "August"
 msgstr ""
 
-#: templates/ledger/allyledger/alliance_ledger.html:48
-#: templates/ledger/charledger/character_ledger.html:48
-#: templates/ledger/corpledger/corporation_ledger.html:48
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:48
+#: ledger/templates/ledger/bundles/ledger-js.html:40
+#: ledger/templates/ledger/charledger/character_ledger.html:48
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:48
 msgid "September"
 msgstr ""
 
-#: templates/ledger/allyledger/alliance_ledger.html:49
-#: templates/ledger/charledger/character_ledger.html:49
-#: templates/ledger/corpledger/corporation_ledger.html:49
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:49
+#: ledger/templates/ledger/bundles/ledger-js.html:40
+#: ledger/templates/ledger/charledger/character_ledger.html:49
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:49
 msgid "October"
 msgstr ""
 
-#: templates/ledger/allyledger/alliance_ledger.html:50
-#: templates/ledger/charledger/character_ledger.html:50
-#: templates/ledger/corpledger/corporation_ledger.html:50
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:50
+#: ledger/templates/ledger/bundles/ledger-js.html:40
+#: ledger/templates/ledger/charledger/character_ledger.html:50
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:50
 msgid "November"
 msgstr ""
 
-#: templates/ledger/allyledger/alliance_ledger.html:51
-#: templates/ledger/charledger/character_ledger.html:51
-#: templates/ledger/corpledger/corporation_ledger.html:51
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:51
+#: ledger/templates/ledger/bundles/ledger-js.html:40
+#: ledger/templates/ledger/charledger/character_ledger.html:51
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:51
 msgid "December"
 msgstr ""
 
-#: templates/ledger/allyledger/alliance_ledger.html:55
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:56
+#: ledger/templates/ledger/bundles/ledger-js.html:42
+#: ledger/templates/ledger/charledger/character_ledger.html:56
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:56
+#: ledger/templates/ledger/view.html:37
+msgid "Day"
+msgstr ""
+
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:63
 msgid "Alliance Overview"
 msgstr ""
 
-#: templates/ledger/allyledger/month.html:20
-#: templates/ledger/allyledger/year.html:20
-#: templates/ledger/corpledger/month.html:20
-#: templates/ledger/corpledger/year.html:20
-msgid "Ratting Chart"
+#: ledger/templates/ledger/bundles/ledger-js.html:43
+#: ledger/templates/ledger/view.html:36
+msgid "Month"
 msgstr ""
 
-#: templates/ledger/allyledger/month.html:31
-#: templates/ledger/corpledger/month.html:31
-msgid "Ratting 30 Days"
-msgstr ""
-
-#: templates/ledger/allyledger/year.html:31
-#: templates/ledger/corpledger/year.html:31
-msgid "Ratting Year"
-msgstr ""
-
-#: templates/ledger/charledger/admin/character_admin.html:9
+#: ledger/templates/ledger/charledger/admin/character_admin.html:9
 msgid "Ledger Character Overview"
 msgstr ""
 
-#: templates/ledger/charledger/character_ledger.html:8
-#: templates/ledger/charledger/character_ledger.html:24
-#: templates/ledger/partials/menu/ally/navigation.html:6
-#: templates/ledger/partials/menu/char/navigation.html:5
-#: templates/ledger/partials/menu/corp/navigation.html:5
-#: templates/ledger/partials/menu/navigation.html:5
+#: ledger/templates/ledger/charledger/character_ledger.html:8
+#: ledger/templates/ledger/charledger/character_ledger.html:24
+#: ledger/templates/ledger/partials/menu/ally/navigation.html:6
+#: ledger/templates/ledger/partials/menu/char/navigation.html:5
+#: ledger/templates/ledger/partials/menu/corp/navigation.html:5
+#: ledger/templates/ledger/partials/menu/navigation.html:5
 msgid "Character Ledger"
 msgstr ""
 
-#: templates/ledger/charledger/character_ledger.html:55
+#: ledger/templates/ledger/charledger/character_ledger.html:63
 msgid "Character Overview"
 msgstr ""
 
-#: templates/ledger/charledger/character_ledger.html:118
-#: templates/ledger/charledger/partials/card.html:24
+#: ledger/templates/ledger/charledger/character_ledger.html:93
+#: ledger/templates/ledger/partials/view/card.html:24
 msgid "Overview"
 msgstr ""
 
-#: templates/ledger/charledger/character_ledger.html:119
+#: ledger/templates/ledger/charledger/character_ledger.html:94
 msgid "Show Planetary Interaction"
 msgstr ""
 
-#: templates/ledger/charledger/month.html:21
-msgid "Days"
-msgstr ""
-
-#: templates/ledger/charledger/month.html:24
-msgid "Mode"
-msgstr ""
-
-#: templates/ledger/charledger/month.html:28
-#: templates/ledger/modals/information/view_character_content.html:26
-msgid "Hourly"
-msgstr ""
-
-#: templates/ledger/charledger/month.html:38
-msgid "Wallet"
-msgstr ""
-
-#: templates/ledger/charledger/month.html:46
-msgid "Workflow"
-msgstr ""
-
-#: templates/ledger/charledger/partials/card.html:34
-msgid "Charakter"
-msgstr ""
-
-#: templates/ledger/charledger/partials/card.html:39
-msgid "Detailed Sheet"
-msgstr ""
-
-#: templates/ledger/charledger/partials/card.html:47
-#: templates/ledger/modals/information/daily.html:14
-#: templates/ledger/modals/information/daily.html:18
-#: templates/ledger/modals/information/day.html:10
-#: templates/ledger/modals/information/day.html:17
-#: templates/ledger/modals/information/day.html:22
-#: templates/ledger/modals/information/hourly.html:10
-#: templates/ledger/modals/information/hourly.html:18
-#: templates/ledger/modals/information/hourly.html:25
-#: templates/ledger/modals/information/summary.html:10
-#: templates/ledger/modals/information/summary.html:18
-msgid "Ratting"
-msgstr ""
-
-#: templates/ledger/charledger/partials/card.html:52
-#: templates/ledger/charledger/partials/table.html:8
-#: templates/ledger/corpledger/partials/table.html:9
-msgid "ESS Payout"
-msgstr ""
-
-#: templates/ledger/charledger/partials/card.html:57
-#: templates/ledger/modals/information/daily.html:46
-#: templates/ledger/modals/information/day.html:50
-#: templates/ledger/modals/information/hourly.html:53
-#: templates/ledger/modals/information/summary.html:48
-msgid "Mining"
-msgstr ""
-
-#: templates/ledger/charledger/partials/card.html:62
-msgid "Misc"
-msgstr ""
-
-#: templates/ledger/charledger/partials/card.html:67
-#: templates/ledger/charledger/partials/table.html:11
-msgid "Costs"
-msgstr ""
-
-#: templates/ledger/charledger/partials/card.html:72
-#: templates/ledger/charledger/partials/table.html:20
-#: templates/ledger/corpledger/partials/table.html:19
-#: templates/ledger/modals/information/day.html:179
-#: templates/ledger/modals/information/summary.html:190
-#: templates/ledger/modals/information/view_character_content.html:20
-msgid "Summary"
-msgstr ""
-
-#: templates/ledger/charledger/partials/table.html:6
-#: templates/ledger/corpledger/partials/table.html:7
-msgid "Main Character"
-msgstr ""
-
-#: templates/ledger/charledger/partials/table.html:7
-msgid "Ratting Amount"
-msgstr ""
-
-#: templates/ledger/charledger/partials/table.html:9
-msgid "Mining Amount"
-msgstr ""
-
-#: templates/ledger/charledger/partials/table.html:10
-#: templates/ledger/corpledger/partials/table.html:10
-msgid "Misc. Amount"
-msgstr ""
-
-#: templates/ledger/charledger/partials/table.html:29
-#: templates/ledger/corpledger/partials/table.html:26
-msgid "Total"
-msgstr ""
-
-#: templates/ledger/charledger/year.html:21
-msgid "Ledger Year"
-msgstr ""
-
-#: templates/ledger/charledger/year.html:29
-msgid "Wallet Year"
-msgstr ""
-
-#: templates/ledger/charledger/year.html:37
-msgid "Workflow Year"
-msgstr ""
-
-#: templates/ledger/corpledger/admin/corporation_admin.html:9
+#: ledger/templates/ledger/corpledger/admin/corporation_admin.html:9
 msgid "Ledger Corporation Overview"
 msgstr ""
 
-#: templates/ledger/corpledger/corporation_ledger.html:8
-#: templates/ledger/corpledger/corporation_ledger.html:24
-#: templates/ledger/partials/menu/ally/navigation.html:11
-#: templates/ledger/partials/menu/char/navigation.html:10
-#: templates/ledger/partials/menu/corp/navigation.html:10
-#: templates/ledger/partials/menu/navigation.html:10
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:8
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:24
+#: ledger/templates/ledger/partials/menu/ally/navigation.html:11
+#: ledger/templates/ledger/partials/menu/char/navigation.html:10
+#: ledger/templates/ledger/partials/menu/corp/navigation.html:10
+#: ledger/templates/ledger/partials/menu/navigation.html:10
 msgid "Corporation Ledger"
 msgstr ""
 
-#: templates/ledger/corpledger/corporation_ledger.html:55
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:63
 msgid "Corporation Overview"
 msgstr ""
 
-#: templates/ledger/corpledger/partials/table.html:8
-msgid "TAX Amount"
-msgstr ""
-
-#: templates/ledger/error.html:6
+#: ledger/templates/ledger/error.html:6
 msgid "Voices of War - Error"
 msgstr ""
 
-#: templates/ledger/error.html:11
+#: ledger/templates/ledger/error.html:11
 msgid "Index"
 msgstr ""
 
-#: templates/ledger/events/create_event.html:14
-#: templates/ledger/events/create_event.html:43
-#: templates/ledger/events/menu.html:14
-#: templates/ledger/partials/menu/events/administration.html:7
+#: ledger/templates/ledger/events/create_event.html:14
+#: ledger/templates/ledger/events/create_event.html:43
+#: ledger/templates/ledger/events/menu.html:14
+#: ledger/templates/ledger/partials/menu/events/administration.html:7
 msgid "Create Event"
 msgstr ""
 
-#: templates/ledger/events/create_event.html:20
-#: templates/ledger/events/edit_event.html:20
-#: templates/ledger/events/index.html:27
-#: templates/ledger/events/manage_events.html:18
+#: ledger/templates/ledger/events/create_event.html:20
+#: ledger/templates/ledger/events/edit_event.html:20
+#: ledger/templates/ledger/events/index.html:27
+#: ledger/templates/ledger/events/manage_events.html:18
 msgid "Title"
 msgstr ""
 
-#: templates/ledger/events/create_event.html:24
-#: templates/ledger/events/edit_event.html:24
-#: templates/ledger/events/index.html:28
-#: templates/ledger/events/manage_events.html:19
+#: ledger/templates/ledger/events/create_event.html:24
+#: ledger/templates/ledger/events/edit_event.html:24
+#: ledger/templates/ledger/events/index.html:28
+#: ledger/templates/ledger/events/manage_events.html:19
 msgid "Start Date"
 msgstr ""
 
-#: templates/ledger/events/create_event.html:28
-#: templates/ledger/events/edit_event.html:28
-#: templates/ledger/events/index.html:29
-#: templates/ledger/events/manage_events.html:20
+#: ledger/templates/ledger/events/create_event.html:28
+#: ledger/templates/ledger/events/edit_event.html:28
+#: ledger/templates/ledger/events/index.html:29
+#: ledger/templates/ledger/events/manage_events.html:20
 msgid "End Date"
 msgstr ""
 
-#: templates/ledger/events/create_event.html:32
-#: templates/ledger/events/edit_event.html:32
-#: templates/ledger/events/expired_events.html:12
-#: templates/ledger/events/future_events.html:12
-#: templates/ledger/events/index.html:32
-#: templates/ledger/events/manage_events.html:21
+#: ledger/templates/ledger/events/create_event.html:32
+#: ledger/templates/ledger/events/edit_event.html:32
+#: ledger/templates/ledger/events/expired_events.html:12
+#: ledger/templates/ledger/events/future_events.html:12
+#: ledger/templates/ledger/events/index.html:32
+#: ledger/templates/ledger/events/manage_events.html:21
 msgid "Location"
 msgstr ""
 
-#: templates/ledger/events/create_event.html:36
-#: templates/ledger/events/edit_event.html:36
-#: templates/ledger/events/manage_events.html:23
+#: ledger/templates/ledger/events/create_event.html:36
+#: ledger/templates/ledger/events/edit_event.html:36
+#: ledger/templates/ledger/events/manage_events.html:23
 msgid "Char Ledger Exclude"
 msgstr ""
 
-#: templates/ledger/events/create_event.html:40
-#: templates/ledger/events/edit_event.html:40
-#: templates/ledger/events/expired_events.html:13
-#: templates/ledger/events/future_events.html:13
-#: templates/ledger/events/index.html:30
-#: templates/ledger/events/manage_events.html:22
+#: ledger/templates/ledger/events/create_event.html:40
+#: ledger/templates/ledger/events/edit_event.html:40
+#: ledger/templates/ledger/events/expired_events.html:13
+#: ledger/templates/ledger/events/future_events.html:13
+#: ledger/templates/ledger/events/index.html:30
+#: ledger/templates/ledger/events/manage_events.html:22
 msgid "Description"
 msgstr ""
 
-#: templates/ledger/events/delete_event.html:13
+#: ledger/templates/ledger/events/delete_event.html:13
 msgid "Delete Event"
 msgstr ""
 
-#: templates/ledger/events/delete_event.html:16
+#: ledger/templates/ledger/events/delete_event.html:16
 msgid "Are you sure to delete the event"
 msgstr ""
 
-#: templates/ledger/events/delete_event.html:20
+#: ledger/templates/ledger/events/delete_event.html:20
 msgid "Yes"
 msgstr ""
 
-#: templates/ledger/events/delete_event.html:21
-#: templates/ledger/planetary/partials/table.html:34
+#: ledger/templates/ledger/events/delete_event.html:21
+#: ledger/templates/ledger/planetary/partials/table.html:34
 msgid "Cancel"
 msgstr ""
 
-#: templates/ledger/events/edit_event.html:14
+#: ledger/templates/ledger/events/edit_event.html:14
 msgid "Edit Event"
 msgstr ""
 
-#: templates/ledger/events/edit_event.html:43
+#: ledger/templates/ledger/events/edit_event.html:43
 msgid "Save Changes"
 msgstr ""
 
-#: templates/ledger/events/expired_events.html:10
-#: templates/ledger/events/future_events.html:10
+#: ledger/templates/ledger/events/expired_events.html:10
+#: ledger/templates/ledger/events/future_events.html:10
 msgid "Datum Start"
 msgstr ""
 
-#: templates/ledger/events/expired_events.html:11
-#: templates/ledger/events/future_events.html:11
+#: ledger/templates/ledger/events/expired_events.html:11
+#: ledger/templates/ledger/events/future_events.html:11
 msgid "Datum End"
 msgstr ""
 
-#: templates/ledger/events/expired_events.html:21
-#: templates/ledger/events/future_events.html:21
-#: templates/ledger/modals/modal-full.html:13
-#: templates/ledger/modals/modal-xl.html:13
-#: templates/ledger/modals/modal.html:13
+#: ledger/templates/ledger/events/expired_events.html:21
+#: ledger/templates/ledger/events/future_events.html:21
+#: ledger/templates/ledger/modals/modal-full.html:13
+#: ledger/templates/ledger/modals/modal-xl.html:13
+#: ledger/templates/ledger/modals/modal.html:13
 msgid "Previous"
 msgstr ""
 
-#: templates/ledger/events/expired_events.html:24
-#: templates/ledger/events/future_events.html:24
-#: templates/ledger/modals/modal-full.html:14
-#: templates/ledger/modals/modal-xl.html:14
-#: templates/ledger/modals/modal.html:14
+#: ledger/templates/ledger/events/expired_events.html:24
+#: ledger/templates/ledger/events/future_events.html:24
+#: ledger/templates/ledger/modals/modal-full.html:14
+#: ledger/templates/ledger/modals/modal-xl.html:14
+#: ledger/templates/ledger/modals/modal.html:14
 msgid "Next"
 msgstr ""
 
-#: templates/ledger/events/index.html:5 templates/ledger/events/menu.html:9
-#: templates/ledger/partials/menu/events/navigation.html:9
-#: templates/ledger/partials/menu/navigation.html:23
+#: ledger/templates/ledger/events/index.html:5
+#: ledger/templates/ledger/events/menu.html:9
+#: ledger/templates/ledger/partials/menu/ally/administration.html:8
+#: ledger/templates/ledger/partials/menu/corp/administration.html:6
+#: ledger/templates/ledger/partials/menu/events/navigation.html:9
 msgid "Events"
 msgstr ""
 
-#: templates/ledger/events/index.html:22
+#: ledger/templates/ledger/events/index.html:22
 msgid "Corp Events"
 msgstr ""
 
-#: templates/ledger/events/index.html:31
+#: ledger/templates/ledger/events/index.html:31
 msgid "Char Ledger"
 msgstr ""
 
-#: templates/ledger/events/index.html:37
+#: ledger/templates/ledger/events/index.html:37
 msgid "Loading..."
 msgstr ""
 
-#: templates/ledger/events/manage_events.html:5
-#: templates/ledger/events/manage_events.html:11
+#: ledger/templates/ledger/events/manage_events.html:5
+#: ledger/templates/ledger/events/manage_events.html:11
 msgid "Manage Events"
 msgstr ""
 
-#: templates/ledger/events/manage_events.html:17
+#: ledger/templates/ledger/events/manage_events.html:17
 msgid "ID"
 msgstr ""
 
-#: templates/ledger/events/manage_events.html:38
+#: ledger/templates/ledger/events/manage_events.html:38
 msgid "Edit"
 msgstr ""
 
-#: templates/ledger/events/manage_events.html:39
+#: ledger/templates/ledger/events/manage_events.html:39
 msgid "Delete"
 msgstr ""
 
-#: templates/ledger/events/menu.html:6
-#: templates/ledger/partials/menu/events/navigation.html:6
+#: ledger/templates/ledger/events/menu.html:6
+#: ledger/templates/ledger/partials/menu/events/navigation.html:6
 msgid "Ledger"
 msgstr ""
 
-#: templates/ledger/events/menu.html:17
-#: templates/ledger/partials/menu/events/administration.html:12
+#: ledger/templates/ledger/events/menu.html:17
+#: ledger/templates/ledger/partials/menu/events/administration.html:12
 msgid "Events Administration"
 msgstr ""
 
-#: templates/ledger/index.html:8
+#: ledger/templates/ledger/index.html:9
 msgid ""
 "\n"
 "            <h4>Character Ledger</h4>\n"
@@ -532,7 +412,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/ledger/index.html:17
+#: ledger/templates/ledger/index.html:18
 msgid ""
 "\n"
 "            <h4>Corporation/Alliance Ledger</h4>\n"
@@ -551,7 +431,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/ledger/index.html:28
+#: ledger/templates/ledger/index.html:29
 msgid ""
 "\n"
 "            <h4>Planetary Ledger</h4>\n"
@@ -566,7 +446,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/ledger/index.html:37
+#: ledger/templates/ledger/index.html:38
 msgid ""
 "\n"
 "            <h4>FAQ</h4>\n"
@@ -589,427 +469,574 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:14
-#: templates/ledger/modals/information/daily.html:18
-#: templates/ledger/modals/information/daily.html:25
-#: templates/ledger/modals/information/daily.html:32
-#: templates/ledger/modals/information/daily.html:39
-#: templates/ledger/modals/information/daily.html:46
-#: templates/ledger/modals/information/daily.html:53
-#: templates/ledger/modals/information/daily.html:63
-#: templates/ledger/modals/information/daily.html:70
-#: templates/ledger/modals/information/daily.html:77
-#: templates/ledger/modals/information/daily.html:84
-#: templates/ledger/modals/information/daily.html:91
-#: templates/ledger/modals/information/daily.html:98
-#: templates/ledger/modals/information/daily.html:111
-#: templates/ledger/modals/information/daily.html:118
-#: templates/ledger/modals/information/daily.html:125
-#: templates/ledger/modals/information/daily.html:132
-#: templates/ledger/modals/information/daily.html:139
-#: templates/ledger/modals/information/daily.html:146
-#: templates/ledger/modals/information/daily.html:153
-#: templates/ledger/modals/information/daily.html:160
-#: templates/ledger/modals/information/daily.html:168
-#: templates/ledger/modals/information/day.html:22
-#: templates/ledger/modals/information/hourly.html:18
-#: templates/ledger/modals/information/hourly.html:25
-#: templates/ledger/modals/information/hourly.html:32
-#: templates/ledger/modals/information/hourly.html:39
-#: templates/ledger/modals/information/hourly.html:46
-#: templates/ledger/modals/information/hourly.html:53
-#: templates/ledger/modals/information/hourly.html:60
-#: templates/ledger/modals/information/hourly.html:70
-#: templates/ledger/modals/information/hourly.html:77
-#: templates/ledger/modals/information/hourly.html:84
-#: templates/ledger/modals/information/hourly.html:91
-#: templates/ledger/modals/information/hourly.html:98
-#: templates/ledger/modals/information/hourly.html:105
-#: templates/ledger/modals/information/hourly.html:118
-#: templates/ledger/modals/information/hourly.html:125
-#: templates/ledger/modals/information/hourly.html:132
-#: templates/ledger/modals/information/hourly.html:139
-#: templates/ledger/modals/information/hourly.html:146
-#: templates/ledger/modals/information/hourly.html:153
-#: templates/ledger/modals/information/hourly.html:160
-#: templates/ledger/modals/information/hourly.html:167
-#: templates/ledger/modals/information/hourly.html:175
+#: ledger/templates/ledger/modals/information/daily.html:14
+#: ledger/templates/ledger/modals/information/daily.html:18
+#: ledger/templates/ledger/modals/information/daily.html:25
+#: ledger/templates/ledger/modals/information/daily.html:32
+#: ledger/templates/ledger/modals/information/daily.html:39
+#: ledger/templates/ledger/modals/information/daily.html:46
+#: ledger/templates/ledger/modals/information/daily.html:53
+#: ledger/templates/ledger/modals/information/daily.html:63
+#: ledger/templates/ledger/modals/information/daily.html:70
+#: ledger/templates/ledger/modals/information/daily.html:77
+#: ledger/templates/ledger/modals/information/daily.html:84
+#: ledger/templates/ledger/modals/information/daily.html:91
+#: ledger/templates/ledger/modals/information/daily.html:98
+#: ledger/templates/ledger/modals/information/daily.html:105
+#: ledger/templates/ledger/modals/information/daily.html:118
+#: ledger/templates/ledger/modals/information/daily.html:125
+#: ledger/templates/ledger/modals/information/daily.html:132
+#: ledger/templates/ledger/modals/information/daily.html:139
+#: ledger/templates/ledger/modals/information/daily.html:146
+#: ledger/templates/ledger/modals/information/daily.html:153
+#: ledger/templates/ledger/modals/information/daily.html:160
+#: ledger/templates/ledger/modals/information/daily.html:167
+#: ledger/templates/ledger/modals/information/daily.html:174
+#: ledger/templates/ledger/modals/information/daily.html:182
+#: ledger/templates/ledger/modals/information/day.html:22
+#: ledger/templates/ledger/modals/information/hourly.html:18
+#: ledger/templates/ledger/modals/information/hourly.html:25
+#: ledger/templates/ledger/modals/information/hourly.html:32
+#: ledger/templates/ledger/modals/information/hourly.html:39
+#: ledger/templates/ledger/modals/information/hourly.html:46
+#: ledger/templates/ledger/modals/information/hourly.html:53
+#: ledger/templates/ledger/modals/information/hourly.html:60
+#: ledger/templates/ledger/modals/information/hourly.html:70
+#: ledger/templates/ledger/modals/information/hourly.html:77
+#: ledger/templates/ledger/modals/information/hourly.html:84
+#: ledger/templates/ledger/modals/information/hourly.html:91
+#: ledger/templates/ledger/modals/information/hourly.html:98
+#: ledger/templates/ledger/modals/information/hourly.html:105
+#: ledger/templates/ledger/modals/information/hourly.html:112
+#: ledger/templates/ledger/modals/information/hourly.html:125
+#: ledger/templates/ledger/modals/information/hourly.html:132
+#: ledger/templates/ledger/modals/information/hourly.html:139
+#: ledger/templates/ledger/modals/information/hourly.html:146
+#: ledger/templates/ledger/modals/information/hourly.html:153
+#: ledger/templates/ledger/modals/information/hourly.html:160
+#: ledger/templates/ledger/modals/information/hourly.html:167
+#: ledger/templates/ledger/modals/information/hourly.html:174
+#: ledger/templates/ledger/modals/information/hourly.html:181
+#: ledger/templates/ledger/modals/information/hourly.html:189
 msgid "Avg."
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:14
-#: templates/ledger/modals/information/daily.html:18
-#: templates/ledger/modals/information/daily.html:25
-#: templates/ledger/modals/information/daily.html:32
-#: templates/ledger/modals/information/daily.html:39
-#: templates/ledger/modals/information/daily.html:46
-#: templates/ledger/modals/information/daily.html:53
-#: templates/ledger/modals/information/daily.html:63
-#: templates/ledger/modals/information/daily.html:70
-#: templates/ledger/modals/information/daily.html:77
-#: templates/ledger/modals/information/daily.html:84
-#: templates/ledger/modals/information/daily.html:91
-#: templates/ledger/modals/information/daily.html:98
-#: templates/ledger/modals/information/daily.html:111
-#: templates/ledger/modals/information/daily.html:118
-#: templates/ledger/modals/information/daily.html:125
-#: templates/ledger/modals/information/daily.html:132
-#: templates/ledger/modals/information/daily.html:139
-#: templates/ledger/modals/information/daily.html:146
-#: templates/ledger/modals/information/daily.html:153
-#: templates/ledger/modals/information/daily.html:160
+#: ledger/templates/ledger/modals/information/daily.html:14
+#: ledger/templates/ledger/modals/information/daily.html:18
+#: ledger/templates/ledger/modals/information/day.html:10
+#: ledger/templates/ledger/modals/information/day.html:17
+#: ledger/templates/ledger/modals/information/day.html:22
+#: ledger/templates/ledger/modals/information/hourly.html:10
+#: ledger/templates/ledger/modals/information/hourly.html:18
+#: ledger/templates/ledger/modals/information/hourly.html:25
+#: ledger/templates/ledger/modals/information/summary.html:10
+#: ledger/templates/ledger/modals/information/summary.html:18
+#: ledger/templates/ledger/partials/view/card.html:47
+msgid "Ratting"
+msgstr ""
+
+#: ledger/templates/ledger/modals/information/daily.html:14
+#: ledger/templates/ledger/modals/information/daily.html:18
+#: ledger/templates/ledger/modals/information/daily.html:25
+#: ledger/templates/ledger/modals/information/daily.html:32
+#: ledger/templates/ledger/modals/information/daily.html:39
+#: ledger/templates/ledger/modals/information/daily.html:46
+#: ledger/templates/ledger/modals/information/daily.html:53
+#: ledger/templates/ledger/modals/information/daily.html:63
+#: ledger/templates/ledger/modals/information/daily.html:70
+#: ledger/templates/ledger/modals/information/daily.html:77
+#: ledger/templates/ledger/modals/information/daily.html:84
+#: ledger/templates/ledger/modals/information/daily.html:91
+#: ledger/templates/ledger/modals/information/daily.html:98
+#: ledger/templates/ledger/modals/information/daily.html:105
+#: ledger/templates/ledger/modals/information/daily.html:118
+#: ledger/templates/ledger/modals/information/daily.html:125
+#: ledger/templates/ledger/modals/information/daily.html:132
+#: ledger/templates/ledger/modals/information/daily.html:139
+#: ledger/templates/ledger/modals/information/daily.html:146
+#: ledger/templates/ledger/modals/information/daily.html:153
+#: ledger/templates/ledger/modals/information/daily.html:160
+#: ledger/templates/ledger/modals/information/daily.html:167
+#: ledger/templates/ledger/modals/information/daily.html:174
 msgid "per Day"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:32
-#: templates/ledger/modals/information/day.html:36
-#: templates/ledger/modals/information/hourly.html:39
-#: templates/ledger/modals/information/summary.html:39
+#: ledger/templates/ledger/modals/information/daily.html:32
+#: ledger/templates/ledger/modals/information/day.html:36
+#: ledger/templates/ledger/modals/information/hourly.html:39
+#: ledger/templates/ledger/modals/information/summary.html:32
 msgid "Stolen"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:39
-#: templates/ledger/modals/information/day.html:43
-#: templates/ledger/modals/information/hourly.html:46
-#: templates/ledger/modals/information/summary.html:32
+#: ledger/templates/ledger/modals/information/daily.html:39
+#: ledger/templates/ledger/modals/information/day.html:43
+#: ledger/templates/ledger/modals/information/hourly.html:46
+#: ledger/templates/ledger/modals/information/summary.html:41
 msgid "Mission Reward"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:53
-#: templates/ledger/modals/information/day.html:57
-#: templates/ledger/modals/information/hourly.html:60
-#: templates/ledger/modals/information/summary.html:55
+#: ledger/templates/ledger/modals/information/daily.html:46
+#: ledger/templates/ledger/modals/information/day.html:50
+#: ledger/templates/ledger/modals/information/hourly.html:53
+#: ledger/templates/ledger/modals/information/summary.html:48
+#: ledger/templates/ledger/partials/view/card.html:57
+msgid "Mining"
+msgstr ""
+
+#: ledger/templates/ledger/modals/information/daily.html:53
+#: ledger/templates/ledger/modals/information/day.html:57
+#: ledger/templates/ledger/modals/information/hourly.html:60
+#: ledger/templates/ledger/modals/information/summary.html:55
 msgid "Incursion"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:63
-#: templates/ledger/modals/information/day.html:70
-#: templates/ledger/modals/information/hourly.html:70
-#: templates/ledger/modals/information/summary.html:65
+#: ledger/templates/ledger/modals/information/daily.html:63
+#: ledger/templates/ledger/modals/information/day.html:70
+#: ledger/templates/ledger/modals/information/hourly.html:70
+#: ledger/templates/ledger/modals/information/summary.html:65
 msgid "Market"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:70
-#: templates/ledger/modals/information/day.html:77
-#: templates/ledger/modals/information/hourly.html:77
-#: templates/ledger/modals/information/summary.html:72
+#: ledger/templates/ledger/modals/information/daily.html:70
+#: ledger/templates/ledger/modals/information/day.html:77
+#: ledger/templates/ledger/modals/information/hourly.html:77
+#: ledger/templates/ledger/modals/information/summary.html:72
 msgid "Contract"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:77
-#: templates/ledger/modals/information/day.html:84
-#: templates/ledger/modals/information/hourly.html:84
-#: templates/ledger/modals/information/summary.html:83
+#: ledger/templates/ledger/modals/information/daily.html:77
+#: ledger/templates/ledger/modals/information/day.html:84
+#: ledger/templates/ledger/modals/information/hourly.html:84
+#: ledger/templates/ledger/modals/information/summary.html:83
 msgid "Donation"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:84
-#: templates/ledger/modals/information/day.html:91
-#: templates/ledger/modals/information/hourly.html:91
-#: templates/ledger/modals/information/summary.html:96
+#: ledger/templates/ledger/modals/information/daily.html:84
+#: ledger/templates/ledger/modals/information/day.html:91
+#: ledger/templates/ledger/modals/information/hourly.html:91
+#: ledger/templates/ledger/modals/information/summary.html:96
 msgid "Insurance"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:91
-#: templates/ledger/modals/information/day.html:98
-#: templates/ledger/modals/information/hourly.html:98
-#: templates/ledger/modals/information/summary.html:107
+#: ledger/templates/ledger/modals/information/daily.html:91
+#: ledger/templates/ledger/modals/information/day.html:98
+#: ledger/templates/ledger/modals/information/hourly.html:98
+#: ledger/templates/ledger/modals/information/summary.html:107
 msgid "Corp Project"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:98
-#: templates/ledger/modals/information/day.html:105
-#: templates/ledger/modals/information/hourly.html:105
-#: templates/ledger/modals/information/summary.html:118
+#: ledger/templates/ledger/modals/information/daily.html:98
+#: ledger/templates/ledger/modals/information/day.html:105
+#: ledger/templates/ledger/modals/information/hourly.html:105
+#: ledger/templates/ledger/modals/information/summary.html:118
 msgid "Daily Goal"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:111
-#: templates/ledger/modals/information/day.html:119
-#: templates/ledger/modals/information/hourly.html:118
-#: templates/ledger/modals/information/summary.html:147
+#: ledger/templates/ledger/modals/information/daily.html:105
+#: ledger/templates/ledger/modals/information/day.html:112
+#: ledger/templates/ledger/modals/information/hourly.html:112
+#: ledger/templates/ledger/modals/information/summary.html:129
+msgid "Citadel"
+msgstr ""
+
+#: ledger/templates/ledger/modals/information/daily.html:118
+#: ledger/templates/ledger/modals/information/day.html:126
+#: ledger/templates/ledger/modals/information/hourly.html:125
+#: ledger/templates/ledger/modals/information/summary.html:145
 msgid "Market Cost"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:118
-#: templates/ledger/modals/information/day.html:126
-#: templates/ledger/modals/information/hourly.html:125
-#: templates/ledger/modals/information/summary.html:134
+#: ledger/templates/ledger/modals/information/daily.html:125
+#: ledger/templates/ledger/modals/information/day.html:133
+#: ledger/templates/ledger/modals/information/hourly.html:132
+#: ledger/templates/ledger/modals/information/summary.html:152
 msgid "Contract Cost"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:125
-#: templates/ledger/modals/information/day.html:133
-#: templates/ledger/modals/information/hourly.html:132
-#: templates/ledger/modals/information/summary.html:141
+#: ledger/templates/ledger/modals/information/daily.html:132
+#: ledger/templates/ledger/modals/information/day.html:140
+#: ledger/templates/ledger/modals/information/hourly.html:139
+#: ledger/templates/ledger/modals/information/summary.html:159
+msgid "Loyality Point Cost"
+msgstr ""
+
+#: ledger/templates/ledger/modals/information/daily.html:139
+#: ledger/templates/ledger/modals/information/day.html:147
+#: ledger/templates/ledger/modals/information/hourly.html:146
+#: ledger/templates/ledger/modals/information/summary.html:166
 msgid "Production Cost"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:132
-#: templates/ledger/modals/information/day.html:140
-#: templates/ledger/modals/information/hourly.html:139
-#: templates/ledger/modals/information/summary.html:154
+#: ledger/templates/ledger/modals/information/daily.html:146
+#: ledger/templates/ledger/modals/information/day.html:154
+#: ledger/templates/ledger/modals/information/hourly.html:153
+#: ledger/templates/ledger/modals/information/summary.html:173
 msgid "Traveling Cost"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:139
-#: templates/ledger/modals/information/day.html:147
-#: templates/ledger/modals/information/hourly.html:146
-#: templates/ledger/modals/information/summary.html:161
+#: ledger/templates/ledger/modals/information/daily.html:153
+#: ledger/templates/ledger/modals/information/day.html:161
+#: ledger/templates/ledger/modals/information/hourly.html:160
+#: ledger/templates/ledger/modals/information/summary.html:180
 msgid "Asset Safety Cost"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:146
-#: templates/ledger/modals/information/day.html:154
-#: templates/ledger/modals/information/hourly.html:153
-#: templates/ledger/modals/information/summary.html:168
+#: ledger/templates/ledger/modals/information/daily.html:160
+#: ledger/templates/ledger/modals/information/day.html:168
+#: ledger/templates/ledger/modals/information/hourly.html:167
+#: ledger/templates/ledger/modals/information/summary.html:187
 msgid "Skillbook Cost"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:153
-#: templates/ledger/modals/information/day.html:161
-#: templates/ledger/modals/information/hourly.html:160
-#: templates/ledger/modals/information/summary.html:175
+#: ledger/templates/ledger/modals/information/daily.html:167
+#: ledger/templates/ledger/modals/information/day.html:175
+#: ledger/templates/ledger/modals/information/hourly.html:174
+#: ledger/templates/ledger/modals/information/summary.html:194
 msgid "Insurance Cost"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:160
-#: templates/ledger/modals/information/day.html:168
-#: templates/ledger/modals/information/hourly.html:167
-#: templates/ledger/modals/information/summary.html:182
+#: ledger/templates/ledger/modals/information/daily.html:174
+#: ledger/templates/ledger/modals/information/day.html:182
+#: ledger/templates/ledger/modals/information/hourly.html:181
+#: ledger/templates/ledger/modals/information/summary.html:201
 msgid "Planetary Cost"
 msgstr ""
 
-#: templates/ledger/modals/information/daily.html:168
+#: ledger/templates/ledger/modals/information/daily.html:182
 msgid "Summary Day"
 msgstr ""
 
-#: templates/ledger/modals/information/day.html:8
-#: templates/ledger/modals/information/hourly.html:8
-#: templates/ledger/modals/information/summary.html:8
+#: ledger/templates/ledger/modals/information/day.html:8
+#: ledger/templates/ledger/modals/information/hourly.html:8
+#: ledger/templates/ledger/modals/information/summary.html:8
 msgid "TAX"
 msgstr ""
 
-#: templates/ledger/modals/information/day.html:17
-#: templates/ledger/modals/information/day.html:22
-#: templates/ledger/modals/information/day.html:29
-#: templates/ledger/modals/information/day.html:36
-#: templates/ledger/modals/information/day.html:43
-#: templates/ledger/modals/information/day.html:50
-#: templates/ledger/modals/information/day.html:57
-#: templates/ledger/modals/information/day.html:70
-#: templates/ledger/modals/information/day.html:77
-#: templates/ledger/modals/information/day.html:84
-#: templates/ledger/modals/information/day.html:91
-#: templates/ledger/modals/information/day.html:98
-#: templates/ledger/modals/information/day.html:105
-#: templates/ledger/modals/information/day.html:119
-#: templates/ledger/modals/information/day.html:126
-#: templates/ledger/modals/information/day.html:133
-#: templates/ledger/modals/information/day.html:140
-#: templates/ledger/modals/information/day.html:147
-#: templates/ledger/modals/information/day.html:154
-#: templates/ledger/modals/information/day.html:161
-#: templates/ledger/modals/information/day.html:168
-#: templates/ledger/modals/information/day.html:179
+#: ledger/templates/ledger/modals/information/day.html:17
+#: ledger/templates/ledger/modals/information/day.html:22
+#: ledger/templates/ledger/modals/information/day.html:29
+#: ledger/templates/ledger/modals/information/day.html:36
+#: ledger/templates/ledger/modals/information/day.html:43
+#: ledger/templates/ledger/modals/information/day.html:50
+#: ledger/templates/ledger/modals/information/day.html:57
+#: ledger/templates/ledger/modals/information/day.html:70
+#: ledger/templates/ledger/modals/information/day.html:77
+#: ledger/templates/ledger/modals/information/day.html:84
+#: ledger/templates/ledger/modals/information/day.html:91
+#: ledger/templates/ledger/modals/information/day.html:98
+#: ledger/templates/ledger/modals/information/day.html:105
+#: ledger/templates/ledger/modals/information/day.html:112
+#: ledger/templates/ledger/modals/information/day.html:126
+#: ledger/templates/ledger/modals/information/day.html:133
+#: ledger/templates/ledger/modals/information/day.html:140
+#: ledger/templates/ledger/modals/information/day.html:147
+#: ledger/templates/ledger/modals/information/day.html:154
+#: ledger/templates/ledger/modals/information/day.html:161
+#: ledger/templates/ledger/modals/information/day.html:168
+#: ledger/templates/ledger/modals/information/day.html:175
+#: ledger/templates/ledger/modals/information/day.html:182
+#: ledger/templates/ledger/modals/information/day.html:193
 msgid "Current Day"
 msgstr ""
 
-#: templates/ledger/modals/information/day.html:37
-#: templates/ledger/modals/information/summary.html:41
+#: ledger/templates/ledger/modals/information/day.html:37
+#: ledger/templates/ledger/modals/information/summary.html:34
 msgid "Estimated only"
 msgstr ""
 
-#: templates/ledger/modals/information/hourly.html:18
-#: templates/ledger/modals/information/hourly.html:25
-#: templates/ledger/modals/information/hourly.html:32
-#: templates/ledger/modals/information/hourly.html:39
-#: templates/ledger/modals/information/hourly.html:46
-#: templates/ledger/modals/information/hourly.html:53
-#: templates/ledger/modals/information/hourly.html:60
-#: templates/ledger/modals/information/hourly.html:70
-#: templates/ledger/modals/information/hourly.html:77
-#: templates/ledger/modals/information/hourly.html:84
-#: templates/ledger/modals/information/hourly.html:91
-#: templates/ledger/modals/information/hourly.html:98
-#: templates/ledger/modals/information/hourly.html:105
-#: templates/ledger/modals/information/hourly.html:118
-#: templates/ledger/modals/information/hourly.html:125
-#: templates/ledger/modals/information/hourly.html:132
-#: templates/ledger/modals/information/hourly.html:139
-#: templates/ledger/modals/information/hourly.html:146
-#: templates/ledger/modals/information/hourly.html:153
-#: templates/ledger/modals/information/hourly.html:160
-#: templates/ledger/modals/information/hourly.html:167
+#: ledger/templates/ledger/modals/information/day.html:193
+#: ledger/templates/ledger/modals/information/summary.html:209
+#: ledger/templates/ledger/modals/information/view_character_content.html:17
+#: ledger/templates/ledger/partials/view/card.html:72
+#: ledger/templates/ledger/partials/view/table.html:24
+msgid "Summary"
+msgstr ""
+
+#: ledger/templates/ledger/modals/information/hourly.html:18
+#: ledger/templates/ledger/modals/information/hourly.html:25
+#: ledger/templates/ledger/modals/information/hourly.html:32
+#: ledger/templates/ledger/modals/information/hourly.html:39
+#: ledger/templates/ledger/modals/information/hourly.html:46
+#: ledger/templates/ledger/modals/information/hourly.html:53
+#: ledger/templates/ledger/modals/information/hourly.html:60
+#: ledger/templates/ledger/modals/information/hourly.html:70
+#: ledger/templates/ledger/modals/information/hourly.html:77
+#: ledger/templates/ledger/modals/information/hourly.html:84
+#: ledger/templates/ledger/modals/information/hourly.html:91
+#: ledger/templates/ledger/modals/information/hourly.html:98
+#: ledger/templates/ledger/modals/information/hourly.html:105
+#: ledger/templates/ledger/modals/information/hourly.html:112
+#: ledger/templates/ledger/modals/information/hourly.html:125
+#: ledger/templates/ledger/modals/information/hourly.html:132
+#: ledger/templates/ledger/modals/information/hourly.html:139
+#: ledger/templates/ledger/modals/information/hourly.html:146
+#: ledger/templates/ledger/modals/information/hourly.html:153
+#: ledger/templates/ledger/modals/information/hourly.html:160
+#: ledger/templates/ledger/modals/information/hourly.html:167
+#: ledger/templates/ledger/modals/information/hourly.html:174
+#: ledger/templates/ledger/modals/information/hourly.html:181
 msgid "per Hour"
 msgstr ""
 
-#: templates/ledger/modals/information/hourly.html:175
+#: ledger/templates/ledger/modals/information/hourly.html:189
 msgid "Summary Hour"
 msgstr ""
 
-#: templates/ledger/modals/information/summary.html:25
+#: ledger/templates/ledger/modals/information/summary.html:25
 msgid "ESS"
 msgstr ""
 
-#: templates/ledger/modals/information/view_character_content.html:23
+#: ledger/templates/ledger/modals/information/view_character_content.html:20
 msgid "Daily"
 msgstr ""
 
-#: templates/ledger/modals/information/view_character_content.html:36
+#: ledger/templates/ledger/modals/information/view_character_content.html:23
+msgid "Hourly"
+msgstr ""
+
+#: ledger/templates/ledger/modals/information/view_character_content.html:33
 msgid "Orange Color is for Info only and is not included in the Calculation"
 msgstr ""
 
-#: templates/ledger/modals/information/view_character_content.html:41
+#: ledger/templates/ledger/modals/information/view_character_content.html:38
 msgid "All amounts shown are taxes collected from characters"
 msgstr ""
 
-#: templates/ledger/modals/information/view_character_content.html:46
+#: ledger/templates/ledger/modals/information/view_character_content.html:43
 msgid "No ratting data found..."
 msgstr ""
 
-#: templates/ledger/modals/modal-full.html:12
-#: templates/ledger/modals/modal-xl.html:12
-#: templates/ledger/modals/modal.html:12
-#: templates/ledger/planetary/partials/modal/extractor.html:26
-#: templates/ledger/planetary/partials/modal/products.html:8
-#: templates/ledger/planetary/partials/modal/products.html:25
+#: ledger/templates/ledger/modals/modal-full.html:12
+#: ledger/templates/ledger/modals/modal-xl.html:12
+#: ledger/templates/ledger/modals/modal.html:12
+#: ledger/templates/ledger/modals/modal_dialog.html:27
 msgid "Close"
 msgstr ""
 
-#: templates/ledger/partials/menu/ally/administration.html:7
-#: templates/ledger/partials/menu/corp/administration.html:13
+#: ledger/templates/ledger/partials/menu/ally/administration.html:15
+#: ledger/templates/ledger/partials/menu/corp/administration.html:19
 msgid "Add Corporation"
 msgstr ""
 
-#: templates/ledger/partials/menu/ally/administration.html:13
+#: ledger/templates/ledger/partials/menu/ally/administration.html:21
 msgid "Add Alliance"
 msgstr ""
 
-#: templates/ledger/partials/menu/char/administration.html:6
-#: templates/ledger/partials/menu/corp/administration.html:6
+#: ledger/templates/ledger/partials/menu/char/administration.html:6
+#: ledger/templates/ledger/partials/menu/corp/administration.html:12
 msgid "Add Character"
 msgstr ""
 
-#: templates/ledger/partials/menu/char/navigation.html:15
-#: templates/ledger/partials/menu/navigation.html:19
+#: ledger/templates/ledger/partials/menu/char/navigation.html:15
+#: ledger/templates/ledger/partials/menu/navigation.html:19
 msgid "Planetary Ledger"
 msgstr ""
 
-#: templates/ledger/permission.html:3
+#: ledger/templates/ledger/partials/view/card.html:34
+msgid "Charakter"
+msgstr ""
+
+#: ledger/templates/ledger/partials/view/card.html:39
+msgid "Detailed Sheet"
+msgstr ""
+
+#: ledger/templates/ledger/partials/view/card.html:52
+#: ledger/templates/ledger/partials/view/table.html:8
+msgid "ESS Payout"
+msgstr ""
+
+#: ledger/templates/ledger/partials/view/card.html:62
+msgid "Misc"
+msgstr ""
+
+#: ledger/templates/ledger/partials/view/card.html:67
+#: ledger/templates/ledger/partials/view/table.html:14
+msgid "Costs"
+msgstr ""
+
+#: ledger/templates/ledger/partials/view/table.html:6
+msgid "Main Character"
+msgstr ""
+
+#: ledger/templates/ledger/partials/view/table.html:7
+msgid "Ratting Amount"
+msgstr ""
+
+#: ledger/templates/ledger/partials/view/table.html:10
+msgid "Mining Amount"
+msgstr ""
+
+#: ledger/templates/ledger/partials/view/table.html:12
+msgid "Misc. Amount"
+msgstr ""
+
+#: ledger/templates/ledger/partials/view/table.html:37
+msgid "Total"
+msgstr ""
+
+#: ledger/templates/ledger/permission.html:3
 msgid "You don't have Permission to view this Page"
 msgstr ""
 
-#: templates/ledger/planetary/admin/character_admin.html:9
+#: ledger/templates/ledger/planetary/admin/character_admin.html:9
 msgid "Ledger Planetary Overview"
 msgstr ""
 
-#: templates/ledger/planetary/partials/modal/extractor.html:7
-msgid "Extractor Information"
+#: ledger/templates/ledger/planetary/partials/modal/view_extractor.html:17
+msgid "Extractors"
 msgstr ""
 
-#: templates/ledger/planetary/partials/modal/extractor.html:14
-#: templates/ledger/planetary/partials/modal/products.html:14
+#: ledger/templates/ledger/planetary/partials/modal/view_extractor.html:22
+#: ledger/templates/ledger/planetary/partials/modal/view_factory.html:22
 msgid "Product"
 msgstr ""
 
-#: templates/ledger/planetary/partials/modal/extractor.html:15
+#: ledger/templates/ledger/planetary/partials/modal/view_extractor.html:23
 msgid "Install Time"
 msgstr ""
 
-#: templates/ledger/planetary/partials/modal/extractor.html:16
+#: ledger/templates/ledger/planetary/partials/modal/view_extractor.html:24
 msgid "Expiry Time"
 msgstr ""
 
-#: templates/ledger/planetary/partials/modal/extractor.html:17
+#: ledger/templates/ledger/planetary/partials/modal/view_extractor.html:25
 msgid "Progress"
 msgstr ""
 
-#: templates/ledger/planetary/partials/modal/products.html:7
-msgid "Products Information"
+#: ledger/templates/ledger/planetary/partials/modal/view_extractor.html:46
+#: ledger/templates/ledger/planetary/partials/modal/view_factory.html:87
+msgid "No data found..."
 msgstr ""
 
-#: templates/ledger/planetary/partials/modal/products.html:15
+#: ledger/templates/ledger/planetary/partials/modal/view_extractor.html:49
+#: ledger/templates/ledger/planetary/partials/modal/view_factory.html:91
+msgid ""
+"Note: Planetary information is only recalculated when the colony is viewed "
+"through the client. Information will not update until this criteria is met."
+msgstr ""
+
+#: ledger/templates/ledger/planetary/partials/modal/view_factory.html:17
+msgid "Storage"
+msgstr ""
+
+#: ledger/templates/ledger/planetary/partials/modal/view_factory.html:24
 msgid "Product Name"
 msgstr ""
 
-#: templates/ledger/planetary/partials/modal/products.html:16
+#: ledger/templates/ledger/planetary/partials/modal/view_factory.html:25
 msgid "Amount"
 msgstr ""
 
-#: templates/ledger/planetary/partials/table.html:6
+#: ledger/templates/ledger/planetary/partials/modal/view_factory.html:46
+#: ledger/templates/ledger/planetary/partials/modal/view_factory.html:52
+msgid "Facility"
+msgstr ""
+
+#: ledger/templates/ledger/planetary/partials/modal/view_factory.html:53
+msgid "Input"
+msgstr ""
+
+#: ledger/templates/ledger/planetary/partials/modal/view_factory.html:54
+msgid "Output"
+msgstr ""
+
+#: ledger/templates/ledger/planetary/partials/modal/view_factory.html:55
+msgid "Active"
+msgstr ""
+
+#: ledger/templates/ledger/planetary/partials/modal/view_factory.html:74
+msgid "No output"
+msgstr ""
+
+#: ledger/templates/ledger/planetary/partials/table.html:6
 msgid "Character"
 msgstr ""
 
-#: templates/ledger/planetary/partials/table.html:7
+#: ledger/templates/ledger/planetary/partials/table.html:7
 msgid "Planet"
 msgstr ""
 
-#: templates/ledger/planetary/partials/table.html:8
+#: ledger/templates/ledger/planetary/partials/table.html:8
 msgid "Upgrade Level"
 msgstr ""
 
-#: templates/ledger/planetary/partials/table.html:9
+#: ledger/templates/ledger/planetary/partials/table.html:9
 msgid "Products"
 msgstr ""
 
-#: templates/ledger/planetary/partials/table.html:10
+#: ledger/templates/ledger/planetary/partials/table.html:10
 msgid "Extractor"
 msgstr ""
 
-#: templates/ledger/planetary/partials/table.html:11
+#: ledger/templates/ledger/planetary/partials/table.html:11
 msgid "Status"
 msgstr ""
 
-#: templates/ledger/planetary/partials/table.html:12
+#: ledger/templates/ledger/planetary/partials/table.html:12
 msgid "Last Updated"
 msgstr ""
 
-#: templates/ledger/planetary/partials/table.html:25
+#: ledger/templates/ledger/planetary/partials/table.html:25
 msgid "Confirm Action"
 msgstr ""
 
-#: templates/ledger/planetary/partials/table.html:35
+#: ledger/templates/ledger/planetary/partials/table.html:35
 msgid "Confirm"
 msgstr ""
 
-#: templates/ledger/planetary/planetary_ledger.html:8
-#: templates/ledger/planetary/planetary_ledger.html:12
+#: ledger/templates/ledger/planetary/planetary_ledger.html:8
+#: ledger/templates/ledger/planetary/planetary_ledger.html:12
 msgid "Planetary Details"
 msgstr ""
 
-#: templates/ledger/planetary/planetary_ledger.html:15
+#: ledger/templates/ledger/planetary/planetary_ledger.html:15
 msgid "Planetary Overview"
 msgstr ""
 
-#: templates/ledger/planetary/planetary_ledger.html:22
+#: ledger/templates/ledger/planetary/planetary_ledger.html:22
 msgid "Notification"
 msgstr ""
 
-#: templates/ledger/planetary/planetary_ledger.html:22
+#: ledger/templates/ledger/planetary/planetary_ledger.html:22
 msgid "ON"
 msgstr ""
 
-#: templates/ledger/planetary/planetary_ledger.html:22
+#: ledger/templates/ledger/planetary/planetary_ledger.html:22
 msgid "OFF"
 msgstr ""
 
-#: templates/ledger/planetary/planetary_ledger.html:57
+#: ledger/templates/ledger/planetary/planetary_ledger.html:91
 msgid "Are you sure to Switch Notification"
 msgstr ""
 
-#: templates/ledger/planetary/planetary_ledger.html:58
+#: ledger/templates/ledger/planetary/planetary_ledger.html:92
 msgid "Switch Notification"
 msgstr ""
 
-#: templates/ledger/planetary/planetary_ledger.html:59
+#: ledger/templates/ledger/planetary/planetary_ledger.html:93
 msgid "Switch All Notifications"
 msgstr ""
 
-#: templates/ledger/planetary/planetary_ledger.html:60
+#: ledger/templates/ledger/planetary/planetary_ledger.html:94
 msgid "Notification Activated"
 msgstr ""
 
-#: templates/ledger/planetary/planetary_ledger.html:61
+#: ledger/templates/ledger/planetary/planetary_ledger.html:95
 msgid "Notification Deactivated"
+msgstr ""
+
+#: ledger/templates/ledger/view.html:30
+msgid "Diagram"
+msgstr ""
+
+#: ledger/templates/ledger/view.html:33
+msgid "Mode"
+msgstr ""
+
+#: ledger/templates/ledger/view.html:47
+msgid "Wallet"
+msgstr ""
+
+#: ledger/templates/ledger/view.html:55
+msgid "Workflow"
 msgstr ""

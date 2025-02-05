@@ -26,11 +26,13 @@ class CharacterAudit(models.Model):
 
     id = models.AutoField(primary_key=True)
 
-    active = models.BooleanField(default=False)
+    character_name = models.CharField(max_length=100, null=True, default=None)
 
     character = models.OneToOneField(
         EveCharacter, on_delete=models.CASCADE, related_name="ledger_character"
     )
+
+    active = models.BooleanField(default=False)
 
     last_update_wallet = models.DateTimeField(null=True, default=None, blank=True)
 
@@ -172,7 +174,7 @@ class CharacterMiningLedger(models.Model):
     character = models.ForeignKey(
         CharacterAudit, on_delete=models.CASCADE, related_name="ledger_character"
     )
-    date = models.DateField()
+    date = models.DateTimeField()
     type = models.ForeignKey(
         EveType, on_delete=models.CASCADE, related_name="ledger_evetype"
     )

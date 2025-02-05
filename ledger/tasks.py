@@ -7,7 +7,6 @@ import datetime
 # pylint: disable=no-name-in-module
 from celery import shared_task
 
-from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -35,52 +34,6 @@ from ledger.task_helpers.plan_helpers import (
 )
 
 logger = get_extension_logger(__name__)
-
-
-# Member Audit Adaptation
-# pylint: disable=unused-argument
-@shared_task(bind=True, base=QueueOnce)
-@when_esi_is_available
-def create_member_audit(self, runs: int = 0):
-    # pylint: disable=import-outside-toplevel
-    from memberaudit.models import Character
-
-    chars_ids = CharacterAudit.objects.all().values_list(
-        "character__character_id", flat=True
-    )
-    member_ids = Character.objects.all().values_list(
-        "eve_character__character_id", flat=True
-    )
-
-    new_ids = set(member_ids) - set(chars_ids)
-
-    for character_id in new_ids:
-        try:
-            CharacterAudit.objects.update_or_create(
-                character=EveCharacter.objects.get_character_by_id(character_id)
-            )
-            runs = runs + 1
-        except IntegrityError:
-            continue
-    logger.debug("Created %s missing Member Audit Characters", runs)
-    return True
-
-
-# Character Audit - Tasks
-# pylint: disable=unused-argument
-@shared_task(bind=True, base=QueueOnce)
-@when_esi_is_available
-def create_missing_character(self, chars_list: list, runs: int = 0):
-    for character_id in chars_list:
-        try:
-            EveCharacter.objects.create_character(
-                character_id=character_id,
-            )
-            runs = runs + 1
-        except IntegrityError:
-            continue
-    logger.info("Created %s missing Characters", runs)
-    return True
 
 
 @shared_task
@@ -168,7 +121,7 @@ def check_planetary_alarms(self, runs: int = 0):
     warnings = {}
 
     for planet in all_planets:
-        if planet.is_expired() and not planet.notification_sent and planet.notification:
+        if planet.is_expired and not planet.notification_sent and planet.notification:
             character_id = planet.planet.character.character.character_id
 
             # Determine if the character_id is part of any main character's alts

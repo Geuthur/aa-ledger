@@ -7,7 +7,7 @@
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W810Q5J4)
 
-Character and Corporation statistics, including detailed information on ESS, Ratting, Trading, Mining, and other activities.
+Character and Corporation PvE statistics, including detailed information on ESS, Ratting, Trading, Mining, and other activities.
 
 ______________________________________________________________________
 
@@ -40,14 +40,17 @@ ______________________________________________________________________
   - Costs
 - Corporation Ledger
   - Graphical Overview for each Member
+    - Graphical Statistics
   - Ratting Tax
   - Encounter Surveillance System Tax
+  - Industry Tax
 - Alliance Ledger
   - Graphical Overview for each Corporation
-  - Ratting
+  - Ratting Tax
   - Encounter Surveillance System Tax
 - Planetary Ledger
   - Graphical Overview for each Planet
+    - Graphical Statistics
   - Notification if Extractor expire
   - Switchable Notification for each Planet
   - Products Overview
@@ -57,6 +60,7 @@ ______________________________________________________________________
 
 - Bug Fixing, Performance Optimation
 - Costs for Corporation Ledger
+- Planetary Interaction more details
 
 ## Installation<a name="installation"></a>
 
@@ -98,18 +102,6 @@ CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
 CELERYBEAT_SCHEDULE["ledger_check_planetary_alarms"] = {
     "task": "ledger.tasks.check_planetary_alarms",
     "schedule": crontab(minute=0, hour="*/3"),
-}
-```
-
-### Step 3.1 - (Optional) Setting up Compatibilies></a>
-
-> [!NOTE]
-> If you have Member Audit installed add this to Fetch Member Audit Chars and Sync with Ledger
-
-```python
-CELERYBEAT_SCHEDULE["ledger_character_member_audit_fetch"] = {
-    "task": "ledger.tasks.create_member_audit",
-    "schedule": crontab(minute=0, hour="*/1"),
 }
 ```
 

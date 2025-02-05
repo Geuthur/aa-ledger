@@ -65,7 +65,7 @@ class CharAuditQuerySetTest(TestCase):
         )
         # when
         expected_result = CharacterAudit.objects.filter(
-            character__character_id__in=[1001, 1004, 1005, 1006]
+            character__character_id__in=[1001, 1004, 1005, 1006, 1022]
         )
         result = CharacterAudit.objects.visible_to(self.user)
         # then

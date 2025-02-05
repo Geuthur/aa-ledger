@@ -1,0 +1,124 @@
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load evelinks %}
+{% load ledger %}
+
+{% if character %}
+    <div>
+        <h4 id="modal-title">
+            {{ character.title }}:
+            <img src="{{ character.character_id|character_portrait_url:32 }}" class="rounded-circle">
+            {{character.character_name}} - {{character.planet_name}}
+        </h4>
+    </div>
+    <div class="card bg-secondary rounded mb-3">
+        <header class="bg-primary rounded-top px-2 py-1">
+            <h3 class="me-3">{% trans "Storage" %}</h3>
+        </header>
+        <table class="card-body table table-hover table-striped" id="storage-table">
+            <thead>
+                <tr>
+                    <th>{% trans "Product" %}</th>
+                    <th class="no-sort"></th>
+                    <th>{% trans "Product Name" %}</th>
+                    <th>{% trans "Amount" %}</th>
+                </tr>
+            </thead>
+            <tbody class="modal-storage-table-body">
+                {% for facility_id, facility in character.storage.items %}
+                    {% for content in facility.contents %}
+                        <tr>
+                            <td>{{ facility.facility_name }}</td>
+                            <td>
+                                <img src="{{ content.type_id|type_icon_url }}" title="{{ content.product_name }}" data-tooltip-toggle="planetary">
+                            </td>
+                            <td>{{ content.product_name }}</td>
+                            <td>{{ content.amount|intcomma }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="card bg-secondary rounded">
+        <header class="card-body bg-primary rounded-top px-2 py-1">
+            <h3 class="me-3">{% trans "Facility" %}</h3>
+        </header>
+        <div class="card-body">
+            <table class="table table-hover table-striped" id="facility-table">
+                <thead>
+                    <tr>
+                        <th>{% trans "Facility" %}</th>
+                        <th>{% trans "Input" %}</th>
+                        <th>{% trans "Output" %}</th>
+                        <th>{% trans "Active" %}</th>
+                    </tr>
+                </thead>
+                <tbody class="modal-facility-table-body">
+                    {% for facility in character.facilities %}
+                    <tr>
+                        <td>{{ facility.facility_name }}</td>
+                        <td>
+                            {% for input in facility.input_icons %}
+                                <img src="{{ input.icon_url|type_icon_url }}" title="{{ input.item_name }}" data-tooltip-toggle="planetary" style="margin-right: 5px;">
+                                {% if input.count > 1 %}
+                                    <span class="text-muted small">x{{ input.count }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if facility.output_icon %}
+                                <img src="{{ facility.output_icon.icon_url|type_icon_url }}" title="{{ facility.output_icon.item_name }}" data-tooltip-toggle="planetary">
+                            {% else %}
+                                {% trans "No output" %}
+                            {% endif %}
+                        </td>
+                        <td class="no-sort">
+                            <img src="/static/ledger/images/{{ facility.is_active|yesno:'green,red' }}.png" style="width: 24px; height: 24px;" title="{{ facility.is_active|yesno:'Producing,Offline' }}" data-tooltip-toggle="planetary">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% else %}
+    {% trans "No data found..." %}
+{% endif %}
+<div class="modal-body d-flex justify-content-between">
+    <span class="text-muted small">
+        {% trans "Note: Planetary information is only recalculated when the colony is viewed through the client. Information will not update until this criteria is met." %}
+    </span>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('[data-tooltip-toggle="planetary"]').tooltip();
+
+        // Initialize DataTables for both tables if not already initialized
+        if (!$.fn.DataTable.isDataTable('#storage-table')) {
+            $('#storage-table').DataTable({
+                "paging": false,
+                "info": false,
+                "searching": false,
+                "order": [],
+                "columnDefs": [
+                    { "orderable": false, "targets": 1 }
+                ]
+            });
+        }
+
+        if (!$.fn.DataTable.isDataTable('#facility-table')) {
+            $('#facility-table').DataTable({
+                "paging": true,
+                "info": true,
+                "searching": true,
+                "order": [],
+                "columnDefs": [
+                    { "orderable": false, "targets": 3 }
+                ]
+            });
+        }
+    });
+</script>

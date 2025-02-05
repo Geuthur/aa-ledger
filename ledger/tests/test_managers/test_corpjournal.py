@@ -43,32 +43,24 @@ class CharManagerQuerySetTest(TestCase):
         )
 
     def test_annotate_bounty(self):
-        character_ids = [1, 2, 3]
-
-        qs = CorporationWalletJournalEntry.objects.annotate_bounty(character_ids)
+        qs = CorporationWalletJournalEntry.objects.annotate_bounty_income()
         self.assertIsNotNone(qs)
-        self.assertIn("total_bounty", qs.query.annotations)
+        self.assertIn("bounty_income", qs.query.annotations)
 
     def test_annotate_ess(self):
-        character_ids = [1, 2, 3]
-
-        qs = CorporationWalletJournalEntry.objects.annotate_ess(character_ids)
+        qs = CorporationWalletJournalEntry.objects.annotate_ess_income()
         self.assertIsNotNone(qs)
-        self.assertIn("total_ess", qs.query.annotations)
+        self.assertIn("ess_income", qs.query.annotations)
 
     def test_annotate_mission(self):
-        character_ids = [1, 2, 3]
-
-        qs = CorporationWalletJournalEntry.objects.annotate_mission(character_ids)
+        qs = CorporationWalletJournalEntry.objects.annotate_mission_income()
         self.assertIsNotNone(qs)
-        self.assertIn("total_mission", qs.query.annotations)
+        self.assertIn("mission_income", qs.query.annotations)
 
     def test_annotate_daily_goal(self):
-        character_ids = [1, 2, 3]
-
-        qs = CorporationWalletJournalEntry.objects.annotate_daily_goal(character_ids)
+        qs = CorporationWalletJournalEntry.objects.annotate_daily_goal_income()
         self.assertIsNotNone(qs)
-        self.assertIn("total_daily_goal", qs.query.annotations)
+        self.assertIn("daily_goal_income", qs.query.annotations)
 
     def test_annotate_ledger(self):
         add_character_to_user(self.user, EveCharacter.objects.get(character_id=1002))
@@ -123,135 +115,99 @@ class CharManagerQuerySetTest(TestCase):
         )
 
         self.client.force_login(self.user)
-        result = CorporationWalletJournalEntry.objects.all().annotate_ledger([2001])
+        result = CorporationWalletJournalEntry.objects.all().generate_ledger([2001])
 
         expected_result = [
             {
-                "main_character_id": 1001,
-                "main_character_name": "Gneuten",
-                "alts": [1001],
-                "total_bounty": Decimal("400000.00"),
-                "total_ess": Decimal("400000.00"),
-                "total_miscellaneous": Decimal("0.00"),
+                "main_entity_id": 1001,
+                "main_entity_name": "Gneuten",
+                "alts": [1001, 1002],
             },
             {
-                "main_character_id": 1010,
-                "main_character_name": "Test1",
+                "main_entity_id": 1010,
+                "main_entity_name": "Test1",
                 "alts": [1010],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
             },
             {
-                "main_character_id": 1011,
-                "main_character_name": "Test2",
+                "main_entity_id": 1011,
+                "main_entity_name": "Test2",
                 "alts": [1011],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
             },
             {
-                "main_character_id": 1012,
-                "main_character_name": "Test3",
+                "main_entity_id": 1012,
+                "main_entity_name": "Test3",
                 "alts": [1012],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
             },
             {
-                "main_character_id": 1013,
-                "main_character_name": "Test4",
+                "main_entity_id": 1013,
+                "main_entity_name": "Test4",
                 "alts": [1013],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
             },
             {
-                "main_character_id": 1014,
-                "main_character_name": "Test5",
+                "main_entity_id": 1014,
+                "main_entity_name": "Test5",
                 "alts": [1014],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
             },
             {
-                "main_character_id": 1015,
-                "main_character_name": "Test6",
+                "main_entity_id": 1015,
+                "main_entity_name": "Test6",
                 "alts": [1015],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
             },
             {
-                "main_character_id": 1016,
-                "main_character_name": "Test7",
+                "main_entity_id": 1016,
+                "main_entity_name": "Test7",
                 "alts": [1016],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
             },
             {
-                "main_character_id": 1017,
-                "main_character_name": "Test8",
+                "main_entity_id": 1017,
+                "main_entity_name": "Test8",
                 "alts": [1017],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
             },
             {
-                "main_character_id": 1018,
-                "main_character_name": "Test9",
+                "main_entity_id": 1018,
+                "main_entity_name": "Test9",
                 "alts": [1018],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
             },
             {
-                "main_character_id": 1019,
-                "main_character_name": "Test10",
+                "main_entity_id": 1019,
+                "main_entity_name": "Test10",
                 "alts": [1019],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
             },
             {
-                "main_character_id": 1020,
-                "main_character_name": "Test11",
+                "main_entity_id": 1020,
+                "main_entity_name": "Test11",
                 "alts": [1020],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
             },
             {
-                "main_character_id": 1021,
-                "main_character_name": "Test12",
+                "main_entity_id": 1021,
+                "main_entity_name": "Test12",
                 "alts": [1021],
-                "total_bounty": Decimal("100000.00"),
-                "total_ess": Decimal("0.00"),
-                "total_miscellaneous": Decimal("0.00"),
+            },
+            {
+                "main_entity_id": 9998,
+                "main_entity_name": "Test9999",
+                "alts": [9998],
+            },
+            {
+                "main_entity_id": 9999,
+                "main_entity_name": "Test9999",
+                "alts": [9999],
             },
         ]
 
-        self.assertEqual(list(result), expected_result)
+        sorted_result = sorted(list(result), key=lambda x: x["main_entity_id"])
+        sorted_expected_result = sorted(
+            expected_result, key=lambda x: x["main_entity_id"]
+        )
 
-        # With Attribute Error
-
-        auth_character = EveCharacter.objects.get(character_id=1019)
-        user = AuthUtils.create_user(auth_character.character_name.replace(" ", "_"))
-        _ = add_character_to_user(user, auth_character, is_main=False, scopes=None)
-
-        self.client.force_login(user)
-
-        result = CorporationWalletJournalEntry.objects.all().annotate_ledger([2001])
-
-        self.assertEqual(list(result), expected_result)
+        self.assertEqual(sorted_result, sorted_expected_result)
 
     def test_annotate_ledger_no_data(self):
-        result = CorporationWalletJournalEntry.objects.all().annotate_ledger([99999])
+        result = CorporationWalletJournalEntry.objects.all().generate_ledger([99999])
 
         self.assertEqual(list(result), [])
 
     def test_annotate_ledger_no_data_no_corporations(self):
-        result = CorporationWalletJournalEntry.objects.all().annotate_ledger([])
+        result = CorporationWalletJournalEntry.objects.all().generate_ledger([])
 
         self.assertEqual(list(result), [])

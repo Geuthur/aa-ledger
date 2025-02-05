@@ -13,24 +13,17 @@
 <!--############################## SUMMARY #######################-->
 <div class="tab-pane panel panel-default active" id="tab-summary">
     <div class="card-body modal-tab">
-        {% if character.bounty %}
+        {% if character.bounty_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Ratting" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.bounty.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.bounty_income.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
-        {% if character.ess %}
+        {% if character.ess_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "ESS" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.ess.total_amount|floatformat:0|intcomma }}</span> ISK</div>
-            </div>
-        {% endif %}
-
-        {% if character.mission %}
-            <div class="row description-row">
-                <div class="col-sm-6">{% trans "Mission Reward" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.mission.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.ess_income.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
@@ -43,6 +36,13 @@
             </div>
         {% endif %}
 
+        {% if character.mission_income %}
+            <div class="row description-row">
+                <div class="col-sm-6">{% trans "Mission Reward" %}:</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.mission_income.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
+
         {% if character.mining %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Mining" %}:</div>
@@ -50,75 +50,86 @@
             </div>
         {% endif %}
 
-        {% if character.incursion %}
+        {% if character.incursion_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Incursion" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.incursion.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.incursion_income.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
         <!--############################## Misc #######################-->
 
-        {% if character.transaction %}
+        {% if character.market_income %}
             <hr>
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Market" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-success">{{ character.transaction.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.market_income.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
-        {% if character.contract %}
+        {% if character.contract_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Contract" %}:</div>
                 <div class='col-sm-4 text-end'>
                     <span class="text-success">
-                        {{ character.contract.total_amount|floatformat:0|intcomma }}
+                        {{ character.contract_income.total_amount|floatformat:0|intcomma }}
                     </span> ISK
                 </div>
             </div>
         {% endif %}
 
-        {% if character.donation %}
+        {% if character.donation_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Donation" %}:<br>
                 <span style="color: #FFBF00"></span>
                 </div>
                 <div class='col-sm-4 text-end'>
                     <span class="text-success">
-                        {{ character.donation.total_amount|floatformat:0|intcomma }}
+                        {{ character.donation_income.total_amount|floatformat:0|intcomma }}
                     </span> ISK
                 </div>
             </div>
         {% endif %}
 
-        {% if character.insurance %}
+        {% if character.insurance_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Insurance" %}:</div>
                 <div class='col-sm-4 text-end'>
                     <span class="text-success">
-                        {{ character.insurance.total_amount|floatformat:0|intcomma }}
+                        {{ character.insurance_income.total_amount|floatformat:0|intcomma }}
                     </span> ISK
                 </div>
             </div>
         {% endif %}
 
-        {% if character.cproject %}
+        {% if character.milestone_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Corp Project" %}:</div>
                 <div class='col-sm-4 text-end'>
                     <span class="text-success">
-                        {{ character.cproject.total_amount|floatformat:0|intcomma }}
+                        {{ character.milestone_income.total_amount|floatformat:0|intcomma }}
                     </span> ISK
                 </div>
             </div>
         {% endif %}
 
-        {% if character.daily_goal %}
+        {% if character.daily_goal_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Daily Goal" %}:</div>
                 <div class='col-sm-4 text-end'>
                     <span class="text-success">
-                        {{ character.daily_goal.total_amount|floatformat:0|intcomma }}
+                        {{ character.daily_goal_income.total_amount|floatformat:0|intcomma }}
+                    </span> ISK
+                </div>
+            </div>
+        {% endif %}
+
+        {% if character.citadel_income %}
+            <div class="row description-row">
+                <div class="col-sm-6">{% trans "Citadel" %}:</div>
+                <div class='col-sm-4 text-end'>
+                    <span class="text-success">
+                        {{ character.citadel_income.total_amount|floatformat:0|intcomma }}
                     </span> ISK
                 </div>
             </div>
@@ -129,6 +140,13 @@
         {% if character.production_cost or character.market_cost or character.contract_cost or character.asset_cost or character.traveling_cost %}
             <hr>
         {% endif %}
+        {% if character.market_cost %}
+            <div class="row description-row">
+                <div class="col-sm-6">{% trans "Market Cost" %}:</div>
+                <div class='col-sm-4 text-end'><span class="text-danger">{{ character.market_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
+
         {% if character.contract_cost %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Contract Cost" %}:</div>
@@ -136,16 +154,17 @@
             </div>
         {% endif %}
 
+        {% if character.lp_cost %}
+            <div class="row description-row">
+                <div class="col-sm-6">{% trans "Loyality Point Cost" %}:</div>
+                <div class='col-sm-4 text-end'><span class="text-danger">{{ character.lp_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
+
         {% if character.production_cost %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Production Cost" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-danger">{{ character.production_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
-            </div>
-        {% endif %}
-        {% if character.market_cost %}
-            <div class="row description-row">
-                <div class="col-sm-6">{% trans "Market Cost" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-danger">{{ character.market_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 

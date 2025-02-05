@@ -22,7 +22,10 @@ logger = get_extension_logger(__name__)
 @permission_required("ledger.basic_access")
 def add_char(request, token):
     char, _ = CharacterAudit.objects.update_or_create(
-        character=EveCharacter.objects.get_character_by_id(token.character_id)
+        character=EveCharacter.objects.get_character_by_id(token.character_id),
+        defaults={
+            "character_name": token.character_name,
+        },
     )
     update_character.apply_async(
         args=[token.character_id], kwargs={"force_refresh": True}, priority=6

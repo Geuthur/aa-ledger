@@ -75,6 +75,7 @@ def update_character_planetary(character_id, force_refresh=False):
                 id=prim_key,
                 character=audit_char,
                 planet=eve_planet,
+                planet_name=eve_planet.name,
                 upgrade_level=planet["upgrade_level"],
                 num_pins=planet["num_pins"],
                 last_update=timezone.now(),
@@ -147,19 +148,14 @@ def update_character_planetary_details(character_id, planet_id, force_refresh=Fa
         # Convert Time to string
         planet_details_items = convert_datetime_to_str(planet_details_items)
 
-        planet, created = CharacterPlanetDetails.objects.update_or_create(
+        planet, created = CharacterPlanetDetails.objects.update_or_create_layout(
             planet=planet_char,
-            defaults={
-                "links": planet_details_items["links"],
-                "pins": planet_details_items["pins"],
-                "routes": planet_details_items["routes"],
-                "last_update": timezone.now(),
-            },
+            esi_result=planet_details_items,
         )
 
         if not created:
             # Set Alert if Extractor Heads are expired
-            if planet.is_expired() and planet.last_alert is None:
+            if planet.is_expired and planet.last_alert is None:
                 logger.debug(
                     "Planet %s Extractor Heads Expired for: %s",
                     planet.planet.planet.name,

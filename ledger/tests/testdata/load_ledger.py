@@ -1,9 +1,10 @@
 """Generate AllianceAuth test objects from allianceauth.json."""
 
 import json
-from datetime import date, datetime
+from datetime import datetime
 from pathlib import Path
 
+from django.utils import timezone
 from eveuniverse.models import EveMarketPrice, EveSolarSystem, EveType
 
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -61,6 +62,9 @@ def load_char_audit():
     CharacterAudit.objects.update_or_create(
         id=3, character=EveCharacter.objects.get(character_id=1003)
     )
+    CharacterAudit.objects.update_or_create(
+        id=4, character=EveCharacter.objects.get(character_id=1022)
+    )
 
 
 def load_corp_audit():
@@ -88,7 +92,7 @@ def load_char_mining():
     CharacterMiningLedger.objects.create(
         character=CharacterAudit.objects.get(character__character_name="Gneuten"),
         id="20240316-17425-1001-30004783",
-        date=date(2024, 3, 16),
+        date=timezone.make_aware(timezone.datetime(2024, 3, 16)),
         type=EveType.objects.get(id=17425),
         system=EveSolarSystem.objects.get(id=30004783),
         quantity=100,
@@ -96,15 +100,17 @@ def load_char_mining():
     CharacterMiningLedger.objects.create(
         character=CharacterAudit.objects.get(character__character_name="Gneuten"),
         id="20240316-17423-1001-30004785",
-        date=date(2024, 3, 16),
+        date=timezone.make_aware(timezone.datetime(2024, 3, 16)),
         type=EveType.objects.get(id=17425),
         system=EveSolarSystem.objects.get(id=30002063),
         quantity=100,
     )
     CharacterMiningLedger.objects.create(
-        character=CharacterAudit.objects.get(id=2),
+        character=CharacterAudit.objects.get(
+            character__character_name="rotze Rotineque"
+        ),
         id="20240316-17423-1002-30004785",
-        date=date(2024, 3, 16),
+        date=timezone.make_aware(timezone.datetime(2024, 3, 16)),
         type=EveType.objects.get(id=17425),
         system=EveSolarSystem.objects.get(id=30002063),
         quantity=100,
@@ -301,6 +307,24 @@ def load_char_journal():
         tax_receiver_id=0,
     )
 
+    # No Amount
+    CharacterWalletJournalEntry.objects.create(
+        character=CharacterAudit.objects.get(character__character_name="Test13"),
+        amount=-0,
+        balance=0,
+        context_id=61,
+        context_id_type="system_id",
+        date="2024-03-19T14:00:10Z",
+        description="Test",
+        first_party=EveEntity.objects.get(eve_id=1000125),
+        entry_id=61,
+        reason="Test Transfer",
+        ref_type="bounty_prizes",
+        second_party=EveEntity.objects.get(eve_id=1022),
+        tax=0,
+        tax_receiver_id=0,
+    )
+
 
 def load_corp_journal():
     CorporationWalletJournalEntry.objects.all().delete()
@@ -310,6 +334,12 @@ def load_corp_journal():
         corporation=CorporationAudit.objects.get(id=1),
         balance=100_000,
         division=1,
+    )
+    CorporationWalletDivision.objects.update_or_create(
+        id=2,
+        corporation=CorporationAudit.objects.get(id=2),
+        balance=100_000,
+        division=2,
     )
     CorporationWalletJournalEntry.objects.create(
         division=CorporationWalletDivision.objects.get(id=1),
@@ -446,13 +476,13 @@ def load_corp_journal():
 
     # Many Test Entries
     CorporationWalletJournalEntry.objects.create(
-        division=CorporationWalletDivision.objects.get(id=1),
+        division=CorporationWalletDivision.objects.get(id=2),
         amount=100_000,
         balance=100_000_000,
         context_id=0,
         context_id_type="division",
         date="2024-03-19T14:00:00Z",
-        description="Test",
+        description="Ratting Rotze",
         first_party=EveEntity.objects.get(eve_id=1000125),
         entry_id=203,
         reason="",

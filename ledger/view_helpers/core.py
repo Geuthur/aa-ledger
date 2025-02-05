@@ -112,10 +112,8 @@ def delete_cache(key_name: str):
     cache.delete(_storage_key(key_name))
 
 
-def events_filter(entries) -> "QuerySet":
-    """
-    Filter out all Entries that are in the time of the Event
-    """
+def events_filter(qs) -> "QuerySet":
+    """Remove Entries that are in the Event Time"""
     # Events to Filter out
     events = Events.objects.all()
 
@@ -127,11 +125,11 @@ def events_filter(entries) -> "QuerySet":
             continue
         q_objects.append(Q(date__range=(event.date_start, event.date_end)))
 
-    # Kombinieren Sie alle Q-Objekte mit einer ODER-Verknüpfung
+    # Combine all Q-Objects
     if q_objects:
         combined_q_object = q_objects[0]
         for q_object in q_objects[1:]:
             combined_q_object |= q_object
-
-        entries = entries.exclude(combined_q_object)
-    return entries
+        # Exclude all Entries that are in the Event Time
+        qs = qs.exclude(combined_q_object & Q(ref_type="ess_escrow_transfer"))
+    return qs

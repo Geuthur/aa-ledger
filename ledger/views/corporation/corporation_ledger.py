@@ -26,7 +26,8 @@ def corporation_ledger(request, corporation_pk):
 
     context = {
         "years": years,
-        "corporation_pk": corporation_pk,
+        "entity_pk": corporation_pk,
+        "entity_type": "corporation",
     }
     context = add_info_to_context(request, context)
     return render(request, "ledger/corpledger/corporation_ledger.html", context=context)

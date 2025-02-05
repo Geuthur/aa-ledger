@@ -13,6 +13,8 @@
   - agent_mission_time_bonus_reward
 - **Incursion**
   - corporate_reward_payout
+- **Daily Goal**
+  - daily_goal_reward
 
 <hr>
 
@@ -97,13 +99,15 @@
 
   - insurance
 
-- **Corp Projects**
+- **Mile Stone Reward**
 
-  - milestone_reward_payment (Not Confirmed)
+  - milestone_reward_payment
 
 # Corporation Ledger
 
 # Income
 
-- **Daily Goal Reward**
-  - DAILY_GOAL_REWARD
+- **Citadel**
+
+  - industry_job_tax
+  - reprocessing_tax

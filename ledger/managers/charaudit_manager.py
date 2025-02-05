@@ -1,5 +1,9 @@
+from collections import defaultdict
+
 from django.db import models
-from django.db.models import ExpressionWrapper, F
+from django.db.models import DecimalField, ExpressionWrapper, F, Q, Sum, Value
+from django.db.models.functions import Coalesce, Round
+from django.utils import timezone
 
 from allianceauth.eveonline.models import EveCharacter
 
@@ -83,14 +87,74 @@ class AuditCharacterManager(models.Manager):
 class CharacterMiningLedgerEntryQueryset(models.QuerySet):
     def annotate_pricing(self) -> models.QuerySet:
         """Annotate price and total columns."""
+        return self.annotate(price=F("type__market_price__average_price")).annotate(
+            total=ExpressionWrapper(
+                F("type__market_price__average_price") * F("quantity"),
+                output_field=models.DecimalField(),
+            ),
+        )
+
+    def annotate_mining(self) -> models.QuerySet:
+        """Annotate mining columns."""
         return (
-            self.select_related("type__market_price")
-            .annotate(price=F("type__market_price__average_price"))
+            self.annotate_pricing()
+            .values(
+                "character__character__character_id",
+                "character__character__character_name",
+            )
             .annotate(
-                total=ExpressionWrapper(
-                    F("type__market_price__average_price") * F("quantity"),
-                    output_field=models.FloatField(),
+                total_amount=Round(
+                    Coalesce(
+                        Sum(F("total")),
+                        Value(0),
+                        output_field=DecimalField(),
+                    ),
+                    precision=2,
+                )
+            )
+        )
+
+    def generate_template(
+        self, amounts: defaultdict, chars_list: list, filter_date: timezone.datetime
+    ) -> dict:
+        """Generate data template for the ledger character information view."""
+        qs = self.filter(Q(character__character__character_id__in=chars_list))
+        qs = qs.annotate_pricing()
+        qs = qs.aggregate(
+            total_amount=Round(
+                Coalesce(
+                    Sum(F("total"), filter=Q(date__year=filter_date.year)),
+                    Value(0),
+                    output_field=DecimalField(),
                 ),
+                precision=2,
+            ),
+            total_amount_day=Round(
+                Coalesce(
+                    Sum(F("total"), filter=Q(date__day=filter_date.day)),
+                    Value(0),
+                    output_field=DecimalField(),
+                ),
+                precision=2,
+            ),
+        )
+
+        amounts["mining"]["total_amount"] = qs["total_amount"]
+        amounts["mining"]["total_amount_day"] = qs["total_amount_day"]
+
+        return amounts
+
+    def annotate_billboard(self, chars_list: list) -> models.QuerySet:
+        """Annotate billboard columns."""
+        qs = self.filter(Q(character__character__character_id__in=chars_list))
+        return qs.annotate(
+            total_amount=Round(
+                Coalesce(
+                    Sum(F("total")),
+                    Value(0),
+                    output_field=DecimalField(),
+                ),
+                precision=2,
             )
         )
 

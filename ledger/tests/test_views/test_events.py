@@ -29,8 +29,8 @@ class EventViewTest(TestCase):
         )
         cls.event = Events.objects.create(
             title="Test Event",
-            date_start="2022-01-01T00:00",
-            date_end="2030-01-01T01:00",
+            date_start=timezone.datetime(2022, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+            date_end=timezone.datetime(2030, 1, 1, 1, 0, 0, tzinfo=timezone.utc),
             description="Test Description",
             char_ledger=False,
             location="Test Location",
@@ -73,8 +73,8 @@ class EventViewTest(TestCase):
         response = self.client.get(f"/ledger/events/{self.event.id}/edit/")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.event.title)
-        self.assertContains(response, self.event.date_start)
-        self.assertContains(response, self.event.date_end)
+        self.assertContains(response, "2022-01-01T00:00")
+        self.assertContains(response, "2030-01-01T01:00")
         self.assertContains(response, self.event.description)
         self.assertContains(response, self.event.location)
 

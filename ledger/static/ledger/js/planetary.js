@@ -57,10 +57,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 characterIds.add(item.character_id);
                 const row = [];
 
+                const viewFactoryUrl = `/ledger/api/character/${item.character_id}/planetary/${item.planet_id}/factory/`;
+                const viewExtractorUrl = `/ledger/api/character/${item.character_id}/planetary/${item.planet_id}/extractor/`;
+
                 // Character
                 const characterCell = `
                     <td>
-                        <img src="https://images.evetech.net/characters/${item.character_id}/portrait?size=32" class="rounded-circle" style="margin-right: 5px; width: 32px; height: 32px;">
+                        <img src="https://images.evetech.net/characters/${item.character_id}/portrait?size=32" class="rounded-circle" style="margin-right: 5px;">
                         ${item.character_name}
                     </td>
                 `;
@@ -68,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Planet Type
                 const planetTypeCell = `
                     <td>
-                        <img src="https://images.evetech.net/types/${item.planet_type_id}/icon?size=32" class="rounded-circle" style="margin-right: 5px; width: 24px; height: 24px;">
+                        <img src="https://images.evetech.net/types/${item.planet_type_id}/icon?size=32" class="rounded-circle" style="margin-right: 5px;" data-tooltip-toggle="planetary" title="${item.planet}">
                         ${item.planet}
                         <i class="fa-solid fa-bullhorn" style="margin-left: 5px; color: ${item.alarm ? 'green' : 'red'};" title="${item.alarm ? alarmActivated : alarmDeactivated}" data-tooltip-toggle="planetary"></i>
                     </td>
@@ -80,18 +83,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Products
                 const productsCell = `
                     <td>
-                        ${Object.values(item.products).map(product => `<img src="https://images.evetech.net/types/${product.id}/icon?size=32" data-tooltip-toggle="planetary" title="${product.name}">`).join(' ')}
+                        ${Object.values(item.products.processed).map(product => `<img src="https://images.evetech.net/types/${product.id}/icon?size=32" data-tooltip-toggle="planetary" title="${product.name}">`).join(' ')}
                     </td>
-                    <button
-                        class="btn btn-primary btn-sm btn-square"
-                        style="margin-left: 5px;" data-bs-toggle="modal"
-                        data-bs-target="#productsInfoModal"
-                        data-character-id="${item.character_id}"
-                        data-character-name="${item.character_name}"
-                        data-planet="${item.planet}"
-                        data-productsInfo='${JSON.stringify(item.products_info)}'
-                        onclick="showProductsInfoModal(this)"
-                    >
+                    <button class="btn btn-primary btn-sm btn-square"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalViewFactoryContainer"
+                        data-ajax_factory="${viewFactoryUrl}"
+                        title="${row.main_name}" data-tooltip-toggle="ledger-tooltip" data-bs-placement="left">
                         <span class="fas fa-info"></span>
                     </button>
                 `;
@@ -116,6 +114,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     const elapsedDuration = currentTime - averageInstallTime;
                     const progressPercentage = Math.min(Math.max((elapsedDuration / totalDuration) * 100, 0), 100);
 
+                    let extractorIcons = Object.values(item.extractors).map(extractor => {
+                        let iconUrl = getIconUrl(extractor.item_id);
+                        return `<img src="${iconUrl}" data-tooltip-toggle="planetary" title="${extractor.item_name}">`;
+                    }).join('');
+
                     extractorsCell = `
                         <td>
                             <div style="display: flex; align-items: center;">
@@ -125,16 +128,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <div class="progress-value">${progressPercentage.toFixed(0)}%</div>
                                     </div>
                                 </div>
-                                <button
-                                    class="btn btn-primary btn-sm btn-square"
-                                    style="margin-left: 5px;" data-bs-toggle="modal"
-                                    data-bs-target="#extractorInfoModal"
-                                    data-character-id="${item.character_id}"
-                                    data-character-name="${item.character_name}"
-                                    data-planet="${item.planet}"
-                                    data-extractors='${JSON.stringify(item.extractors)}'
-                                    onclick="showExtractorInfoModal(this)"
-                                >
+                                ${extractorIcons}
+                                <button class="btn btn-primary btn-sm btn-square"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalViewExtractorContainer"
+                                    data-ajax_extractor="${viewExtractorUrl}"
+                                    title="${row.main_name}" data-tooltip-toggle="ledger-tooltip" data-bs-placement="left">
                                     <span class="fas fa-info"></span>
                                 </button>
                             </div>
@@ -154,8 +153,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Actions
                 const actionsCell = `
-                    <td class="text-end">
-                        <form class="d-inline" method="post" action="${switchAlarmUrl(item.character_id, item.planet_id)}" id="switchAlarmForm${item.character_id}_${item.planet_id}">
+                    <td>
+                        <form class="text-end" method="post" action="${switchAlarmUrl(item.character_id, item.planet_id)}" id="switchAlarmForm${item.character_id}_${item.planet_id}">
                             ${csrfToken}
                             <input type="hidden" name="character_pk" value="${characterPk}">
                             <button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="planetary" title="${switchAlarm}" data-bs-target="#confirmModal" data-confirm-text="${switchAlarmText} \n${item.character_name} - ${item.planet}?" data-form-id="switchAlarmForm${item.character_id}_${item.planet_id}">
@@ -211,73 +210,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function showProductsInfoModal(button) {
-    const characterName = button.getAttribute('data-character-name');
-    const planet = button.getAttribute('data-planet');
-    const productsInfo = JSON.parse(button.getAttribute('data-productsInfo'));
-
-    const modalTitle = document.querySelector('#productsInfoModal .character-Info');
-    modalTitle.textContent = `${characterName} - ${planet}`;
-
-    const tableBody = document.querySelector('#productsInfoModal .modal-table-body');
-    tableBody.innerHTML = '';
-
-    Object.values(productsInfo).forEach(item => {
-        item.contents.forEach(content => {
-            const row = document.createElement('tr');
-
-            const productCell = document.createElement('td');
-            productCell.innerHTML = `
-                <img src="https://images.evetech.net/types/${content.type_id}/icon?size=32" class="rounded-circle" style="margin-right: 5px; width: 32px; height: 32px;">
-            `;
-
-            const nameCell = document.createElement('td');
-            nameCell.textContent = content.product_name;
-
-            const quantityCell = document.createElement('td');
-            quantityCell.textContent = content.amount;
-
-            row.appendChild(productCell);
-            row.appendChild(nameCell);
-            row.appendChild(quantityCell);
-            tableBody.appendChild(row);
-        });
-    });
-
-    $('#productsInfoModal').modal('show');
-}
-
-function showExtractorInfoModal(button) {
-    const characterName = button.getAttribute('data-character-name');
-    const planet = button.getAttribute('data-planet');
-    const extractors = JSON.parse(button.getAttribute('data-extractors'));
-
-    const modalTitle = document.querySelector('#extractorInfoModal .character-Info');
-    modalTitle.textContent = `${characterName} - ${planet}`;
-
-    const tableBody = document.querySelector('#extractorInfoModal .modal-table-body');
-    tableBody.innerHTML = '';
-
-    const currentTime = new Date().getTime();
-    Object.values(extractors).forEach(extractor => {
-        const installTime = new Date(extractor.install_time).getTime();
-        const expiryTime = new Date(extractor.expiry_time).getTime();
-        const totalDuration = expiryTime - installTime;
-        const elapsedDuration = currentTime - installTime;
-        const progressPercentage = Math.min(Math.max((elapsedDuration / totalDuration) * 100, 0), 100);
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><span class="fas fa-cube"></span> ${extractor.product_name}</td>
-            <td>${new Date(extractor.install_time).toLocaleString()}</td>
-            <td>${new Date(extractor.expiry_time).toLocaleString()}</td>
-            <td>
-                <div class="progress" style="position: relative;">
-                    <div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" style="width: ${progressPercentage}%; box-shadow: -1px 3px 5px rgba(0, 180, 231, 0.9);" aria-valuenow="${progressPercentage}" aria-valuemin="0" aria-valuemax="100"></div>
-                    <div class="progress-value" style="position: absolute; width: 100%; text-align: center;">${progressPercentage.toFixed(0)}%</div>
-                </div>
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
+function getIconUrl(typeId) {
+    return `https://images.evetech.net/types/${typeId}/icon?size=32`;
 }

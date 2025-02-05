@@ -2,7 +2,7 @@ from datetime import datetime
 
 from ninja import Schema
 
-from ledger.api.managers.billboard_manager import BillboardDict
+from ledger.api.api_helper.billboard_helper import BillboardDict
 
 
 class Message(Schema):
@@ -67,6 +67,7 @@ class CharacterPlanetDetails(Schema):
     products_info: dict | None = None
     extractors: dict | None = None
     last_update: datetime | None = None
+    facility: dict | None = None
 
 
 class CharacterLedger(Schema):

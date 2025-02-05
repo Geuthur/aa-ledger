@@ -15,11 +15,8 @@ from app_utils.testing import add_character_to_user, create_user_from_evecharact
 
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
-from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 from ledger.tasks import (
     check_planetary_alarms,
-    create_member_audit,
-    create_missing_character,
     update_all_characters,
     update_all_corps,
     update_char_mining_ledger,
@@ -38,7 +35,6 @@ MODULE_PATH = "ledger.tasks"
 
 
 class TestTasks(TestCase):
-
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -62,25 +58,6 @@ class TestTasks(TestCase):
 
         cls.token = cls.user.token_set.first()
         cls.corporation = cls.character_ownership.character.corporation
-
-    @patch(MODULE_PATH + ".EveCharacter.objects.create_character")
-    def test_create_character(self, _):
-        # given
-        chars_list = [1010, 1011]
-        # when
-        result = create_missing_character(chars_list=chars_list)
-        # then
-        self.assertTrue(result)
-
-    @patch(MODULE_PATH + ".EveCharacter.objects.create_character")
-    def test_create_character_integrity(self, mock_character):
-        # given
-        chars_list = [1001, 1011]
-        mock_character.side_effect = [IntegrityError("duplicate key"), None]
-        # when
-        result = create_missing_character(chars_list=chars_list)
-        # then
-        self.assertTrue(result)
 
     @patch(MODULE_PATH + ".update_character.apply_async")
     @patch(MODULE_PATH + ".logger")

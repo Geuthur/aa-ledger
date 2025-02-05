@@ -16,6 +16,16 @@
             "published": true
         },
         {
+            "id": 42,
+            "name": "Planetary Resources",
+            "published": true
+        },
+        {
+            "id": 43,
+            "name": "Planetary Commodities",
+            "published": true
+        },
+        {
             "id": 65,
             "name": "Structure",
             "published": true
@@ -32,6 +42,24 @@
             "eve_category_id": 25,
             "id": 450,
             "name": "Arkonor",
+            "published": true
+        },
+        {
+            "eve_category_id": 42,
+            "id": 1033,
+            "name": "Planet Liquid-Gas - Raw Resource",
+            "published": true
+        },
+        {
+            "eve_category_id": 43,
+            "id": 1034,
+            "name": "Refined Commodities - Tier 2",
+            "published": true
+        },
+        {
+            "eve_category_id": 43,
+            "id": 1042,
+            "name": "Basic Commodities - Tier 1",
             "published": true
         }
     ],
@@ -165,6 +193,78 @@
             "eve_market_group_id": null,
             "enabled_sections": 0,
             "description":"This conductive liquid is able to carry an electrical current due to its unique ionic properties, making it ideal for use as a reactive coolant, a high-energy fuel, or a transference medium for power plants."
+         },
+         {
+            "id":2268,
+            "name":"Aqueous Liquids",
+            "last_updated":"2025-01-02 16:22:40.192442",
+            "capacity":0,
+            "icon_id":"10012",
+            "mass": 0,
+            "packaged_volume": 0.005,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume": 0.005,
+            "eve_graphic_id":null,
+            "eve_group_id": 1033,
+            "eve_market_group_id": null,
+            "enabled_sections": 13,
+            "description":"The abundance of water on terrestrial planets is often a misconception: What many refer to offhandedly as \"water\" is often an amalgamation of many liquids, microscopic particles, and saturated compounds combined with water and other liquids. Aqueous liquids represent those liquids from which pure water can be separated easily from waste or hazardous particles, but only using the proper equipment."
+         },
+         {
+            "id": 2309,
+            "name":"Ionic Solutions",
+            "last_updated":"2025-01-02 16:22:40.805952",
+            "capacity": 0,
+            "icon_id":"10014",
+            "mass": 0,
+            "packaged_volume": 0.005,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume": 0.005,
+            "eve_graphic_id":null,
+            "eve_group_id": 1033,
+            "eve_market_group_id": null,
+            "enabled_sections": 13,
+            "description":"An electrolyte found in a raw, natural form is called an ionic solution, especially in terms of planetary astronomy. Only after a lengthy process of extraction and refining can the resulting fluid go on to be used for medical, industrial, or nutritive applications."
+         },
+         {
+            "id": 9832,
+            "name":"Coolant",
+            "last_updated":"2025-01-02 16:16:34.532296",
+            "capacity": 0,
+            "icon_id":"1360",
+            "mass": 0,
+            "packaged_volume":0.75,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume":0.75,
+            "eve_graphic_id":null,
+            "eve_group_id": 1034,
+            "eve_market_group_id": null,
+            "enabled_sections": 13,
+            "description":"This specially blended fluid is ideal for transferring thermal energy away from sensitive machinery or computer components, rerouting it to heat sinks so it can be eliminated from the system."
+         },
+         {
+            "id": 3645,
+            "name":"Water",
+            "last_updated":"2025-01-02 16:16:50.272300",
+            "capacity": 0,
+            "icon_id":"1178",
+            "mass": 0,
+            "packaged_volume": 0.19,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume": 0.19,
+            "eve_graphic_id":null,
+            "eve_group_id": 1042,
+            "eve_market_group_id": null,
+            "enabled_sections": 13,
+            "description":"Water is one of the basic conditional elements of human survival. Most worlds have this compound in relative short supply and hence must rely on starship freight."
          }
     ],
     "EvePlanet": [
@@ -177,7 +277,7 @@
             "position_z":"-634258364444",
             "eve_solar_system_id":"30004783",
             "eve_type_id":"13",
-            "enabled_sections":"0"
+            "enabled_sections": 0
         },
         {
             "id":"4002",
@@ -188,7 +288,7 @@
             "position_z":"-634258364444",
             "eve_solar_system_id":"30004783",
             "eve_type_id":"13",
-            "enabled_sections":"0"
+            "enabled_sections": 0
         }
     ]
 

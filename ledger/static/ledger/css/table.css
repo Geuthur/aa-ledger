@@ -1,0 +1,47 @@
+/* stylelint-disable selector-id-pattern, color-no-hex */
+
+@media all {
+    #ratting {
+        table-layout: fixed;
+        word-wrap: break-word;
+    }
+
+    #ratting th,
+    #ratting td {
+        padding: 0.75rem;
+        vertical-align: top;
+    }
+
+    #ratting thead th {
+        text-align: center;
+    }
+
+    #ratting thead th.col-main-character {
+        text-align: left;
+    }
+
+    #ratting tbody td {
+        text-align: right;
+    }
+
+    #ratting tbody td:nth-child(1) {
+        text-align: left;
+    }
+
+    #ratting tfoot th {
+        text-align: right;
+        border-top: 1px solid #dee2e6;
+    }
+
+    #ratting tfoot th:nth-child(1) {
+        text-align: left;
+    }
+
+    .nav-tabs .nav-item .nav-link {
+        opacity: 0.3;
+    }
+
+    .nav-tabs .nav-item .nav-link.active {
+        opacity: 1.0;
+    }
+}

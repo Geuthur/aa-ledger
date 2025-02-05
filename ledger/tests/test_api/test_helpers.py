@@ -8,11 +8,7 @@ from allianceauth.corputils.models import CorpMember, CorpStats
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from app_utils.testing import add_character_to_user, create_user_from_evecharacter
 
-from ledger.api.helpers import (
-    get_alts_queryset,
-    get_character,
-    get_main_and_alts_ids_all,
-)
+from ledger.api.helpers import get_alts_queryset, get_character
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 
 MODULE_PATH = "ledger.api.helpers"
@@ -47,20 +43,6 @@ class TestApiHelpers(TestCase):
             1005,
         )
         cls.corp = EveCorporationInfo.objects.get(corporation_id=2001)
-
-    def test_get_main_and_alts_all_char_in_chars(self):
-        # given
-        request = self.factory.get("/")
-        request.user = self.user
-
-        chars = EveCharacter.objects.filter(
-            corporation_id__in=[self.corp.corporation_id]
-        ).values_list("character_id", flat=True)
-
-        # when
-        data = get_main_and_alts_ids_all([self.corp.corporation_id])
-        # then
-        self.assertEqual(data, list(chars))
 
     def test_get_main_character(self):
         # given

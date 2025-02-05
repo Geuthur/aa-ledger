@@ -1,0 +1,50 @@
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load evelinks %}
+{% load ledger %}
+
+{% if character %}
+    <div>
+        <h4 id="modal-title">
+            {{ character.title }}:
+            <img src="{{ character.character_id|character_portrait_url:32 }}" class="rounded-circle">
+            {{character.character_name}} - {{character.planet_name}}
+        </h4>
+    </div>
+    <div class="card bg-secondary rounded mb-3">
+        <header class="bg-primary rounded-top px-2 py-1">
+            <h3 class="me-3">{% trans "Extractors" %}</h3>
+        </header>
+        <table class="card-body table table-hover table-striped" id="extractors-table">
+            <thead>
+                <tr>
+                    <th>{% trans "Product" %}</th>
+                    <th>{% trans "Install Time" %}</th>
+                    <th>{% trans "Expiry Time" %}</th>
+                    <th>{% trans "Progress" %}</th>
+                </tr>
+            </thead>
+            <tbody class="modal-extractors-table-body">
+                {% for extractor_id, extractor in character.extractors.items %}
+                    <tr>
+                        <td><img src="{{ extractor.item_id|type_icon_url }}" class="rounded-circle"> {{ extractor.item_name }}</td>
+                        <td>{{ extractor.install_time }}</td>
+                        <td>{{ extractor.expiry_time }}</td>
+                        <td>
+                            <div class="progress" style="position: relative;">
+                                <div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" style="width: {{ extractor.progress_percentage|floatformat:0 }}%; box-shadow: -1px 3px 5px rgba(0, 180, 231, 90%);" aria-valuenow="{{ extractor.progress_percentage|floatformat:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress-value" style="position: absolute; width: 100%; text-align: center;">{{ extractor.progress_percentage|floatformat:0 }}%</div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    {% trans "No data found..." %}
+{% endif %}
+<span class="text-muted small">
+    {% trans "Note: Planetary information is only recalculated when the colony is viewed through the client. Information will not update until this criteria is met." %}
+</span>

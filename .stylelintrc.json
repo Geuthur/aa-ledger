@@ -1,6 +1,6 @@
 {
     "extends": "stylelint-config-standard",
-    "ignoreFiles": ["**/billboards_dark.css"],
+    "ignoreFiles": ["**/assets/**/*.css", "**/assets/**/*.js"],
     "rules": {
         "color-no-hex": true,
         "no-descending-specificity": null

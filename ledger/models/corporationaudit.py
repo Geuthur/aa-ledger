@@ -17,7 +17,7 @@ logger = get_extension_logger(__name__)
 
 class CorporationAudit(models.Model):
 
-    objects = CorpAuditManager()
+    corporation_name = models.CharField(max_length=100, null=True, default=None)
 
     corporation = models.OneToOneField(
         EveCorporationInfo,
@@ -26,6 +26,8 @@ class CorporationAudit(models.Model):
     )
 
     last_update_wallet = models.DateTimeField(null=True, default=None, blank=True)
+
+    objects = CorpAuditManager()
 
     def __str__(self):
         return f"{self.corporation.corporation_name}'s Corporation Data"
