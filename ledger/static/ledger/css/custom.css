@@ -1,32 +1,42 @@
 @media all {
-	.custom-line {
-		height: 3px;
-		border: none;
-		background: linear-gradient(to right, rgb(0 170 255 / 100%) 0%, rgb(0 170 255 / 0%) 80%, rgb(0 170 255 / 0%) 100%);
-		z-index: 1;
-	}
+    .custom-line {
+        height: 3px;
+        border: none;
+        background: linear-gradient(to right, rgb(0 170 255 / 100%) 0%, rgb(0 170 255 / 0%) 80%, rgb(0 170 255 / 0%) 100%);
+        z-index: 1;
+    }
 
-	/* Style the Image Used to Trigger the Modal */
-	.zoom {
-		opacity: 0.7;
-		border-radius: 10px;
-		cursor: pointer;
-		transition: 0.3s;
-	}
+    /* Style the Image Used to Trigger the Modal */
+    .zoom {
+        opacity: 0.7;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
 
-	.zoom:hover {
-		opacity: 1;
-		transform: scale(1.1);
-	}
+    .zoom:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
 
-	/* Custom CSS for tab mouseover */
-	.nav-tabs .nav-link:hover {
-		opacity: 0.8;
-		color: white;
-		border-color: white;
-	}
+    /* Custom CSS for tab mouseover */
+    .nav-tabs .nav-link:hover {
+        opacity: 0.8;
+        color: white;
+        border-color: white;
+    }
 
-	.aa-ledger-modal-header > h5 {
-		border-bottom: 1px solid var(--bs-secondary-bg-subtle);
-	}
+    .aa-ledger-modal-header > h5 {
+        border-bottom: 1px solid var(--bs-secondary-bg-subtle);
+    }
+
+    .dropdown-scrollable {
+        max-height: 200px; /* Adjust the height as needed */
+        overflow-y: auto;
+    }
+
+    .dropdown-item.active {
+        background-color: rgb(248 249 250); /* Lighter background color */
+        color: rgb(33 37 41); /* Dark text color */
+    }
 }

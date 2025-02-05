@@ -21,7 +21,6 @@ if (characteraltsShow) {
     mainAlts = '?main=True';
 }
 
-const barDropdownMode = document.getElementById('barDropdownMode');
 const yearDropdown = document.getElementById('yearDropdown');
 const monthDropdown = document.getElementById('monthDropdown');
 const dayDropdown = document.getElementById('dayDropdown');
@@ -392,23 +391,6 @@ document.addEventListener('DOMContentLoaded', function () {
     setBillboardData(ChartUrl, 'Ledger');
     generateLedger('Ledger', LedgerUrl);
     populateDays(selectedMonth);
-
-    barDropdownMode.addEventListener('click', function(event) {
-        selectedMode = event.target.textContent;
-        var div = 'rattingBar';
-        if (selectedMode === hourlyText) {
-            var data = BillboardHourly.rattingbar;
-        } else {
-            var data = BillboardMonth.rattingbar;
-        }
-        const success = load_or_create_Chart(div=div, data=data, id='Ledger', chart='bar');
-        if (success) {
-            $('#barTitle').text('Ledger ' + selectedMode);
-            console.log('Chart loaded successfully');
-        } else {
-            console.log('Failed to load chart');
-        }
-    });
 
     yearDropdown.addEventListener('click', function(event) {
         if (event.target && event.target.matches('a.dropdown-item')) {
