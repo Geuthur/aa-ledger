@@ -152,7 +152,7 @@ class BillboardSystem:
         data_entry = {"date": timezone.now().strftime("%Y-%m-%d")}
         # Initialize a dictionary to hold the aggregated values
         aggregated_data = {
-            category: {"value": 0.0, "mode": None} for category in included_categories
+            category: {"value": 0.00, "mode": None} for category in included_categories
         }
 
         # Aggregate the values for each category across all dates
@@ -166,17 +166,16 @@ class BillboardSystem:
         for category, value in aggregated_data.items():
             display_category = category.upper()
             data_entry[display_category] = {
-                "value": value["value"],
+                "value": float(f"{value['value']:.2f}"),
                 "mode": value["mode"],
             }
 
         # Create series data with a single entry
         series = [data_entry]
+        categories = sorted(list(included_categories))
 
         date = timezone.now().strftime("%Y-%m-%d")
-        return ChartData(
-            title=title, date=date, categories=list(included_categories), series=series
-        )
+        return ChartData(title=title, date=date, categories=categories, series=series)
 
     def _to_chord_chart(self, title: str) -> ChartData:
         """Convert the data points to a bubble chart."""

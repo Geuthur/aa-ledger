@@ -30,14 +30,14 @@ CharmonthlyMarch = [
                     "series": [
                         {
                             "date": "2025-01-31",
-                            "BOUNTY": {"value": 9, "mode": "income"},
-                            "CONTRACT": {"value": 5, "mode": "income"},
-                            "DONATION": {"value": 5, "mode": "income"},
-                            "ESS": {"value": 53, "mode": "income"},
-                            "INSURANCE": {"value": 5, "mode": "cost"},
-                            "MARKET": {"value": 9, "mode": "cost"},
-                            "MINING": {"value": 9, "mode": "cost"},
-                            "PRODUCTION": {"value": 5, "mode": "cost"},
+                            "BOUNTY": {"value": 200000.00, "mode": "income"},
+                            "CONTRACT": {"value": 100000.00, "mode": "income"},
+                            "DONATION": {"value": 100000.00, "mode": "income"},
+                            "ESS": {"value": 1133333.33, "mode": "income"},
+                            "INSURANCE": {"value": 100000.00, "mode": "cost"},
+                            "MARKET": {"value": 200000.00, "mode": "cost"},
+                            "MINING": {"value": 200000.00, "mode": "income"},
+                            "PRODUCTION": {"value": 100000.00, "mode": "cost"},
                         }
                     ],
                 },
@@ -62,10 +62,10 @@ CharmonthlyMarch = [
                     "series": [
                         {
                             "date": "2025-01-31",
-                            "BOUNTY": {"value": 12, "mode": "income"},
-                            "ESS": {"value": 65, "mode": "income"},
-                            "MINING": {"value": 12, "mode": "cost"},
-                            "MISCELLANEOUS": {"value": 12, "mode": "cost"},
+                            "BOUNTY": {"value": 200000.00, "mode": "income"},
+                            "ESS": {"value": 1133333.33, "mode": "income"},
+                            "MINING": {"value": 200000.00, "mode": "income"},
+                            "MISCELLANEOUS": {"value": 200000.00, "mode": "income"},
                         }
                     ],
                 },
@@ -95,14 +95,14 @@ CharmonthlyMarchMulti = [
                     "series": [
                         {
                             "date": "2025-01-31",
-                            "BOUNTY": {"value": 9, "mode": "income"},
-                            "CONTRACT": {"value": 4, "mode": "income"},
-                            "DONATION": {"value": 4, "mode": "income"},
-                            "ESS": {"value": 51, "mode": "income"},
-                            "INSURANCE": {"value": 4, "mode": "cost"},
-                            "MARKET": {"value": 9, "mode": "cost"},
-                            "MINING": {"value": 13, "mode": "cost"},
-                            "PRODUCTION": {"value": 4, "mode": "cost"},
+                            "BOUNTY": {"value": 200000.00, "mode": "income"},
+                            "CONTRACT": {"value": 100000.00, "mode": "income"},
+                            "DONATION": {"value": 100000.00, "mode": "income"},
+                            "ESS": {"value": 1133333.33, "mode": "income"},
+                            "INSURANCE": {"value": 100000.00, "mode": "cost"},
+                            "MARKET": {"value": 200000.00, "mode": "cost"},
+                            "MINING": {"value": 300000.00, "mode": "income"},
+                            "PRODUCTION": {"value": 100000.00, "mode": "cost"},
                         }
                     ],
                 },
@@ -127,10 +127,10 @@ CharmonthlyMarchMulti = [
                     "series": [
                         {
                             "date": "2025-01-31",
-                            "BOUNTY": {"value": 11, "mode": "income"},
-                            "ESS": {"value": 62, "mode": "income"},
-                            "MINING": {"value": 16, "mode": "cost"},
-                            "MISCELLANEOUS": {"value": 11, "mode": "cost"},
+                            "BOUNTY": {"value": 200000.00, "mode": "income"},
+                            "ESS": {"value": 1133333.33, "mode": "income"},
+                            "MINING": {"value": 300000.00, "mode": "income"},
+                            "MISCELLANEOUS": {"value": 200000.00, "mode": "income"},
                         }
                     ],
                 },
@@ -159,14 +159,14 @@ Charyearly = [
                     "series": [
                         {
                             "date": "2025-01-31",
-                            "BOUNTY": {"value": 13, "mode": "income"},
-                            "CONTRACT": {"value": 4, "mode": "income"},
-                            "DONATION": {"value": 4, "mode": "income"},
-                            "ESS": {"value": 51, "mode": "income"},
-                            "INSURANCE": {"value": 4, "mode": "cost"},
-                            "MARKET": {"value": 9, "mode": "cost"},
-                            "MINING": {"value": 9, "mode": "cost"},
-                            "PRODUCTION": {"value": 4, "mode": "cost"},
+                            "BOUNTY": {"value": 300000.00, "mode": "income"},
+                            "CONTRACT": {"value": 100000.00, "mode": "income"},
+                            "DONATION": {"value": 100000.00, "mode": "income"},
+                            "ESS": {"value": 1133333.33, "mode": "income"},
+                            "INSURANCE": {"value": 100000.00, "mode": "cost"},
+                            "MARKET": {"value": 200000.00, "mode": "cost"},
+                            "MINING": {"value": 200000.00, "mode": "income"},
+                            "PRODUCTION": {"value": 100000.00, "mode": "cost"},
                         }
                     ],
                 },
@@ -188,14 +188,19 @@ Charyearly = [
                 "workflowgauge": {
                     "title": "Workflow Chart",
                     "date": "2025-01-31",
-                    "categories": ["bounty", "ess", "mining", "miscellaneous"],
+                    "categories": [
+                        "bounty",
+                        "ess",
+                        "mining",
+                        "miscellaneous",
+                    ],
                     "series": [
                         {
                             "date": "2025-01-31",
-                            "BOUNTY": {"value": 16, "mode": "income"},
-                            "ESS": {"value": 62, "mode": "income"},
-                            "MINING": {"value": 11, "mode": "cost"},
-                            "MISCELLANEOUS": {"value": 11, "mode": "cost"},
+                            "BOUNTY": {"value": 300000.00, "mode": "income"},
+                            "ESS": {"value": 1133333.33, "mode": "income"},
+                            "MINING": {"value": 200000.00, "mode": "income"},
+                            "MISCELLANEOUS": {"value": 200000.00, "mode": "income"},
                         }
                     ],
                 },
@@ -223,13 +228,13 @@ CharNoMining = [
                     "series": [
                         {
                             "date": "2025-01-31",
-                            "BOUNTY": {"value": 10, "mode": "income"},
-                            "CONTRACT": {"value": 5, "mode": "income"},
-                            "DONATION": {"value": 5, "mode": "income"},
-                            "ESS": {"value": 59, "mode": "income"},
-                            "INSURANCE": {"value": 5, "mode": "cost"},
-                            "MARKET": {"value": 10, "mode": "cost"},
-                            "PRODUCTION": {"value": 5, "mode": "cost"},
+                            "BOUNTY": {"value": 200000.00, "mode": "income"},
+                            "CONTRACT": {"value": 100000.00, "mode": "income"},
+                            "DONATION": {"value": 100000.00, "mode": "income"},
+                            "ESS": {"value": 1133333.33, "mode": "income"},
+                            "INSURANCE": {"value": 100000.00, "mode": "cost"},
+                            "MARKET": {"value": 200000.00, "mode": "cost"},
+                            "PRODUCTION": {"value": 100000.00, "mode": "cost"},
                         }
                     ],
                 },
@@ -249,13 +254,14 @@ CharNoMining = [
                 "workflowgauge": {
                     "title": "Workflow Chart",
                     "date": "2025-01-31",
-                    "categories": ["bounty", "ess", "miscellaneous"],
+                    "categories": ["bounty", "ess", "mining", "miscellaneous"],
                     "series": [
                         {
                             "date": "2025-01-31",
-                            "BOUNTY": {"value": 13, "mode": "income"},
-                            "ESS": {"value": 74, "mode": "income"},
-                            "MISCELLANEOUS": {"value": 13, "mode": "cost"},
+                            "BOUNTY": {"value": 200000.00, "mode": "income"},
+                            "ESS": {"value": 1133333.33, "mode": "income"},
+                            "MINING": {"value": 0.00, "mode": None},
+                            "MISCELLANEOUS": {"value": 200000.00, "mode": "income"},
                         }
                     ],
                 },
