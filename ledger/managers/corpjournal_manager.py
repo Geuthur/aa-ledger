@@ -165,6 +165,7 @@ class CorpWalletQueryFilter(models.QuerySet):
 
 
 class CorpWalletQuerySet(CorpWalletQueryFilter):
+    # pylint: disable=unused-argument
     def _get_linked_chars(self, entity_ids: list, corporations=None) -> tuple:
         main_and_alts = {}
         entity_list = []
@@ -172,7 +173,7 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         eve_npc_entities = [1000125, 1000132, 1000413]
 
         accounts = UserProfile.objects.filter(
-            main_character__corporation_id__in=corporations
+            main_character__isnull=False,
         ).select_related(
             "user__profile__main_character",
             "main_character__character_ownership",
