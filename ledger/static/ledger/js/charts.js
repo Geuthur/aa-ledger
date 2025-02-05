@@ -156,7 +156,7 @@ function createRattingChart(root, data, id) {
         }));
 
         const series = chart.series.push(am5percent.PieSeries.new(root, {
-            valueField: 'value',
+            valueField: 'percentage',
             categoryField: 'category',
             alignLabels: false,
         }));
@@ -188,6 +188,7 @@ function createRattingChart(root, data, id) {
                 transformedData.push({
                     category: category,
                     value: seriesData[category].value,
+                    percentage: seriesData[category].percentage,
                     mode: seriesData[category].mode
                 });
             }
