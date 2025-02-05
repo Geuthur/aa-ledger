@@ -252,12 +252,19 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
 class CharWalletCostQueryFilter(CharWalletOutSideFilter):
     # Costs
     def annotate_contract_cost(self) -> models.QuerySet:
+        # Exclude refunded contract costs
+        refund_entry_ids = self.filter(
+            ref_type="contract_collateral_refund"
+        ).values_list("context_id", flat=True)
+
         # Subquery to identify entry_ids that are contract income
         contract_income_entry_ids = self.filter(CONTRACT_INCOME_FILTER).values_list(
             "entry_id", flat=True
         )
-        contract_cost_filter = CONTRACT_COST_FILTER & ~Q(
-            entry_id__in=contract_income_entry_ids
+        contract_cost_filter = (
+            CONTRACT_COST_FILTER
+            & ~Q(entry_id__in=contract_income_entry_ids)
+            & ~Q(context_id__in=refund_entry_ids)
         )
 
         return self.annotate(
