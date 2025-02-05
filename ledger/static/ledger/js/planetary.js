@@ -129,18 +129,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </div>
                                 </div>
                                 ${extractorIcons}
-                                <button
-                                    class="btn btn-primary btn-sm btn-square"
-                                    style="margin-left: 5px;" data-bs-toggle="modal"
-                                    data-bs-target="#extractorInfoModal"
-                                    data-character-id="${item.character_id}"
-                                    data-character-name="${item.character_name}"
-                                    data-planet="${item.planet}"
-                                    data-extractors='${JSON.stringify(item.extractors)}'
-                                    onclick="showExtractorInfoModal(this)"
-                                >
-                                    <span class="fas fa-info"></span>
-                                </button>
                                 <button class="btn btn-primary btn-sm btn-square"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalViewExtractorContainer"
