@@ -14,6 +14,9 @@
 - SRI integrity
 - Cache Busting by [@ppfeufer](https://github.com/ppfeufer)
 - AmChart5 JS
+  - Corporation Ledger show now Activitys to each Corporation
+  - Ratting Chart can now be zoom'd
+  - Daily Chart
 
 ### Removed
 
