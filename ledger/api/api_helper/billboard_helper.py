@@ -59,7 +59,7 @@ class BillboardSystem:
     def add_or_update_data_point(
         self, date: str, category: str, value: float, data: dict = None
     ):
-        mode = "income" if "income" in category.lower() else "cost"
+        mode = "cost" if "cost" in category.lower() else "income"
         display_category = self._clean_category(category)
 
         # Skip zero values
@@ -77,7 +77,20 @@ class BillboardSystem:
             }
         else:
             # Update the existing data point
-            self.data_points[date][display_category]["value"] += value
+            existing_data_point = self.data_points[date][display_category]
+            if existing_data_point["mode"] == mode:
+                existing_data_point["value"] += value
+            else:
+                # If the modes are different, create a new entry with a unique key
+                unique_key = f"{display_category} {mode}"
+                if unique_key not in self.data_points[date]:
+                    self.data_points[date][unique_key] = {
+                        "value": value,
+                        "mode": mode,
+                        "data": data,
+                    }
+                else:
+                    self.data_points[date][unique_key]["value"] += value
 
     def add_chord_data_point(self, from_char: str, to: str, value: float):
         if value == 0.0:
@@ -134,8 +147,9 @@ class BillboardSystem:
             title=title, date=date, categories=category_names, series=series
         )
 
-    def _to_percentage(self, title: str, included_categories: set) -> ChartData:
-        """Convert the data points to a percentage chart."""
+    def _to_chart(self, title: str, included_categories: set) -> ChartData:
+        """Convert the data points to a chart."""
+        data_entry = {"date": timezone.now().strftime("%Y-%m-%d")}
         # Initialize a dictionary to hold the aggregated values
         aggregated_data = {
             category: {"value": 0.0, "mode": None} for category in included_categories
@@ -148,40 +162,21 @@ class BillboardSystem:
                     aggregated_data[category]["value"] += abs(data["value"])
                     aggregated_data[category]["mode"] = data["mode"]
 
-        # Filter out categories with all zero values
-        filtered_aggregated_data = {
-            category: value
-            for category, value in aggregated_data.items()
-            if value["value"] != 0.0
-        }
-
-        # Calculate percentages
-        total_value = sum(value["value"] for value in filtered_aggregated_data.values())
-        data_entry = {"date": timezone.now().strftime("%Y-%m-%d")}
-        total_percentage = 0
-
-        # Collect all values in a list
-        values_list = list(filtered_aggregated_data.items())
-
-        # Calculate percentages for each category
-        for category, value in values_list:
-            if total_value != 0:
-                percentage = round((value["value"] / total_value) * 100)
-            else:
-                percentage = 0
-
+        # Add the aggregated values to the output
+        for category, value in aggregated_data.items():
             display_category = category.upper()
-            data_entry[display_category] = {"value": percentage, "mode": value["mode"]}
-            total_percentage += percentage
+            data_entry[display_category] = {
+                "value": value["value"],
+                "mode": value["mode"],
+            }
 
         # Create series data with a single entry
         series = [data_entry]
 
-        # Ensure categories are in the correct order
-        categories = sorted(filtered_aggregated_data.keys())
-
         date = timezone.now().strftime("%Y-%m-%d")
-        return ChartData(title=title, date=date, categories=categories, series=series)
+        return ChartData(
+            title=title, date=date, categories=list(included_categories), series=series
+        )
 
     def _to_chord_chart(self, title: str) -> ChartData:
         """Convert the data points to a bubble chart."""
@@ -243,13 +238,13 @@ class BillboardSystem:
             all_categories.update(categories.keys())
 
         included_categories = all_categories - excluded_categories
-        return self._to_percentage(
+        return self._to_chart(
             title="Donut Chart", included_categories=included_categories
         )
 
     def to_gauge_data(self) -> ChartData:
         included_categories = {"bounty", "ess", "mining", "miscellaneous"}
-        return self._to_percentage(
+        return self._to_chart(
             title="Workflow Chart", included_categories=included_categories
         )
 

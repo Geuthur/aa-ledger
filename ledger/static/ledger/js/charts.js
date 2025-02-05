@@ -156,7 +156,7 @@ function createRattingChart(root, data, id) {
         }));
 
         const series = chart.series.push(am5percent.PieSeries.new(root, {
-            valueField: 'percentage',
+            valueField: 'value',
             categoryField: 'category',
             alignLabels: false,
         }));
@@ -169,7 +169,8 @@ function createRattingChart(root, data, id) {
 
         series.slices.template.setAll({
             templateField: 'sliceSettings',
-            strokeOpacity: 0
+            strokeOpacity: 0,
+            tooltipText: '{category}: {valuePercentTotal.formatNumber("0.00")}% ({value} ISK)',
         });
 
         // Labels for category names outside the pie chart
