@@ -15,11 +15,6 @@ function disposeRoot(rootId) {
 }
 
 function load_or_create_Chart(div, data, chart) {
-    if (!data || !Array.isArray(data.series)) {
-        console.log('Data is not in the expected format:', data);
-        return false;
-    }
-
     // Dispose existing Root instances
     disposeRoot(div);
 
@@ -74,6 +69,9 @@ function setBillboardData(url, id) {
 function createChordChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {
         console.log('Data is not in the expected format:', data);
+        disposeRoot(id);
+        $('#ChartContainer').addClass('d-none');
+        $('#ChartContainer').removeClass('active');
         return;
     }
 
@@ -149,6 +147,8 @@ function createRattingChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {
         console.log('Data is not in the expected format:', data);
         disposeRoot(id);
+        $('#ChartContainer').addClass('d-none');
+        $('#ChartContainer').removeClass('active');
         return;
     }
 
@@ -273,6 +273,8 @@ function createRattingBarChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {
         console.debug('Data is not in the expected format:', data);
         disposeRoot(id);
+        $('#rattingBarContainer').addClass('d-none');
+        $('#rattingBarContainer').removeClass('active');
         return;
     }
 
@@ -362,6 +364,8 @@ function createWorkflowGaugeChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {
         console.debug('Data is not in the expected format:', data);
         disposeRoot(id);
+        $('#workGaugeContainer').addClass('d-none');
+        $('#workGaugeContainer').removeClass('active');
         return;
     }
 

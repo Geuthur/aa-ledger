@@ -24,11 +24,11 @@
 
 - **Contract**
 
-  - contract_price_payment_corp
-  - contract_reward
   - contract_price
   - contract_collateral
   - contract_reward_deposited
+  - contract_brokers_fee
+  - contract_sales_tax
 
 - **Market**
 
@@ -90,6 +90,8 @@
   - contract_reward
   - contract_price
   - contract_reward_refund
+  - contract_collateral_refund
+  - contract_deposit_refund
 
 - **Donation**
 
