@@ -59,14 +59,14 @@ def events_index(request):
 
 
 @login_required
-@permission_required("ledger.admin_access")
+@permission_required("ledger.event_admin_access")
 def events_admin(request):
     events = Events.objects.all()
     return render(request, "ledger/events/manage_events.html", {"events": events})
 
 
 @login_required
-@permission_required("ledger.admin_access")
+@permission_required("ledger.event_admin_access")
 def create_event(request):
     if request.method == "POST":
         form = EventForm(request.POST)
@@ -79,7 +79,7 @@ def create_event(request):
 
 
 @login_required
-@permission_required("ledger.admin_access")
+@permission_required("ledger.event_admin_access")
 def edit_event(request, event_id):
     event = get_object_or_404(Events, pk=event_id)
     if request.method == "POST":
@@ -102,7 +102,7 @@ def edit_event(request, event_id):
 
 
 @login_required
-@permission_required("ledger.admin_access")
+@permission_required("ledger.event_admin_access")
 def delete_event(request, event_id):
     event = get_object_or_404(Events, pk=event_id)
     if request.method == "POST":

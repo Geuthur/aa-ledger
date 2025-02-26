@@ -25,7 +25,7 @@ class EventViewTest(TestCase):
         cls.factory = RequestFactory()
         cls.user, cls.character_ownership = create_user_from_evecharacter(
             1001,
-            permissions=["ledger.basic_access", "ledger.admin_access"],
+            permissions=["ledger.basic_access", "ledger.event_admin_access"],
         )
         cls.event = Events.objects.create(
             title="Test Event",
