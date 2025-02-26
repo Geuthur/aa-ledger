@@ -4,6 +4,7 @@ from typing import Any
 from django.db.models import F
 from django.db.models.functions import TruncDay, TruncHour, TruncMonth, TruncYear
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from ledger.api.api_helper.core_manager import LedgerModels
 from ledger.api.helpers import convert_corp_tax
@@ -49,12 +50,8 @@ class BillboardSystem:
     chord_data_points: dict = field(default_factory=dict)
 
     def _clean_category(self, category: str) -> str:
-        if "_" in category:
-            parts = category.split("_")
-            display_category = parts[0].lower()
-        else:
-            display_category = category.lower()
-        return display_category
+        """Remove the suffix from the category name."""
+        return category.split("_")[0].lower()
 
     def add_or_update_data_point(
         self, date: str, category: str, value: float, data: dict = None
@@ -70,27 +67,16 @@ class BillboardSystem:
         if date not in self.data_points:
             self.data_points[date] = {}
         if display_category not in self.data_points[date]:
-            self.data_points[date][display_category] = {
+            self.data_points[date][display_category] = []
+
+        # Add the new data point
+        self.data_points[date][display_category].append(
+            {
                 "value": value,
                 "mode": mode,
                 "data": data,
             }
-        else:
-            # Update the existing data point
-            existing_data_point = self.data_points[date][display_category]
-            if existing_data_point["mode"] == mode:
-                existing_data_point["value"] += value
-            else:
-                # If the modes are different, create a new entry with a unique key
-                unique_key = f"{display_category} {mode}"
-                if unique_key not in self.data_points[date]:
-                    self.data_points[date][unique_key] = {
-                        "value": value,
-                        "mode": mode,
-                        "data": data,
-                    }
-                else:
-                    self.data_points[date][unique_key]["value"] += value
+        )
 
     def add_chord_data_point(self, from_char: str, to: str, value: float):
         if value == 0.0:
@@ -127,17 +113,16 @@ class BillboardSystem:
         specific_categories, category_names = categories[is_character]
 
         # Create series data
-        series = [
-            {
-                "date": date,
-                **{
-                    category: round(categories.get(category, {}).get("value", 0.0))
-                    for category in specific_categories
-                    if categories.get(category, {}).get("value", 0.0) != 0.0
-                },
-            }
-            for date, categories in self.data_points.items()
-        ]
+        series = []
+        for date, categories in self.data_points.items():
+            data_entry = {"date": date}
+            for category in specific_categories:
+                total_value = sum(
+                    data["value"] for data in categories.get(category, [])
+                )
+                if total_value != 0.0:
+                    data_entry[category] = round(total_value)
+            series.append(data_entry)
 
         # Sort series data by date
         series.sort(key=lambda x: x["date"])
@@ -147,24 +132,55 @@ class BillboardSystem:
             title=title, date=date, categories=category_names, series=series
         )
 
-    def _to_chart(self, title: str, included_categories: set) -> ChartData:
+    def _to_chart(
+        self, title: str, included_categories: set, include_mode=False
+    ) -> ChartData:
         """Convert the data points to a chart."""
         data_entry = {"date": timezone.now().strftime("%Y-%m-%d")}
-        # Initialize a dictionary to hold the aggregated values
-        aggregated_data = {
+        # Initialize dictionaries to hold the aggregated values for cost and income
+        logger.info(self.data_points.items())
+
+        aggregated_cost_data = {
+            category: {"value": 0.00, "mode": None} for category in included_categories
+        }
+        aggregated_income_data = {
             category: {"value": 0.00, "mode": None} for category in included_categories
         }
 
         # Aggregate the values for each category across all dates
         for date, categories in self.data_points.items():
-            for category, data in categories.items():
+            for category, data_list in categories.items():
                 if category in included_categories:
-                    aggregated_data[category]["value"] += abs(data["value"])
-                    aggregated_data[category]["mode"] = data["mode"]
+                    for data in data_list:
+                        if data["mode"] == "cost":
+                            aggregated_cost_data[category]["value"] += abs(
+                                data["value"]
+                            )
+                            aggregated_cost_data[category]["mode"] = data["mode"]
+                        elif data["mode"] == "income":
+                            aggregated_income_data[category]["value"] += abs(
+                                data["value"]
+                            )
+                            aggregated_income_data[category]["mode"] = data["mode"]
 
         # Add the aggregated values to the output
-        for category, value in aggregated_data.items():
-            display_category = category.upper()
+        for category, value in aggregated_cost_data.items():
+            if value["value"] == 0.0:
+                continue
+            display_category = f"{category.upper()}" + (
+                f" ({value['mode']})" if include_mode else ""
+            )
+            data_entry[display_category] = {
+                "value": float(f"{value['value']:.2f}"),
+                "mode": value["mode"],
+            }
+
+        for category, value in aggregated_income_data.items():
+            if value["value"] == 0.0:
+                continue
+            display_category = f"{category.upper()}" + (
+                f" ({value['mode']})" if include_mode else ""
+            )
             data_entry[display_category] = {
                 "value": float(f"{value['value']:.2f}"),
                 "mode": value["mode"],
@@ -238,7 +254,9 @@ class BillboardSystem:
 
         included_categories = all_categories - excluded_categories
         return self._to_chart(
-            title="Donut Chart", included_categories=included_categories
+            title="Donut Chart",
+            included_categories=included_categories,
+            include_mode=True,
         )
 
     def to_gauge_data(self) -> ChartData:
@@ -348,7 +366,7 @@ class BillboardLedger:
                 .annotate_billboard(self.chars)
             )
 
-            # Process Mining Journal
+            # Process Character Journal
             for entry in char_qs:
                 date = entry["period"].strftime(period_format)
                 for key, value in entry.items():

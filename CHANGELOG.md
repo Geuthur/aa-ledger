@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.7.2] - 2025-02-26
+
+### Added
+
+- RefType
+  - `contract_collateral_refund`
+  - `contract_deposit_refund`
+  - `contract_sales_tax`
+  - `contract_brokers_fee`
+- INCOME & COST Translation
+
+### Changed
+
+- Chart System
+  - renamed INCOME & COST to (income) & (cost) and added to django translation system
+
+### Fixed
+
+- In some cases the Contracts shown wrong
+- In some cases Donations not shown correctly and missing
+
 ## [0.7.1] - 2025-02-04
 
 ### Added

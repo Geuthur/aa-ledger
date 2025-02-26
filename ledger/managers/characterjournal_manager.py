@@ -19,11 +19,11 @@ INCURSION = ["corporate_reward_payout"]
 
 # Cost Ref Types
 CONTRACT_COST = [
-    "contract_price_payment_corp",
-    "contract_reward",
     "contract_price",
     "contract_collateral",
     "contract_reward_deposited",
+    "contract_brokers_fee",
+    "contract_sales_tax",
 ]
 MARKET_COST = ["market_escrow", "transaction_tax", "market_provider_tax", "brokers_fee"]
 ASSETS_COST = ["asset_safety_recovery_tax"]
@@ -56,6 +56,8 @@ CONTRACT_INCOME = [
     "contract_reward",
     "contract_price",
     "contract_reward_refund",
+    "contract_collateral_refund",
+    "contract_deposit_refund",
 ]
 DONATION_INCOME = ["player_donation"]
 INSURANCE_INCOME = ["insurance"]
@@ -159,39 +161,28 @@ class CharWalletIncomeFilter(models.QuerySet):
         )
 
     def annotate_contract_income(self) -> models.QuerySet:
-        # pylint: disable=import-outside-toplevel
-        from ledger.models.corporationaudit import CorporationWalletJournalEntry
-
-        # Check all Contracts from Corporations Member and Exclude them from be calculated
-        corporation_entry_ids = CorporationWalletJournalEntry.objects.filter(
-            CONTRACT_COST_FILTER
-        ).values_list("entry_id", flat=True)
-
-        contract_income_filter = CONTRACT_INCOME_FILTER & ~Q(
-            entry_id__in=corporation_entry_ids
-        )
         return self.annotate(
             contract_income=Coalesce(
                 Sum(
                     "amount",
-                    filter=contract_income_filter,
+                    filter=CONTRACT_INCOME_FILTER,
                 ),
                 Value(0),
                 output_field=DecimalField(),
             )
         )
 
-    def annotate_donation_income(self, exclude=None) -> models.QuerySet:
+    def annotate_donation_income(self, exclude: list = None) -> models.QuerySet:
         qs = self
-        exclude_filter = DONATION_INCOME_FILTER
-        if exclude:
-            exclude_filter &= ~Q(first_party_id__in=exclude)
+
+        if exclude is None:
+            exclude = []
 
         return qs.annotate(
             donation_income=Coalesce(
                 Sum(
                     "amount",
-                    filter=exclude_filter,
+                    filter=Q(DONATION_INCOME_FILTER) & ~Q(first_party_id__in=exclude),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -252,26 +243,11 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
 class CharWalletCostQueryFilter(CharWalletOutSideFilter):
     # Costs
     def annotate_contract_cost(self) -> models.QuerySet:
-        # Exclude refunded contract costs
-        refund_entry_ids = self.filter(
-            ref_type="contract_collateral_refund"
-        ).values_list("context_id", flat=True)
-
-        # Subquery to identify entry_ids that are contract income
-        contract_income_entry_ids = self.filter(CONTRACT_INCOME_FILTER).values_list(
-            "entry_id", flat=True
-        )
-        contract_cost_filter = (
-            CONTRACT_COST_FILTER
-            & ~Q(entry_id__in=contract_income_entry_ids)
-            & ~Q(context_id__in=refund_entry_ids)
-        )
-
         return self.annotate(
             contract_cost=Coalesce(
                 Sum(
                     "amount",
-                    filter=contract_cost_filter,
+                    filter=CONTRACT_COST_FILTER,
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -436,9 +412,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
     ) -> tuple[models.QuerySet, models.QuerySet, models.QuerySet]:
         characters, char_list = self._get_main_and_alts(characters)
 
-        qs = self.filter(
-            Q(first_party_id__in=char_list) | Q(second_party_id__in=char_list)
-        )
+        qs = self.filter(Q(character__character__character_id__in=char_list))
 
         qs = qs.filter(filter_date)
 
@@ -451,7 +425,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             char_id=Case(
                 *[
                     When(
-                        (Q(second_party_id=main_id) | (Q(first_party_id=main_id))),
+                        (Q(character__character__character_id=main_id)),
                         then=Value(char.character_id),
                     )
                     for main_id, char in characters.items()
@@ -461,7 +435,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             char_name=Case(
                 *[
                     When(
-                        (Q(second_party_id=main_id) | (Q(first_party_id=main_id))),
+                        (Q(character__character__character_id=main_id)),
                         then=Value(char.character_name),
                     )
                     for main_id, char in characters.items()
@@ -533,9 +507,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             "milestone_income",
         ]
 
-        qs = self.filter(
-            Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
-        )
+        qs = self.filter(character__character__character_id__in=character_ids)
 
         qs = qs.annotate_ledger_data(exclude)
 
@@ -604,7 +576,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         return amounts
 
     def annotate_billboard(self, chars: list, exclude: list) -> models.QuerySet:
-        qs = self.filter(Q(first_party_id__in=chars) | Q(second_party_id__in=chars))
+        qs = self.filter(character__character__character_id__in=chars)
         qs = qs.annotate_ledger_data(exclude)
         qs = qs.annotate(
             miscellaneous=Coalesce(
