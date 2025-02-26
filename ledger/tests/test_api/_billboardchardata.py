@@ -229,7 +229,7 @@ CharNoMining = [
                         {
                             "date": "2025-01-31",
                             "BOUNTY (income)": {"value": 200000.00, "mode": "income"},
-                            "CONTRAC (income)": {"value": 100000.00, "mode": "income"},
+                            "CONTRACT (income)": {"value": 100000.00, "mode": "income"},
                             "DONATION (income)": {"value": 100000.00, "mode": "income"},
                             "ESS (income)": {"value": 1133333.33, "mode": "income"},
                             "INSURANCE (cost)": {"value": 100000.00, "mode": "cost"},
