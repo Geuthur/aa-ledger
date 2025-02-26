@@ -260,7 +260,6 @@ CharNoMining = [
                             "date": "2025-01-31",
                             "BOUNTY": {"value": 200000.00, "mode": "income"},
                             "ESS": {"value": 1133333.33, "mode": "income"},
-                            "MINING": {"value": 0.00, "mode": None},
                             "MISCELLANEOUS": {"value": 200000.00, "mode": "income"},
                         }
                     ],
