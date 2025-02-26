@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.3] - IN DEVELOPMENT
+
+### Added
+
+- `event_admin_access` permission for Events
+- Code of Conduct
+- Contributing
+- Bug Report Template
+- Suggestion Template
+
 ## [0.7.2] - 2025-02-26
 
 ### Added
