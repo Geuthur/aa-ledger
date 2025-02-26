@@ -20,6 +20,8 @@
 
 - In some cases the Contracts shown wrong
 - In some cases Donations not shown correctly and missing
+- Events can be views without `supersuser` [#56](https://github.com/Geuthur/aa-ledger/issues/56)
+- Charts not disposing if data is empty [#55](https://github.com/Geuthur/aa-ledger/issues/55)
 
 ## [0.7.1] - 2025-02-04
 
