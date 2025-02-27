@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.7.3] - IN DEVELOPMENT
+## [0.7.3] - 2025-02-27
 
 ### Added
 
@@ -9,6 +9,10 @@
 - Contributing
 - Bug Report Template
 - Suggestion Template
+
+### Removed
+
+- Info Logger in Billboard Helper
 
 ## [0.7.2] - 2025-02-26
 
