@@ -138,8 +138,6 @@ class BillboardSystem:
         """Convert the data points to a chart."""
         data_entry = {"date": timezone.now().strftime("%Y-%m-%d")}
         # Initialize dictionaries to hold the aggregated values for cost and income
-        logger.info(self.data_points.items())
-
         aggregated_cost_data = {
             category: {"value": 0.00, "mode": None} for category in included_categories
         }

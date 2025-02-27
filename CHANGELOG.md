@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.7.3] - 2025-02-27
+
+### Added
+
+- `event_admin_access` permission for Events
+- Code of Conduct
+- Contributing
+- Bug Report Template
+- Suggestion Template
+
+### Removed
+
+- Info Logger in Billboard Helper
+
 ## [0.7.2] - 2025-02-26
 
 ### Added
