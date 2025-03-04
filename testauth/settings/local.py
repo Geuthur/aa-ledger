@@ -84,7 +84,7 @@ APPS_WITH_PUBLIC_VIEWS = []
 ESI_SSO_CLIENT_ID = "dummy"
 ESI_SSO_CLIENT_SECRET = "dummy"
 ESI_SSO_CALLBACK_URL = "http://127.0.0.1:8000"
-
+ESI_USER_CONTACT_EMAIL = "devgeuthur@gmail.com"
 
 # ------------------------------------------------------------------------------------ #
 #
