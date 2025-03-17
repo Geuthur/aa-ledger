@@ -97,15 +97,15 @@ MISC_FILTER = (
     | MILESTONE_REWARD_FILTER
 )
 COST_FILTER = (
-    CONTRACT_COST_FILTER
-    | MARKET_COST_FILTER
-    | ASSETS_COST_FILTER
-    | TRAVELING_COST_FILTER
+    MARKET_COST_FILTER
     | PRODUCTION_COST_FILTER
+    | CONTRACT_COST_FILTER
+    | LP_COST_FILTER
+    | TRAVELING_COST_FILTER
+    | ASSETS_COST_FILTER
     | SKILL_COST_FILTER
     | INSURANCE_COST_FILTER
     | PLANETARY_COST_FILTER
-    | LP_COST_FILTER
 )
 
 
@@ -173,12 +173,10 @@ class CharWalletIncomeFilter(models.QuerySet):
         )
 
     def annotate_donation_income(self, exclude: list = None) -> models.QuerySet:
-        qs = self
-
         if exclude is None:
             exclude = []
 
-        return qs.annotate(
+        return self.annotate(
             donation_income=Coalesce(
                 Sum(
                     "amount",
@@ -222,6 +220,32 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
                     "amount",
                     filter=MISC_FILTER,
                 ),
+                Value(0),
+                output_field=DecimalField(),
+            )
+        )
+
+    def annotate_miscellaneous_with_exclude(self, exclude=None) -> models.QuerySet:
+        """Annotate all income together"""
+        qs = (
+            self.annotate_donation_income(exclude=exclude)
+            .annotate_mission_income()
+            .annotate_milestone_income()
+            .annotate_insurance_income()
+            .annotate_market_income()
+            .annotate_contract_income()
+            .annotate_bounty_income()
+            .annotate_incursion_income()
+        )
+        return qs.annotate(
+            miscellaneous=Coalesce(
+                F("mission_income")
+                + F("incursion_income")
+                + F("insurance_income")
+                + F("market_income")
+                + F("contract_income")
+                + F("donation_income")
+                + F("milestone_income"),
                 Value(0),
                 output_field=DecimalField(),
             )
@@ -381,32 +405,6 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         )
         return char_mining_journal, corp_character_journal
 
-    def annotate_ledger_data(self, exclude: list | None) -> models.QuerySet:
-        """Get the ledger data"""
-        return (
-            self
-            # PvE
-            .annotate_bounty_income()
-            # Income
-            .annotate_mission_income()
-            .annotate_incursion_income()
-            .annotate_insurance_income()
-            .annotate_market_income()
-            .annotate_contract_income()
-            .annotate_donation_income(exclude=exclude)
-            .annotate_milestone_income()
-            # Costs
-            .annotate_market_cost()
-            .annotate_production_cost()
-            .annotate_contract_cost()
-            .annotate_lp_cost()
-            .annotate_traveling_cost()
-            .annotate_asset_cost()
-            .annotate_skill_cost()
-            .annotate_insurance_cost()
-            .annotate_planetary_cost()
-        )
-
     def generate_ledger(
         self, characters: list[EveCharacter], filter_date, exclude: list | None
     ) -> tuple[models.QuerySet, models.QuerySet, models.QuerySet]:
@@ -421,7 +419,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         # Fiter Tax Events
         corp_qs = events_filter(corp_qs)
 
-        characters = qs.annotate(
+        char_qs = qs.annotate(
             char_id=Case(
                 *[
                     When(
@@ -445,34 +443,12 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         ).values("char_id", "char_name")
 
         # Annotate All Ledger Data
-        characters = characters.annotate_ledger_data(exclude)
-
-        char_qs = characters.annotate(
-            miscellaneous=Coalesce(
-                F("mission_income")
-                + F("incursion_income")
-                + F("insurance_income")
-                + F("market_income")
-                + F("contract_income")
-                + F("donation_income")
-                + F("milestone_income"),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            costs=Coalesce(
-                F("market_cost")
-                + F("production_cost")
-                + F("contract_cost")
-                + F("lp_cost")
-                + F("traveling_cost")
-                + F("asset_cost")
-                + F("skill_cost")
-                + F("insurance_cost")
-                + F("planetary_cost"),
-                Value(0),
-                output_field=DecimalField(),
-            ),
+        char_qs = (
+            char_qs.annotate_bounty_income()
+            .annotate_costs()
+            .annotate_miscellaneous_with_exclude(exclude=exclude)
         )
+
         return char_qs, mining_qs, corp_qs
 
     def generate_template(
@@ -487,6 +463,14 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         type_names = [
             # PvE
             "bounty_income",
+            # Income
+            "mission_income",
+            "incursion_income",
+            "insurance_income",
+            "market_income",
+            "contract_income",
+            "donation_income",
+            "milestone_income",
             # Costs
             "market_cost",
             "production_cost",
@@ -497,19 +481,33 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             "skill_cost",
             "insurance_cost",
             "planetary_cost",
-            # Income
-            "mission_income",
-            "incursion_income",
-            "insurance_income",
-            "market_income",
-            "contract_income",
-            "donation_income",
-            "milestone_income",
         ]
 
         qs = self.filter(character__character__character_id__in=character_ids)
 
-        qs = qs.annotate_ledger_data(exclude)
+        qs = (
+            qs
+            # PvE
+            .annotate_bounty_income()
+            # Income
+            .annotate_mission_income()
+            .annotate_incursion_income()
+            .annotate_insurance_income()
+            .annotate_market_income()
+            .annotate_contract_income()
+            .annotate_donation_income(exclude=exclude)
+            .annotate_milestone_income()
+            # Costs
+            .annotate_market_cost()
+            .annotate_production_cost()
+            .annotate_contract_cost()
+            .annotate_lp_cost()
+            .annotate_traveling_cost()
+            .annotate_asset_cost()
+            .annotate_skill_cost()
+            .annotate_insurance_cost()
+            .annotate_planetary_cost()
+        )
 
         annotations = {}
         for type_name in type_names:
@@ -577,32 +575,31 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
 
     def annotate_billboard(self, chars: list, exclude: list) -> models.QuerySet:
         qs = self.filter(character__character__character_id__in=chars)
-        qs = qs.annotate_ledger_data(exclude)
-        qs = qs.annotate(
-            miscellaneous=Coalesce(
-                F("mission_income")
-                + F("incursion_income")
-                + F("insurance_income")
-                + F("market_income")
-                + F("contract_income")
-                + F("donation_income")
-                + F("milestone_income"),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            costs=Coalesce(
-                F("market_cost")
-                + F("production_cost")
-                + F("contract_cost")
-                + F("lp_cost")
-                + F("traveling_cost")
-                + F("asset_cost")
-                + F("skill_cost")
-                + F("insurance_cost")
-                + F("planetary_cost"),
-                Value(0),
-                output_field=DecimalField(),
-            ),
+        qs = (
+            qs
+            # PvE
+            .annotate_bounty_income()
+            # Income
+            .annotate_mission_income()
+            .annotate_incursion_income()
+            .annotate_insurance_income()
+            .annotate_market_income()
+            .annotate_contract_income()
+            .annotate_donation_income(exclude=exclude)
+            .annotate_milestone_income()
+            # Costs
+            .annotate_market_cost()
+            .annotate_production_cost()
+            .annotate_contract_cost()
+            .annotate_lp_cost()
+            .annotate_traveling_cost()
+            .annotate_asset_cost()
+            .annotate_skill_cost()
+            .annotate_insurance_cost()
+            .annotate_planetary_cost()
+            # Summary
+            .annotate_costs()
+            .annotate_miscellaneous_with_exclude(exclude=exclude)
         )
         return qs
 

@@ -122,6 +122,21 @@ class CharManagerQuerySetTest(TestCase):
         self.assertIsNotNone(qs)
         self.assertIn("lp_cost", qs.query.annotations)
 
+    def test_annotate_costs(self):
+        qs = self.manager.annotate_costs()
+        self.assertIsNotNone(qs)
+        self.assertIn("costs", qs.query.annotations)
+
+    def test_annotate_miscellaneous(self):
+        qs = self.manager.annotate_miscellaneous()
+        self.assertIsNotNone(qs)
+        self.assertIn("miscellaneous", qs.query.annotations)
+
+    def test_annotate_miscellaneous_with_exclude(self):
+        qs = self.manager.annotate_miscellaneous_with_exclude()
+        self.assertIsNotNone(qs)
+        self.assertIn("miscellaneous", qs.query.annotations)
+
     def test_generate_ledger(self):
 
         character_ids = [self.char_1, self.char_2]
