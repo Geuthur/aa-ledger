@@ -250,29 +250,33 @@ def update_corp_wallet_journal(corp_id, wallet_division, force_refresh=False):
             current_page += 1
         logger.debug(
             "Finished wallet journal data for: Div: %s Corp: %s",
-            audit_corp.corporation.corporation_name,
             wallet_division,
+            audit_corp.corporation.corporation_name,
         )
         return (
             "Finished wallet journal data for: Div: %s Corp: %s",
-            audit_corp.corporation.corporation_name,
             wallet_division,
+            audit_corp.corporation.corporation_name,
         )
     except NotModifiedError:
         logger.debug(
             "No New wallet data for: Div: %s Corp: %s",
-            audit_corp.corporation.corporation_name,
             wallet_division,
+            audit_corp.corporation.corporation_name,
         )
         return (
             "No New wallet data for: Div: %s Corp: %s",
-            audit_corp.corporation.corporation_name,
             wallet_division,
+            audit_corp.corporation.corporation_name,
         )
     except HTTPGatewayTimeoutError:
         logger.debug(
             "Gateway Timeout for: Div:%s Corp: %s",
-            audit_corp.corporation.corporation_name,
             wallet_division,
+            audit_corp.corporation.corporation_name,
         )
-        return ("Gateway Timeout %s", audit_corp.corporation.corporation_name)
+        return (
+            "Gateway Timeout for: Div:%s Corp: %s",
+            wallet_division,
+            audit_corp.corporation.corporation_name,
+        )

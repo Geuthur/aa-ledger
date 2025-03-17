@@ -317,11 +317,11 @@ class UpdateCorpWalletDivisionTest(TestCase):
         self.assertEqual(
             result,
             (
-                "Finished wallet divs for: %s",
+                "No New wallet data for: %s",
                 mock_get_corp.return_value.corporation.corporation_name,
             ),
         )
-        mock_logger.debug.assert_called_once_with(
+        mock_logger.debug.assert_any_call(
             "No New wallet data for: %s",
             mock_get_corp.return_value.corporation.corporation_name,
         )
@@ -376,7 +376,14 @@ class UpdateCorpWalletDivisionTest(TestCase):
         result = update_corp_wallet_journal(2001, 1)
 
         # then
-        self.assertEqual(result, True)
+        self.assertEqual(
+            result,
+            (
+                "Finished wallet journal data for: Div: %s Corp: %s",
+                1,
+                mock_audit_get.return_value.corporation.corporation_name,
+            ),
+        )
 
     @patch(MODULE_PATH + ".get_corp_token")
     @patch(MODULE_PATH + ".CorporationAudit.objects.get")
@@ -440,11 +447,18 @@ class UpdateCorpWalletDivisionTest(TestCase):
         result = update_corp_wallet_journal(2001, 1)
 
         # then
-        self.assertEqual(result, True)
-        mock_logger.debug.assert_called_with(
+        self.assertEqual(
+            result,
+            (
+                "No New wallet data for: Div: %s Corp: %s",
+                1,
+                mock_audit_get.return_value.corporation.corporation_name,
+            ),
+        )
+        mock_logger.debug.assert_any_call(
             "No New wallet data for: Div: %s Corp: %s",
-            mock_audit_get.return_value.corporation.corporation_name,
             1,
+            mock_audit_get.return_value.corporation.corporation_name,
         )
 
     @patch(MODULE_PATH + ".get_corp_token")

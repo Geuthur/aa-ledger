@@ -243,7 +243,7 @@ class TestCharacterHelpers(TestCase):
         # when
         result = update_character_mining(1001)
         # then
-        self.assertEqual(result, ("Finished Mining for: Gneuten"))
+        self.assertEqual(result, ("Finished Mining for: %s", "Gneuten"))
 
     @patch(MODULE_PATH + ".get_token")
     @patch(MODULE_PATH + ".esi")
@@ -261,7 +261,7 @@ class TestCharacterHelpers(TestCase):
         # when
         result = update_character_mining(1001)
         # then
-        self.assertEqual(result, ("Finished Mining for: Gneuten"))
+        self.assertEqual(result, ("Finished Mining for: %s", "Gneuten"))
 
     @patch(MODULE_PATH + ".get_token")
     @patch(MODULE_PATH + ".esi")
@@ -281,7 +281,7 @@ class TestCharacterHelpers(TestCase):
         # when
         result = update_character_mining(1001)
         # then
-        self.assertEqual(result, ("Finished Mining for: Gneuten"))
+        self.assertEqual(result, ("Finished Mining for: %s", "Gneuten"))
 
     @patch(MODULE_PATH + ".get_token")
     @patch(MODULE_PATH + ".esi")
