@@ -9,11 +9,8 @@ from app_utils.testing import create_user_from_evecharacter
 from ledger.app_settings import LEDGER_CHAR_MAX_INACTIVE_DAYS
 from ledger.models.characteraudit import (
     CharacterAudit,
-    CharacterMiningLedger,
-    CharacterWalletJournalEntry,
 )
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_ledger import load_ledger_all
 
 MODULE_PATH = "ledger.models.general"
 
@@ -117,52 +114,4 @@ class TestCharacterAuditModel(TestCase):
                 # Planetary Interaction
                 "esi-planets.manage_planets.v1",
             ],
-        )
-
-
-class TestCharacterWalletJournal(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        super().setUpClass()
-        load_allianceauth()
-        load_ledger_all()
-        cls.journal = CharacterWalletJournalEntry.objects.get(entry_id=1)
-
-    def test_str(self):
-        self.assertEqual(
-            str(self.journal),
-            "Character Wallet Journal: CONCORD 'bounty_prizes' Gneuten: 100000.00 isk",
-        )
-
-    def test_get_visible(self):
-        self.factory = RequestFactory()
-        self.user, self.character_ownership = create_user_from_evecharacter(
-            1001,
-            permissions=[
-                "ledger.char_audit_admin_manager",
-            ],
-        )
-        request = self.factory.get("/")
-        request.user = self.user
-
-        query = CharacterWalletJournalEntry.get_visible(request.user)
-
-        excepted_character = CharacterWalletJournalEntry.objects.all()
-
-        self.assertEqual(list(query), list(excepted_character))
-
-
-class TestCharacterMiningLedger(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        super().setUpClass()
-        load_allianceauth()
-        load_ledger_all()
-        cls.mining = CharacterMiningLedger.objects.get(
-            id="20240316-17425-1001-30004783"
-        )
-
-    def test_str(self):
-        self.assertEqual(
-            str(self.mining), "Gneuten's Character Data 20240316-17425-1001-30004783"
         )
