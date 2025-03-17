@@ -4,7 +4,7 @@ Etag Helpers
 
 import time
 
-from bravado.exception import HTTPNotModified
+from bravado.exception import HTTPGatewayTimeout, HTTPNotModified
 
 from django.core.cache import cache
 
@@ -16,6 +16,10 @@ MAX_ETAG_LIFE = 60 * 60 * 24 * 7  # 7 Days
 
 
 class NotModifiedError(Exception):
+    pass
+
+
+class HTTPGatewayTimeoutError(Exception):
     pass
 
 
@@ -162,6 +166,9 @@ def etag_results(operation, token, force_refresh=False):
             logger.debug("ETag: Not Modified %s", operation.operation.operation_id)
             set_etag_header(operation, e.response)
             raise NotModifiedError() from e
+        except HTTPGatewayTimeout as e:
+            logger.debug("ETag: Gateway Timeout %s", operation.operation.operation_id)
+            raise HTTPGatewayTimeoutError() from e
         handle_etag_headers(operation, headers, force_refresh, etags_incomplete=False)
     logger.debug(
         "ESI_TIME: OVERALL %s %s %s",

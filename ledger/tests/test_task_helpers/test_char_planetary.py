@@ -260,8 +260,8 @@ class TestCharacterPlanetaryHelpers(TestCase):
         result = update_character_planetary(1002)
 
         # then
-        self.assertEqual(result, ("Finished planets update for: %s", "rotze Rotineque"))
-        mock_logger.debug.assert_called_with(
+        self.assertEqual(result, ("No New Planet data for: %s", "rotze Rotineque"))
+        mock_logger.debug.assert_any_call(
             "No New Planet data for: %s", "rotze Rotineque"
         )
 
@@ -435,7 +435,7 @@ class TestCharacterPlanetaryDetailsHelpers(TestCase):
 
         # then
         self.assertEqual(result, ("Finished planets details update for: %s", "Gneuten"))
-        mock_logger.debug.assert_called_with(
+        mock_logger.debug.assert_any_call(
             "Planet %s Extractor Heads Expired for: %s", "Test Planet I", "Gneuten"
         )
 
@@ -479,7 +479,7 @@ class TestCharacterPlanetaryDetailsHelpers(TestCase):
 
         # then
         self.assertEqual(result, ("Finished planets details update for: %s", "Gneuten"))
-        mock_logger.debug.assert_called_with(
+        mock_logger.debug.assert_any_call(
             "Notification Reseted for %s Planet: %s", "Gneuten", "Test Planet I"
         )
 

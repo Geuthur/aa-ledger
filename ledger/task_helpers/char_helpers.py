@@ -18,7 +18,11 @@ from ledger.models.characteraudit import (
 from ledger.models.general import EveEntity
 from ledger.providers import esi
 from ledger.task_helpers.core_helpers import get_token
-from ledger.task_helpers.etag_helpers import NotModifiedError, etag_results
+from ledger.task_helpers.etag_helpers import (
+    HTTPGatewayTimeoutError,
+    NotModifiedError,
+    etag_results,
+)
 
 logger = get_extension_logger(__name__)
 
@@ -100,14 +104,23 @@ def update_character_wallet(character_id, force_refresh=False):
             CharacterWalletJournalEntry.objects.bulk_create(items)
         else:
             raise TokenError("ESI Fail")
+
+        audit_char.last_update_wallet = timezone.now()
+        audit_char.save()
+        audit_char.is_active()
+        logger.debug(
+            "Finished wallet transactions for: %s", audit_char.character.character_name
+        )
+        return (
+            "Finished wallet transactions for: %s",
+            audit_char.character.character_name,
+        )
     except NotModifiedError:
         logger.debug("No New wallet data for: %s", audit_char.character.character_name)
-
-    audit_char.last_update_wallet = timezone.now()
-    audit_char.save()
-    audit_char.is_active()
-
-    return ("Finished wallet transactions for: %s", audit_char.character.character_name)
+        return ("No New wallet data for: %s", audit_char.character.character_name)
+    except HTTPGatewayTimeoutError:
+        logger.debug("Gateway Timeout for: %s", audit_char.character.character_name)
+        return ("Gateway Timeout for %s", audit_char.character.character_name)
 
 
 @log_timing(logger)
@@ -160,12 +173,14 @@ def update_character_mining(character_id, force_refresh=False):
 
         if old_events:
             CharacterMiningLedger.objects.bulk_update(old_events, fields=["quantity"])
-
+        audit_char.last_update_mining = timezone.now()
+        audit_char.save()
+        audit_char.is_active()
+        logger.debug("Finished Mining for: %s", audit_char.character.character_name)
+        return ("Finished Mining for: %s", audit_char.character.character_name)
     except NotModifiedError:
         logger.debug("No New Mining for: %s", audit_char.character.character_name)
-
-    audit_char.last_update_mining = timezone.now()
-    audit_char.save()
-    audit_char.is_active()
-
-    return f"Finished Mining for: {audit_char.character.character_name}"
+        return ("No New Mining for: %s", audit_char.character.character_name)
+    except HTTPGatewayTimeoutError:
+        logger.debug("Gateway Timeout for: %s", audit_char.character.character_name)
+        return ("Gateway Timeout for %s", audit_char.character.character_name)
