@@ -23,7 +23,6 @@ from ledger.tasks import (
     update_char_planets,
     update_char_planets_details,
     update_char_wallet,
-    update_character,
     update_corp,
     update_corp_wallet,
 )
@@ -72,25 +71,6 @@ class TestTasks(TestCase):
             "Queued %s Char Audit Updates", characters_count
         )
 
-    @patch(MODULE_PATH + ".CharacterAudit.objects.select_related")
-    def test_update_character(self, mock_select_related):
-        # given
-        mock_character = MagicMock()
-        mock_character.last_update_mining = timezone.now()
-        mock_character.last_update_wallet = timezone.now()
-        mock_character.last_update_planetary = timezone.now()
-        mock_character.character = MagicMock()
-        mock_character.character.character_id = self.token.character_id
-        mock_character.character.character_name = self.token.character_name
-
-        mock_filter = MagicMock()
-        mock_filter.first.return_value = mock_character
-        mock_select_related.return_value.filter.return_value = mock_filter
-        # when
-        result = update_character(self.token.character_id)
-        # then
-        self.assertTrue(result)
-
     @patch(MODULE_PATH + ".update_character_mining")
     def test_update_character_mining(self, mock_char_mining):
         # given
@@ -114,96 +94,6 @@ class TestTasks(TestCase):
         # then
         self.assertTrue(mock_char_wallet.called)
         self.assertEqual(expected_return_value, result)
-
-    @patch(MODULE_PATH + ".update_char_mining_ledger.si")
-    @patch(MODULE_PATH + ".update_char_wallet.si")
-    @patch(MODULE_PATH + ".Token.get_token")
-    @patch(MODULE_PATH + ".EveCharacter.objects.get_character_by_id")
-    @patch(MODULE_PATH + ".CharacterAudit.objects.update_or_create")
-    @patch(MODULE_PATH + ".CharacterAudit.objects.select_related")
-    def test_update_character_from_token(
-        self,
-        mock_check_char,
-        mock_update_or_create,
-        mock_get_character_by_id,
-        mock_get_token,
-        mock_char_wallet,
-        mock_char_mining,
-    ):
-        # given
-        mock_check_char.return_value.filter.return_value.first.return_value = None
-        mock_token = MagicMock()
-        mock_token.valid_access_token.return_value = True
-        mock_get_token.return_value = mock_token
-        mock_character = MagicMock()
-        mock_character.last_update_mining = timezone.now() - timedelta(days=1)
-        mock_character.last_update_wallet = timezone.now() - timedelta(days=1)
-        mock_character.last_update_planetary = timezone.now() - timedelta(days=1)
-        mock_update_or_create.return_value = (mock_character, True)
-        # when
-        update_character(self.token.character_id)
-        # then
-        mock_get_token.assert_called_once_with(
-            self.token.character_id, CharacterAudit.get_esi_scopes()
-        )
-        mock_token.valid_access_token.assert_called_once()
-        mock_get_character_by_id.assert_called_once_with(mock_token.character_id)
-        mock_update_or_create.assert_called_once()
-        self.assertTrue(mock_char_wallet.called)
-        self.assertTrue(mock_char_mining.called)
-
-    @patch(MODULE_PATH + ".Token.get_token")
-    @patch(MODULE_PATH + ".CharacterAudit.objects.update_or_create")
-    @patch(MODULE_PATH + ".CharacterAudit.objects.select_related")
-    def test_update_character_token_expired_token(
-        self, mock_check_char, mock_update_or_create, mock_get_token
-    ):
-        # given
-        mock_check_char.return_value.filter.return_value.first.return_value = None
-        mock_token = MagicMock()
-        mock_token.valid_access_token.side_effect = TokenExpiredError
-        mock_get_token.return_value = mock_token
-        mock_character = MagicMock()
-        mock_update_or_create.return_value = (mock_character, True)
-        # when
-        result = update_character(self.token.character_id)
-        # then
-        self.assertFalse(result)
-        mock_get_token.assert_called_once_with(
-            self.token.character_id, CharacterAudit.get_esi_scopes()
-        )
-        mock_token.valid_access_token.assert_called_once()
-
-    @patch(MODULE_PATH + ".Token.get_token")
-    @patch(MODULE_PATH + ".CharacterAudit.objects.select_related")
-    def test_update_character_token_no_access_token(
-        self, mock_check_char, mock_get_token
-    ):
-        # given
-        mock_check_char.return_value.filter.return_value.first.return_value = None
-        mock_token = MagicMock()
-        mock_token.valid_access_token.return_value = False
-        mock_get_token.return_value = mock_token
-        # when
-        result = update_character(self.token.character_id)
-        # then
-        mock_token.valid_access_token.assert_called_once()
-        self.assertFalse(result)
-
-    @patch(MODULE_PATH + ".Token.get_token")
-    @patch(MODULE_PATH + ".CharacterAudit.objects.select_related")
-    @patch(MODULE_PATH + ".logger")
-    def test_update_character_token_no_token(
-        self, mock_logger, mock_check_char, mock_get_token
-    ):
-        # given
-        mock_check_char.return_value.filter.return_value.first.return_value = None
-        mock_get_token.return_value = False
-        # when
-        result = update_character(self.token.character_id)
-        # then
-        self.assertFalse(result)
-        mock_logger.info.assert_called_once_with("No Tokens for %s", 1001)
 
     @patch(MODULE_PATH + ".update_corp.apply_async")
     @patch(MODULE_PATH + ".logger")
