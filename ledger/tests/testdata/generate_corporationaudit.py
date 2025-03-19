@@ -1,6 +1,9 @@
 from django.contrib.auth.models import User
 
 from allianceauth.eveonline.models import EveCharacter
+from app_utils.testing import (
+    create_user_from_evecharacter,
+)
 
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.tests.testdata.generate_characteraudit import add_auth_character_to_user
@@ -20,7 +23,7 @@ def create_corporationaudit_from_evecharacter(
     return corporation
 
 
-def add_charactermaudit_character_to_user(
+def add_corporationaudit_corporation_to_user(
     user: User, character_id: int, disconnect_signals: bool = True, **kwargs
 ) -> CorporationAudit:
     character_ownership = add_auth_character_to_user(
