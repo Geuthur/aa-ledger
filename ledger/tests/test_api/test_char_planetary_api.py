@@ -9,9 +9,18 @@ from app_utils.testing import create_user_from_evecharacter
 
 from ledger.api.ledger.planetary import LedgerPlanetaryApiEndpoints
 from ledger.tests.test_api import _planetchardata
+from ledger.tests.testdata.generate_characteraudit import (
+    add_charactermaudit_character_to_user,
+    create_user_from_evecharacter_with_access,
+)
+from ledger.tests.testdata.generate_planets import (
+    _planetary_data,
+    create_character_planet,
+    create_character_planet_details,
+)
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_ledger import load_ledger_all
-from ledger.tests.testdata.load_planetary import load_planetary
+from ledger.tests.testdata.load_eveentity import load_eveentity
+from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
 
 
 class ManageApiJournalCharEndpointsTest(TestCase):
@@ -19,22 +28,32 @@ class ManageApiJournalCharEndpointsTest(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         load_allianceauth()
-        load_ledger_all()
-        load_planetary()
+        load_eveuniverse()
+        load_eveentity()
 
-        cls.user, _ = create_user_from_evecharacter(
-            1001,
-            permissions=[
-                "ledger.basic_access",
-            ],
+        cls.planet_params = {
+            "upgrade_level": 5,
+            "num_pins": 5,
+            "last_update": None,
+        }
+
+        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
+            1001
+        )
+        cls.user2, cls.character_ownership2 = create_user_from_evecharacter_with_access(
+            1002
         )
 
-        cls.user2, _ = create_user_from_evecharacter(
-            1002,
-            permissions=[
-                "ledger.basic_access",
-            ],
+        cls.audit = add_charactermaudit_character_to_user(cls.user, 1001)
+        cls.planetary = create_character_planet(cls.audit, 4001, **cls.planet_params)
+        cls.planetary2 = create_character_planet(cls.audit, 4002, **cls.planet_params)
+        cls.planetarydetails = create_character_planet_details(
+            cls.planetary, **_planetary_data
         )
+        cls.planetarydetails2 = create_character_planet_details(
+            cls.planetary2, **_planetary_data
+        )
+
         cls.api = NinjaAPI()
         cls.manage_api_endpoints = LedgerPlanetaryApiEndpoints(api=cls.api)
 
@@ -43,6 +62,7 @@ class ManageApiJournalCharEndpointsTest(TestCase):
         url = "/ledger/api/character/0/planetary/0/"
 
         response = self.client.get(url)
+
         expected_data = [
             {
                 "character_id": 1001,

@@ -1,0 +1,54 @@
+"""TestView class."""
+
+from http import HTTPStatus
+from unittest.mock import Mock, patch
+
+from django.contrib.sessions.middleware import SessionMiddleware
+from django.test import RequestFactory, TestCase, override_settings
+from django.urls import reverse
+
+from ledger.models.corporationaudit import CorporationAudit
+from ledger.tests.testdata.generate_corporationaudit import (
+    create_user_from_evecharacter,
+)
+from ledger.tests.testdata.load_allianceauth import load_allianceauth
+from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
+from ledger.views.alliance.add_ally import add_ally
+
+MODULE_PATH = "ledger.views.corporation.add_corp"
+
+
+@patch(MODULE_PATH + ".messages")
+@patch(MODULE_PATH + ".provider")
+@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
+class TestAddCorpView(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        load_allianceauth()
+        load_eveuniverse()
+
+        cls.factory = RequestFactory()
+        cls.user, cls.character_ownership = create_user_from_evecharacter(
+            1001,
+            permissions=[
+                "ledger.basic_access",
+                "ledger.advanced_access",
+            ],
+        )
+
+    def _add_alliance(self, user, token):
+        request = self.factory.get(reverse("ledger:add_ally"))
+        request.user = user
+        request.token = token
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        orig_view = add_ally.__wrapped__.__wrapped__.__wrapped__
+        return orig_view(request, token)
+
+    # def test_add_corp(self, mock_tasks, mock_messages):
+    # given
+    # user = self.user
+    # token = user.token_set.get(character_id=1001)
+    # when
+    # response = self._add_alliance(user, token)

@@ -11,8 +11,8 @@ from esi.decorators import token_required
 
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 
+from ledger import tasks
 from ledger.models.corporationaudit import CorporationAudit
-from ledger.tasks import update_corp
 
 
 @login_required
@@ -36,7 +36,7 @@ def add_corp(request, token) -> HttpResponse:
         },
     )
 
-    update_corp.apply_async(
+    tasks.update_corp.apply_async(
         args=[char.corporation_id], kwargs={"force_refresh": True}, priority=6
     )
     msg = trans("{corporation_name} successfully added/updated to Ledger").format(
