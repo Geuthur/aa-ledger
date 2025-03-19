@@ -10,9 +10,9 @@ from esi.decorators import token_required
 
 from allianceauth.eveonline.models import EveCharacter
 
+from ledger import tasks
 from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import CharacterAudit
-from ledger.tasks import update_character
 
 logger = get_extension_logger(__name__)
 
@@ -27,7 +27,7 @@ def add_char(request, token):
             "character_name": token.character_name,
         },
     )
-    update_character.apply_async(
+    tasks.update_character.apply_async(
         args=[token.character_id], kwargs={"force_refresh": True}, priority=6
     )
 

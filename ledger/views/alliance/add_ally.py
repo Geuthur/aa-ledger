@@ -18,9 +18,14 @@ from allianceauth.eveonline.providers import ObjectNotFound, provider
 @permission_required(["ledger.admin_access"])
 def add_ally(request, token) -> HttpResponse:
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
-    ally = EveAllianceInfo.objects.filter(alliance_id=char.alliance_id).first()
+    try:
+        ally = EveAllianceInfo.objects.get(alliance_id=char.alliance_id)
 
-    if not ally:
+        msg = trans("{alliance_name} is already in the Ledger System").format(
+            alliance_name=ally.alliance_name,
+        )
+        messages.info(request, msg)
+    except EveAllianceInfo.DoesNotExist:
         try:
             ally_data = provider.get_alliance(char.alliance_id)
             ally, _ = EveAllianceInfo.objects.get_or_create(
@@ -42,10 +47,4 @@ def add_ally(request, token) -> HttpResponse:
                 alliance_name=char.alliance_name,
             )
             messages.warning(request, msg)
-    else:
-        msg = trans("{alliance_name} is already in the Ledger System").format(
-            alliance_name=ally.alliance_name,
-        )
-        messages.info(request, msg)
-
     return redirect("ledger:alliance_ledger", alliance_pk=0)

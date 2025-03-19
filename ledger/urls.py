@@ -3,16 +3,16 @@
 from django.urls import path, re_path
 
 from ledger.api import api
+from ledger.views.alliance.add_ally import add_ally
 from ledger.views.alliance.alliance_ledger import alliance_admin, alliance_ledger
-from ledger.views.alliance.ally_audit import add_ally
-from ledger.views.character.char_audit import add_char
+from ledger.views.character.add_char import add_char
 from ledger.views.character.character_ledger import character_admin, character_ledger
 from ledger.views.character.planetary import (
     planetary_admin,
     planetary_ledger,
     switch_alarm,
 )
-from ledger.views.corporation.corp_audit import add_corp
+from ledger.views.corporation.add_corp import add_corp
 from ledger.views.corporation.corp_events import (
     create_event,
     delete_event,
@@ -34,9 +34,9 @@ app_name: str = "ledger"
 urlpatterns = [
     path("", ledger_index, name="index"),
     # -- Character Audit
-    path("char/add/", add_char, name="ledger_add_char"),
+    path("char/add/", add_char, name="add_char"),
     # -- Corporation Audit
-    path("corporation/add/", add_corp, name="ledger_add_corp"),
+    path("corporation/add/", add_corp, name="add_corp"),
     # -- PvE
     path("index", ledger_index, name="ledger_index"),
     # -- -- Alliance Ledger
@@ -46,7 +46,7 @@ urlpatterns = [
         name="alliance_ledger",
     ),
     path("alliance_admin/", alliance_admin, name="alliance_admin"),
-    path("alliance/add/", add_ally, name="ledger_add_ally"),
+    path("alliance/add/", add_ally, name="add_ally"),
     # -- -- Corporation Ledger
     path(
         "corporation_ledger/<int:corporation_pk>/",
