@@ -63,7 +63,6 @@ class ManageApiJournalCharEndpointsTest(TestCase):
 
         response = self.client.get(url)
 
-        print(response.json())
         expected_data = [
             {
                 "character_id": 1001,
