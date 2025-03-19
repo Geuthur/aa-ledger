@@ -15,7 +15,7 @@ logger = get_extension_logger(__name__)
 
 
 @login_required
-@permission_required("ledger.basic_access", "ledger.advanced_access")
+@permission_required("ledger.advanced_access")
 def corporation_ledger(request, corporation_pk):
     """
     Corporation Ledger
@@ -34,7 +34,7 @@ def corporation_ledger(request, corporation_pk):
 
 
 @login_required
-@permission_required("ledger.basic_access", "ledger.advanced_access")
+@permission_required("ledger.advanced_access")
 def corporation_admin(request):
     """
     Corporation Admin
