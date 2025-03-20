@@ -43,4 +43,4 @@ def add_corp(request, token) -> HttpResponse:
         corporation_name=corp.corporation_name,
     )
     messages.info(request, msg)
-    return redirect("ledger:corporation_ledger", corporation_pk=0)
+    return redirect("ledger:corporation_ledger", corporation_id=corp.corporation_id)

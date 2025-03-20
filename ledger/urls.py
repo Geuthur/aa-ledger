@@ -4,12 +4,21 @@ from django.urls import path, re_path
 
 from ledger.api import api
 from ledger.views.alliance.add_ally import add_ally
-from ledger.views.alliance.alliance_ledger import alliance_admin, alliance_ledger
+from ledger.views.alliance.alliance_ledger import (
+    alliance_admin,
+    alliance_ledger,
+    alliance_ledger_index,
+)
 from ledger.views.character.add_char import add_char
-from ledger.views.character.character_ledger import character_admin, character_ledger
+from ledger.views.character.character_ledger import (
+    character_admin,
+    character_ledger,
+    character_ledger_index,
+)
 from ledger.views.character.planetary import (
     planetary_admin,
     planetary_ledger,
+    planetary_ledger_index,
     switch_alarm,
 )
 from ledger.views.corporation.add_corp import add_corp
@@ -24,24 +33,24 @@ from ledger.views.corporation.corp_events import (
 from ledger.views.corporation.corporation_ledger import (
     corporation_admin,
     corporation_ledger,
+    corporation_ledger_index,
 )
 
 # AA Example App
-from ledger.views.pve import ledger_index
+from ledger.views.index import index
 
 app_name: str = "ledger"
 
 urlpatterns = [
-    path("", ledger_index, name="index"),
+    path("", index, name="index"),
     # -- Character Audit
     path("char/add/", add_char, name="add_char"),
     # -- Corporation Audit
     path("corporation/add/", add_corp, name="add_corp"),
-    # -- PvE
-    path("index", ledger_index, name="ledger_index"),
     # -- -- Alliance Ledger
+    path("alliance_ledger/", alliance_ledger_index, name="alliance_ledger_index"),
     path(
-        "alliance_ledger/<int:alliance_pk>/",
+        "alliance_ledger/<int:alliance_id>/",
         alliance_ledger,
         name="alliance_ledger",
     ),
@@ -49,14 +58,18 @@ urlpatterns = [
     path("alliance/add/", add_ally, name="add_ally"),
     # -- -- Corporation Ledger
     path(
-        "corporation_ledger/<int:corporation_pk>/",
+        "corporation_ledger/", corporation_ledger_index, name="corporation_ledger_index"
+    ),
+    path(
+        "corporation_ledger/<int:corporation_id>/",
         corporation_ledger,
         name="corporation_ledger",
     ),
     path("corporation_admin/", corporation_admin, name="corporation_admin"),
-    # -- -- Char Ledger
+    # -- -- Character Ledger
+    path("character_ledger/", character_ledger_index, name="character_ledger_index"),
     path(
-        "character_ledger/<int:character_pk>/",
+        "character_ledger/<int:character_id>/",
         character_ledger,
         name="character_ledger",
     ),
@@ -69,8 +82,9 @@ urlpatterns = [
     path("events/<int:event_id>/delete/", delete_event, name="delete_event"),
     path("events/ajax/load_events", load_events, name="load_events"),
     # -- -- Planetary
+    path("planetary_ledger/", planetary_ledger_index, name="planetary_ledger_index"),
     path(
-        "planetary_ledger/<int:character_pk>/",
+        "planetary_ledger/<int:character_id>/",
         planetary_ledger,
         name="planetary_ledger",
     ),

@@ -1,8 +1,7 @@
-/* global ledgersettings, load_or_create_Chart, setBillboardData */
+/* global ledgersettings, load_or_create_Chart, initCharts */
 /* eslint-disable */
 
-var LedgerUrl, ChartUrl
-var ActiveBillboardMonth, selectedMode;
+var LedgerUrl
 
 const entityPk = ledgersettings.entity_pk;
 const entityType = ledgersettings.entity_type;
@@ -15,10 +14,10 @@ const dayTextTrans = window.translations.dayText
 const monthTextTrans = window.translations.monthText
 
 var monthText = getMonthName(selectedMonth);
-var mainAlts = '';
-// Check if altShow is true and append '?main=True' to the URLs
+var singleView = '';
+// Check if singleView is true and append '?single=True' to the URLs
 if (characteraltsShow) {
-    mainAlts = '?main=True';
+    singleView = '?single=True';
 }
 
 const yearDropdown = document.getElementById('yearDropdown');
@@ -35,8 +34,7 @@ var selectedDay = 1;
 var selectedviewMode = 'month';
 
 function updateUrls() {
-    LedgerUrl = `/ledger/api/${entityType}/${entityPk}/ledger/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/${mainAlts}`;
-    ChartUrl = `/ledger/api/${entityType}/${entityPk}/billboard/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/${mainAlts}`;
+    LedgerUrl = `/ledger/api/${entityType}/${entityPk}/ledger/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/${singleView}`;
 }
 
 function getMonthName(monthNumber) {
@@ -106,6 +104,8 @@ function showLoading() {
 
 function hideContainer() {
     $('#lookup').addClass('d-none');
+    $('#ratting').addClass('d-none');
+    $('#foot').hide();
     $('#ChartContainer').addClass('d-none');
     $('#rattingBarContainer').addClass('d-none');
     $('#workGaugeContainer').addClass('d-none');
@@ -120,6 +120,13 @@ function generateLedger(TableName, url) {
                 $('#ratting').DataTable().destroy();
             }
             hideLoading();
+
+            try {
+                initCharts(data[0].billboard.standard);
+            } catch (error) {
+                console.error('Error initializing charts:', error);
+            }
+
             const char_name = data[0].ratting[0]?.main_name || 'No Data';
             const char_id = data[0].ratting[0]?.main_id || '0';
             const total_amount = data[0].total.total_amount;
@@ -129,7 +136,7 @@ function generateLedger(TableName, url) {
             const total_amount_combined = data[0].total.total_amount_all;
             const total_amount_costs = data[0].total.total_amount_costs;
 
-            if (entityPk > 0 && !characteraltsShow && entityType === 'character') {
+            if (entityPk > 0 && characteraltsShow && entityType === 'character') {
                 $('#lookup').removeClass('d-none');
                 // Daten direkt in die HTML-Elemente einfügen
                 $('#portrait').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
@@ -181,7 +188,7 @@ function generateLedger(TableName, url) {
                                     imageUrl += 'alliances/' + row.main_id + '/logo?size=32';
                                 } else {
                                     // Fallback image URL if no valid ID is available
-                                    imageUrl += 'icons/no-image.png'; // Beispiel für ein Platzhalterbild
+                                    imageUrl += 'characters/0/portrait?size=32'; // Beispiel für ein Platzhalterbild
                                 }
 
                                 var imageHTML = '';
@@ -219,7 +226,7 @@ function generateLedger(TableName, url) {
 
                                     if (row.entity_type === 'character') {
                                         imageHTML += `
-                                            <a href="/ledger/character_ledger/${row.main_id}/">
+                                            <a href="/ledger/character_ledger/${row.main_id}/?single=True">
                                                 <button
                                                     class="btn btn-primary btn-sm btn-square"
                                                     id="lookup"
@@ -329,9 +336,7 @@ function generateLedger(TableName, url) {
                         var templateUrl = '';
                         if (entityType === 'character') {
                             templateUrl = `/ledger/api/character/${entityPk}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/`;
-                            if (characteraltsShow) {
-                                templateUrl += '?main=True';
-                            }
+                            templateUrl += '?overall=True';
                             $('#foot .col-total-mining').html(formatAndColor(total_amount_mining));
                             $('#foot .col-total-costs').html(formatAndColor(total_amount_costs));
                         } else {
@@ -388,7 +393,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize the URLs
     updateUrls();
 
-    setBillboardData(ChartUrl, 'Ledger');
     generateLedger('Ledger', LedgerUrl);
     populateDays(selectedMonth);
 
@@ -423,7 +427,6 @@ document.addEventListener('DOMContentLoaded', function () {
         updateUrls();
 
         // DataTable neu laden mit den Daten des ausgewählten Monats
-        setBillboardData(ChartUrl, 'Ledger');
         generateLedger('Ledger', LedgerUrl);
     });
 
@@ -456,7 +459,6 @@ document.addEventListener('DOMContentLoaded', function () {
         updateUrls();
 
         // DataTable neu laden mit den Daten des ausgewählten Monats
-        setBillboardData(ChartUrl, 'Ledger');
         generateLedger('Ledger', LedgerUrl);
     });
 
@@ -479,7 +481,6 @@ document.addEventListener('DOMContentLoaded', function () {
         updateUrls();
 
         // DataTable neu laden mit den Daten des ausgewählten Monats
-        setBillboardData(ChartUrl, 'Ledger');
         generateLedger('Ledger', LedgerUrl);
     });
 });

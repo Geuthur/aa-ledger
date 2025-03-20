@@ -17,7 +17,7 @@ class TestAuthHooks(TestCase):
         cls.html_menu = f"""
             <li class="d-flex flex-wrap m-2 p-2 pt-0 pb-0 mt-0 mb-0 me-0 pe-0">
                 <i class="nav-link fas fa-book fa-fw fa-fw align-self-center me-3 active"></i>
-                <a class="nav-link flex-fill align-self-center me-auto active" href="{reverse('ledger:ledger_index')}">
+                <a class="nav-link flex-fill align-self-center me-auto active" href="{reverse('ledger:index')}">
                     Ledger
                 </a>
             </li>
@@ -26,8 +26,14 @@ class TestAuthHooks(TestCase):
     def test_menu_hook(self):
         self.client.force_login(self.user)
 
-        response = self.client.get(reverse("ledger:ledger_index"))
+        response = self.client.get(
+            reverse("ledger:index"), follow=True
+        )  # Follow redirects
 
+        # Überprüfen, ob der Benutzer korrekt weitergeleitet wurde
+        self.assertEqual(response.status_code, 200)
+
+        # Überprüfen, ob das HTML-Menü enthalten ist
         self.assertContains(response, self.html_menu, html=True)
 
     def test_render_returns_empty_string_for_user_without_permission(self):

@@ -4,7 +4,7 @@ from datetime import datetime
 
 # Django
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 from ledger.hooks import get_extension_logger
 
@@ -15,17 +15,32 @@ logger = get_extension_logger(__name__)
 
 
 @login_required
+@permission_required("ledger.advanced_access")
+def character_ledger_index(request):
+    """Character Ledger Index View"""
+    context = {}
+    context = add_info_to_context(request, context)
+    return redirect(
+        "ledger:character_ledger", request.user.profile.main_character.character_id
+    )
+
+
+@login_required
 @permission_required("ledger.basic_access")
-def character_ledger(request, character_pk):
+def character_ledger(request, character_id=None):
     """
     Character Ledger
     """
+    if character_id is None:
+        character_id = request.user.profile.main_character.character_id
+
     current_year = datetime.now().year
     years = [current_year - i for i in range(6)]
 
     context = {
         "years": years,
-        "entity_pk": character_pk,
+        "entity_pk": character_id,
+        "character_id": character_id,
         "entity_type": "character",
     }
     context = add_info_to_context(request, context)
@@ -38,6 +53,7 @@ def character_admin(request):
     """
     Character Admin
     """
+
     context = {}
     context = add_info_to_context(request, context)
     return render(

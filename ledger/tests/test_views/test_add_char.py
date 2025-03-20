@@ -50,7 +50,7 @@ class TestAddCharView(TestCase):
         response = self._add_character(user, token)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertEqual(response.url, reverse("ledger:character_ledger", args=[0]))
+        self.assertEqual(response.url, reverse("ledger:character_ledger", args=[1001]))
         self.assertTrue(mock_tasks.update_character.apply_async.called)
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(

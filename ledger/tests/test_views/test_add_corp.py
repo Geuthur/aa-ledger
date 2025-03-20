@@ -54,7 +54,9 @@ class TestAddCorpView(TestCase):
         response = self._add_corporation(user, token)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertEqual(response.url, reverse("ledger:corporation_ledger", args=[0]))
+        self.assertEqual(
+            response.url, reverse("ledger:corporation_ledger", args=[2001])
+        )
         self.assertTrue(mock_tasks.update_corp.apply_async.called)
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(

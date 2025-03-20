@@ -65,13 +65,13 @@ class LedgerPlanetaryApiEndpoints:
         )
         # pylint: disable=too-many-locals
         def get_planetarydetails(request, character_id: int, planet_id: int):
-            request_main = request.GET.get("main", False)
+            singleview = request.GET.get("single", False)
             perm, main = get_character(request, character_id)
 
             if not perm:
                 return 403, "Permission Denied"
 
-            if character_id == 0 or request_main:
+            if not singleview:
                 characters = get_alts_queryset(main)
             else:
                 characters = [main]

@@ -76,12 +76,12 @@
 <script type="application/javascript">
     // Extract the 'main' parameter from the current URL
     const urlParams = new URLSearchParams(window.location.search);
-    const mainParam = urlParams.get('main');
+    const singleViewParms = urlParams.get('single');
 
     // Construct the planetaryUrl with the 'main' parameter
-    let planetaryUrl = '/ledger/api/character/{{ character_pk }}/planetary/0/details/';
-    if (mainParam) {
-        planetaryUrl += '?main=' + mainParam;
+    let planetaryUrl = '/ledger/api/character/{{ character_id }}/planetary/0/details/';
+    if (singleViewParms) {
+        planetaryUrl += '?single=' + singleViewParms;
     }
 
 	let planetarySettings = {
@@ -93,7 +93,7 @@
         switchAlarmAll: '{% translate "Switch All Notifications" %}',
         alarmActivated: '{% translate "Notification Activated" %}',
         alarmDeactivated: '{% translate "Notification Deactivated" %}',
-        characterPk: '{{ character_pk }}',
+        characterPk: '{{ character_id }}',
         updateInterval: '{{ update_interval }}',
 	};
 </script>

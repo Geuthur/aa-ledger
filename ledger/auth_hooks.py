@@ -17,7 +17,7 @@ class LedgerMenuItem(MenuItemHook):
         super().__init__(
             f"{app_settings.LEDGER_APP_NAME}",
             "fas fa-book fa-fw",
-            "ledger:ledger_index",
+            "ledger:index",
             navactive=["ledger:"],
         )
 
