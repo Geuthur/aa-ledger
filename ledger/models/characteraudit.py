@@ -76,9 +76,9 @@ class CharacterAudit(models.Model):
         try:
             is_active = True
 
-            is_active = self.last_update_wallet > time_ref
-            is_active = self.last_update_mining > time_ref
-            is_active = self.last_update_planetary > time_ref
+            is_active = is_active and self.last_update_wallet > time_ref
+            is_active = is_active and self.last_update_mining > time_ref
+            is_active = is_active and self.last_update_planetary > time_ref
 
             if self.active != is_active:
                 self.active = is_active
@@ -158,7 +158,7 @@ class CharacterWalletJournalEntry(WalletJournalEntry):
     objects = CharWalletManager()
 
     def __str__(self):
-        return f"Character Wallet Journal: {self.first_party.name} '{self.ref_type}' {self.second_party.name}: {self.amount} isk"
+        return f"Character Wallet Journal: RefType: {self.ref_type} - {self.first_party.name} -> {self.second_party.name}: {self.amount} ISK"
 
     @classmethod
     def get_visible(cls, user):

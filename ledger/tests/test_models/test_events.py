@@ -10,15 +10,17 @@ MODULE_PATH = "ledger.models.general"
 
 
 class TestGeneralModel(TestCase):
-    def setUp(self):
-        self.events = Events()
-        self.events.id = 1
-        self.events.title = "Test Title"
-        self.events.date_start = timezone.now()
-        self.events.date_end = timezone.now() + timedelta(days=1)
-        self.events.description = "Test Description"
-        self.events.char_ledger = True
-        self.events.location = "Test Location"
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.events = Events()
+        cls.events.id = 1
+        cls.events.title = "Test Title"
+        cls.events.date_start = timezone.now()
+        cls.events.date_end = timezone.now() + timedelta(days=1)
+        cls.events.description = "Test Description"
+        cls.events.char_ledger = True
+        cls.events.location = "Test Location"
 
     def test_str(self):
         self.assertEqual(str(self.events), "Event 1")
