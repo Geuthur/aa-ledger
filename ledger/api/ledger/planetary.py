@@ -166,7 +166,7 @@ class LedgerPlanetaryApiEndpoints:
 
             return render(
                 request,
-                "ledger/planetary/partials/modal/view_factory.html",
+                "ledger/partials/modal/view_factory.html",
                 context,
             )
 
@@ -209,6 +209,6 @@ class LedgerPlanetaryApiEndpoints:
 
             return render(
                 request,
-                "ledger/planetary/partials/modal/view_extractor.html",
+                "ledger/partials/modal/view_extractor.html",
                 context,
             )

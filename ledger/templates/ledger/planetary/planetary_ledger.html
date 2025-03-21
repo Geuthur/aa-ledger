@@ -27,7 +27,7 @@
     <br><br>
 
     <div class="tab-content">
-        {% include 'ledger/planetary/partials/table.html' %}
+        {% include 'ledger/partials/table/planetary.html' %}
     </div>
 </div>
 
@@ -36,6 +36,8 @@
 {% block extra_javascript %}
 {% include 'ledger/bundles/table-css.html' %}
 {% ledger_static 'css/planetary.css' %}
+
+{% include 'ledger/partials/modal/switchalarm_confirm.html' %}
 
 {% include 'ledger/modals/modal_dialog.html' with name="ViewFactory" %}
 {% include 'ledger/modals/modal_dialog.html' with name="ViewExtractor" %}
@@ -73,31 +75,7 @@
     setupModal('#modalViewExtractorContainer', 'ajax_extractor', '#modalViewExtractorContent', '#modalViewExtractorLoader');
 </script>
 
-<script type="application/javascript">
-    // Extract the 'main' parameter from the current URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const singleViewParms = urlParams.get('single');
-
-    // Construct the planetaryUrl with the 'main' parameter
-    let planetaryUrl = '/ledger/api/character/{{ character_id }}/planetary/0/details/';
-    if (singleViewParms) {
-        planetaryUrl += '?single=' + singleViewParms;
-    }
-
-	let planetarySettings = {
-        planetaryUrl: planetaryUrl,
-		switchAlarmUrl: '{% url "ledger:switch_alarm" character_id=1337 planet_id=1337 %}',
-		csrfToken: '{% csrf_token %}',
-		switchAlarmText: '{% translate "Are you sure to Switch Notification" %}',
-        switchAlarm: '{% translate "Switch Notification" %}',
-        switchAlarmAll: '{% translate "Switch All Notifications" %}',
-        alarmActivated: '{% translate "Notification Activated" %}',
-        alarmDeactivated: '{% translate "Notification Deactivated" %}',
-        characterPk: '{{ character_id }}',
-        updateInterval: '{{ update_interval }}',
-	};
-</script>
-{% include 'ledger/planetary/partials/planetary-js.html' %}
+{% include 'ledger/bundles/planetary-js.html' %}
 {% include 'bundles/datatables-js-bs5.html' %}
 {% endblock %}
 {% block extra_css %}
