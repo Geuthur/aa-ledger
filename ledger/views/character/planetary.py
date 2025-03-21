@@ -90,7 +90,6 @@ def switch_alarm(request, character_id: list, planet_id: int):
         else:
             raise CharacterPlanetDetails.DoesNotExist
     except CharacterPlanetDetails.DoesNotExist:
-        print("LUL")
         msg = trans("Planet/s not found")
         messages.error(request, msg)
         return redirect("ledger:planetary_ledger", character_id=character_id)

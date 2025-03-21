@@ -15,7 +15,7 @@ logger = get_extension_logger(__name__)
 
 
 @login_required
-@permission_required("ledger.advanced_access")
+@permission_required("ledger.basic_access")
 def character_ledger_index(request):
     """Character Ledger Index View"""
     context = {}

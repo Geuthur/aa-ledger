@@ -23,6 +23,8 @@ def alliance_ledger_index(request):
     context = add_info_to_context(request, context)
     try:
         alliance_id = request.user.profile.main_character.alliance_id
+        if alliance_id is None:
+            raise AttributeError
     except AttributeError:
         messages.error(request, "You do not have an alliance.")
         return redirect("ledger:index")
@@ -30,7 +32,7 @@ def alliance_ledger_index(request):
 
 
 @login_required
-@permission_required("ledger.basic_access", "ledger.advanced_access")
+@permission_required("ledger.advanced_access")
 def alliance_ledger(request, alliance_id):
     """
     Corporation Ledger
@@ -49,7 +51,7 @@ def alliance_ledger(request, alliance_id):
 
 
 @login_required
-@permission_required("ledger.basic_access", "ledger.advanced_access")
+@permission_required("ledger.advanced_access")
 def alliance_admin(request):
     """
     Corporation Admin
