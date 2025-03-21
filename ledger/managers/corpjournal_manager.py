@@ -208,46 +208,16 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
 
         return main_and_alts, set(entity_list)
 
-    def annotate_ledger_data(self, queryset) -> models.QuerySet:
-        """Annotate the queryset with ledger data"""
-        return (
-            queryset.annotate_bounty_income()
-            .annotate_ess_income()
-            .annotate_mission_income()
-            .annotate_incursion_income()
-            .annotate_daily_goal_income()
-            .annotate_citadel_income()
-            .annotate_miscellaneous()
-        )
-
-    def generate_ledger(self, corporations: list) -> models.QuerySet:
-        """Generate the ledger for the corporation"""
-        # Filter Corporations
-        qs = self.filter(
-            Q(division__corporation__corporation__corporation_id__in=corporations)
-        )
-        # Get all Character IDs
-        entity_ids_second = self.values_list("second_party_id", flat=True)
-        entity_ids_first = self.values_list("first_party_id", flat=True)
-        entity_ids = set(entity_ids_first) | set(entity_ids_second)
-
-        # Get all linked Characters
-        main_and_alts, chars_list = self._get_linked_chars(entity_ids, corporations)
-
-        # Filter queryset with the linked characters
-        qs = qs.filter(
-            Q(first_party_id__in=chars_list) | Q(second_party_id__in=chars_list)
-        )
-        # Exclude Tax Events
-        qs = events_filter(qs)
-
+    def _annotate_main_and_alts(
+        self, qs: models.QuerySet, main_and_alts: dict, entity_ids: list
+    ) -> models.QuerySet:
+        """Annotate the queryset with main and alts"""
         # Create annotation cases
         main_entity_id_cases = []
         main_entity_name_cases = []
         main_entity_type_cases = []
         alts_cases = []
 
-        # Create the cases for the annotations
         for main, data in main_and_alts.items():
             # Filter entitys to include only those alt that are present in entity_ids
             f_entity_ids = list(set(data["alts"]) & entity_ids)
@@ -307,6 +277,63 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             "main_entity_type",
             "alts",
         )
+        return qs
+
+    def annotate_ledger_data(self, queryset) -> models.QuerySet:
+        """Annotate the queryset with ledger data"""
+        return (
+            queryset.annotate_bounty_income()
+            .annotate_ess_income()
+            .annotate_mission_income()
+            .annotate_incursion_income()
+            .annotate_daily_goal_income()
+            .annotate_citadel_income()
+            .annotate_miscellaneous()
+        )
+
+    def generate_ledger_alliance(self, corporations: list) -> models.QuerySet:
+        # Filter Corporations
+        qs = self.filter(
+            Q(division__corporation__corporation__corporation_id__in=corporations)
+        )
+        # Get all Character IDs
+        entity_ids_second = self.values_list("second_party_id", flat=True)
+        entity_ids_first = self.values_list("first_party_id", flat=True)
+        entity_ids = set(entity_ids_first) | set(entity_ids_second)
+
+        # Filter queryset with the linked characters
+        qs = qs.filter(
+            Q(first_party_id__in=entity_ids) | Q(second_party_id__in=entity_ids)
+        )
+
+        # Exclude Tax Events
+        qs = events_filter(qs)
+
+        return qs
+
+    def generate_ledger(self, corporations: list) -> models.QuerySet:
+        """Generate the ledger for the corporation"""
+        # Filter Corporations
+        qs = self.filter(
+            Q(division__corporation__corporation__corporation_id__in=corporations)
+        )
+        # Get all Character IDs
+        entity_ids_second = self.values_list("second_party_id", flat=True)
+        entity_ids_first = self.values_list("first_party_id", flat=True)
+        entity_ids = set(entity_ids_first) | set(entity_ids_second)
+
+        # Get all linked Characters
+        main_and_alts, chars_list = self._get_linked_chars(entity_ids, corporations)
+
+        # Filter queryset with the linked characters
+        qs = qs.filter(
+            Q(first_party_id__in=chars_list) | Q(second_party_id__in=chars_list)
+        )
+        # Exclude Tax Events
+        qs = events_filter(qs)
+
+        # Annotate the queryset
+        qs = self._annotate_main_and_alts(qs, main_and_alts, entity_ids)
 
         return qs
 

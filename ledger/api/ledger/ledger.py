@@ -3,6 +3,7 @@ from datetime import datetime
 from ninja import NinjaAPI
 
 from ledger.api import schema
+from ledger.api.api_helper.alliance_helper import AllianceProcess
 from ledger.api.api_helper.character_helper import CharacterProcess
 from ledger.api.api_helper.corporation_helper import CorporationProcess
 from ledger.api.helpers import (
@@ -55,7 +56,7 @@ def ledger_api_process(request, entity_type: str, entity_id: int, date: str, vie
         return CorporationProcess(entitys, date, view), entitys
 
     if entity_type == "alliance":
-        return CorporationProcess(entitys, date, view), entitys
+        return AllianceProcess(entitys, date, view), entitys
 
     return "Wrong Entity Type", None
 
