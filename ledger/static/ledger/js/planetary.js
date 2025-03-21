@@ -18,24 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .replace('1337', planetId);
     }
 
-    var confirmModal = document.getElementById('confirmModal');
-    var confirmRequest = document.getElementById('confirm-request');
-    var finalizeActionButton = document.getElementById('finalizeActionButton');
-
-    confirmModal.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget;
-        var confirmText = button.getAttribute('data-confirm-text');
-        var formId = button.getAttribute('data-form-id');
-
-        confirmRequest.textContent = confirmText;
-
-        finalizeActionButton.onclick = function () {
-            document.getElementById(formId).submit();
-            var modal = bootstrap.Modal.getInstance(confirmModal);
-            modal.hide();
-        };
-    });
-
     // Initialize DataTable
     var table = $('#planets-details').DataTable({
         'order': [[4, 'desc']], // Adjust the column index if needed
@@ -154,13 +136,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Actions
                 const actionsCell = `
                     <td>
-                        <form class="text-end" method="post" action="${switchAlarmUrl(item.character_id, item.planet_id)}" id="switchAlarmForm${item.character_id}_${item.planet_id}">
-                            ${csrfToken}
-                            <input type="hidden" name="character_pk" value="${characterPk}">
-                            <button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="planetary" title="${switchAlarm}" data-bs-target="#confirmModal" data-confirm-text="${switchAlarmText} \n${item.character_name} - ${item.planet}?" data-form-id="switchAlarmForm${item.character_id}_${item.planet_id}">
-                                <span class="fas fa-bullhorn"></span>
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-primary btn-sm btn-square me-2" data-bs-toggle="modal" data-tooltip-toggle="planetary" data-character-id="${item.character_id}" data-planet-id="${item.planet_id} "data-title="${switchAlarm}" data-text="${switchAlarmText} \n${item.character_name} - ${item.planet}?" data-bs-target="#ledger-planetary-confirm" data-action="/skillfarm/switch_alarm/2115474712/" aria-label="Toggle Alarm">
+                            <span class="fas fa-bullhorn"></span>
+                        </button>
                     </td>
                 `;
 
@@ -182,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 switchAllAlarmsForm.id = 'switchAllAlarmsForm';
                 switchAllAlarmsForm.className = 'd-inline';
                 switchAllAlarmsForm.innerHTML = csrfToken +
-                    '<input type="hidden" name="character_pk" value="' + characterPk + '">' +
+                    '<input type="hidden" name="character_id" value="' + characterPk + '">' +
                     '<button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="planetary" title="'+ switchAlarm +'" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '?" data-form-id="switchAllAlarmsForm">' + switchAllAlarmsButton.textContent + '</button>';
 
                 const tableContainer = document.querySelector('#planets-details').parentElement;
