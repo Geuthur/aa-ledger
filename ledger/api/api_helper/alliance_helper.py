@@ -10,6 +10,7 @@ from ledger.models.corporationaudit import CorporationWalletJournalEntry
 logger = get_extension_logger(__name__)
 
 
+# pylint: disable=duplicate-code
 class AllianceProcess:
     """JournalProcess class to process the journal entries."""
 
@@ -31,8 +32,8 @@ class AllianceProcess:
     # pylint: disable=too-many-locals
     def _process_corporation_chars(self, journal):
         # Create the Dicts for each Character
-        corporation_dict = {}
-        corporation_total = LedgerTotal()
+        alliance_dict = {}
+        alliance_total = LedgerTotal()
 
         ledger_journal = (
             journal.values(  # Convert the queryset into dictionaries
@@ -44,8 +45,6 @@ class AllianceProcess:
             .annotate_miscellaneous()
             .annotate_daily_goal_income()
         )
-
-        logger.info(len(ledger_journal))
 
         for corporation in ledger_journal:
             total_bounty = corporation.get("bounty_income", 0)
@@ -61,7 +60,7 @@ class AllianceProcess:
             summary_amount = sum([total_bounty, total_ess, total_other])
 
             if summary_amount > 0:
-                corporation_dict[corporation_id] = {
+                alliance_dict[corporation_id] = {
                     "main_id": corporation_id,
                     "main_name": corporation_name,
                     "entity_type": "corporation",
@@ -78,9 +77,9 @@ class AllianceProcess:
                 "total_amount_all": summary_amount,
             }
             # Summary all
-            corporation_total.get_summary(totals)
+            alliance_total.get_summary(totals)
 
-        return corporation_dict, corporation_total
+        return alliance_dict, alliance_total
 
     def generate_ledger(self):
         # Get the Filter Settings
@@ -100,16 +99,16 @@ class AllianceProcess:
         billboard_dict = billboard.billboard_ledger()
 
         # Create the Dicts for each Character
-        corporation_dict, corporation_total = self._process_corporation_chars(journal)
+        alliance_dict, alliance_total = self._process_corporation_chars(journal)
 
         output = []
         output.append(
             {
                 "ratting": sorted(
-                    list(corporation_dict.values()), key=lambda x: x["main_name"]
+                    list(alliance_dict.values()), key=lambda x: x["main_name"]
                 ),
                 "billboard": billboard_dict,
-                "total": corporation_total.to_dict(),
+                "total": alliance_total.to_dict(),
             }
         )
 
