@@ -64,7 +64,7 @@
     </div>
 </div>
 <div class="card-body rounded-bottom">
-    {% include 'ledger/view.html' with character_pk=character_pk entity_type=entity_type %}
+    {% include 'ledger/partials/view/ledger.html' with character_pk=character_pk entity_type=entity_type %}
 </div>
 <!-- Tab Session -->
 {% include 'ledger/modals/modal_dialog.html' with name="ViewCharacter" %}
@@ -75,25 +75,6 @@
 {% block extra_javascript %}
 
 {% include 'bundles/datatables-js-bs5.html' %}
-
-<script type="application/javascript">
-    // Extract the 'main' parameter from the current URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const mainParam = urlParams.get('main');
-
-    let altShow = false;
-    if (mainParam) {
-        altShow = true;
-    }
-
-    let ledgersettings = {
-        entity_pk: {{ entity_pk }},
-        entity_type: "{{ entity_type }}",
-        altShow: altShow,
-        overviewText: '{% translate "Overview" %}',
-        planetaryText: '{% translate "Show Planetary Interaction" %}',
-    };
-</script>
 {% include 'ledger/bundles/ledger-js.html' %}
 
 {% endblock extra_javascript %}

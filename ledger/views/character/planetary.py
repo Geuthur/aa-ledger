@@ -18,10 +18,24 @@ logger = get_extension_logger(__name__)
 
 
 @login_required
+@permission_required("ledger.advanced_access")
+def planetary_ledger_index(request):
+    """Character Ledger Index View"""
+    context = {}
+    context = add_info_to_context(request, context)
+    return redirect(
+        "ledger:planetary_ledger", request.user.profile.main_character.character_id
+    )
+
+
+@login_required
 @permission_required(["ledger.basic_access"])
-def planetary_ledger(request, character_pk):
+def planetary_ledger(request, character_id=None):
+    if character_id is None:
+        character_id = request.user.profile.main_character.character_id
+
     context = {
-        "character_pk": character_pk,
+        "character_id": character_id,
     }
     context = add_info_to_context(request, context)
     return render(request, "ledger/planetary/planetary_ledger.html", context=context)
@@ -46,8 +60,8 @@ def planetary_admin(request):
 @permission_required("ledger.basic_access")
 @require_POST
 def switch_alarm(request, character_id: list, planet_id: int):
-    # Retrieve character_pk from GET parameters
-    character_pk = int(request.POST.get("character_pk", 0))
+    # Retrieve character_id from GET parameters
+    character_id = int(request.POST.get("character_id", 0))
 
     # Check Permission
     perm, main = get_character(request, character_id)
@@ -55,7 +69,7 @@ def switch_alarm(request, character_id: list, planet_id: int):
     if not perm:
         msg = trans("Permission Denied")
         messages.error(request, msg)
-        return redirect("ledger:planetary_ledger", character_pk=character_pk)
+        return redirect("ledger:planetary_ledger", character_id=character_id)
 
     if character_id == 0:
         characters = get_alts_queryset(main)
@@ -79,9 +93,9 @@ def switch_alarm(request, character_id: list, planet_id: int):
         print("LUL")
         msg = trans("Planet/s not found")
         messages.error(request, msg)
-        return redirect("ledger:planetary_ledger", character_pk=character_pk)
+        return redirect("ledger:planetary_ledger", character_id=character_id)
 
     msg = trans("Alarm/s successfully switched")
     messages.info(request, msg)
 
-    return redirect("ledger:planetary_ledger", character_pk=character_pk)
+    return redirect("ledger:planetary_ledger", character_id=character_id)

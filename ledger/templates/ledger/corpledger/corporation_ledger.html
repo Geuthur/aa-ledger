@@ -64,7 +64,7 @@
     </div>
 </div>
 <div class="card-body rounded-bottom">
-    {% include 'ledger/view.html' with entity_type=entity_type %}
+    {% include 'ledger/partials/view/ledger.html' with entity_type=entity_type %}
 </div>
 
 {% include 'ledger/modals/modal_dialog.html' with name="ViewCharacter" %}
@@ -74,12 +74,6 @@
 {% endblock %}
 {% block extra_javascript %}
 {% include 'bundles/datatables-js-bs5.html' %}
-<script type="application/javascript">
-    let ledgersettings = {
-        entity_pk: {{ entity_pk }},
-        entity_type: "{{ entity_type }}",
-    };
-</script>
 {% include 'ledger/bundles/ledger-js.html' %}
 
 {% endblock extra_javascript %}

@@ -58,7 +58,7 @@ class LedgerTemplateApiEndpoints:
             except ValueError:
                 return 403, "Invalid Date format. Use YYYY-MM-DD"
 
-            request_main = request.GET.get("main", False)
+            request_overall = request.GET.get("overall", False)
             perms, main = get_character(request, character_id)
             entitys = get_main_and_alts_ids_corporations(request)
 
@@ -74,7 +74,7 @@ class LedgerTemplateApiEndpoints:
             alts = get_alts_queryset(main)
             chars_list = [char.character_id for char in alts]
 
-            overall_mode = character_id == 0 or request_main
+            overall_mode = character_id == 0 or request_overall
             current_date = timezone.now()
 
             try:

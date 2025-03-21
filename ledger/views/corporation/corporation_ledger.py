@@ -4,7 +4,7 @@ from datetime import datetime
 
 # Django
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 from ledger.hooks import get_extension_logger
 
@@ -16,17 +16,32 @@ logger = get_extension_logger(__name__)
 
 @login_required
 @permission_required("ledger.advanced_access")
-def corporation_ledger(request, corporation_pk):
+def corporation_ledger_index(request):
+    """Corporation Ledger Index View"""
+    context = {}
+    context = add_info_to_context(request, context)
+    return redirect(
+        "ledger:corporation_ledger", request.user.profile.main_character.corporation_id
+    )
+
+
+@login_required
+@permission_required("ledger.advanced_access")
+def corporation_ledger(request, corporation_id=None):
     """
     Corporation Ledger
     """
+    if corporation_id is None:
+        corporation_id = request.user.profile.main_character.corporation_id
+
     # pylint: disable=duplicate-code
     current_year = datetime.now().year
     years = [current_year - i for i in range(6)]
 
     context = {
         "years": years,
-        "entity_pk": corporation_pk,
+        "entity_pk": corporation_id,
+        "corporation_id": corporation_id,
         "entity_type": "corporation",
     }
     context = add_info_to_context(request, context)

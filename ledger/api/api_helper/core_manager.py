@@ -1,29 +1,9 @@
-import calendar
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
 from decimal import Decimal
-
-from django.utils import timezone
 
 from ledger.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
-
-
-@dataclass
-class LedgerDataCore:
-    total_bounty: Decimal = Decimal("0.00")
-    total_ess_payout: Decimal = Decimal("0.00")
-    total_mining: Decimal = Decimal("0.00")
-    total_miscellaneous: Decimal = Decimal("0.00")
-    total_isk: Decimal = Decimal("0.00")
-
-
-@dataclass
-class LedgerData(LedgerDataCore):
-    total_cost: Decimal = Decimal(0)
-    total_production_cost: Decimal = Decimal(0)
-    total_market_cost: Decimal = Decimal(0)
 
 
 class LedgerModels:
@@ -35,28 +15,6 @@ class LedgerModels:
         self.char_journal = character_journal
         self.corp_journal = corporation_journal
         self.mining_journal = mining_journal
-
-
-@dataclass
-class LedgerDate:
-    """class to store the date."""
-
-    year: int
-    month: int
-    monthly: bool = field(init=False)
-    current_date: datetime = None
-    range_data: int = field(init=False)
-    day_checks: list = field(init=False)
-
-    def calculate_days(self):
-        _, num_days = calendar.monthrange(self.year, self.month)
-        return num_days
-
-    def __post_init__(self):
-        self.current_date = timezone.now()
-        self.monthly = self.month == 0
-        self.range_data = 12 if self.monthly else self.calculate_days()
-        self.day_checks = list(range(1, self.range_data + 1))
 
 
 @dataclass

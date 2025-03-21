@@ -35,4 +35,4 @@ def add_char(request, token):
         character_name=char.character.character_name,
     )
     messages.info(request, msg)
-    return redirect("ledger:character_ledger", character_pk=0)
+    return redirect("ledger:character_ledger", character_id=char.character.character_id)

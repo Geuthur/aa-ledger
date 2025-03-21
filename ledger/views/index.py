@@ -2,7 +2,7 @@
 
 # Django
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import render
+from django.shortcuts import redirect
 
 from ledger.hooks import get_extension_logger
 
@@ -14,8 +14,12 @@ logger = get_extension_logger(__name__)
 
 @login_required
 @permission_required("ledger.basic_access")
-def ledger_index(request):
-    context = {}
+def index(request):
+    """Index View"""
+    context = {
+        "title": "Ledger",
+    }
     context = add_info_to_context(request, context)
-
-    return render(request, "ledger/index.html", context=context)
+    return redirect(
+        "ledger:character_ledger", request.user.profile.main_character.character_id
+    )

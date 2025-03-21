@@ -19,8 +19,12 @@ logger = get_extension_logger(__name__)
 
 # pylint: disable=too-many-function-args
 def ledger_api_process(request, entity_type: str, entity_id: int, date: str, view: str):
-    request_main = request.GET.get("main", False)
+    singleview = request.GET.get("single", False)
+    multiple_corps = request.GET.get("multiple", False)
     perm = True
+
+    if multiple_corps:
+        entity_id = 0
 
     if entity_type == "corporation":
         perm, entitys = get_corporation(request, entity_id)
@@ -41,7 +45,7 @@ def ledger_api_process(request, entity_type: str, entity_id: int, date: str, vie
         return None, None
 
     if entity_type == "character":
-        if entity_id == 0 or request_main:
+        if not singleview:
             characters = get_alts_queryset(entitys)
         else:
             characters = [entitys]
@@ -82,30 +86,4 @@ class LedgerApiEndpoints:
                 return 404, "No data found"
 
             output = ledger.generate_ledger()
-            return output
-
-        @api.get(
-            "{entity_type}/{entity_id}/billboard/date/{date}/view/{view}/",
-            response={200: list[schema.Billboard], 403: str, 404: str},
-            tags=self.tags,
-        )
-        def get_billboard_ledger(
-            request, entity_type: str, entity_id: int, date: str, view: str
-        ):
-            try:
-                date_obj = datetime.strptime(date, "%Y-%m-%d").date()
-            except ValueError:
-                return 403, "Invalid Date format. Use YYYY/MM/DD"
-
-            ledger, entitys = ledger_api_process(
-                request, entity_type, entity_id, date_obj, view
-            )
-
-            if isinstance(ledger, str):
-                return 403, ledger
-
-            if ledger is None:
-                return 404, "No data found"
-
-            output = ledger.generate_billboard(entitys)
             return output

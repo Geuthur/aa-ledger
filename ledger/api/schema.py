@@ -106,6 +106,7 @@ class CorporationWalletEvent(Schema):
 
 class Ledger(Schema):
     ratting: list | None = None
+    billboard: BillboardDict | None = None
     total: dict | None = None
 
 
