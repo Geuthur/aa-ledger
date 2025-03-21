@@ -2,7 +2,6 @@
 Core View Helper
 """
 
-from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.core.cache import cache
@@ -32,22 +31,6 @@ def add_info_to_context(request, context: dict) -> dict:
         **context,
     }
     return new_context
-
-
-def ledger_cache_timeout():
-    """
-    Calculate time left to next hour
-
-    Example:
-    1 Hour
-        10:15 -> 45 minutes left
-        10:45 -> 15 minutes left
-    """
-    now = datetime.now()
-    delta = timedelta(minutes=60, hours=0, seconds=0)
-    next_time = (now + delta).replace(minute=0, second=0, microsecond=0)
-    timeout = next_time - now
-    return timeout.total_seconds()
 
 
 def calculate_ess_stolen_amount(bounty, ess):
@@ -99,20 +82,11 @@ def set_cache(data, key_name: str, time: int):
     )
 
 
-def set_cache_hourly(data, key_name: str):
-    """Reset hourly"""
-    cache.set(
-        key=_storage_key(key_name),
-        value=data,
-        timeout=ledger_cache_timeout(),
-    )
-
-
 def delete_cache(key_name: str):
     cache.delete(_storage_key(key_name))
 
 
-def events_filter(qs) -> "QuerySet":
+def events_filter(qs: QuerySet) -> QuerySet:
     """Remove Entries that are in the Event Time"""
     # Events to Filter out
     events = Events.objects.all()
