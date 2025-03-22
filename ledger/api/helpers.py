@@ -131,36 +131,6 @@ def get_alts_queryset(main_char, corporations=None) -> list[EveCharacter]:
         return EveCharacter.objects.filter(pk=main_char.pk)
 
 
-def get_corp_alts_queryset(
-    main_char, corporations=None
-) -> list[models.general.EveEntity]:
-    """Get all alts for a main character, optionally filtered by corporations."""
-    try:
-        linked_characters = (
-            main_char.character_ownership.user.character_ownerships.all()
-        )
-        chars_list = set()
-
-        if corporations:
-            linked_characters = linked_characters.filter(
-                character__corporation_id__in=corporations
-            )
-
-        for char in linked_characters:
-            char, _ = models.general.EveEntity.objects.get_or_create(
-                eve_id=char.character.character_id,
-                defaults={
-                    "name": char.character.character_name,
-                    "category": "character",
-                },
-            )
-            chars_list.add(char.eve_id)
-        return list(models.general.EveEntity.objects.filter(eve_id__in=chars_list))
-    except ObjectDoesNotExist:
-        chars = EveCharacter.objects.filter(pk=main_char.pk).values("character_id")
-        return list(models.general.EveEntity.objects.filter(eve_id__in=chars))
-
-
 def get_journal_entitys(date: datetime, view, corporations=None) -> set:
     """Get all entity ids from Corporation Journal Queryset filtered by date."""
     filter_date = Q(date__year=date.year)

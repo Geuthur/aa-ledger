@@ -244,7 +244,7 @@ class InformationProcessCharacter:
 class InformationProcessCorporation:
     """Create Infomation View for Corporation Ledger."""
 
-    def __init__(self, corporation_id: int, character_ids, data: InformationData):
+    def __init__(self, corporation_id: int, character_ids: list, data: InformationData):
         self.data = data
         self.corporation_id = corporation_id
         self.character_ids = character_ids

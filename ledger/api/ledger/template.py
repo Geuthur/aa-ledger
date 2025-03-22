@@ -16,8 +16,8 @@ from ledger.api.api_helper.information_helper import (
 )
 from ledger.api.helpers import (
     get_all_corporations_from_alliance,
+    get_alts_queryset,
     get_character,
-    get_corp_alts_queryset,
     get_corporation,
     get_journal_entitys,
 )
@@ -95,7 +95,7 @@ def _character_information(
     )
     context = {
         "character": ledger.character_information_dict(),
-        "mode": "TAX",
+        "mode": "CHARACTER",
     }
     return render(
         request,
@@ -143,7 +143,10 @@ def _corporation_information(
                 status=403,
             )
 
-        linked_char = get_corp_alts_queryset(main_character)
+        linked_char = get_alts_queryset(main_character)
+        linked_char = EveEntity.objects.filter(
+            eve_id__in=linked_char.values_list("character_id", flat=True),
+        )
         corporation = None
 
     # Create the Ledger
@@ -156,8 +159,10 @@ def _corporation_information(
         current_date=current_date,
     )
 
+    character_ids = linked_char.values_list("eve_id", flat=True)
+
     ledger = InformationProcessCorporation(
-        corporation_id=entity_id, character_ids=linked_char, data=ledger_data
+        corporation_id=entity_id, character_ids=character_ids, data=ledger_data
     )
     context = {
         "character": ledger.corporation_information_dict(),
