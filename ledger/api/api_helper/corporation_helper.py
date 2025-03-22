@@ -5,7 +5,10 @@ from django.db.models import Q
 from ledger.api.api_helper.billboard_helper import BillboardCorporation
 from ledger.api.api_helper.core_manager import LedgerTotal
 from ledger.hooks import get_extension_logger
-from ledger.models.corporationaudit import CorporationWalletJournalEntry
+from ledger.models.corporationaudit import (
+    CorporationAudit,
+    CorporationWalletJournalEntry,
+)
 
 logger = get_extension_logger(__name__)
 
@@ -13,11 +16,12 @@ logger = get_extension_logger(__name__)
 class CorporationProcess:
     """JournalProcess class to process the journal entries."""
 
-    def __init__(self, corporations, date: datetime, view=None):
-        self.corp = corporations if corporations else []
+    def __init__(self, corporation: CorporationAudit, date: datetime, view=None):
+        self.corporation = corporation
         self.date = date
         self.view = view
 
+    # pylint: disable=duplicate-code
     def _filter_date(self):
         """Filter the date."""
         filter_date = Q(date__year=self.date.year)
@@ -80,12 +84,15 @@ class CorporationProcess:
         filter_date = self._filter_date()
 
         journal = (
-            CorporationWalletJournalEntry.objects.filter(filter_date)
+            CorporationWalletJournalEntry.objects.filter(
+                filter_date,
+                division__corporation__corporation__corporation_id=self.corporation.corporation.corporation_id,
+            )
             .select_related(
                 "first_party",
                 "second_party",
             )
-            .generate_ledger(self.corp)
+            .generate_ledger()
         )
 
         # Create the Billboard for the Corporation

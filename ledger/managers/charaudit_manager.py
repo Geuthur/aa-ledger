@@ -114,7 +114,7 @@ class CharacterMiningLedgerEntryQueryset(models.QuerySet):
             )
         )
 
-    def generate_template(
+    def aggregate_amounts_information_modal(
         self, amounts: defaultdict, chars_list: list, filter_date: timezone.datetime
     ) -> dict:
         """Generate data template for the ledger character information view."""

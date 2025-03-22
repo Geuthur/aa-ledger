@@ -13,7 +13,6 @@ from ledger.api.helpers import (
     get_corporation,
 )
 from ledger.hooks import get_extension_logger
-from ledger.models import CorporationAudit
 
 logger = get_extension_logger(__name__)
 
@@ -21,23 +20,14 @@ logger = get_extension_logger(__name__)
 # pylint: disable=too-many-function-args
 def ledger_api_process(request, entity_type: str, entity_id: int, date: str, view: str):
     singleview = request.GET.get("single", False)
-    multiple_corps = request.GET.get("multiple", False)
     perm = True
 
-    if multiple_corps:
-        entity_id = 0
-
     if entity_type == "corporation":
-        perm, entitys = get_corporation(request, entity_id)
-    elif entity_type == "character":
+        perm, corporation = get_corporation(request, entity_id)
+    if entity_type == "character":
         perm, entitys = get_character(request, entity_id)
-    elif entity_type == "alliance":
-        perm, entitys = get_alliance(request, entity_id)
-        # Get all corporations in the alliance
-        if entitys:
-            entitys = CorporationAudit.objects.filter(
-                corporation__alliance__alliance_id__in=entitys
-            ).values_list("corporation__corporation_id", flat=True)
+    if entity_type == "alliance":
+        perm, alliance = get_alliance(request, entity_id)
 
     if perm is False:
         return "Permission Denied", None
@@ -50,15 +40,15 @@ def ledger_api_process(request, entity_type: str, entity_id: int, date: str, vie
             characters = get_alts_queryset(entitys)
         else:
             characters = [entitys]
-        return CharacterProcess(characters, date, view), entitys
+        return CharacterProcess(characters, date, view)
 
     if entity_type == "corporation":
-        return CorporationProcess(entitys, date, view), entitys
+        return CorporationProcess(corporation, date, view)
 
     if entity_type == "alliance":
-        return AllianceProcess(entitys, date, view), entitys
+        return AllianceProcess(alliance, date, view)
 
-    return "Wrong Entity Type", None
+    return "Wrong Entity Type"
 
 
 class LedgerApiEndpoints:
@@ -76,9 +66,7 @@ class LedgerApiEndpoints:
             except ValueError:
                 return 403, "Invalid Date format. Use YYYY-MM-DD"
 
-            ledger, _ = ledger_api_process(
-                request, entity_type, entity_id, date_obj, view
-            )
+            ledger = ledger_api_process(request, entity_type, entity_id, date_obj, view)
 
             if isinstance(ledger, str):
                 return 403, ledger

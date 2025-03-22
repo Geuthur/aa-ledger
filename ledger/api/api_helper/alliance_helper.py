@@ -2,10 +2,14 @@ from datetime import datetime
 
 from django.db.models import Q
 
+from allianceauth.eveonline.models import EveAllianceInfo
+
 from ledger.api.api_helper.billboard_helper import BillboardAlliance
 from ledger.api.api_helper.core_manager import LedgerTotal
 from ledger.hooks import get_extension_logger
-from ledger.models.corporationaudit import CorporationWalletJournalEntry
+from ledger.models.corporationaudit import (
+    CorporationWalletJournalEntry,
+)
 
 logger = get_extension_logger(__name__)
 
@@ -14,8 +18,8 @@ logger = get_extension_logger(__name__)
 class AllianceProcess:
     """JournalProcess class to process the journal entries."""
 
-    def __init__(self, corporations, date: datetime, view=None):
-        self.corps = corporations if corporations else []
+    def __init__(self, alliance: EveAllianceInfo, date: datetime, view=None):
+        self.alliance = alliance
         self.date = date
         self.view = view
 
@@ -91,7 +95,7 @@ class AllianceProcess:
                 "first_party",
                 "second_party",
             )
-            .generate_ledger_alliance(self.corps)
+            .generate_ledger_alliance(self.alliance.alliance_id)
         )
 
         # Create the Billboard for the Corporation
