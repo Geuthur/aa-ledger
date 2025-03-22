@@ -2,6 +2,10 @@
 
 ## [0.7.x] - IN DEVELOPMENT
 
+### Added
+
+- Application Tests
+
 ### Changed
 
 - Refactor Corpjournal Manager
