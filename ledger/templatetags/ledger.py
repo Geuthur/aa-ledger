@@ -12,11 +12,6 @@ from ledger.view_helpers.static_files import calculate_integrity_hash
 logger = get_extension_logger(__name__)
 
 
-@register.filter(name="ledger_init")
-def ledger_init():
-    return None
-
-
 @register.simple_tag
 def ledger_static(relative_file_path: str, script_type: str = None) -> str | None:
     """

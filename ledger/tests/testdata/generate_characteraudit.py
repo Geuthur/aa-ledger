@@ -67,6 +67,7 @@ def add_auth_character_to_user(
 def add_charactermaudit_character_to_user(
     user: User, character_id: int, disconnect_signals: bool = True, **kwargs
 ) -> CharacterAudit:
+    """Add a Character Audit Character to a user"""
     character_ownership = add_auth_character_to_user(
         user,
         character_id,

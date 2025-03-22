@@ -6,9 +6,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
 from django.shortcuts import redirect, render
-from django.utils.translation import gettext_lazy as trans
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
+from ledger import forms
 from ledger.api.helpers import get_alts_queryset, get_character
 from ledger.hooks import get_extension_logger
 from ledger.models.planetary import CharacterPlanetDetails
@@ -36,6 +37,9 @@ def planetary_ledger(request, character_id=None):
 
     context = {
         "character_id": character_id,
+        "forms": {
+            "confirm": forms.ConfirmForm(),
+        },
     }
     context = add_info_to_context(request, context)
     return render(request, "ledger/planetary/planetary_ledger.html", context=context)
@@ -60,42 +64,46 @@ def planetary_admin(request):
 @permission_required("ledger.basic_access")
 @require_POST
 def switch_alarm(request, character_id: list, planet_id: int):
-    # Retrieve character_id from GET parameters
-    character_id = int(request.POST.get("character_id", 0))
-
     # Check Permission
     perm, main = get_character(request, character_id)
+    form = forms.ConfirmForm(request.POST)
 
-    if not perm:
-        msg = trans("Permission Denied")
-        messages.error(request, msg)
-        return redirect("ledger:planetary_ledger", character_id=character_id)
+    if form.is_valid():
+        if not perm:
+            msg = _("Permission Denied")
+            messages.error(request, msg)
+            return redirect("ledger:planetary_ledger", character_id=character_id)
 
-    if character_id == 0:
-        characters = get_alts_queryset(main)
-        characters = characters.values_list("character_id", flat=True)
-    else:
-        characters = [main.character_id]
+        character_id = int(form.cleaned_data["character_id"])
+        planet_id = int(form.cleaned_data["planet_id"])
 
-    filters = Q(planet__character__character__character_id__in=characters)
-    if not planet_id == 0:
-        filters &= Q(planet__planet__id=planet_id)
-
-    try:
-        planets = CharacterPlanetDetails.objects.filter(filters)
-        if planets:
-            for p in planets:
-                p.notification = not p.notification
-                p.save()
+        if character_id == 0:
+            characters = get_alts_queryset(main)
+            characters = characters.values_list("character_id", flat=True)
         else:
-            raise CharacterPlanetDetails.DoesNotExist
-    except CharacterPlanetDetails.DoesNotExist:
-        print("LUL")
-        msg = trans("Planet/s not found")
-        messages.error(request, msg)
+            characters = [character_id]
+
+        filters = Q(planet__character__character__character_id__in=characters)
+        if planet_id != 0:
+            filters &= Q(planet__planet__id=planet_id)
+        try:
+            planets = CharacterPlanetDetails.objects.filter(filters)
+
+            if planets:
+                for p in planets:
+                    p.notification = not p.notification
+                    p.save()
+            else:
+                raise CharacterPlanetDetails.DoesNotExist
+
+            msg = _("Alarm/s successfully switched")
+            messages.info(request, msg)
+        except CharacterPlanetDetails.DoesNotExist:
+            msg = _("Planet/s not found")
+            messages.error(request, msg)
+            return redirect("ledger:planetary_ledger", character_id=character_id)
         return redirect("ledger:planetary_ledger", character_id=character_id)
 
-    msg = trans("Alarm/s successfully switched")
-    messages.info(request, msg)
-
+    msg = "Invalid Form"
+    messages.error(request, msg)
     return redirect("ledger:planetary_ledger", character_id=character_id)
