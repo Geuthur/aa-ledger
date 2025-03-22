@@ -508,3 +508,121 @@ class BillboardCorporation:
         self.billboard_dict.standard = standard
 
         return self.billboard_dict
+
+
+class BillboardAlliance:
+    def __init__(self, view: str, journal: CorporationWalletJournalEntry):
+        self.view = view
+        self.journal = journal
+        self.billboard_dict = BillboardDict()
+
+    def _sort_series(self, chart_data: ChartData) -> ChartData:
+        """Sort the series data by category names."""
+        for series_item in chart_data.series:
+            sorted_series = {
+                k: v for k, v in sorted(series_item.items()) if k != "date"
+            }
+            sorted_series = {"date": series_item["date"], **sorted_series}
+            series_item.clear()
+            series_item.update(sorted_series)
+        return chart_data
+
+    def _process_corp_chart(self, billboard: BillboardSystem, corp_qs, period_format):
+        """Process Corporation Chart from Corporation Journal."""
+        for entry in corp_qs:
+            date = entry["period"].strftime(period_format)
+            chord_from = entry.get(
+                "division__corporation__corporation__corporation_name", "Unknown"
+            )
+            chord_to = "Wallet"
+            bounty = entry.get("bounty_income", 0)
+            ess = entry.get("ess_income", 0)
+            miscellaneous = entry.get("miscellaneous", 0)
+            values = bounty + ess + miscellaneous
+
+            for key, value in entry.items():
+                if key in [
+                    "period",
+                    "division__corporation__corporation__corporation_name",
+                    "division__corporation__corporation__corporation_id",
+                    "corporation",
+                ]:
+                    continue
+                billboard.add_or_update_data_point(
+                    date=date, category=key, value=float(value)
+                )
+
+            billboard.add_chord_data_point(
+                from_char=chord_from, to=chord_to, value=values
+            )
+
+    # pylint: disable=too-many-branches, too-many-locals
+    def _process_billboard(
+        self, billboard: BillboardSystem, annotations, period_format
+    ) -> BillboardSystem:
+        """Process the queryset for the billboard."""
+        corp_qs = self.journal.annotate(**annotations)
+
+        corp_qs = corp_qs.values(
+            "period",
+            "division__corporation__corporation__corporation_id",
+            "division__corporation__corporation__corporation_name",
+        ).annotate(
+            corporation=F("division__corporation__corporation__corporation_name")
+        )
+
+        corp_qs = (
+            corp_qs.annotate_bounty_income()
+            .annotate_ess_income()
+            .annotate_miscellaneous()
+            .annotate_daily_goal_income()
+        )
+
+        self._process_corp_chart(billboard, corp_qs, period_format)
+
+        if not billboard.data_points:
+            return None
+
+        return billboard
+
+    def annotate_days(self, period, billboard_dict: _BillboardDict, tick=False):
+        """Generate the Billboard Data."""
+        trunctype, period_format = period
+        annotations = {"period": trunctype}
+        self.tick = tick
+
+        billboard = BillboardSystem()
+        billboard = self._process_billboard(billboard, annotations, period_format)
+
+        if billboard:
+            # Create the Chart
+            chart = billboard.to_chord_data()
+            billboard_dict.charts = chart
+
+            # Create the Ratting Bar
+            rattingbar = billboard.to_xy_data(is_character=False)
+            billboard_dict.rattingbar = rattingbar
+
+            # Create the Gauge
+            gauge = billboard.to_gauge_data()
+            billboard_dict.workflowgauge = self._sort_series(gauge)
+        return billboard_dict
+
+    # Create the Billboard
+    def billboard_ledger(self):
+        """Generate the Billboard Ledger."""
+        periods = BillboardTrunc()
+        standard = None
+
+        # Create Billboard Month
+        if self.view == "year":
+            standard = self.annotate_days(periods.month, self.billboard_dict.standard)
+        elif self.view == "month":
+            standard = self.annotate_days(periods.day, self.billboard_dict.standard)
+        elif self.view == "day":
+            standard = self.annotate_days(periods.hour, self.billboard_dict.standard)
+
+        # Generate Billboard
+        self.billboard_dict.standard = standard
+
+        return self.billboard_dict

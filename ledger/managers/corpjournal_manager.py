@@ -12,6 +12,7 @@ from allianceauth.authentication.models import UserProfile
 
 from ledger import app_settings
 from ledger.hooks import get_extension_logger
+from ledger.managers.manager_helper import _annotations_information
 from ledger.models.general import EveEntity
 from ledger.view_helpers.core import events_filter
 
@@ -165,8 +166,7 @@ class CorpWalletQueryFilter(models.QuerySet):
 
 
 class CorpWalletQuerySet(CorpWalletQueryFilter):
-    # pylint: disable=unused-argument
-    def _get_linked_chars(self, entity_ids: list, corporations=None) -> tuple:
+    def _get_linked_chars(self, entity_ids: list) -> tuple:
         main_and_alts = {}
         entity_list = []
 
@@ -208,46 +208,16 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
 
         return main_and_alts, set(entity_list)
 
-    def annotate_ledger_data(self, queryset) -> models.QuerySet:
-        """Annotate the queryset with ledger data"""
-        return (
-            queryset.annotate_bounty_income()
-            .annotate_ess_income()
-            .annotate_mission_income()
-            .annotate_incursion_income()
-            .annotate_daily_goal_income()
-            .annotate_citadel_income()
-            .annotate_miscellaneous()
-        )
-
-    def generate_ledger(self, corporations: list) -> models.QuerySet:
-        """Generate the ledger for the corporation"""
-        # Filter Corporations
-        qs = self.filter(
-            Q(division__corporation__corporation__corporation_id__in=corporations)
-        )
-        # Get all Character IDs
-        entity_ids_second = self.values_list("second_party_id", flat=True)
-        entity_ids_first = self.values_list("first_party_id", flat=True)
-        entity_ids = set(entity_ids_first) | set(entity_ids_second)
-
-        # Get all linked Characters
-        main_and_alts, chars_list = self._get_linked_chars(entity_ids, corporations)
-
-        # Filter queryset with the linked characters
-        qs = qs.filter(
-            Q(first_party_id__in=chars_list) | Q(second_party_id__in=chars_list)
-        )
-        # Exclude Tax Events
-        qs = events_filter(qs)
-
+    def _annotate_main_and_alts(
+        self, qs: models.QuerySet, main_and_alts: dict, entity_ids: list
+    ) -> models.QuerySet:
+        """Annotate the queryset with main and alts"""
         # Create annotation cases
         main_entity_id_cases = []
         main_entity_name_cases = []
         main_entity_type_cases = []
         alts_cases = []
 
-        # Create the cases for the annotations
         for main, data in main_and_alts.items():
             # Filter entitys to include only those alt that are present in entity_ids
             f_entity_ids = list(set(data["alts"]) & entity_ids)
@@ -307,38 +277,78 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
             "main_entity_type",
             "alts",
         )
+        return qs
+
+    def annotate_ledger_data(self, queryset) -> models.QuerySet:
+        """Annotate the queryset with ledger data"""
+        return (
+            queryset.annotate_bounty_income()
+            .annotate_ess_income()
+            .annotate_mission_income()
+            .annotate_incursion_income()
+            .annotate_daily_goal_income()
+            .annotate_citadel_income()
+            .annotate_miscellaneous()
+        )
+
+    def generate_ledger_alliance(self, alliance_id: int) -> models.QuerySet:
+        # Filter Corporations
+        qs = self.filter(
+            Q(division__corporation__corporation__alliance__alliance_id=alliance_id)
+        )
+        # Get all Character IDs
+        entity_ids_second = self.values_list("second_party_id", flat=True)
+        entity_ids_first = self.values_list("first_party_id", flat=True)
+        entity_ids = set(entity_ids_first) | set(entity_ids_second)
+
+        # Filter queryset with the linked characters
+        qs = qs.filter(
+            Q(first_party_id__in=entity_ids) | Q(second_party_id__in=entity_ids)
+        )
+
+        # Exclude Tax Events
+        qs = events_filter(qs)
 
         return qs
 
-    # pylint: disable=duplicate-code, too-many-positional-arguments
-    def generate_template(
+    def generate_ledger(self) -> models.QuerySet:
+        """Generate the ledger for the corporation"""
+        # Get all Character IDs
+        entity_ids_second = self.values_list("second_party_id", flat=True)
+        entity_ids_first = self.values_list("first_party_id", flat=True)
+        entity_ids = set(entity_ids_first) | set(entity_ids_second)
+
+        # Get all linked Characters
+        main_and_alts, chars_list = self._get_linked_chars(entity_ids)
+
+        # Filter queryset with the linked characters
+        qs = self.filter(
+            Q(first_party_id__in=chars_list) | Q(second_party_id__in=chars_list)
+        )
+        # Exclude Tax Events
+        qs = events_filter(qs)
+
+        # Annotate the queryset
+        qs = self._annotate_main_and_alts(qs, main_and_alts, entity_ids)
+
+        return qs
+
+    # pylint: disable=duplicate-code
+    def aggregate_amounts_information_modal_character(
         self,
         amounts: defaultdict,
         filter_date: timezone.datetime,
         character_ids: list,
-        corporations_ids: list,
-        entity_type=None,
     ) -> dict:
-        """Generate data template for the ledger character information view"""
+        """Generate information data for the corporation modal view"""
         # Define the type names
         type_names = [
             "ess_income",
             "daily_goal_income",
         ]
 
-        if entity_type == "corporation":
-            type_names += [
-                "bounty_income",
-                "mission_income",
-                "citadel_income",
-                "incursion_income",
-            ]
         qs = self
 
-        # Filter Corporations
-        qs = self.filter(
-            Q(division__corporation__corporation__corporation_id__in=corporations_ids)
-        )
         # Filter Characters
         qs = qs.filter(
             Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
@@ -350,81 +360,120 @@ class CorpWalletQuerySet(CorpWalletQueryFilter):
         # Annotate the queryset
         qs = self.annotate_ledger_data(qs)
 
-        annotations = {}
-        for type_name in type_names:
-            annotations[f"{type_name}_total_amount"] = Coalesce(
-                Sum(
-                    Case(
-                        When(
-                            **{
-                                f"{type_name}__isnull": False,
-                                "date__year": filter_date.year,
-                            },
-                            then=F(type_name),
-                        )
-                    )
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            )
-            annotations[f"{type_name}_total_amount_day"] = Coalesce(
-                Sum(
-                    Case(
-                        When(
-                            **{
-                                f"{type_name}__isnull": False,
-                                "date__year": filter_date.year,
-                                "date__month": filter_date.month,
-                                "date__day": filter_date.day,
-                            },
-                            then=F(type_name),
-                        )
-                    )
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            )
-            annotations[f"{type_name}_total_amount_hour"] = Coalesce(
-                Sum(
-                    Case(
-                        When(
-                            **{
-                                f"{type_name}__isnull": False,
-                                "date__year": filter_date.year,
-                                "date__month": filter_date.month,
-                                "date__day": filter_date.day,
-                                "date__hour": filter_date.hour,
-                            },
-                            then=F(type_name),
-                        )
-                    )
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            )
+        # Create the annotations
+        annotations = _annotations_information(filter_date, type_names)
 
         qs = qs.aggregate(**annotations)
 
         # Assign the results to the amounts dictionary
         for type_name in type_names:
-            if entity_type != "corporation":
-                amounts[type_name]["total_amount"] = self._convert_corp_tax(
-                    qs[f"{type_name}_total_amount"]
-                )
-                amounts[type_name]["total_amount_day"] = self._convert_corp_tax(
-                    qs[f"{type_name}_total_amount_day"]
-                )
-                amounts[type_name]["total_amount_hour"] = self._convert_corp_tax(
-                    qs[f"{type_name}_total_amount_hour"]
-                )
-            else:
-                amounts[type_name]["total_amount"] = qs[f"{type_name}_total_amount"]
-                amounts[type_name]["total_amount_day"] = qs[
-                    f"{type_name}_total_amount_day"
-                ]
-                amounts[type_name]["total_amount_hour"] = qs[
-                    f"{type_name}_total_amount_hour"
-                ]
+            amounts[type_name]["total_amount"] = self._convert_corp_tax(
+                qs[f"{type_name}_total_amount"]
+            )
+            amounts[type_name]["total_amount_day"] = self._convert_corp_tax(
+                qs[f"{type_name}_total_amount_day"]
+            )
+            amounts[type_name]["total_amount_hour"] = self._convert_corp_tax(
+                qs[f"{type_name}_total_amount_hour"]
+            )
+
+        return amounts
+
+    # pylint: disable=duplicate-code
+    def aggregate_amounts_information_modal_corporation(
+        self,
+        amounts: defaultdict,
+        filter_date: timezone.datetime,
+        corporation_id: int,
+        character_ids: list,
+    ) -> dict:
+        """Generate information data for the corporation modal view"""
+        # Define the type names
+        type_names = [
+            "bounty_income",
+            "ess_income",
+            "daily_goal_income",
+            "mission_income",
+            "citadel_income",
+            "incursion_income",
+        ]
+
+        qs = self
+
+        # Filter Corporations
+        qs = self.filter(
+            Q(division__corporation__corporation__corporation_id=corporation_id)
+        )
+
+        # Filter Characters
+        qs = qs.filter(
+            Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
+        )
+
+        # Exclude Corp Tax Events
+        qs = events_filter(qs)
+
+        # Annotate the queryset
+        qs = self.annotate_ledger_data(qs)
+
+        # Create the annotations
+        annotations = _annotations_information(filter_date, type_names)
+
+        qs = qs.aggregate(**annotations)
+
+        # Assign the results to the amounts dictionary
+        for type_name in type_names:
+            amounts[type_name]["total_amount"] = qs[f"{type_name}_total_amount"]
+            amounts[type_name]["total_amount_day"] = qs[f"{type_name}_total_amount_day"]
+            amounts[type_name]["total_amount_hour"] = qs[
+                f"{type_name}_total_amount_hour"
+            ]
+
+        return amounts
+
+    # pylint: disable=duplicate-code
+    def aggregate_amounts_information_modal_alliance(
+        self,
+        amounts: defaultdict,
+        filter_date: timezone.datetime,
+        corporations: list,
+    ) -> dict:
+        """Generate data template for the ledger character information view"""
+        # Define the type names
+        type_names = [
+            "bounty_income",
+            "ess_income",
+            "daily_goal_income",
+            "mission_income",
+            "citadel_income",
+            "incursion_income",
+        ]
+
+        qs = self
+
+        # Filter Corporations
+        qs = self.filter(
+            Q(division__corporation__corporation__corporation_id__in=corporations)
+        )
+
+        # Exclude Corp Tax Events
+        qs = events_filter(qs)
+
+        # Annotate the queryset
+        qs = self.annotate_ledger_data(qs)
+
+        # Create the annotations
+        annotations = _annotations_information(filter_date, type_names)
+
+        qs = qs.aggregate(**annotations)
+
+        # Assign the results to the amounts dictionary
+        for type_name in type_names:
+            amounts[type_name]["total_amount"] = qs[f"{type_name}_total_amount"]
+            amounts[type_name]["total_amount_day"] = qs[f"{type_name}_total_amount_day"]
+            amounts[type_name]["total_amount_hour"] = qs[
+                f"{type_name}_total_amount_hour"
+            ]
 
         return amounts
 

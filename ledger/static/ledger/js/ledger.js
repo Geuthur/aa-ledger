@@ -160,7 +160,7 @@ function generateLedger(TableName, url) {
                         data-bs-toggle="modal"
                         data-bs-target="#modalViewCharacterContainer"
                         aria-label="${char_name}"
-                        data-ajax_url="/ledger/api/${entityType}/${char_id}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/"
+                        data-ajax_url="/ledger/api/${entityType}/${char_id}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/?character_id=${char_id}"
                         title="${char_name}"
                         data-tooltip-toggle="ledger-tooltip" data-bs-placement="right">
                         <span class="fas fa-info"></span>
@@ -290,12 +290,13 @@ function generateLedger(TableName, url) {
                         {
                             data: 'col-total-action',
                             render: function (_, __, row) {
-                                var chartemplateUrl = '';
-
+                                var chartemplateUrl = `/ledger/api/${entityType}/${entityPk}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/`;
                                 if (entityType === 'character') {
-                                    chartemplateUrl = `/ledger/api/character/${row.main_id}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/`;
-                                } else {
-                                    chartemplateUrl = `/ledger/api/${entityType}/${entityPk}/${row.main_id}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/`;
+                                    chartemplateUrl += `?character_id=${row.main_id}`;
+                                } else if (entityType === 'corporation') {
+                                    chartemplateUrl += `?main_character_id=${row.main_id}`;
+                                } else if (entityType === 'alliance') {
+                                    chartemplateUrl += `?corporation_id=${row.main_id}`;
                                 }
 
                                 return `
@@ -333,14 +334,10 @@ function generateLedger(TableName, url) {
                             return;
                         }
 
-                        var templateUrl = '';
+                        var templateUrl = `/ledger/api/${entityType}/${entityPk}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/`;
                         if (entityType === 'character') {
-                            templateUrl = `/ledger/api/character/${entityPk}/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/`;
-                            templateUrl += '?overall=True';
                             $('#foot .col-total-mining').html(formatAndColor(total_amount_mining));
                             $('#foot .col-total-costs').html(formatAndColor(total_amount_costs));
-                        } else {
-                            templateUrl = `/ledger/api/${entityType}/${entityPk}/0/template/date/${selectedYear}-${selectedMonth}-${selectedDay}/view/${selectedviewMode}/?corp=true`;
                         }
 
                         $('#foot .col-total-amount').html(formatAndColor(total_amount));
@@ -382,6 +379,13 @@ function generateLedger(TableName, url) {
                 hideLoading();
                 $('#errorHandler').removeClass('d-none');
                 $('#errorHandler').text('No data found');
+                $('.dropdown-toggle').attr('disabled', true);
+                $('.overview').attr('disabled', true);
+            } else {
+                $('#ratting').DataTable().destroy();
+                hideLoading();
+                $('#errorHandler').removeClass('d-none');
+                $('#errorHandler').text('An error occurred');
                 $('.dropdown-toggle').attr('disabled', true);
                 $('.overview').attr('disabled', true);
             }

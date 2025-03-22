@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.7.x] - IN DEVELOPMENT
+
+### Changed
+
+- Refactor Corpjournal Manager
+- Refactor Template System
+- Alliance Ledger show Corporations instead of Characters
+- Renamed template to information
+
+### Removed
+
+- Unnecessary Code
+- Multicorp view
+
 ## [0.7.3] - 2025-02-27
 
 ### Added
