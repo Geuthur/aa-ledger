@@ -7,6 +7,7 @@ import logging
 
 from django.db import models
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from eveuniverse.models import EveSolarSystem, EveType
 
 from allianceauth.eveonline.models import EveCharacter
@@ -91,6 +92,14 @@ class CharacterAudit(models.Model):
             return is_active
         except Exception:  # pylint: disable=broad-exception-caught
             return False
+
+    @property
+    def get_status_icon(self):
+        color = "text-danger"
+        if self.active:
+            color = "text-success"
+        html = f"<span class='{color}'>⬤</span>"
+        return mark_safe(html)
 
 
 class WalletJournalEntry(models.Model):

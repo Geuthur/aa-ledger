@@ -1,0 +1,90 @@
+{% extends 'ledger/base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load static %}
+
+{% block page_title %}
+    {{ title }} ⋗ {% translate "Ledger" %}
+{% endblock %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block header_nav_collapse_left %}
+
+{% include 'ledger/partials/menu/char/navigation.html' %}
+
+{% endblock header_nav_collapse_left %}
+
+{% block header_nav_collapse_right %}
+
+{% include 'ledger/partials/menu/char/administration.html' %}
+
+{% endblock header_nav_collapse_right %}
+
+{% block vow_block %}
+    <div class="card">
+        <div class="card-header bg-primary rounded-top d-flex align-items-center">
+            <h3 class="me-3">{% translate "Administration" %}</h3>
+        </div>
+        <div class="card-body">
+            <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
+                <h3 class="text-white">{% translate "Dashboard" %}</h3>
+            </div>
+            <div class="card-body bg-secondary">
+                {% include 'ledger/partials/administration/dashboard.html' %}
+            </div>
+
+            <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
+                <h3 class="text-white">{% translate "Characters" %}</h3>
+            </div>
+            <div class="card-body bg-secondary">
+                {% include 'ledger/partials/administration/character.html' %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_javascript %}
+    {% include 'bundles/datatables-js-bs5.html' %}
+    {% include 'ledger/bundles/char-administration-bundles.html' %}
+
+<script>
+/* global taxsystemsettings, bootstrap */
+$(document).ready(function() {
+    // Dashboard-Info
+    const manageDashboardVar = $('#dashboard-card');
+    const manageDashboardTableVar = $('#character-dashboard');
+    // Dashboard-Statistics
+    const manageDashboardStatisticsVar = $('#dashboard-statistics-card');
+    const manageDashboardStatisticsTableVar = $('#character-dashboard-statistics');
+
+    $.ajax({
+        url: ledgersettings.characterDashboardUrl,
+        type: 'GET',
+        success: function (data) {
+            $('#dashboard-info').html(data.dashboard);
+            $('#status').text(data.status);
+
+            $('#dashboard-info-statistics').html(data.statistics);
+            $('#active_characters').text(data.active_characters);
+            $('#inactive_characters').text(data.inactive_characters);
+            $('#total_characters').text(data.total_characters);
+
+            manageDashboardVar.removeClass('d-none');
+            manageDashboardTableVar.removeClass('d-none');
+
+            manageDashboardStatisticsVar.removeClass('d-none');
+            manageDashboardStatisticsTableVar.removeClass('d-none');
+
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching data:', error);
+        }
+    });
+});
+</script>
+{% endblock %}

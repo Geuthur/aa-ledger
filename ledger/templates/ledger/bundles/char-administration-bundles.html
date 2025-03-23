@@ -1,0 +1,19 @@
+
+{% load ledger %}
+{% load i18n %}
+
+{% ledger_static 'css/cards.css' %}
+
+<script type="application/javascript">
+    let ledgersettings = {
+        characterDashboardUrl: "{% url 'ledger:api:get_character_dashboard' character_id=character_id %}",
+    };
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({
+            trigger: 'hover',
+        });
+    });
+</script>
