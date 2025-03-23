@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from decimal import Decimal
 
@@ -7,9 +8,8 @@ from django.db.models import Q
 from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
 
 from ledger import app_settings, models
-from ledger.hooks import get_extension_logger
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # TODO Handle it from generate_ledger

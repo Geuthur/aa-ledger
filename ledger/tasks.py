@@ -1,5 +1,7 @@
 """App Tasks"""
 
+import logging
+
 from celery import chain, shared_task
 
 from django.db.models import DateTimeField
@@ -14,7 +16,6 @@ from allianceauth.services.tasks import QueueOnce
 
 from ledger import app_settings
 from ledger.decorators import when_esi_is_available
-from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.models.planetary import CharacterPlanetDetails
@@ -28,7 +29,7 @@ from ledger.task_helpers.plan_helpers import (
     update_character_planetary_details,
 )
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 MAX_RETRIES_DEFAULT = 3
 

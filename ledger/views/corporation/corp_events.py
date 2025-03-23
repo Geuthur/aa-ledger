@@ -2,6 +2,8 @@
 Corporation Events
 """
 
+import logging
+
 # Django
 from django import forms
 from django.contrib.auth.decorators import login_required, permission_required
@@ -10,12 +12,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.html import escape
 
-from ledger.hooks import get_extension_logger
-
 # Voices of War
 from ledger.models.events import Events
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class EventForm(forms.ModelForm):

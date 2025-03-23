@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from ninja import NinjaAPI
@@ -21,10 +22,9 @@ from ledger.api.helpers import (
     get_corporation,
     get_journal_entitys,
 )
-from ledger.hooks import get_extension_logger
 from ledger.models.general import EveEntity
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 entity_context = {
     "error_title": "403 Error",

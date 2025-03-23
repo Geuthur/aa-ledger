@@ -2,6 +2,8 @@
 Character Audit
 """
 
+import logging
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect
@@ -11,10 +13,9 @@ from esi.decorators import token_required
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger import tasks
-from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import CharacterAudit
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @login_required

@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from django.db.models import Q
@@ -9,10 +10,9 @@ from ledger.api.api_helper.core_manager import (
     LedgerTotal,
 )
 from ledger.api.helpers import get_alts_queryset
-from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import CharacterWalletJournalEntry
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class CharacterProcess:

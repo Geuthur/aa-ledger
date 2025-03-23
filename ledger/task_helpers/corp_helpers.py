@@ -2,6 +2,8 @@
 Corporation Helpers
 """
 
+import logging
+
 from django.utils import timezone
 from esi.errors import TokenError
 from esi.models import Token
@@ -10,7 +12,6 @@ from allianceauth.eveonline.models import EveCharacter
 
 from ledger.decorators import log_timing
 from ledger.errors import DatabaseError
-from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import (
     CorporationAudit,
     CorporationWalletDivision,
@@ -24,7 +25,7 @@ from ledger.task_helpers.etag_helpers import (
     etag_results,
 )
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def get_corp_token(corp_id, scopes, req_roles):

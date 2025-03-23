@@ -1,13 +1,14 @@
+import logging
+
 from ninja import NinjaAPI
 
 from allianceauth.authentication.models import UserProfile
 
 from ledger.api import schema
-from ledger.hooks import get_extension_logger
 from ledger.models import CorporationAudit
 from ledger.models.characteraudit import CharacterAudit
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class LedgerAdminApiEndpoints:

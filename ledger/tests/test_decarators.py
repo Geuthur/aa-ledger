@@ -1,3 +1,4 @@
+import logging
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -53,7 +54,7 @@ class TestDecorators(TestCase):
         # given
         from ledger.decorators import log_timing
 
-        logger = get_extension_logger(__name__)
+        logger = logging.getLogger(__name__)
 
         @log_timing(logger)
         def trigger_log_timing():

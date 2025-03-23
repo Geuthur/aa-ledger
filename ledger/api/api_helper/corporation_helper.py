@@ -1,16 +1,16 @@
+import logging
 from datetime import datetime
 
 from django.db.models import Q
 
 from ledger.api.api_helper.billboard_helper import BillboardCorporation
 from ledger.api.api_helper.core_manager import LedgerTotal
-from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import (
     CorporationAudit,
     CorporationWalletJournalEntry,
 )
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class CorporationProcess:

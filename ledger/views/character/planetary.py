@@ -2,6 +2,8 @@
 Planetary Audit
 """
 
+import logging
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
@@ -11,11 +13,10 @@ from django.views.decorators.http import require_POST
 
 from ledger import forms
 from ledger.api.helpers import get_alts_queryset, get_character
-from ledger.hooks import get_extension_logger
 from ledger.models.planetary import CharacterPlanetDetails
 from ledger.view_helpers.core import add_info_to_context
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @login_required

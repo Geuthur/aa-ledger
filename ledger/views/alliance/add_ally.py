@@ -2,6 +2,8 @@
 Corporation Audit
 """
 
+import logging
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
@@ -11,6 +13,8 @@ from esi.decorators import token_required
 
 from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
 from allianceauth.eveonline.providers import ObjectNotFound, provider
+
+logger = logging.getLogger(__name__)
 
 
 @login_required

@@ -3,16 +3,17 @@ Corporation Audit Model
 """
 
 # Django
+import logging
+
 from django.db import models
 
 from allianceauth.eveonline.models import EveCorporationInfo
 
-from ledger.hooks import get_extension_logger
 from ledger.managers.corpaudit_manager import CorpAuditManager
 from ledger.managers.corpjournal_manager import CorpWalletManager
 from ledger.models.characteraudit import WalletJournalEntry
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class CorporationAudit(models.Model):

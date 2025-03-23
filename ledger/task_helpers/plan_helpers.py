@@ -2,11 +2,12 @@
 Planetary Helpers
 """
 
+import logging
+
 from django.utils import timezone
 from eveuniverse.models import EvePlanet
 
 from ledger.decorators import log_timing
-from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 from ledger.providers import esi
@@ -17,7 +18,7 @@ from ledger.task_helpers.etag_helpers import (
     etag_results,
 )
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def convert_datetime_to_str(data):

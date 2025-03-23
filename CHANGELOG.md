@@ -5,13 +5,16 @@
 ### Added
 
 - Application Tests
+- Task Limiter to Character Ledger
 
 ### Changed
 
+- AA min. requirements from 4.0.0 to 4.6.0
 - Refactor Corpjournal Manager
 - Refactor Template System
 - Alliance Ledger show Corporations instead of Characters
 - Renamed template to information
+- Logger System
 
 ### Removed
 
