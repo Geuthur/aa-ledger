@@ -53,7 +53,7 @@ def events_index(request):
 
     return render(
         request,
-        "ledger/events/index.html",
+        "ledger/corpledger/events/index.html",
         {"expired_events": expired_events, "future_events": future_events},
     )
 
@@ -62,7 +62,9 @@ def events_index(request):
 @permission_required("ledger.event_admin_access")
 def events_admin(request):
     events = Events.objects.all()
-    return render(request, "ledger/events/manage_events.html", {"events": events})
+    return render(
+        request, "ledger/corpledger/events/manage_events.html", {"events": events}
+    )
 
 
 @login_required
@@ -75,7 +77,7 @@ def create_event(request):
             return redirect("ledger:event_admin")
     else:
         form = EventForm()
-    return render(request, "ledger/events/create_event.html", {"form": form})
+    return render(request, "ledger/corpledger/events/create_event.html", {"form": form})
 
 
 @login_required
@@ -97,7 +99,9 @@ def edit_event(request, event_id):
 
         form = EventForm(instance=event)
     return render(
-        request, "ledger/events/edit_event.html", {"form": form, "event": event}
+        request,
+        "ledger/corpledger/events/edit_event.html",
+        {"form": form, "event": event},
     )
 
 
@@ -108,7 +112,9 @@ def delete_event(request, event_id):
     if request.method == "POST":
         event.delete()
         return redirect("ledger:event_admin")
-    return render(request, "ledger/events/delete_event.html", {"event": event})
+    return render(
+        request, "ledger/corpledger/events/delete_event.html", {"event": event}
+    )
 
 
 # pylint: disable=unused-argument

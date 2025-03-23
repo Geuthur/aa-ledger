@@ -37,6 +37,7 @@ def planetary_ledger(request, character_id=None):
         character_id = request.user.profile.main_character.character_id
 
     context = {
+        "title": "Planetary Ledger",
         "character_id": character_id,
         "forms": {
             "confirm": forms.ConfirmForm(),
@@ -53,11 +54,13 @@ def planetary_admin(request):
     Planetary Admin
     """
 
-    context = {}
+    context = {
+        "title": "Planetary Admin",
+    }
     context = add_info_to_context(request, context)
 
     return render(
-        request, "ledger/planetary/admin/character_admin.html", context=context
+        request, "ledger/planetary/admin/planetary_admin.html", context=context
     )
 
 
