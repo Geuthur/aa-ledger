@@ -1,10 +1,9 @@
 """App Tasks"""
 
-# Standard Library
-import datetime
-
 from celery import chain, shared_task
 
+from django.db.models import DateTimeField
+from django.db.models.functions import Least
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -56,11 +55,43 @@ _update_ledger_corp_params = {
 @shared_task(**TASK_DEFAULTS_ONCE)
 @when_esi_is_available
 def update_all_characters(runs: int = 0):
+    """Update all characters"""
     characters = CharacterAudit.objects.select_related("character").all()
     for char in characters:
         update_character.apply_async(args=[char.character.character_id])
         runs = runs + 1
-    logger.info("Queued %s Char Audit Updates", runs)
+    logger.debug("Queued %s Char Audit Updates", runs)
+
+
+@shared_task(**TASK_DEFAULTS_ONCE)
+@when_esi_is_available
+def update_subset_characters(subset=5, min_runs=10, max_runs=200, force_refresh=False):
+    """Update a batch of characters to prevent overload ESI"""
+    total_characters = CharacterAudit.objects.filter(active=1).count()
+    characters_count = min(max(total_characters // subset, min_runs), total_characters)
+
+    # Limit the number of characters to update to prevent overload ESI
+    characters_count = min(characters_count, max_runs)
+
+    # Annotate characters with the oldest update timestamp and order by it
+    characters = (
+        CharacterAudit.objects.filter(active=1)
+        .annotate(
+            oldest_update=Least(
+                "last_update_wallet",
+                "last_update_mining",
+                "last_update_planetary",
+                output_field=DateTimeField(),
+            )
+        )
+        .order_by("oldest_update")[:characters_count]
+    )
+
+    for char in characters:
+        update_character.apply_async(
+            args=[char.character.character_id], force_refresh=force_refresh
+        )
+    logger.debug("Queued %s Character Audit Updates", len(characters))
 
 
 @shared_task(**_update_ledger_char_params)
@@ -69,11 +100,11 @@ def update_character(character_id: int, force_refresh=False):
     character = CharacterAudit.objects.get(character__character_id=character_id)
 
     # Settings for Task Queue
-    skip_date = timezone.now() - datetime.timedelta(
-        hours=app_settings.LEDGER_STALE_STATUS
+    skip_date = timezone.now() - timezone.timedelta(
+        minutes=app_settings.LEDGER_STALE_STATUS
     )
     que = []
-    mindt = timezone.now() - datetime.timedelta(days=7)
+    mindt = timezone.now() - timezone.timedelta(days=7)
     priority = 7
 
     logger.debug(
@@ -102,9 +133,9 @@ def update_character(character_id: int, force_refresh=False):
         )
 
     chain(que).apply_async()
-    logger.debug(
+    logger.info(
         "Queued %s Audit Updates for %s",
-        len(que) + 1,
+        len(que),
         character.character.character_name,
     )
 
@@ -216,7 +247,7 @@ def update_all_corps(runs: int = 0):
     for corp in corps:
         update_corp.apply_async(args=[corp.corporation.corporation_id])
         runs = runs + 1
-    logger.info("Queued %s Corp Audit Updates", runs)
+    logger.debug("Queued %s Corp Audit Updates", runs)
 
 
 @shared_task(**_update_ledger_corp_params)
@@ -225,9 +256,19 @@ def update_corp(corporation_id, force_refresh=False):  # pylint: disable=unused-
     corp = CorporationAudit.objects.get(corporation__corporation_id=corporation_id)
     logger.debug("Processing Audit Updates for %s", corp.corporation.corporation_name)
 
-    update_corp_wallet.si(corporation_id, force_refresh=force_refresh).apply_async()
+    # Settings for Task Queue
+    skip_date = timezone.now() - timezone.timedelta(
+        minutes=app_settings.LEDGER_STALE_STATUS
+    )
+    mindt = timezone.now() - timezone.timedelta(days=7)
+    priority = 7
 
-    logger.debug("Queued Audit Updates for %s", corp.corporation.corporation_name)
+    if (corp.last_update_wallet or mindt) <= skip_date or force_refresh:
+        update_corp_wallet.si(corporation_id, force_refresh=force_refresh).set(
+            priority=priority
+        ).apply_async()
+
+    logger.info("Queued Audit Updates for %s", corp.corporation.corporation_name)
 
 
 @shared_task(**_update_ledger_corp_params)
