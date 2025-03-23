@@ -193,9 +193,9 @@ class ManageApiJournalCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), "Permission Denied")
 
     @patch("ledger.api.ledger.admin.CharacterAudit.objects.visible_eve_characters")
-    def test_get_character_admin_planetary_no_visible(self, mock_visible_to):
+    def test_get_character_overview_planetary_no_visible(self, mock_visible_to):
         self.client.force_login(self.user2)
-        url = "/ledger/api/character/planetary/admin/"
+        url = "/ledger/api/planetary/overview/"
 
         mock_visible_to.return_value.values_list.return_value = []
 
@@ -204,9 +204,9 @@ class ManageApiJournalCharEndpointsTest(TestCase):
         # then
         self.assertContains(response, "Permission Denied", status_code=403)
 
-    def test_get_character_planetary_admin(self):
+    def test_get_character_planetary_overview(self):
         self.client.force_login(self.user2)
-        url = "/ledger/api/character/planetary/admin/"
+        url = "/ledger/api/planetary/overview/"
 
         # when
         response = self.client.get(url)
@@ -227,12 +227,12 @@ class ManageApiJournalCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), excepted_data)
 
     @patch("ledger.api.ledger.admin.UserProfile.objects.filter")
-    def test_get_character_admin_planetary_attribute_error(
+    def test_get_character_overview_planetary_attribute_error(
         self, mock_user_profile_filter
     ):
         # given
         self.client.force_login(self.user)
-        url = "/ledger/api/character/planetary/admin/"
+        url = "/ledger/api/planetary/overview/"
 
         # Mock the UserProfile to return a character with missing attributes
         mock_user_profile_filter.return_value = [MagicMock(main_character="LUL")]

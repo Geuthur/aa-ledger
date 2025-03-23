@@ -90,7 +90,7 @@ class TestViewCharacterLedgerAccess(TestCase):
         response = character_ledger.character_overview(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Ledger Character Overview")
+        self.assertContains(response, "Character Overview")
 
 
 class TestViewCorporationLedgerAccess(TestCase):
@@ -162,7 +162,7 @@ class TestViewCorporationLedgerAccess(TestCase):
         response = corporation_ledger.corporation_overview(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Ledger Corporation Overview")
+        self.assertContains(response, "Corporation Overview")
 
 
 class TestViewAllianceLedgerAccess(TestCase):
@@ -247,7 +247,7 @@ class TestViewAllianceLedgerAccess(TestCase):
         response = alliance_ledger.alliance_overview(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Ledger Alliance Overview")
+        self.assertContains(response, "Alliance Overview")
 
 
 class TestViewPlanetaryLedgerAccess(TestCase):
@@ -319,4 +319,4 @@ class TestViewPlanetaryLedgerAccess(TestCase):
         response = planetary.planetary_overview(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Ledger Planetary Overview")
+        self.assertContains(response, "Planetary Overview")
