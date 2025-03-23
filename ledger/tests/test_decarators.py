@@ -6,7 +6,6 @@ from django.test import TestCase
 from app_utils.esi import EsiDailyDowntime
 
 from ledger.decorators import when_esi_is_available
-from ledger.hooks import get_extension_logger
 
 
 class TestDecorators(TestCase):
