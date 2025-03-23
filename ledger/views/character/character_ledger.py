@@ -49,15 +49,35 @@ def character_ledger(request, character_id=None):
 
 @login_required
 @permission_required("ledger.basic_access")
-def character_admin(request):
+def character_overview(request):
     """
-    Character Admin
+    Character Overview
     """
+
+    context = {
+        "title": "Character Overview",
+    }
+    context = add_info_to_context(request, context)
+    return render(
+        request, "ledger/charledger/admin/character_overview.html", context=context
+    )
+
+
+@login_required
+@permission_required("ledger.basic_access")
+def character_administration(request, character_id=None):
+    """
+    Character Administration
+    """
+    if character_id is None:
+        character_id = request.user.profile.main_character.character_id
 
     context = {
         "title": "Character Admin",
     }
     context = add_info_to_context(request, context)
     return render(
-        request, "ledger/charledger/admin/character_admin.html", context=context
+        request,
+        "ledger/charledger/admin/character_administration.html",
+        context=context,
     )

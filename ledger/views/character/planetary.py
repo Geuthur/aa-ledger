@@ -49,18 +49,18 @@ def planetary_ledger(request, character_id=None):
 
 @login_required
 @permission_required("ledger.basic_access")
-def planetary_admin(request):
+def planetary_overview(request):
     """
-    Planetary Admin
+    Planetary Overview
     """
 
     context = {
-        "title": "Planetary Admin",
+        "title": "Planetary Overview",
     }
     context = add_info_to_context(request, context)
 
     return render(
-        request, "ledger/planetary/admin/planetary_admin.html", context=context
+        request, "ledger/planetary/admin/planetary_overview.html", context=context
     )
 
 

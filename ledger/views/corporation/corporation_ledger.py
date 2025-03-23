@@ -50,12 +50,12 @@ def corporation_ledger(request, corporation_id=None):
 
 @login_required
 @permission_required("ledger.advanced_access")
-def corporation_admin(request):
+def corporation_overview(request):
     """
-    Corporation Admin
+    Corporation Overview
     """
-    context = {}
+    context = {"title": "Corporation Overview"}
     context = add_info_to_context(request, context)
     return render(
-        request, "ledger/corpledger/admin/corporation_admin.html", context=context
+        request, "ledger/corpledger/admin/corporation_overview.html", context=context
     )

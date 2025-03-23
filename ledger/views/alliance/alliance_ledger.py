@@ -34,7 +34,7 @@ def alliance_ledger_index(request):
 @permission_required("ledger.advanced_access")
 def alliance_ledger(request, alliance_id):
     """
-    Corporation Ledger
+    Alliance Ledger
     """
     # pylint: disable=duplicate-code
     current_year = datetime.now().year
@@ -52,14 +52,14 @@ def alliance_ledger(request, alliance_id):
 
 @login_required
 @permission_required("ledger.advanced_access")
-def alliance_admin(request):
+def alliance_overview(request):
     """
-    Corporation Admin
+    Alliance Overview
     """
     context = {
-        "title": "Alliance Admin",
+        "title": "Alliance Overview",
     }
     context = add_info_to_context(request, context)
     return render(
-        request, "ledger/allyledger/admin/alliance_admin.html", context=context
+        request, "ledger/allyledger/admin/alliance_overview.html", context=context
     )
