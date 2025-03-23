@@ -42,6 +42,11 @@ def update_character_planetary(character_id, force_refresh=False):
     token = get_token(character_id, CharacterPlanet.get_esi_scopes())
 
     if not token:
+        logger.info(
+            "No Planet Token for %s, Deactivate Character",
+            audit_char.character.character_name,
+        )
+        audit_char.is_active()
         return "No Tokens"
 
     try:
@@ -114,19 +119,19 @@ def update_character_planetary(character_id, force_refresh=False):
                 priority=8,
             )
 
-        audit_char.last_update_planetary = timezone.now()
-        audit_char.save()
-        audit_char.is_active()
         logger.debug(
             "Finished planets update for: %s", audit_char.character.character_name
         )
-        return ("Finished planets update for: %s", audit_char.character.character_name)
     except NotModifiedError:
         logger.debug("No New Planet data for: %s", audit_char.character.character_name)
-        return ("No New Planet data for: %s", audit_char.character.character_name)
     except HTTPGatewayTimeoutError:
         logger.debug("Gateway Timeout for: %s", audit_char.character.character_name)
-        return ("Gateway Timeout for: %s", audit_char.character.character_name)
+        return "Gateway Timeout"
+
+    audit_char.last_update_planetary = timezone.now()
+    audit_char.save()
+    audit_char.is_active()
+    return ("Finished planets update for: %s", audit_char.character.character_name)
 
 
 @log_timing(logger)
