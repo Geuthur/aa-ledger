@@ -82,6 +82,10 @@ class CharacterAudit(models.Model):
 
             if self.active != is_active:
                 self.active = is_active
+                if is_active is False:
+                    logger.info(
+                        "Deactivating Character: %s", self.character.character_name
+                    )
                 self.save()
 
             return is_active
