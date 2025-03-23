@@ -41,6 +41,7 @@ def alliance_ledger(request, alliance_id):
     years = [current_year - i for i in range(6)]
 
     context = {
+        "title": "Alliance Ledger",
         "years": years,
         "entity_pk": alliance_id,
         "entity_type": "alliance",
@@ -55,7 +56,9 @@ def alliance_admin(request):
     """
     Corporation Admin
     """
-    context = {}
+    context = {
+        "title": "Alliance Admin",
+    }
     context = add_info_to_context(request, context)
     return render(
         request, "ledger/allyledger/admin/alliance_admin.html", context=context

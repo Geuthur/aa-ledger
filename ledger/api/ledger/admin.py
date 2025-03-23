@@ -131,15 +131,12 @@ class LedgerAdminApiEndpoints:
             for corporation in corporations:
                 # pylint: disable=broad-exception-caught
                 try:
-                    logger.debug(corporation)
                     alliance_dict[corporation.corporation.alliance.alliance_id] = {
                         "alliance_id": corporation.corporation.alliance.alliance_id,
                         "alliance_name": corporation.corporation.alliance.alliance_name,
                     }
-                    logger.debug(alliance_dict)
                 except Exception:
                     continue
-            logger.debug(alliance_dict)
             output = []
             output.append({"alliance": alliance_dict})
 

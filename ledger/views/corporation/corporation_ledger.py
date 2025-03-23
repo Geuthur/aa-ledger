@@ -38,6 +38,7 @@ def corporation_ledger(request, corporation_id=None):
     years = [current_year - i for i in range(6)]
 
     context = {
+        "title": "Corporation Ledger",
         "years": years,
         "entity_pk": corporation_id,
         "corporation_id": corporation_id,
