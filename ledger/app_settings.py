@@ -33,8 +33,8 @@ LEDGER_LOGGER_USE = clean_setting("LEDGER_LOGGER_USE", False)
 # Max Time to set Char Inactive
 LEDGER_CHAR_MAX_INACTIVE_DAYS = clean_setting("LEDGER_CHAR_MAX_INACTIVE_DAYS", 3)
 
-# Set the Stale Status for Ledger Updates
-LEDGER_STALE_STATUS = clean_setting("LEDGER_STALE_STATUS", 1)
+# Set the Stale Status for Ledger Updates in Minutes
+LEDGER_STALE_STATUS = clean_setting("LEDGER_STALE_STATUS", 60)
 
 # Set the Corporation Tax for Corporation & CharacterLedger Caluclation of ESS Payout
 LEDGER_CORP_TAX = clean_setting("LEDGER_CORP_TAX", 15)
