@@ -61,7 +61,7 @@ def update_all_characters(runs: int = 0):
     for char in characters:
         update_character.apply_async(args=[char.character.character_id])
         runs = runs + 1
-    logger.debug("Queued %s Char Audit Updates", runs)
+    logger.debug("Queued %s Character Audit Tasks", runs)
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
@@ -92,7 +92,7 @@ def update_subset_characters(subset=5, min_runs=10, max_runs=200, force_refresh=
         update_character.apply_async(
             args=[char.character.character_id], force_refresh=force_refresh
         )
-    logger.debug("Queued %s Character Audit Updates", len(characters))
+    logger.debug("Queued %s Character Audit Tasks", len(characters))
 
 
 @shared_task(**_update_ledger_char_params)
@@ -248,7 +248,7 @@ def update_all_corps(runs: int = 0):
     for corp in corps:
         update_corp.apply_async(args=[corp.corporation.corporation_id])
         runs = runs + 1
-    logger.debug("Queued %s Corp Audit Updates", runs)
+    logger.debug("Queued %s Corporation Audit Tasks", runs)
 
 
 @shared_task(**_update_ledger_corp_params)
