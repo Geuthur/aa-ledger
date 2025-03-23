@@ -2,6 +2,7 @@
 Core View Helper
 """
 
+import logging
 from decimal import Decimal
 
 from django.core.cache import cache
@@ -10,10 +11,9 @@ from django.db.models import Q, QuerySet
 from allianceauth.authentication.models import UserProfile
 
 from ledger.app_settings import STORAGE_BASE_KEY
-from ledger.hooks import get_extension_logger
 from ledger.models.events import Events
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # pylint: disable=unused-argument

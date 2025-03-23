@@ -2,6 +2,7 @@
 Character Helpers
 """
 
+import logging
 from datetime import timedelta
 
 from django.utils import timezone
@@ -9,7 +10,6 @@ from eveuniverse.models import EveType
 
 from ledger.decorators import log_timing
 from ledger.errors import TokenError
-from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import (
     CharacterAudit,
     CharacterMiningLedger,
@@ -24,7 +24,7 @@ from ledger.task_helpers.etag_helpers import (
     etag_results,
 )
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # pylint: disable=too-many-locals

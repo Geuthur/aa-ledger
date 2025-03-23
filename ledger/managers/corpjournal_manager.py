@@ -1,4 +1,5 @@
 import json
+import logging
 from collections import defaultdict
 from decimal import Decimal
 
@@ -11,12 +12,11 @@ from django.utils import timezone
 from allianceauth.authentication.models import UserProfile
 
 from ledger import app_settings
-from ledger.hooks import get_extension_logger
 from ledger.managers.manager_helper import _annotations_information
 from ledger.models.general import EveEntity
 from ledger.view_helpers.core import events_filter
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 # Ref Types PvE - Tax Income
 BOUNTY_PRIZES = ["bounty_prizes"]

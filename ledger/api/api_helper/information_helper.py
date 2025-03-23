@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
@@ -8,7 +9,6 @@ from django.utils import timezone
 
 from allianceauth.eveonline.models import EveCharacter
 
-from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import (
     CharacterWalletJournalEntry,
 )
@@ -18,7 +18,7 @@ from ledger.models.corporationaudit import (
 )
 from ledger.view_helpers.core import calculate_ess_stolen
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @dataclass

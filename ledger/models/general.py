@@ -3,6 +3,7 @@ General Model
 """
 
 import datetime
+import logging
 
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -15,10 +16,9 @@ from allianceauth.eveonline.models import (
     EveCorporationInfo,
 )
 
-from ledger.hooks import get_extension_logger
 from ledger.managers.general_manager import EveEntityManager
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 # Permission Manager
 

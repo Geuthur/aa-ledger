@@ -1,3 +1,5 @@
+import logging
+
 from ninja import NinjaAPI
 
 from django.db.models import Q
@@ -7,10 +9,9 @@ from django.utils.translation import gettext as trans
 from ledger.api import schema
 from ledger.api.api_helper.planetary_helper import get_facilities_info
 from ledger.api.helpers import get_alts_queryset, get_character
-from ledger.hooks import get_extension_logger
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class LedgerPlanetaryApiEndpoints:

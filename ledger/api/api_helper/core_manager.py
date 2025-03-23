@@ -1,9 +1,8 @@
+import logging
 from dataclasses import asdict, dataclass, field
 from decimal import Decimal
 
-from ledger.hooks import get_extension_logger
-
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class LedgerModels:

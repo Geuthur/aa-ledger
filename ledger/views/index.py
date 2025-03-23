@@ -1,15 +1,15 @@
 """PvE Views"""
 
+import logging
+
 # Django
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect
 
-from ledger.hooks import get_extension_logger
-
 # Ledger
 from ledger.view_helpers.core import add_info_to_context
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @login_required

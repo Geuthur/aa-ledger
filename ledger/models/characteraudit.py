@@ -3,6 +3,7 @@ Character Audit Model
 """
 
 import datetime
+import logging
 
 from django.db import models
 from django.utils import timezone
@@ -11,7 +12,6 @@ from eveuniverse.models import EveSolarSystem, EveType
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger import app_settings
-from ledger.hooks import get_extension_logger
 from ledger.managers.characterjournal_manager import CharWalletManager
 from ledger.managers.charaudit_manager import (
     AuditCharacterManager,
@@ -19,7 +19,7 @@ from ledger.managers.charaudit_manager import (
 )
 from ledger.models.general import EveEntity
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class CharacterAudit(models.Model):

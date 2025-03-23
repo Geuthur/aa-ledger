@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from django.db.models import Q
@@ -6,12 +7,11 @@ from allianceauth.eveonline.models import EveAllianceInfo
 
 from ledger.api.api_helper.billboard_helper import BillboardAlliance
 from ledger.api.api_helper.core_manager import LedgerTotal
-from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import (
     CorporationWalletJournalEntry,
 )
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # pylint: disable=duplicate-code

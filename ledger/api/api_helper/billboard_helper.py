@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -8,10 +9,9 @@ from django.utils.translation import gettext as _
 
 from ledger.api.api_helper.core_manager import LedgerModels
 from ledger.api.helpers import convert_corp_tax
-from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @dataclass

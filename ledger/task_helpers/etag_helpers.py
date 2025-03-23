@@ -2,15 +2,14 @@
 Etag Helpers
 """
 
+import logging
 import time
 
 from bravado.exception import HTTPGatewayTimeout, HTTPNotModified
 
 from django.core.cache import cache
 
-from ledger.hooks import get_extension_logger
-
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 MAX_ETAG_LIFE = 60 * 60 * 24 * 7  # 7 Days
 

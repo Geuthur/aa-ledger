@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 
 from django.db import models
@@ -7,9 +8,7 @@ from django.utils import timezone
 
 from allianceauth.eveonline.models import EveCharacter
 
-from ledger.hooks import get_extension_logger
-
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class AuditCharacterQuerySet(models.QuerySet):

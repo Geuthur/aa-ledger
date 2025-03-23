@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from ninja import NinjaAPI
@@ -12,9 +13,8 @@ from ledger.api.helpers import (
     get_character,
     get_corporation,
 )
-from ledger.hooks import get_extension_logger
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # pylint: disable=too-many-function-args

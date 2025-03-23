@@ -103,6 +103,19 @@ CELERYBEAT_SCHEDULE["ledger_check_planetary_alarms"] = {
     "task": "ledger.tasks.check_planetary_alarms",
     "schedule": crontab(minute=0, hour="*/3"),
 }
+
+LOGGING["handlers"]["ledger_file"] = {
+    "level": "INFO",
+    "class": "logging.handlers.RotatingFileHandler",
+    "filename": os.path.join(BASE_DIR, "log/ledger.log"),
+    "formatter": "verbose",
+    "maxBytes": 1024 * 1024 * 5,
+    "backupCount": 5,
+}
+LOGGING["loggers"]["ledger"] = {
+    "handlers": ["ledger_file"],
+    "level": "DEBUG",
+}
 ```
 
 ### Step 4 - Migration to AA<a name="step4"></a>
@@ -136,33 +149,8 @@ The Following Settings can be setting up in the `local.py`
 
 - LEDGER_APP_NAME: `"YOURNAME"` - Set the name of the APP
 - LEDGER_STALE_STATUS: `60` - Defines the time (in minutes) after which data is considered outdated and needs a update
+- LEDGER_TASKS_TIME_LIMIT: `7200` - Defines the time (in seconds) a task will timeout
 - LEDGER_CORP_TAX: `15` - Set Tax Value for ESS Payout Calculation
-- LEDGER_LOGGER_USE: `True / False` - Set to use own Logger File
-
-If you set up LEDGER_LOGGER_USE to `True` you need to add the following code below:
-
-```python
-LOGGING_LEDGER = {
-    "handlers": {
-        "ledger_file": {
-            "level": "INFO",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(BASE_DIR, "log/ledger.log"),
-            "formatter": "verbose",
-            "maxBytes": 1024 * 1024 * 5,
-            "backupCount": 5,
-        },
-    },
-    "loggers": {
-        "ledger": {
-            "handlers": ["ledger_file", "console"],
-            "level": "INFO",
-        },
-    },
-}
-LOGGING["handlers"].update(LOGGING_LEDGER["handlers"])
-LOGGING["loggers"].update(LOGGING_LEDGER["loggers"])
-```
 
 ## Highlights<a name="highlights"></a>
 

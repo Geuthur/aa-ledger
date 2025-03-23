@@ -27,9 +27,6 @@ FUZZ_BASE_URL = "https://www.fuzzwork.co.uk/"
 FUZZ_API_URL = "https://www.fuzzwork.co.uk/api/"
 FUZZ_BASE_URL_REGEX = r"^http[s]?:\/\/(www\.)?fuzzwork\.co\.uk\/"
 
-# If True you need to set up the Logger
-LEDGER_LOGGER_USE = clean_setting("LEDGER_LOGGER_USE", False)
-
 # Max Time to set Char Inactive
 LEDGER_CHAR_MAX_INACTIVE_DAYS = clean_setting("LEDGER_CHAR_MAX_INACTIVE_DAYS", 3)
 
