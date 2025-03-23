@@ -16,11 +16,11 @@ class LedgerAdminApiEndpoints:
 
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "character/ledger/admin/",
+            "character/overview/",
             response={200: list[schema.CharacterAdmin], 403: str},
             tags=self.tags,
         )
-        def get_character_admin(request):
+        def get_character_overview(request):
             chars_visible = CharacterAudit.objects.visible_eve_characters(request.user)
 
             if chars_visible is None:
@@ -52,11 +52,11 @@ class LedgerAdminApiEndpoints:
             return output
 
         @api.get(
-            "character/planetary/admin/",
+            "planetary/overview/",
             response={200: list[schema.CharacterAdmin], 403: str},
             tags=self.tags,
         )
-        def get_planetary_admin(request):
+        def get_planetary_overview(request):
             chars_ids = CharacterAudit.objects.visible_eve_characters(
                 request.user
             ).values_list("character_id", flat=True)
@@ -88,11 +88,11 @@ class LedgerAdminApiEndpoints:
             return output
 
         @api.get(
-            "corporation/ledger/admin/",
+            "corporation/overview/",
             response={200: list[schema.CorporationAdmin], 403: str},
             tags=self.tags,
         )
-        def get_corporation_admin(request):
+        def get_corporation_overview(request):
             corporations = CorporationAudit.objects.visible_to(request.user)
 
             if corporations is None:
@@ -116,11 +116,11 @@ class LedgerAdminApiEndpoints:
             return output
 
         @api.get(
-            "alliance/ledger/admin/",
+            "alliance/overview/",
             response={200: list[schema.AllianceAdmin], 403: str},
             tags=self.tags,
         )
-        def get_alliance_admin(request):
+        def get_alliance_overview(request):
             corporations = CorporationAudit.objects.visible_to(request.user)
 
             if corporations is None:

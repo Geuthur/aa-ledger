@@ -81,16 +81,16 @@ class TestViewCharacterLedgerAccess(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Character Ledger")
 
-    def test_view_character_admin(self):
-        """Test view character admin."""
+    def test_view_character_overview(self):
+        """Test view character overview."""
         # given
-        request = self.factory.get(reverse("ledger:character_admin"))
+        request = self.factory.get(reverse("ledger:character_overview"))
         request.user = self.user
         # when
-        response = character_ledger.character_admin(request)
+        response = character_ledger.character_overview(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Ledger Character Overview")
+        self.assertContains(response, "Character Overview")
 
 
 class TestViewCorporationLedgerAccess(TestCase):
@@ -153,16 +153,16 @@ class TestViewCorporationLedgerAccess(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Corporation Ledger")
 
-    def test_view_corporation_admin(self):
-        """Test view corporation admin."""
+    def test_view_corporation_overview(self):
+        """Test view corporation overview."""
         # given
-        request = self.factory.get(reverse("ledger:corporation_admin"))
+        request = self.factory.get(reverse("ledger:corporation_overview"))
         request.user = self.user
         # when
-        response = corporation_ledger.corporation_admin(request)
+        response = corporation_ledger.corporation_overview(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Ledger Corporation Overview")
+        self.assertContains(response, "Corporation Overview")
 
 
 class TestViewAllianceLedgerAccess(TestCase):
@@ -238,16 +238,16 @@ class TestViewAllianceLedgerAccess(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Alliance Ledger")
 
-    def test_view_alliance_admin(self):
-        """Test view alliance admin."""
+    def test_view_alliance_overview(self):
+        """Test view alliance overview."""
         # given
-        request = self.factory.get(reverse("ledger:alliance_admin"))
+        request = self.factory.get(reverse("ledger:alliance_overview"))
         request.user = self.user
         # when
-        response = alliance_ledger.alliance_admin(request)
+        response = alliance_ledger.alliance_overview(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Ledger Alliance Overview")
+        self.assertContains(response, "Alliance Overview")
 
 
 class TestViewPlanetaryLedgerAccess(TestCase):
@@ -310,13 +310,13 @@ class TestViewPlanetaryLedgerAccess(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Planetary Details")
 
-    def test_view_planetary_admin(self):
-        """Test view planetary admin."""
+    def test_view_planetary_overview(self):
+        """Test view planetary overview."""
         # given
-        request = self.factory.get(reverse("ledger:planetary_admin"))
+        request = self.factory.get(reverse("ledger:planetary_overview"))
         request.user = self.user
         # when
-        response = planetary.planetary_admin(request)
+        response = planetary.planetary_overview(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Ledger Planetary Overview")
+        self.assertContains(response, "Planetary Overview")

@@ -28,7 +28,7 @@
 {% block vow_block %}
 
 <div class="bg-primary rounded-top px-2 py-2 mb-4">
-    <h3 class="text-white">{% translate "Ledger Corporation Overview" %}</h3>
+    <h3 class="text-white">{% translate "Corporation Overview" %}</h3>
 </div>
 <div class="card-body">
     <div class="row">
@@ -50,8 +50,10 @@
 {% block extra_javascript %}
 {% include 'bundles/datatables-js-bs5.html' %}
 <script type="application/javascript">
+
+const AdminUrl = "{% url 'ledger:api:get_corporation_overview' %}"
 CorpsAjax = {
-    url: '/ledger/api/corporation/ledger/admin/',
+    url: AdminUrl,
     type: 'GET',
     success: function(response) {
 

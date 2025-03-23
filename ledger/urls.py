@@ -5,20 +5,20 @@ from django.urls import path, re_path
 from ledger.api import api
 from ledger.views.alliance.add_ally import add_ally
 from ledger.views.alliance.alliance_ledger import (
-    alliance_admin,
     alliance_ledger,
     alliance_ledger_index,
+    alliance_overview,
 )
 from ledger.views.character.add_char import add_char
 from ledger.views.character.character_ledger import (
-    character_admin,
     character_ledger,
     character_ledger_index,
+    character_overview,
 )
 from ledger.views.character.planetary import (
-    planetary_admin,
     planetary_ledger,
     planetary_ledger_index,
+    planetary_overview,
     switch_alarm,
 )
 from ledger.views.corporation.add_corp import add_corp
@@ -31,9 +31,9 @@ from ledger.views.corporation.corp_events import (
     load_events,
 )
 from ledger.views.corporation.corporation_ledger import (
-    corporation_admin,
     corporation_ledger,
     corporation_ledger_index,
+    corporation_overview,
 )
 
 # AA Example App
@@ -54,7 +54,7 @@ urlpatterns = [
         alliance_ledger,
         name="alliance_ledger",
     ),
-    path("alliance_admin/", alliance_admin, name="alliance_admin"),
+    path("alliance_overview/", alliance_overview, name="alliance_overview"),
     path("alliance/add/", add_ally, name="add_ally"),
     # -- -- Corporation Ledger
     path(
@@ -65,7 +65,7 @@ urlpatterns = [
         corporation_ledger,
         name="corporation_ledger",
     ),
-    path("corporation_admin/", corporation_admin, name="corporation_admin"),
+    path("corporation_overview/", corporation_overview, name="corporation_overview"),
     # -- -- Character Ledger
     path("character_ledger/", character_ledger_index, name="character_ledger_index"),
     path(
@@ -73,7 +73,7 @@ urlpatterns = [
         character_ledger,
         name="character_ledger",
     ),
-    path("character_admin/", character_admin, name="character_admin"),
+    path("character_overview/", character_overview, name="character_overview"),
     # -- -- Events
     path("events/", events_index, name="events_index"),
     path("events/admin/", events_admin, name="event_admin"),
@@ -93,7 +93,7 @@ urlpatterns = [
         switch_alarm,
         name="switch_alarm",
     ),
-    path("planetary_admin/", planetary_admin, name="planetary_admin"),
+    path("planetary_overview/", planetary_overview, name="planetary_overview"),
     # -- API System
     re_path(r"^api/", api.urls),
 ]
