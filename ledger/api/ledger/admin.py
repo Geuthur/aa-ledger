@@ -3,6 +3,8 @@ from typing import Any
 
 from ninja import NinjaAPI
 
+from django.utils.translation import gettext_lazy as _
+
 from allianceauth.authentication.models import UserProfile
 
 from ledger.api import schema
@@ -171,14 +173,28 @@ class LedgerAdminApiEndpoints:
 
             active_characters = characters.filter(active=True).count()
             inactive_characters = characters.filter(active=False).count()
-            total_characters = active_characters + inactive_characters
+            audit_total_characters = characters.count()
+            missing_characters = len(linked_characters_ids) - audit_total_characters
+
+            has_issues = False
+
+            for char in characters:
+                if not char.is_active():
+                    has_issues = True
+
+            if has_issues:
+                status_msg = _("Please re-register issued characters")
+            else:
+                status_msg = _("All characters are up to date")
 
             output = {
                 "dashboard": "Character Dashboard",
+                "status": status_msg,
                 "statistics": "Character Statistics",
-                "active_characters": active_characters,
+                "auth_characters": len(linked_characters_ids),
+                "active_characters": f"{active_characters} / {audit_total_characters}",
                 "inactive_characters": inactive_characters,
-                "total_characters": total_characters,
+                "missing_characters": missing_characters,
             }
 
             return output

@@ -34,10 +34,18 @@ class CharacterAudit(models.Model):
         def bootstrap_icon(self) -> str:
             """Return bootstrap corresponding icon class."""
             update_map = {
-                self.DISABLED: f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>",
-                self.NOT_UP_TO_DATE: f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>",
-                self.ERROR: f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>",
-                self.OK: f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>",
+                self.DISABLED: mark_safe(
+                    f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>"
+                ),
+                self.NOT_UP_TO_DATE: mark_safe(
+                    f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>"
+                ),
+                self.ERROR: mark_safe(
+                    f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>"
+                ),
+                self.OK: mark_safe(
+                    f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>"
+                ),
             }
             return update_map.get(self, "")
 
@@ -133,16 +141,16 @@ class CharacterAudit(models.Model):
 
     # TODO Create a Update Status Model to handle all update section separately
     @property
-    def get_status_icon(self):
+    def get_status(self):
         if self.active is False:
-            return mark_safe(self.UpdateStatus("disabled").bootstrap_icon())
+            return self.UpdateStatus("disabled")
 
         is_active = self._get_is_active()
 
         # Check if one of the updates are not up to date
         if is_active is False:
-            return mark_safe(self.UpdateStatus("not_up_to_date").bootstrap_icon())
-        return mark_safe(self.UpdateStatus("ok").bootstrap_icon())
+            return self.UpdateStatus("not_up_to_date")
+        return self.UpdateStatus("ok")
 
     @property
     def get_status_opacity(self):
