@@ -6,6 +6,7 @@
 
 - Application Tests
 - Task Limiter to Character Ledger
+- Character Administration
 
 ### Changed
 
@@ -17,6 +18,7 @@
 - Renamed template to information
 - Logger System
 - ETAG System use log timing instead of own timing log
+- cards css
 
 ### Removed
 

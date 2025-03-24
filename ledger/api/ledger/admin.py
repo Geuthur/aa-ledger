@@ -1,10 +1,12 @@
 import logging
+from typing import Any
 
 from ninja import NinjaAPI
 
 from allianceauth.authentication.models import UserProfile
 
 from ledger.api import schema
+from ledger.api.helpers import get_character
 from ledger.models import CorporationAudit
 from ledger.models.characteraudit import CharacterAudit
 
@@ -14,6 +16,7 @@ logger = logging.getLogger(__name__)
 class LedgerAdminApiEndpoints:
     tags = ["LedgerAdmin"]
 
+    # pylint: disable=too-many-statements
     def __init__(self, api: NinjaAPI):
         @api.get(
             "character/overview/",
@@ -139,5 +142,43 @@ class LedgerAdminApiEndpoints:
                     continue
             output = []
             output.append({"alliance": alliance_dict})
+
+            return output
+
+        @api.get(
+            "character/{character_id}/view/dashboard/",
+            response={200: Any, 403: str},
+            tags=self.tags,
+        )
+        def get_character_dashboard(request, character_id: int):
+            perms, character = get_character(request, character_id)
+
+            if not perms:
+                return 403, "Permission Denied"
+            if perms is None:
+                return 403, "Character not found"
+
+            linked_characters = (
+                character.character_ownership.user.character_ownerships.all()
+            )
+            linked_characters_ids = linked_characters.values_list(
+                "character__character_id", flat=True
+            )
+
+            characters = CharacterAudit.objects.filter(
+                character__character_id__in=linked_characters_ids
+            )
+
+            active_characters = characters.filter(active=True).count()
+            inactive_characters = characters.filter(active=False).count()
+            total_characters = active_characters + inactive_characters
+
+            output = {
+                "dashboard": "Character Dashboard",
+                "statistics": "Character Statistics",
+                "active_characters": active_characters,
+                "inactive_characters": inactive_characters,
+                "total_characters": total_characters,
+            }
 
             return output

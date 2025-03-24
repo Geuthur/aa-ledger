@@ -3,11 +3,16 @@
 import logging
 from datetime import datetime
 
-# Django
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect, render
 
+# Django
+from django.utils.translation import gettext as _
+
 # Ledger
+from ledger.api.helpers import get_character
+from ledger.models.characteraudit import CharacterAudit
 from ledger.view_helpers.core import add_info_to_context
 
 logger = logging.getLogger(__name__)
@@ -72,8 +77,26 @@ def character_administration(request, character_id=None):
     if character_id is None:
         character_id = request.user.profile.main_character.character_id
 
+    perms, character = get_character(request, character_id)
+
+    if not perms:
+        msg = _("Permission Denied")
+        messages.error(request, msg)
+        return redirect("ledger:character_ledger_index")
+
+    linked_characters = character.character_ownership.user.character_ownerships.all()
+    linked_characters_ids = linked_characters.values_list(
+        "character__character_id", flat=True
+    )
+
+    characters = CharacterAudit.objects.filter(
+        character__character_id__in=linked_characters_ids
+    )
+
     context = {
-        "title": "Character Admin",
+        "character_id": character_id,
+        "title": "Character Administration",
+        "characters": characters,
     }
     context = add_info_to_context(request, context)
     return render(

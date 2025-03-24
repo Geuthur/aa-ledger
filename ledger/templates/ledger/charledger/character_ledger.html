@@ -67,7 +67,8 @@
         </ul>
     </div>
     <div class="ms-auto">
-            <button class="btn btn-secondary overview"><a class="nav-link py-0" href="{% url 'ledger:character_overview' %}">{% translate 'Character Overview' %}</a></button>
+            <button class="btn btn-secondary me-2 administration"><a class="nav-link py-0" href="{% url 'ledger:character_administration' character_id=character_id %}">{% translate 'Administration' %}</a></button>
+            <button class="btn btn-secondary overview"><a class="nav-link py-0" href="{% url 'ledger:character_overview' %}">{% translate 'Account Overview' %}</a></button>
     </div>
 </div>
 <div class="card-body rounded-bottom">
