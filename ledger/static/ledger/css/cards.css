@@ -23,14 +23,6 @@
         min-width: 300px;
     }
 
-    .card-characters-container {
-        display: flex;
-        flex-wrap: wrap;
-        list-style: none;
-        padding: 0;
-        justify-content: center;
-    }
-
     .card-characters {
         display: flex;
         flex-wrap: wrap;
