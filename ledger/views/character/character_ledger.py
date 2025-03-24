@@ -82,7 +82,7 @@ def character_administration(request, character_id=None):
     if not perms:
         msg = _("Permission Denied")
         messages.error(request, msg)
-        return redirect("ledger:character_ledger_index", character_id=character_id)
+        return redirect("ledger:character_ledger_index")
 
     linked_characters = character.character_ownership.user.character_ownerships.all()
     linked_characters_ids = linked_characters.values_list(
