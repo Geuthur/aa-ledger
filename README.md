@@ -58,9 +58,9 @@ ______________________________________________________________________
 
 ## Upcoming<a name="upcoming"></a>
 
-- Bug Fixing, Performance Optimation
+- Corporation Administration
+- Status Update System for each Section
 - Costs for Corporation Ledger
-- Planetary Interaction more details
 
 ## Installation<a name="installation"></a>
 
