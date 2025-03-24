@@ -46,6 +46,17 @@ class TestCharacterWalletJournalModel(TestCase):
         self.audit.last_update_planetary = None
         self.assertFalse(self.audit.is_active())
 
+    @patch(MODULE_PATH + ".logger")
+    def test_is_active_should_deactive_character(self, mock_logger):
+        self.audit.active = True
+        self.audit.last_update_wallet = timezone.now()
+        self.audit.last_update_mining = timezone.now() - timezone.timedelta(days=4)
+        self.audit.last_update_planetary = timezone.now() - timezone.timedelta(days=4)
+        self.assertFalse(self.audit.is_active())
+        mock_logger.info.assert_called_once_with(
+            "Deactivating Character: %s", self.audit.character.character_name
+        )
+
     def test_get_esi_scopes(self):
         self.assertEqual(
             self.audit.get_esi_scopes(),
@@ -58,4 +69,38 @@ class TestCharacterWalletJournalModel(TestCase):
                 # Planetary Interaction
                 "esi-planets.manage_planets.v1",
             ],
+        )
+
+    def test_get_status_opacity_should_return_100(self):
+        self.audit.active = True
+        self.assertEqual(self.audit.get_status_opacity, "opacity-100")
+
+    def test_get_status_opacity_should_return_25(self):
+        self.audit.active = False
+        self.assertEqual(self.audit.get_status_opacity, "opacity-25")
+
+    def test_get_status_icon_should_return_ok(self):
+        self.audit.last_update_mining = timezone.now()
+        self.audit.last_update_wallet = timezone.now()
+        self.audit.last_update_planetary = timezone.now()
+        self.audit.active = True
+        self.assertEqual(
+            self.audit.get_status_icon, self.audit.UpdateStatus("ok").bootstrap_icon()
+        )
+
+    def test_get_status_icon_should_return_disabled(self):
+        self.audit.active = False
+        self.assertEqual(
+            self.audit.get_status_icon,
+            self.audit.UpdateStatus("disabled").bootstrap_icon(),
+        )
+
+    def test_get_status_icon_should_return_not_up_to_date(self):
+        self.audit.active = True
+        self.audit.last_update_mining = timezone.now() - timezone.timedelta(days=4)
+        self.audit.last_update_wallet = timezone.now()
+        self.audit.last_update_planetary = timezone.now()
+        self.assertEqual(
+            self.audit.get_status_icon,
+            self.audit.UpdateStatus("not_up_to_date").bootstrap_icon(),
         )

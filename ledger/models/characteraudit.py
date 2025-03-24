@@ -142,13 +142,7 @@ class CharacterAudit(models.Model):
         # Check if one of the updates are not up to date
         if is_active is False:
             return mark_safe(self.UpdateStatus("not_up_to_date").bootstrap_icon())
-
-        # Check if the character is active
-        if self.active:
-            return mark_safe(self.UpdateStatus("ok").bootstrap_icon())
-
-        # Standardmäßig ERROR-Status zurückgeben
-        return mark_safe(self.UpdateStatus("error").bootstrap_icon())
+        return mark_safe(self.UpdateStatus("ok").bootstrap_icon())
 
     @property
     def get_status_opacity(self):
