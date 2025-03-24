@@ -36,6 +36,9 @@ class TestViewCharacterLedgerAccess(TestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
             1001
         )
+        cls.user2, cls.character_ownership2 = create_user_from_evecharacter_with_access(
+            1002
+        )
 
     def test_view_character_ledger_index(self):
         """Test view character ledger index."""
@@ -91,6 +94,56 @@ class TestViewCharacterLedgerAccess(TestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Character Overview")
+
+    def test_view_character_administration(self):
+        """Test view character administration."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "ledger:character_administration",
+                args=[self.character_ownership.character.character_id],
+            )
+        )
+        request.user = self.user
+        # when
+        response = character_ledger.character_administration(
+            request, self.character_ownership.character.character_id
+        )
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Administration")
+
+    def test_view_character_administration_withouth_character_id(self):
+        """Test view character administration."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "ledger:character_administration",
+                args=[self.character_ownership.character.character_id],
+            )
+        )
+        request.user = self.user
+        # when
+        response = character_ledger.character_administration(request)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Administration")
+
+    @patch(CHARLEDGER_PATH + ".messages")
+    def test_view_character_administration_no_permission(self, mock_messages):
+        """Test view character administration."""
+        # given
+        request = self.factory.get(
+            reverse("ledger:character_administration", args=[1002])
+        )
+        request.user = self.user
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        # when
+        response = character_ledger.character_administration(request, 1002)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        mock_messages.error.assert_called_once_with(request, "Permission Denied")
 
 
 class TestViewCorporationLedgerAccess(TestCase):
