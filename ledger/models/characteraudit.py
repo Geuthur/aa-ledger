@@ -8,6 +8,7 @@ import logging
 from django.db import models
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from eveuniverse.models import EveSolarSystem, EveType
 
 from allianceauth.eveonline.models import EveCharacter
@@ -24,6 +25,43 @@ logger = logging.getLogger(__name__)
 
 
 class CharacterAudit(models.Model):
+    class UpdateStatus(models.TextChoices):
+        DISABLED = "disabled", _("disabled")
+        NOT_UP_TO_DATE = "not_up_to_date", _("not up to date")
+        ERROR = "error", _("error")
+        OK = "ok", _("ok")
+
+        def bootstrap_icon(self) -> str:
+            """Return bootstrap corresponding icon class."""
+            update_map = {
+                self.DISABLED: f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>",
+                self.NOT_UP_TO_DATE: f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>",
+                self.ERROR: f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>",
+                self.OK: f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>",
+            }
+            return update_map.get(self, "")
+
+        def bootstrap_text_style_class(self) -> str:
+            """Return bootstrap corresponding bootstrap text style class."""
+            update_map = {
+                self.DISABLED: "text-danger",
+                self.NOT_UP_TO_DATE: "text-warning",
+                self.ERROR: "text-danger",
+                self.OK: "text-success",
+            }
+            return update_map.get(self, "")
+
+        def description(self) -> str:
+            """Return description for an enum object."""
+            update_map = {
+                self.DISABLED: _("Update is disabled"),
+                self.NOT_UP_TO_DATE: _(
+                    "One of the updates is older than {} day"
+                ).format(app_settings.LEDGER_CHAR_MAX_INACTIVE_DAYS),
+                self.ERROR: _("An error occurred during update"),
+                self.OK: _("Updates completed successfully"),
+            }
+            return update_map.get(self, "")
 
     id = models.AutoField(primary_key=True)
 
@@ -70,7 +108,7 @@ class CharacterAudit(models.Model):
             "esi-planets.manage_planets.v1",
         ]
 
-    def is_active(self):
+    def _get_is_active(self):
         time_ref = timezone.now() - datetime.timedelta(
             days=app_settings.LEDGER_CHAR_MAX_INACTIVE_DAYS
         )
@@ -80,26 +118,43 @@ class CharacterAudit(models.Model):
             is_active = is_active and self.last_update_wallet > time_ref
             is_active = is_active and self.last_update_mining > time_ref
             is_active = is_active and self.last_update_planetary > time_ref
-
-            if self.active != is_active:
-                self.active = is_active
-                if is_active is False:
-                    logger.info(
-                        "Deactivating Character: %s", self.character.character_name
-                    )
-                self.save()
-
             return is_active
         except Exception:  # pylint: disable=broad-exception-caught
             return False
 
+    def is_active(self):
+        is_active = self._get_is_active()
+        if self.active != is_active:
+            self.active = is_active
+            if is_active is False:
+                logger.info("Deactivating Character: %s", self.character.character_name)
+            self.save()
+        return is_active
+
+    # TODO Create a Update Status Model to handle all update section separately
     @property
     def get_status_icon(self):
-        color = "text-danger"
+        if self.active is False:
+            return mark_safe(self.UpdateStatus("disabled").bootstrap_icon())
+
+        is_active = self._get_is_active()
+
+        # Check if one of the updates are not up to date
+        if is_active is False:
+            return mark_safe(self.UpdateStatus("not_up_to_date").bootstrap_icon())
+
+        # Check if the character is active
         if self.active:
-            color = "text-success"
-        html = f"<span class='{color}'>⬤</span>"
-        return mark_safe(html)
+            return mark_safe(self.UpdateStatus("ok").bootstrap_icon())
+
+        # Standardmäßig ERROR-Status zurückgeben
+        return mark_safe(self.UpdateStatus("error").bootstrap_icon())
+
+    @property
+    def get_status_opacity(self):
+        if self.active:
+            return "opacity-100"
+        return "opacity-25"
 
 
 class WalletJournalEntry(models.Model):
