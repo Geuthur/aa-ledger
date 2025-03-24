@@ -84,15 +84,18 @@ class TestCharacterWalletJournalModel(TestCase):
         self.audit.last_update_wallet = timezone.now()
         self.audit.last_update_planetary = timezone.now()
         self.audit.active = True
+
+        self.assertEqual(self.audit.get_status, self.audit.UpdateStatus("ok"))
         self.assertEqual(
-            self.audit.get_status_icon, self.audit.UpdateStatus("ok").bootstrap_icon()
+            self.audit.get_status.bootstrap_icon(),
+            self.audit.UpdateStatus("ok").bootstrap_icon(),
         )
 
     def test_get_status_icon_should_return_disabled(self):
         self.audit.active = False
         self.assertEqual(
-            self.audit.get_status_icon,
-            self.audit.UpdateStatus("disabled").bootstrap_icon(),
+            self.audit.get_status,
+            self.audit.UpdateStatus("disabled"),
         )
 
     def test_get_status_icon_should_return_not_up_to_date(self):
@@ -101,6 +104,6 @@ class TestCharacterWalletJournalModel(TestCase):
         self.audit.last_update_wallet = timezone.now()
         self.audit.last_update_planetary = timezone.now()
         self.assertEqual(
-            self.audit.get_status_icon,
-            self.audit.UpdateStatus("not_up_to_date").bootstrap_icon(),
+            self.audit.get_status,
+            self.audit.UpdateStatus("not_up_to_date"),
         )

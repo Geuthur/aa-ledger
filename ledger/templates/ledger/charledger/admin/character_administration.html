@@ -30,6 +30,10 @@
         <div class="card-header bg-primary rounded-top d-flex align-items-center">
             <h3 class="me-3">{% translate "Administration" %}</h3>
         </div>
+        <!-- Content -->
+        <div class="card-body">
+            {% include 'ledger/partials/administration/dashboard.html' %}
+        </div>
         <div class="card-body">
             <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
                 <h3 class="text-white">{% translate "Characters" %}</h3>
@@ -59,19 +63,21 @@ $(document).ready(function() {
         url: ledgersettings.characterDashboardUrl,
         type: 'GET',
         success: function (data) {
+            // Dashboard-Info
             $('#dashboard-info').html(data.dashboard);
             $('#status').text(data.status);
-
+            // Dashboard-Statistics
             $('#dashboard-info-statistics').html(data.statistics);
+            $('#auth_characters').text(data.auth_characters);
             $('#active_characters').text(data.active_characters);
             $('#inactive_characters').text(data.inactive_characters);
-            $('#total_characters').text(data.total_characters);
+            $('#missing_characters').text(data.missing_characters);
 
-            //manageDashboardVar.removeClass('d-none');
-            //manageDashboardTableVar.removeClass('d-none');
+            manageDashboardVar.removeClass('d-none');
+            manageDashboardTableVar.removeClass('d-none');
 
-            //manageDashboardStatisticsVar.removeClass('d-none');
-            //manageDashboardStatisticsTableVar.removeClass('d-none');
+            manageDashboardStatisticsVar.removeClass('d-none');
+            manageDashboardStatisticsTableVar.removeClass('d-none');
 
         },
         error: function(xhr, status, error) {

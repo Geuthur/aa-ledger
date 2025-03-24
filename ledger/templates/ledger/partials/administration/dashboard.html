@@ -6,7 +6,7 @@
 <div class="card-body bg-secondary">
     <div class="d-flex flex-wrap">
         <!-- Dashboard -->
-        <div class="flex-grow-1 d-none" style="min-width: 350px;" id="dashboard-card">
+        <div class="flex-grow-1 d-none" style="min-width: 150px;" id="dashboard-card">
             <div class="card-body bg-secondary rounded-top">
                 <h5 class="card-title text-center">
                     <span id="dashboard-info"></span>
@@ -26,7 +26,7 @@
         </div>
 
         <!-- Dashboard Statistics -->
-        <div class="flex-grow-1 d-none" style="min-width: 350px;" id="dashboard-statistics-card">
+        <div class="flex-grow-1 d-none" style="min-width: 150px;" id="dashboard-statistics-card">
             <div class="card-body bg-secondary rounded-top">
                 <h5 class="card-title text-center">
                     <span id="dashboard-info-statistics"></span>
@@ -36,6 +36,10 @@
                     <table class="table table-dark table-striped w-100 d-none" id="character-dashboard-statistics">
                         <tbody>
                             <tr>
+                                <td>{% trans "Auth Characters:" %}</td>
+                                <td class="text-end" id="auth_characters"></td>
+                            </tr>
+                            <tr>
                                 <td>{% trans "Active Characters:" %}</td>
                                 <td class="text-end" id="active_characters"></td>
                             </tr>
@@ -44,8 +48,8 @@
                                 <td class="text-end" id="inactive_characters"></td>
                             </tr>
                             <tr>
-                                <td>{% trans "Total Characters:" %}</td>
-                                <td class="text-end" id="total_characters"></td>
+                                <td>{% trans "Missing Characters:" %}</td>
+                                <td class="text-end" id="missing_characters"></td>
                             </tr>
                         </tbody>
                     </table>
