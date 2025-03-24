@@ -5,7 +5,7 @@
         {% translate "No Characters found." %}
     </div>
 {% else %}
-    <div class="cards-container">
+    <div class="card-characters-container">
         <ul class="card-characters">
             {% for character in characters %}
                 <li class="card-item">
@@ -15,8 +15,8 @@
                             {{ character.character_name }} {{ character.get_status_icon }}
                         </div>
                         <!-- Character Logo -->
-                        <div class="card-body text-center">
-                            <a href="#">
+                        <div class="card-body text-center {{ character.get_status_opacity }}">
+                            <a href="{% url 'ledger:character_ledger' character_id=character.character.character_id %}?single=True">
                                 <img src="{{ character.character.portrait_url_256 }}">
                             </a>
                         </div>

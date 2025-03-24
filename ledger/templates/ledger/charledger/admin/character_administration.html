@@ -26,18 +26,11 @@
 {% endblock header_nav_collapse_right %}
 
 {% block vow_block %}
-    <div class="card">
+    <div class="card card-characters-administration">
         <div class="card-header bg-primary rounded-top d-flex align-items-center">
             <h3 class="me-3">{% translate "Administration" %}</h3>
         </div>
         <div class="card-body">
-            <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
-                <h3 class="text-white">{% translate "Dashboard" %}</h3>
-            </div>
-            <div class="card-body bg-secondary">
-                {% include 'ledger/partials/administration/dashboard.html' %}
-            </div>
-
             <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
                 <h3 class="text-white">{% translate "Characters" %}</h3>
             </div>
@@ -74,11 +67,11 @@ $(document).ready(function() {
             $('#inactive_characters').text(data.inactive_characters);
             $('#total_characters').text(data.total_characters);
 
-            manageDashboardVar.removeClass('d-none');
-            manageDashboardTableVar.removeClass('d-none');
+            //manageDashboardVar.removeClass('d-none');
+            //manageDashboardTableVar.removeClass('d-none');
 
-            manageDashboardStatisticsVar.removeClass('d-none');
-            manageDashboardStatisticsTableVar.removeClass('d-none');
+            //manageDashboardStatisticsVar.removeClass('d-none');
+            //manageDashboardStatisticsTableVar.removeClass('d-none');
 
         },
         error: function(xhr, status, error) {
