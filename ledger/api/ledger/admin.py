@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 class LedgerAdminApiEndpoints:
     tags = ["LedgerAdmin"]
 
+    # pylint: disable=too-many-statements
     def __init__(self, api: NinjaAPI):
         @api.get(
             "character/overview/",
@@ -175,7 +176,6 @@ class LedgerAdminApiEndpoints:
             output = {
                 "dashboard": "Character Dashboard",
                 "statistics": "Character Statistics",
-                "status": "Not Implemented",
                 "active_characters": active_characters,
                 "inactive_characters": inactive_characters,
                 "total_characters": total_characters,
