@@ -109,7 +109,7 @@ def get_all_corporations_from_alliance(
     common_corps = corporations.intersection(visible)
     if not common_corps.exists():
         perms = False
-    return perms, corporations.values_list("corporation__corporation_id", flat=True)
+    return perms, corporations
 
 
 def get_alts_queryset(main_char, corporations=None) -> list[EveCharacter]:

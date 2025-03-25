@@ -113,15 +113,20 @@ def _corporation_information(
 ):
     main_character_id = request.GET.get("main_character_id", None)
 
-    perms, corporation = get_corporation(request, entity_id)
+    perm, corporation = get_corporation(request, entity_id)
 
-    if perms is False:
+    if perm is False:
         return render(
             request,
             "ledger/modals/information/error.html",
-            error_context(
-                "Permission Denied", "You don't have permission to view this character"
-            ),
+            error_context("403 Error", "Permission denied to view this character"),
+            status=403,
+        )
+    if perm is None:
+        return render(
+            request,
+            "ledger/modals/information/error.html",
+            error_context("404 Error", "Corporation not found"),
             status=403,
         )
 
@@ -187,6 +192,9 @@ def _alliance_information(
 
     if corporation_id is None:
         perms, corporations = get_all_corporations_from_alliance(request, entity_id)
+        corporations = corporations.values_list(
+            "corporation__corporation_id", flat=True
+        )
     else:
         perms, main_corp = get_corporation(request, corporation_id)
         corporations = [corporation_id]

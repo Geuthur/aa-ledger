@@ -21,6 +21,14 @@
                             </tr>
                         </tbody>
                     </table>
+                    <table class="table table-dark table-striped w-100 d-none" id="corporation-dashboard">
+                        <tbody>
+                            <tr>
+                                <td>{% trans "Status:" %}</td>
+                                <td class="text-end" id="status"></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -50,6 +58,23 @@
                             <tr>
                                 <td>{% trans "Missing Characters:" %}</td>
                                 <td class="text-end" id="missing_characters"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {% comment %} Corporation Statistics {% endcomment %}
+                    <table class="table table-dark table-striped w-100 d-none" id="corporation-dashboard-statistics">
+                        <tbody>
+                            <tr>
+                                <td>{% trans "Auth Corporations:" %}</td>
+                                <td class="text-end" id="auth_corporations"></td>
+                            </tr>
+                            <tr>
+                                <td>{% trans "Active Corporations:" %}</td>
+                                <td class="text-end" id="active_corporations"></td>
+                            </tr>
+                            <tr>
+                                <td>{% trans "Missing Corporations:" %}</td>
+                                <td class="text-end" id="missing_corporations"></td>
                             </tr>
                         </tbody>
                     </table>
