@@ -71,7 +71,7 @@ def corporation_overview(request):
 @permission_required("ledger.basic_access")
 def corporation_administration(request, corporation_id=None):
     """
-    Character Administration
+    Corporation Administration
     """
     # TODO Get Missing Characters from esi-corporations.read_corporation_membership.v1 ?
 
@@ -91,7 +91,7 @@ def corporation_administration(request, corporation_id=None):
 
     corp_characters = CharacterOwnership.objects.filter(
         character__corporation_id=corporation.corporation.corporation_id
-    )
+    ).order_by("character__character_name")
 
     context = {
         "corporation_id": corporation_id,
