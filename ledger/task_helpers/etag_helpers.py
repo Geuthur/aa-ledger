@@ -24,7 +24,7 @@ class HTTPGatewayTimeoutError(Exception):
 
 
 def get_etag_key(operation):
-    return "etag-" + operation._cache_key()
+    return "ledger-" + operation._cache_key()
 
 
 def get_etag_header(operation):
