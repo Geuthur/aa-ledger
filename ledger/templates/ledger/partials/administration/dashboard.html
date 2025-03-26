@@ -29,9 +29,13 @@
                     <table class="table table-dark table-striped w-100 d-none" id="corporation-dashboard">
                         <tbody>
                             <tr>
-                                <td>{% trans "Status:" %}</td>
-                                <td class="text-end" id="status"></td>
+                                <td>{% trans "Information:" %}</td>
+                                <td class="text-end" id="status-corporation"></td>
                             </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-dark table-striped w-100 d-none" id="alliance-dashboard">
+                        <tbody>
                         </tbody>
                     </table>
                 </div>
@@ -50,19 +54,19 @@
                         <tbody>
                             <tr>
                                 <td>{% trans "Auth Characters:" %}</td>
-                                <td class="text-end" id="auth_characters"></td>
+                                <td class="text-end" id="auth-characters"></td>
                             </tr>
                             <tr>
                                 <td>{% trans "Active Characters:" %}</td>
-                                <td class="text-end" id="active_characters"></td>
+                                <td class="text-end" id="active-characters"></td>
                             </tr>
                             <tr>
                                 <td>{% trans "Inactive Characters:" %}</td>
-                                <td class="text-end" id="inactive_characters"></td>
+                                <td class="text-end" id="inactive-characters"></td>
                             </tr>
                             <tr>
                                 <td>{% trans "Missing Characters:" %}</td>
-                                <td class="text-end" id="missing_characters"></td>
+                                <td class="text-end" id="missing-characters"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -70,16 +74,33 @@
                     <table class="table table-dark table-striped w-100 d-none" id="corporation-dashboard-statistics">
                         <tbody>
                             <tr>
+                                <td>{% trans "Corporation Characters:" %}</td>
+                                <td class="text-end" id="auth-characters-corporation"></td>
+                            </tr>
+                            <tr>
+                                <td>{% trans "Active Characters:" %}</td>
+                                <td class="text-end" id="active-characters-corporation"></td>
+                            </tr>
+                            <tr>
+                                <td>{% trans "Missing Characters:" %}</td>
+                                <td class="text-end" id="missing-characters-corporation"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {% comment %} Alliance Statistics {% endcomment %}
+                    <table class="table table-dark table-striped w-100 d-none" id="alliance-dashboard-statistics">
+                        <tbody>
+                            <tr>
                                 <td>{% trans "Auth Corporations:" %}</td>
-                                <td class="text-end" id="auth_corporations"></td>
+                                <td class="text-end" id="auth-corporations"></td>
                             </tr>
                             <tr>
                                 <td>{% trans "Active Corporations:" %}</td>
-                                <td class="text-end" id="active_corporations"></td>
+                                <td class="text-end" id="active-corporations"></td>
                             </tr>
                             <tr>
                                 <td>{% trans "Missing Corporations:" %}</td>
-                                <td class="text-end" id="missing_corporations"></td>
+                                <td class="text-end" id="missing-corporations"></td>
                             </tr>
                         </tbody>
                     </table>

@@ -3,11 +3,17 @@
 import logging
 from datetime import datetime
 
-# Django
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect, render
 
+# Django
+from django.utils.translation import gettext_lazy as _
+
+from allianceauth.authentication.models import CharacterOwnership
+
 # Ledger
+from ledger.api.helpers import get_corporation
 from ledger.view_helpers.core import add_info_to_context
 
 logger = logging.getLogger(__name__)
@@ -58,4 +64,38 @@ def corporation_overview(request):
     context = add_info_to_context(request, context)
     return render(
         request, "ledger/corpledger/admin/corporation_overview.html", context=context
+    )
+
+
+@login_required
+@permission_required("ledger.basic_access")
+def corporation_administration(request, corporation_id):
+    """
+    Corporation Administration
+    """
+    perm, corporation = get_corporation(request, corporation_id)
+
+    if perm is False:
+        msg = _("Permission Denied")
+        messages.error(request, msg)
+        return redirect("ledger:corporation_ledger_index")
+    if perm is None:
+        msg = _("Corporation not found")
+        messages.info(request, msg)
+        return redirect("ledger:corporation_ledger_index")
+    # TODO Get Missing Characters from esi-corporations.read_corporation_membership.v1 ?
+    corp_characters = CharacterOwnership.objects.filter(
+        character__corporation_id=corporation.corporation.corporation_id
+    ).order_by("character__character_name")
+
+    context = {
+        "corporation_id": corporation_id,
+        "title": "Corporation Administration",
+        "characters": corp_characters,
+    }
+    context = add_info_to_context(request, context)
+    return render(
+        request,
+        "ledger/corpledger/admin/corporation_administration.html",
+        context=context,
     )

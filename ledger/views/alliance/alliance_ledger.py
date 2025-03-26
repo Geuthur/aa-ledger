@@ -90,9 +90,12 @@ def alliance_administration(request, alliance_id):
     corporations = get_all_corporations_from_alliance(request, alliance.alliance_id)[1]
     all_corporations = EveCorporationInfo.objects.filter(
         alliance__alliance_id=alliance_id
-    )
+    ).order_by("corporation_name")
+
     corp_audit_ids = corporations.values_list("corporation__corporation_id", flat=True)
-    missing_corporations = all_corporations.exclude(corporation_id__in=corp_audit_ids)
+    missing_corporations = all_corporations.exclude(
+        corporation_id__in=corp_audit_ids
+    ).order_by("corporation_name")
 
     context = {
         "alliance_id": alliance_id,

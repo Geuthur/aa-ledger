@@ -15,18 +15,18 @@
 
 {% block header_nav_collapse_left %}
 
-{% include 'ledger/partials/menu/ally/navigation.html' %}
+{% include 'ledger/partials/menu/corp/navigation.html' %}
 
 {% endblock header_nav_collapse_left %}
 
 {% block header_nav_collapse_right %}
 
-{% include 'ledger/partials/menu/ally/administration.html' %}
+{% include 'ledger/partials/menu/corp/administration.html' %}
 
 {% endblock header_nav_collapse_right %}
 
 {% block vow_block %}
-    <div class="card card-alliance-administration">
+    <div class="card card-corporation-administration">
         <div class="card-header bg-primary rounded-top d-flex align-items-center">
             <h3 class="me-3">{% translate "Administration" %}</h3>
         </div>
@@ -36,10 +36,10 @@
         </div>
         <div class="card-body">
             <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
-                <h3 class="text-white">{% translate "Corporations" %}</h3>
+                <h3 class="text-white">{% translate "Characters" %}</h3>
             </div>
             <div class="card-body bg-secondary">
-                {% include 'ledger/partials/administration/alliance.html' %}
+                {% include 'ledger/partials/administration/corporation.html' %}
             </div>
         </div>
     </div>
@@ -47,5 +47,5 @@
 
 {% block extra_javascript %}
     {% include 'bundles/datatables-js-bs5.html' %}
-    {% include 'ledger/bundles/ally-administration-bundles.html' %}
+    {% include 'ledger/bundles/corp-administration-bundles.html' %}
 {% endblock %}

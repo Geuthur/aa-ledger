@@ -93,12 +93,16 @@ def character_administration(request, character_id=None):
 
     characters = CharacterAudit.objects.filter(
         character__character_id__in=linked_characters_ids
-    )
+    ).order_by("character__character_name")
 
-    missing_characters = EveCharacter.objects.filter(
-        character_id__in=linked_characters_ids
-    ).exclude(
-        character_id__in=characters.values_list("character__character_id", flat=True)
+    missing_characters = (
+        EveCharacter.objects.filter(character_id__in=linked_characters_ids)
+        .exclude(
+            character_id__in=characters.values_list(
+                "character__character_id", flat=True
+            )
+        )
+        .order_by("character_name")
     )
 
     context = {
