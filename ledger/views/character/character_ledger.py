@@ -10,6 +10,8 @@ from django.shortcuts import redirect, render
 # Django
 from django.utils.translation import gettext as _
 
+from allianceauth.eveonline.models import EveCharacter
+
 # Ledger
 from ledger.api.helpers import get_character
 from ledger.models.characteraudit import CharacterAudit
@@ -93,10 +95,17 @@ def character_administration(request, character_id=None):
         character__character_id__in=linked_characters_ids
     )
 
+    missing_characters = EveCharacter.objects.filter(
+        character_id__in=linked_characters_ids
+    ).exclude(
+        character_id__in=characters.values_list("character__character_id", flat=True)
+    )
+
     context = {
         "character_id": character_id,
         "title": "Character Administration",
         "characters": characters,
+        "missing_characters": missing_characters,
     }
     context = add_info_to_context(request, context)
     return render(
