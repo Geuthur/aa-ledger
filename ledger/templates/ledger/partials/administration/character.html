@@ -15,7 +15,7 @@
                             {{ character.character_name }} {{ character.get_status.bootstrap_icon }}
                         </div>
                         <!-- Character Logo -->
-                        <div class="card-body text-center {{ character.get_status_opacity }}">
+                        <div class="card-body text-center">
                             <a href="{% url 'ledger:character_ledger' character_id=character.character.character_id %}?single=True">
                                 <img src="{{ character.character.portrait_url_256 }}">
                             </a>
@@ -29,6 +29,25 @@
                                 title="{% translate 'View Character Ledger' %}">
                                 <i class="fas fa-sign-in-alt"></i>
                             </a>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+            {% comment %} Is a EveCharacter QuerySet {% endcomment %}
+            {% for character in missing_characters %}
+                <li class="card-item">
+                    <div class="card bg-danger opacity-25">
+                        <!-- Corporation Name -->
+                        <div class="card-header">
+                            {{ character.character_name }}
+                        </div>
+                        <!-- Corporation Logo -->
+                        <div class="card-body">
+                            <img src="{{ character.portrait_url_256 }}">
+                        </div>
+                        <!-- Corporation Actions -->
+                        <div class="card-footer no-opacity">
+                            {% translate "Character is not registered in Ledger." %}
                         </div>
                     </div>
                 </li>
