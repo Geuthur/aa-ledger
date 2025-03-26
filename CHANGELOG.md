@@ -7,6 +7,7 @@
 - Application Tests
 - Task Limiter to Character Ledger
 - Character Administration
+- Alliance Administration
 
 ### Changed
 
@@ -19,6 +20,7 @@
 - Logger System
 - ETAG System use log timing instead of own timing log
 - cards css
+- renamed `custom.css` to `ledger.css`
 
 ### Removed
 
