@@ -2,6 +2,11 @@
 
 <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
     <h3 class="text-white">{% translate "Dashboard" %}</h3>
+    <div class="ms-auto">
+        <div id="dashboard-buttons-corporation" class="d-none">
+            <button class="btn btn-secondary me-2 administration"><a class="nav-link py-0" href="{% url 'ledger:events_index' %}">{% translate 'Events' %}</a></button>
+        </div>
+    </div>
 </div>
 <div class="card-body bg-secondary">
     <div class="d-flex flex-wrap">
@@ -14,6 +19,14 @@
                 <hr>
                 <div>
                     <table class="table table-dark table-striped w-100 d-none" id="character-dashboard">
+                        <tbody>
+                            <tr>
+                                <td>{% trans "Status:" %}</td>
+                                <td class="text-end" id="status"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-dark table-striped w-100 d-none" id="corporation-dashboard">
                         <tbody>
                             <tr>
                                 <td>{% trans "Status:" %}</td>
@@ -50,6 +63,23 @@
                             <tr>
                                 <td>{% trans "Missing Characters:" %}</td>
                                 <td class="text-end" id="missing_characters"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {% comment %} Corporation Statistics {% endcomment %}
+                    <table class="table table-dark table-striped w-100 d-none" id="corporation-dashboard-statistics">
+                        <tbody>
+                            <tr>
+                                <td>{% trans "Auth Corporations:" %}</td>
+                                <td class="text-end" id="auth_corporations"></td>
+                            </tr>
+                            <tr>
+                                <td>{% trans "Active Corporations:" %}</td>
+                                <td class="text-end" id="active_corporations"></td>
+                            </tr>
+                            <tr>
+                                <td>{% trans "Missing Corporations:" %}</td>
+                                <td class="text-end" id="missing_corporations"></td>
                             </tr>
                         </tbody>
                     </table>

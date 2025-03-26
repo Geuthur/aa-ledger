@@ -12,6 +12,12 @@
         opacity: 1.0; /* Transparenz auf 100% beim Hover */
     }
 
+    .no-opacity {
+        position: relative;
+        z-index: 1;
+        opacity: 1 !important;
+    }
+
     *,
     *::before,
     *::after {

@@ -67,6 +67,7 @@
         </ul>
     </div>
     <div class="ms-auto">
+            <button class="btn btn-secondary me-2 administration"><a class="nav-link py-0" href="{% url 'ledger:alliance_administration' alliance_id=alliance_id %}">{% translate 'Administration' %}</a></button>
             <button class="btn btn-secondary overview"><a class="nav-link py-0" href="{% url 'ledger:alliance_overview' %}">{% translate 'Alliance Overview' %}</a></button>
     </div>
 </div>

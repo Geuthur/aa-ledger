@@ -6,11 +6,12 @@ from ninja import NinjaAPI
 from django.utils.translation import gettext_lazy as _
 
 from allianceauth.authentication.models import UserProfile
+from allianceauth.eveonline.models import EveCorporationInfo
 
 from ledger.api import schema
-from ledger.api.helpers import get_character
-from ledger.models import CorporationAudit
+from ledger.api.helpers import get_all_corporations_from_alliance, get_character
 from ledger.models.characteraudit import CharacterAudit
+from ledger.models.corporationaudit import CorporationAudit
 
 logger = logging.getLogger(__name__)
 
@@ -195,6 +196,43 @@ class LedgerAdminApiEndpoints:
                 "active_characters": f"{active_characters} / {audit_total_characters}",
                 "inactive_characters": inactive_characters,
                 "missing_characters": missing_characters,
+            }
+
+            return output
+
+        @api.get(
+            "alliance/{alliance_id}/view/dashboard/",
+            response={200: Any, 403: str},
+            tags=self.tags,
+        )
+        def get_alliance_dashboard(request, alliance_id: int):
+            perm, corporations = get_all_corporations_from_alliance(
+                request, alliance_id
+            )
+
+            if not perm:
+                return 403, "Permission Denied"
+            if perm is None:
+                return 403, "Alliance not found"
+
+            all_corporations = EveCorporationInfo.objects.filter(
+                alliance__alliance_id=alliance_id
+            )
+            corp_audit_ids = corporations.values_list(
+                "corporation__corporation_id", flat=True
+            )
+            missing_corporations = all_corporations.exclude(
+                corporation_id__in=corp_audit_ids
+            )
+
+            active_corporations = corporations.count()
+
+            output = {
+                "dashboard": "Alliance Dashboard",
+                "statistics": "Alliance Statistics",
+                "auth_corporations": all_corporations.count(),
+                "active_corporations": f"{active_corporations} / {all_corporations.count()}",
+                "missing_corporations": missing_corporations.count(),
             }
 
             return output

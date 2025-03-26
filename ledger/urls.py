@@ -33,6 +33,11 @@ urlpatterns = [
         name="alliance_ledger",
     ),
     path(
+        "alliance_ledger/<int:alliance_id>/view/administration/",
+        alliance_ledger.alliance_administration,
+        name="alliance_administration",
+    ),
+    path(
         "alliance_overview/",
         alliance_ledger.alliance_overview,
         name="alliance_overview",

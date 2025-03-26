@@ -3,12 +3,6 @@
 {% load i18n %}
 {% load navactive %}
 
-<li class="nav-item">
-    <a class="nav-link py-0" href="{% url 'ledger:events_index' %}">
-        <span class="btn btn-success">{% translate 'Events' %}</span>
-    </a>
-</li>
-
 {% if perms.ledger.admin_access %}
     <li class="nav-item">
         <a class="nav-link py-0" href="{% url 'ledger:add_corp' %}">

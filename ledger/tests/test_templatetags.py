@@ -12,7 +12,7 @@ class TestVersionedStatic(TestCase):
         template_to_render = Template(
             template_string=(
                 "{% load ledger %}"
-                "{% ledger_static 'css/custom.css' %}"
+                "{% ledger_static 'css/ledger.css' %}"
                 "{% ledger_static 'js/ledger.js' %}"
             )
         )
@@ -20,9 +20,9 @@ class TestVersionedStatic(TestCase):
         rendered_template = template_to_render.render(context=context)
 
         expected_static_css_src = (
-            f'/static/ledger/css/custom.css?v={context["version"]}'
+            f'/static/ledger/css/ledger.css?v={context["version"]}'
         )
-        expected_static_css_src_integrity = calculate_integrity_hash("css/custom.css")
+        expected_static_css_src_integrity = calculate_integrity_hash("css/ledger.css")
         expected_static_js_src = f'/static/ledger/js/ledger.js?v={context["version"]}'
         expected_static_js_src_integrity = calculate_integrity_hash("js/ledger.js")
 
@@ -39,13 +39,13 @@ class TestVersionedStatic(TestCase):
     def test_versioned_static_with_debug_enabled(self) -> None:
         context = Context({"version": __version__})
         template_to_render = Template(
-            template_string=("{% load ledger %}" "{% ledger_static 'css/custom.css' %}")
+            template_string=("{% load ledger %}" "{% ledger_static 'css/ledger.css' %}")
         )
 
         rendered_template = template_to_render.render(context=context)
 
         expected_static_css_src = (
-            f'/static/ledger/css/custom.css?v={context["version"]}'
+            f'/static/ledger/css/ledger.css?v={context["version"]}'
         )
 
         self.assertIn(member=expected_static_css_src, container=rendered_template)
