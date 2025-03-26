@@ -23,11 +23,11 @@
     $(document).ready(function() {
         // Dashboard-Info
         const manageDashboard = $('#dashboard-card');
-        const manageDashboardTable = $('#corporation-dashboard');
+        const manageDashboardTable = $('#alliance-dashboard');
         const manageDashboardButtons = $('#dashboard-buttons-alliance');
         // Dashboard-Statistics
         const manageDashboardStatistics = $('#dashboard-statistics-card');
-        const manageDashboardStatisticsTable = $('#corporation-dashboard-statistics');
+        const manageDashboardStatisticsTable = $('#alliance-dashboard-statistics');
 
         $.ajax({
             url: ledgersettings.allianceDashboardUrl,
@@ -37,9 +37,9 @@
                 $('#dashboard-info').html(data.dashboard);
                 // Dashboard-Statistics
                 $('#dashboard-info-statistics').html(data.statistics);
-                $('#auth_corporations').text(data.auth_corporations);
-                $('#active_corporations').text(data.active_corporations);
-                $('#missing_corporations').text(data.missing_corporations);
+                $('#auth-corporations').text(data.auth_corporations);
+                $('#active-corporations').text(data.active_corporations);
+                $('#missing-corporations').text(data.missing_corporations);
 
                 manageDashboard.removeClass('d-none');
                 //manageDashboardTable.removeClass('d-none');

@@ -55,6 +55,11 @@ urlpatterns = [
         name="corporation_ledger",
     ),
     path(
+        "corporation_ledger/<int:corporation_id>/view/administration/",
+        corporation_ledger.corporation_administration,
+        name="corporation_administration",
+    ),
+    path(
         "corporation_overview/",
         corporation_ledger.corporation_overview,
         name="corporation_overview",

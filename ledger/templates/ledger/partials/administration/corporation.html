@@ -1,0 +1,29 @@
+{% load i18n %}
+
+{% if characters|length == 0 %}
+    <div class="alert alert-info" role="alert">
+        {% translate "No Characters found." %}
+    </div>
+{% else %}
+    <div class="card-characters-container">
+        <ul class="card-characters">
+            {% for character in characters %}
+                <li class="card-item">
+                    <div class="card">
+                        <!-- Character Name -->
+                        <div class="card-header">
+                            {{ character.character.character_name }}
+                        </div>
+                        <!-- Character Logo -->
+                        <div class="card-body text-center">
+                            <img src="{{ character.character.portrait_url_256 }}">
+                        </div>
+                        <!-- Character Actions -->
+                        <div class="card-footer">
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}

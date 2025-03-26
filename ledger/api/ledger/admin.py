@@ -5,11 +5,15 @@ from ninja import NinjaAPI
 
 from django.utils.translation import gettext_lazy as _
 
-from allianceauth.authentication.models import UserProfile
+from allianceauth.authentication.models import CharacterOwnership, UserProfile
 from allianceauth.eveonline.models import EveCorporationInfo
 
 from ledger.api import schema
-from ledger.api.helpers import get_all_corporations_from_alliance, get_character
+from ledger.api.helpers import (
+    get_all_corporations_from_alliance,
+    get_character,
+    get_corporation,
+)
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
 
@@ -154,11 +158,11 @@ class LedgerAdminApiEndpoints:
             tags=self.tags,
         )
         def get_character_dashboard(request, character_id: int):
-            perms, character = get_character(request, character_id)
+            perm, character = get_character(request, character_id)
 
-            if not perms:
+            if not perm:
                 return 403, "Permission Denied"
-            if perms is None:
+            if perm is None:
                 return 403, "Character not found"
 
             linked_characters = (
@@ -201,6 +205,42 @@ class LedgerAdminApiEndpoints:
                 "auth_characters": auth_characters,
                 "active_characters": f"{active_characters} / {auth_characters}",
                 "inactive_characters": inactive_characters,
+                "missing_characters": missing_characters,
+            }
+
+            return output
+
+        @api.get(
+            "corporation/{corporation_id}/view/dashboard/",
+            response={200: Any, 403: str},
+            tags=self.tags,
+        )
+        def get_corporation_dashboard(request, corporation_id: int):
+            perm, corporation = get_corporation(request, corporation_id)
+
+            if not perm:
+                return 403, "Permission Denied"
+            if perm is None:
+                return 403, "Corporation not found"
+
+            auth_corp = EveCorporationInfo.objects.get(
+                corporation_id=corporation.corporation.corporation_id
+            )
+
+            corp_characters = CharacterOwnership.objects.filter(
+                character__corporation_id=corporation_id
+            )
+
+            auth_characters = auth_corp.member_count
+            active_characters = corp_characters.count()
+            missing_characters = auth_characters - active_characters
+
+            output = {
+                "dashboard": "Corporation Dashboard",
+                "status": "Missing Characters are not impleted yet",
+                "statistics": "Corporation Statistics",
+                "auth_characters": auth_characters,
+                "active_characters": f"{active_characters} / {auth_characters}",
                 "missing_characters": missing_characters,
             }
 
