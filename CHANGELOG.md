@@ -2,6 +2,8 @@
 
 ## [0.7.x] - IN DEVELOPMENT
 
+## [0.7.4] - 2025-03-26
+
 ### Added
 
 - Application Tests
@@ -16,6 +18,7 @@
 - Refactor Corpjournal Manager
 - Refactor Template System
 - Refactor Django Templates
+- Refactor Tests
 - Alliance Ledger show Corporations instead of Characters
 - Renamed template to information
 - Logger System
