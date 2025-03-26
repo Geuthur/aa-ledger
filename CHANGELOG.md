@@ -5,8 +5,9 @@
 ### Added
 
 - Application Tests
-- Task Limiter to Character Ledger
+- Task Subset for Character Updates
 - Character Administration
+- Corporation Administration
 - Alliance Administration
 
 ### Changed
