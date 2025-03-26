@@ -226,16 +226,13 @@ class LedgerAdminApiEndpoints:
             )
 
             active_corporations = corporations.count()
-            audit_total_corporations = corporations.count()
 
             output = {
                 "dashboard": "Alliance Dashboard",
-                "status": "Alliance Status",
                 "statistics": "Alliance Statistics",
-                "auth_characters": len(corp_audit_ids),
-                "active_characters": f"{active_corporations} / {audit_total_corporations}",
-                "inactive_characters": "",
-                "missing_characters": missing_corporations.count(),
+                "auth_corporations": all_corporations.count(),
+                "active_corporations": f"{active_corporations} / {all_corporations.count()}",
+                "missing_corporations": missing_corporations.count(),
             }
 
             return output

@@ -2,6 +2,11 @@
 
 <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
     <h3 class="text-white">{% translate "Dashboard" %}</h3>
+    <div class="ms-auto">
+        <div id="dashboard-buttons-corporation" class="d-none">
+            <button class="btn btn-secondary me-2 administration"><a class="nav-link py-0" href="{% url 'ledger:events_index' %}">{% translate 'Events' %}</a></button>
+        </div>
+    </div>
 </div>
 <div class="card-body bg-secondary">
     <div class="d-flex flex-wrap">

@@ -48,41 +48,4 @@
 {% block extra_javascript %}
     {% include 'bundles/datatables-js-bs5.html' %}
     {% include 'ledger/bundles/ally-administration-bundles.html' %}
-
-<script>
-/* global taxsystemsettings, bootstrap */
-$(document).ready(function() {
-    // Dashboard-Info
-    const manageDashboardVar = $('#dashboard-card');
-    const manageDashboardTableVar = $('#corporation-dashboard');
-    // Dashboard-Statistics
-    const manageDashboardStatisticsVar = $('#dashboard-statistics-card');
-    const manageDashboardStatisticsTableVar = $('#corporation-dashboard-statistics');
-
-    $.ajax({
-        url: ledgersettings.allianceDashboardUrl,
-        type: 'GET',
-        success: function (data) {
-            // Dashboard-Info
-            $('#dashboard-info').html(data.dashboard);
-            $('#status').text(data.status);
-            // Dashboard-Statistics
-            $('#dashboard-info-statistics').html(data.statistics);
-            $('#auth_corporations').text(data.auth_corporations);
-            $('#active_corporations').text(data.active_corporations);
-            $('#missing_corporations').text(data.missing_corporations);
-
-            manageDashboardVar.removeClass('d-none');
-            manageDashboardTableVar.removeClass('d-none');
-
-            manageDashboardStatisticsVar.removeClass('d-none');
-            manageDashboardStatisticsTableVar.removeClass('d-none');
-
-        },
-        error: function(xhr, status, error) {
-            console.error('Error fetching data:', error);
-        }
-    });
-});
-</script>
 {% endblock %}
