@@ -24,7 +24,9 @@
         box-sizing: border-box;
     }
 
-    .card-characters-administration {
+    .card-characters-administration,
+    .card-corporation-administration,
+    .card-alliance-administration {
         display: flex;
         min-width: 300px;
     }
