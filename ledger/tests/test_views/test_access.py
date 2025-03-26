@@ -14,6 +14,9 @@ from app_utils.testing import (
 from ledger.tests.testdata.generate_characteraudit import (
     create_user_from_evecharacter_with_access,
 )
+from ledger.tests.testdata.generate_corporationaudit import (
+    add_corporationaudit_corporation_to_user,
+)
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
 from ledger.views.alliance import alliance_ledger
@@ -233,6 +236,16 @@ class TestViewAllianceLedgerAccess(TestCase):
                 "ledger.advanced_access",
             ],
         )
+        cls.user_admin, cls.character_ownership_admin = create_user_from_evecharacter(
+            1002,
+            permissions=[
+                "ledger.basic_access",
+                "ledger.advanced_access",
+                "ledger.admin_access",
+            ],
+        )
+        cls.audit = add_corporationaudit_corporation_to_user(cls.user, 1001)
+        cls.audit_admin = add_corporationaudit_corporation_to_user(cls.user_admin, 1002)
         cls.user_has_no_alliance, cls.character_ownership_no_alliance = (
             create_user_from_evecharacter(
                 1000,
@@ -301,6 +314,56 @@ class TestViewAllianceLedgerAccess(TestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Alliance Overview")
+
+    def test_view_alliance_administration(self):
+        """Test view alliance administration."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "ledger:alliance_administration",
+                args=[self.character_ownership_admin.character.alliance_id],
+            )
+        )
+        request.user = self.user_admin
+        # when
+        response = alliance_ledger.alliance_administration(
+            request, self.character_ownership_admin.character.alliance_id
+        )
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Administration")
+
+    @patch(ALLYLEDGER_PATH + ".messages")
+    def test_view_alliance_administration_no_permission(self, mock_messages):
+        """Test view alliance administration."""
+        # given
+        request = self.factory.get(
+            reverse("ledger:alliance_administration", args=[3001])
+        )
+        request.user = self.user_admin
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        # when
+        response = alliance_ledger.alliance_administration(request, 3001)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        mock_messages.error.assert_called_once_with(request, "Permission Denied")
+
+    @patch(ALLYLEDGER_PATH + ".messages")
+    def test_view_alliance_administration_alliance_not_found(self, mock_messages):
+        """Test view alliance administration."""
+        # given
+        request = self.factory.get(
+            reverse("ledger:alliance_administration", args=[6666])
+        )
+        request.user = self.user_admin
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        # when
+        response = alliance_ledger.alliance_administration(request, 6666)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        mock_messages.info.assert_called_once_with(request, "Alliance not Found")
 
 
 class TestViewPlanetaryLedgerAccess(TestCase):
