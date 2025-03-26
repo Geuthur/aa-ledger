@@ -69,15 +69,10 @@ def corporation_overview(request):
 
 @login_required
 @permission_required("ledger.basic_access")
-def corporation_administration(request, corporation_id=None):
+def corporation_administration(request, corporation_id):
     """
     Corporation Administration
     """
-    # TODO Get Missing Characters from esi-corporations.read_corporation_membership.v1 ?
-
-    if corporation_id is None:
-        corporation_id = request.user.profile.main_corporation.corporation_id
-
     perm, corporation = get_corporation(request, corporation_id)
 
     if perm is False:
@@ -86,9 +81,9 @@ def corporation_administration(request, corporation_id=None):
         return redirect("ledger:corporation_ledger_index")
     if perm is None:
         msg = _("Corporation not found")
-        messages.error(request, msg)
+        messages.info(request, msg)
         return redirect("ledger:corporation_ledger_index")
-
+    # TODO Get Missing Characters from esi-corporations.read_corporation_membership.v1 ?
     corp_characters = CharacterOwnership.objects.filter(
         character__corporation_id=corporation.corporation.corporation_id
     ).order_by("character__character_name")

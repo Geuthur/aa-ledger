@@ -164,6 +164,16 @@ class TestViewCorporationLedgerAccess(TestCase):
                 "ledger.advanced_access",
             ],
         )
+        cls.user_no_perm, cls.character_ownership_no_perm = (
+            create_user_from_evecharacter(
+                1002,
+                permissions=[
+                    "ledger.basic_access",
+                    "ledger.advanced_access",
+                ],
+            )
+        )
+        cls.audit = add_corporationaudit_corporation_to_user(cls.user, 1001)
 
     def test_view_corporation_ledger_index(self):
         """Test view corporation ledger index."""
@@ -219,6 +229,56 @@ class TestViewCorporationLedgerAccess(TestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Corporation Overview")
+
+    def test_view_corporation_administration(self):
+        """Test view corporation administration."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "ledger:corporation_administration",
+                args=[self.character_ownership.character.corporation_id],
+            )
+        )
+        request.user = self.user
+        # when
+        response = corporation_ledger.corporation_administration(
+            request, self.character_ownership.character.corporation_id
+        )
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Administration")
+
+    @patch(CORPLEDGER_PATH + ".messages")
+    def test_view_corporation_administration_no_permission(self, mock_messages):
+        """Test view corporation administration."""
+        # given
+        request = self.factory.get(
+            reverse("ledger:corporation_administration", args=[2001])
+        )
+        request.user = self.user_no_perm
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        # when
+        response = corporation_ledger.corporation_administration(request, 2001)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        mock_messages.error.assert_called_once_with(request, "Permission Denied")
+
+    @patch(CORPLEDGER_PATH + ".messages")
+    def test_view_corporation_administration_corporation_not_found(self, mock_messages):
+        """Test view corporation administration."""
+        # given
+        request = self.factory.get(
+            reverse("ledger:corporation_administration", args=[6666])
+        )
+        request.user = self.user
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        # when
+        response = corporation_ledger.corporation_administration(request, 6666)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        mock_messages.info.assert_called_once_with(request, "Corporation not found")
 
 
 class TestViewAllianceLedgerAccess(TestCase):
