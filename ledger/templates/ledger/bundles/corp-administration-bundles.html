@@ -52,5 +52,12 @@
                 console.error('Error fetching data:', error);
             }
         });
+
+        $('#corporation-table').DataTable({
+            "order": [[ 1, "asc" ]],
+            "columnDefs": [
+                { "orderable": false, "targets": 0 },
+            ],
+        });
     });
 </script>
