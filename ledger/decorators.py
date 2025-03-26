@@ -2,15 +2,15 @@
 Decorators
 """
 
+import logging
 import time
 from functools import wraps
 
 from app_utils.esi import EsiDailyDowntime, fetch_esi_status
 
 from ledger.app_settings import IS_TESTING
-from ledger.hooks import get_extension_logger
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def when_esi_is_available(func):

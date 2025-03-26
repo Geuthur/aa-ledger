@@ -2,6 +2,8 @@
 Helper functions for static integrity calculations
 """
 
+import logging
+
 # Standard Library
 import os
 from pathlib import Path
@@ -9,17 +11,11 @@ from pathlib import Path
 # Third Party
 from sri import Algorithm, calculate_integrity
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Fleet Pings
 from ledger import __title__
 from ledger.constants import AA_LEDGER_STATIC_DIR
 
-logger = LoggerAddTag(my_logger=get_extension_logger(__name__), prefix=__title__)
+logger = logging.getLogger(__name__)
 
 
 def calculate_integrity_hash(relative_file_path: str) -> str:

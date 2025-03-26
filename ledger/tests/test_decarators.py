@@ -1,3 +1,4 @@
+import logging
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -5,7 +6,6 @@ from django.test import TestCase
 from app_utils.esi import EsiDailyDowntime
 
 from ledger.decorators import when_esi_is_available
-from ledger.hooks import get_extension_logger
 
 
 class TestDecorators(TestCase):
@@ -53,7 +53,7 @@ class TestDecorators(TestCase):
         # given
         from ledger.decorators import log_timing
 
-        logger = get_extension_logger(__name__)
+        logger = logging.getLogger(__name__)
 
         @log_timing(logger)
         def trigger_log_timing():

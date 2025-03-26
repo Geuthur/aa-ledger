@@ -2,6 +2,24 @@
 {% load ledger %}
 {% load i18n %}
 {% load static %}
+<script type="application/javascript">
+    // Extract the 'main' parameter from the current URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const mainParam = urlParams.get('single');
+
+    let singleViewParam = false;
+    if (mainParam) {
+        singleViewParam = true;
+    }
+
+    let ledgersettings = {
+        entity_pk: {{ entity_pk }},
+        entity_type: "{{ entity_type }}",
+        altShow: singleViewParam,
+        overviewText: '{% translate "Overview" %}',
+        planetaryText: '{% translate "Show Planetary Interaction" %}',
+    };
+</script>
 
 <script type="application/javascript">
     $('#modalViewCharacterContainer').on('show.bs.modal', function (event) {

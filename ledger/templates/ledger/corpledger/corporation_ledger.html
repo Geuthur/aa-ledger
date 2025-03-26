@@ -4,8 +4,15 @@
 {% load static %}
 {% load ledger %}
 
-{% block page_title %}Corporation Ledger{% endblock %}
-{% block page_topic %}<h1 class="page-header text-center">{% trans "Corporation Ledger" %}</h1>{% endblock page_topic %}
+{% block page_title %}
+    {{ title }} ⋗ {% translate "Ledger" %}
+{% endblock %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
 
 {% block header_nav_collapse_left %}
 
@@ -60,11 +67,12 @@
         </ul>
     </div>
     <div class="ms-auto">
-            <button class="btn btn-secondary overview"><a class="nav-link py-0" href="{% url 'ledger:corporation_admin' %}">{% translate 'Corporation Overview' %}</a></button>
+        <button class="btn btn-secondary me-2 administration"><a class="nav-link py-0" href="{% url 'ledger:corporation_administration' corporation_id=corporation_id %}">{% translate 'Administration' %}</a></button>
+        <button class="btn btn-secondary overview"><a class="nav-link py-0" href="{% url 'ledger:corporation_overview' %}">{% translate 'Corporation Overview' %}</a></button>
     </div>
 </div>
 <div class="card-body rounded-bottom">
-    {% include 'ledger/view.html' with entity_type=entity_type %}
+    {% include 'ledger/partials/view/ledger.html' with entity_type=entity_type %}
 </div>
 
 {% include 'ledger/modals/modal_dialog.html' with name="ViewCharacter" %}
@@ -74,12 +82,6 @@
 {% endblock %}
 {% block extra_javascript %}
 {% include 'bundles/datatables-js-bs5.html' %}
-<script type="application/javascript">
-    let ledgersettings = {
-        entity_pk: {{ entity_pk }},
-        entity_type: "{{ entity_type }}",
-    };
-</script>
 {% include 'ledger/bundles/ledger-js.html' %}
 
 {% endblock extra_javascript %}

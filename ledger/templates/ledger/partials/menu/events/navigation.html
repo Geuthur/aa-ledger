@@ -3,7 +3,7 @@
 
 {% if perms.ledger.basic_access %}
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'ledger:index' %}">{% trans "Ledger" %}</a>
+        <a class="nav-link" href="{% url 'ledger:corporation_ledger_index' %}">{% trans "Ledger" %}</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" href="{% url 'ledger:events_index' %}">{% trans "Events" %}</a>

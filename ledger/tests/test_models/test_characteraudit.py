@@ -9,101 +9,53 @@ from app_utils.testing import create_user_from_evecharacter
 from ledger.app_settings import LEDGER_CHAR_MAX_INACTIVE_DAYS
 from ledger.models.characteraudit import (
     CharacterAudit,
-    CharacterMiningLedger,
-    CharacterWalletJournalEntry,
 )
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_ledger import load_ledger_all
 
-MODULE_PATH = "ledger.models.general"
+MODULE_PATH = "ledger.models.characteraudit"
 
 
-class TestCharacterAuditModel(TestCase):
+class TestCharacterWalletJournalModel(TestCase):
     @classmethod
-    def setUp(self):
+    def setUpClass(cls):
+        super().setUpClass()
         load_allianceauth()
-        self.audit = CharacterAudit(
+
+        cls.audit = CharacterAudit(
             character=EveCharacter.objects.get(character_id=1001)
         )
 
     def test_str(self):
         self.assertEqual(str(self.audit), "Gneuten's Character Data")
 
-    def test_is_active(self):
-        self.assertTrue(self.audit.is_active)
-
-    def test_is_active_false(self):
-        # given/when
-        self.audit.last_update_wallet = timezone.now() - timezone.timedelta(
-            days=LEDGER_CHAR_MAX_INACTIVE_DAYS + 1
-        )
-        self.audit.last_update_mining = timezone.now() - timezone.timedelta(
-            days=LEDGER_CHAR_MAX_INACTIVE_DAYS + 1
-        )
-        self.audit.save()
-        # then
-        self.assertFalse(self.audit.is_active())
-
-    @patch("django.utils.timezone.now")
-    def test_is_active_all_fields_outside_active_period(self, mock_now):
-        mock_now.return_value = timezone.datetime(2023, 10, 1, tzinfo=timezone.utc)
-        time_ref = mock_now.return_value - timezone.timedelta(
-            days=LEDGER_CHAR_MAX_INACTIVE_DAYS
-        )
-
-        self.audit.last_update_wallet = time_ref - timezone.timedelta(days=1)
-        self.audit.last_update_mining = time_ref - timezone.timedelta(days=1)
-        self.audit.last_update_planetary = time_ref - timezone.timedelta(days=1)
-        self.audit.active = True
-        self.audit.save()
-
-        self.assertFalse(self.audit.is_active())
-        self.audit.refresh_from_db()
-        self.assertFalse(self.audit.active)
-
-    @patch("django.utils.timezone.now")
-    def test_is_active_one_field_inside_active_period(self, mock_now):
-        mock_now.return_value = timezone.datetime(2023, 10, 1, tzinfo=timezone.utc)
-        time_ref = mock_now.return_value - timezone.timedelta(
-            days=LEDGER_CHAR_MAX_INACTIVE_DAYS
-        )
-
-        self.audit.last_update_wallet = time_ref - timezone.timedelta(days=1)
-        self.audit.last_update_mining = mock_now.return_value
-        self.audit.last_update_planetary = mock_now.return_value
-        self.audit.active = True
-        self.audit.save()
-
+    def test_is_active_should_true(self):
+        self.audit.last_update_wallet = timezone.now()
+        self.audit.last_update_mining = timezone.now()
+        self.audit.last_update_planetary = timezone.now()
         self.assertTrue(self.audit.is_active())
-        self.audit.refresh_from_db()
-        self.assertTrue(self.audit.active)
 
-    def test_is_active_no_update_when_same(self):
-        # given/when
-        self.audit.active = False
-        self.audit.last_update_wallet = timezone.now() - timezone.timedelta(
-            days=LEDGER_CHAR_MAX_INACTIVE_DAYS + 1
-        )
-        self.audit.save()
-        self.audit.is_active()
-
-        self.audit.refresh_from_db()
-
-        # then
-        self.assertFalse(self.audit.active)
+    def test_is_active_should_false(self):
+        self.audit.last_update_wallet = timezone.now() - timezone.timedelta(days=4)
+        self.audit.last_update_mining = timezone.now() - timezone.timedelta(days=4)
+        self.audit.last_update_planetary = timezone.now() - timezone.timedelta(days=4)
+        self.assertFalse(self.audit.is_active())
 
     def test_is_active_exception(self):
-        with patch.object(
-            self.audit.__class__, "last_update_wallet", new_callable=PropertyMock
-        ) as mock_wallet:
-            with patch.object(
-                self.audit.__class__, "last_update_mining", new_callable=PropertyMock
-            ) as mock_mining:
-                # Make the mocks raise an exception when accessed
-                mock_wallet.side_effect = Exception
-                mock_mining.side_effect = Exception
+        self.audit.last_update_wallet = None
+        self.audit.last_update_mining = None
+        self.audit.last_update_planetary = None
+        self.assertFalse(self.audit.is_active())
 
-                self.assertFalse(self.audit.is_active())
+    @patch(MODULE_PATH + ".logger")
+    def test_is_active_should_deactive_character(self, mock_logger):
+        self.audit.active = True
+        self.audit.last_update_wallet = timezone.now()
+        self.audit.last_update_mining = timezone.now() - timezone.timedelta(days=4)
+        self.audit.last_update_planetary = timezone.now() - timezone.timedelta(days=4)
+        self.assertFalse(self.audit.is_active())
+        mock_logger.info.assert_called_once_with(
+            "Deactivating Character: %s", self.audit.character.character_name
+        )
 
     def test_get_esi_scopes(self):
         self.assertEqual(
@@ -119,50 +71,39 @@ class TestCharacterAuditModel(TestCase):
             ],
         )
 
+    def test_get_status_opacity_should_return_100(self):
+        self.audit.active = True
+        self.assertEqual(self.audit.get_status_opacity, "opacity-100")
 
-class TestCharacterWalletJournal(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        super().setUpClass()
-        load_allianceauth()
-        load_ledger_all()
-        cls.journal = CharacterWalletJournalEntry.objects.get(entry_id=1)
+    def test_get_status_opacity_should_return_25(self):
+        self.audit.active = False
+        self.assertEqual(self.audit.get_status_opacity, "opacity-25")
 
-    def test_str(self):
+    def test_get_status_icon_should_return_ok(self):
+        self.audit.last_update_mining = timezone.now()
+        self.audit.last_update_wallet = timezone.now()
+        self.audit.last_update_planetary = timezone.now()
+        self.audit.active = True
+
+        self.assertEqual(self.audit.get_status, self.audit.UpdateStatus("ok"))
         self.assertEqual(
-            str(self.journal),
-            "Character Wallet Journal: CONCORD 'bounty_prizes' Gneuten: 100000.00 isk",
+            self.audit.get_status.bootstrap_icon(),
+            self.audit.UpdateStatus("ok").bootstrap_icon(),
         )
 
-    def test_get_visible(self):
-        self.factory = RequestFactory()
-        self.user, self.character_ownership = create_user_from_evecharacter(
-            1001,
-            permissions=[
-                "ledger.char_audit_admin_manager",
-            ],
-        )
-        request = self.factory.get("/")
-        request.user = self.user
-
-        query = CharacterWalletJournalEntry.get_visible(request.user)
-
-        excepted_character = CharacterWalletJournalEntry.objects.all()
-
-        self.assertEqual(list(query), list(excepted_character))
-
-
-class TestCharacterMiningLedger(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        super().setUpClass()
-        load_allianceauth()
-        load_ledger_all()
-        cls.mining = CharacterMiningLedger.objects.get(
-            id="20240316-17425-1001-30004783"
-        )
-
-    def test_str(self):
+    def test_get_status_icon_should_return_disabled(self):
+        self.audit.active = False
         self.assertEqual(
-            str(self.mining), "Gneuten's Character Data 20240316-17425-1001-30004783"
+            self.audit.get_status,
+            self.audit.UpdateStatus("disabled"),
+        )
+
+    def test_get_status_icon_should_return_not_up_to_date(self):
+        self.audit.active = True
+        self.audit.last_update_mining = timezone.now() - timezone.timedelta(days=4)
+        self.audit.last_update_wallet = timezone.now()
+        self.audit.last_update_planetary = timezone.now()
+        self.assertEqual(
+            self.audit.get_status,
+            self.audit.UpdateStatus("not_up_to_date"),
         )

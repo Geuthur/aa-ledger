@@ -1,0 +1,57 @@
+
+{% load ledger %}
+{% load i18n %}
+
+{% ledger_static 'css/cards.css' %}
+
+<script type="application/javascript">
+    let ledgersettings = {
+        allianceDashboardUrl: "{% url 'ledger:api:get_alliance_dashboard' alliance_id=alliance_id %}",
+    };
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({
+            trigger: 'hover',
+        });
+    });
+</script>
+
+<script>
+    /* global ledgersettings, bootstrap */
+    $(document).ready(function() {
+        // Dashboard-Info
+        const manageDashboard = $('#dashboard-card');
+        const manageDashboardTable = $('#alliance-dashboard');
+        const manageDashboardButtons = $('#dashboard-buttons-alliance');
+        // Dashboard-Statistics
+        const manageDashboardStatistics = $('#dashboard-statistics-card');
+        const manageDashboardStatisticsTable = $('#alliance-dashboard-statistics');
+
+        $.ajax({
+            url: ledgersettings.allianceDashboardUrl,
+            type: 'GET',
+            success: function (data) {
+                // Dashboard-Info
+                $('#dashboard-info').html(data.dashboard);
+                // Dashboard-Statistics
+                $('#dashboard-info-statistics').html(data.statistics);
+                $('#auth-corporations').text(data.auth_corporations);
+                $('#active-corporations').text(data.active_corporations);
+                $('#missing-corporations').text(data.missing_corporations);
+
+                manageDashboard.removeClass('d-none');
+                //manageDashboardTable.removeClass('d-none');
+                manageDashboardButtons.removeClass('d-none');
+
+                manageDashboardStatistics.removeClass('d-none');
+                manageDashboardStatisticsTable.removeClass('d-none');
+
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching data:', error);
+            }
+        });
+    });
+</script>

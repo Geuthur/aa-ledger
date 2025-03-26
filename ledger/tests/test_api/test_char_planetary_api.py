@@ -9,9 +9,18 @@ from app_utils.testing import create_user_from_evecharacter
 
 from ledger.api.ledger.planetary import LedgerPlanetaryApiEndpoints
 from ledger.tests.test_api import _planetchardata
+from ledger.tests.testdata.generate_characteraudit import (
+    add_charactermaudit_character_to_user,
+    create_user_from_evecharacter_with_access,
+)
+from ledger.tests.testdata.generate_planets import (
+    _planetary_data,
+    create_character_planet,
+    create_character_planet_details,
+)
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_ledger import load_ledger_all
-from ledger.tests.testdata.load_planetary import load_planetary
+from ledger.tests.testdata.load_eveentity import load_eveentity
+from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
 
 
 class ManageApiJournalCharEndpointsTest(TestCase):
@@ -19,22 +28,32 @@ class ManageApiJournalCharEndpointsTest(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         load_allianceauth()
-        load_ledger_all()
-        load_planetary()
+        load_eveuniverse()
+        load_eveentity()
 
-        cls.user, _ = create_user_from_evecharacter(
-            1001,
-            permissions=[
-                "ledger.basic_access",
-            ],
+        cls.planet_params = {
+            "upgrade_level": 5,
+            "num_pins": 5,
+            "last_update": None,
+        }
+
+        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
+            1001
+        )
+        cls.user2, cls.character_ownership2 = create_user_from_evecharacter_with_access(
+            1002
         )
 
-        cls.user2, _ = create_user_from_evecharacter(
-            1002,
-            permissions=[
-                "ledger.basic_access",
-            ],
+        cls.audit = add_charactermaudit_character_to_user(cls.user, 1001)
+        cls.planetary = create_character_planet(cls.audit, 4001, **cls.planet_params)
+        cls.planetary2 = create_character_planet(cls.audit, 4002, **cls.planet_params)
+        cls.planetarydetails = create_character_planet_details(
+            cls.planetary, **_planetary_data
         )
+        cls.planetarydetails2 = create_character_planet_details(
+            cls.planetary2, **_planetary_data
+        )
+
         cls.api = NinjaAPI()
         cls.manage_api_endpoints = LedgerPlanetaryApiEndpoints(api=cls.api)
 
@@ -43,6 +62,7 @@ class ManageApiJournalCharEndpointsTest(TestCase):
         url = "/ledger/api/character/0/planetary/0/"
 
         response = self.client.get(url)
+
         expected_data = [
             {
                 "character_id": 1001,
@@ -173,9 +193,9 @@ class ManageApiJournalCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), "Permission Denied")
 
     @patch("ledger.api.ledger.admin.CharacterAudit.objects.visible_eve_characters")
-    def test_get_character_admin_planetary_no_visible(self, mock_visible_to):
+    def test_get_character_overview_planetary_no_visible(self, mock_visible_to):
         self.client.force_login(self.user2)
-        url = "/ledger/api/character/planetary/admin/"
+        url = "/ledger/api/planetary/overview/"
 
         mock_visible_to.return_value.values_list.return_value = []
 
@@ -184,9 +204,9 @@ class ManageApiJournalCharEndpointsTest(TestCase):
         # then
         self.assertContains(response, "Permission Denied", status_code=403)
 
-    def test_get_character_planetary_admin(self):
+    def test_get_character_planetary_overview(self):
         self.client.force_login(self.user2)
-        url = "/ledger/api/character/planetary/admin/"
+        url = "/ledger/api/planetary/overview/"
 
         # when
         response = self.client.get(url)
@@ -207,12 +227,12 @@ class ManageApiJournalCharEndpointsTest(TestCase):
         self.assertEqual(response.json(), excepted_data)
 
     @patch("ledger.api.ledger.admin.UserProfile.objects.filter")
-    def test_get_character_admin_planetary_attribute_error(
+    def test_get_character_overview_planetary_attribute_error(
         self, mock_user_profile_filter
     ):
         # given
         self.client.force_login(self.user)
-        url = "/ledger/api/character/planetary/admin/"
+        url = "/ledger/api/planetary/overview/"
 
         # Mock the UserProfile to return a character with missing attributes
         mock_user_profile_filter.return_value = [MagicMock(main_character="LUL")]

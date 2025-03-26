@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 
 from django.db import models
@@ -7,9 +8,7 @@ from django.utils import timezone
 
 from allianceauth.eveonline.models import EveCharacter
 
-from ledger.hooks import get_extension_logger
-
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class AuditCharacterQuerySet(models.QuerySet):
@@ -114,7 +113,7 @@ class CharacterMiningLedgerEntryQueryset(models.QuerySet):
             )
         )
 
-    def generate_template(
+    def aggregate_amounts_information_modal(
         self, amounts: defaultdict, chars_list: list, filter_date: timezone.datetime
     ) -> dict:
         """Generate data template for the ledger character information view."""

@@ -1,18 +1,18 @@
+import logging
 from datetime import datetime
 
 from django.db.models import Q
 
-from ledger.api.api_helper.billboard_helper import BillboardLedger
+from ledger.api.api_helper.billboard_helper import BillboardCharacterLedger
 from ledger.api.api_helper.core_manager import (
     LedgerCharacterDict,
     LedgerModels,
     LedgerTotal,
 )
 from ledger.api.helpers import get_alts_queryset
-from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import CharacterWalletJournalEntry
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class CharacterProcess:
@@ -169,37 +169,25 @@ class CharacterProcess:
         # Create the Dicts for each Character
         character_dict, character_totals = self.process_character_chars()
 
+        # Create Data for Billboard
+        models = LedgerModels(
+            character_journal=self.char_journal,
+            corporation_journal=self.corp_journal,
+            mining_journal=self.mining_journal.annotate_pricing(),
+        )
+
+        # Create the Billboard for the Characters
+        ledger = BillboardCharacterLedger(view=self.view, models=models)
+        billboard_dict = ledger.billboard_ledger(self.chars_list)
+
         output = []
         output.append(
             {
                 "ratting": sorted(
                     list(character_dict.values()), key=lambda x: x["main_name"]
                 ),
-                "total": character_totals,
-            }
-        )
-
-        return output
-
-    # pylint: disable=unused-argument
-    def generate_billboard(self, corporations=None):
-        mining_journal = self.mining_journal.annotate_pricing()
-
-        # Create Data for Billboard
-        models = LedgerModels(
-            character_journal=self.char_journal,
-            corporation_journal=self.corp_journal,
-            mining_journal=mining_journal,
-        )
-
-        # Create the Billboard for the Characters
-        ledger = BillboardLedger(view=self.view, models=models, corp=False)
-        billboard_dict = ledger.billboard_ledger(self.chars_list, self.chars_list)
-
-        output = []
-        output.append(
-            {
                 "billboard": billboard_dict,
+                "total": character_totals,
             }
         )
 

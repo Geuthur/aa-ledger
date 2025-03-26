@@ -10,12 +10,15 @@ MODULE_PATH = "ledger.models.general"
 
 
 class TestGeneralModel(TestCase):
-    def setUp(self):
-        self.eveentity = EveEntity()
-        self.eveentity.name = "Test"
-        self.eveentity.eve_id = 123
-        self.eveentity.category = "Test Category"
-        self.eveentity.last_update = timezone.now() - timedelta(days=8)
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.eveentity = EveEntity(
+            name="Test",
+            eve_id=123,
+            category="corporation",
+            last_update=timezone.now() - timedelta(days=8),
+        )
 
     def test_str(self):
         self.assertEqual(str(self.eveentity), "Test")
@@ -23,7 +26,7 @@ class TestGeneralModel(TestCase):
     def test_repr(self):
         self.assertEqual(
             repr(self.eveentity),
-            "EveEntity(id=123, category='Test Category', name='Test')",
+            "EveEntity(id=123, category='corporation', name='Test')",
         )
 
     def test_is_alliance(self):

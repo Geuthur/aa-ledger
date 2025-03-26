@@ -21,7 +21,7 @@ ______________________________________________________________________
     - [Step 3 - Add the Scheduled Tasks and Settings](#step3)
     - [Step 4 - Migration to AA](#step4)
     - [Step 5 - Setting up Permissions](#step5)
-    - [Step 6 - (Optional) Setting up Compatibilies](#step6)
+    - [Step 6 - (Optional) Settings](#step6)
   - [Highlights](#highlights)
 
 ## Features<a name="features"></a>
@@ -58,14 +58,14 @@ ______________________________________________________________________
 
 ## Upcoming<a name="upcoming"></a>
 
-- Bug Fixing, Performance Optimation
+- Corporation Administration
+- Status Update System for each Section
 - Costs for Corporation Ledger
-- Planetary Interaction more details
 
 ## Installation<a name="installation"></a>
 
 > [!NOTE]
-> AA Ledger needs at least Alliance Auth v4.0.0
+> AA Ledger needs at least Alliance Auth v4.6.0
 > Please make sure to update your Alliance Auth before you install this APP
 
 ### Step 0 - Check dependencies are installed<a name="step0"></a>
@@ -91,17 +91,30 @@ Configure your Alliance Auth settings (`local.py`) as follows:
 To set up the Scheduled Tasks add following code to your `local.py`
 
 ```python
-CELERYBEAT_SCHEDULE["ledger_character_audit_update_all"] = {
-    "task": "ledger.tasks.update_all_characters",
-    "schedule": crontab(minute=0, hour="*/1"),
+CELERYBEAT_SCHEDULE["ledger_character_audit_update_subset_characters"] = {
+    "task": "ledger.tasks.update_subset_characters",
+    "schedule": crontab(minute="15,45"),
 }
 CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
     "task": "ledger.tasks.update_all_corps",
-    "schedule": crontab(minute=0, hour="*/1"),
+    "schedule": crontab(minute="15,45"),
 }
 CELERYBEAT_SCHEDULE["ledger_check_planetary_alarms"] = {
     "task": "ledger.tasks.check_planetary_alarms",
     "schedule": crontab(minute=0, hour="*/3"),
+}
+
+LOGGING["handlers"]["ledger_file"] = {
+    "level": "INFO",
+    "class": "logging.handlers.RotatingFileHandler",
+    "filename": os.path.join(BASE_DIR, "log/ledger.log"),
+    "formatter": "verbose",
+    "maxBytes": 1024 * 1024 * 5,
+    "backupCount": 5,
+}
+LOGGING["loggers"]["ledger"] = {
+    "handlers": ["ledger_file"],
+    "level": "DEBUG",
 }
 ```
 
@@ -130,40 +143,14 @@ With the Following IDs you can set up the permissions for the Ledger
 | `char_audit_admin_manager` | Has Access to all Characters               | Can see all Chars.                                     |
 | `corp_audit_admin_manager` | Has Access to all Corporations             | Can see all Corps.                                     |
 
-### Step 6 - (Optional) Setting up Compatibilies<a name="step6"></a>
+### Step 6 - (Optional) Settings<a name="step6"></a>
 
 The Following Settings can be setting up in the `local.py`
 
 - LEDGER_APP_NAME: `"YOURNAME"` - Set the name of the APP
-
+- LEDGER_STALE_STATUS: `60` - Defines the time (in minutes) after which data is considered outdated and needs a update
+- LEDGER_TASKS_TIME_LIMIT: `7200` - Defines the time (in seconds) a task will timeout
 - LEDGER_CORP_TAX: `15` - Set Tax Value for ESS Payout Calculation
-
-- LEDGER_LOGGER_USE: `True / False` - Set to use own Logger File
-
-If you set up LEDGER_LOGGER_USE to `True` you need to add the following code below:
-
-```python
-LOGGING_LEDGER = {
-    "handlers": {
-        "ledger_file": {
-            "level": "INFO",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(BASE_DIR, "log/ledger.log"),
-            "formatter": "verbose",
-            "maxBytes": 1024 * 1024 * 5,
-            "backupCount": 5,
-        },
-    },
-    "loggers": {
-        "ledger": {
-            "handlers": ["ledger_file", "console"],
-            "level": "INFO",
-        },
-    },
-}
-LOGGING["handlers"].update(LOGGING_LEDGER["handlers"])
-LOGGING["loggers"].update(LOGGING_LEDGER["loggers"])
-```
 
 ## Highlights<a name="highlights"></a>
 

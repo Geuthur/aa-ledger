@@ -2,6 +2,7 @@
 Character Helpers
 """
 
+import logging
 from datetime import timedelta
 
 from django.utils import timezone
@@ -9,7 +10,6 @@ from eveuniverse.models import EveType
 
 from ledger.decorators import log_timing
 from ledger.errors import TokenError
-from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import (
     CharacterAudit,
     CharacterMiningLedger,
@@ -18,9 +18,13 @@ from ledger.models.characteraudit import (
 from ledger.models.general import EveEntity
 from ledger.providers import esi
 from ledger.task_helpers.core_helpers import get_token
-from ledger.task_helpers.etag_helpers import NotModifiedError, etag_results
+from ledger.task_helpers.etag_helpers import (
+    HTTPGatewayTimeoutError,
+    NotModifiedError,
+    etag_results,
+)
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # pylint: disable=too-many-locals
@@ -36,6 +40,11 @@ def update_character_wallet(character_id, force_refresh=False):
     token = get_token(character_id, req_scopes)
 
     if not token:
+        logger.info(
+            "No Wallet Token for %s",
+            audit_char.character.character_name,
+        )
+        audit_char.is_active()
         return "No Tokens"
 
     try:
@@ -100,14 +109,19 @@ def update_character_wallet(character_id, force_refresh=False):
             CharacterWalletJournalEntry.objects.bulk_create(items)
         else:
             raise TokenError("ESI Fail")
+
+        logger.debug(
+            "Finished wallet transactions for: %s", audit_char.character.character_name
+        )
     except NotModifiedError:
         logger.debug("No New wallet data for: %s", audit_char.character.character_name)
+    except HTTPGatewayTimeoutError:
+        logger.debug("Gateway Timeout for: %s", audit_char.character.character_name)
 
     audit_char.last_update_wallet = timezone.now()
     audit_char.save()
     audit_char.is_active()
-
-    return ("Finished wallet transactions for: %s", audit_char.character.character_name)
+    return "Success"
 
 
 @log_timing(logger)
@@ -120,6 +134,11 @@ def update_character_mining(character_id, force_refresh=False):
     token = get_token(character_id, req_scopes)
 
     if not token:
+        logger.info(
+            "No Mining Token for %s, Deactivate Character",
+            audit_char.character.character_name,
+        )
+        audit_char.is_active()
         return "No Tokens"
     try:
         mining_op = esi.client.Industry.get_characters_character_id_mining(
@@ -160,12 +179,14 @@ def update_character_mining(character_id, force_refresh=False):
 
         if old_events:
             CharacterMiningLedger.objects.bulk_update(old_events, fields=["quantity"])
-
+        logger.debug("Finished Mining for: %s", audit_char.character.character_name)
     except NotModifiedError:
         logger.debug("No New Mining for: %s", audit_char.character.character_name)
+    except HTTPGatewayTimeoutError:
+        logger.debug("Gateway Timeout for: %s", audit_char.character.character_name)
+        return "Gateway Timeout"
 
     audit_char.last_update_mining = timezone.now()
     audit_char.save()
     audit_char.is_active()
-
-    return f"Finished Mining for: {audit_char.character.character_name}"
+    return "Success"

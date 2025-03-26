@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from ninja import NinjaAPI
@@ -8,199 +9,260 @@ from django.utils import timezone
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger.api import schema
-from ledger.api.api_helper.template_helper import TemplateData, TemplateProcess
+from ledger.api.api_helper.information_helper import (
+    InformationData,
+    InformationProcessAlliance,
+    InformationProcessCharacter,
+    InformationProcessCorporation,
+)
 from ledger.api.helpers import (
-    get_alliance,
+    get_all_corporations_from_alliance,
     get_alts_queryset,
     get_character,
-    get_corp_alts_queryset,
     get_corporation,
     get_journal_entitys,
-    get_main_and_alts_ids_corporations,
 )
-from ledger.hooks import get_extension_logger
-from ledger.models import CorporationAudit
 from ledger.models.general import EveEntity
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
+
+entity_context = {
+    "error_title": "403 Error",
+    "error_message": "Entity not found.",
+}
 
 
-def ledger_api_process(request, entity_type: str, entity_id: int):
-    perm = None
-    if entity_type == "corporation":
-        perm, entitys = get_corporation(request, entity_id)
+def error_context(title, msg):
+    return {
+        "error_title": title,
+        "error_message": msg,
+    }
 
-    if entity_type == "alliance":
-        perm, entitys = get_alliance(request, entity_id)
-        # Get all corporations in the alliance
-        entitys = CorporationAudit.objects.filter(
-            corporation__alliance__alliance_id__in=entitys
-        ).values_list("corporation__corporation_id", flat=True)
 
-    return perm, entitys
+def _character_information(
+    request,
+    entity_id: int,
+    date_obj: datetime,
+    view: str,
+    current_date: timezone.datetime,
+):
+    character_id = request.GET.get("character_id", None)
+
+    if character_id is None:
+        perms, character = get_character(request, entity_id)
+    else:
+        perms, character = get_character(request, character_id)
+
+    if perms is False:
+        return render(
+            request,
+            "ledger/modals/information/error.html",
+            error_context(
+                "Permission Denied", "You don't have permission to view this character"
+            ),
+            status=403,
+        )
+
+    if character_id is None:
+        linked_characters = (
+            character.character_ownership.user.character_ownerships.select_related(
+                "character"
+            ).all()
+        )
+
+        chars_list = linked_characters.values_list("character__character_id", flat=True)
+        linked_char = EveCharacter.objects.filter(
+            character_id__in=chars_list,
+        )
+        character = EveCharacter.objects.get(character_id=entity_id)
+    else:
+        linked_char = EveCharacter.objects.filter(
+            character_id__in=[character_id],
+        )
+
+    # Create the Ledger
+    ledger_data = InformationData(
+        request=request,
+        character=character,
+        date=date_obj,
+        view=view,
+        current_date=current_date,
+    )
+
+    ledger = InformationProcessCharacter(
+        characters=linked_char,
+        data=ledger_data,
+    )
+    context = {
+        "character": ledger.character_information_dict(),
+        "mode": "CHARACTER",
+    }
+    return render(
+        request,
+        "ledger/modals/information/view_character_content.html",
+        context,
+    )
+
+
+def _corporation_information(
+    request,
+    entity_id: int,
+    date_obj: datetime,
+    view: str,
+    current_date: timezone.datetime,
+):
+    main_character_id = request.GET.get("main_character_id", None)
+
+    perm, corporation = get_corporation(request, entity_id)
+
+    if perm is False:
+        return render(
+            request,
+            "ledger/modals/information/error.html",
+            error_context("403 Error", "Permission denied to view this character"),
+            status=403,
+        )
+    if perm is None:
+        return render(
+            request,
+            "ledger/modals/information/error.html",
+            error_context("404 Error", "Corporation not found"),
+            status=403,
+        )
+
+    if main_character_id is None:
+        chars_list = get_journal_entitys(
+            date=date_obj, view=view, corporations=[entity_id]
+        )
+        linked_char = EveEntity.objects.filter(
+            eve_id__in=chars_list,
+        )
+        main_character = None
+    else:
+        main_character = get_character(request, main_character_id)[1]
+        if main_character is None:
+            return render(
+                request,
+                "ledger/modals/information/error.html",
+                error_context("Entity not Found", "This Entity does not exist."),
+                status=403,
+            )
+
+        linked_char = get_alts_queryset(main_character)
+        linked_char = EveEntity.objects.filter(
+            eve_id__in=linked_char.values_list("character_id", flat=True),
+        )
+        corporation = None
+
+    # Create the Ledger
+    ledger_data = InformationData(
+        request=request,
+        character=main_character,
+        corporation=corporation,
+        date=date_obj,
+        view=view,
+        current_date=current_date,
+    )
+
+    character_ids = linked_char.values_list("eve_id", flat=True)
+
+    ledger = InformationProcessCorporation(
+        corporation_id=entity_id, character_ids=character_ids, data=ledger_data
+    )
+    context = {
+        "character": ledger.corporation_information_dict(),
+        "mode": "TAX",
+    }
+    return render(
+        request,
+        "ledger/modals/information/view_character_content.html",
+        context,
+    )
+
+
+def _alliance_information(
+    request,
+    entity_id: int,
+    date_obj: datetime,
+    view: str,
+    current_date: timezone.datetime,
+):
+    corporation_id = request.GET.get("corporation_id", None)
+    main_corp = None
+
+    if corporation_id is None:
+        perms, corporations = get_all_corporations_from_alliance(request, entity_id)
+        corporations = corporations.values_list(
+            "corporation__corporation_id", flat=True
+        )
+    else:
+        perms, main_corp = get_corporation(request, corporation_id)
+        corporations = [corporation_id]
+
+    if perms is False:
+        return render(
+            request,
+            "ledger/modals/information/error.html",
+            error_context(
+                "Permission Denied", "You don't have permission to view this character"
+            ),
+            status=404,
+        )
+
+    # Create the Ledger
+    ledger_data = InformationData(
+        request=request,
+        corporation=main_corp,
+        date=date_obj,
+        view=view,
+        current_date=current_date,
+    )
+    ledger = InformationProcessAlliance(corporations=corporations, data=ledger_data)
+    context = {
+        "character": ledger.alliance_information_dict(),
+        "mode": "TAX",
+    }
+    return render(
+        request,
+        "ledger/modals/information/view_character_content.html",
+        context,
+    )
 
 
 class LedgerTemplateApiEndpoints:
     tags = ["LedgerInformationDetails"]
 
     def __init__(self, api: NinjaAPI):
-
         @api.get(
-            "character/{character_id}/template/date/{date}/view/{view}/",
-            response={200: list[schema.CharacterLedgerTemplate], 403: str},
-            tags=self.tags,
-        )
-        def get_ledger_char_details_information(
-            request, character_id: int, date: str, view: str
-        ):
-            try:
-                date_obj = datetime.strptime(date, "%Y-%m-%d").date()
-            except ValueError:
-                return 403, "Invalid Date format. Use YYYY-MM-DD"
-
-            request_main = request.GET.get("main", False)
-            perms, main = get_character(request, character_id)
-            entitys = get_main_and_alts_ids_corporations(request)
-
-            if not perms:
-                context = {
-                    "error_title": "Permission Denied",
-                    "error_message": "You don't have permission to view this character's ledger.",
-                }
-                return render(
-                    request, "ledger/modals/information/error.html", context, status=403
-                )
-
-            alts = get_alts_queryset(main)
-            chars_list = [char.character_id for char in alts]
-
-            overall_mode = character_id == 0 or request_main
-            current_date = timezone.now()
-
-            try:
-                if overall_mode:
-                    linked_char = EveCharacter.objects.filter(
-                        character_id__in=chars_list,
-                    )
-                else:
-                    linked_char = [
-                        EveCharacter.objects.get(
-                            character_id=character_id,
-                        )
-                    ]
-
-            except EveCharacter.DoesNotExist:
-                context = {
-                    "error_title": "403 Error",
-                    "error_message": "Character not found.",
-                }
-                return render(
-                    request, "ledger/modals/information/error.html", context, status=403
-                )
-
-            # Create the Ledger
-            ledger_data = TemplateData(
-                request=request,
-                main=main,
-                date=date_obj,
-                view=view,
-                corporations_ids=entitys,
-                current_date=current_date,
-            )
-            ledger = TemplateProcess(linked_char, ledger_data, overall_mode)
-            context = {
-                "character": ledger.character_template(),
-                "mode": "Ratting",
-            }
-
-            return render(
-                request,
-                "ledger/modals/information/view_character_content.html",
-                context,
-            )
-
-        @api.get(
-            "{entity_type}/{entity_id}/{main_id}/template/date/{date}/view/{view}/",
+            "{entity_type}/{entity_id}/template/date/{date}/view/{view}/",
             response={200: list[schema.CharacterLedgerTemplate], 403: str},
             tags=self.tags,
         )
         # pylint: disable=too-many-positional-arguments, too-many-locals
-        def get_ledger_corp_ally_details_information(
+        def get_information_modal(
             request,
             entity_type: str,
             entity_id: int,
-            main_id: int,
             date: str,
             view: str,
-            corp: bool = False,
         ):
             try:
                 date_obj = datetime.strptime(date, "%Y-%m-%d").date()
             except ValueError:
                 return 403, "Invalid Date format. Use YYYY-MM-DD"
 
-            perm, entitys = ledger_api_process(request, entity_type, entity_id)
-            corp_view = False
-
-            if not perm:
-                context = {
-                    "error_title": "Permission Denied",
-                    "error_message": "You don't have permission to view this corporation's ledger.",
-                }
-                return render(
-                    request, "ledger/modals/information/error.html", context, status=403
-                )
-
             current_date = timezone.now()
 
-            if entity_id == main_id:
-                corp_view = True
-
-            _, char = get_character(request, main_id, corp=corp_view)
-
-            if char is None:
-                context = {
-                    "error_title": "403 Error",
-                    "error_message": "Entity not found.",
-                }
-                return render(
-                    request, "ledger/modals/information/error.html", context, status=403
+            if entity_type == "character":
+                return _character_information(
+                    request, entity_id, date_obj, view, current_date
                 )
-
-            overall_mode = main_id == 0
-
-            if overall_mode:
-                chars_list = get_journal_entitys(
-                    date=date_obj, view=view, corporations=entitys
+            if entity_type == "corporation":
+                return _corporation_information(
+                    request, entity_id, date_obj, view, current_date
                 )
-                linked_char = EveEntity.objects.filter(
-                    eve_id__in=chars_list,
+            if entity_type == "alliance":
+                return _alliance_information(
+                    request, entity_id, date_obj, view, current_date
                 )
-            elif corp:
-                linked_char = EveEntity.objects.filter(
-                    eve_id__in=[main_id],
-                )
-                overall_mode = True
-            else:
-                linked_char = get_corp_alts_queryset(char, corporations=None)
-
-            # Create the Ledger
-            ledger_data = TemplateData(
-                request=request,
-                main=char,
-                date=date_obj,
-                view=view,
-                corporations_ids=entitys,
-                current_date=current_date,
-            )
-            ledger = TemplateProcess(linked_char, ledger_data, overall_mode)
-            context = {
-                "character": ledger.corporation_template(),
-                "mode": "TAX",
-            }
-
-            return render(
-                request,
-                "ledger/modals/information/view_character_content.html",
-                context,
-            )
+            return None

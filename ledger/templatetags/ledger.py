@@ -1,3 +1,4 @@
+import logging
 import os
 
 from django.conf import settings
@@ -6,15 +7,9 @@ from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 
 from ledger import __title__, __version__
-from ledger.hooks import get_extension_logger
 from ledger.view_helpers.static_files import calculate_integrity_hash
 
-logger = get_extension_logger(__name__)
-
-
-@register.filter(name="ledger_init")
-def ledger_init():
-    return None
+logger = logging.getLogger(__name__)
 
 
 @register.simple_tag

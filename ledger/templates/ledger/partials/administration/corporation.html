@@ -1,0 +1,26 @@
+{% load i18n %}
+
+{% if characters|length == 0 %}
+    <div class="alert alert-info" role="alert">
+        {% translate "No Characters found." %}
+    </div>
+{% else %}
+    <div class="card-characters-container">
+        <ul>
+            <table class="table table-dark table-striped table-hover w-100" id="corporation-table">
+                <thead>
+                    <th>Portrait</th>
+                    <th>Character Name</th>
+                </thead>
+                <tbody>
+                    {% for character in characters %}
+                        <tr>
+                            <td><img src="{{ character.character.portrait_url_256 }}"></td>
+                            <td>{{ character.character.character_name }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </ul>
+    </div>
+{% endif %}

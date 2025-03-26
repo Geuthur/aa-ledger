@@ -50,22 +50,6 @@ function initCharts(data) {
     const gaugeChart = load_or_create_Chart(rootGaugeId, billboard.workflowgauge, 'gauge');
 }
 
-function setBillboardData(url, id) {
-    $.ajax({
-        url: url,
-        type: 'GET',
-        success: function(data) {
-            if (id === 'Month') {
-                var BillboardMonth = data[0].billboard.standard;
-                initCharts(data[0].billboard.standard, 'Month');
-            } else {
-                var BillboardYear = data[0].billboard.standard;
-                initCharts(data[0].billboard.standard, 'Year');
-            }
-        }
-    });
-}
-
 function createChordChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {
         console.log('Data is not in the expected format:', data);

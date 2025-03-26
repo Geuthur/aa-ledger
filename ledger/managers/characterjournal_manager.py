@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 
 from django.db import models
@@ -7,10 +8,10 @@ from django.utils import timezone
 
 from allianceauth.eveonline.models import EveCharacter
 
-from ledger.hooks import get_extension_logger
+from ledger.managers.manager_helper import _annotations_information
 from ledger.view_helpers.core import events_filter
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 # PvE - Income
 BOUNTY_PRIZES = ["bounty_prizes"]
 ESS_TRANSFER = ["ess_escrow_transfer"]
@@ -451,7 +452,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
 
         return char_qs, mining_qs, corp_qs
 
-    def generate_template(
+    def aggregate_amounts_information_modal(
         self,
         amounts: defaultdict,
         character_ids: list,
@@ -509,58 +510,9 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             .annotate_planetary_cost()
         )
 
-        annotations = {}
-        for type_name in type_names:
-            annotations[f"{type_name}_total_amount"] = Coalesce(
-                Sum(
-                    Case(
-                        When(
-                            **{
-                                f"{type_name}__isnull": False,
-                                "date__year": filter_date.year,
-                            },
-                            then=F(type_name),
-                        )
-                    )
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            )
-            annotations[f"{type_name}_total_amount_day"] = Coalesce(
-                Sum(
-                    Case(
-                        When(
-                            **{
-                                f"{type_name}__isnull": False,
-                                "date__year": filter_date.year,
-                                "date__month": filter_date.month,
-                                "date__day": filter_date.day,
-                            },
-                            then=F(type_name),
-                        )
-                    )
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            )
-            annotations[f"{type_name}_total_amount_hour"] = Coalesce(
-                Sum(
-                    Case(
-                        When(
-                            **{
-                                f"{type_name}__isnull": False,
-                                "date__year": filter_date.year,
-                                "date__month": filter_date.month,
-                                "date__day": filter_date.day,
-                                "date__hour": filter_date.hour,
-                            },
-                            then=F(type_name),
-                        )
-                    )
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            )
+        annotations = _annotations_information(
+            filter_date=filter_date, type_names=type_names
+        )
 
         qs = qs.aggregate(**annotations)
 

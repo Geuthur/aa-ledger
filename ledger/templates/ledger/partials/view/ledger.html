@@ -1,0 +1,46 @@
+{% load i18n %}
+{% load humanize %}
+{% load static %}
+
+<div role="tabpanel" class="tab-pane active fade show" id="tab-current_month">
+    <div class="card-body bg-secondary table-responsive">
+        <div id="loadingIndicator" class="d-flex justify-content-center align-items-center">
+            <img src="{% static 'ledger/images/Spinner-1s-64px-dark.gif' %}">
+        </div>
+        <div id="errorHandler" class="d-flex d-none justify-content-center align-items-center">
+            {% include 'ledger/permission.html' %}
+        </div>
+            {% include 'ledger/partials/table/ledger.html' with entity_type=entity_type %}
+            {% include 'ledger/partials/view/card.html' with entity_type=entity_type %}
+    </div>
+    <br>
+    <div class="rounded-top">
+        <div class="row g-0">
+            <div class="col-md-12 g-2 d-none" id="rattingBarContainer">
+                <div class="card-header bg-primary d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0" id="barTitle">Ledger {% trans "Diagram" %}</h3>
+                </div>
+                <div class="card-body bg-secondary">
+                    <div id="rattingBar" class="w-100" style="height: 300px;"></div>
+                </div>
+            </div>
+            <div class="col-md-6 g-2 d-none" id="ChartContainer">
+                <div class="card-header bg-primary">
+                    <h3 class="card-title">{% trans "Wallet" %}</h3>
+                </div>
+                <div class="card-body bg-secondary">
+                    <div id="rattingChart" class="w-100" style="height: {% if entity_type == 'character' %}300px{% else %} 500px {% endif %};"></div>
+                </div>
+            </div>
+            <div class="col-md-6 g-2 d-none" id="workGaugeContainer">
+                <div class="card-header bg-primary">
+                    <h3 class="card-title">{% trans "Workflow" %}</h3>
+                </div>
+                <div class="card-body bg-secondary">
+                    <div id="rattingworkGauge" class="w-100" style="height: 300px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

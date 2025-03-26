@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.7.x] - IN DEVELOPMENT
+
+## [0.7.4] - 2025-03-26
+
+### Added
+
+- Application Tests
+- Task Subset for Character Updates
+- Character Administration
+- Corporation Administration
+- Alliance Administration
+
+### Changed
+
+- AA min. requirements from 4.0.0 to 4.6.0
+- Refactor Corpjournal Manager
+- Refactor Template System
+- Refactor Django Templates
+- Refactor Tests
+- Alliance Ledger show Corporations instead of Characters
+- Renamed template to information
+- Logger System
+- ETAG System use log timing instead of own timing log
+- cards css
+- renamed `custom.css` to `ledger.css`
+
+### Removed
+
+- Unnecessary Code
+- Multicorp view
+
 ## [0.7.3] - 2025-02-27
 
 ### Added

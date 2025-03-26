@@ -2,18 +2,23 @@
 Planetary Helpers
 """
 
+import logging
+
 from django.utils import timezone
 from eveuniverse.models import EvePlanet
 
 from ledger.decorators import log_timing
-from ledger.hooks import get_extension_logger
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 from ledger.providers import esi
 from ledger.task_helpers.core_helpers import get_token
-from ledger.task_helpers.etag_helpers import NotModifiedError, etag_results
+from ledger.task_helpers.etag_helpers import (
+    HTTPGatewayTimeoutError,
+    NotModifiedError,
+    etag_results,
+)
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def convert_datetime_to_str(data):
@@ -38,6 +43,11 @@ def update_character_planetary(character_id, force_refresh=False):
     token = get_token(character_id, CharacterPlanet.get_esi_scopes())
 
     if not token:
+        logger.info(
+            "No Planet Token for %s, Deactivate Character",
+            audit_char.character.character_name,
+        )
+        audit_char.is_active()
         return "No Tokens"
 
     try:
@@ -103,20 +113,25 @@ def update_character_planetary(character_id, force_refresh=False):
             planet__character=audit_char, planet__planet_id__in=obsolete_planets
         ).delete()
 
+        for planet in CharacterPlanet.objects.filter(character=audit_char):
+            update_char_planets_details.apply_async(
+                args=[character_id, planet.planet_id],
+                kwargs={"force_refresh": False},
+                priority=8,
+            )
+
+        logger.debug(
+            "Finished planets update for: %s", audit_char.character.character_name
+        )
     except NotModifiedError:
         logger.debug("No New Planet data for: %s", audit_char.character.character_name)
-
-    for planet in CharacterPlanet.objects.filter(character=audit_char):
-        update_char_planets_details.apply_async(
-            args=[character_id, planet.planet_id],
-            kwargs={"force_refresh": False},
-            priority=8,
-        )
+    except HTTPGatewayTimeoutError:
+        logger.debug("Gateway Timeout for: %s", audit_char.character.character_name)
+        return "Gateway Timeout"
 
     audit_char.last_update_planetary = timezone.now()
     audit_char.save()
     audit_char.is_active()
-
     return ("Finished planets update for: %s", audit_char.character.character_name)
 
 
@@ -177,7 +192,14 @@ def update_character_planetary_details(character_id, planet_id, force_refresh=Fa
                 planet.notification_sent = False
 
             planet.save()
-
+        logger.debug(
+            "Finished planets details update for: %s",
+            planet_char.character.character.character_name,
+        )
+        return (
+            "Finished planets details update for: %s",
+            planet_char.character.character.character_name,
+        )
     except NotModifiedError:
         logger.debug(
             "No New Planet Details data for: %s",
@@ -187,8 +209,11 @@ def update_character_planetary_details(character_id, planet_id, force_refresh=Fa
             "No New Planet Details data for: %s",
             planet_char.character.character.character_name,
         )
-
-    return (
-        "Finished planets details update for: %s",
-        planet_char.character.character.character_name,
-    )
+    except HTTPGatewayTimeoutError:
+        logger.debug(
+            "Gateway Timeout for: %s", planet_char.character.character.character_name
+        )
+        return (
+            "Gateway Timeout for: %s",
+            planet_char.character.character.character_name,
+        )

@@ -1,13 +1,13 @@
+import logging
 from typing import Any
 
 from django.db import models
 
 from allianceauth.eveonline.providers import ObjectNotFound
 
-from ledger.hooks import get_extension_logger
 from ledger.providers import esi
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class EveEntityManager(models.Manager):

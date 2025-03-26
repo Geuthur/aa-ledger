@@ -4,14 +4,32 @@
 {% load static %}
 {% load ledger %}
 
-{% block page_title %}Planetary Details{% endblock %}
-{% block page_topic %}<h1 class="page-header text-center">{% translate "Planetary Details" %}</h1>{% endblock page_topic %}
+{% block page_title %}
+    {{ title }} ⋗ {% translate "Ledger" %}
+{% endblock %}
 
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block header_nav_collapse_left %}
+
+{% include 'ledger/partials/menu/char/navigation.html' %}
+
+{% endblock header_nav_collapse_left %}
+
+{% block header_nav_collapse_right %}
+
+{% include 'ledger/partials/menu/char/administration.html' %}
+
+{% endblock header_nav_collapse_right %}
 {% block vow_block %}
 <div class="card-body bg-primary rounded-top d-flex">
     <h3>{% translate "Planetary Details" %} </h3>
     <div class="ms-auto">
-        <a class="nav-link py-0" href="{% url 'ledger:planetary_admin' %}">
+        <a class="nav-link py-0" href="{% url 'ledger:planetary_overview' %}">
             <span class="btn btn-secondary">{% translate 'Planetary Overview' %}</span>
         </a>
     </div>
@@ -27,7 +45,7 @@
     <br><br>
 
     <div class="tab-content">
-        {% include 'ledger/planetary/partials/table.html' %}
+        {% include 'ledger/partials/table/planetary.html' %}
     </div>
 </div>
 
@@ -36,6 +54,8 @@
 {% block extra_javascript %}
 {% include 'ledger/bundles/table-css.html' %}
 {% ledger_static 'css/planetary.css' %}
+
+{% include 'ledger/partials/modal/switchalarm_confirm.html' %}
 
 {% include 'ledger/modals/modal_dialog.html' with name="ViewFactory" %}
 {% include 'ledger/modals/modal_dialog.html' with name="ViewExtractor" %}
@@ -73,31 +93,7 @@
     setupModal('#modalViewExtractorContainer', 'ajax_extractor', '#modalViewExtractorContent', '#modalViewExtractorLoader');
 </script>
 
-<script type="application/javascript">
-    // Extract the 'main' parameter from the current URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const mainParam = urlParams.get('main');
-
-    // Construct the planetaryUrl with the 'main' parameter
-    let planetaryUrl = '/ledger/api/character/{{ character_pk }}/planetary/0/details/';
-    if (mainParam) {
-        planetaryUrl += '?main=' + mainParam;
-    }
-
-	let planetarySettings = {
-        planetaryUrl: planetaryUrl,
-		switchAlarmUrl: '{% url "ledger:switch_alarm" character_id=1337 planet_id=1337 %}',
-		csrfToken: '{% csrf_token %}',
-		switchAlarmText: '{% translate "Are you sure to Switch Notification" %}',
-        switchAlarm: '{% translate "Switch Notification" %}',
-        switchAlarmAll: '{% translate "Switch All Notifications" %}',
-        alarmActivated: '{% translate "Notification Activated" %}',
-        alarmDeactivated: '{% translate "Notification Deactivated" %}',
-        characterPk: '{{ character_pk }}',
-        updateInterval: '{{ update_interval }}',
-	};
-</script>
-{% include 'ledger/planetary/partials/planetary-js.html' %}
+{% include 'ledger/bundles/planetary-js.html' %}
 {% include 'bundles/datatables-js-bs5.html' %}
 {% endblock %}
 {% block extra_css %}

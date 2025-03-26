@@ -1,0 +1,103 @@
+{% extends 'ledger/base.html' %}
+{% load i18n %}
+{% load humanize %}
+
+{% block page_title %}
+    {{ title }} ⋗ {% translate "Ledger" %}
+{% endblock %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block header_nav_collapse_left %}
+
+{% include 'ledger/partials/menu/events/navigation.html' %}
+
+{% endblock header_nav_collapse_left %}
+
+{% block header_nav_collapse_right %}
+
+{% include 'ledger/partials/menu/events/administration.html' %}
+
+{% endblock header_nav_collapse_right %}
+
+{% block vow_block %}
+    <div class="card-body card-primary">
+        <div class="card-body bg-primary rounded-top"><h3>{% trans "Corp Events" %}</h3></div>
+        <div class="card-body bg-secondary table-responsive">
+            <table id="eventsTable" class="ttable table-dark table-striped table-hover w-100">
+                <thead>
+                    <tr>
+                        <th>{% trans "Title" %}</th>
+                        <th>{% trans "Start Date" %}</th>
+                        <th>{% trans "End Date" %}</th>
+                        <th>{% trans "Description" %}</th>
+                        <th>{% trans "Char Ledger" %}</th>
+                        <th>{% trans "Location" %}</th>
+                    </tr>
+                </thead>
+                <tbody id="events">
+                    <tr>
+                        <td colspan="7"><h3>{% trans "Loading..." %}</h3></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_javascript %}
+{% include 'bundles/datatables-js-bs5.html' %}
+<script>
+$(document).ready(function() {
+    loadEvents();
+});
+
+function loadEvents() {
+    $.ajax({
+        url: '{% url "ledger:load_events" %}',
+        type: 'GET',
+        success: function(data) {
+            var tableBody = $('#events');
+            tableBody.empty();
+
+            // Fügen Sie für jedes empfangene Event eine Zeile hinzu
+            $.each(data, function(index, event) {
+                var row = $('<tr>');
+                row.append($('<td>').text(event.title));
+                row.append($('<td>').text(event.date_start));
+                row.append($('<td>').text(event.date_end));
+                row.append($('<td>').text(event.description));
+                row.append($('<td>').text(event.char_ledger));
+                row.append($('<td>').text(event.location));
+
+                // Färben Sie die Zeile basierend auf dem Wert von 'upcoming'
+                if (event.upcoming) {
+                    row.addClass('upcoming-event');
+                } else {
+                    row.addClass('past-event');
+                }
+
+                tableBody.append(row);
+            });
+            // Anwenden der DataTables-Funktionalität auf die Tabelle
+            $('#eventsTable').DataTable({
+                "order": [[ 1, "desc" ]]
+            });
+        }
+    });
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.past-event {
+    text-decoration: line-through;
+}
+</style>
+    {% include "ledger/bundles/ledger-css.html" %}
+{% endblock %}

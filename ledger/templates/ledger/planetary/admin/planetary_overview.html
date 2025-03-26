@@ -1,0 +1,128 @@
+{% extends 'ledger/base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load static %}
+
+{% block page_title %}
+    {{ title }} ⋗ {% translate "Ledger" %}
+{% endblock %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block header_nav_collapse_left %}
+
+{% include 'ledger/partials/menu/char/navigation.html' %}
+
+{% endblock header_nav_collapse_left %}
+
+{% block header_nav_collapse_right %}
+
+{% include 'ledger/partials/menu/char/administration.html' %}
+
+{% endblock header_nav_collapse_right %}
+
+{% block vow_block %}
+
+<div class="bg-primary rounded-top px-2 py-2 mb-4">
+    <h3 class="text-white">{% translate "Planetary Overview" %}</h3>
+</div>
+<div class="card-body">
+    <div class="row">
+        <table class="table table-striped table-hover" id="members" style="width: 100%;">
+            <br>
+            <thead>
+                <th class="col-portrait" style="width: 10%;"></th>
+                <th class="col-user" style="width: 20%;">Character</th>
+                <th class="col-group" style="width: 20%;">Corporation</th>
+                <th class="col-actions" style="width: 10%;">{% trans "Actions" %}</th>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_javascript %}
+{% include 'bundles/datatables-js-bs5.html' %}
+<script type="application/javascript">
+
+const AdminUrl = "{% url 'ledger:api:get_planetary_overview' %}"
+PlanetaryAjax = {
+    url: AdminUrl,
+    type: 'GET',
+    success: function(response) {
+
+        // Data Structure
+        var data = Object.values(response[0].character).map(function(item) {
+            return {
+                character_id: item.character_id,
+                character_name: item.character_name,
+                corporation_name: item.corporation_name
+            };
+        });
+
+        // Initialisierung der DataTable
+        var Chars = $('#members').DataTable({
+            data: data,
+            columns: [
+                {data: 'character_id', title: ''},
+                {data: 'character_name', title: 'Character'},
+                {data: 'corporation_name', title: 'Corporation'},
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    render: function (data, type, row) {
+                        return '<img src="https://images.evetech.net/characters/' + row.character_id + '/portrait?size=32" class="rounded-circle" title="' + row.character_name + '" height="30" data-tooltip-toggle="char-tooltip" data-bs-placement="top">';
+                    },
+                    sortable: false,
+                },
+                {
+                    targets: 3,
+                    className: 'text-end',
+                    sortable: false,
+                    render: function (data, type, row) {
+                        return '<a href="/ledger/planetary_ledger/'+ row.character_id +'/"><button class="btn btn-primary btn-sm" title="{% trans "Show" %}" data-tooltip-toggle="char-tooltip" data-bs-placement="left"><i class="fa-solid fa-eye"></i></button></a>';
+                    },
+                }
+            ],
+            order: [[1, 'asc']],
+            initComplete: function() {
+                $('[data-tooltip-toggle="char-tooltip"]').tooltip({
+                    trigger: 'hover',
+                });
+            },
+            drawCallback: function() {
+                $('[data-tooltip-toggle="char-tooltip"]').tooltip({
+                    trigger: 'hover',
+                });
+            }
+        });
+    },
+    error: function(response) {
+    // Annahme: Ihr DataTable hat 3 Spalten
+    var errorRow = '<tr><td colspan="4" class="text-center">{% trans 'No Permission' %}</td></tr>';
+
+    // Fügt die Fehlerzeile in die Tabelle ein. Stellen Sie sicher, dass die ID oder Klasse Ihrer Tabelle korrekt ist.
+    $('#members tbody').html(errorRow);
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    // DataTable mit AJAX-Daten initialisieren
+    $.ajax(PlanetaryAjax);
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block extra_script %}
+{% endblock %}

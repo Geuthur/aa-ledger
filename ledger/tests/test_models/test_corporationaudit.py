@@ -1,59 +1,68 @@
-from django.test import RequestFactory, TestCase
+from django.contrib.auth.models import Permission
+from django.test import TestCase
 
-from allianceauth.eveonline.models import EveCorporationInfo
-from app_utils.testing import create_user_from_evecharacter
+from allianceauth.tests.auth_utils import AuthUtils
 
-from ledger.models.corporationaudit import (
-    CorporationAudit,
-    CorporationWalletJournalEntry,
+from ledger.models.corporationaudit import CorporationAudit
+from ledger.tests.testdata.generate_corporationaudit import (
+    add_corporationaudit_corporation_to_user,
+    create_user_from_evecharacter,
 )
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_ledger import load_ledger_all
 
-MODULE_PATH = "ledger.models.general"
+MODULE_PATH = "ledger.models.corporationaudit"
 
 
 class TestCorporationAuditModel(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
         load_allianceauth()
-        self.audit = CorporationAudit(
-            corporation=EveCorporationInfo.objects.get(corporation_id=2001)
+
+        cls.user, cls.character_ownership = create_user_from_evecharacter(
+            1001, permissions=["ledger.basic_access"]
+        )
+        cls.user2, cls.character_ownership2 = create_user_from_evecharacter(
+            1002, permissions=["ledger.basic_access"]
+        )
+        cls.audit = add_corporationaudit_corporation_to_user(
+            cls.user, cls.character_ownership.character.character_id
+        )
+        cls.audit2 = add_corporationaudit_corporation_to_user(
+            cls.user2, cls.character_ownership2.character.character_id
         )
 
     def test_str(self):
         self.assertEqual(str(self.audit), "Hell RiderZ's Corporation Data")
 
-
-class TestCorporationWalletJournal(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        super().setUpClass()
-        load_allianceauth()
-        load_ledger_all()
-        cls.journal = CorporationWalletJournalEntry.objects.get(entry_id=1)
-
-    def test_str(self):
+    def test_get_esi_scopes(self):
         self.assertEqual(
-            str(self.journal),
-            "Corporation Wallet Journal: CONCORD 'ess_escrow_transfer' Gneuten: 100000.00 isk",
-        )
-
-    def test_get_visible(self):
-        self.factory = RequestFactory()
-        self.user, self.character_ownership = create_user_from_evecharacter(
-            1001,
-            permissions=[
-                "ledger.corp_audit_admin_manager",
+            self.audit.get_esi_scopes(),
+            [
+                # General
+                "esi-search.search_structures.v1",
+                "esi-universe.read_structures.v1",
+                "esi-characters.read_corporation_roles.v1",
+                # Mining
+                "esi-industry.read_corporation_mining.v1",
+                # wallets
+                "esi-wallet.read_corporation_wallets.v1",
+                "esi-markets.read_corporation_orders.v1",
+                "esi-industry.read_corporation_jobs.v1",
+                "esi-corporations.read_divisions.v1",
             ],
         )
-        request = self.factory.get("/")
-        request.user = self.user
 
-        query = CorporationWalletJournalEntry.get_visible(request.user)
+    def test_access_no_perms(self):
+        corporation = CorporationAudit.objects.visible_to(self.user)
+        self.assertNotIn(self.audit, corporation)
+        self.assertNotIn(self.audit2, corporation)
 
-        expected_corporation = CorporationWalletJournalEntry.objects.all()
-
-        self.assertEqual(
-            sorted(list(query), key=lambda x: x.entry_id),
-            sorted(list(expected_corporation), key=lambda x: x.entry_id),
+    def test_access_perms_own_corp(self):
+        self.user = AuthUtils.add_permission_to_user_by_name(
+            "ledger.advanced_access", self.user
         )
+        self.user.refresh_from_db()
+        corporation = CorporationAudit.objects.visible_to(self.user)
+        self.assertIn(self.audit, corporation)
+        self.assertNotIn(self.audit2, corporation)

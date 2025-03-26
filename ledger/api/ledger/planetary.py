@@ -1,3 +1,5 @@
+import logging
+
 from ninja import NinjaAPI
 
 from django.db.models import Q
@@ -7,10 +9,9 @@ from django.utils.translation import gettext as trans
 from ledger.api import schema
 from ledger.api.api_helper.planetary_helper import get_facilities_info
 from ledger.api.helpers import get_alts_queryset, get_character
-from ledger.hooks import get_extension_logger
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class LedgerPlanetaryApiEndpoints:
@@ -65,13 +66,13 @@ class LedgerPlanetaryApiEndpoints:
         )
         # pylint: disable=too-many-locals
         def get_planetarydetails(request, character_id: int, planet_id: int):
-            request_main = request.GET.get("main", False)
+            singleview = request.GET.get("single", False)
             perm, main = get_character(request, character_id)
 
             if not perm:
                 return 403, "Permission Denied"
 
-            if character_id == 0 or request_main:
+            if not singleview:
                 characters = get_alts_queryset(main)
             else:
                 characters = [main]
@@ -166,7 +167,7 @@ class LedgerPlanetaryApiEndpoints:
 
             return render(
                 request,
-                "ledger/planetary/partials/modal/view_factory.html",
+                "ledger/partials/modal/view_factory.html",
                 context,
             )
 
@@ -209,6 +210,6 @@ class LedgerPlanetaryApiEndpoints:
 
             return render(
                 request,
-                "ledger/planetary/partials/modal/view_extractor.html",
+                "ledger/partials/modal/view_extractor.html",
                 context,
             )

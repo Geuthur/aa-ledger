@@ -3,15 +3,17 @@ Character Audit Model
 """
 
 import datetime
+import logging
 
 from django.db import models
 from django.utils import timezone
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from eveuniverse.models import EveSolarSystem, EveType
 
 from allianceauth.eveonline.models import EveCharacter
 
 from ledger import app_settings
-from ledger.hooks import get_extension_logger
 from ledger.managers.characterjournal_manager import CharWalletManager
 from ledger.managers.charaudit_manager import (
     AuditCharacterManager,
@@ -19,10 +21,55 @@ from ledger.managers.charaudit_manager import (
 )
 from ledger.models.general import EveEntity
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class CharacterAudit(models.Model):
+    class UpdateStatus(models.TextChoices):
+        DISABLED = "disabled", _("disabled")
+        NOT_UP_TO_DATE = "not_up_to_date", _("not up to date")
+        ERROR = "error", _("error")
+        OK = "ok", _("ok")
+
+        def bootstrap_icon(self) -> str:
+            """Return bootstrap corresponding icon class."""
+            update_map = {
+                self.DISABLED: mark_safe(
+                    f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>"
+                ),
+                self.NOT_UP_TO_DATE: mark_safe(
+                    f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>"
+                ),
+                self.ERROR: mark_safe(
+                    f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>"
+                ),
+                self.OK: mark_safe(
+                    f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>"
+                ),
+            }
+            return update_map.get(self, "")
+
+        def bootstrap_text_style_class(self) -> str:
+            """Return bootstrap corresponding bootstrap text style class."""
+            update_map = {
+                self.DISABLED: "text-danger",
+                self.NOT_UP_TO_DATE: "text-warning",
+                self.ERROR: "text-danger",
+                self.OK: "text-success",
+            }
+            return update_map.get(self, "")
+
+        def description(self) -> str:
+            """Return description for an enum object."""
+            update_map = {
+                self.DISABLED: _("Update is disabled"),
+                self.NOT_UP_TO_DATE: _(
+                    "One of the updates is older than {} day"
+                ).format(app_settings.LEDGER_CHAR_MAX_INACTIVE_DAYS),
+                self.ERROR: _("An error occurred during update"),
+                self.OK: _("Updates completed successfully"),
+            }
+            return update_map.get(self, "")
 
     id = models.AutoField(primary_key=True)
 
@@ -69,24 +116,47 @@ class CharacterAudit(models.Model):
             "esi-planets.manage_planets.v1",
         ]
 
-    def is_active(self):
+    def _get_is_active(self):
         time_ref = timezone.now() - datetime.timedelta(
             days=app_settings.LEDGER_CHAR_MAX_INACTIVE_DAYS
         )
         try:
             is_active = True
 
-            is_active = self.last_update_wallet > time_ref
-            is_active = self.last_update_mining > time_ref
-            is_active = self.last_update_planetary > time_ref
-
-            if self.active != is_active:
-                self.active = is_active
-                self.save()
-
+            is_active = is_active and self.last_update_wallet > time_ref
+            is_active = is_active and self.last_update_mining > time_ref
+            is_active = is_active and self.last_update_planetary > time_ref
             return is_active
         except Exception:  # pylint: disable=broad-exception-caught
             return False
+
+    def is_active(self):
+        is_active = self._get_is_active()
+        if self.active != is_active:
+            self.active = is_active
+            if is_active is False:
+                logger.info("Deactivating Character: %s", self.character.character_name)
+            self.save()
+        return is_active
+
+    # TODO Create a Update Status Model to handle all update section separately
+    @property
+    def get_status(self):
+        if self.active is False:
+            return self.UpdateStatus("disabled")
+
+        is_active = self._get_is_active()
+
+        # Check if one of the updates are not up to date
+        if is_active is False:
+            return self.UpdateStatus("not_up_to_date")
+        return self.UpdateStatus("ok")
+
+    @property
+    def get_status_opacity(self):
+        if self.active:
+            return "opacity-100"
+        return "opacity-25"
 
 
 class WalletJournalEntry(models.Model):
@@ -158,7 +228,7 @@ class CharacterWalletJournalEntry(WalletJournalEntry):
     objects = CharWalletManager()
 
     def __str__(self):
-        return f"Character Wallet Journal: {self.first_party.name} '{self.ref_type}' {self.second_party.name}: {self.amount} isk"
+        return f"Character Wallet Journal: RefType: {self.ref_type} - {self.first_party.name} -> {self.second_party.name}: {self.amount} ISK"
 
     @classmethod
     def get_visible(cls, user):

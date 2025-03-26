@@ -2,6 +2,8 @@
 Corporation Helpers
 """
 
+import logging
+
 from django.utils import timezone
 from esi.errors import TokenError
 from esi.models import Token
@@ -10,7 +12,6 @@ from allianceauth.eveonline.models import EveCharacter
 
 from ledger.decorators import log_timing
 from ledger.errors import DatabaseError
-from ledger.hooks import get_extension_logger
 from ledger.models.corporationaudit import (
     CorporationAudit,
     CorporationWalletDivision,
@@ -18,9 +19,13 @@ from ledger.models.corporationaudit import (
 )
 from ledger.models.general import EveEntity
 from ledger.providers import esi
-from ledger.task_helpers.etag_helpers import NotModifiedError, etag_results
+from ledger.task_helpers.etag_helpers import (
+    HTTPGatewayTimeoutError,
+    NotModifiedError,
+    etag_results,
+)
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def get_corp_token(corp_id, scopes, req_roles):
@@ -124,16 +129,25 @@ def update_corp_wallet_division(corp_id, force_refresh=False):
                     corp_id, division.get("division"), force_refresh=force_refresh
                 )  # inline not async
 
+        audit_corp.last_update_wallet = timezone.now()
+        audit_corp.save()
+        logger.debug(
+            "Finished wallet divs for: %s",
+            audit_corp.corporation.corporation_name,
+        )
+        return ("Finished wallet divs for: %s", audit_corp.corporation.corporation_name)
     except NotModifiedError:
         logger.debug(
             "No New wallet data for: %s",
             audit_corp.corporation.corporation_name,
         )
-
-    audit_corp.last_update_wallet = timezone.now()
-    audit_corp.save()
-
-    return ("Finished wallet divs for: %s", audit_corp.corporation.corporation_name)
+        return ("No New wallet data for: %s", audit_corp.corporation.corporation_name)
+    except HTTPGatewayTimeoutError:
+        logger.debug(
+            "Gateway Timeout for: %s",
+            audit_corp.corporation.corporation_name,
+        )
+        return ("Gateway Timeout %s", audit_corp.corporation.corporation_name)
 
 
 # pylint: disable=too-many-locals
@@ -235,10 +249,35 @@ def update_corp_wallet_journal(corp_id, wallet_division, force_refresh=False):
                 raise DatabaseError("DB Fail")
 
             current_page += 1
+        logger.debug(
+            "Finished wallet journal data for: Div: %s Corp: %s",
+            wallet_division,
+            audit_corp.corporation.corporation_name,
+        )
+        return (
+            "Finished wallet journal data for: Div: %s Corp: %s",
+            wallet_division,
+            audit_corp.corporation.corporation_name,
+        )
     except NotModifiedError:
         logger.debug(
             "No New wallet data for: Div: %s Corp: %s",
-            audit_corp.corporation.corporation_name,
             wallet_division,
+            audit_corp.corporation.corporation_name,
         )
-    return True
+        return (
+            "No New wallet data for: Div: %s Corp: %s",
+            wallet_division,
+            audit_corp.corporation.corporation_name,
+        )
+    except HTTPGatewayTimeoutError:
+        logger.debug(
+            "Gateway Timeout for: Div:%s Corp: %s",
+            wallet_division,
+            audit_corp.corporation.corporation_name,
+        )
+        return (
+            "Gateway Timeout for: Div:%s Corp: %s",
+            wallet_division,
+            audit_corp.corporation.corporation_name,
+        )

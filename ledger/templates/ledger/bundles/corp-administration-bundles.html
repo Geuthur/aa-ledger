@@ -1,0 +1,63 @@
+
+{% load ledger %}
+{% load i18n %}
+
+{% ledger_static 'css/cards.css' %}
+
+<script type="application/javascript">
+    let ledgersettings = {
+        corporationDashboardUrl: "{% url 'ledger:api:get_corporation_dashboard' corporation_id=corporation_id %}",
+    };
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({
+            trigger: 'hover',
+        });
+    });
+</script>
+
+<script>
+    /* global ledgersettings, bootstrap */
+    $(document).ready(function() {
+        // Dashboard-Info
+        const manageDashboardVar = $('#dashboard-card');
+        const manageDashboardTableVar = $('#corporation-dashboard');
+        // Dashboard-Statistics
+        const manageDashboardStatisticsVar = $('#dashboard-statistics-card');
+        const manageDashboardStatisticsTableVar = $('#corporation-dashboard-statistics');
+
+        $.ajax({
+            url: ledgersettings.corporationDashboardUrl,
+            type: 'GET',
+            success: function (data) {
+                // Dashboard-Info
+                $('#dashboard-info').html(data.dashboard);
+                $('#status-corporation').text(data.status);
+                // Dashboard-Statistics
+                $('#dashboard-info-statistics').html(data.statistics);
+                $('#auth-characters-corporation').text(data.auth_characters);
+                $('#active-characters-corporation').text(data.active_characters);
+                $('#missing-characters-corporation').text(data.missing_characters);
+
+                manageDashboardVar.removeClass('d-none');
+                manageDashboardTableVar.removeClass('d-none');
+
+                manageDashboardStatisticsVar.removeClass('d-none');
+                manageDashboardStatisticsTableVar.removeClass('d-none');
+
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching data:', error);
+            }
+        });
+
+        $('#corporation-table').DataTable({
+            "order": [[ 1, "asc" ]],
+            "columnDefs": [
+                { "orderable": false, "targets": 0 },
+            ],
+        });
+    });
+</script>

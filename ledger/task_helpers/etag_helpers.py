@@ -2,15 +2,15 @@
 Etag Helpers
 """
 
-import time
+import logging
 
-from bravado.exception import HTTPNotModified
+from bravado.exception import HTTPGatewayTimeout, HTTPNotModified
 
 from django.core.cache import cache
 
-from ledger.hooks import get_extension_logger
+from ledger.decorators import log_timing
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 MAX_ETAG_LIFE = 60 * 60 * 24 * 7  # 7 Days
 
@@ -19,8 +19,12 @@ class NotModifiedError(Exception):
     pass
 
 
+class HTTPGatewayTimeoutError(Exception):
+    pass
+
+
 def get_etag_key(operation):
-    return "etag-" + operation._cache_key()
+    return "ledger-" + operation._cache_key()
 
 
 def get_etag_header(operation):
@@ -139,8 +143,8 @@ def handle_page_results(
     return results, current_page, total_pages
 
 
+@log_timing(logger)
 def etag_results(operation, token, force_refresh=False):
-    _start_tm = time.perf_counter()
     operation.request_config.also_return_response = True
     if token:
         operation.future.request.headers["Authorization"] = (
@@ -162,11 +166,8 @@ def etag_results(operation, token, force_refresh=False):
             logger.debug("ETag: Not Modified %s", operation.operation.operation_id)
             set_etag_header(operation, e.response)
             raise NotModifiedError() from e
+        except HTTPGatewayTimeout as e:
+            logger.debug("ETag: Gateway Timeout %s", operation.operation.operation_id)
+            raise HTTPGatewayTimeoutError() from e
         handle_etag_headers(operation, headers, force_refresh, etags_incomplete=False)
-    logger.debug(
-        "ESI_TIME: OVERALL %s %s %s",
-        time.perf_counter() - _start_tm,
-        operation.operation.operation_id,
-        stringify_params(operation),
-    )
     return results

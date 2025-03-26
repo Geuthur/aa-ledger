@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING
 
 from django.db import models
@@ -5,12 +6,11 @@ from django.utils import timezone
 from eveuniverse.models import EveType
 
 from ledger.constants import COMMAND_CENTER, EXTRACTOR_CONTROL_UNIT, SPACEPORTS
-from ledger.hooks import get_extension_logger
 
 if TYPE_CHECKING:  # pragma: no cover
     from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class PlanetaryQuerySet(models.QuerySet):
