@@ -2,6 +2,13 @@
 
 ## [0.7.x] - IN DEVELOPMENT
 
+## [0.7.4.1] - 2025-03-26
+
+### Fixed
+
+- Planetary Ledger Permission Issue
+- Corporation View No Data Error
+
 ## [0.7.4] - 2025-03-26
 
 ### Added

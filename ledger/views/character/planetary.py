@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-@permission_required("ledger.advanced_access")
+@permission_required("ledger.basic_access")
 def planetary_ledger_index(request):
     """Character Ledger Index View"""
     context = {}

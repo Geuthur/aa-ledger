@@ -3,6 +3,8 @@ from datetime import datetime
 
 from ninja import NinjaAPI
 
+from django.utils.translation import gettext as _
+
 from ledger.api import schema
 from ledger.api.api_helper.alliance_helper import AllianceProcess
 from ledger.api.api_helper.character_helper import CharacterProcess
@@ -17,7 +19,6 @@ from ledger.api.helpers import (
 logger = logging.getLogger(__name__)
 
 
-# pylint: disable=too-many-function-args
 def ledger_api_process(request, entity_type: str, entity_id: int, date: str, view: str):
     singleview = request.GET.get("single", False)
     perm = True
@@ -29,26 +30,19 @@ def ledger_api_process(request, entity_type: str, entity_id: int, date: str, vie
     if entity_type == "alliance":
         perm, alliance = get_alliance(request, entity_id)
 
-    if perm is False:
-        return "Permission Denied", None
-
-    if perm is None:
-        return None, None
-
     if entity_type == "character":
         if not singleview:
             characters = get_alts_queryset(entitys)
         else:
             characters = [entitys]
-        return CharacterProcess(characters, date, view)
+        return perm, CharacterProcess(characters, date, view)
 
     if entity_type == "corporation":
-        return CorporationProcess(corporation, date, view)
+        return perm, CorporationProcess(corporation, date, view)
 
     if entity_type == "alliance":
-        return AllianceProcess(alliance, date, view)
-
-    return "Wrong Entity Type"
+        return perm, AllianceProcess(alliance, date, view)
+    raise ValueError("Invalid Entity Type")
 
 
 class LedgerApiEndpoints:
@@ -66,13 +60,14 @@ class LedgerApiEndpoints:
             except ValueError:
                 return 403, "Invalid Date format. Use YYYY-MM-DD"
 
-            ledger = ledger_api_process(request, entity_type, entity_id, date_obj, view)
+            perm, ledger = ledger_api_process(
+                request, entity_type, entity_id, date_obj, view
+            )
 
-            if isinstance(ledger, str):
-                return 403, ledger
-
-            if ledger is None:
-                return 404, "No data found"
+            if perm is False:
+                return 403, _("Permission Denied")
+            if perm is None:
+                return 404, _("Entity Not Found")
 
             output = ledger.generate_ledger()
             return output
