@@ -2,6 +2,16 @@
 
 ## [0.7.x] - IN DEVELOPMENT
 
+## [0.7.4.2] - 2025-03-28
+
+### Fixed
+
+- Alliance Ledger has Multiple Objects error
+
+### Changed
+
+- Update ETag System
+
 ## [0.7.4.1] - 2025-03-26
 
 ### Fixed
