@@ -371,10 +371,11 @@ function generateLedger(TableName, url) {
                 $('#errorHandler').text('You have no permission to view this page');
             } else if (xhr.status === 404) {
                 $('#errorHandler').text('No data found');
+            } else {
+                $('#errorHandler').text('An error occurred');
             }
             $('#ratting').DataTable().destroy();
             hideLoading();
-            $('#errorHandler').text('An error occurred');
             $('#errorHandler').removeClass('d-none');
             $('.dropdown-toggle').attr('disabled', true);
             $('.administration').attr('disabled', true);
