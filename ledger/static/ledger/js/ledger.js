@@ -373,6 +373,7 @@ function generateLedger(TableName, url) {
                 $('#errorHandler').text('No data found');
             } else {
                 $('#errorHandler').text('An error occurred');
+                console.error('Error:', xhr.status, xhr.statusText);
             }
             $('#ratting').DataTable().destroy();
             hideLoading();
