@@ -23,7 +23,7 @@ def convert_corp_tax(amount: Decimal) -> Decimal:
 def get_character(
     request, character_id, corp=False
 ) -> tuple[bool, EveCharacter | None]:
-    """Get Character and check permissions"""
+    """Get Character and check permission"""
     perms = True
     if character_id == 0:
         character_id = request.user.profile.main_character.character_id
@@ -53,7 +53,7 @@ def get_character(
 def get_corporation(
     request, corporation_id
 ) -> tuple[bool | None, models.CorporationAudit | None]:
-    """Get Corporation and check permissions for each corporation"""
+    """Get Corporation and check permission"""
     perms = True
 
     try:
@@ -71,7 +71,7 @@ def get_corporation(
 
 
 def get_alliance(request, alliance_id) -> tuple[bool | None, EveAllianceInfo | None]:
-    """Get Alliance and check permissions for each corporation"""
+    """Get Alliance and check permission"""
     perms = True
 
     corporations = models.CorporationAudit.objects.filter(
@@ -84,7 +84,7 @@ def get_alliance(request, alliance_id) -> tuple[bool | None, EveAllianceInfo | N
     # Check access
     visible = models.CorporationAudit.objects.visible_to(request.user)
 
-    # Check if there is an intersection between main_corp and visible
+    # Check if there is an intersection between corporations and visible
     common_corps = corporations.intersection(visible)
     if not common_corps.exists():
         perms = False
@@ -96,7 +96,7 @@ def get_alliance(request, alliance_id) -> tuple[bool | None, EveAllianceInfo | N
 def get_all_corporations_from_alliance(
     request, alliance_id
 ) -> tuple[bool | None, list[models.CorporationAudit] | None]:
-    """Get Alliance and check permissions for each corporation"""
+    """Get Alliance and check permission"""
     perms = True
 
     corporations = models.CorporationAudit.objects.filter(
@@ -109,7 +109,7 @@ def get_all_corporations_from_alliance(
     # Check access
     visible = models.CorporationAudit.objects.visible_to(request.user)
 
-    # Check if there is an intersection between main_corp and visible
+    # Check if there is an intersection between corporations and visible
     common_corps = corporations.intersection(visible)
     if not common_corps.exists():
         perms = False
