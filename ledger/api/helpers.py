@@ -74,18 +74,22 @@ def get_alliance(request, alliance_id) -> tuple[bool | None, EveAllianceInfo | N
     """Get Alliance and check permissions for each corporation"""
     perms = True
 
-    try:
-        main_corp = models.CorporationAudit.objects.get(
-            corporation__alliance__alliance_id=alliance_id
-        )
-        ally = main_corp.corporation.alliance
-    except ObjectDoesNotExist:
+    corporations = models.CorporationAudit.objects.filter(
+        corporation__alliance__alliance_id=alliance_id
+    )
+
+    if not corporations.exists():
         return None, None
 
     # Check access
     visible = models.CorporationAudit.objects.visible_to(request.user)
-    if main_corp not in visible:
+
+    # Check if there is an intersection between main_corp and visible
+    common_corps = corporations.intersection(visible)
+    if not common_corps.exists():
         perms = False
+
+    ally = EveAllianceInfo.objects.get(alliance_id=alliance_id)
     return perms, ally
 
 
