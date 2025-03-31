@@ -2,6 +2,12 @@
 
 ## [0.7.x] - IN DEVELOPMENT
 
+## [0.7.4.3] - 2025-03-31
+
+### Fixed
+
+- Fix Planetary Update Issue [#90](https://github.com/Geuthur/aa-ledger/issues/90)
+
 ## [0.7.4.2] - 2025-03-28
 
 ### Fixed
