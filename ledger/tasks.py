@@ -102,7 +102,7 @@ def update_subset_characters(subset=5, min_runs=10, max_runs=200, force_refresh=
 
 @shared_task(**_update_ledger_char_params)
 @when_esi_is_available
-def update_character(character_id: int, force_refresh=True):
+def update_character(character_id: int, force_refresh=False):
     character = CharacterAudit.objects.get(character__character_id=character_id)
 
     # Settings for Task Queue
