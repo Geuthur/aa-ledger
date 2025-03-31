@@ -368,21 +368,17 @@ function generateLedger(TableName, url) {
         },
         error: function(xhr, _, __) {
             if (xhr.status === 403) {
-                $('#ratting').DataTable().destroy();
-                hideLoading();
                 $('#errorHandler').text('You have no permission to view this page');
             } else if (xhr.status === 404) {
-                $('#ratting').DataTable().destroy();
-                hideLoading();
                 $('#errorHandler').text('No data found');
             } else {
-                $('#ratting').DataTable().destroy();
-                hideLoading();
                 $('#errorHandler').text('An error occurred');
+                console.error('Error:', xhr.status, xhr.statusText);
             }
+            $('#ratting').DataTable().destroy();
+            hideLoading();
             $('#errorHandler').removeClass('d-none');
             $('.dropdown-toggle').attr('disabled', true);
-            $('.overview').attr('disabled', true);
             $('.administration').attr('disabled', true);
         }
     });
