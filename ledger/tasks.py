@@ -42,6 +42,11 @@ TASK_DEFAULTS = {
 # Default params for tasks that need run once only.
 TASK_DEFAULTS_ONCE = {**TASK_DEFAULTS, **{"base": QueueOnce}}
 
+_update_ledger_planet_params = {
+    **TASK_DEFAULTS_ONCE,
+    **{"once": {"keys": ["character_id", "planet_id"], "graceful": True}},
+}
+
 _update_ledger_char_params = {
     **TASK_DEFAULTS_ONCE,
     **{"once": {"keys": ["character_id"], "graceful": True}},
@@ -160,7 +165,7 @@ def update_char_planets(
     return update_character_planetary(character_id, force_refresh=force_refresh)
 
 
-@shared_task(**_update_ledger_char_params)
+@shared_task(**_update_ledger_planet_params)
 def update_char_planets_details(
     character_id, planet_id, force_refresh=False
 ):  # pylint: disable=unused-argument, dangerous-default-value
