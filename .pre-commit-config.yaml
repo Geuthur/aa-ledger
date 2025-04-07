@@ -123,7 +123,7 @@ repos:
           )
 
   - repo: https://github.com/eslint/eslint
-    rev: v9.21.0
+    rev: v9.24.0
     hooks:
       - id: eslint
         name: ESLint
@@ -135,7 +135,7 @@ repos:
           )
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
-    rev: v16.15.0
+    rev: v16.18.0
     hooks:
       - id: stylelint
         name: Stylelint
@@ -180,7 +180,7 @@ repos:
         description: Enforce that python3.6+ type annotations are used instead of type comments.
 
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
-    rev: 3.2.0
+    rev: 3.2.1
     hooks:
       - id: editorconfig-checker
         name: EditorConfig Checker
@@ -193,7 +193,7 @@ repos:
           )
 
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.23.1
+    rev: 1.24.0
     hooks:
       - id: django-upgrade
         name: Django upgrade
@@ -211,7 +211,7 @@ repos:
           - --py310-plus  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/pycqa/flake8
-    rev: 7.1.2
+    rev: 7.2.0
     hooks:
       - id: flake8
         name: Flake8
@@ -294,14 +294,14 @@ repos:
           - tox==4.15.0  # https://github.com/tox-dev/tox/releases/latest
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.23
+    rev: v0.24.1
     hooks:
       - id: validate-pyproject
         name: Validate pyproject.toml
         description: Validate the pyproject.toml file.
 
   - repo: https://github.com/pylint-dev/pylint
-    rev: v3.3.4
+    rev: v3.3.6
     hooks:
       - id: pylint
         name: Pylint
@@ -310,7 +310,7 @@ repos:
           - --py-version=3.10  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.31.2
+    rev: 0.32.1
     hooks:
       - id: check-github-actions
         name: Check GitHub Actions
