@@ -13,17 +13,19 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <span id="modal-request-text">
-                    <!-- Modal Request Text -->
-                </span>
+                <div class="py-2">
+                    <div id="modal-request-text">
+                        <!-- Modal Request Text -->
+                    </div>
 
-                <form method="post">
-                    {% csrf_token %}
-                    <fieldset class="ledger-planetary-confirm-form">
-                        {{ forms.confirm|bootstrap }}
-                    </fieldset>
-                </form>
-            </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <fieldset class="ledger-planetary-confirm-form">
+                            {{ forms.confirm|bootstrap }}
+                        </fieldset>
+                    </form>
+                    {% include 'ledger/partials/form/error-message.html' %}
+                </div>
             <div class="modal-footer">
                 <button id="modal-button-cancel-confirm-request" type="button" class="btn btn-danger" data-bs-dismiss="modal">
                     <i class="fa-solid fa-hand"></i> {% trans "Cancel" %}
