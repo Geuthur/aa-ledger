@@ -1,70 +1,29 @@
 import logging
-from collections import defaultdict
 
 from django.db import models
-from django.db.models import Case, DecimalField, F, Q, Sum, Value, When
+from django.db.models import DecimalField, F, Q, Sum, Value
 from django.db.models.functions import Coalesce
-from django.utils import timezone
 
-from allianceauth.eveonline.models import EveCharacter
-
-from ledger.managers.manager_helper import _annotations_information
-from ledger.view_helpers.core import events_filter
+from ledger.constants import (
+    ASSETS,
+    BOUNTY_PRIZES,
+    CONTRACT,
+    DAILY_GOAL_REWARD,
+    DONATION,
+    ESS_TRANSFER,
+    INCURSION,
+    INSURANCE,
+    LP,
+    MARKET,
+    MILESTONE_REWARD,
+    MISSION_REWARD,
+    PLANETARY,
+    PRODUCTION,
+    SKILL,
+    TRAVELING,
+)
 
 logger = logging.getLogger(__name__)
-# PvE - Income
-BOUNTY_PRIZES = ["bounty_prizes"]
-ESS_TRANSFER = ["ess_escrow_transfer"]
-MISSION_REWARD = ["agent_mission_reward", "agent_mission_time_bonus_reward"]
-INCURSION = ["corporate_reward_payout"]
-
-# Cost Ref Types
-CONTRACT_COST = [
-    "contract_price",
-    "contract_collateral",
-    "contract_reward_deposited",
-    "contract_brokers_fee",
-    "contract_sales_tax",
-]
-MARKET_COST = ["market_escrow", "transaction_tax", "market_provider_tax", "brokers_fee"]
-ASSETS_COST = ["asset_safety_recovery_tax"]
-TRAVELING_COST = [
-    "structure_gate_jump",
-    "jump_clone_activation_fee",
-    "jump_clone_installation_fee",
-]
-PRODUCTION_COST = [
-    "industry_job_tax",
-    "manufacturing",
-    "researching_time_productivity",
-    "researching_material_productivity",
-    "copying",
-    "reprocessing_tax",
-    "reaction",
-]
-SKILL_COST = ["skill_purchase"]
-INSURANCE_COST = ["insurance"]
-PLANETARY_COST = [
-    "planetary_export_tax",
-    "planetary_import_tax",
-    "planetary_construction",
-]
-LP_COST = ["lp_store"]
-# Trading
-MARKET_INCOME = ["market_transaction", "market_escrow"]
-CONTRACT_INCOME = [
-    "contract_price_payment_corp",
-    "contract_reward",
-    "contract_price",
-    "contract_reward_refund",
-    "contract_collateral_refund",
-    "contract_deposit_refund",
-]
-DONATION_INCOME = ["player_donation"]
-INSURANCE_INCOME = ["insurance"]
-# MISC
-MILESTONE_REWARD = ["milestone_reward_payment"]
-DAILY_GOAL_REWARD = ["daily_goal_payouts"]
 
 # PVE
 BOUNTY_FILTER = Q(ref_type__in=BOUNTY_PRIZES)
@@ -73,20 +32,20 @@ ESS_FILTER = Q(ref_type__in=ESS_TRANSFER)
 INCURSION_FILTER = Q(ref_type__in=INCURSION)
 DAILY_GOAL_REWARD_FILTER = Q(ref_type__in=DAILY_GOAL_REWARD, amount__gt=0)
 # COSTS
-CONTRACT_COST_FILTER = Q(ref_type__in=CONTRACT_COST, amount__lt=0)
-MARKET_COST_FILTER = Q(ref_type__in=MARKET_COST, amount__lt=0)
-ASSETS_COST_FILTER = Q(ref_type__in=ASSETS_COST, amount__lt=0)
-TRAVELING_COST_FILTER = Q(ref_type__in=TRAVELING_COST, amount__lt=0)
-PRODUCTION_COST_FILTER = Q(ref_type__in=PRODUCTION_COST, amount__lt=0)
-SKILL_COST_FILTER = Q(ref_type__in=SKILL_COST, amount__lt=0)
-INSURANCE_COST_FILTER = Q(ref_type__in=INSURANCE_COST, amount__lt=0)
-PLANETARY_COST_FILTER = Q(ref_type__in=PLANETARY_COST, amount__lt=0)
-LP_COST_FILTER = Q(ref_type__in=LP_COST, amount__lt=0)
+CONTRACT_COST_FILTER = Q(ref_type__in=CONTRACT, amount__lt=0)
+MARKET_COST_FILTER = Q(ref_type__in=MARKET, amount__lt=0)
+ASSETS_COST_FILTER = Q(ref_type__in=ASSETS, amount__lt=0)
+TRAVELING_COST_FILTER = Q(ref_type__in=TRAVELING, amount__lt=0)
+PRODUCTION_COST_FILTER = Q(ref_type__in=PRODUCTION, amount__lt=0)
+SKILL_COST_FILTER = Q(ref_type__in=SKILL, amount__lt=0)
+INSURANCE_COST_FILTER = Q(ref_type__in=INSURANCE, amount__lt=0)
+PLANETARY_COST_FILTER = Q(ref_type__in=PLANETARY, amount__lt=0)
+LP_COST_FILTER = Q(ref_type__in=LP, amount__lt=0)
 # TRADES
-MARKET_INCOME_FILTER = Q(ref_type__in=MARKET_INCOME, amount__gt=0)
-CONTRACT_INCOME_FILTER = Q(ref_type__in=CONTRACT_INCOME, amount__gt=0)
-DONATION_INCOME_FILTER = Q(ref_type__in=DONATION_INCOME, amount__gt=0)
-INSURANCE_INCOME_FILTER = Q(ref_type__in=INSURANCE_INCOME, amount__gt=0)
+MARKET_INCOME_FILTER = Q(ref_type__in=MARKET, amount__gt=0)
+CONTRACT_INCOME_FILTER = Q(ref_type__in=CONTRACT, amount__gt=0)
+DONATION_INCOME_FILTER = Q(ref_type__in=DONATION, amount__gt=0)
+INSURANCE_INCOME_FILTER = Q(ref_type__in=INSURANCE, amount__gt=0)
 MILESTONE_REWARD_FILTER = Q(ref_type__in=MILESTONE_REWARD, amount__gt=0)
 
 PVE_FILTER = BOUNTY_FILTER | ESS_FILTER
@@ -235,7 +194,6 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
             .annotate_insurance_income()
             .annotate_market_income()
             .annotate_contract_income()
-            .annotate_bounty_income()
             .annotate_incursion_income()
         )
         return qs.annotate(
@@ -377,183 +335,7 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
 
 
 class CharWalletQuerySet(CharWalletCostQueryFilter):
-    def _get_main_and_alts(self, characters: list[EveCharacter]) -> tuple[dict, set]:
-        characters_dict = {}
-        char_list = []
-        for char in characters:
-            try:
-                characters_dict[char.character_id] = char
-                char_list.append(char.character_id)
-            except AttributeError:
-                continue
-        return characters_dict, set(char_list)
-
-    def _get_models_qs(
-        self, character_ids: list, filter_date: Q
-    ) -> tuple[models.QuerySet, models.QuerySet]:
-        """Get the models queryset for the character ledger"""
-        # pylint: disable=import-outside-toplevel
-        from ledger.models.characteraudit import CharacterMiningLedger
-        from ledger.models.corporationaudit import CorporationWalletJournalEntry
-
-        # Call annotate_ledger and store the result
-        char_mining_journal = CharacterMiningLedger.objects.filter(
-            Q(character__character__character_id__in=character_ids) & Q(filter_date)
-        )
-
-        corp_character_journal = CorporationWalletJournalEntry.objects.filter(
-            Q(second_party_id__in=character_ids) & Q(filter_date)
-        )
-        return char_mining_journal, corp_character_journal
-
-    def generate_ledger(
-        self, characters: list[EveCharacter], filter_date, exclude: list | None
-    ) -> tuple[models.QuerySet, models.QuerySet, models.QuerySet]:
-        characters, char_list = self._get_main_and_alts(characters)
-
-        qs = self.filter(Q(character__character__character_id__in=char_list))
-
-        qs = qs.filter(filter_date)
-
-        mining_qs, corp_qs = self._get_models_qs(char_list, filter_date)
-
-        # Fiter Tax Events
-        corp_qs = events_filter(corp_qs)
-
-        char_qs = qs.annotate(
-            char_id=Case(
-                *[
-                    When(
-                        (Q(character__character__character_id=main_id)),
-                        then=Value(char.character_id),
-                    )
-                    for main_id, char in characters.items()
-                ],
-                output_field=models.IntegerField(),
-            ),
-            char_name=Case(
-                *[
-                    When(
-                        (Q(character__character__character_id=main_id)),
-                        then=Value(char.character_name),
-                    )
-                    for main_id, char in characters.items()
-                ],
-                output_field=models.CharField(),
-            ),
-        ).values("char_id", "char_name")
-
-        # Annotate All Ledger Data
-        char_qs = (
-            char_qs.annotate_bounty_income()
-            .annotate_costs()
-            .annotate_miscellaneous_with_exclude(exclude=exclude)
-        )
-
-        return char_qs, mining_qs, corp_qs
-
-    def aggregate_amounts_information_modal(
-        self,
-        amounts: defaultdict,
-        character_ids: list,
-        filter_date: timezone.datetime,
-        exclude=None,
-    ) -> dict:
-        """Generate data template for the ledger character information view"""
-        # Define the types and their respective filters
-        type_names = [
-            # PvE
-            "bounty_income",
-            # Income
-            "mission_income",
-            "incursion_income",
-            "insurance_income",
-            "market_income",
-            "contract_income",
-            "donation_income",
-            "milestone_income",
-            # Costs
-            "market_cost",
-            "production_cost",
-            "contract_cost",
-            "lp_cost",
-            "traveling_cost",
-            "asset_cost",
-            "skill_cost",
-            "insurance_cost",
-            "planetary_cost",
-        ]
-
-        qs = self.filter(character__character__character_id__in=character_ids)
-
-        qs = (
-            qs
-            # PvE
-            .annotate_bounty_income()
-            # Income
-            .annotate_mission_income()
-            .annotate_incursion_income()
-            .annotate_insurance_income()
-            .annotate_market_income()
-            .annotate_contract_income()
-            .annotate_donation_income(exclude=exclude)
-            .annotate_milestone_income()
-            # Costs
-            .annotate_market_cost()
-            .annotate_production_cost()
-            .annotate_contract_cost()
-            .annotate_lp_cost()
-            .annotate_traveling_cost()
-            .annotate_asset_cost()
-            .annotate_skill_cost()
-            .annotate_insurance_cost()
-            .annotate_planetary_cost()
-        )
-
-        annotations = _annotations_information(
-            filter_date=filter_date, type_names=type_names
-        )
-
-        qs = qs.aggregate(**annotations)
-
-        for type_name in type_names:
-            amounts[type_name]["total_amount"] = qs[f"{type_name}_total_amount"]
-            amounts[type_name]["total_amount_day"] = qs[f"{type_name}_total_amount_day"]
-            amounts[type_name]["total_amount_hour"] = qs[
-                f"{type_name}_total_amount_hour"
-            ]
-
-        return amounts
-
-    def annotate_billboard(self, chars: list, exclude: list) -> models.QuerySet:
-        qs = self.filter(character__character__character_id__in=chars)
-        qs = (
-            qs
-            # PvE
-            .annotate_bounty_income()
-            # Income
-            .annotate_mission_income()
-            .annotate_incursion_income()
-            .annotate_insurance_income()
-            .annotate_market_income()
-            .annotate_contract_income()
-            .annotate_donation_income(exclude=exclude)
-            .annotate_milestone_income()
-            # Costs
-            .annotate_market_cost()
-            .annotate_production_cost()
-            .annotate_contract_cost()
-            .annotate_lp_cost()
-            .annotate_traveling_cost()
-            .annotate_asset_cost()
-            .annotate_skill_cost()
-            .annotate_insurance_cost()
-            .annotate_planetary_cost()
-            # Summary
-            .annotate_costs()
-            .annotate_miscellaneous_with_exclude(exclude=exclude)
-        )
-        return qs
+    pass
 
 
 class CharWalletManagerBase(models.Manager):

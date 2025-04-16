@@ -1,8 +1,6 @@
 $(document).ready(() => {
-    /* global SkillFarmAjax */
+    /* global PlanetaryTable */
     const modalRequestApprove = $('#ledger-planetary-confirm');
-
-
 
     // Approve Request Modal
     modalRequestApprove.on('show.bs.modal', (event) => {
@@ -45,7 +43,7 @@ $(document).ready(() => {
 
             posting.done(() => {
                 modalRequestApprove.modal('hide');
-                location.reload();
+                PlanetaryTable.ajax.reload(); // Reload the DataTable
             }).fail((xhr, _, __) => {
                 const response = JSON.parse(xhr.responseText);
                 const errorMessage = $('<div class="alert alert-danger"></div>').text(response.message);

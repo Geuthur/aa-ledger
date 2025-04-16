@@ -4,10 +4,13 @@ from ninja import NinjaAPI
 
 from django.db.models import Q
 from django.shortcuts import render
-from django.utils.translation import gettext as trans
+from django.utils.translation import gettext_lazy as _
 
 from ledger.api import schema
-from ledger.api.api_helper.planetary_helper import get_facilities_info
+from ledger.api.api_helper.planetary_helper import (
+    generate_progressbar,
+    get_facilities_info,
+)
 from ledger.api.helpers import get_alts_queryset, get_character
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
@@ -28,7 +31,7 @@ class LedgerPlanetaryApiEndpoints:
             perm, main = get_character(request, character_id)
 
             if not perm:
-                return 403, "Permission Denied"
+                return 403, str(_("Permission Denied"))
 
             if character_id == 0:
                 characters = get_alts_queryset(main)
@@ -70,7 +73,7 @@ class LedgerPlanetaryApiEndpoints:
             perm, main = get_character(request, character_id)
 
             if not perm:
-                return 403, "Permission Denied"
+                return 403, str(_("Permission Denied"))
 
             if not singleview:
                 characters = get_alts_queryset(main)
@@ -97,7 +100,6 @@ class LedgerPlanetaryApiEndpoints:
             for p in planets:
                 products_types = p.allocate_products()
                 extracts = p.allocate_extracts()
-                extractors = p.get_extractors_info()
 
                 products = {
                     "raw": extracts,
@@ -115,7 +117,9 @@ class LedgerPlanetaryApiEndpoints:
                         "expiry_date": p.get_planet_expiry_date(),
                         "expired": p.is_expired,
                         "alarm": p.notification,
-                        "extractors": extractors,
+                        "percentage": generate_progressbar(
+                            p.allocate_overall_progress()
+                        ),
                         "products": products,
                         "storage": p.get_storage_info(),
                         "facility": p.facilitys,
@@ -134,7 +138,7 @@ class LedgerPlanetaryApiEndpoints:
             perm, character = get_character(request, character_id)
 
             if not perm:
-                return 403, "Permission Denied"
+                return 403, str(_("Permission Denied"))
 
             filters = Q(planet__character__character=character)
             if planet_id != 0:
@@ -146,7 +150,7 @@ class LedgerPlanetaryApiEndpoints:
                 facilities = get_facilities_info(planet)
 
                 output = {
-                    "title": trans("Factory Information"),
+                    "title": _("Factory Information"),
                     "character_id": planet.planet.character.character.character_id,
                     "character_name": planet.planet.character.character.character_name,
                     "planet_id": planet.planet.planet.id,
@@ -157,7 +161,7 @@ class LedgerPlanetaryApiEndpoints:
                 }
             except CharacterPlanetDetails.DoesNotExist:
                 output = {
-                    "title": trans("Planet not Found"),
+                    "title": _("Planet not Found"),
                 }
 
             context = {
@@ -180,7 +184,7 @@ class LedgerPlanetaryApiEndpoints:
             perm, character = get_character(request, character_id)
 
             if not perm:
-                return 403, "Permission Denied"
+                return 403, str(_("Permission Denied"))
 
             filters = Q(planet__character__character=character)
             if not planet_id == 0:
@@ -189,7 +193,7 @@ class LedgerPlanetaryApiEndpoints:
             try:
                 planet = CharacterPlanetDetails.objects.get(filters)
                 output = {
-                    "title": trans("Extractor Information"),
+                    "title": _("Extractor Information"),
                     "character_id": planet.planet.character.character.character_id,
                     "character_name": planet.planet.character.character.character_name,
                     "planet_id": planet.planet.planet.id,
@@ -199,7 +203,7 @@ class LedgerPlanetaryApiEndpoints:
                 }
             except CharacterPlanetDetails.DoesNotExist:
                 output = {
-                    "title": trans("Planet not Found"),
+                    "title": _("Planet not Found"),
                 }
                 return output
 

@@ -1,628 +1,187 @@
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
-from django.db.models import F
-from django.db.models.functions import TruncDay, TruncHour, TruncMonth, TruncYear
-from django.utils import timezone
-from django.utils.translation import gettext as _
-
-from ledger.api.api_helper.core_manager import LedgerModels
-from ledger.api.helpers import convert_corp_tax
-from ledger.models.corporationaudit import CorporationWalletJournalEntry
+from django.db.models import QuerySet
+from django.db.models.functions import TruncDay, TruncHour, TruncMonth
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class _BillboardDict:
-    charts: Any = field(default_factory=lambda: None)
-    rattingbar: Any = field(default_factory=lambda: None)
-    workflowgauge: Any = field(default_factory=lambda: None)
-
-
-@dataclass
-class BillboardDict:
-    standard: _BillboardDict = field(default_factory=_BillboardDict)
-
-
-@dataclass
-class BillboardTrunc:
-    year: tuple = field(default_factory=lambda: (TruncYear("date"), "%Y-%m"))
-    month: tuple = field(default_factory=lambda: (TruncMonth("date"), "%Y-%m"))
-    week: tuple = field(default_factory=lambda: (TruncDay("date"), "%Y-%m-%d"))
-    day: tuple = field(default_factory=lambda: (TruncDay("date"), "%Y-%m-%d"))
-    hour: tuple = field(
-        default_factory=lambda: (TruncHour("date"), "%Y-%m-%d %H:00:00")
-    )
-
-
-@dataclass
 class ChartData:
     title: str
-    date: str
     categories: list[str]
     series: list[dict[str, Any]]
 
 
-@dataclass
 class BillboardSystem:
-    data_points: dict = field(default_factory=dict)
-    chord_data_points: dict = field(default_factory=dict)
+    """BillboardSystem class to process billboard data."""
 
-    def _clean_category(self, category: str) -> str:
-        """Remove the suffix from the category name."""
-        return category.split("_")[0].lower()
+    @dataclass
+    class BillboardDict:
+        """BillboardDict class to store the billboard data."""
 
-    def add_or_update_data_point(
-        self, date: str, category: str, value: float, data: dict = None
+        charts: ChartData = None
+        rattingbar: ChartData = None
+        workflowgauge: ChartData = None
+
+    def __init__(
+        self,
+        view,
     ):
-        mode = "cost" if "cost" in category.lower() else "income"
-        display_category = self._clean_category(category)
+        self.view = view
+        self.dict = self.BillboardDict()
+        self.results = {}
 
-        # Skip zero values
-        if value == 0.0:
-            return
+    def _get_formatted_date(self, date, view):
+        if view == "year":
+            return date.strftime("%Y-%m")
+        if view == "month":
+            return date.strftime("%Y-%m-%d")
+        if self.view == "day":
+            return date.strftime("%Y-%m-%d %H:%M")
+        raise ValueError("Invalid view type. Use 'day', 'month', or 'year'.")
 
-        # Create a new data point if it does not exist
-        if date not in self.data_points:
-            self.data_points[date] = {}
-        if display_category not in self.data_points[date]:
-            self.data_points[date][display_category] = []
+    def _create_chart_dict(self):
+        """Create the Charts dict if it doesn't exist"""
+        if self.dict.charts is None:
+            self.dict.charts = ChartData(
+                title="Billboard",
+                categories=[],
+                series=[],
+            )
 
-        # Add the new data point
-        self.data_points[date][display_category].append(
+    def chord_add_char_data_from_dict(self, data: dict):
+        """Add character data to chord from dict"""
+        self._create_chart_dict()
+
+        data_points = [
             {
-                "value": value,
-                "mode": mode,
-                "data": data,
-            }
-        )
+                "from": f"{data['main_name']}",
+                "to": "Wallet",
+                "value": abs(data["total_amount"]),
+            },
+            {
+                "from": f"{data['main_name']}",
+                "to": "Wallet",
+                "value": abs(data["total_amount_ess"]),
+            },
+            {
+                "from": f"{data['main_name']}",
+                "to": "Wallet",
+                "value": abs(data["total_amount_mining"]),
+            },
+            {
+                "from": f"{data['main_name']}",
+                "to": "Wallet",
+                "value": abs(data["total_amount_others"]),
+            },
+            {
+                "from": f"{data['main_name']}",
+                "to": "Costs",
+                "value": abs(data["total_amount_costs"]),
+            },
+        ]
 
-    def add_chord_data_point(self, from_char: str, to: str, value: float):
-        if value == 0.0:
+        for point in data_points:
+            if point["value"] != 0:
+                self.dict.charts.series.append(point)
+
+    def chord_add_data(self, chord_from: str, chord_to: str, value: int):
+        """Add Simple Chord data"""
+        self._create_chart_dict()
+
+        if value == 0:
             return
 
-        if from_char not in self.chord_data_points:
-            self.chord_data_points[from_char] = []
-
-        # Check if from char has already a value for the 'to' value
-        for data_point in self.chord_data_points[from_char]:
-            if data_point["to"] == to:
-                data_point["value"] += value
-                break
-        else:
-            # Add a new data point
-            self.chord_data_points[from_char].append(
-                {"from": from_char, "to": to, "value": value}
-            )
-
-    def to_xy(self, title: str, is_character=False) -> ChartData:
-        """Convert the data points to a XY chart."""
-        # Define the specific categories we are interested in
-        categories = {
-            True: (
-                ["bounty", "ess", "miscellaneous"],
-                ["Bounty", "ESS", "Miscellaneous"],
-            ),
-            False: (
-                ["bounty", "ess", "miscellaneous", "mining"],
-                ["Bounty", "ESS", "Miscellaneous", "Mining"],
-            ),
+        data = {
+            "from": chord_from,
+            "to": chord_to,
+            "value": value,
         }
+        self.dict.charts.series.append(data)
 
-        specific_categories, category_names = categories[is_character]
+    def chord_handle_overflow(self):
+        """Order and handle overflow data for the billboard"""
+        if self.dict.charts is None:
+            return
 
-        # Create series data
-        series = []
-        for date, categories in self.data_points.items():
-            data_entry = {"date": date}
-            for category in specific_categories:
-                total_value = sum(
-                    data["value"] for data in categories.get(category, [])
-                )
-                if total_value != 0.0:
-                    data_entry[category] = round(total_value)
-            series.append(data_entry)
-
-        # Sort series data by date
-        series.sort(key=lambda x: x["date"])
-
-        date = timezone.now().strftime("%Y-%m-%d")
-        return ChartData(
-            title=title, date=date, categories=category_names, series=series
+        self.dict.charts.series = sorted(
+            self.dict.charts.series, key=lambda x: x["value"], reverse=True
         )
-
-    def _to_chart(
-        self, title: str, included_categories: set, include_mode=False
-    ) -> ChartData:
-        """Convert the data points to a chart."""
-        data_entry = {"date": timezone.now().strftime("%Y-%m-%d")}
-        # Initialize dictionaries to hold the aggregated values for cost and income
-        aggregated_cost_data = {
-            category: {"value": 0.00, "mode": None} for category in included_categories
-        }
-        aggregated_income_data = {
-            category: {"value": 0.00, "mode": None} for category in included_categories
-        }
-
-        # Aggregate the values for each category across all dates
-        for date, categories in self.data_points.items():
-            for category, data_list in categories.items():
-                if category in included_categories:
-                    for data in data_list:
-                        if data["mode"] == "cost":
-                            aggregated_cost_data[category]["value"] += abs(
-                                data["value"]
-                            )
-                            aggregated_cost_data[category]["mode"] = data["mode"]
-                        elif data["mode"] == "income":
-                            aggregated_income_data[category]["value"] += abs(
-                                data["value"]
-                            )
-                            aggregated_income_data[category]["mode"] = data["mode"]
-
-        # Add the aggregated values to the output
-        for category, value in aggregated_cost_data.items():
-            if value["value"] == 0.0:
-                continue
-            display_category = f"{category.upper()}" + (
-                f" ({value['mode']})" if include_mode else ""
-            )
-            data_entry[display_category] = {
-                "value": float(f"{value['value']:.2f}"),
-                "mode": value["mode"],
-            }
-
-        for category, value in aggregated_income_data.items():
-            if value["value"] == 0.0:
-                continue
-            display_category = f"{category.upper()}" + (
-                f" ({value['mode']})" if include_mode else ""
-            )
-            data_entry[display_category] = {
-                "value": float(f"{value['value']:.2f}"),
-                "mode": value["mode"],
-            }
-
-        # Create series data with a single entry
-        series = [data_entry]
-        categories = sorted(list(included_categories))
-
-        date = timezone.now().strftime("%Y-%m-%d")
-        return ChartData(title=title, date=date, categories=categories, series=series)
-
-    def _to_chord_chart(self, title: str) -> ChartData:
-        """Convert the data points to a bubble chart."""
-        series = []
-        max_chords = []
-        others_summary = {}
-
-        # Fügen Sie die aggregierten Werte zur Ausgabe hinzu
-        for main_char, summaries in self.chord_data_points.items():
-            if len(max_chords) <= 15:
-                max_chords.append(main_char)
-            for summary in summaries:
-                if main_char in max_chords:
-                    series.append(
-                        {
-                            "from": summary["from"],
-                            "to": summary["to"],
-                            "value": summary["value"],
-                            "main": summary["from"],
-                        }
-                    )
-                else:
-                    to = summary["to"]
-                    if to not in others_summary:
-                        others_summary[to] = 0
-                    others_summary[to] += summary["value"]
-
-        # Add summarized "Others" entries to output
-        for to_corp, values in others_summary.items():
-            series.append(
+        if len(self.dict.charts.series) > 10:
+            others_value = sum(entry["value"] for entry in self.dict.charts.series[10:])
+            self.dict.charts.series = self.dict.charts.series[:10]
+            self.dict.charts.series.append(
                 {
                     "from": "Others",
-                    "to": to_corp,
-                    "value": values,
-                    "main": "Others",
+                    "to": "Wallet",
+                    "value": others_value,
                 }
             )
 
-        date = timezone.now().strftime("%Y-%m-%d")
-        return ChartData(
-            title=title,
-            date=date,
-            categories=None,
-            series=series,
-        )
+    # TODO Add Mining to the billboard
+    def create_timeline(self, journal: QuerySet):
+        """Create the timeline data for the billboard"""
+        qs = journal
 
-    def to_xy_data(self, is_character: bool) -> ChartData:
-        return self.to_xy(title="Ratting Chart", is_character=is_character)
-
-    def to_chord_data(self) -> ChartData:
-        return self._to_chord_chart(title="Chord Chart")
-
-    def to_chart_data(self) -> ChartData:
-        excluded_categories = {"costs", "miscellaneous"}
-        all_categories = set()
-
-        # Collect all unique categories from the data points
-        for categories in self.data_points.values():
-            all_categories.update(categories.keys())
-
-        included_categories = all_categories - excluded_categories
-        return self._to_chart(
-            title="Donut Chart",
-            included_categories=included_categories,
-            include_mode=True,
-        )
-
-    def to_gauge_data(self) -> ChartData:
-        included_categories = {"bounty", "ess", "mining", "miscellaneous"}
-        return self._to_chart(
-            title="Workflow Chart", included_categories=included_categories
-        )
-
-
-class BillboardCharacterLedger:
-    def __init__(self, view: str, models: LedgerModels):
-        self.view = view
-        self.models = models
-        self.billboard_dict = BillboardDict()
-
-    def _sort_series(self, chart_data: ChartData) -> ChartData:
-        """Sort the series data by category names."""
-        for series_item in chart_data.series:
-            sorted_series = {
-                k: v for k, v in sorted(series_item.items()) if k != "date"
-            }
-            sorted_series = {"date": series_item["date"], **sorted_series}
-            series_item.clear()
-            series_item.update(sorted_series)
-        return chart_data
-
-    def _process_char_chart(self, billboard: BillboardSystem, corp_qs, period_format):
-        """Process Character Chart from Corporation Journal."""
-        for entry in corp_qs:
-            date = entry["period"].strftime(period_format)
-            for key, value in entry.items():
-                if key in [
-                    "period",
-                    "alts",
-                    "bounty_income",
-                ]:
-                    continue
-                value = convert_corp_tax(value)
-                billboard.add_or_update_data_point(
-                    date=date, category=key, value=float(value)
-                )
-
-    # pylint: disable=too-many-branches, too-many-locals
-    def _process_billboard(
-        self, billboard: BillboardSystem, annotations, period_format
-    ) -> BillboardSystem:
-        """Process the queryset for the billboard."""
-        corp_qs = self.models.corp_journal.annotate(**annotations).values("period")
-
-        corp_qs = (
-            corp_qs.annotate_bounty_income()
-            .annotate_ess_income()
-            .annotate_miscellaneous()
-            .annotate_daily_goal_income()
-        )
-
-        # Get Character Data
-        char_qs = (
-            self.models.char_journal.annotate(**annotations)
-            .values("period")
-            .annotate_billboard(self.chars, self.alts)
-        )
-
-        mining_qs = (
-            self.models.mining_journal.annotate(**annotations)
-            .values("period")
-            .annotate_billboard(self.chars)
-        )
-
-        # Process Character Journal
-        for entry in char_qs:
-            date = entry["period"].strftime(period_format)
-            for key, value in entry.items():
-                if key not in ["period"]:
-                    billboard.add_or_update_data_point(
-                        date=date, category=key, value=float(value)
-                    )
-        # Process Mining Journal
-        for entry in mining_qs:
-            date = entry["period"].strftime(period_format)
-            for key, value in entry.items():
-                if key not in ["period"]:
-                    billboard.add_or_update_data_point(
-                        date=date, category="mining", value=float(value)
-                    )
-        # Process Corp Journal
-        self._process_char_chart(billboard, corp_qs, period_format)
-
-        if not billboard.data_points:
-            return None
-
-        return billboard
-
-    def annotate_days(self, period, billboard_dict: _BillboardDict, tick=False):
-        """Generate the Billboard Data."""
-        trunctype, period_format = period
-        annotations = {"period": trunctype}
-        self.tick = tick
-
-        billboard = BillboardSystem()
-        billboard = self._process_billboard(billboard, annotations, period_format)
-
-        if billboard:
-            # Create the Chart
-            chart = billboard.to_chart_data()
-            chart = self._sort_series(chart)
-            billboard_dict.charts = chart
-
-            # Create the Ratting Bar
-            rattingbar = billboard.to_xy_data(is_character=True)
-            billboard_dict.rattingbar = rattingbar
-
-            # Create the Gauge
-            gauge = billboard.to_gauge_data()
-            billboard_dict.workflowgauge = self._sort_series(gauge)
-        return billboard_dict
-
-    # Create the Billboard
-    def billboard_ledger(self, chars, alts: list = None):
-        """Generate the Billboard Ledger."""
-        periods = BillboardTrunc()
-        self.chars = chars
-        self.alts = alts
-        standard = None
-
-        # Create Billboard Month
         if self.view == "year":
-            standard = self.annotate_days(periods.month, self.billboard_dict.standard)
+            qs = qs.annotate(period=TruncMonth("date"))
         elif self.view == "month":
-            standard = self.annotate_days(periods.day, self.billboard_dict.standard)
+            qs = qs.annotate(period=TruncDay("date"))
         elif self.view == "day":
-            standard = self.annotate_days(periods.hour, self.billboard_dict.standard)
+            qs = qs.annotate(period=TruncHour("date"))
+        else:
+            raise ValueError("Invalid view type. Use 'day', 'month', or 'year'.")
 
-        # Generate Billboard
-        self.billboard_dict.standard = standard
+        qs = qs.values("period").order_by("period")
+        return qs
 
-        return self.billboard_dict
-
-
-class BillboardCorporation:
-    def __init__(self, view: str, journal: CorporationWalletJournalEntry):
-        self.view = view
-        self.journal = journal
-        self.billboard_dict = BillboardDict()
-
-    def _sort_series(self, chart_data: ChartData) -> ChartData:
-        """Sort the series data by category names."""
-        for series_item in chart_data.series:
-            sorted_series = {
-                k: v for k, v in sorted(series_item.items()) if k != "date"
-            }
-            sorted_series = {"date": series_item["date"], **sorted_series}
-            series_item.clear()
-            series_item.update(sorted_series)
-        return chart_data
-
-    def _process_corp_chart(self, billboard: BillboardSystem, corp_qs, period_format):
-        """Process Corporation Chart from Corporation Journal."""
-        for entry in corp_qs:
-            date = entry["period"].strftime(period_format)
-            main_char_name = entry.get("main_entity_name", "Unknown")
-            corporation = entry.get("corporation", "Unknown")
+    def create_or_update_results(self, qs: QuerySet[dict]):
+        """Create or update the results for the billboard"""
+        for entry in qs:
+            date = entry["period"]
             bounty = entry.get("bounty_income", 0)
             ess = entry.get("ess_income", 0)
             miscellaneous = entry.get("miscellaneous", 0)
-            values = bounty + ess + miscellaneous
 
-            for key, value in entry.items():
-                if key in [
-                    "period",
-                    "alts",
-                    "main_entity_name",
-                    "main_entity_id",
-                    "corporation",
-                ]:
-                    continue
-                billboard.add_or_update_data_point(
-                    date=date, category=key, value=float(value)
-                )
+            # Store the results in a dictionary
+            if date not in self.results:
+                self.results[date] = {
+                    "bounty": 0,
+                    "ess": 0,
+                    "miscellaneous": 0,
+                }
+            self.results[date]["bounty"] += bounty
+            self.results[date]["ess"] += ess
+            self.results[date]["miscellaneous"] += miscellaneous
 
-            billboard.add_chord_data_point(
-                from_char=main_char_name, to=corporation, value=values
+        return self.results
+
+    def create_ratting_bar(self):
+        """Create the ratting bar data for the billboard"""
+        formatted_results = []
+
+        for date, values in self.results.items():
+            # Remove categories with value 0
+            filtered_values = {k: v for k, v in values.items() if v != 0}
+            if not filtered_values:
+                continue  # Skip if all categories are 0
+
+            formatted_results.append(
+                {
+                    "date": self._get_formatted_date(date, self.view),
+                    **{k: int(v) for k, v in filtered_values.items()},
+                }
             )
 
-    # pylint: disable=too-many-branches, too-many-locals
-    def _process_billboard(
-        self, billboard: BillboardSystem, annotations, period_format
-    ) -> BillboardSystem:
-        """Process the queryset for the billboard."""
-        corp_qs = self.journal.annotate(**annotations)
+        if not formatted_results:
+            return []
 
-        corp_qs = corp_qs.values(
-            "period", "main_entity_id", "main_entity_name"
-        ).annotate(
-            corporation=F("division__corporation__corporation__corporation_name")
+        self.dict.rattingbar = ChartData(
+            title="Ratting Bar",
+            categories=["Bounty", "ESS", "Miscellaneous"],
+            series=formatted_results,
         )
-
-        corp_qs = (
-            corp_qs.annotate_bounty_income()
-            .annotate_ess_income()
-            .annotate_miscellaneous()
-            .annotate_daily_goal_income()
-        )
-
-        self._process_corp_chart(billboard, corp_qs, period_format)
-
-        if not billboard.data_points:
-            return None
-
-        return billboard
-
-    def annotate_days(self, period, billboard_dict: _BillboardDict, tick=False):
-        """Generate the Billboard Data."""
-        trunctype, period_format = period
-        annotations = {"period": trunctype}
-        self.tick = tick
-
-        billboard = BillboardSystem()
-        billboard = self._process_billboard(billboard, annotations, period_format)
-
-        if billboard:
-            # Create the Chart
-            chart = billboard.to_chord_data()
-            billboard_dict.charts = chart
-
-            # Create the Ratting Bar
-            rattingbar = billboard.to_xy_data(is_character=False)
-            billboard_dict.rattingbar = rattingbar
-
-            # Create the Gauge
-            gauge = billboard.to_gauge_data()
-            billboard_dict.workflowgauge = self._sort_series(gauge)
-        return billboard_dict
-
-    # Create the Billboard
-    def billboard_ledger(self):
-        """Generate the Billboard Ledger."""
-        periods = BillboardTrunc()
-        standard = None
-
-        # Create Billboard Month
-        if self.view == "year":
-            standard = self.annotate_days(periods.month, self.billboard_dict.standard)
-        elif self.view == "month":
-            standard = self.annotate_days(periods.day, self.billboard_dict.standard)
-        elif self.view == "day":
-            standard = self.annotate_days(periods.hour, self.billboard_dict.standard)
-
-        # Generate Billboard
-        self.billboard_dict.standard = standard
-
-        return self.billboard_dict
-
-
-class BillboardAlliance:
-    def __init__(self, view: str, journal: CorporationWalletJournalEntry):
-        self.view = view
-        self.journal = journal
-        self.billboard_dict = BillboardDict()
-
-    def _sort_series(self, chart_data: ChartData) -> ChartData:
-        """Sort the series data by category names."""
-        for series_item in chart_data.series:
-            sorted_series = {
-                k: v for k, v in sorted(series_item.items()) if k != "date"
-            }
-            sorted_series = {"date": series_item["date"], **sorted_series}
-            series_item.clear()
-            series_item.update(sorted_series)
-        return chart_data
-
-    def _process_corp_chart(self, billboard: BillboardSystem, corp_qs, period_format):
-        """Process Corporation Chart from Corporation Journal."""
-        for entry in corp_qs:
-            date = entry["period"].strftime(period_format)
-            chord_from = entry.get(
-                "division__corporation__corporation__corporation_name", "Unknown"
-            )
-            chord_to = "Wallet"
-            bounty = entry.get("bounty_income", 0)
-            ess = entry.get("ess_income", 0)
-            miscellaneous = entry.get("miscellaneous", 0)
-            values = bounty + ess + miscellaneous
-
-            for key, value in entry.items():
-                if key in [
-                    "period",
-                    "division__corporation__corporation__corporation_name",
-                    "division__corporation__corporation__corporation_id",
-                    "corporation",
-                ]:
-                    continue
-                billboard.add_or_update_data_point(
-                    date=date, category=key, value=float(value)
-                )
-
-            billboard.add_chord_data_point(
-                from_char=chord_from, to=chord_to, value=values
-            )
-
-    # pylint: disable=too-many-branches, too-many-locals
-    def _process_billboard(
-        self, billboard: BillboardSystem, annotations, period_format
-    ) -> BillboardSystem:
-        """Process the queryset for the billboard."""
-        corp_qs = self.journal.annotate(**annotations)
-
-        corp_qs = corp_qs.values(
-            "period",
-            "division__corporation__corporation__corporation_id",
-            "division__corporation__corporation__corporation_name",
-        ).annotate(
-            corporation=F("division__corporation__corporation__corporation_name")
-        )
-
-        corp_qs = (
-            corp_qs.annotate_bounty_income()
-            .annotate_ess_income()
-            .annotate_miscellaneous()
-            .annotate_daily_goal_income()
-        )
-
-        self._process_corp_chart(billboard, corp_qs, period_format)
-
-        if not billboard.data_points:
-            return None
-
-        return billboard
-
-    def annotate_days(self, period, billboard_dict: _BillboardDict, tick=False):
-        """Generate the Billboard Data."""
-        trunctype, period_format = period
-        annotations = {"period": trunctype}
-        self.tick = tick
-
-        billboard = BillboardSystem()
-        billboard = self._process_billboard(billboard, annotations, period_format)
-
-        if billboard:
-            # Create the Chart
-            chart = billboard.to_chord_data()
-            billboard_dict.charts = chart
-
-            # Create the Ratting Bar
-            rattingbar = billboard.to_xy_data(is_character=False)
-            billboard_dict.rattingbar = rattingbar
-
-            # Create the Gauge
-            gauge = billboard.to_gauge_data()
-            billboard_dict.workflowgauge = self._sort_series(gauge)
-        return billboard_dict
-
-    # Create the Billboard
-    def billboard_ledger(self):
-        """Generate the Billboard Ledger."""
-        periods = BillboardTrunc()
-        standard = None
-
-        # Create Billboard Month
-        if self.view == "year":
-            standard = self.annotate_days(periods.month, self.billboard_dict.standard)
-        elif self.view == "month":
-            standard = self.annotate_days(periods.day, self.billboard_dict.standard)
-        elif self.view == "day":
-            standard = self.annotate_days(periods.hour, self.billboard_dict.standard)
-
-        # Generate Billboard
-        self.billboard_dict.standard = standard
-
-        return self.billboard_dict
+        return formatted_results

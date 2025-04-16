@@ -1,193 +1,138 @@
-/* global planetarySettings */
-/* global bootstrap */
+/* global planetarySettings, bootstrap */
 
-document.addEventListener('DOMContentLoaded', function() {
-    var csrfToken = planetarySettings.csrfToken;
-    var urlAlarm = planetarySettings.switchAlarmUrl;
-    var url = planetarySettings.planetaryUrl;
+$(document).ready(() => {
     var switchAlarmText = planetarySettings.switchAlarmText;
     var switchAlarm = planetarySettings.switchAlarm;
-    var switchAlarmAll = planetarySettings.switchAlarmAll;
     var alarmActivated = planetarySettings.alarmActivated;
     var alarmDeactivated = planetarySettings.alarmDeactivated;
-    var characterPk = planetarySettings.characterPk;
 
-    function switchAlarmUrl(characterId, planetId) {
-        return urlAlarm
-            .replace('1337', characterId)
-            .replace('1337', planetId);
+    function viewFactioyUrl(characterId, planetId) {
+        return planetarySettings.viewFactoryUrl.replace('1337', characterId).replace('1337', planetId);
     }
 
+    function viewExtractorUrl(characterId, planetId) {
+        return planetarySettings.viewExtractorUrl.replace('1337', characterId).replace('1337', planetId);
+    }
+
+
+
     // Initialize DataTable
-    var table = $('#planets-details').DataTable({
-        'order': [[4, 'desc']], // Adjust the column index if needed
-        'pageLength': 25,
-        'columnDefs': [
-            { 'orderable': false, 'targets': 'no-sort' }
-        ]
-    });
-
-    // Fetch data using AJAX
-    $.ajax({
-        url: url,
-        method: 'GET',
-        dataType: 'json',
-        success: function(data) {
-            const characterIds = new Set();
-
-            data.forEach(item => {
-                characterIds.add(item.character_id);
-                const row = [];
-
-                const viewFactoryUrl = `/ledger/api/character/${item.character_id}/planetary/${item.planet_id}/factory/`;
-                const viewExtractorUrl = `/ledger/api/character/${item.character_id}/planetary/${item.planet_id}/extractor/`;
-
-                // Character
-                const characterCell = `
-                    <td>
-                        <img src="https://images.evetech.net/characters/${item.character_id}/portrait?size=32" class="rounded-circle" style="margin-right: 5px;">
-                        ${item.character_name}
-                    </td>
-                `;
-
-                // Planet Type
-                const planetTypeCell = `
-                    <td>
-                        <img src="https://images.evetech.net/types/${item.planet_type_id}/icon?size=32" class="rounded-circle" style="margin-right: 5px;" data-tooltip-toggle="planetary" title="${item.planet}">
-                        ${item.planet}
-                        <i class="fa-solid fa-bullhorn" style="margin-left: 5px; color: ${item.alarm ? 'green' : 'red'};" title="${item.alarm ? alarmActivated : alarmDeactivated}" data-tooltip-toggle="planetary"></i>
-                    </td>
-                `;
-
-                // Upgrade Level
-                const upgradeLevelCell = `<td>${item.upgrade_level}</td>`;
-
-                // Products
-                const productsCell = `
-                    <td>
-                        ${Object.values(item.products.processed).map(product => `<img src="https://images.evetech.net/types/${product.id}/icon?size=32" data-tooltip-toggle="planetary" title="${product.name}">`).join(' ')}
-                    </td>
+    const PlanetaryTable = $('#planets-details').DataTable({
+        ajax: {
+            url: planetarySettings.planetaryUrl,
+            dataSrc: '',
+            cache: false
+        },
+        columns: [
+            {
+                data: 'character_name',
+                render: function(data, type, row) {
+                    return `
+                        <img src="https://images.evetech.net/characters/${row.character_id}/portrait?size=32" class="rounded-circle" style="margin-right: 5px;">
+                        ${data}
+                    `;
+                }
+            },
+            {
+                data: 'planet',
+                render: function(data, type, row) {
+                    return `
+                        <img src="https://images.evetech.net/types/${row.planet_type_id}/icon?size=32" class="rounded-circle" style="margin-right: 5px;" data-tooltip-toggle="ledger" title="${row.planet}">
+                        ${data}
+                        <i class="fa-solid fa-bullhorn" style="margin-left: 5px; color: ${row.alarm ? 'green' : 'red'};" title="${row.alarm ? alarmActivated : alarmDeactivated}" data-tooltip-toggle="ledger"></i>
+                    `;
+                }
+            },
+            {
+                data: 'upgrade_level'
+            },
+            {
+                data: 'products',
+                render: function(data, type, row) {
+                    return Object.values(data.processed).map(product => `
+                        <img src="https://images.evetech.net/types/${product.id}/icon?size=32" data-tooltip-toggle="ledger" title="${product.name}">
+                    `).join(' ') + `
                     <button class="btn btn-primary btn-sm btn-square"
                         data-bs-toggle="modal"
                         data-bs-target="#modalViewFactoryContainer"
-                        data-ajax_factory="${viewFactoryUrl}"
-                        title="${row.main_name}" data-tooltip-toggle="ledger-tooltip" data-bs-placement="left">
+                        data-ajax_factory="${viewFactioyUrl(row.character_id, row.planet_id)}"
+                        data-tooltip-toggle="ledger"
+                        data-bs-placement="left"
+                        title="${row.character_name} - ${row.planet}"
+                        >
                         <span class="fas fa-info"></span>
-                    </button>
-                `;
-
-                // Extractors
-                let extractorsCell = '<td>No Extractors</td>';
-                if (Object.values(item.extractors).length > 0) {
-                    let totalInstallTime = 0;
-                    let totalExpiryTime = 0;
-                    let currentTime = new Date().getTime();
-                    let extractorCount = Object.values(item.extractors).length;
-
-                    Object.values(item.extractors).forEach(extractor => {
-                        totalInstallTime += new Date(extractor.install_time).getTime();
-                        totalExpiryTime += new Date(extractor.expiry_time).getTime();
-                    });
-
-                    let averageInstallTime = totalInstallTime / extractorCount;
-                    let averageExpiryTime = totalExpiryTime / extractorCount;
-
-                    const totalDuration = averageExpiryTime - averageInstallTime;
-                    const elapsedDuration = currentTime - averageInstallTime;
-                    const progressPercentage = Math.min(Math.max((elapsedDuration / totalDuration) * 100, 0), 100);
-
-                    let extractorIcons = Object.values(item.extractors).map(extractor => {
-                        let iconUrl = getIconUrl(extractor.item_id);
-                        return `<img src="${iconUrl}" data-tooltip-toggle="planetary" title="${extractor.item_name}">`;
-                    }).join('');
-
-                    extractorsCell = `
-                        <td>
-                            <div style="display: flex; align-items: center;">
-                                <div class="progress-outer" style="flex-grow: 1; margin-right: 10px;">
-                                    <div class="progress">
-                                        <div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" style="width: ${progressPercentage}%; box-shadow: -1px 10px 10px rgba(240, 173, 78, 0.7);" aria-valuenow="${progressPercentage}" aria-valuemin="0" aria-valuemax="100"></div>
-                                        <div class="progress-value">${progressPercentage.toFixed(0)}%</div>
-                                    </div>
-                                </div>
-                                ${extractorIcons}
-                                <button class="btn btn-primary btn-sm btn-square"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalViewExtractorContainer"
-                                    data-ajax_extractor="${viewExtractorUrl}"
-                                    title="${row.main_name}" data-tooltip-toggle="ledger-tooltip" data-bs-placement="left">
-                                    <span class="fas fa-info"></span>
-                                </button>
-                            </div>
-                        </td>
+                    </button>`;
+                }
+            },
+            {
+                data: 'percentage'
+            },
+            {
+                data: 'extractors',
+                render: function(data, type, row) {
+                    return Object.values(row.products.raw).map(product => `
+                        <img src="https://images.evetech.net/types/${product.id}/icon?size=32" data-tooltip-toggle="ledger" title="${product.name}">
+                    `).join(' ') + `
+                    <button class="btn btn-primary btn-sm btn-square"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalViewExtractorContainer"
+                        data-ajax_extractor="${viewExtractorUrl(row.character_id, row.planet_id)}"
+                        data-tooltip-toggle="ledger"
+                        data-bs-placement="left"
+                        title="${row.character_name} - ${row.planet}"
+                        >
+                        <span class="fas fa-info"></span>
+                    </button>`;
+                }
+            },
+            {
+                data: 'status',
+                render: function(data, type, row) {
+                    return `
+                        <img src="/static/ledger/images/${row.expired ? 'red' : 'green'}.png" style="width: 24px; height: 24px;" title="${row.expired ? 'Expired' : 'Active'}" data-tooltip-toggle="ledger">
                     `;
                 }
+            },
+            {
+                data: 'last_update',
+                render: function(data, type, row) {
+                    return new Date(data).toLocaleString();
+                }
 
-                // Status
-                const statusCell = `
-                    <td>
-                        <img src="/static/ledger/images/${item.expired ? 'red' : 'green'}.png" style="width: 24px; height: 24px;" title="${item.expired ? 'Expired' : 'Active'}" data-tooltip-toggle="planetary">
-                    </td>
-                `;
-
-                // Last Updated
-                const lastUpdatedCell = `<td>${new Date(item.last_update).toLocaleString()}</td>`;
-
-                // Actions
-                const actionsCell = `
-                    <td>
-                        <button type="button" class="btn btn-primary btn-sm btn-square me-2" data-bs-toggle="modal" data-tooltip-toggle="planetary" data-character-id="${item.character_id}" data-planet-id="${item.planet_id} "data-title="${switchAlarm}" data-text="${switchAlarmText} \n${item.character_name} - ${item.planet}?" data-bs-target="#ledger-planetary-confirm" data-action="/skillfarm/switch_alarm/2115474712/" aria-label="Toggle Alarm">
+            },
+            {
+                data: 'actions',
+                render: function(data, type, row) {
+                    return `
+                        <button type="button" class="btn btn-primary btn-sm btn-square me-2" data-bs-toggle="modal" data-tooltip-toggle="ledger" data-character-id="${row.character_id}" data-planet-id="${row.planet_id}" data-title="${switchAlarm}" data-text="${switchAlarmText} \n${row.character_name} - ${row.planet}?" data-bs-target="#ledger-planetary-confirm" data-action="/ledger/planetary/switch_alarm/" aria-label="Toggle Alarm">
                             <span class="fas fa-bullhorn"></span>
                         </button>
-                    </td>
-                `;
-
-                row.push(characterCell, planetTypeCell, upgradeLevelCell, productsCell, extractorsCell, statusCell, lastUpdatedCell, actionsCell);
-                table.row.add(row).draw();
-            });
-
-            // Add "Switch All Alarms" button if data exists
-            if (data.length > 0) {
-                const switchAllAlarmsButton = document.createElement('button');
-                switchAllAlarmsButton.textContent = switchAlarmAll;
-                switchAllAlarmsButton.className = 'btn btn-primary';
-                switchAllAlarmsButton.style.marginTop = '10px';
-                switchAllAlarmsButton.title = switchAlarm;
-
-                const switchAllAlarmsForm = document.createElement('form');
-                switchAllAlarmsForm.method = 'post';
-                switchAllAlarmsForm.action = switchAlarmUrl(characterPk, 0);
-                switchAllAlarmsForm.id = 'switchAllAlarmsForm';
-                switchAllAlarmsForm.className = 'd-inline';
-                switchAllAlarmsForm.innerHTML = csrfToken +
-                    '<input type="hidden" name="character_id" value="' + characterPk + '">' +
-                    '<button type="button" class="btn btn-primary btn-sm btn-square" data-bs-toggle="modal" data-tooltip-toggle="planetary" title="'+ switchAlarm +'" data-bs-target="#confirmModal" data-confirm-text="' + switchAlarmText + '?" data-form-id="switchAllAlarmsForm">' + switchAllAlarmsButton.textContent + '</button>';
-
-                const tableContainer = document.querySelector('#planets-details').parentElement;
-                const switchAllAlarmsContainer = document.createElement('div');
-                switchAllAlarmsContainer.className = 'switch-all-alarms-container';
-                switchAllAlarmsContainer.appendChild(switchAllAlarmsForm);
-                tableContainer.appendChild(switchAllAlarmsContainer);
+                    `;
+                }
             }
-
-            // Reinitialize tooltips on draw
-            table.on('draw', function () {
-                $('[data-tooltip-toggle="planetary"]').tooltip({
-                    trigger: 'hover',
-                });
-            });
-            // Init tooltips
-
-            $('[data-tooltip-toggle="planetary"]').tooltip({
+        ],
+        columnDefs: [
+            {
+                orderable: false,
+                targets: 'no-sort',
+            }
+        ],
+        order: [
+            [4, 'desc']
+        ],
+        pageLength: 25,
+        initComplete: function() {
+            $('[data-tooltip-toggle="ledger"]').tooltip({
                 trigger: 'hover',
             });
         },
-        error: function(error) {
-            console.error('Error fetching data:', error);
+        drawCallback: function() {
+            $('[data-tooltip-toggle="ledger"]').tooltip({
+                trigger: 'hover',
+            });
         }
     });
-});
 
-function getIconUrl(typeId) {
-    return `https://images.evetech.net/types/${typeId}/icon?size=32`;
-}
+    // Make PlanetaryTable globally accessible
+    window.PlanetaryTable = PlanetaryTable;
+});
