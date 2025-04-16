@@ -67,8 +67,8 @@
         </ul>
     </div>
     <div class="ms-auto">
-            <button class="btn btn-secondary me-2 administration"><a class="nav-link py-0" href="{% url 'ledger:character_administration' character_id=character_id %}">{% translate 'Administration' %}</a></button>
-            <button class="btn btn-secondary overview"><a class="nav-link py-0" href="{% url 'ledger:character_overview' %}">{% translate 'Account Overview' %}</a></button>
+        <a href="{% url 'ledger:character_administration' character_id=character_id %}"><button class="btn btn-secondary me-2 administration">{% translate 'Administration' %}</button></a>
+        <a href="{% url 'ledger:character_overview' %}"><button class="btn btn-secondary overview">{% translate 'Account Overview' %}</button></a>
     </div>
 </div>
 <div class="card-body rounded-bottom">
@@ -83,7 +83,7 @@
 {% block extra_javascript %}
 
 {% include 'bundles/datatables-js-bs5.html' %}
-{% include 'ledger/bundles/ledger-js.html' %}
+{% include 'ledger/bundles/character-ledger-bundles.html' %}
 
 {% endblock extra_javascript %}
 {% block extra_script %}

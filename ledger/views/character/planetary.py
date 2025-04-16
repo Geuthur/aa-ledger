@@ -3,10 +3,11 @@ Planetary Audit
 """
 
 import logging
+from http import HTTPStatus
 
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
@@ -44,7 +45,9 @@ def planetary_ledger(request, character_id=None):
         },
     }
     context = add_info_to_context(request, context)
-    return render(request, "ledger/planetary/planetary_ledger.html", context=context)
+    return render(
+        request, "ledger/charledger/planetary/planetary_ledger.html", context=context
+    )
 
 
 @login_required
@@ -60,26 +63,32 @@ def planetary_overview(request):
     context = add_info_to_context(request, context)
 
     return render(
-        request, "ledger/planetary/admin/planetary_overview.html", context=context
+        request,
+        "ledger/charledger/planetary/admin/planetary_overview.html",
+        context=context,
     )
 
 
 @login_required
 @permission_required("ledger.basic_access")
 @require_POST
-def switch_alarm(request, character_id: list, planet_id: int):
+def switch_alarm(request):
     # Check Permission
-    perm, main = get_character(request, character_id)
     form = forms.ConfirmForm(request.POST)
 
     if form.is_valid():
-        if not perm:
-            msg = _("Permission Denied")
-            messages.error(request, msg)
-            return redirect("ledger:planetary_ledger", character_id=character_id)
-
         character_id = int(form.cleaned_data["character_id"])
         planet_id = int(form.cleaned_data["planet_id"])
+
+        perm, main = get_character(request, character_id)
+
+        if not perm:
+            msg = _("Permission Denied")
+            return JsonResponse(
+                {"success": True, "message": msg},
+                status=HTTPStatus.FORBIDDEN,
+                safe=False,
+            )
 
         if character_id == 0:
             characters = get_alts_queryset(main)
@@ -93,21 +102,34 @@ def switch_alarm(request, character_id: list, planet_id: int):
         try:
             planets = CharacterPlanetDetails.objects.filter(filters)
 
-            if planets:
+            if planets.exists():
+                # Determine the majority state
+                on_count = planets.filter(notification=True).count()
+                off_count = planets.filter(notification=False).count()
+                majority_state = on_count > off_count
+
+                # Set all to the opposite of the majority state
                 for p in planets:
-                    p.notification = not p.notification
+                    p.notification = not majority_state
                     p.save()
+
+                msg = _("All alarms successfully switched")
             else:
                 raise CharacterPlanetDetails.DoesNotExist
 
-            msg = _("Alarm/s successfully switched")
-            messages.info(request, msg)
         except CharacterPlanetDetails.DoesNotExist:
             msg = _("Planet/s not found")
-            messages.error(request, msg)
-            return redirect("ledger:planetary_ledger", character_id=character_id)
-        return redirect("ledger:planetary_ledger", character_id=character_id)
+            return JsonResponse(
+                {"success": True, "message": msg},
+                status=HTTPStatus.NOT_FOUND,
+                safe=False,
+            )
+
+        return JsonResponse(
+            {"success": True, "message": msg}, status=HTTPStatus.OK, safe=False
+        )
 
     msg = "Invalid Form"
-    messages.error(request, msg)
-    return redirect("ledger:planetary_ledger", character_id=character_id)
+    return JsonResponse(
+        {"success": False, "message": msg}, status=HTTPStatus.BAD_REQUEST, safe=False
+    )

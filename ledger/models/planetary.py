@@ -158,6 +158,43 @@ class CharacterPlanetDetails(models.Model):
                 }
         return product_types
 
+    def allocate_overall_progress(self) -> dict:
+        extractors = self.get_extractors_info()
+
+        if not extractors:
+            return 0
+
+        total_install_time = 0
+        total_expiry_time = 0
+        current_time = timezone.now().timestamp() * 1000  # Current time in milliseconds
+        extractor_count = len(extractors)
+
+        for extractor in extractors.values():
+            if not extractor.get("install_time") or not extractor.get("expiry_time"):
+                continue
+            install_time = (
+                timezone.datetime.fromisoformat(extractor["install_time"]).timestamp()
+                * 1000
+            )
+            expiry_time = (
+                timezone.datetime.fromisoformat(extractor["expiry_time"]).timestamp()
+                * 1000
+            )
+
+            total_install_time += install_time
+            total_expiry_time += expiry_time
+
+        average_install_time = total_install_time / extractor_count
+        average_expiry_time = total_expiry_time / extractor_count
+
+        total_duration = average_expiry_time - average_install_time
+        elapsed_duration = current_time - average_install_time
+        progress_percentage = min(
+            max((elapsed_duration / total_duration) * 100, 0), 100
+        )
+
+        return progress_percentage
+
     def get_extractors_info(self) -> dict:
         extractors = {}
         current_time = timezone.now().timestamp()

@@ -118,7 +118,7 @@
 
 <!--############################## COSTS #######################-->
 
-{% if character.contract_cost.total_amount_day or character.production_cost.total_amount_day or character.market_cost.total_amount_day or character.traveling_cost.total_amount_day or character.asset_cost.total_amount_day or character.skill_cost.total_amount_day or character.insurance_cost.total_amount_day or character.planetary_cost.total_amount_day %}
+{% if character.contract_cost.total_amount_day or character.donation_cost.total_amount_day or character.production_cost.total_amount_day or character.market_cost.total_amount_day or character.traveling_cost.total_amount_day or character.asset_cost.total_amount_day or character.skill_cost.total_amount_day or character.insurance_cost.total_amount_day or character.planetary_cost.total_amount_day or character.rental_cost.total_amount_day %}
     <hr>
 
     {% if character.market_cost.total_amount_day %}
@@ -132,6 +132,13 @@
         <div class="row description-row">
             <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Contract Cost" %}:</div>
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.contract_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+        </div>
+    {% endif %}
+
+    {% if character.donation_cost.total_amount_day %}
+        <div class="row description-row">
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Donation sent" %}:</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.donation_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
 
@@ -183,6 +190,13 @@
             <div class='col-sm-4 text-end'><span class="text-warning">{{ character.planetary_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
         </div>
     {% endif %}
+
+    {% if character.rental_cost.total_amount_day %}
+        <div class="row description-row">
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Rental Cost" %}:</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.rental_cost.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+        </div>
+    {% endif %}
 {% endif %}
 
 
@@ -199,6 +213,6 @@
     </div>
 {% endif %}
 
-{% if character.bounty_income.total_amount_day or character.mission_income.total_amount_day or character.mining.total_amount_day or character.contract_cost.total_amount_day or character.production_cost.total_amount_day or character.market_cost.total_amount_day or character.traveling_cost.total_amount_day or character.asset_cost.total_amount_day or character.skill_cost.total_amount_day or character.insurance_cost.total_amount_day or character.planetary_cost.total_amount_day or character.market_income.total_amount_day or character.contract_income.total_amount_day or character.insurance_income.total_amount_day or character.milestone_income.total_amount_day or character.donation_income.total_amount_day or character.incursion_income.total_amount_day %}
+{% if character.summary.total_current_day %}
 <hr>
 {% endif %}

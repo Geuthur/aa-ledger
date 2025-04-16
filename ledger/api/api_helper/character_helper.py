@@ -1,40 +1,75 @@
 import logging
-from datetime import datetime
+from collections import defaultdict
+from decimal import Decimal
 
-from django.db.models import Q
+from django.db.models import Q, QuerySet
+from django.utils import timezone
 
-from ledger.api.api_helper.billboard_helper import BillboardCharacterLedger
-from ledger.api.api_helper.core_manager import (
-    LedgerCharacterDict,
-    LedgerModels,
-    LedgerTotal,
+from allianceauth.eveonline.models import EveCharacter
+
+from ledger.api.api_helper.aggregator import AggregateLedger, AggregateMining
+from ledger.api.api_helper.billboard_helper import BillboardSystem
+from ledger.api.api_helper.information_helper import (
+    InformationData,
 )
 from ledger.api.helpers import get_alts_queryset
-from ledger.models.characteraudit import CharacterWalletJournalEntry
+from ledger.models.characteraudit import (
+    CharacterMiningLedger,
+    CharacterWalletJournalEntry,
+)
+from ledger.models.corporationaudit import (
+    CorporationWalletJournalEntry,
+)
+from ledger.view_helpers.core import events_filter
 
 logger = logging.getLogger(__name__)
+
+
+class CharacterGlances:
+    """CharacterGlances class to process the glances for the character."""
+
+    def __init__(
+        self, char_journal: QuerySet, corp_journal: QuerySet, mining_journal: QuerySet
+    ):
+        self.glance_char = AggregateLedger(char_journal)
+        self.glance_corp = AggregateLedger(corp_journal)
+        self.glance_mining = AggregateMining(mining_journal)
+        self.glance_day_char = char_journal.filter(
+            date__year=timezone.now().year,
+            date__month=timezone.now().month,
+            date__day=timezone.now().day,
+        )
+        self.glance_day_corp = corp_journal.filter(
+            date__year=timezone.now().year,
+            date__month=timezone.now().month,
+            date__day=timezone.now().day,
+        )
+        self.glance_day_mining = mining_journal.filter(
+            date__year=timezone.now().year,
+            date__month=timezone.now().month,
+            date__day=timezone.now().day,
+        )
 
 
 class CharacterProcess:
     """JournalProcess class to process the journal entries."""
 
-    def __init__(self, chars, date: datetime, view=None):
-        self.date = date
+    def __init__(
+        self,
+        main: EveCharacter,
+        chars: QuerySet[EveCharacter],
+        date: timezone.datetime,
+        view=None,
+    ):
+        self.main = main
         self.chars = chars
+        self.date = date
         self.view = view
-        self.alts = self.get_alts(chars)
-        self.chars_list = []
-        self.summary_total = LedgerTotal()
-        self.create_queryset()
+        self.current_date = timezone.now()
 
-    def create_queryset(self):
-        """Create the Queryset for the Model"""
-        # Get the All Alt Characters from Main
-        if self.alts:
-            self.chars_list = [char.character_id for char in self.alts]
-        else:
-            self.chars_list = [char.character_id for char in self.chars]
+        self._init_journal()
 
+    def _filter_date(self):
         # pylint: disable=duplicate-code
         filter_date = Q(date__year=self.date.year)
         if self.view == "month":
@@ -42,153 +77,298 @@ class CharacterProcess:
         elif self.view == "day":
             filter_date &= Q(date__month=self.date.month)
             filter_date &= Q(date__day=self.date.day)
+        return filter_date
 
-        # Process Ledger Models
-        self.char_journal, self.mining_journal, self.corp_journal = (
-            CharacterWalletJournalEntry.objects.filter(
-                filter_date,
+    def _init_journal(self):
+        """Initialize the data for the ledger"""
+        self.chars_ids = [char.character_id for char in self.chars]
+        if len(self.chars) == 1:
+            self.chars_ids = get_alts_queryset(self.main).values_list(
+                "character_id", flat=True
             )
-            .select_related("first_party", "second_party")
-            .generate_ledger(
-                characters=self.chars,
-                filter_date=filter_date,
-                exclude=self.chars_list,
-            )
+
+        self.character_journal = CharacterWalletJournalEntry.objects.filter(
+            self._filter_date(), character__character__character_id__in=self.chars_ids
+        )
+        self.mining_journal = CharacterMiningLedger.objects.filter(
+            self._filter_date(), character__character__character_id__in=self.chars_ids
+        )
+        self.corporation_journal = self._init_corporation_journal(self.chars_ids)
+
+        self.glances = CharacterGlances(
+            char_journal=self.character_journal,
+            corp_journal=self.corporation_journal,
+            mining_journal=self.mining_journal,
         )
 
-    def get_alts(self, main):
-        """Get the Alts for the Main Character"""
-        alts = None
-        if len(main) == 1:
-            # pylint: disable=broad-exception-caught
-            try:
-                alts = get_alts_queryset(main[0])
-            except Exception:
-                pass
-        return alts
-
-    # pylint: disable=too-many-locals
-    def process_character_chars(self):
-        """Process the characters for the Journal"""
-        # Initialize character_dict with default values
-        character_dict = LedgerCharacterDict()
-        character_totals = LedgerTotal()
-
-        # Annotate Mining for Characters
-        mining_char_journal = self.mining_journal.annotate_mining()
-
-        # Annotate Corp Journal for Characters
-        corp_character_journal = (
-            self.corp_journal.values("second_party__eve_id", "second_party__name")
-            .annotate_daily_goal_income(is_character_ledger=True)
-            .annotate_ess_income(is_character_ledger=True)
+    def _init_corporation_journal(self, chars_ids: list[int]):
+        """Get the involved characters for the corporation"""
+        corporation_journal = CorporationWalletJournalEntry.objects.filter(
+            self._filter_date(),
+            Q(first_party_id__in=chars_ids) | Q(second_party_id__in=chars_ids),
         )
 
-        character_journal = self.char_journal
+        # Exclude Corp Tax Events
+        corporation_journal = events_filter(corporation_journal)
 
-        for mining_char in mining_char_journal:
-            char_name = mining_char.get(
-                "character__character__character_name", "Unknown"
-            )
-            char_id = mining_char.get("character__character__character_id", 0)
-            total_amount_mining = mining_char.get("total_amount", 0)
-
-            character_dict.add_or_update_character(
-                char_id,
-                char_name,
-                total_amount_mining=total_amount_mining,
-            )
-
-            totals = {
-                "total_amount_mining": total_amount_mining,
-            }
-            # Summary all
-            character_totals.get_summary(totals)
-
-        for char in character_journal:
-            char_name = char.get("char_name", "Unknown")
-            char_id = char.get("char_id", 0)
-
-            total_bounty = char.get("bounty_income", 0)
-            total_others = char.get("miscellaneous", 0)
-            total_costs = char.get("costs", 0)
-
-            if total_bounty or total_others or total_costs:
-                character_dict.add_or_update_character(
-                    char_id,
-                    char_name,
-                    total_amount=total_bounty,
-                    total_amount_others=total_others,
-                    total_amount_costs=total_costs,
-                )
-
-            totals = {
-                "total_amount": total_bounty,
-                "total_amount_others": total_others,
-                "total_amount_costs": total_costs,
-            }
-            # Summary all
-            character_totals.get_summary(totals)
-
-        for corp_char in corp_character_journal:
-            char_name = corp_char.get("second_party__name", "Unknown")
-            char_id = corp_char.get("second_party__eve_id", 0)
-
-            total_ess = corp_char.get("ess_income", 0)
-            total_daily_goal = corp_char.get("daily_goal_income", 0)
-
-            if total_daily_goal:
-                character_dict.add_amount_to_character(
-                    char_id,
-                    char_name,
-                    total_daily_goal,
-                    "total_amount_others",
-                )
-
-            if total_ess:
-                character_dict.add_amount_to_character(
-                    char_id,
-                    char_name,
-                    total_ess,
-                    "total_amount_ess",
-                )
-
-            totals = {
-                "total_amount_ess": total_ess,
-                "total_amount_others": total_daily_goal,
-            }
-            # Summary all
-            character_totals.get_summary(totals)
-
-        # Generate the total sum
-        character_totals.calculate_total_sum(character_dict.to_dict())
-
-        return character_dict.to_dict(), character_totals.to_dict()
+        return corporation_journal
 
     def generate_ledger(self):
-        # Create the Dicts for each Character
-        character_dict, character_totals = self.process_character_chars()
+        ratting = {}
+        billboard = BillboardSystem(self.view)
 
-        # Create Data for Billboard
-        models = LedgerModels(
-            character_journal=self.char_journal,
-            corporation_journal=self.corp_journal,
-            mining_journal=self.mining_journal.annotate_pricing(),
-        )
+        def process_character(char):
+            """Helper method to process a single character."""
+            bounty = self.glances.glance_char.aggregate_bounty(char.character_id)
+            ess = self.glances.glance_corp.aggregate_ess(
+                char.character_id, is_character=True
+            )
+            mining = self.glances.glance_mining.aggregate_mining(char.character_id)
+            miscellaneous = self.glances.glance_char.aggregate_miscellaneous(
+                char.character_id
+            )
+            donation = self.glances.glance_char.aggregate_donation(
+                char.character_id, exclude=self.chars_ids
+            )
+            daily_goal = self.glances.glance_corp.aggregate_daily_goal(
+                char.character_id, is_character=True
+            )
+            miscellaneous += donation + daily_goal
+            costs = self.glances.glance_char.aggregate_costs(char.character_id)
 
-        # Create the Billboard for the Characters
-        ledger = BillboardCharacterLedger(view=self.view, models=models)
-        billboard_dict = ledger.billboard_ledger(self.chars_list)
+            if bounty == 0 and ess == 0 and miscellaneous == 0 and costs == 0:
+                return None
 
-        output = []
-        output.append(
-            {
-                "ratting": sorted(
-                    list(character_dict.values()), key=lambda x: x["main_name"]
-                ),
-                "billboard": billboard_dict,
-                "total": character_totals,
+            data = {
+                "main_id": char.character_id,
+                "main_name": char.character_name,
+                "entity_type": "character",
+                "total_amount": bounty,
+                "total_amount_ess": ess,
+                "total_amount_mining": mining,
+                "total_amount_others": miscellaneous,
+                "total_amount_costs": costs,
             }
+            return data
+
+        for char in self.chars:
+            data = process_character(char)
+            if data:
+                ratting[char.character_id] = data
+                billboard.chord_add_char_data_from_dict(data)
+
+        # Add Character Journal to the billboard
+        rattingbar_timeline = billboard.create_timeline(self.character_journal)
+        rattingbar = rattingbar_timeline.annotate_bounty_income().annotate_miscellaneous_with_exclude(
+            exclude=self.chars_ids
         )
+        billboard.create_or_update_results(rattingbar)
+
+        # Add Corporation Journal to the billboard
+        rattingbar_timeline = billboard.create_timeline(self.corporation_journal)
+        rattingbar = rattingbar_timeline.annotate_ess_income(is_character=True)
+        billboard.create_or_update_results(rattingbar)
+
+        billboard.create_ratting_bar()
+
+        # Aggregate totals
+        totals = {
+            "total_amount": self.glances.glance_char.aggregate_bounty(self.chars_ids),
+            "total_amount_ess": self.glances.glance_corp.aggregate_ess(
+                self.chars_ids, is_character=True
+            ),
+            "total_amount_mining": self.glances.glance_mining.aggregate_mining(
+                self.chars_ids
+            ),
+            "total_amount_costs": self.glances.glance_char.aggregate_costs(
+                self.chars_ids
+            ),
+            "total_amount_others": (
+                self.glances.glance_char.aggregate_miscellaneous(self.chars_ids)
+                + self.glances.glance_corp.aggregate_daily_goal(
+                    self.chars_ids, is_character=True
+                )
+                + self.glances.glance_char.aggregate_donation(
+                    self.chars_ids, exclude=self.chars_ids
+                )
+            ),
+        }
+        totals["total_amount_all"] = (
+            totals["total_amount"]
+            + totals["total_amount_ess"]
+            + totals["total_amount_mining"]
+            + totals["total_amount_others"]
+            + totals["total_amount_costs"]
+        )
+
+        output = {
+            "ratting": sorted(list(ratting.values()), key=lambda x: x["main_name"]),
+            "billboard": billboard.dict,
+            "total": totals,
+        }
 
         return output
+
+    def generate_template(self):
+        """Generate the template for the character"""
+        information_dict = {}
+
+        # Create the Ledger
+        ledger_data = InformationData(
+            character=self.main,
+            date=self.date,
+            view=self.view,
+            current_date=self.current_date,
+        )
+
+        day_glance = AggregateLedger(self.glances.glance_day_char)
+        day_glance_corp = AggregateLedger(self.glances.glance_day_corp)
+        day_glance_mining = AggregateMining(self.glances.glance_day_mining)
+
+        amounts = defaultdict(lambda: defaultdict(Decimal))
+
+        amounts["bounty_income"] = {
+            "total_amount": self.glances.glance_char.aggregate_bounty(self.chars_ids),
+            "total_amount_day": day_glance.aggregate_bounty(self.chars_ids),
+        }
+
+        amounts["mission_income"] = {
+            "total_amount": self.glances.glance_char.aggregate_mission(self.chars_ids),
+            "total_amount_day": day_glance.aggregate_mission(self.chars_ids),
+        }
+
+        amounts["mining"] = {
+            "total_amount": self.glances.glance_mining.aggregate_mining(self.chars_ids),
+            "total_amount_day": day_glance_mining.aggregate_mining(self.chars_ids),
+        }
+
+        amounts["incursion_income"] = {
+            "total_amount": self.glances.glance_char.aggregate_incursion(
+                self.chars_ids
+            ),
+            "total_amount_day": day_glance.aggregate_incursion(self.chars_ids),
+        }
+
+        amounts["market_income"] = {
+            "total_amount": self.glances.glance_char.aggregate_market(
+                second_party=self.chars_ids
+            ),
+            "total_amount_day": day_glance.aggregate_market(
+                second_party=self.chars_ids
+            ),
+        }
+
+        amounts["contract_income"] = {
+            "total_amount": self.glances.glance_char.aggregate_contract(self.chars_ids),
+            "total_amount_day": day_glance.aggregate_contract(self.chars_ids),
+        }
+
+        amounts["donation_income"] = {
+            "total_amount": self.glances.glance_char.aggregate_donation(
+                self.chars_ids, exclude=self.chars_ids
+            ),
+            "total_amount_day": day_glance.aggregate_donation(
+                self.chars_ids, exclude=self.chars_ids
+            ),
+        }
+
+        amounts["insurance_income"] = {
+            "total_amount": self.glances.glance_char.aggregate_insurance(
+                self.chars_ids
+            ),
+            "total_amount_day": day_glance.aggregate_insurance(self.chars_ids),
+        }
+
+        amounts["milestone_income"] = {
+            "total_amount": self.glances.glance_char.aggregate_milestone_reward(
+                self.chars_ids
+            ),
+            "total_amount_day": day_glance.aggregate_milestone_reward(self.chars_ids),
+        }
+
+        amounts["market_cost"] = {
+            "total_amount": self.glances.glance_char.aggregate_market_cost(
+                self.chars_ids
+            ),
+            "total_amount_day": day_glance.aggregate_market_cost(self.chars_ids),
+        }
+
+        amounts["contract_cost"] = {
+            "total_amount": self.glances.glance_char.aggregate_contract_cost(
+                self.chars_ids
+            ),
+            "total_amount_day": day_glance.aggregate_contract_cost(self.chars_ids),
+        }
+
+        amounts["lp_cost"] = {
+            "total_amount": self.glances.glance_char.aggregate_lp_cost(self.chars_ids),
+            "total_amount_day": day_glance.aggregate_lp_cost(self.chars_ids),
+        }
+
+        amounts["production_cost"] = {
+            "total_amount": self.glances.glance_char.aggregate_production_cost(
+                self.chars_ids
+            ),
+            "total_amount_day": day_glance.aggregate_production_cost(self.chars_ids),
+        }
+
+        amounts["traveling_cost"] = {
+            "total_amount": self.glances.glance_char.aggregate_traveling(
+                self.chars_ids
+            ),
+            "total_amount_day": day_glance.aggregate_traveling(self.chars_ids),
+        }
+
+        amounts["asset_cost"] = {
+            "total_amount": self.glances.glance_char.aggregate_assets(self.chars_ids),
+            "total_amount_day": day_glance.aggregate_assets(self.chars_ids),
+        }
+
+        amounts["skill_cost"] = {
+            "total_amount": self.glances.glance_char.aggregate_skill(self.chars_ids),
+            "total_amount_day": day_glance.aggregate_skill(self.chars_ids),
+        }
+
+        amounts["insurance_cost"] = {
+            "total_amount": self.glances.glance_char.aggregate_insurance_cost(
+                self.chars_ids
+            ),
+            "total_amount_day": day_glance.aggregate_insurance_cost(self.chars_ids),
+        }
+
+        amounts["planetary_cost"] = {
+            "total_amount": self.glances.glance_char.aggregate_planetary(
+                self.chars_ids
+            ),
+            "total_amount_day": day_glance.aggregate_planetary(self.chars_ids),
+        }
+
+        # Corporation Stuff
+
+        amounts["ess_income"] = {
+            "total_amount": self.glances.glance_corp.aggregate_ess(
+                self.chars_ids, is_character=True
+            ),
+            "total_amount_day": day_glance_corp.aggregate_ess(
+                self.chars_ids, is_character=True
+            ),
+        }
+
+        amounts["daily_goal_income"] = {
+            "total_amount": self.glances.glance_corp.aggregate_daily_goal(
+                self.chars_ids, is_character=True
+            ),
+            "total_amount_day": day_glance_corp.aggregate_daily_goal(
+                self.chars_ids, is_character=True
+            ),
+        }
+
+        information_dict.update(
+            {
+                "main_id": ledger_data.id,
+                "main_name": ledger_data.name,
+                "date": ledger_data.information_date,
+            }
+        )
+        information_dict = ledger_data._generate_amounts_dict(amounts, information_dict)
+        return information_dict

@@ -11,9 +11,7 @@
             <th class="col-total-mining w-auto">{% trans "Mining Amount" %}</th>
         {% endif %}
         <th class="col-total-others w-auto">{% trans "Misc. Amount" %}</th>
-        {% if entity_type == 'character' %}
-            <th class="col-total-singlecosts w-auto">{% trans "Costs" %}</th>
-        {% endif %}
+        <th class="col-total-singlecosts w-auto">{% trans "Costs" %}</th>
         <th class="col-total-action w-auto"></th>
     </thead>
 
@@ -29,17 +27,15 @@
                 <th class="col-total-mining"></th>
             {% endif %}
             <th class="col-total-others"></th>
-            {% if entity_type == 'character' %}
-                <th class="col-total-costs"></th>
-            {% endif %}
+            <th class="col-total-costs"></th>
             <th></th>
         </tr>
         <tr>
             <th><strong>{% trans "Total" %}</strong></th>
             {% if entity_type == 'character' %}
                 <th></th>
-                <th></th>
             {% endif %}
+            <th></th>
             <th></th>
             <th></th>
             <th class="col-total-gesamt"></th>

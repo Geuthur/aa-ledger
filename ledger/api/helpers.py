@@ -1,43 +1,24 @@
 import logging
 from datetime import datetime
-from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 
 from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
 
-from ledger import app_settings, models
+from ledger import models
 
 logger = logging.getLogger(__name__)
 
 
-# TODO Handle it from generate_ledger
-def convert_corp_tax(amount: Decimal) -> Decimal:
-    """Convert corp tax to correct amount for character ledger"""
-    return (amount / app_settings.LEDGER_CORP_TAX) * (
-        100 - app_settings.LEDGER_CORP_TAX
-    )
-
-
-def get_character(
-    request, character_id, corp=False
-) -> tuple[bool, EveCharacter | None]:
-    """Get Character and check permission"""
+def get_character(request, character_id) -> tuple[bool, EveCharacter | None]:
+    """Get Character and check permissions"""
     perms = True
     if character_id == 0:
         character_id = request.user.profile.main_character.character_id
 
     try:
-        # Corporation View
-        if corp:
-            main_char = EveCharacter.objects.select_related(
-                "character_ownership",
-                "character_ownership__user__profile",
-                "character_ownership__user__profile__main_character",
-            ).get(character_id=request.user.profile.main_character.character_id)
-        else:
-            main_char = EveCharacter.objects.get(character_id=character_id)
+        main_char = EveCharacter.objects.get(character_id=character_id)
     except ObjectDoesNotExist:
         return False, None
     except ValueError:
@@ -53,7 +34,7 @@ def get_character(
 def get_corporation(
     request, corporation_id
 ) -> tuple[bool | None, models.CorporationAudit | None]:
-    """Get Corporation and check permission"""
+    """Get Corporation and check permissions for each corporation"""
     perms = True
 
     try:
@@ -71,7 +52,7 @@ def get_corporation(
 
 
 def get_alliance(request, alliance_id) -> tuple[bool | None, EveAllianceInfo | None]:
-    """Get Alliance and check permission"""
+    """Get Alliance and check permissions for each corporation"""
     perms = True
 
     corporations = models.CorporationAudit.objects.filter(
@@ -84,7 +65,7 @@ def get_alliance(request, alliance_id) -> tuple[bool | None, EveAllianceInfo | N
     # Check access
     visible = models.CorporationAudit.objects.visible_to(request.user)
 
-    # Check if there is an intersection between corporations and visible
+    # Check if there is an intersection between main_corp and visible
     common_corps = corporations.intersection(visible)
     if not common_corps.exists():
         perms = False
@@ -96,7 +77,7 @@ def get_alliance(request, alliance_id) -> tuple[bool | None, EveAllianceInfo | N
 def get_all_corporations_from_alliance(
     request, alliance_id
 ) -> tuple[bool | None, list[models.CorporationAudit] | None]:
-    """Get Alliance and check permission"""
+    """Get Alliance and check permissions for each corporation"""
     perms = True
 
     corporations = models.CorporationAudit.objects.filter(
@@ -109,28 +90,23 @@ def get_all_corporations_from_alliance(
     # Check access
     visible = models.CorporationAudit.objects.visible_to(request.user)
 
-    # Check if there is an intersection between corporations and visible
+    # Check if there is an intersection between main_corp and visible
     common_corps = corporations.intersection(visible)
     if not common_corps.exists():
         perms = False
     return perms, corporations
 
 
-def get_alts_queryset(main_char, corporations=None) -> list[EveCharacter]:
-    """Get all alts for a main character, optionally filtered by corporations."""
+def get_alts_queryset(main_char) -> QuerySet[list[EveCharacter]]:
+    """Get all alts for a main character."""
     try:
-        linked_corporations = (
+        linked_characters = (
             main_char.character_ownership.user.character_ownerships.all()
         )
 
-        if corporations:
-            linked_corporations = linked_corporations.filter(
-                character__corporation_id__in=corporations
-            )
+        linked_characters = linked_characters.values_list("character_id", flat=True)
 
-        linked_corporations = linked_corporations.values_list("character_id", flat=True)
-
-        return EveCharacter.objects.filter(id__in=linked_corporations)
+        return EveCharacter.objects.filter(id__in=linked_characters)
     except ObjectDoesNotExist:
         return EveCharacter.objects.filter(pk=main_char.pk)
 

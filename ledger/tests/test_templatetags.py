@@ -13,7 +13,7 @@ class TestVersionedStatic(TestCase):
             template_string=(
                 "{% load ledger %}"
                 "{% ledger_static 'css/ledger.css' %}"
-                "{% ledger_static 'js/ledger.js' %}"
+                "{% ledger_static 'js/character.js' %}"
             )
         )
 
@@ -23,8 +23,10 @@ class TestVersionedStatic(TestCase):
             f'/static/ledger/css/ledger.css?v={context["version"]}'
         )
         expected_static_css_src_integrity = calculate_integrity_hash("css/ledger.css")
-        expected_static_js_src = f'/static/ledger/js/ledger.js?v={context["version"]}'
-        expected_static_js_src_integrity = calculate_integrity_hash("js/ledger.js")
+        expected_static_js_src = (
+            f'/static/ledger/js/character.js?v={context["version"]}'
+        )
+        expected_static_js_src_integrity = calculate_integrity_hash("js/character.js")
 
         self.assertIn(member=expected_static_css_src, container=rendered_template)
         self.assertIn(

@@ -8,24 +8,27 @@
     const urlParams = new URLSearchParams(window.location.search);
     const singleViewParms = urlParams.get('single');
 
-    // Construct the planetaryUrl with the 'main' parameter
-    let planetaryUrl = '/ledger/api/character/{{ character_id }}/planetary/0/details/';
-    if (singleViewParms) {
-        planetaryUrl += '?single=' + singleViewParms;
-    }
-
 	let planetarySettings = {
-        planetaryUrl: planetaryUrl,
-		switchAlarmUrl: '{% url "ledger:switch_alarm" character_id=1337 planet_id=1337 %}',
+        planetaryUrl: '{% url "ledger:api:get_planetarydetails" character_id=character_id planet_id=0 %}',
+        viewFactoryUrl: '{% url "ledger:api:get_factory_info" character_id=1337 planet_id=1337 %}',
+        viewExtractorUrl: '{% url "ledger:api:get_extractor_info" character_id=1337 planet_id=1337 %}',
 		csrfToken: '{% csrf_token %}',
 		switchAlarmText: '{% translate "Are you sure to Switch Notification" %}',
         switchAlarm: '{% translate "Switch Notification" %}',
-        switchAlarmAll: '{% translate "Switch All Notifications" %}',
         alarmActivated: '{% translate "Notification Activated" %}',
         alarmDeactivated: '{% translate "Notification Deactivated" %}',
         characterPk: '{{ character_id }}',
         updateInterval: '{{ update_interval }}',
 	};
+
+    if (singleViewParms !== "true") {
+        document.getElementById('turn-all-notification').classList.remove('d-none');
+    }
+
+    // Construct the planetaryUrl with the 'main' parameter
+    if (singleViewParms) {
+        planetarySettings.planetaryUrl += '?single=' + singleViewParms;
+    }
 </script>
 
 {% ledger_static 'js/planetary-confirm.js' %}
