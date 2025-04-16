@@ -25,7 +25,7 @@
 {% include 'ledger/partials/menu/char/administration.html' %}
 
 {% endblock header_nav_collapse_right %}
-{% block vow_block %}
+{% block ledger_block %}
 <div class="card-body bg-primary rounded-top d-flex">
     <h3>{% translate "Planetary Details" %} </h3>
     <div class="ms-auto">
@@ -65,12 +65,12 @@
 {% include 'ledger/bundles/table-css.html' %}
 {% ledger_static 'css/planetary.css' %}
 
+{% include 'ledger/partials/modal/modal.html' with name="ViewFactory" %}
+{% include 'ledger/partials/modal/modal.html' with name="ViewExtractor" %}
+
 {% include 'ledger/partials/modal/switchalarm_confirm.html' %}
-
-{% include 'ledger/modals/modal_dialog.html' with name="ViewFactory" %}
-{% include 'ledger/modals/modal_dialog.html' with name="ViewExtractor" %}
-
 {% ledger_static 'js/modal/modal-system.js' %}
+
 <script type="application/javascript">
     setupModal('#modalViewFactoryContainer', 'ajax_factory', '#modalViewFactoryContent', '#modalViewFactoryLoader');
     setupModal('#modalViewExtractorContainer', 'ajax_extractor', '#modalViewExtractorContent', '#modalViewExtractorLoader');

@@ -8,12 +8,16 @@
 
 ### Changed
 
-- Refactor Ledger, Information System
-- Planetary Notification All from `Switch All` to `Turn On/Off All Notification`
-- Refactor JS
-- Moved Common Ledger Scripts to `ledger-common.js`
-- Moved Progressbar Process from Java to Python
-- Notification Switch now reload interactive instead of reloading page
+- General
+  - Refactor Ledger, Information System
+  - Refactor JS
+  - Optimized CSS
+  - Moved Common Ledger Scripts to `ledger-common.js`
+- Planetary Ledger
+  - Moved Progressbar Process from Java to Python
+  - Planetary Notification All from `Switch All` to `Turn On/Off All Notification`
+  - Notification Switch now reload interactive instead of reloading page
+  - Optimized Planetary Confirm Modal
 
 ### Fixed
 

@@ -145,6 +145,6 @@ class LedgerApiEndpoints:
             }
             return render(
                 request,
-                "ledger/modals/information/view_character_content.html",
+                "ledger/partials/information/view_character_content.html",
                 context,
             )

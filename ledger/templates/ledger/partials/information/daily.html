@@ -7,7 +7,7 @@
 <!--##############################DAILY#######################-->
 <div class="tab-pane panel panel-default" id="tab-daily">
     <div class="card-body modal-tab">
-        {% include "ledger/modals/information/day.html" with character=character mode=mode %}
+        {% include "ledger/partials/information/day.html" with character=character mode=mode %}
 
         {% if character.bounty_income %}
             <div class="row description-row">
