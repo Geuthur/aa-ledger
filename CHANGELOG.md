@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.7.x] - IN DEVELOPMENT
+## [0.7.5] - 2025-04-16
 
 ### Added
 
