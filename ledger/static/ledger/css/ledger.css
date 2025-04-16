@@ -51,4 +51,8 @@
         background-color: rgb(248 249 250); /* Lighter background color */
         color: rgb(33 37 41); /* Dark text color */
     }
+
+    .card-ledger {
+        min-width: 800px;
+    }
 }
