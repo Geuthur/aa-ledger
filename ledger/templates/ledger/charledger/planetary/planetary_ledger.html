@@ -65,12 +65,12 @@
 {% include 'ledger/bundles/table-css.html' %}
 {% ledger_static 'css/planetary.css' %}
 
+{% include 'ledger/partials/modal/modal.html' with name="ViewFactory" %}
+{% include 'ledger/partials/modal/modal.html' with name="ViewExtractor" %}
+
 {% include 'ledger/partials/modal/switchalarm_confirm.html' %}
-
-{% include 'ledger/modals/modal_dialog.html' with name="ViewFactory" %}
-{% include 'ledger/modals/modal_dialog.html' with name="ViewExtractor" %}
-
 {% ledger_static 'js/modal/modal-system.js' %}
+
 <script type="application/javascript">
     setupModal('#modalViewFactoryContainer', 'ajax_factory', '#modalViewFactoryContent', '#modalViewFactoryLoader');
     setupModal('#modalViewExtractorContainer', 'ajax_extractor', '#modalViewExtractorContent', '#modalViewExtractorLoader');
