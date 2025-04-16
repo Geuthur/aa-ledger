@@ -9,8 +9,10 @@
         <div class="modal-content">
             <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
             <div class="modal-header">
-                <h5 class="modal-title" id="modalDialogLabel">-</h5>
+                <h4 class="modal-title" id="modal-title">-</h4>
             </div>
+            <!-- Hidden input to store the URL -->
+            <input type="hidden" id="modal-hidden-url" value="">
 
             <div class="modal-body">
                 <div id="modal{{ name }}Loader">
@@ -20,7 +22,7 @@
                         <img src="{% static 'ledger/images/Spinner-1s-64px-light.gif' %}">
                     {% endif %}
                 </div>
-                <div id="modal{{ name }}Content" style="display: none !important;"></div>
+                <div class="card border-0" id="modal{{ name }}Content" style="display: none !important;"></div>
             </div>
 
             <div class="modal-footer d-flex justify-content-between">

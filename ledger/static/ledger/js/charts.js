@@ -24,9 +24,6 @@ function load_or_create_Chart(div, data, chart) {
     if (chart === 'bar') {
         return createRattingBarChart(root, data, div);
     } else if (chart === 'chart') {
-        if (entityType === 'character') {
-            return createRattingChart(root, data, div);
-        }
         return createChordChart(root, data, div);
     } else if (chart === 'gauge') {
         return createWorkflowGaugeChart(root, data, div);
@@ -42,12 +39,12 @@ function initCharts(data) {
     // Dispose of existing Root instances with the same id if they exist
     const rootChartId = 'rattingChart';
     const rootBarId = 'rattingBar';
-    const rootGaugeId = 'rattingworkGauge';
+    //const rootGaugeId = 'rattingworkGauge';
 
     // Create the chart
     const barChart = load_or_create_Chart(rootBarId, billboard.rattingbar, 'bar');
     const chart = load_or_create_Chart(rootChartId, billboard.charts, 'chart');
-    const gaugeChart = load_or_create_Chart(rootGaugeId, billboard.workflowgauge, 'gauge');
+    //const gaugeChart = load_or_create_Chart(rootGaugeId, billboard.workflowgauge, 'gauge');
 }
 
 function createChordChart(root, data, id) {
@@ -65,13 +62,12 @@ function createChordChart(root, data, id) {
 
     var series = root.container.children.push(
         am5flow.ChordDirected.new(root, {
-            startAngle: 80,
-            padAngle: 1,
             sourceIdField: 'from',
             targetIdField: 'to',
             valueField: 'value',
-            categoryField: 'category',
-            radius: am5.percent(80),
+            nodeWidth: 10,
+            minSize: 0.10,
+            hiddenSize: 0.10,
         })
     );
 
@@ -111,7 +107,7 @@ function createChordChart(root, data, id) {
     series.nodes.labels.template.setAll({
         textType: 'radial',
         centerX: 0,
-        fontSize: 10,
+        fontSize: 16,
         maxWidth: 150,
         wrap: true,
     });

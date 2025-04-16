@@ -1,0 +1,35 @@
+{% load ledger %}
+{% load i18n %}
+{% load static %}
+<script type="application/javascript">
+    let ledgersettings = {
+        entity_pk: {{ entity_pk }},
+        entity_type: "{{ entity_type }}",
+    };
+</script>
+
+<script>
+    // Embed translations in a global JavaScript object
+    window.translations = {
+        months: [
+            "{% trans 'January' %}", "{% trans 'February' %}", "{% trans 'March' %}", "{% trans 'April' %}",
+            "{% trans 'May' %}", "{% trans 'June' %}", "{% trans 'July' %}", "{% trans 'August' %}",
+            "{% trans 'September' %}", "{% trans 'October' %}", "{% trans 'November' %}", "{% trans 'December' %}"
+        ],
+        dayText: "{% trans 'Day' %}",
+        monthText: "{% trans 'Month' %}"
+    };
+</script>
+
+<!-- Chart Resources -->
+{% ledger_static 'assets/index.js' %}
+{% ledger_static 'assets/xy.js' %}
+{% ledger_static 'assets/percent.js' %}
+{% ledger_static 'assets/flow.js' %}
+{% ledger_static 'assets/Animated.js' %}
+{% ledger_static 'assets/Dark.js' %}
+
+<!-- Ledger Resources -->
+{% ledger_static 'js/charts.js' %}
+{% ledger_static 'js/ledger-common.js' %}
+{% ledger_static 'js/corporation.js' %}

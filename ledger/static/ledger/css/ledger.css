@@ -1,4 +1,16 @@
 @media all {
+    @keyframes l-shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
+        75% { transform: translateX(-5px); }
+    }
+
+    .l-shake {
+        animation: l-shake 0.5s;
+        animation-duration: infinite;
+    }
+
     .custom-line {
         height: 3px;
         border: none;
@@ -38,5 +50,9 @@
     .dropdown-item.active {
         background-color: rgb(248 249 250); /* Lighter background color */
         color: rgb(33 37 41); /* Dark text color */
+    }
+
+    .card-ledger {
+        min-width: 800px;
     }
 }

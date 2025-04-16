@@ -137,7 +137,7 @@
 
         <!--############################## Costs #######################-->
 
-        {% if character.production_cost or character.market_cost or character.contract_cost or character.asset_cost or character.traveling_cost %}
+        {% if character.production_cost or character.market_cost or character.contract_cost or character.donation_cost or character.asset_cost or character.traveling_cost or character.rental_cost %}
             <hr>
         {% endif %}
         {% if character.market_cost %}
@@ -151,6 +151,13 @@
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Contract Cost" %}:</div>
                 <div class='col-sm-4 text-end'><span class="text-danger">{{ character.contract_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
+
+        {% if character.donation_cost %}
+            <div class="row description-row">
+                <div class="col-sm-6">{% trans "Donation sent" %}:</div>
+                <div class='col-sm-4 text-end'><span class="text-danger">{{ character.donation_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
             </div>
         {% endif %}
 
@@ -203,6 +210,12 @@
             </div>
         {% endif %}
 
+        {% if character.rental_cost %}
+            <div class="row description-row">
+                <div class="col-sm-6">{% trans "Rental Cost" %}:</div>
+                <div class='col-sm-4 text-end'><span class="text-danger">{{ character.rental_cost.total_amount|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
         <!--############################## SUMMARY #######################-->
         <hr>
         <div class="row description-row">

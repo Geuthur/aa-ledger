@@ -1,15 +1,12 @@
 """TestView class."""
 
-import json
 from http import HTTPStatus
 from unittest.mock import Mock, patch
 
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.core.exceptions import ObjectDoesNotExist
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
-from ledger.models.planetary import CharacterPlanetDetails
 from ledger.tests.testdata.generate_characteraudit import (
     add_charactermaudit_character_to_user,
     create_user_from_evecharacter_with_access,
@@ -26,7 +23,6 @@ from ledger.views.character import planetary
 PLANETARY_PATH = "ledger.views.character.planetary"
 
 
-@patch(PLANETARY_PATH + ".messages")
 class TestViewSwitchAlarm(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -53,7 +49,7 @@ class TestViewSwitchAlarm(TestCase):
             cls.planetary, **_planetary_data
         )
 
-    def test_switch_alarm(self, mock_messages):
+    def test_switch_alarm(self):
         character_id = self.audit.character.character_id
         form_data = {
             "character_id": character_id,
@@ -62,21 +58,16 @@ class TestViewSwitchAlarm(TestCase):
         }
 
         request = self.factory.post(
-            reverse("ledger:switch_alarm", args=[character_id, 4001]),
+            reverse("ledger:switch_alarm"),
             data=form_data,
         )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
         request.user = self.user
 
-        response = planetary.switch_alarm(
-            request, character_id=character_id, planet_id=4001
-        )
+        response = planetary.switch_alarm(request)
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertTrue(mock_messages.info.called)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
-    def test_switch_alarm_all(self, mock_messages):
+    def test_switch_alarm_all(self):
         form_data = {
             "character_id": 0,
             "planet_id": 0,
@@ -84,69 +75,61 @@ class TestViewSwitchAlarm(TestCase):
         }
 
         request = self.factory.post(
-            reverse("ledger:switch_alarm", args=[0, 0]),
+            reverse("ledger:switch_alarm"),
             data=form_data,
         )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
         request.user = self.user
 
-        response = planetary.switch_alarm(request, character_id=0, planet_id=0)
+        response = planetary.switch_alarm(request)
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertTrue(mock_messages.info.called)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
     @patch(PLANETARY_PATH + ".CharacterPlanetDetails.objects.filter")
-    def test_switch_alarm_doesnotexist(self, mock_planetdetails_filter, mock_messages):
+    def test_switch_alarm_doesnotexist(self, mock_planetdetails_filter):
         form_data = {
             "character_id": 1001,
             "planet_id": 0,
             "confirm": "yes",
         }
 
-        mock_planetdetails_filter.return_value = []
+        mock_queryset = Mock()
+        mock_queryset.exists.return_value = False
+        mock_planetdetails_filter.return_value = mock_queryset
 
         request = self.factory.post(
-            reverse("ledger:switch_alarm", args=[1001, 0]),
+            reverse("ledger:switch_alarm"),
             data=form_data,
         )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
         request.user = self.user
 
-        response = planetary.switch_alarm(request, character_id=0, planet_id=0)
+        response = planetary.switch_alarm(request)
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertTrue(mock_messages.error.called)
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         mock_planetdetails_filter.assert_called_once()
 
-    def test_switch_alarm_no_permission(self, mock_messages):
+    def test_switch_alarm_no_permission(self):
         form_data = {
             "character_id": 1001,
             "planet_id": 4001,
             "confirm": "yes",
         }
         request = self.factory.post(
-            reverse("ledger:switch_alarm", args=[1001, 4001]),
+            reverse("ledger:switch_alarm"),
             data=form_data,
         )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
         request.user = self.user_nopermission
 
-        response = planetary.switch_alarm(request, character_id=1001, planet_id=4001)
+        response = planetary.switch_alarm(request)
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertTrue(mock_messages.error.called)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
-    def test_switch_alarm_invalid(self, mock_messages):
+    def test_switch_alarm_invalid(self):
         request = self.factory.post(
-            reverse("ledger:switch_alarm", args=[1001, 4001]),
+            reverse("ledger:switch_alarm"),
             data=None,
         )
         request.user = self.user
 
-        response = planetary.switch_alarm(request, character_id=1001, planet_id=4001)
+        response = planetary.switch_alarm(request)
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertTrue(mock_messages.error.called)
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)

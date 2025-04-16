@@ -1,6 +1,34 @@
 # Changelog
 
-## [0.7.x] - IN DEVELOPMENT
+## [0.7.5] - 2025-04-16
+
+### Added
+
+- Costs to Corporation/Alliance Ledger
+
+### Changed
+
+- General
+  - Refactor Ledger, Information System
+  - Refactor JS
+  - Optimized CSS
+  - Moved Common Ledger Scripts to `ledger-common.js`
+- Planetary Ledger
+  - Moved Progressbar Process from Java to Python
+  - Planetary Notification All from `Switch All` to `Turn On/Off All Notification`
+  - Notification Switch now reload interactive instead of reloading page
+  - Optimized Planetary Confirm Modal
+
+### Fixed
+
+- Planetary Notification Issue [#94](https://github.com/Geuthur/aa-ledger/issues/94)
+- Planeteray Progress Bar Widght [#95](https://github.com/Geuthur/aa-ledger/issues/95)
+
+### Removed
+
+- Donut Chart
+- Workflow Chart
+- ESS Stolen Calculation makes the code too heavy and confusing
 
 ## [0.7.4.3] - 2025-03-31
 

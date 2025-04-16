@@ -25,7 +25,7 @@
 {% include 'ledger/partials/menu/char/administration.html' %}
 
 {% endblock header_nav_collapse_right %}
-{% block vow_block %}
+{% block ledger_block %}
 <div class="card-body bg-primary rounded-top d-flex">
     <h3>{% translate "Planetary Details" %} </h3>
     <div class="ms-auto">
@@ -42,10 +42,20 @@
         <span id="next-update" class="text-end"></span>
     </div>
 
-    <br><br>
-
     <div class="tab-content">
         {% include 'ledger/partials/table/planetary.html' %}
+        <button id="turn-all-notification" type="button" class="btn btn-primary btn-sm btn-square me-2 d-none"
+            data-bs-toggle="modal"
+            data-tooltip-toggle="planetary"
+            data-character-id="0"
+            data-planet-id="0"
+            data-title="{% translate 'Toggle Alarm' %}"
+            data-text="{% translate 'Are you sure to Turn On/Off all Notifications?' %}"
+            data-bs-target="#ledger-planetary-confirm"
+            data-action="{% url 'ledger:switch_alarm' %}" aria-label="Toggle Alarm"
+            >
+            <span class="fas fa-bullhorn"></span> {% translate 'Turn All On/Off' %}
+        </button>
     </div>
 </div>
 
@@ -55,40 +65,13 @@
 {% include 'ledger/bundles/table-css.html' %}
 {% ledger_static 'css/planetary.css' %}
 
-{% include 'ledger/partials/modal/switchalarm_confirm.html' %}
+{% include 'ledger/partials/modal/modal.html' with name="ViewFactory" %}
+{% include 'ledger/partials/modal/modal.html' with name="ViewExtractor" %}
 
-{% include 'ledger/modals/modal_dialog.html' with name="ViewFactory" %}
-{% include 'ledger/modals/modal_dialog.html' with name="ViewExtractor" %}
+{% include 'ledger/partials/modal/switchalarm_confirm.html' %}
+{% ledger_static 'js/modal/modal-system.js' %}
 
 <script type="application/javascript">
-    function setupModal(modalId, ajaxDataAttr, contentId, loaderId) {
-        $(modalId).on('show.bs.modal', function (event) {
-            const button = $(event.relatedTarget);
-            const ajaxUrl = button.data(ajaxDataAttr);
-            const modal = $(this);
-
-            // reactive loader
-            modal.find(contentId).hide();
-            modal.find(loaderId).show();
-
-            modal.find(contentId).load(
-                ajaxUrl,
-                function(response, status, xhr) {
-                    modal.find(loaderId).hide();
-                    modal.find(contentId).show();
-
-                    if (xhr.status === 403) {
-                        modal.find(contentId).html(response);
-                    }
-                    // Extract and set the modal title
-                    const title = modal.find(contentId).find("#modal-title").html();
-                    modal.find(".modal-title").html(title);
-                    modal.find(contentId).find("#modal-title").hide();
-                }
-            );
-        });
-    }
-
     setupModal('#modalViewFactoryContainer', 'ajax_factory', '#modalViewFactoryContent', '#modalViewFactoryLoader');
     setupModal('#modalViewExtractorContainer', 'ajax_extractor', '#modalViewExtractorContent', '#modalViewExtractorLoader');
 </script>

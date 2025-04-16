@@ -1,8 +1,7 @@
 $(document).ready(() => {
-    /* global SkillFarmAjax */
+    /* global PlanetaryTable */
     const modalRequestApprove = $('#ledger-planetary-confirm');
-
-
+    const modalErrorMessage = $('#modal-error-message');
 
     // Approve Request Modal
     modalRequestApprove.on('show.bs.modal', (event) => {
@@ -45,15 +44,23 @@ $(document).ready(() => {
 
             posting.done(() => {
                 modalRequestApprove.modal('hide');
-                location.reload();
+                PlanetaryTable.ajax.reload(); // Reload the DataTable
+
             }).fail((xhr, _, __) => {
                 const response = JSON.parse(xhr.responseText);
-                const errorMessage = $('<div class="alert alert-danger"></div>').text(response.message);
-                form.append(errorMessage);
+                modalErrorMessage.text(response.message).removeClass('d-none'); // Show the error message
+                modalErrorMessage.addClass('l-shake'); // Add the shake class
+
+                // Remove the shake class after 2 seconds
+                setTimeout(() => {
+                    modalErrorMessage.removeClass('l-shake');
+                }, 2000);
             });
         });
     }).on('hide.bs.modal', () => {
         modalRequestApprove.find('.alert-danger').remove();
         $('#modal-button-confirm-confirm-request').unbind('click');
+        modalErrorMessage.addClass('d-none');
+        modalErrorMessage.val('');
     });
 });

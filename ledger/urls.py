@@ -106,7 +106,7 @@ urlpatterns = [
         name="planetary_ledger",
     ),
     path(
-        "planetary/switch_alarm/<int:character_id>/planet/<int:planet_id>/",
+        "planetary/switch_alarm/",
         planetary.switch_alarm,
         name="switch_alarm",
     ),
