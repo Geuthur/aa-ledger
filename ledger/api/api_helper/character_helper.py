@@ -51,6 +51,7 @@ class CharacterGlances:
         )
 
 
+# pylint: disable=too-many-instance-attributes
 class CharacterProcess:
     """JournalProcess class to process the journal entries."""
 
@@ -82,8 +83,9 @@ class CharacterProcess:
     def _init_journal(self):
         """Initialize the data for the ledger"""
         self.chars_ids = [char.character_id for char in self.chars]
+        self.alt_ids = self.chars_ids
         if len(self.chars) == 1:
-            self.chars_ids = get_alts_queryset(self.main).values_list(
+            self.alt_ids = get_alts_queryset(self.main).values_list(
                 "character_id", flat=True
             )
 
@@ -128,7 +130,7 @@ class CharacterProcess:
                 char.character_id
             )
             donation = self.glances.glance_char.aggregate_donation(
-                char.character_id, exclude=self.chars_ids
+                char.character_id, exclude=self.alt_ids
             )
             daily_goal = self.glances.glance_corp.aggregate_daily_goal(
                 char.character_id, is_character=True
@@ -160,7 +162,7 @@ class CharacterProcess:
         # Add Character Journal to the billboard
         rattingbar_timeline = billboard.create_timeline(self.character_journal)
         rattingbar = rattingbar_timeline.annotate_bounty_income().annotate_miscellaneous_with_exclude(
-            exclude=self.chars_ids
+            exclude=self.alt_ids
         )
         billboard.create_or_update_results(rattingbar)
 
@@ -189,7 +191,7 @@ class CharacterProcess:
                     self.chars_ids, is_character=True
                 )
                 + self.glances.glance_char.aggregate_donation(
-                    self.chars_ids, exclude=self.chars_ids
+                    self.chars_ids, exclude=self.alt_ids
                 )
             ),
         }
@@ -265,10 +267,10 @@ class CharacterProcess:
 
         amounts["donation_income"] = {
             "total_amount": self.glances.glance_char.aggregate_donation(
-                self.chars_ids, exclude=self.chars_ids
+                self.chars_ids, exclude=self.alt_ids
             ),
             "total_amount_day": day_glance.aggregate_donation(
-                self.chars_ids, exclude=self.chars_ids
+                self.chars_ids, exclude=self.alt_ids
             ),
         }
 
