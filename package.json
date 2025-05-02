@@ -1,7 +1,7 @@
 {
     "type": "module",
     "devDependencies": {
-        "eslint": "^9.3.0",
-        "globals": "^15.3.0"
+        "eslint": "^9.25.1",
+        "globals": "^16.0.0"
     }
 }
