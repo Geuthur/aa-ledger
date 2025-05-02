@@ -5,6 +5,7 @@
 ### Added
 
 - dependbot
+- Discord Notification System
 
 ### Changed
 
