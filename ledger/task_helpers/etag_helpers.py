@@ -2,12 +2,16 @@
 Etag Helpers
 """
 
+# Standard Library
 import logging
 
+# Third Party
 from bravado.exception import HTTPGatewayTimeout, HTTPNotModified
 
+# Django
 from django.core.cache import cache
 
+# AA Ledger
 from ledger.decorators import log_timing
 
 logger = logging.getLogger(__name__)

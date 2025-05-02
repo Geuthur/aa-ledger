@@ -1,13 +1,19 @@
+# Standard Library
 import logging
 from typing import TYPE_CHECKING
 
+# Django
 from django.db import models
 from django.utils import timezone
+
+# Alliance Auth (External Libs)
 from eveuniverse.models import EveType
 
+# AA Ledger
 from ledger.constants import COMMAND_CENTER, EXTRACTOR_CONTROL_UNIT, SPACEPORTS
 
 if TYPE_CHECKING:  # pragma: no cover
+    # AA Ledger
     from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
 logger = logging.getLogger(__name__)

@@ -6,10 +6,13 @@ It gets overwritten by the 'allianceauth update' command.
 If you wish to make changes, overload the setting in your project's settings file (local.py).
 """
 
+# Standard Library
 import os
 
+# Third Party
 from celery.schedules import crontab
 
+# Django
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 

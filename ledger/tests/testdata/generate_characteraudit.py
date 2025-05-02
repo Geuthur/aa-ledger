@@ -1,12 +1,17 @@
+# Django
 from django.contrib.auth.models import User
-from eveuniverse.models import EveType
 
+# Alliance Auth
 from allianceauth.authentication.backends import StateBackend
 from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.tests.auth_utils import AuthUtils
-from app_utils.testing import add_character_to_user
 
+# Alliance Auth (External Libs)
+from app_utils.testing import add_character_to_user
+from eveuniverse.models import EveType
+
+# AA Ledger
 from ledger.models.characteraudit import CharacterAudit
 
 

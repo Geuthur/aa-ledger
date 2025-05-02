@@ -2,13 +2,16 @@
 Corporation Audit Model
 """
 
-# Django
+# Standard Library
 import logging
 
+# Django
 from django.db import models
 
+# Alliance Auth
 from allianceauth.eveonline.models import EveCorporationInfo
 
+# AA Ledger
 from ledger.managers.corpaudit_manager import CorpAuditManager
 from ledger.managers.corpjournal_manager import CorpWalletManager
 from ledger.models.characteraudit import WalletJournalEntry

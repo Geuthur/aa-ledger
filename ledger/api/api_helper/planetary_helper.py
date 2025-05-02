@@ -1,6 +1,8 @@
+# Django
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
+# Alliance Auth
 from allianceauth.eveonline.evelinks.eveimageserver import (
     type_render_url,
 )

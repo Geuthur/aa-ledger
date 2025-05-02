@@ -47,8 +47,8 @@
         min-width: 0;
         word-wrap: break-word;
         background-clip: border-box;
-        background-color: rgb(100 100 100 / 100%);
-        border: 1px solid rgba(0 0 0 / 12.5%);
+        background-color: rgb(100 100 100);
+        border: 1px solid rgb(0 0 0 / 12.5%);
         border-radius: 0.25rem;
     }
 
@@ -56,14 +56,14 @@
     .card-characters .card-footer {
         padding: 0.75rem 1.25rem;
         margin-bottom: 0;
-        background-color: rgba(0 0 0 / 3%);
-        border-bottom: 1px solid rgba(0 0 0 / 12.5%);
+        background-color: rgb(0 0 0 / 3%);
+        border-bottom: 1px solid rgb(0 0 0 / 12.5%);
         text-align: center;
     }
 
     .card-characters .card-footer {
         border-bottom: none;
-        border-top: 1px solid rgba(0 0 0 / 12.5%);
+        border-top: 1px solid rgb(0 0 0 / 12.5%);
     }
 
     .card-characters .card-header:first-child {

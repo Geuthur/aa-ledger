@@ -2,17 +2,20 @@
 Corporation Audit
 """
 
+# Standard Library
 import logging
 
+# Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
-from esi.decorators import token_required
 
+# Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
 from allianceauth.eveonline.providers import ObjectNotFound, provider
+from esi.decorators import token_required
 
 logger = logging.getLogger(__name__)
 

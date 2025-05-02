@@ -1,9 +1,12 @@
+# Standard Library
 import logging
 
+# Django
 from django.db import models
 from django.db.models import DecimalField, F, Q, Sum, Value
 from django.db.models.functions import Coalesce
 
+# AA Ledger
 from ledger.constants import (
     ASSETS,
     BOUNTY_PRIZES,

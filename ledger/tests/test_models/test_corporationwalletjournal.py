@@ -1,11 +1,15 @@
+# Standard Library
 from unittest.mock import PropertyMock, patch
 
+# Django
 from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.utils import timezone
 
+# Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
 
+# AA Ledger
 from ledger.models.corporationaudit import (
     CorporationAudit,
 )

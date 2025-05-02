@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.7.6] - 2025-05-02
+
+### Added
+
+- dependbot
+- Discord Notification System
+
+### Changed
+
+- Update Pre-Commit
+- Fix Pre-Commit Issues
+
+### Fixed
+
+- Tox Issue
+
 ## [0.7.5] - 2025-04-16
 
 ### Added

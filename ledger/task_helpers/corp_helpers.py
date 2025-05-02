@@ -2,14 +2,18 @@
 Corporation Helpers
 """
 
+# Standard Library
 import logging
 
+# Django
 from django.utils import timezone
+
+# Alliance Auth
+from allianceauth.eveonline.models import EveCharacter
 from esi.errors import TokenError
 from esi.models import Token
 
-from allianceauth.eveonline.models import EveCharacter
-
+# AA Ledger
 from ledger.decorators import log_timing
 from ledger.errors import DatabaseError
 from ledger.models.corporationaudit import (

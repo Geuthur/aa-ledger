@@ -1,11 +1,17 @@
+# Standard Library
 from unittest.mock import PropertyMock, patch
 
+# Django
 from django.test import RequestFactory, TestCase
 from django.utils import timezone
 
+# Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
+
+# Alliance Auth (External Libs)
 from app_utils.testing import create_user_from_evecharacter
 
+# AA Ledger
 from ledger.app_settings import LEDGER_CHAR_MAX_INACTIVE_DAYS
 from ledger.models.characteraudit import (
     CharacterAudit,

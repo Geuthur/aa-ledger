@@ -2,20 +2,24 @@
 General Model
 """
 
+# Standard Library
 import datetime
 import logging
 
+# Django
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+# Alliance Auth
 from allianceauth.eveonline.models import (
     EveAllianceInfo,
     EveCharacter,
     EveCorporationInfo,
 )
 
+# AA Ledger
 from ledger.managers.general_manager import EveEntityManager
 
 logger = logging.getLogger(__name__)

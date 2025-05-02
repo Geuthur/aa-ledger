@@ -43,7 +43,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
       - run: npm install
 
       - name: Run Pre Commit Checks
@@ -128,11 +130,11 @@ jobs:
                 )
               )
               && (
-                matrix.python-version == '3.10'
+                matrix.python-version == '3.12'
                 && matrix.database == 'mariadb:10.11'
               )
             }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml

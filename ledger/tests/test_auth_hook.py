@@ -1,10 +1,14 @@
+# Standard Library
 from unittest.mock import MagicMock
 
+# Django
 from django.test import TestCase
 from django.urls import reverse
 
+# Alliance Auth (External Libs)
 from app_utils.testdata_factories import UserMainFactory
 
+# AA Ledger
 from ledger.auth_hooks import LedgerMenuItem, register_charlink_hook
 
 
