@@ -1,10 +1,14 @@
+# Standard Library
 import logging
 from unittest.mock import patch
 
+# Django
 from django.test import TestCase
 
+# Alliance Auth (External Libs)
 from app_utils.esi import EsiDailyDowntime
 
+# AA Ledger
 from ledger.decorators import when_esi_is_available
 
 
@@ -51,6 +55,7 @@ class TestDecorators(TestCase):
 
     def test_log_timing(self):
         # given
+        # AA Ledger
         from ledger.decorators import log_timing
 
         logger = logging.getLogger(__name__)

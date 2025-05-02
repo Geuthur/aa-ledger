@@ -1,11 +1,14 @@
+# Standard Library
 import logging
 import os
 
+# Django
 from django.conf import settings
 from django.template.defaulttags import register
 from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 
+# AA Ledger
 from ledger import __title__, __version__
 from ledger.view_helpers.static_files import calculate_integrity_hash
 

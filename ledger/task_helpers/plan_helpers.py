@@ -2,11 +2,16 @@
 Planetary Helpers
 """
 
+# Standard Library
 import logging
 
+# Django
 from django.utils import timezone
+
+# Alliance Auth (External Libs)
 from eveuniverse.models import EvePlanet
 
+# AA Ledger
 from ledger.decorators import log_timing
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
@@ -35,6 +40,7 @@ def convert_datetime_to_str(data):
 @log_timing(logger)
 def update_character_planetary(character_id, force_refresh=False):
     # pylint: disable=import-outside-toplevel, cyclic-import
+    # AA Ledger
     from ledger.tasks import update_char_planets_details
 
     audit_char = CharacterAudit.objects.get(character__character_id=character_id)

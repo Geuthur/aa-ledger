@@ -2,14 +2,19 @@
 Planetary Model
 """
 
+# Standard Library
 import logging
 
+# Django
 from django.db import models
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
+
+# Alliance Auth (External Libs)
 from eveuniverse.models import EvePlanet, EveType
 
+# AA Ledger
 from ledger.constants import EXTRACTOR_CONTROL_UNIT, P0_PRODUCTS, SPACEPORTS
 from ledger.managers.planetary_manager import PlanetaryManager
 from ledger.models.characteraudit import CharacterAudit

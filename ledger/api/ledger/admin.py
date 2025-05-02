@@ -1,13 +1,18 @@
+# Standard Library
 import logging
 from typing import Any
 
+# Third Party
 from ninja import NinjaAPI
 
+# Django
 from django.utils.translation import gettext_lazy as _
 
+# Alliance Auth
 from allianceauth.authentication.models import CharacterOwnership, UserProfile
 from allianceauth.eveonline.models import EveCorporationInfo
 
+# AA Ledger
 from ledger.api import schema
 from ledger.api.helpers import (
     get_all_corporations_from_alliance,

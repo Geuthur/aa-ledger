@@ -1,7 +1,9 @@
+# Standard Library
 import logging
 from dataclasses import dataclass
 from typing import Any
 
+# Django
 from django.db.models import QuerySet
 from django.db.models.functions import TruncDay, TruncHour, TruncMonth
 

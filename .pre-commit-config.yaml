@@ -21,6 +21,15 @@ ci:
     - eslint  # Fails due to missing node environment in CI
   submodules: false
 
+  exclude: |
+    (?x)(
+      .github/|
+      LICENSE|
+      .min(.css|.css.map|.js|.js.map)|
+      locale/|
+      static/(.*)/libs/
+    )
+
 # pre-commit setup
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -123,7 +132,7 @@ repos:
           )
 
   - repo: https://github.com/eslint/eslint
-    rev: v9.24.0
+    rev: v9.25.1
     hooks:
       - id: eslint
         name: ESLint
@@ -133,11 +142,10 @@ repos:
             .min(.js|.js.map)|
             static/(.*)/libs/
           )
-        args:
-          - --fix
+        args: [--fix, --color, --max-warnings, '0']
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
-    rev: v16.18.0
+    rev: v16.19.1
     hooks:
       - id: stylelint
         name: Stylelint
@@ -151,8 +159,8 @@ repos:
           - --formatter=compact
         additional_dependencies:
           # stylelint itself needs to be here when using additional_dependencies.
-          - stylelint@16.5.0  # https://github.com/stylelint/stylelint/releases/latest
-          - stylelint-config-standard@36.0.0  # https://github.com/stylelint/stylelint-config-standard/releases/latest
+          - stylelint@16.19.0  # https://github.com/stylelint/stylelint/releases/latest
+          - stylelint-config-standard@38.0.0  # https://github.com/stylelint/stylelint-config-standard/releases/latest
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
@@ -256,7 +264,7 @@ repos:
         name: Blacken docs
         description: Format Python code in documentation files.
         additional_dependencies:
-          - black==24.4.2  # https://github.com/psf/black/releases/latest
+          - black==25.1.0  # https://github.com/psf/black/releases/latest
         args:
           - --target-version=py310  # Minimum required Python version for AA. Update as needed.
 
@@ -272,7 +280,7 @@ repos:
             static/(.*)/libs/
           )
         additional_dependencies:
-          - mdformat-gfm==0.3.6  # Mdformat plugin for GitHub Flavored Markdown compatibility » https://github.com/hukkin/mdformat-gfm/tags
+          - mdformat-gfm==0.4.1  # Mdformat plugin for GitHub Flavored Markdown compatibility » https://github.com/hukkin/mdformat-gfm/tags
           - mdformat-toc==0.3.0  # Mdformat plugin to generate a table of contents » https://github.com/hukkin/mdformat-toc/tags
           - mdformat-black==0.1.1  # Mdformat plugin to Blacken Python code blocks » https://github.com/hukkin/mdformat-black/tags
           - mdformat-shfmt==0.1.0  # Mdformat plugin to format shell code blocks » https://github.com/hukkin/mdformat-shfmt/tags
@@ -293,7 +301,7 @@ repos:
         args:
           - --indent=4
         additional_dependencies:
-          - tox==4.15.0  # https://github.com/tox-dev/tox/releases/latest
+          - tox==4.25.0  # https://github.com/tox-dev/tox/releases/latest
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.24.1
@@ -312,7 +320,7 @@ repos:
           - --py-version=3.10  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.32.1
+    rev: 0.33.0
     hooks:
       - id: check-github-actions
         name: Check GitHub Actions

@@ -8,7 +8,7 @@
 
     .l-shake {
         animation: l-shake 0.5s;
-        animation-duration: infinite;
+        animation-iteration-count: infinite;
     }
 
     .custom-line {

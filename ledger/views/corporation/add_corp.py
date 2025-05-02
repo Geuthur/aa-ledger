@@ -2,17 +2,21 @@
 Corporation Audit
 """
 
+# Standard Library
 import logging
 
+# Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as trans
+
+# Alliance Auth
+from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from esi.decorators import token_required
 
-from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
-
+# AA Ledger
 from ledger import tasks
 from ledger.models.corporationaudit import CorporationAudit
 

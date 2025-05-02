@@ -1,12 +1,15 @@
 """TestView class."""
 
+# Standard Library
 from http import HTTPStatus
 from unittest.mock import Mock, patch
 
+# Django
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
+# AA Ledger
 from ledger.tests.testdata.generate_characteraudit import (
     add_charactermaudit_character_to_user,
     create_user_from_evecharacter_with_access,

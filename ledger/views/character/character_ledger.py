@@ -1,17 +1,19 @@
 """PvE Views"""
 
+# Standard Library
 import logging
 from datetime import datetime
 
+# Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect, render
-
-# Django
 from django.utils.translation import gettext as _
 
+# Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
 
+# AA Ledger
 # Ledger
 from ledger.api.helpers import get_character
 from ledger.models.characteraudit import CharacterAudit

@@ -1,11 +1,14 @@
+# Standard Library
 import logging
 from collections import defaultdict
 
+# Django
 from django.db import models
 from django.db.models import DecimalField, ExpressionWrapper, F, Q, Sum, Value
 from django.db.models.functions import Coalesce, Round
 from django.utils import timezone
 
+# Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
 
 logger = logging.getLogger(__name__)

@@ -1,8 +1,11 @@
+# Django
 from django.contrib.auth.models import Permission
 from django.test import TestCase
 
+# Alliance Auth
 from allianceauth.tests.auth_utils import AuthUtils
 
+# AA Ledger
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.tests.testdata.generate_corporationaudit import (
     add_corporationaudit_corporation_to_user,

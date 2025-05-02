@@ -1,10 +1,15 @@
+# Django
 from django.contrib.auth.models import User
 
+# Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
+
+# Alliance Auth (External Libs)
 from app_utils.testing import (
     create_user_from_evecharacter,
 )
 
+# AA Ledger
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.tests.testdata.generate_characteraudit import (
     add_auth_character_to_user,

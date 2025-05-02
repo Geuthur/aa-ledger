@@ -2,12 +2,17 @@
 Character Helpers
 """
 
+# Standard Library
 import logging
 from datetime import timedelta
 
+# Django
 from django.utils import timezone
+
+# Alliance Auth (External Libs)
 from eveuniverse.models import EveType
 
+# AA Ledger
 from ledger.decorators import log_timing
 from ledger.errors import TokenError
 from ledger.models.characteraudit import (

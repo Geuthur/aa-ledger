@@ -2,9 +2,10 @@
 App Settings
 """
 
+# Standard Library
 import sys
 
-# Django
+# Alliance Auth (External Libs)
 from app_utils.app_settings import clean_setting
 
 IS_TESTING = sys.argv[1:2] == ["test"]

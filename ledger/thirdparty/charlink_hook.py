@@ -1,12 +1,18 @@
+# Third Party
 from charlink.app_imports.utils import AppImport, LoginImport
 
+# Django
 from django.contrib.auth.models import Permission, User
 from django.db.models import Exists, OuterRef
 from django.utils.translation import gettext_lazy as trans
 
+# Alliance Auth
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+
+# Alliance Auth (External Libs)
 from app_utils.allianceauth import users_with_permission
 
+# AA Ledger
 from ledger.app_settings import LEDGER_APP_NAME
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit

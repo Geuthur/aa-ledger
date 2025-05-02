@@ -1,9 +1,14 @@
+# Django
 from django.contrib.admin.sites import AdminSite
 from django.test import RequestFactory, TestCase
 
+# Alliance Auth
 from allianceauth.eveonline.evelinks import eveimageserver
+
+# Alliance Auth (External Libs)
 from app_utils.testdata_factories import UserFactory
 
+# AA Ledger
 from ledger.admin import CharacterAuditAdmin, CorporationAuditAdmin
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
