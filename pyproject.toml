@@ -39,7 +39,10 @@ dependencies = [
     "django-ninja",
 ]
 optional-dependencies.tests-allianceauth-latest = [
+    "aa-discordnotify",
+    "allianceauth-discordbot",
     "coverage",
+    "discordproxy",
     "django-webtest",
     "factory-boy",
 ]
