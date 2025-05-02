@@ -1,10 +1,14 @@
+# Standard Library
 import logging
 from typing import Any
 
+# Django
 from django.db import models
 
+# Alliance Auth
 from allianceauth.eveonline.providers import ObjectNotFound
 
+# AA Ledger
 from ledger.providers import esi
 
 logger = logging.getLogger(__name__)
@@ -14,6 +18,7 @@ class EveEntityManager(models.Manager):
     def get_or_create_esi(self, *, eve_id: int) -> tuple[Any, bool]:
         """gets or creates entity object with data fetched from ESI"""
         # pylint: disable=import-outside-toplevel
+        # AA Ledger
         from ledger.models import EveEntity
 
         try:
@@ -26,6 +31,7 @@ class EveEntityManager(models.Manager):
         """gets bulk names with ESI"""
         if len(eve_ids) > 0:
             # pylint: disable=import-outside-toplevel
+            # AA Ledger
             from ledger.models.general import EveEntity
 
             chunk_size = 500

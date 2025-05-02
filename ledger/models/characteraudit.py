@@ -2,17 +2,23 @@
 Character Audit Model
 """
 
+# Standard Library
 import datetime
 import logging
 
+# Django
 from django.db import models
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from eveuniverse.models import EveSolarSystem, EveType
 
+# Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
 
+# Alliance Auth (External Libs)
+from eveuniverse.models import EveSolarSystem, EveType
+
+# AA Ledger
 from ledger import app_settings
 from ledger.managers.characterjournal_manager import CharWalletManager
 from ledger.managers.charaudit_manager import (

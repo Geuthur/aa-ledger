@@ -1,10 +1,13 @@
 """Generate AllianceAuth test objects from allianceauth.json."""
 
+# Standard Library
 import json
 from pathlib import Path
 
+# Alliance Auth (External Libs)
 from eveuniverse.models import EvePlanet
 
+# AA Ledger
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 

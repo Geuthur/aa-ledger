@@ -1,5 +1,6 @@
 """Custom exceptions."""
 
+# Alliance Auth
 from esi.errors import TokenError
 
 

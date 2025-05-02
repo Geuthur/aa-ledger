@@ -1,7 +1,11 @@
+# Django
 from django.test import TestCase
 from django.utils import timezone
+
+# Alliance Auth (External Libs)
 from eveuniverse.models import EveSolarSystem, EveType
 
+# AA Ledger
 from ledger.models.characteraudit import CharacterMiningLedger
 from ledger.tests.testdata.generate_characteraudit import (
     add_charactermaudit_character_to_user,

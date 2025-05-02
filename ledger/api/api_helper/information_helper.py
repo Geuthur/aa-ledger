@@ -1,12 +1,16 @@
+# Standard Library
 import logging
 from collections import defaultdict
 from dataclasses import dataclass
 
+# Django
 from django.db.models import Q
 from django.utils import timezone
 
+# Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
 
+# AA Ledger
 from ledger.models.corporationaudit import (
     CorporationAudit,
 )

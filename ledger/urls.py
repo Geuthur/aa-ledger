@@ -1,7 +1,9 @@
 """App URLs"""
 
+# Django
 from django.urls import path, re_path
 
+# AA Ledger
 from ledger.api import api
 from ledger.views.alliance import alliance_ledger
 from ledger.views.alliance.add_ally import add_ally

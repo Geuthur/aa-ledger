@@ -3,6 +3,7 @@
 # Django
 from django.apps import AppConfig
 
+# AA Ledger
 # AA Example App
 from ledger import __version__
 

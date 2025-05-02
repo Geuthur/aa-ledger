@@ -1,15 +1,19 @@
 """TestView class."""
 
+# Standard Library
 from http import HTTPStatus
 from unittest.mock import Mock, patch
 
+# Django
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
+# Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo
 from allianceauth.eveonline.providers import Alliance, ObjectNotFound
 
+# AA Ledger
 from ledger.tests.testdata.generate_corporationaudit import (
     create_user_from_evecharacter,
 )

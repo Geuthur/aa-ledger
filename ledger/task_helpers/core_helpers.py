@@ -2,8 +2,10 @@
 Core Helpers
 """
 
+# Standard Library
 import logging
 
+# Alliance Auth
 from esi.models import Token
 
 logger = logging.getLogger(__name__)
