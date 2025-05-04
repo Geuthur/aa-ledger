@@ -3,8 +3,11 @@ Character Audit Model
 """
 
 # Standard Library
-import datetime
 import logging
+from collections.abc import Callable
+
+# Third Party
+from bravado.exception import HTTPInternalServerError
 
 # Django
 from django.db import models
@@ -13,24 +16,44 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
-from allianceauth.eveonline.models import EveCharacter
+from allianceauth.eveonline.models import EveCharacter, Token
+from esi.errors import TokenError
 
 # Alliance Auth (External Libs)
 from eveuniverse.models import EveSolarSystem, EveType
 
 # AA Ledger
 from ledger import app_settings
-from ledger.managers.characterjournal_manager import CharWalletManager
-from ledger.managers.charaudit_manager import (
+from ledger.errors import HTTPGatewayTimeoutError, NotModifiedError, TokenDoesNotExist
+from ledger.managers.character_audit_manager import (
     AuditCharacterManager,
-    CharacterMiningLedgerEntryManager,
 )
+from ledger.managers.character_journal_manager import CharWalletManager
+from ledger.managers.character_mining_manager import CharacterMiningLedgerEntryManager
 from ledger.models.general import EveEntity
+from ledger.view_helpers.core import UpdateSectionResult
 
 logger = logging.getLogger(__name__)
 
 
 class CharacterAudit(models.Model):
+
+    class UpdateSection(models.TextChoices):
+        WALLET_JOURNAL = "wallet_journal", _("Wallet Journal")
+        MINING_LEDGER = "mining_ledger", _("Mining Ledger")
+        PLANETS = "planets", _("Planets")
+        PLANETS_DETAILS = "planets_details", _("Planets Details")
+
+        @classmethod
+        def get_sections(cls) -> list[str]:
+            """Return list of section values."""
+            return [choice.value for choice in cls]
+
+        @property
+        def method_name(self) -> str:
+            """Return method name for this section."""
+            return f"update_{self.value}"
+
     class UpdateStatus(models.TextChoices):
         DISABLED = "disabled", _("disabled")
         NOT_UP_TO_DATE = "not_up_to_date", _("not up to date")
@@ -58,7 +81,7 @@ class CharacterAudit(models.Model):
         def bootstrap_text_style_class(self) -> str:
             """Return bootstrap corresponding bootstrap text style class."""
             update_map = {
-                self.DISABLED: "text-danger",
+                self.DISABLED: "text-warning",
                 self.NOT_UP_TO_DATE: "text-warning",
                 self.ERROR: "text-danger",
                 self.OK: "text-success",
@@ -85,13 +108,7 @@ class CharacterAudit(models.Model):
         EveCharacter, on_delete=models.CASCADE, related_name="ledger_character"
     )
 
-    active = models.BooleanField(default=False)
-
-    last_update_wallet = models.DateTimeField(null=True, default=None, blank=True)
-
-    last_update_mining = models.DateTimeField(null=True, default=None, blank=True)
-
-    last_update_planetary = models.DateTimeField(null=True, default=None, blank=True)
+    active = models.BooleanField(default=True)
 
     balance = models.DecimalField(
         max_digits=20, decimal_places=2, null=True, default=None
@@ -99,8 +116,11 @@ class CharacterAudit(models.Model):
 
     objects = AuditCharacterManager()
 
-    def __str__(self):
-        return f"{self.character.character_name}'s Character Data"
+    def __str__(self) -> str:
+        try:
+            return f"{self.character.character_name} ({self.id})"
+        except AttributeError:
+            return f"{self.character_name} ({self.id})"
 
     class Meta:
         default_permissions = ()
@@ -122,47 +142,172 @@ class CharacterAudit(models.Model):
             "esi-planets.manage_planets.v1",
         ]
 
-    def _get_is_active(self):
-        time_ref = timezone.now() - datetime.timedelta(
-            days=app_settings.LEDGER_CHAR_MAX_INACTIVE_DAYS
+    @property
+    def get_status(self) -> UpdateStatus:
+        """Get the status of this character."""
+        if not self.active:
+            return self.UpdateStatus.DISABLED
+        if not self.ledger_update_status.exists():
+            return self.UpdateStatus.DISABLED
+        if self.ledger_update_status.filter(
+            is_success=False, has_token_error=True
+        ).exists():
+            return self.UpdateStatus.ERROR
+        if self.ledger_update_status.filter(
+            is_success=False, has_token_error=False
+        ).exists():
+            return self.UpdateStatus.ERROR
+        if self.calc_update_needed():
+            return self.UpdateStatus.NOT_UP_TO_DATE
+        return self.UpdateStatus.OK
+
+    def get_token(self, scopes=None) -> Token:
+        """Get the token for this character."""
+        token = (
+            Token.objects.filter(character_id=self.character.character_id)
+            .require_scopes(scopes if scopes else self.get_esi_scopes())
+            .require_valid()
+            .first()
         )
+        if not token:
+            # TODO add Discord Notification?
+            raise TokenDoesNotExist(
+                f"Token does not exist for {self} with scopes {scopes}"
+            )
+        return token
+
+    def update_wallet_journal(self, force_refresh: bool) -> UpdateSectionResult:
+        return self.ledger_character_journal.update_or_create_esi(
+            self, force_refresh=force_refresh
+        )
+
+    def update_mining_ledger(self, force_refresh: bool) -> UpdateSectionResult:
+        return self.ledger_character_mining.update_or_create_esi(
+            self, force_refresh=force_refresh
+        )
+
+    def update_planets(self, force_refresh: bool) -> UpdateSectionResult:
+        return self.ledger_character_planet.update_or_create_esi(
+            self, force_refresh=force_refresh
+        )
+
+    def update_planets_details(self, force_refresh: bool) -> UpdateSectionResult:
+        return self.ledger_character_planet_details.update_or_create_esi(
+            self, force_refresh=force_refresh
+        )
+
+    def calc_update_needed(self) -> list[UpdateSection]:
+        """Calculate if an update is needed."""
+        sections: models.QuerySet[CharacterUpdateStatus] = (
+            self.ledger_update_status.all()
+        )
+        needs_update = []
+        for section in sections:
+            if section.need_update():
+                needs_update.append(section.section)
+        return needs_update
+
+    def reset_update_status(self, section: UpdateSection) -> "CharacterUpdateStatus":
+        """Reset the status of a given update section and return it."""
+        update_status_obj: CharacterUpdateStatus = (
+            self.ledger_update_status.get_or_create(
+                section=section,
+            )[0]
+        )
+        update_status_obj.reset()
+        return update_status_obj
+
+    def reset_has_token_error(self) -> None:
+        """Reset the has_token_error flag for this character."""
+        self.ledger_update_status.filter(
+            has_token_error=True,
+        ).update(
+            has_token_error=False,
+        )
+
+    def update_section_if_changed(
+        self,
+        section: UpdateSection,
+        fetch_func: Callable,
+        force_refresh: bool = False,
+    ):
+        """Update the status of a specific section if it has changed."""
+        section = self.UpdateSection(section)
         try:
-            is_active = True
+            logger.debug("%s: Update has changed, section: %s", self, section.label)
+            data = fetch_func(character=self, force_refresh=force_refresh)
+        except HTTPInternalServerError as exc:
+            logger.debug("%s: Update has an HTTP internal server error: %s", self, exc)
+            return UpdateSectionResult(is_changed=False, is_updated=False)
+        except NotModifiedError:
+            logger.debug("%s: Update has not changed, section: %s", self, section.label)
+            return UpdateSectionResult(is_changed=False, is_updated=False)
+        except HTTPGatewayTimeoutError as exc:
+            logger.debug(
+                "%s: Update has a gateway timeout error, section: %s: %s",
+                self,
+                section.label,
+                exc,
+            )
+            return UpdateSectionResult(is_changed=False, is_updated=False)
+        return UpdateSectionResult(
+            is_changed=True,
+            is_updated=True,
+            data=data,
+        )
 
-            is_active = is_active and self.last_update_wallet > time_ref
-            is_active = is_active and self.last_update_mining > time_ref
-            is_active = is_active and self.last_update_planetary > time_ref
-            return is_active
-        except Exception:  # pylint: disable=broad-exception-caught
-            return False
+    def update_section_log(
+        self,
+        section: UpdateSection,
+        is_success: bool,
+        is_updated: bool = False,
+        error_message: str = None,
+    ) -> None:
+        """Update the status of a specific section."""
+        error_message = error_message if error_message else ""
+        defaults = {
+            "is_success": is_success,
+            "error_message": error_message,
+            "has_token_error": False,
+            "last_run_finished_at": timezone.now(),
+        }
+        obj: CharacterUpdateStatus = self.ledger_update_status.update_or_create(
+            section=section,
+            defaults=defaults,
+        )[0]
+        if is_updated:
+            obj.last_update_at = obj.last_run_at
+            obj.last_update_finished = timezone.now()
+            obj.save()
+        status = "successfully" if is_success else "with errors"
+        logger.info("%s: %s Update run completed %s", self, section.label, status)
 
-    def is_active(self):
-        is_active = self._get_is_active()
-        if self.active != is_active:
-            self.active = is_active
-            if is_active is False:
-                logger.info("Deactivating Character: %s", self.character.character_name)
-            self.save()
-        return is_active
-
-    # TODO Create a Update Status Model to handle all update section separately
-    @property
-    def get_status(self):
-        if self.active is False:
-            return self.UpdateStatus("disabled")
-
-        is_active = self._get_is_active()
-
-        # Check if one of the updates are not up to date
-        if is_active is False:
-            return self.UpdateStatus("not_up_to_date")
-        return self.UpdateStatus("ok")
-
-    @property
-    def get_status_opacity(self):
-        if self.active:
-            return "opacity-100"
-        return "opacity-25"
+    def perform_update_status(
+        self, section: UpdateSection, method: Callable, *args, **kwargs
+    ) -> UpdateSectionResult:
+        """Perform update status."""
+        try:
+            result = method(*args, **kwargs)
+        except Exception as exc:
+            error_message = f"{type(exc).__name__}: {str(exc)}"
+            is_token_error = isinstance(exc, (TokenError))
+            logger.error(
+                "%s: %s: Error during update status: %s",
+                self,
+                section.label,
+                error_message,
+            )
+            self.ledger_update_status.update_or_create(
+                section=section,
+                defaults={
+                    "is_success": False,
+                    "error_message": error_message,
+                    "has_token_error": is_token_error,
+                    "last_update_at": timezone.now(),
+                },
+            )
+            raise exc
+        return result
 
 
 class WalletJournalEntry(models.Model):
@@ -229,7 +374,11 @@ class WalletJournalEntry(models.Model):
 
 
 class CharacterWalletJournalEntry(WalletJournalEntry):
-    character = models.ForeignKey(CharacterAudit, on_delete=models.CASCADE)
+    character = models.ForeignKey(
+        CharacterAudit,
+        on_delete=models.CASCADE,
+        related_name="ledger_character_journal",
+    )
 
     objects = CharWalletManager()
 
@@ -248,7 +397,7 @@ class CharacterWalletJournalEntry(WalletJournalEntry):
 class CharacterMiningLedger(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     character = models.ForeignKey(
-        CharacterAudit, on_delete=models.CASCADE, related_name="ledger_character"
+        CharacterAudit, on_delete=models.CASCADE, related_name="ledger_character_mining"
     )
     date = models.DateTimeField()
     type = models.ForeignKey(
@@ -270,3 +419,77 @@ class CharacterMiningLedger(models.Model):
 
     def __str__(self) -> str:
         return f"{self.character} {self.id}"
+
+
+class CharacterUpdateStatus(models.Model):
+    """A Model to track the status of the last update."""
+
+    character = models.ForeignKey(
+        CharacterAudit, on_delete=models.CASCADE, related_name="ledger_update_status"
+    )
+    section = models.CharField(
+        max_length=32, choices=CharacterAudit.UpdateSection.choices, db_index=True
+    )
+    is_success = models.BooleanField(default=None, null=True, db_index=True)
+    error_message = models.TextField()
+    has_token_error = models.BooleanField(default=False)
+
+    last_run_at = models.DateTimeField(
+        default=None,
+        null=True,
+        db_index=True,
+        help_text="Last run has been started at this time",
+    )
+    last_run_finished_at = models.DateTimeField(
+        default=None,
+        null=True,
+        db_index=True,
+        help_text="Last run has been successful finished at this time",
+    )
+    last_update_at = models.DateTimeField(
+        default=None,
+        null=True,
+        db_index=True,
+        help_text="Last update has been started at this time",
+    )
+    last_update_finished = models.DateTimeField(
+        default=None,
+        null=True,
+        db_index=True,
+        help_text="Last update has been successful finished at this time",
+    )
+
+    class Meta:
+        default_permissions = ()
+
+    def __str__(self) -> str:
+        return f"{self.character} - {self.section} - {self.is_success}"
+
+    def need_update(self) -> bool:
+        """Check if the update is needed."""
+        if not self.is_success or not self.last_update_finished:
+            needs_update = True
+        else:
+            section_time_stale = app_settings.LEDGER_STALE_TYPES.get(self.section, 60)
+            stale = timezone.now() - timezone.timedelta(minutes=section_time_stale)
+            needs_update = self.last_update_finished <= stale
+
+        if needs_update and self.has_token_error:
+            logger.info(
+                "%s: Ignoring update because of token error, section: %s",
+                self.character,
+                self.section,
+            )
+
+            needs_update = False
+
+        return needs_update
+
+    def reset(self) -> None:
+        """Reset this update status."""
+        self.is_success = None
+        self.error_message = ""
+        self.has_token_error = False
+        self.last_run_at = timezone.now()
+        self.last_run_finished_at = None
+        self.save()

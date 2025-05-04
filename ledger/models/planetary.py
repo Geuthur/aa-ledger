@@ -16,13 +16,18 @@ from eveuniverse.models import EvePlanet, EveType
 
 # AA Ledger
 from ledger.constants import EXTRACTOR_CONTROL_UNIT, P0_PRODUCTS, SPACEPORTS
-from ledger.managers.planetary_manager import PlanetaryManager
+from ledger.managers.character_planetary_manager import (
+    PlanetaryDetailsManager,
+    PlanetaryManager,
+)
 from ledger.models.characteraudit import CharacterAudit
 
 logger = logging.getLogger(__name__)
 
 
 class CharacterPlanet(models.Model):
+    objects = PlanetaryManager()
+
     id = models.AutoField(primary_key=True)
 
     planet_name = models.CharField(max_length=100, null=True, default=None)
@@ -32,7 +37,7 @@ class CharacterPlanet(models.Model):
     )
 
     character = models.ForeignKey(
-        CharacterAudit, on_delete=models.CASCADE, related_name="ledger_characterplanet"
+        CharacterAudit, on_delete=models.CASCADE, related_name="ledger_character_planet"
     )
 
     upgrade_level = models.IntegerField(
@@ -42,10 +47,6 @@ class CharacterPlanet(models.Model):
     num_pins = models.IntegerField(
         default=0, help_text=_("Number of pins on the planet")
     )
-
-    last_update = models.DateTimeField(null=True, default=None, blank=True)
-
-    # objects = PlanetaryManager()
 
     class Meta:
         default_permissions = ()
@@ -66,12 +67,22 @@ class CharacterPlanet(models.Model):
 
 
 class CharacterPlanetDetails(models.Model):
+    """Model to store the details of a planet"""
+
+    objects = PlanetaryDetailsManager()
+
     id = models.AutoField(primary_key=True)
 
     planet = models.ForeignKey(
         CharacterPlanet,
         on_delete=models.CASCADE,
-        related_name="ledger_characterplanetdetails",
+        related_name="ledger_planet_details",
+    )
+
+    character = models.ForeignKey(
+        CharacterAudit,
+        on_delete=models.CASCADE,
+        related_name="ledger_character_planet_details",
     )
 
     links = models.JSONField(null=True, default=None, blank=True)
@@ -79,13 +90,10 @@ class CharacterPlanetDetails(models.Model):
     routes = models.JSONField(null=True, default=None, blank=True)
     facilitys = models.JSONField(null=True, default=None, blank=True)
 
-    last_update = models.DateTimeField(null=True, default=None, blank=True)
     last_alert = models.DateTimeField(null=True, default=None, blank=True)
 
     notification = models.BooleanField(default=False)
     notification_sent = models.BooleanField(default=False)
-
-    objects = PlanetaryManager()
 
     class Meta:
         default_permissions = ()

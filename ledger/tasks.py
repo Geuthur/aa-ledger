@@ -1,7 +1,9 @@
 """App Tasks"""
 
 # Standard Library
+import inspect
 import logging
+from collections.abc import Callable
 
 # Third Party
 from celery import chain, shared_task
@@ -23,15 +25,7 @@ from ledger.decorators import when_esi_is_available
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.models.planetary import CharacterPlanetDetails
-from ledger.task_helpers.char_helpers import (
-    update_character_mining,
-    update_character_wallet,
-)
 from ledger.task_helpers.corp_helpers import update_corp_wallet_division
-from ledger.task_helpers.plan_helpers import (
-    update_character_planetary,
-    update_character_planetary_details,
-)
 from ledger.view_helpers.discord import send_user_notification
 
 logger = logging.getLogger(__name__)
@@ -47,14 +41,9 @@ TASK_DEFAULTS = {
 # Default params for tasks that need run once only.
 TASK_DEFAULTS_ONCE = {**TASK_DEFAULTS, **{"base": QueueOnce}}
 
-_update_ledger_planet_params = {
-    **TASK_DEFAULTS_ONCE,
-    **{"once": {"keys": ["character_id", "planet_id"], "graceful": True}},
-}
-
 _update_ledger_char_params = {
     **TASK_DEFAULTS_ONCE,
-    **{"once": {"keys": ["character_id"], "graceful": True}},
+    **{"once": {"keys": ["character_pk", "force_refresh"], "graceful": True}},
 }
 
 _update_ledger_corp_params = {
@@ -69,7 +58,7 @@ def update_all_characters(runs: int = 0):
     """Update all characters"""
     characters = CharacterAudit.objects.select_related("character").all()
     for char in characters:
-        update_character.apply_async(args=[char.character.character_id])
+        update_character.apply_async(args=[char.pk])
         runs = runs + 1
     logger.debug("Queued %s Character Audit Tasks", runs)
 
@@ -99,48 +88,47 @@ def update_subset_characters(subset=5, min_runs=10, max_runs=200, force_refresh=
     )
 
     for char in characters:
-        update_character.apply_async(
-            args=[char.character.character_id], force_refresh=force_refresh
-        )
+        update_character.apply_async(args=[char.pk], force_refresh=force_refresh)
     logger.debug("Queued %s Character Audit Tasks", len(characters))
 
 
-@shared_task(**_update_ledger_char_params)
+@shared_task(**TASK_DEFAULTS_ONCE)
 @when_esi_is_available
-def update_character(character_id: int, force_refresh=False):
-    character = CharacterAudit.objects.get(character__character_id=character_id)
-
-    # Settings for Task Queue
-    skip_date = timezone.now() - timezone.timedelta(
-        minutes=app_settings.LEDGER_STALE_STATUS
+def update_character(character_pk: int, force_refresh=False):
+    character = CharacterAudit.objects.prefetch_related("ledger_update_status").get(
+        pk=character_pk
     )
+
     que = []
-    mindt = timezone.now() - timezone.timedelta(days=7)
     priority = 7
 
     logger.debug(
         "Processing Audit Updates for %s", format(character.character.character_name)
     )
 
-    if (character.last_update_mining or mindt) <= skip_date or force_refresh:
-        que.append(
-            update_char_mining_ledger.si(
-                character.character.character_id, force_refresh=force_refresh
-            ).set(priority=priority)
-        )
+    if force_refresh:
+        # Reset Token Error if we are forcing a refresh
+        character.reset_has_token_error()
 
-    if (character.last_update_wallet or mindt) <= skip_date or force_refresh:
-        que.append(
-            update_char_wallet.si(
-                character.character.character_id, force_refresh=force_refresh
-            ).set(priority=priority)
-        )
+    needs_update = character.calc_update_needed()
 
-    if (character.last_update_planetary or mindt) <= skip_date or force_refresh:
+    if not needs_update and not force_refresh:
+        logger.info("No updates needed for %s", character.character.character_name)
+        return
+
+    sections = character.UpdateSection.get_sections()
+
+    logger.debug("Sections to update: %s", sections)
+
+    for section in sections:
+        # Skip sections that are not in the needs_update list
+        if not force_refresh and section not in needs_update:
+            continue
+
+        task_name = f"update_char_{section}"
+        task = globals().get(task_name)
         que.append(
-            update_char_planets.si(
-                character.character.character_id, force_refresh=force_refresh
-            ).set(priority=priority)
+            task.si(character.pk, force_refresh=force_refresh).set(priority=priority)
         )
 
     chain(que).apply_async()
@@ -152,31 +140,64 @@ def update_character(character_id: int, force_refresh=False):
 
 
 @shared_task(**_update_ledger_char_params)
-def update_char_mining_ledger(character_id, force_refresh=False):
-    return update_character_mining(character_id, force_refresh=force_refresh)
-
-
-@shared_task(**_update_ledger_char_params)
-def update_char_wallet(
-    character_id, force_refresh=False
-):  # pylint: disable=unused-argument, dangerous-default-value
-    return update_character_wallet(character_id, force_refresh=force_refresh)
-
-
-@shared_task(**_update_ledger_char_params)
-def update_char_planets(
-    character_id, force_refresh=False
-):  # pylint: disable=unused-argument, dangerous-default-value
-    return update_character_planetary(character_id, force_refresh=force_refresh)
-
-
-@shared_task(**_update_ledger_planet_params)
-def update_char_planets_details(
-    character_id, planet_id, force_refresh=False
-):  # pylint: disable=unused-argument, dangerous-default-value
-    return update_character_planetary_details(
-        character_id, planet_id, force_refresh=force_refresh
+@when_esi_is_available
+def update_char_wallet_journal(character_pk: int, force_refresh: bool):
+    return _update_character_section(
+        character_pk,
+        section=CharacterAudit.UpdateSection.WALLET_JOURNAL,
+        force_refresh=force_refresh,
     )
+
+
+@shared_task(**_update_ledger_char_params)
+@when_esi_is_available
+def update_char_mining_ledger(character_pk: int, force_refresh: bool):
+    return _update_character_section(
+        character_pk,
+        section=CharacterAudit.UpdateSection.MINING_LEDGER,
+        force_refresh=force_refresh,
+    )
+
+
+@shared_task(**_update_ledger_char_params)
+@when_esi_is_available
+def update_char_planets(character_pk: int, force_refresh: bool):
+    logger.debug("Updating Planet Data for %s", character_pk)
+    return _update_character_section(
+        character_pk,
+        section=CharacterAudit.UpdateSection.PLANETS,
+        force_refresh=force_refresh,
+    )
+
+
+@shared_task(**_update_ledger_char_params)
+@when_esi_is_available
+def update_char_planets_details(character_pk: int, force_refresh: bool):
+    logger.debug("Updating Planet Details for %s", character_pk)
+    return _update_character_section(
+        character_pk,
+        section=CharacterAudit.UpdateSection.PLANETS_DETAILS,
+        force_refresh=force_refresh,
+    )
+
+
+def _update_character_section(character_pk: int, section: str, force_refresh: bool):
+    """Update a specific section of the character audit."""
+    section = CharacterAudit.UpdateSection(section)
+    character = CharacterAudit.objects.get(pk=character_pk)
+
+    character.reset_update_status(section)
+    logger.info("Updating %s for %s", section.value, character.character.character_name)
+
+    method: Callable = getattr(character, section.method_name)
+    method_signature = inspect.signature(method)
+
+    if "force_refresh" in method_signature.parameters:
+        kwargs = {"force_refresh": force_refresh}
+    else:
+        kwargs = {}
+    result = character.perform_update_status(section, method, **kwargs)
+    character.update_section_log(section, is_success=True, is_updated=result.is_updated)
 
 
 # pylint: disable=unused-argument, too-many-locals
@@ -270,9 +291,7 @@ def update_corp(corporation_id, force_refresh=False):  # pylint: disable=unused-
     logger.debug("Processing Audit Updates for %s", corp.corporation.corporation_name)
 
     # Settings for Task Queue
-    skip_date = timezone.now() - timezone.timedelta(
-        minutes=app_settings.LEDGER_STALE_STATUS
-    )
+    skip_date = timezone.now() - timezone.timedelta(minutes=60)
     mindt = timezone.now() - timezone.timedelta(days=7)
     priority = 7
 

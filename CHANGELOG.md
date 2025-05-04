@@ -1,5 +1,22 @@
 # Changelog
 
+# [0.7.x] IN DEVELOPMENT
+
+## Added
+
+- Update Section System - Inspired by @Eric Kalkoken
+  - TokenError Handler
+  - HTTPInternalServerError, HTTPGatewayTimeoutError Handler
+  - Update Section retrieves information between Etag System (Not Updating if NotModified)
+  - Disable Update on Token Error
+  - Update Information
+
+## Changed
+
+- Task System
+  - Use Django Manager for Updates
+  - Refactor `update_character` Task
+
 ## [0.7.6] - 2025-05-02
 
 ### Added

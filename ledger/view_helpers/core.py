@@ -5,6 +5,7 @@ Core View Helper
 # Standard Library
 import logging
 from decimal import Decimal
+from typing import Any, NamedTuple
 
 # Django
 from django.core.cache import cache
@@ -111,3 +112,11 @@ def events_filter(qs: QuerySet) -> QuerySet:
         # Exclude all Entries that are in the Event Time
         qs = qs.exclude(combined_q_object & Q(ref_type="ess_escrow_transfer"))
     return qs
+
+
+class UpdateSectionResult(NamedTuple):
+    """A result of an attempted section update."""
+
+    is_changed: bool | None
+    is_updated: bool
+    data: Any = None

@@ -188,24 +188,21 @@ class LedgerAdminApiEndpoints:
                 auth_characters - active_characters - inactive_characters
             )
 
-            has_issues = False
-
+            status_msg = None
+            status_issues = None
+            issues = []
             for char in characters:
-                if not char.is_active():
-                    has_issues = True
+                if char.ledger_update_status.filter(is_success=False).exists():
+                    issues.append(char.character.character_name)
 
-            # TODO Create a Update Status Model to handle all update section separately and  make a Status Message
-            # Like "Character is missing Wallet Data" or "Character is missing Mining Data"
-            # or "Character is missing Planetary Data" or "Character is inactive"
-            # Update are not up to date
-            if has_issues:
-                status_msg = _("Please re-register inactive characters")
-            else:
-                status_msg = _("All characters are up to date")
+            if issues:
+                status_msg = _("Please re-register characters with issues")
+                status_issues = ", ".join(issues)
 
             output = {
                 "dashboard": "Character Dashboard",
                 "status": status_msg,
+                "status_issues": status_issues,
                 "statistics": "Character Statistics",
                 "auth_characters": auth_characters,
                 "active_characters": f"{active_characters} / {auth_characters}",

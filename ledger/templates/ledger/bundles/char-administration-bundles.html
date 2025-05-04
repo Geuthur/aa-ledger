@@ -34,7 +34,6 @@
             success: function (data) {
                 // Dashboard-Info
                 $('#dashboard-info').html(data.dashboard);
-                $('#status').text(data.status);
                 // Dashboard-Statistics
                 $('#dashboard-info-statistics').html(data.statistics);
                 $('#auth-characters').text(data.auth_characters);
@@ -42,8 +41,13 @@
                 $('#inactive-characters').text(data.inactive_characters);
                 $('#missing-characters').text(data.missing_characters);
 
-                manageDashboardVar.removeClass('d-none');
-                manageDashboardTableVar.removeClass('d-none');
+                if (data.status) {
+                    $('#status').text(data.status);
+                    $('#status-issues').text(data.status_issues);
+                    $('#character-issues').removeClass('d-none');
+                    manageDashboardVar.removeClass('d-none');
+                    manageDashboardTableVar.removeClass('d-none');
+                }
 
                 manageDashboardStatisticsVar.removeClass('d-none');
                 manageDashboardStatisticsTableVar.removeClass('d-none');

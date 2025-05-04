@@ -13,18 +13,11 @@ from django.core.cache import cache
 
 # AA Ledger
 from ledger.decorators import log_timing
+from ledger.errors import HTTPGatewayTimeoutError, NotModifiedError
 
 logger = logging.getLogger(__name__)
 
 MAX_ETAG_LIFE = 60 * 60 * 24 * 7  # 7 Days
-
-
-class NotModifiedError(Exception):
-    pass
-
-
-class HTTPGatewayTimeoutError(Exception):
-    pass
 
 
 def get_etag_key(operation):
@@ -156,14 +149,14 @@ def handle_page_results(
             if isinstance(e, NotModifiedError):
                 logger.debug(
                     "ETag: Match Cache - Etag:%s, %s",
-                    operation.operation.operation_id,
+                    e.response.headers["ETag"],
                     stringify_params(operation),
                 )
                 total_pages = int(headers.headers["X-Pages"])
             else:
                 logger.debug(
                     "ETag: Match ESI - Etag: %s - %s ETag-Incomplete: %s",
-                    operation.operation.operation_id,
+                    e.response.headers["ETag"],
                     stringify_params(operation),
                     etags_incomplete,
                 )
@@ -185,6 +178,11 @@ def handle_page_results(
 @log_timing(logger)
 def etag_results(operation, token, force_refresh=False):
     """Handle ETag results"""
+    logger.debug(
+        "ETag: etag_results %s - %s",
+        operation.operation.operation_id,
+        force_refresh,
+    )
     operation.request_config.also_return_response = True
     if token:
         operation.future.request.headers["Authorization"] = (
