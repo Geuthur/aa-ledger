@@ -2,7 +2,6 @@
 
 # Standard Library
 import inspect
-import logging
 from collections.abc import Callable
 
 # Third Party
@@ -17,10 +16,14 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.authentication.models import CharacterOwnership
+from allianceauth.services.hooks import get_extension_logger
 from allianceauth.services.tasks import QueueOnce
 
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
 # AA Ledger
-from ledger import app_settings
+from ledger import __title__, app_settings
 from ledger.decorators import when_esi_is_available
 from ledger.helpers.discord import send_user_notification
 from ledger.models.characteraudit import CharacterAudit
@@ -28,7 +31,7 @@ from ledger.models.corporationaudit import CorporationAudit
 from ledger.models.planetary import CharacterPlanetDetails
 from ledger.task_helpers.corp_helpers import update_corp_wallet_division
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 MAX_RETRIES_DEFAULT = 3
 

@@ -1,5 +1,4 @@
 # Standard Library
-import logging
 from typing import TYPE_CHECKING
 
 # Django
@@ -8,9 +7,14 @@ from django.db.models import DecimalField, F, Q, Sum, Value
 from django.db.models.functions import Coalesce
 
 # Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
 # AA Ledger
+from ledger import __title__
 from ledger.constants import (
     ASSETS,
     BOUNTY_PRIZES,
@@ -42,7 +46,7 @@ if TYPE_CHECKING:
     )
     from ledger.models.general import UpdateSectionResult
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 # PVE
 BOUNTY_FILTER = Q(ref_type__in=BOUNTY_PRIZES)

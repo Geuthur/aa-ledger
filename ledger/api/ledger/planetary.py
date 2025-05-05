@@ -1,6 +1,3 @@
-# Standard Library
-import logging
-
 # Third Party
 from ninja import NinjaAPI
 
@@ -9,7 +6,14 @@ from django.db.models import Q
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
 # AA Ledger
+from ledger import __title__
 from ledger.api import schema
 from ledger.api.api_helper.planetary_helper import (
     generate_progressbar,
@@ -18,7 +22,7 @@ from ledger.api.api_helper.planetary_helper import (
 from ledger.api.helpers import get_alts_queryset, get_character
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class LedgerPlanetaryApiEndpoints:

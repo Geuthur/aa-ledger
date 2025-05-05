@@ -2,18 +2,20 @@
 Corporation Helpers
 """
 
-# Standard Library
-import logging
-
 # Django
 from django.utils import timezone
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
+from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 from esi.models import Token
 
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
 # AA Ledger
+from ledger import __title__
 from ledger.decorators import log_timing
 from ledger.errors import DatabaseError
 from ledger.models.corporationaudit import (
@@ -29,7 +31,7 @@ from ledger.task_helpers.etag_helpers import (
     etag_results,
 )
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 def get_corp_token(corp_id, scopes, req_roles):

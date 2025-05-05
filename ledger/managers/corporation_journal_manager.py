@@ -1,5 +1,4 @@
 # Standard Library
-import logging
 from decimal import Decimal
 
 # Django
@@ -7,8 +6,14 @@ from django.db import models
 from django.db.models import DecimalField, F, Q, Sum, Value
 from django.db.models.functions import Coalesce, Round
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
 # AA Ledger
-from ledger import app_settings
+from ledger import __title__, app_settings
 from ledger.constants import (
     ASSETS,
     BOUNTY_PRIZES,
@@ -27,7 +32,7 @@ from ledger.constants import (
     TRAVELING,
 )
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 # Filters
 BOUNTY_FILTER = Q(ref_type__in=BOUNTY_PRIZES, amount__gt=0)

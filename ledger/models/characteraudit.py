@@ -3,7 +3,6 @@ Character Audit Model
 """
 
 # Standard Library
-import logging
 from collections.abc import Callable
 
 # Third Party
@@ -17,13 +16,15 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter, Token
+from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 
 # Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 from eveuniverse.models import EveSolarSystem, EveType
 
 # AA Ledger
-from ledger import app_settings
+from ledger import __title__, app_settings
 from ledger.errors import HTTPGatewayTimeoutError, NotModifiedError, TokenDoesNotExist
 from ledger.managers.character_audit_manager import (
     CharacterAuditManager,
@@ -32,7 +33,7 @@ from ledger.managers.character_journal_manager import CharWalletManager
 from ledger.managers.character_mining_manager import CharacterMiningLedgerEntryManager
 from ledger.models.general import EveEntity, UpdateSectionResult
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class CharacterAudit(models.Model):

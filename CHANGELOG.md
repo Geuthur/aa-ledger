@@ -18,6 +18,8 @@
   - Use Django Manager for Updates
   - Refactor `update_character` Task
 - Use one navigation menu for Ledger
+- Use app_utils `LoggerAddTag` Logger System
+- Make `README` logger settings optional
 
 ## Removed
 

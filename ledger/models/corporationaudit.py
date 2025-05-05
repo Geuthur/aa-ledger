@@ -2,16 +2,18 @@
 Corporation Audit Model
 """
 
-# Standard Library
-import logging
-
 # Django
 from django.db import models
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCorporationInfo
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
+from ledger import __title__
 from ledger.managers.corporation_audit_manager import CorporationAuditManager
 from ledger.managers.corporation_journal_manager import (
     CorporationDivisionManager,
@@ -19,7 +21,7 @@ from ledger.managers.corporation_journal_manager import (
 )
 from ledger.models.characteraudit import WalletJournalEntry
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class CorporationAudit(models.Model):

@@ -1,5 +1,4 @@
 # Standard Library
-import logging
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
@@ -9,10 +8,15 @@ from django.db.models import DecimalField, ExpressionWrapper, F, Q, Sum, Value
 from django.db.models.functions import Coalesce, Round
 from django.utils import timezone
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
 # Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 from eveuniverse.models import EveType
 
 # AA Ledger
+from ledger import __title__
 from ledger.decorators import log_timing
 from ledger.providers import esi
 from ledger.task_helpers.etag_helpers import etag_results
@@ -23,7 +27,8 @@ if TYPE_CHECKING:
         CharacterAudit,
     )
     from ledger.models.general import UpdateSectionResult
-logger = logging.getLogger(__name__)
+
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class CharacterMiningLedgerEntryQueryset(models.QuerySet):

@@ -1,15 +1,19 @@
 # Standard Library
-import logging
 from typing import TYPE_CHECKING
 
 # Django
 from django.db import models, transaction
 from django.utils import timezone
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
 # Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 from eveuniverse.models import EvePlanet, EveType
 
 # AA Ledger
+from ledger import __title__
 from ledger.constants import COMMAND_CENTER, EXTRACTOR_CONTROL_UNIT, SPACEPORTS
 from ledger.decorators import log_timing
 from ledger.models.characteraudit import CharacterAudit
@@ -21,7 +25,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from ledger.models.general import UpdateSectionResult
     from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 def convert_datetime_to_str(data):

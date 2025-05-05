@@ -2,19 +2,21 @@
 Core View Helper
 """
 
-# Standard Library
-import logging
-
 # Django
 from django.db.models import Q, QuerySet
 
 # Alliance Auth
 from allianceauth.authentication.models import UserProfile
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
+from ledger import __title__
 from ledger.models.events import Events
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 def add_info_to_context(request, context: dict) -> dict:

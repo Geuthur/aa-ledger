@@ -1,5 +1,4 @@
 # Standard Library
-import logging
 from collections import defaultdict
 from decimal import Decimal
 
@@ -9,8 +8,13 @@ from django.utils import timezone
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
+from ledger import __title__
 from ledger.api.api_helper.aggregator import AggregateLedger, AggregateMining
 from ledger.api.api_helper.billboard_helper import BillboardSystem
 from ledger.api.api_helper.information_helper import (
@@ -26,7 +30,7 @@ from ledger.models.corporationaudit import (
     CorporationWalletJournalEntry,
 )
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class CharacterGlances:

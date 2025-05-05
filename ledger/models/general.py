@@ -4,7 +4,6 @@ General Model
 
 # Standard Library
 import datetime
-import logging
 from typing import Any, NamedTuple
 
 # Django
@@ -19,11 +18,16 @@ from allianceauth.eveonline.models import (
     EveCharacter,
     EveCorporationInfo,
 )
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
+from ledger import __title__
 from ledger.managers.general_manager import EveEntityManager
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 # Permission Manager
 

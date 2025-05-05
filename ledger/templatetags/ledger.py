@@ -1,5 +1,4 @@
 # Standard Library
-import logging
 import os
 
 # Django
@@ -8,11 +7,17 @@ from django.template.defaulttags import register
 from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
 # AA Ledger
 from ledger import __title__, __version__
 from ledger.helpers.static_files import calculate_integrity_hash
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @register.simple_tag

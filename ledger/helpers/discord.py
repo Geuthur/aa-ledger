@@ -1,8 +1,5 @@
 """Discord helper functions"""
 
-# Standard Library
-import logging
-
 # Third Party
 from celery import shared_task
 
@@ -13,12 +10,16 @@ from django.utils import timezone
 # Alliance Auth
 from allianceauth.authentication.models import User
 from allianceauth.notifications import notify
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
 from ledger.constants import DISCORD_EMBED_COLOR_MAP
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 def allianceauth_discordbot_installed() -> bool:

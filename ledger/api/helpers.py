@@ -1,5 +1,4 @@
 # Standard Library
-import logging
 from datetime import datetime
 
 # Django
@@ -8,11 +7,15 @@ from django.db.models import Q, QuerySet
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
-from ledger import models
+from ledger import __title__, models
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 def get_character(request, character_id) -> tuple[bool, EveCharacter | None]:

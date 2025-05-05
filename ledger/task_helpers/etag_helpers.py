@@ -2,20 +2,24 @@
 Etag Helpers
 """
 
-# Standard Library
-import logging
-
 # Third Party
 from bravado.exception import HTTPGatewayTimeout, HTTPNotModified
 
 # Django
 from django.core.cache import cache
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
 # AA Ledger
+from ledger import __title__
 from ledger.decorators import log_timing
 from ledger.errors import HTTPGatewayTimeoutError, NotModifiedError
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 MAX_ETAG_LIFE = 60 * 60 * 24 * 7  # 7 Days
 

@@ -2,19 +2,21 @@
 Planetary Model
 """
 
-# Standard Library
-import logging
-
 # Django
 from django.db import models
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
 # Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 from eveuniverse.models import EvePlanet, EveType
 
 # AA Ledger
+from ledger import __title__
 from ledger.constants import EXTRACTOR_CONTROL_UNIT, P0_PRODUCTS, SPACEPORTS
 from ledger.managers.character_planetary_manager import (
     PlanetaryDetailsManager,
@@ -22,7 +24,7 @@ from ledger.managers.character_planetary_manager import (
 )
 from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class CharacterPlanet(models.Model):
