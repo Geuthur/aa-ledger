@@ -13,7 +13,10 @@ from allianceauth.eveonline.models import EveCorporationInfo
 
 # AA Ledger
 from ledger.managers.corporation_audit_manager import CorporationAuditManager
-from ledger.managers.corporation_journal_manager import CorporationWalletManager
+from ledger.managers.corporation_journal_manager import (
+    CorporationDivisionManager,
+    CorporationWalletManager,
+)
 from ledger.models.characteraudit import WalletJournalEntry
 
 logger = logging.getLogger(__name__)
@@ -59,6 +62,8 @@ class CorporationAudit(models.Model):
 
 
 class CorporationWalletDivision(models.Model):
+    objects = CorporationDivisionManager()
+
     corporation = models.ForeignKey(
         CorporationAudit,
         on_delete=models.CASCADE,

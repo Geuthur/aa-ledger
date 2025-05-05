@@ -149,3 +149,16 @@ class CorporationWalletManagerBase(models.Manager):
 CorporationWalletManager = CorporationWalletManagerBase.from_queryset(
     CorporationWalletQuerySet
 )
+
+
+class CorporationDivisionQuerySet(models.QuerySet):
+    pass
+
+
+class CorporationDivisionManagerBase(models.Manager):
+    pass
+
+
+CorporationDivisionManager = CorporationDivisionManagerBase.from_queryset(
+    CorporationDivisionQuerySet
+)
