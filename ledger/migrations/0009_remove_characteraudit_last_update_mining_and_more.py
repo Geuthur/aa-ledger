@@ -163,4 +163,88 @@ class Migration(migrations.Migration):
                 "default_permissions": (),
             },
         ),
+        migrations.RenameField(
+            model_name="corporationwalletdivision",
+            old_name="division",
+            new_name="division_id",
+        ),
+        migrations.RemoveField(
+            model_name="corporationaudit",
+            name="last_update_wallet",
+        ),
+        migrations.CreateModel(
+            name="CorporationUpdateStatus",
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "section",
+                    models.CharField(
+                        choices=[("wallet_journal", "Wallet Journal")],
+                        db_index=True,
+                        max_length=32,
+                    ),
+                ),
+                (
+                    "is_success",
+                    models.BooleanField(db_index=True, default=None, null=True),
+                ),
+                ("error_message", models.TextField()),
+                ("has_token_error", models.BooleanField(default=False)),
+                (
+                    "last_run_at",
+                    models.DateTimeField(
+                        db_index=True,
+                        default=None,
+                        help_text="Last run has been started at this time",
+                        null=True,
+                    ),
+                ),
+                (
+                    "last_run_finished_at",
+                    models.DateTimeField(
+                        db_index=True,
+                        default=None,
+                        help_text="Last run has been successful finished at this time",
+                        null=True,
+                    ),
+                ),
+                (
+                    "last_update_at",
+                    models.DateTimeField(
+                        db_index=True,
+                        default=None,
+                        help_text="Last update has been started at this time",
+                        null=True,
+                    ),
+                ),
+                (
+                    "last_update_finished",
+                    models.DateTimeField(
+                        db_index=True,
+                        default=None,
+                        help_text="Last update has been successful finished at this time",
+                        null=True,
+                    ),
+                ),
+                (
+                    "corporation",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="ledger_corporation_update_status",
+                        to="ledger.corporationaudit",
+                    ),
+                ),
+            ],
+            options={
+                "default_permissions": (),
+            },
+        ),
     ]

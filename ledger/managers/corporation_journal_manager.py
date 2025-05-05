@@ -1,10 +1,12 @@
 # Standard Library
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 # Django
-from django.db import models
+from django.db import models, transaction
 from django.db.models import DecimalField, F, Q, Sum, Value
 from django.db.models.functions import Coalesce, Round
+from django.utils import timezone
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
@@ -31,6 +33,18 @@ from ledger.constants import (
     SKILL,
     TRAVELING,
 )
+from ledger.decorators import log_timing
+from ledger.errors import DatabaseError
+from ledger.models.general import EveEntity
+from ledger.providers import esi
+from ledger.task_helpers.etag_helpers import etag_results
+
+if TYPE_CHECKING:
+    # AA Ledger
+    from ledger.models.corporationaudit import (
+        CorporationAudit,
+    )
+    from ledger.models.general import UpdateSectionResult
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -161,7 +175,164 @@ class CorporationDivisionQuerySet(models.QuerySet):
 
 
 class CorporationDivisionManagerBase(models.Manager):
-    pass
+    @log_timing(logger)
+    def update_or_create_esi(
+        self, corporation: "CorporationAudit", force_refresh: bool = False
+    ) -> None:
+        """Update or Create a wallet journal entry from ESI data."""
+        return corporation.update_section_if_changed(
+            section=corporation.UpdateSection.WALLET_JOURNAL,
+            fetch_func=self._fetch_esi_data,
+            force_refresh=force_refresh,
+        )
+
+    def _fetch_esi_data(
+        self, corporation: "CorporationAudit", force_refresh: bool = False
+    ) -> None:
+        """Fetch wallet journal entries from ESI data."""
+        req_scopes = [
+            "esi-wallet.read_corporation_wallets.v1",
+            "esi-characters.read_corporation_roles.v1",
+            "esi-corporations.read_divisions.v1",
+        ]
+        req_roles = ["CEO", "Director", "Accountant", "Junior_Accountant"]
+
+        token = corporation.get_token(scopes=req_scopes, req_roles=req_roles)
+
+        names = {}
+
+        division_obj = esi.client.Corporation.get_corporations_corporation_id_divisions(
+            corporation_id=corporation.corporation.corporation_id,
+        )
+
+        division_items = etag_results(division_obj, token, force_refresh=True)
+
+        for division in division_items.get("wallet"):
+            names[division.get("division")] = division.get("name")
+
+        divisions_items_obj = esi.client.Wallet.get_corporations_corporation_id_wallets(
+            corporation_id=corporation.corporation.corporation_id
+        )
+
+        division_items = etag_results(
+            divisions_items_obj, token, force_refresh=force_refresh
+        )
+        self._update_or_create_objs(corporation, division_items, names, force_refresh)
+
+    @transaction.atomic()
+    def _update_or_create_objs(
+        self,
+        corporation: "CorporationAudit",
+        objs: list,
+        names: dict,
+        force_refresh: bool,
+    ) -> None:
+        """Update or Create wallet journal entries from objs data."""
+
+        req_scopes = [
+            "esi-wallet.read_corporation_wallets.v1",
+            "esi-characters.read_corporation_roles.v1",
+        ]
+
+        req_roles = ["CEO", "Director", "Accountant", "Junior_Accountant"]
+
+        token = corporation.get_token(scopes=req_scopes, req_roles=req_roles)
+
+        for division in objs:
+            _division_item, _ = self.update_or_create(
+                corporation=corporation,
+                division_id=division.get("division"),
+                defaults={
+                    "balance": division.get("balance"),
+                    "name": names.get(division.get("division"), "Unknown"),
+                },
+            )
+
+            if _division_item:
+                self._update_corp_wallet_journal(
+                    corporation, division.get("division"), force_refresh, token
+                )
+
+    # pylint: disable=too-many-locals
+    @transaction.atomic()
+    def _update_corp_wallet_journal(
+        self,
+        corporation: "CorporationAudit",
+        division_id: int,
+        force_refresh: bool,
+        token,
+    ) -> None:
+        """Update the wallet journal for a specific division."""
+        # pylint: disable=import-outside-toplevel
+        # AA Ledger
+        from ledger.models.corporationaudit import CorporationWalletJournalEntry
+
+        division = self.get(division_id=division_id, corporation=corporation)
+
+        _current_journal = set(
+            list(
+                CorporationWalletJournalEntry.objects.filter(division=division)
+                .order_by("-date")
+                .values_list("entry_id", flat=True)[:20000]
+            )
+        )
+        _current_eve_ids = set(
+            list(EveEntity.objects.all().values_list("eve_id", flat=True))
+        )
+
+        current_page = 1
+        total_pages = 1
+        _new_names = []
+        while current_page <= total_pages:
+            journal_items_obj = esi.client.Wallet.get_corporations_corporation_id_wallets_division_journal(
+                corporation_id=corporation.corporation.corporation_id,
+                division=division_id,
+                page=current_page,
+            )
+            journal_items = etag_results(
+                journal_items_obj, token, force_refresh=force_refresh
+            )
+
+            _min_time = timezone.now()
+            items = []
+            for item in journal_items:
+                _min_time = min(_min_time, item.get("date"))
+
+                if item.get("id") not in _current_journal:
+                    if item.get("second_party_id") not in _current_eve_ids:
+                        _new_names.append(item.get("second_party_id"))
+                        _current_eve_ids.add(item.get("second_party_id"))
+                    if item.get("first_party_id") not in _current_eve_ids:
+                        _new_names.append(item.get("first_party_id"))
+                        _current_eve_ids.add(item.get("first_party_id"))
+
+                    wallet_item = (
+                        CorporationWalletJournalEntry(  # pylint: disable=duplicate-code
+                            division=division,
+                            amount=item.get("amount"),
+                            balance=item.get("balance"),
+                            context_id=item.get("context_id"),
+                            context_id_type=item.get("context_id_type"),
+                            date=item.get("date"),
+                            description=item.get("description"),
+                            first_party_id=item.get("first_party_id"),
+                            entry_id=item.get("id"),
+                            reason=item.get("reason"),
+                            ref_type=item.get("ref_type"),
+                            second_party_id=item.get("second_party_id"),
+                            tax=item.get("tax"),
+                            tax_receiver_id=item.get("tax_receiver_id"),
+                        )
+                    )
+
+                    items.append(wallet_item)
+
+            created_names = EveEntity.objects.create_bulk_from_esi(_new_names)
+
+            if created_names:
+                CorporationWalletJournalEntry.objects.bulk_create(items)
+            else:
+                raise DatabaseError("DB Fail")
 
 
 CorporationDivisionManager = CorporationDivisionManagerBase.from_queryset(

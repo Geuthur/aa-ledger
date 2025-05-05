@@ -29,7 +29,6 @@ from ledger.helpers.discord import send_user_notification
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.models.planetary import CharacterPlanetDetails
-from ledger.task_helpers.corp_helpers import update_corp_wallet_division
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -51,7 +50,7 @@ _update_ledger_char_params = {
 
 _update_ledger_corp_params = {
     **TASK_DEFAULTS_ONCE,
-    **{"once": {"keys": ["corporation_id"], "graceful": True}},
+    **{"once": {"keys": ["corporation_pk", "force_refresh"], "graceful": True}},
 }
 
 
@@ -281,30 +280,88 @@ def check_planetary_alarms(runs: int = 0):
 def update_all_corps(runs: int = 0):
     corps = CorporationAudit.objects.select_related("corporation").all()
     for corp in corps:
-        update_corp.apply_async(args=[corp.corporation.corporation_id])
+        update_corp.apply_async(args=[corp.pk])
         runs = runs + 1
     logger.debug("Queued %s Corporation Audit Tasks", runs)
 
 
-@shared_task(**_update_ledger_corp_params)
+@shared_task(**TASK_DEFAULTS_ONCE)
 @when_esi_is_available
-def update_corp(corporation_id, force_refresh=False):  # pylint: disable=unused-argument
-    corp = CorporationAudit.objects.get(corporation__corporation_id=corporation_id)
-    logger.debug("Processing Audit Updates for %s", corp.corporation.corporation_name)
+def update_corp(corporation_pk, force_refresh=False):  # pylint: disable=unused-argument
+    corporation = CorporationAudit.objects.prefetch_related(
+        "ledger_corporation_update_status"
+    ).get(pk=corporation_pk)
 
-    # Settings for Task Queue
-    skip_date = timezone.now() - timezone.timedelta(minutes=60)
-    mindt = timezone.now() - timezone.timedelta(days=7)
+    que = []
     priority = 7
 
-    if (corp.last_update_wallet or mindt) <= skip_date or force_refresh:
-        update_corp_wallet.si(corporation_id, force_refresh=force_refresh).set(
-            priority=priority
-        ).apply_async()
+    logger.debug(
+        "Processing Audit Updates for %s",
+        format(corporation.corporation.corporation_name),
+    )
 
-    logger.info("Queued Audit Updates for %s", corp.corporation.corporation_name)
+    if force_refresh:
+        # Reset Token Error if we are forcing a refresh
+        corporation.reset_has_token_error()
+
+    needs_update = corporation.calc_update_needed()
+
+    if not needs_update and not force_refresh:
+        logger.info(
+            "No updates needed for %s", corporation.corporation.corporation_name
+        )
+        return
+
+    sections = corporation.UpdateSection.get_sections()
+
+    for section in sections:
+        # Skip sections that are not in the needs_update list
+        if not force_refresh and section not in needs_update:
+            continue
+
+        task_name = f"update_corp_{section}"
+        task = globals().get(task_name)
+        que.append(
+            task.si(corporation.pk, force_refresh=force_refresh).set(priority=priority)
+        )
+
+    chain(que).apply_async()
+    logger.info(
+        "Queued %s Audit Updates for %s",
+        len(que),
+        corporation.corporation.corporation_name,
+    )
 
 
 @shared_task(**_update_ledger_corp_params)
-def update_corp_wallet(corporation_id, force_refresh=False):
-    return update_corp_wallet_division(corporation_id, force_refresh=force_refresh)
+@when_esi_is_available
+def update_corp_wallet_journal(corporation_pk: int, force_refresh: bool):
+    return _update_corporation_section(
+        corporation_pk,
+        section=CorporationAudit.UpdateSection.WALLET_JOURNAL,
+        force_refresh=force_refresh,
+    )
+
+
+def _update_corporation_section(corporation_pk: int, section: str, force_refresh: bool):
+    """Update a specific section of the character audit."""
+    section = CorporationAudit.UpdateSection(section)
+    corporation = CorporationAudit.objects.get(pk=corporation_pk)
+
+    corporation.reset_update_status(section)
+    logger.info(
+        "Updating %s for %s", section.value, corporation.corporation.corporation_name
+    )
+
+    method: Callable = getattr(corporation, section.method_name)
+    method_signature = inspect.signature(method)
+
+    if "force_refresh" in method_signature.parameters:
+        kwargs = {"force_refresh": force_refresh}
+    else:
+        kwargs = {}
+
+    result = corporation.perform_update_status(section, method, **kwargs)
+    corporation.update_section_log(
+        section, is_success=True, is_updated=result.is_updated
+    )
