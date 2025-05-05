@@ -15,9 +15,6 @@ IS_TESTING = sys.argv[1:2] == ["test"]
 # Set Naming on Auth Hook
 LEDGER_APP_NAME = clean_setting("LEDGER_APP_NAME", "Ledger")
 
-# Caching Key for Caching System
-STORAGE_BASE_KEY = "ledger_storage_"
-
 # zKillboard - https://zkillboard.com/
 EVE_BASE_URL = "https://esi.evetech.net/"
 EVE_API_URL = "https://esi.evetech.net/latest/"
@@ -38,9 +35,8 @@ LEDGER_CORP_TAX = clean_setting("LEDGER_CORP_TAX", 15)
 LEDGER_TASKS_TIME_LIMIT = clean_setting("LEDGER_TASKS_TIME_LIMIT", 7200)
 
 LEDGER_STALE_TYPES = {
-    "journal": 60,
-    "balance": 60,
-    "mining": 60,
+    "wallet_journal": 60,
+    "mining_ledger": 60,
     "planets": 60,
     "planets_details": 60,
 }

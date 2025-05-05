@@ -16,14 +16,13 @@ from eveuniverse.models import EveType
 from ledger.decorators import log_timing
 from ledger.providers import esi
 from ledger.task_helpers.etag_helpers import etag_results
-from ledger.view_helpers.core import UpdateSectionResult
 
 if TYPE_CHECKING:
     # AA Ledger
     from ledger.models.characteraudit import (
         CharacterAudit,
     )
-
+    from ledger.models.general import UpdateSectionResult
 logger = logging.getLogger(__name__)
 
 
@@ -106,7 +105,7 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
     @log_timing(logger)
     def update_or_create_esi(
         self, character: "CharacterAudit", force_refresh: bool = False
-    ) -> UpdateSectionResult:
+    ) -> "UpdateSectionResult":
         """Update or Create a wallet journal entry from ESI data."""
         return character.update_section_if_changed(
             section=character.UpdateSection.MINING_LEDGER,

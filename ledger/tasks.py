@@ -22,11 +22,11 @@ from allianceauth.services.tasks import QueueOnce
 # AA Ledger
 from ledger import app_settings
 from ledger.decorators import when_esi_is_available
+from ledger.helpers.discord import send_user_notification
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.models.planetary import CharacterPlanetDetails
 from ledger.task_helpers.corp_helpers import update_corp_wallet_division
-from ledger.view_helpers.discord import send_user_notification
 
 logger = logging.getLogger(__name__)
 
@@ -73,14 +73,13 @@ def update_subset_characters(subset=5, min_runs=10, max_runs=200, force_refresh=
     # Limit the number of characters to update to prevent overload ESI
     characters_count = min(characters_count, max_runs)
 
-    # Annotate characters with the oldest update timestamp and order by it
+    # Annotate characters with the oldest `last_run_finished` across all update sections
     characters = (
         CharacterAudit.objects.filter(active=1)
         .annotate(
             oldest_update=Least(
-                "last_update_wallet",
-                "last_update_mining",
-                "last_update_planetary",
+                "ledger_update_status__last_run_finished_at",
+                timezone.now(),  # Fallback value to ensure at least two expressions
                 output_field=DateTimeField(),
             )
         )
@@ -88,7 +87,9 @@ def update_subset_characters(subset=5, min_runs=10, max_runs=200, force_refresh=
     )
 
     for char in characters:
-        update_character.apply_async(args=[char.pk], force_refresh=force_refresh)
+        update_character.apply_async(
+            args=[char.pk], kwargs={"force_refresh": force_refresh}
+        )
     logger.debug("Queued %s Character Audit Tasks", len(characters))
 
 
@@ -117,8 +118,6 @@ def update_character(character_pk: int, force_refresh=False):
         return
 
     sections = character.UpdateSection.get_sections()
-
-    logger.debug("Sections to update: %s", sections)
 
     for section in sections:
         # Skip sections that are not in the needs_update list

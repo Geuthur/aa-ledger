@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 
 # AA Ledger
 from ledger import __title__, __version__
-from ledger.view_helpers.static_files import calculate_integrity_hash
+from ledger.helpers.static_files import calculate_integrity_hash
 
 logger = logging.getLogger(__name__)
 

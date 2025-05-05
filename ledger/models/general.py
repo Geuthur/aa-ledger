@@ -5,6 +5,7 @@ General Model
 # Standard Library
 import datetime
 import logging
+from typing import Any, NamedTuple
 
 # Django
 from django.core.validators import MinValueValidator
@@ -125,3 +126,11 @@ class EveEntity(models.Model):
 
     class Meta:
         default_permissions = ()
+
+
+class UpdateSectionResult(NamedTuple):
+    """A result of an attempted section update."""
+
+    is_changed: bool | None
+    is_updated: bool
+    data: Any = None

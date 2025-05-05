@@ -7,7 +7,7 @@ from django.db import models
 logger = logging.getLogger(__name__)
 
 
-class CorpAuditQuerySet(models.QuerySet):
+class CorporationAuditQuerySet(models.QuerySet):
     def visible_to(self, user):
         # superusers get all visible
         if user.is_superuser:
@@ -40,9 +40,11 @@ class CorpAuditQuerySet(models.QuerySet):
             return self.none()
 
 
-class CorpAuditManagerBase(models.Manager):
+class CorporationAuditManagerBase(models.Manager):
     def visible_to(self, user):
         return self.get_queryset().visible_to(user)
 
 
-CorpAuditManager = CorpAuditManagerBase.from_queryset(CorpAuditQuerySet)
+CorporationAuditManager = CorporationAuditManagerBase.from_queryset(
+    CorporationAuditQuerySet
+)

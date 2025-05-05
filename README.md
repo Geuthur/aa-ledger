@@ -148,9 +148,12 @@ With the Following IDs you can set up the permissions for the Ledger
 The Following Settings can be setting up in the `local.py`
 
 - LEDGER_APP_NAME: `"YOURNAME"` - Set the name of the APP
-- LEDGER_STALE_STATUS: `60` - Defines the time (in minutes) after which data is considered outdated and needs a update
 - LEDGER_TASKS_TIME_LIMIT: `7200` - Defines the time (in seconds) a task will timeout
 - LEDGER_CORP_TAX: `15` - Set Tax Value for ESS Payout Calculation
+
+Advanced Settings: Stale Status for Each Section
+
+- LEDGER_STALE_TYPES = `{     "wallet_journal": 60,     "mining_ledger": 60,     "planets": 60,     "planets_details": 60, }` - Defines the stale status duration (in minutes) for each section.
 
 ## Highlights<a name="highlights"></a>
 

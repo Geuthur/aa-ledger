@@ -96,6 +96,9 @@ $(document).ready(() => {
             {
                 data: 'last_update',
                 render: function(data, type, row) {
+                    if (data === null) {
+                        return `<span class="text-warning" data-tooltip-toggle="ledger">Not updated yet</span>`;
+                    }
                     return new Date(data).toLocaleString();
                 }
 

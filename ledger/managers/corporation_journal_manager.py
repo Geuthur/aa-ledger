@@ -70,7 +70,7 @@ COSTS_FILTER = Q(
 )
 
 
-class CorpWalletQuerySet(models.QuerySet):
+class CorporationWalletQuerySet(models.QuerySet):
     def _convert_corp_tax(self, ess: models.QuerySet) -> Decimal:
         """Convert corp tax to correct amount for character ledger"""
         amount = (ess / app_settings.LEDGER_CORP_TAX) * (
@@ -142,8 +142,10 @@ class CorpWalletQuerySet(models.QuerySet):
         )
 
 
-class CorpWalletManagerBase(models.Manager):
+class CorporationWalletManagerBase(models.Manager):
     pass
 
 
-CorpWalletManager = CorpWalletManagerBase.from_queryset(CorpWalletQuerySet)
+CorporationWalletManager = CorporationWalletManagerBase.from_queryset(
+    CorporationWalletQuerySet
+)

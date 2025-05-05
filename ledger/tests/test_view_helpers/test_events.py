@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 # AA Ledger
+from ledger.helpers.core import events_filter
 from ledger.models.corporationaudit import CorporationWalletJournalEntry
 from ledger.models.events import Events
 from ledger.models.general import EveEntity
@@ -21,7 +22,6 @@ from ledger.tests.testdata.generate_walletjournal import (
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 from ledger.tests.testdata.load_eveentity import load_eveentity
 from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
-from ledger.view_helpers.core import events_filter
 
 MODULE_PATH = "ledger.view_helpers.core"
 

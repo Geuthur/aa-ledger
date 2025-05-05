@@ -10,7 +10,7 @@ from allianceauth.eveonline.models import EveCharacter
 logger = logging.getLogger(__name__)
 
 
-class AuditCharacterQuerySet(models.QuerySet):
+class CharacterAuditQuerySet(models.QuerySet):
     # pylint: disable=duplicate-code
     def visible_to(self, user):
         # superusers get all visible
@@ -42,10 +42,27 @@ class AuditCharacterQuerySet(models.QuerySet):
             logger.debug("User %s has no main character. Nothing visible.", user)
             return self.none()
 
+    def get_update_status_issues(self, user):
+        """Get the number of update status issues for the given user."""
+        char = user.profile.main_character
+        assert char
+        query = models.Q(character__character_ownership__user=user)
 
-class AuditCharacterManager(models.Manager):
+        return (
+            self.filter(
+                query,
+                ledger_update_status__section__in=self.model.UpdateSection.get_sections(),
+                ledger_update_status__is_success=False,
+            )
+            .values("character_id")
+            .distinct()
+            .count()
+        )
+
+
+class CharacterAuditManagerBase(models.Manager):
     def get_queryset(self):
-        return AuditCharacterQuerySet(self.model, using=self._db)
+        return CharacterAuditQuerySet(self.model, using=self._db)
 
     @staticmethod
     def visible_eve_characters(user):
@@ -80,3 +97,6 @@ class AuditCharacterManager(models.Manager):
 
     def visible_to(self, user):
         return self.get_queryset().visible_to(user)
+
+
+CharacterAuditManager = CharacterAuditManagerBase.from_queryset(CharacterAuditQuerySet)

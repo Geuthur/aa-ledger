@@ -17,6 +17,7 @@ from ledger.api.api_helper.information_helper import (
     InformationData,
 )
 from ledger.api.helpers import get_alts_queryset
+from ledger.helpers.core import events_filter
 from ledger.models.characteraudit import (
     CharacterMiningLedger,
     CharacterWalletJournalEntry,
@@ -24,7 +25,6 @@ from ledger.models.characteraudit import (
 from ledger.models.corporationaudit import (
     CorporationWalletJournalEntry,
 )
-from ledger.view_helpers.core import events_filter
 
 logger = logging.getLogger(__name__)
 

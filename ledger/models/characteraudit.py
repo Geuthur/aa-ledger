@@ -26,12 +26,11 @@ from eveuniverse.models import EveSolarSystem, EveType
 from ledger import app_settings
 from ledger.errors import HTTPGatewayTimeoutError, NotModifiedError, TokenDoesNotExist
 from ledger.managers.character_audit_manager import (
-    AuditCharacterManager,
+    CharacterAuditManager,
 )
 from ledger.managers.character_journal_manager import CharWalletManager
 from ledger.managers.character_mining_manager import CharacterMiningLedgerEntryManager
-from ledger.models.general import EveEntity
-from ledger.view_helpers.core import UpdateSectionResult
+from ledger.models.general import EveEntity, UpdateSectionResult
 
 logger = logging.getLogger(__name__)
 
@@ -114,7 +113,7 @@ class CharacterAudit(models.Model):
         max_digits=20, decimal_places=2, null=True, default=None
     )
 
-    objects = AuditCharacterManager()
+    objects = CharacterAuditManager()
 
     def __str__(self) -> str:
         try:
@@ -157,8 +156,8 @@ class CharacterAudit(models.Model):
             is_success=False, has_token_error=False
         ).exists():
             return self.UpdateStatus.ERROR
-        if self.calc_update_needed():
-            return self.UpdateStatus.NOT_UP_TO_DATE
+        # if self.calc_update_needed():
+        #    return self.UpdateStatus.NOT_UP_TO_DATE
         return self.UpdateStatus.OK
 
     def get_token(self, scopes=None) -> Token:
@@ -296,6 +295,7 @@ class CharacterAudit(models.Model):
                 self,
                 section.label,
                 error_message,
+                exc_info=not is_token_error,  # do not log token errors
             )
             self.ledger_update_status.update_or_create(
                 section=section,
@@ -480,7 +480,6 @@ class CharacterUpdateStatus(models.Model):
                 self.character,
                 self.section,
             )
-
             needs_update = False
 
         return needs_update

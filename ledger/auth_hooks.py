@@ -10,6 +10,7 @@ from allianceauth.services.hooks import MenuItemHook, UrlHook
 
 # AA Ledger
 from ledger import app_settings, urls
+from ledger.models.characteraudit import CharacterAudit
 
 
 class LedgerMenuItem(MenuItemHook):
@@ -25,6 +26,9 @@ class LedgerMenuItem(MenuItemHook):
 
     def render(self, request):
         if request.user.has_perm("ledger.basic_access"):
+            self.count = CharacterAudit.objects.get_update_status_issues(
+                user=request.user
+            )
             return MenuItemHook.render(self, request)
         return ""
 

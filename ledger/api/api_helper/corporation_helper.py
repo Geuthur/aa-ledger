@@ -19,12 +19,12 @@ from ledger.api.api_helper.information_helper import (
     InformationData,
 )
 from ledger.api.helpers import get_alts_queryset
+from ledger.helpers.core import events_filter
 from ledger.models.corporationaudit import (
     CorporationAudit,
     CorporationWalletJournalEntry,
 )
 from ledger.models.general import EveEntity
-from ledger.view_helpers.core import events_filter
 
 logger = logging.getLogger(__name__)
 

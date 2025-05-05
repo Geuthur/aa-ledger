@@ -12,8 +12,8 @@ from django.db import models
 from allianceauth.eveonline.models import EveCorporationInfo
 
 # AA Ledger
-from ledger.managers.corpaudit_manager import CorpAuditManager
-from ledger.managers.corpjournal_manager import CorpWalletManager
+from ledger.managers.corporation_audit_manager import CorporationAuditManager
+from ledger.managers.corporation_journal_manager import CorporationWalletManager
 from ledger.models.characteraudit import WalletJournalEntry
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class CorporationAudit(models.Model):
 
     last_update_wallet = models.DateTimeField(null=True, default=None, blank=True)
 
-    objects = CorpAuditManager()
+    objects = CorporationAuditManager()
 
     def __str__(self):
         return f"{self.corporation.corporation_name}'s Corporation Data"
@@ -75,7 +75,7 @@ class CorporationWalletDivision(models.Model):
 class CorporationWalletJournalEntry(WalletJournalEntry):
     division = models.ForeignKey(CorporationWalletDivision, on_delete=models.CASCADE)
 
-    objects = CorpWalletManager()
+    objects = CorporationWalletManager()
 
     def __str__(self):
         return f"Corporation Wallet Journal: RefType: {self.ref_type} - {self.first_party.name} -> {self.second_party.name}: {self.amount} ISK"

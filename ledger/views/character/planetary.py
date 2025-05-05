@@ -17,8 +17,8 @@ from django.views.decorators.http import require_POST
 # AA Ledger
 from ledger import forms
 from ledger.api.helpers import get_alts_queryset, get_character
+from ledger.helpers.core import add_info_to_context
 from ledger.models.planetary import CharacterPlanetDetails
-from ledger.view_helpers.core import add_info_to_context
 
 logger = logging.getLogger(__name__)
 

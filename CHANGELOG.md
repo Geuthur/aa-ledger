@@ -10,12 +10,19 @@
   - Update Section retrieves information between Etag System (Not Updating if NotModified)
   - Disable Update on Token Error
   - Update Information
+  - Update Issues Badge
 
 ## Changed
 
 - Task System
   - Use Django Manager for Updates
   - Refactor `update_character` Task
+- Use one navigation menu for Ledger
+
+## Removed
+
+- `calculate_ess_stolen`, `calculate_ess_stolen_amount` function
+- `_storage_key`, `get_cache_stale`, `set_cache`, `delete_cache` function
 
 ## [0.7.6] - 2025-05-02
 

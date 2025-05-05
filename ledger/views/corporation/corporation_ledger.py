@@ -16,7 +16,7 @@ from allianceauth.authentication.models import CharacterOwnership
 # AA Ledger
 # Ledger
 from ledger.api.helpers import get_corporation
-from ledger.view_helpers.core import add_info_to_context
+from ledger.helpers.core import add_info_to_context
 
 logger = logging.getLogger(__name__)
 

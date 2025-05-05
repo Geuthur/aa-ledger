@@ -16,8 +16,8 @@ from allianceauth.eveonline.models import EveCharacter
 # AA Ledger
 # Ledger
 from ledger.api.helpers import get_character
+from ledger.helpers.core import add_info_to_context
 from ledger.models.characteraudit import CharacterAudit
-from ledger.view_helpers.core import add_info_to_context
 
 logger = logging.getLogger(__name__)
 

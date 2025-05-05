@@ -20,7 +20,7 @@ from ledger.managers.character_planetary_manager import (
     PlanetaryDetailsManager,
     PlanetaryManager,
 )
-from ledger.models.characteraudit import CharacterAudit
+from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +57,18 @@ class CharacterPlanet(models.Model):
 
     def __str__(self):
         return f"Planet Data: {self.character.character.character_name} - {self.planet.name}"
+
+    @property
+    def last_update(self) -> timezone.datetime:
+        """Return the last update time of the planet."""
+        try:
+            last_update = CharacterUpdateStatus.objects.get(
+                character=self.character,
+                section=CharacterAudit.UpdateSection.PLANETS,
+            ).last_update_at
+        except CharacterUpdateStatus.DoesNotExist:
+            last_update = None
+        return last_update
 
     @classmethod
     def get_esi_scopes(cls) -> list[str]:
@@ -275,3 +287,15 @@ class CharacterPlanetDetails(models.Model):
         if expiry_date is None:
             return False
         return expiry_date < timezone.now()
+
+    @property
+    def last_update(self) -> timezone.datetime:
+        """Return the last update time of the planet details."""
+        try:
+            last_update = CharacterUpdateStatus.objects.get(
+                character=self.character,
+                section=CharacterAudit.UpdateSection.PLANETS_DETAILS,
+            ).last_update_at
+        except CharacterUpdateStatus.DoesNotExist:
+            last_update = None
+        return last_update

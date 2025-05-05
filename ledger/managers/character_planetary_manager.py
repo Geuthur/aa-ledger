@@ -15,10 +15,10 @@ from ledger.decorators import log_timing
 from ledger.models.characteraudit import CharacterAudit
 from ledger.providers import esi
 from ledger.task_helpers.etag_helpers import etag_results
-from ledger.view_helpers.core import UpdateSectionResult
 
 if TYPE_CHECKING:  # pragma: no cover
     # AA Ledger
+    from ledger.models.general import UpdateSectionResult
     from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
 logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ class PlanetaryManagerBase(models.Manager):
     @log_timing(logger)
     def update_or_create_esi(
         self, character: "CharacterAudit", force_refresh: bool = False
-    ) -> UpdateSectionResult:
+    ) -> "UpdateSectionResult":
         """Update or Create a wallet journal entry from ESI data."""
         return character.update_section_if_changed(
             section=character.UpdateSection.PLANETS,
@@ -97,7 +97,6 @@ class PlanetaryManagerBase(models.Manager):
                 planet_name=eve_planet.name,
                 upgrade_level=planet["upgrade_level"],
                 num_pins=planet["num_pins"],
-                last_update=timezone.now(),
             )
 
             if eve_planet.id not in _current_planets:
@@ -108,9 +107,7 @@ class PlanetaryManagerBase(models.Manager):
         if _planets_new:
             self.bulk_create(_planets_new)
         if _planets_update:
-            self.bulk_update(
-                _planets_update, fields=["upgrade_level", "num_pins", "last_update"]
-            )
+            self.bulk_update(_planets_update, fields=["upgrade_level", "num_pins"])
 
         # Delete Planets that are no longer in the list
         obsolete_planets = set(_current_planets) - set(_planets_ids)
@@ -140,20 +137,30 @@ class PlanetaryDetailsQuerySet(models.QuerySet):
         return facility, created
 
     def update_or_create_layout(
-        self, planet: "CharacterPlanetDetails", esi_result: dict
+        self,
+        character: CharacterAudit,
+        planet: "CharacterPlanetDetails",
+        esi_result: dict,
     ):
         """Update or Create Layout for a given Planet"""
-        return self._update_or_create(planet=planet, esi_result=esi_result)
+        return self._update_or_create(
+            character=character, planet=planet, esi_result=esi_result
+        )
 
-    def _update_or_create(self, planet: "CharacterPlanetDetails", esi_result: dict):
+    def _update_or_create(
+        self,
+        character: "CharacterAudit",
+        planet: "CharacterPlanetDetails",
+        esi_result: dict,
+    ):
         planetdetails, created = self.update_or_create(
             planet=planet,
+            character=character,
             defaults={
                 "links": esi_result["links"],
                 "pins": esi_result["pins"],
                 "routes": esi_result["routes"],
                 "facilitys": None,
-                "last_update": timezone.now(),
             },
         )
 
@@ -272,7 +279,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
     @log_timing(logger)
     def update_or_create_esi(
         self, character: "CharacterAudit", force_refresh: bool = False
-    ) -> UpdateSectionResult:
+    ) -> "UpdateSectionResult":
         """Update or Create a wallet journal entry from ESI data."""
         return character.update_section_if_changed(
             section=character.UpdateSection.PLANETS_DETAILS,
@@ -330,6 +337,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
         planet_details_items = convert_datetime_to_str(objs)
 
         planet_details, created = self.update_or_create_layout(
+            character=character,
             planet=character_planet,
             esi_result=planet_details_items,
         )

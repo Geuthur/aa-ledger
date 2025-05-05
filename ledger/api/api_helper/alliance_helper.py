@@ -17,11 +17,11 @@ from ledger.api.api_helper.billboard_helper import BillboardSystem
 from ledger.api.api_helper.information_helper import (
     InformationData,
 )
+from ledger.helpers.core import events_filter
 from ledger.models.corporationaudit import (
     CorporationAudit,
     CorporationWalletJournalEntry,
 )
-from ledger.view_helpers.core import events_filter
 
 logger = logging.getLogger(__name__)
 
