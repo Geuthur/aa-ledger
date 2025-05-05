@@ -132,7 +132,7 @@ repos:
           )
 
   - repo: https://github.com/eslint/eslint
-    rev: v9.25.1
+    rev: v9.26.0
     hooks:
       - id: eslint
         name: ESLint
@@ -311,7 +311,7 @@ repos:
         description: Validate the pyproject.toml file.
 
   - repo: https://github.com/pylint-dev/pylint
-    rev: v3.3.6
+    rev: v3.3.7
     hooks:
       - id: pylint
         name: Pylint
