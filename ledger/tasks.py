@@ -8,9 +8,7 @@ from collections.abc import Callable
 from celery import chain, shared_task
 
 # Django
-from django.db.models import DateTimeField
-from django.db.models.functions import Least
-from django.utils import timezone
+from django.db.models import Min
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
@@ -153,15 +151,12 @@ def update_subset_characters(subset=5, min_runs=10, max_runs=200, force_refresh=
     # Annotate characters with the oldest `last_run_finished` across all update sections
     characters = (
         CharacterAudit.objects.filter(active=1)
-        .annotate(
-            oldest_update=Least(
-                "ledger_update_status__last_run_finished_at",
-                timezone.now(),  # Fallback value to ensure at least two expressions
-                output_field=DateTimeField(),
-            )
-        )
-        .order_by("oldest_update")[:characters_count]
+        .annotate(oldest_update=Min("ledger_update_status__last_run_finished_at"))
+        .order_by("oldest_update")
+        .distinct()[:characters_count]
     )
+
+    logger.debug(list(characters.values_list("pk", flat=True)))
 
     for char in characters:
         update_character.apply_async(
@@ -314,13 +309,10 @@ def update_subset_corporations(
     corporations = (
         CorporationAudit.objects.filter(active=1)
         .annotate(
-            oldest_update=Least(
-                "ledger_corporation_update_status__last_run_finished_at",
-                timezone.now(),  # Fallback value to ensure at least two expressions
-                output_field=DateTimeField(),
-            )
+            oldest_update=Min("ledger_corporation_update_status__last_run_finished_at")
         )
-        .order_by("oldest_update")[:corporations_count]
+        .order_by("oldest_update")
+        .distinct()[:corporations_count]
     )
 
     for corp in corporations:
