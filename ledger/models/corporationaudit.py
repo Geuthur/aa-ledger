@@ -340,14 +340,7 @@ class CorporationUpdateStatus(models.Model):
         else:
             section_time_stale = app_settings.LEDGER_STALE_TYPES.get(self.section, 60)
             stale = timezone.now() - timezone.timedelta(minutes=section_time_stale)
-            needs_update = self.last_update_finished <= stale
-            logger.debug(
-                "%s: Update is stale: %s, last_update_finished: %s, now: %s",
-                self.corporation,
-                needs_update,
-                self.last_update_finished,
-                timezone.now(),
-            )
+            needs_update = self.last_run_finished_at <= stale
 
         if needs_update and self.has_token_error:
             logger.info(
