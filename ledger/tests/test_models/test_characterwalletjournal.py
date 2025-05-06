@@ -19,7 +19,6 @@ from ledger.tests.testdata.generate_characteraudit import (
     create_user_from_evecharacter_with_access,
 )
 from ledger.tests.testdata.generate_walletjournal import (
-    create_division,
     create_wallet_journal_entry,
 )
 from ledger.tests.testdata.load_allianceauth import load_allianceauth

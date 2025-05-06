@@ -60,7 +60,7 @@ class TestCharacterMiningLedgerModel(TestCase):
         }
 
     def test_str(self):
-        self.assertEqual(str(self.miningentry), "Gneuten's Character Data 1")
+        self.assertEqual(str(self.miningentry), "Gneuten (2) 1")
 
     def test_create_primary_key(self):
         # when

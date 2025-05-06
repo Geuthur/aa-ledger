@@ -36,7 +36,7 @@ class TestCorporationAuditModel(TestCase):
         )
 
     def test_str(self):
-        self.assertEqual(str(self.audit), "Hell RiderZ's Corporation Data")
+        self.assertEqual(str(self.audit), "Hell RiderZ (2)")
 
     def test_get_esi_scopes(self):
         self.assertEqual(

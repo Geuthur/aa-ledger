@@ -41,7 +41,7 @@ class TestViewHelpersEvents(TestCase):
             cls.user, cls.character_ownership.character.character_id
         )
         cls.division = create_division(
-            corporation=cls.audit, name="MEGA KONTO", balance=1000000, division=1
+            corporation=cls.audit, name="MEGA KONTO", balance=1000000, division_id=1
         )
         cls.eve_character_first_party = EveEntity.objects.get(eve_id=1001)
         cls.eve_character_second_party = EveEntity.objects.get(eve_id=1002)
