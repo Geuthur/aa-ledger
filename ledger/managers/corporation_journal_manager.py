@@ -205,7 +205,8 @@ class CorporationWalletManagerBase(models.Manager):
                     journal_items_ob, token, force_refresh=force_refresh
                 )
 
-            self._update_or_create_objs(division, journal_items)
+                self._update_or_create_objs(division, journal_items)
+                current_page += 1
 
     @transaction.atomic()
     def _update_or_create_objs(
