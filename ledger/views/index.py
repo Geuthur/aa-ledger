@@ -31,8 +31,12 @@ def index(request):
 
 
 @login_required
-@permission_required("ledger.admin_access")
+@permission_required("ledger.basic_access")
 def admin(request):
+    if not request.user.is_superuser:
+        messages.error(request, _("You do not have permission to access this page."))
+        return redirect("ledger:index")
+
     if request.method == "POST":
         if request.POST.get("run_char_updates"):
             messages.info(request, _("Queued Update All Characters"))
