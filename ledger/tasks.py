@@ -156,8 +156,6 @@ def update_subset_characters(subset=5, min_runs=10, max_runs=200, force_refresh=
         .distinct()[:characters_count]
     )
 
-    logger.debug(list(characters.values_list("pk", flat=True)))
-
     for char in characters:
         update_character.apply_async(
             args=[char.pk], kwargs={"force_refresh": force_refresh}
