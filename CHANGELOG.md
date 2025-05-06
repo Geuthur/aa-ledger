@@ -11,6 +11,8 @@
   - Disable Update on Token Error
   - Update Information
   - Update Issues Badge
+- Admin Menu (superuser only)
+- Subset Task for Corporations
 
 ## Changed
 

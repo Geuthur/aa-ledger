@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 @permission_required(["ledger.admin_access"])
 def add_corp(request, token) -> HttpResponse:
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
-    corp, _ = EveCorporationInfo.objects.get_or_create(
+    eve_corp, _ = EveCorporationInfo.objects.get_or_create(
         corporation_id=char.corporation_id,
         defaults={
             "member_count": 0,
@@ -37,18 +37,18 @@ def add_corp(request, token) -> HttpResponse:
         },
     )
 
-    CorporationAudit.objects.update_or_create(
-        corporation=corp,
+    corp = CorporationAudit.objects.update_or_create(
+        corporation=eve_corp,
         defaults={
-            "corporation_name": corp.corporation_name,
+            "corporation_name": eve_corp.corporation_name,
         },
-    )
+    )[0]
 
-    tasks.update_corp.apply_async(
-        args=[char.corporation_id], kwargs={"force_refresh": True}, priority=6
+    tasks.update_corporation.apply_async(
+        args=[corp.pk], kwargs={"force_refresh": True}, priority=6
     )
     msg = trans("{corporation_name} successfully added/updated to Ledger").format(
         corporation_name=corp.corporation_name,
     )
     messages.info(request, msg)
-    return redirect("ledger:corporation_ledger", corporation_id=corp.corporation_id)
+    return redirect("ledger:corporation_ledger", corporation_id=eve_corp.corporation_id)

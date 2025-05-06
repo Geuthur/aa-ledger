@@ -54,6 +54,79 @@ _update_ledger_corp_params = {
 }
 
 
+# pylint: disable=unused-argument, too-many-locals
+@shared_task(**TASK_DEFAULTS_ONCE)
+def check_planetary_alarms(runs: int = 0):
+    all_planets = CharacterPlanetDetails.objects.all()
+    owner_ids = {}
+    warnings = {}
+
+    for planet in all_planets:
+        if planet.is_expired and not planet.notification_sent and planet.notification:
+            character_id = planet.planet.character.character.character_id
+
+            # Determine if the character_id is part of any main character's alts
+            main_id = None
+            for main, alts in owner_ids.items():
+                if character_id in alts:
+                    main_id = main
+                    break
+
+            if main_id is None:
+                try:
+                    owner = CharacterOwnership.objects.get(
+                        character__character_id=character_id
+                    )
+                    main = owner.user.profile.main_character
+                    alts = main.character_ownership.user.character_ownerships.all()
+
+                    owner_ids[main.character_id] = alts.values_list(
+                        "character__character_id", flat=True
+                    )
+
+                    main_id = main.character_id
+                except CharacterOwnership.DoesNotExist:
+                    continue
+                except AttributeError:
+                    continue
+
+            msg = _("%(charname)s on %(planetname)s") % {
+                "charname": planet.planet.character.character.character_name,
+                "planetname": planet.planet.planet.name,
+            }
+
+            if main_id not in warnings:
+                warnings[main_id] = []
+
+            warnings[main_id].append(msg)
+            planet.notification_sent = True
+            planet.save()
+
+    if warnings:
+        for main_id, messages in warnings.items():
+            owner = CharacterOwnership.objects.get(character__character_id=main_id)
+            title = _("Planetary Extractor Heads Expired")
+
+            # Split messages into chunks of 50
+            for i in range(0, len(messages), 50):
+                chunk = messages[i : i + 50]
+                msg = "\n".join(chunk)
+
+                full_message = format_html(
+                    "Following Planet Extractor Heads have expired: \n{}", msg
+                )
+
+                send_user_notification.delay(
+                    user_id=owner.user.id,
+                    title=title,
+                    message=full_message,
+                    embed_message=True,
+                    level="warning",
+                )
+                runs = runs + 1
+    logger.info("Queued %s Planetary Alarms.", runs)
+
+
 @shared_task(**TASK_DEFAULTS_ONCE)
 @when_esi_is_available
 def update_all_characters(runs: int = 0):
@@ -208,93 +281,56 @@ def _update_character_section(character_pk: int, section: str, force_refresh: bo
     character.update_section_log(section, is_success=True, is_updated=result.is_updated)
 
 
-# pylint: disable=unused-argument, too-many-locals
-@shared_task(**TASK_DEFAULTS_ONCE)
-def check_planetary_alarms(runs: int = 0):
-    all_planets = CharacterPlanetDetails.objects.all()
-    owner_ids = {}
-    warnings = {}
-
-    for planet in all_planets:
-        if planet.is_expired and not planet.notification_sent and planet.notification:
-            character_id = planet.planet.character.character.character_id
-
-            # Determine if the character_id is part of any main character's alts
-            main_id = None
-            for main, alts in owner_ids.items():
-                if character_id in alts:
-                    main_id = main
-                    break
-
-            if main_id is None:
-                try:
-                    owner = CharacterOwnership.objects.get(
-                        character__character_id=character_id
-                    )
-                    main = owner.user.profile.main_character
-                    alts = main.character_ownership.user.character_ownerships.all()
-
-                    owner_ids[main.character_id] = alts.values_list(
-                        "character__character_id", flat=True
-                    )
-
-                    main_id = main.character_id
-                except CharacterOwnership.DoesNotExist:
-                    continue
-                except AttributeError:
-                    continue
-
-            msg = _("%(charname)s on %(planetname)s") % {
-                "charname": planet.planet.character.character.character_name,
-                "planetname": planet.planet.planet.name,
-            }
-
-            if main_id not in warnings:
-                warnings[main_id] = []
-
-            warnings[main_id].append(msg)
-            planet.notification_sent = True
-            planet.save()
-
-    if warnings:
-        for main_id, messages in warnings.items():
-            owner = CharacterOwnership.objects.get(character__character_id=main_id)
-            title = _("Planetary Extractor Heads Expired")
-
-            # Split messages into chunks of 50
-            for i in range(0, len(messages), 50):
-                chunk = messages[i : i + 50]
-                msg = "\n".join(chunk)
-
-                full_message = format_html(
-                    "Following Planet Extractor Heads have expired: \n{}", msg
-                )
-
-                send_user_notification.delay(
-                    user_id=owner.user.id,
-                    title=title,
-                    message=full_message,
-                    embed_message=True,
-                    level="warning",
-                )
-                runs = runs + 1
-    logger.info("Queued %s Planetary Alarms.", runs)
-
-
 # Corporation Audit - Tasks
 @shared_task(**TASK_DEFAULTS_ONCE)
 @when_esi_is_available
 def update_all_corps(runs: int = 0):
     corps = CorporationAudit.objects.select_related("corporation").filter(active=1)
     for corp in corps:
-        update_corp.apply_async(args=[corp.pk])
+        update_corporation.apply_async(args=[corp.pk], kwargs={"force_refresh": True})
         runs = runs + 1
     logger.info("Queued %s Corporation Audit Tasks", runs)
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
 @when_esi_is_available
-def update_corp(corporation_pk, force_refresh=False):  # pylint: disable=unused-argument
+def update_subset_corporations(
+    subset=5, min_runs=10, max_runs=200, force_refresh=False
+):
+    """Update a batch of corporations to prevent overload ESI"""
+    total_corporations = CorporationAudit.objects.filter(active=1).count()
+    corporations_count = min(
+        max(total_corporations // subset, min_runs), total_corporations
+    )
+
+    # Limit the number of corporations to update to prevent overload ESI
+    corporations_count = min(corporations_count, max_runs)
+
+    # Annotate corporations with the oldest `last_run_finished` across all update sections
+    corporations = (
+        CorporationAudit.objects.filter(active=1)
+        .annotate(
+            oldest_update=Least(
+                "ledger_corporation_update_status__last_run_finished_at",
+                timezone.now(),  # Fallback value to ensure at least two expressions
+                output_field=DateTimeField(),
+            )
+        )
+        .order_by("oldest_update")[:corporations_count]
+    )
+
+    for corp in corporations:
+        update_corporation.apply_async(
+            args=[corp.pk], kwargs={"force_refresh": force_refresh}
+        )
+    logger.debug("Queued %s Corporation Audit Tasks", len(corporations))
+
+
+@shared_task(**TASK_DEFAULTS_ONCE)
+@when_esi_is_available
+def update_corporation(
+    corporation_pk, force_refresh=False
+):  # pylint: disable=unused-argument
     corporation = CorporationAudit.objects.prefetch_related(
         "ledger_corporation_update_status"
     ).get(pk=corporation_pk)
