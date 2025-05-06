@@ -31,7 +31,7 @@ from ledger.managers.corporation_journal_manager import (
     CorporationWalletManager,
 )
 from ledger.models.characteraudit import WalletJournalEntry
-from ledger.models.general import UpdateSectionResult
+from ledger.models.general import UpdateSectionResult, _NeedsUpdate
 from ledger.providers import esi
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -82,16 +82,15 @@ class CorporationAudit(models.Model):
         )
 
     # pylint: disable=duplicate-code
-    def calc_update_needed(self) -> list[UpdateSection]:
+    def calc_update_needed(self) -> _NeedsUpdate:
         """Calculate if an update is needed."""
         sections: models.QuerySet[CorporationUpdateStatus] = (
             self.ledger_corporation_update_status.all()
         )
-        needs_update = []
+        needs_update = {}
         for section in sections:
-            if section.need_update():
-                needs_update.append(section.section)
-        return needs_update
+            needs_update[section.section] = section.need_update()
+        return _NeedsUpdate(section_map=needs_update)
 
     # pylint: disable=duplicate-code
     def reset_update_status(self, section: UpdateSection) -> "CorporationUpdateStatus":
@@ -123,8 +122,8 @@ class CorporationAudit(models.Model):
         """Update the status of a specific section if it has changed."""
         section = self.UpdateSection(section)
         try:
-            logger.debug("%s: Update has changed, section: %s", self, section.label)
             data = fetch_func(corporation=self, force_refresh=force_refresh)
+            logger.debug("%s: Update has changed, section: %s", self, section.label)
         except HTTPInternalServerError as exc:
             logger.debug("%s: Update has an HTTP internal server error: %s", self, exc)
             return UpdateSectionResult(is_changed=False, is_updated=False)
@@ -342,6 +341,13 @@ class CorporationUpdateStatus(models.Model):
             section_time_stale = app_settings.LEDGER_STALE_TYPES.get(self.section, 60)
             stale = timezone.now() - timezone.timedelta(minutes=section_time_stale)
             needs_update = self.last_update_finished <= stale
+            logger.debug(
+                "%s: Update is stale: %s, last_update_finished: %s, now: %s",
+                self.corporation,
+                needs_update,
+                self.last_update_finished,
+                timezone.now(),
+            )
 
         if needs_update and self.has_token_error:
             logger.info(

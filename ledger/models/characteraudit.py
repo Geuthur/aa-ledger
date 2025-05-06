@@ -31,7 +31,7 @@ from ledger.managers.character_audit_manager import (
 )
 from ledger.managers.character_journal_manager import CharWalletManager
 from ledger.managers.character_mining_manager import CharacterMiningLedgerEntryManager
-from ledger.models.general import EveEntity, UpdateSectionResult
+from ledger.models.general import EveEntity, UpdateSectionResult, _NeedsUpdate
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -196,16 +196,15 @@ class CharacterAudit(models.Model):
             self, force_refresh=force_refresh
         )
 
-    def calc_update_needed(self) -> list[UpdateSection]:
+    def calc_update_needed(self) -> _NeedsUpdate:
         """Calculate if an update is needed."""
         sections: models.QuerySet[CharacterUpdateStatus] = (
             self.ledger_update_status.all()
         )
-        needs_update = []
+        needs_update = {}
         for section in sections:
-            if section.need_update():
-                needs_update.append(section.section)
-        return needs_update
+            needs_update[section.section] = section.need_update()
+        return _NeedsUpdate(section_map=needs_update)
 
     def reset_update_status(self, section: UpdateSection) -> "CharacterUpdateStatus":
         """Reset the status of a given update section and return it."""
@@ -234,8 +233,8 @@ class CharacterAudit(models.Model):
         """Update the status of a specific section if it has changed."""
         section = self.UpdateSection(section)
         try:
-            logger.debug("%s: Update has changed, section: %s", self, section.label)
             data = fetch_func(character=self, force_refresh=force_refresh)
+            logger.debug("%s: Update has changed, section: %s", self, section.label)
         except HTTPInternalServerError as exc:
             logger.debug("%s: Update has an HTTP internal server error: %s", self, exc)
             return UpdateSectionResult(is_changed=False, is_updated=False)

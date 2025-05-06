@@ -4,6 +4,7 @@ General Model
 
 # Standard Library
 import datetime
+from dataclasses import dataclass
 from typing import Any, NamedTuple
 
 # Django
@@ -138,3 +139,18 @@ class UpdateSectionResult(NamedTuple):
     is_changed: bool | None
     is_updated: bool
     data: Any = None
+
+
+@dataclass(frozen=True)
+class _NeedsUpdate:
+    """An Object to track if an update is needed."""
+
+    section_map: dict[str, bool]
+
+    def __bool__(self) -> bool:
+        """Check if any section needs an update."""
+        return any(self.section_map.values())
+
+    def for_section(self, section: str) -> bool:
+        """Check if an update is needed for a specific section."""
+        return self.section_map.get(section, False)

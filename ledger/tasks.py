@@ -129,11 +129,13 @@ def check_planetary_alarms(runs: int = 0):
 
 @shared_task(**TASK_DEFAULTS_ONCE)
 @when_esi_is_available
-def update_all_characters(runs: int = 0):
+def update_all_characters(runs: int = 0, force_refresh=False):
     """Update all characters"""
     characters = CharacterAudit.objects.select_related("character").filter(active=1)
     for char in characters:
-        update_character.apply_async(args=[char.pk])
+        update_character.apply_async(
+            args=[char.pk], kwargs={"force_refresh": force_refresh}
+        )
         runs = runs + 1
     logger.debug("Queued %s Character Audit Tasks", runs)
 
@@ -196,7 +198,7 @@ def update_character(character_pk: int, force_refresh=False):
 
     for section in sections:
         # Skip sections that are not in the needs_update list
-        if not force_refresh and section not in needs_update:
+        if not force_refresh and not needs_update.for_section(section):
             logger.debug(
                 "No updates needed for %s (%s)",
                 character.character.character_name,
@@ -284,10 +286,12 @@ def _update_character_section(character_pk: int, section: str, force_refresh: bo
 # Corporation Audit - Tasks
 @shared_task(**TASK_DEFAULTS_ONCE)
 @when_esi_is_available
-def update_all_corps(runs: int = 0):
+def update_all_corps(runs: int = 0, force_refresh=False):
     corps = CorporationAudit.objects.select_related("corporation").filter(active=1)
     for corp in corps:
-        update_corporation.apply_async(args=[corp.pk], kwargs={"force_refresh": True})
+        update_corporation.apply_async(
+            args=[corp.pk], kwargs={"force_refresh": force_refresh}
+        )
         runs = runs + 1
     logger.info("Queued %s Corporation Audit Tasks", runs)
 
@@ -359,7 +363,7 @@ def update_corporation(
 
     for section in sections:
         # Skip sections that are not in the needs_update list
-        if not force_refresh and section not in needs_update:
+        if not force_refresh and not needs_update.for_section(section):
             logger.debug(
                 "No updates needed for %s (%s)",
                 corporation.corporation.corporation_name,
