@@ -172,6 +172,11 @@ class Migration(migrations.Migration):
             model_name="corporationaudit",
             name="last_update_wallet",
         ),
+        migrations.AddField(
+            model_name="corporationaudit",
+            name="active",
+            field=models.BooleanField(default=True),
+        ),
         migrations.CreateModel(
             name="CorporationUpdateStatus",
             fields=[
@@ -187,7 +192,10 @@ class Migration(migrations.Migration):
                 (
                     "section",
                     models.CharField(
-                        choices=[("wallet_journal", "Wallet Journal")],
+                        choices=[
+                            ("wallet_division", "Divisions"),
+                            ("wallet_journal", "Wallet Journal"),
+                        ],
                         db_index=True,
                         max_length=32,
                     ),

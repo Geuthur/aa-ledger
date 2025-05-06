@@ -58,7 +58,7 @@ _update_ledger_corp_params = {
 @when_esi_is_available
 def update_all_characters(runs: int = 0):
     """Update all characters"""
-    characters = CharacterAudit.objects.select_related("character").all()
+    characters = CharacterAudit.objects.select_related("character").filter(active=1)
     for char in characters:
         update_character.apply_async(args=[char.pk])
         runs = runs + 1
@@ -124,6 +124,11 @@ def update_character(character_pk: int, force_refresh=False):
     for section in sections:
         # Skip sections that are not in the needs_update list
         if not force_refresh and section not in needs_update:
+            logger.debug(
+                "No updates needed for %s (%s)",
+                character.character.character_name,
+                section,
+            )
             continue
 
         task_name = f"update_char_{section}"
@@ -133,7 +138,7 @@ def update_character(character_pk: int, force_refresh=False):
         )
 
     chain(que).apply_async()
-    logger.info(
+    logger.debug(
         "Queued %s Audit Updates for %s",
         len(que),
         character.character.character_name,
@@ -186,9 +191,11 @@ def _update_character_section(character_pk: int, section: str, force_refresh: bo
     """Update a specific section of the character audit."""
     section = CharacterAudit.UpdateSection(section)
     character = CharacterAudit.objects.get(pk=character_pk)
+    logger.debug(
+        "Updating %s for %s", section.label, character.character.character_name
+    )
 
     character.reset_update_status(section)
-    logger.info("Updating %s for %s", section.value, character.character.character_name)
 
     method: Callable = getattr(character, section.method_name)
     method_signature = inspect.signature(method)
@@ -278,11 +285,11 @@ def check_planetary_alarms(runs: int = 0):
 @shared_task(**TASK_DEFAULTS_ONCE)
 @when_esi_is_available
 def update_all_corps(runs: int = 0):
-    corps = CorporationAudit.objects.select_related("corporation").all()
+    corps = CorporationAudit.objects.select_related("corporation").filter(active=1)
     for corp in corps:
         update_corp.apply_async(args=[corp.pk])
         runs = runs + 1
-    logger.debug("Queued %s Corporation Audit Tasks", runs)
+    logger.info("Queued %s Corporation Audit Tasks", runs)
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
@@ -317,6 +324,11 @@ def update_corp(corporation_pk, force_refresh=False):  # pylint: disable=unused-
     for section in sections:
         # Skip sections that are not in the needs_update list
         if not force_refresh and section not in needs_update:
+            logger.debug(
+                "No updates needed for %s (%s)",
+                corporation.corporation.corporation_name,
+                section,
+            )
             continue
 
         task_name = f"update_corp_{section}"
@@ -326,10 +338,20 @@ def update_corp(corporation_pk, force_refresh=False):  # pylint: disable=unused-
         )
 
     chain(que).apply_async()
-    logger.info(
+    logger.debug(
         "Queued %s Audit Updates for %s",
         len(que),
         corporation.corporation.corporation_name,
+    )
+
+
+@shared_task(**_update_ledger_corp_params)
+@when_esi_is_available
+def update_corp_wallet_division(corporation_pk: int, force_refresh: bool):
+    return _update_corporation_section(
+        corporation_pk,
+        section=CorporationAudit.UpdateSection.WALLET_DIVISION,
+        force_refresh=force_refresh,
     )
 
 
@@ -347,11 +369,11 @@ def _update_corporation_section(corporation_pk: int, section: str, force_refresh
     """Update a specific section of the character audit."""
     section = CorporationAudit.UpdateSection(section)
     corporation = CorporationAudit.objects.get(pk=corporation_pk)
+    logger.debug(
+        "Updating %s for %s", section.label, corporation.corporation.corporation_name
+    )
 
     corporation.reset_update_status(section)
-    logger.info(
-        "Updating %s for %s", section.value, corporation.corporation.corporation_name
-    )
 
     method: Callable = getattr(corporation, section.method_name)
     method_signature = inspect.signature(method)
@@ -365,3 +387,28 @@ def _update_corporation_section(corporation_pk: int, section: str, force_refresh
     corporation.update_section_log(
         section, is_success=True, is_updated=result.is_updated
     )
+
+
+@shared_task(**TASK_DEFAULTS_ONCE)
+def clear_all_etags():
+    logger.debug("Clearing all etags")
+    try:
+        # Third Party
+        # pylint: disable=import-outside-toplevel
+        from django_redis import get_redis_connection
+
+        _client = get_redis_connection("default")
+    except (NotImplementedError, ModuleNotFoundError):
+        # Django
+        # pylint: disable=import-outside-toplevel
+        from django.core.cache import caches
+
+        default_cache = caches["default"]
+        _client = default_cache.get_master_client()
+    keys = _client.keys(":?:ledger-*")
+    logger.info("Deleting %s etag keys", len(keys))
+    if keys:
+        deleted = _client.delete(*keys)
+        logger.info("Deleted %s etag keys", deleted)
+    else:
+        logger.info("No etag keys to delete")

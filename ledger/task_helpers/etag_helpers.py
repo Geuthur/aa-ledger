@@ -141,7 +141,7 @@ def handle_page_results(
 
             if not etags_incomplete and not force_refresh:
                 logger.debug(
-                    "ETag: No Etag %s - %s",
+                    "ETag: No Etag: %s - %s",
                     operation.operation.operation_id,
                     stringify_params(operation),
                 )
@@ -150,17 +150,22 @@ def handle_page_results(
                 etags_incomplete = True
 
         except (HTTPNotModified, NotModifiedError) as e:
+            try:
+                etag = e.response.headers["ETag"]
+            except AttributeError:
+                etag = None
+
             if isinstance(e, NotModifiedError):
                 logger.debug(
-                    "ETag: Match Cache - Etag:%s, %s",
-                    e.response.headers["ETag"],
+                    "ETag: Match Cache - Etag: %s, %s",
+                    etag,
                     stringify_params(operation),
                 )
                 total_pages = int(headers.headers["X-Pages"])
             else:
                 logger.debug(
                     "ETag: Match ESI - Etag: %s - %s ETag-Incomplete: %s",
-                    e.response.headers["ETag"],
+                    etag,
                     stringify_params(operation),
                     etags_incomplete,
                 )

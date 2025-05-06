@@ -40,9 +40,8 @@ logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 class CorporationAudit(models.Model):
 
     class UpdateSection(models.TextChoices):
+        WALLET_DIVISION = "wallet_division", _("Divisions")
         WALLET_JOURNAL = "wallet_journal", _("Wallet Journal")
-        # TODO make own update section?
-        # WALLET_DIVISION = "wallet_division", _("Division Journal")
 
         @classmethod
         def get_sections(cls) -> list[str]:
@@ -55,6 +54,8 @@ class CorporationAudit(models.Model):
             return f"update_{self.value}"
 
     corporation_name = models.CharField(max_length=100, null=True, default=None)
+
+    active = models.BooleanField(default=True)
 
     corporation = models.OneToOneField(
         EveCorporationInfo,
@@ -70,8 +71,13 @@ class CorporationAudit(models.Model):
         except AttributeError:
             return f"{self.corporation} ({self.id})"
 
-    def update_wallet_journal(self, force_refresh: bool) -> None:
+    def update_wallet_division(self, force_refresh: bool) -> None:
         return self.ledger_corporation_division.update_or_create_esi(
+            self, force_refresh=force_refresh
+        )
+
+    def update_wallet_journal(self, force_refresh: bool) -> None:
+        return CorporationWalletJournalEntry.objects.update_or_create_esi(
             self, force_refresh=force_refresh
         )
 

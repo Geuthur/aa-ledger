@@ -1,0 +1,50 @@
+{% extends "ledger/base.html" %}
+{% load i18n %}
+
+{% block page_title %}
+    {{ title }} ⋗ {% translate "Ledger" %}
+{% endblock %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block header_nav_collapse_left %}
+
+{% include 'ledger/partials/menu/navigation.html' %}
+
+{% endblock header_nav_collapse_left %}
+
+{% block header_nav_collapse_right %}
+
+{% include 'ledger/partials/menu/corp/administration.html' %}
+
+{% endblock header_nav_collapse_right %}
+
+{% block ledger_block %}
+    <div class="card-body">
+        <div class="card bg-secondary">
+            <div class="card-header text-center bg-primary">{% translate "Administration" %}</div>
+            <div class="card-body text-center">
+                <form action="{% url 'ledger:admin' %}" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3 form-check">
+                        <input class="form-check-input" type="checkbox" name="run_clear_etag" id="run_clear_etag">
+                        <label class="form-check-label" for="run_clear_etag">{% translate "Clear all cached ETags" %}:</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input class="form-check-input" type="checkbox" name="run_char_updates" id="run_char_updates">
+                        <label class="form-check-label" for="run_char_updates">{% translate "Update Character Updates" %}:</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input class="form-check-input" type="checkbox" name="run_corp_updates" id="run_corp_updates">
+                        <label class="form-check-label" for="run_corp_updates">{% translate "Update Corp Updates" %}:</label>
+                    </div>
+                    <input type="submit" value="{% translate 'Submit' %}" class="btn col-md-12 btn-primary" />
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock ledger_block %}

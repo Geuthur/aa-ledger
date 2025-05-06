@@ -13,12 +13,13 @@ from ledger.views.corporation import corp_events, corporation_ledger
 from ledger.views.corporation.add_corp import add_corp
 
 # AA Example App
-from ledger.views.index import index
+from ledger.views.index import admin, index
 
 app_name: str = "ledger"
 
 urlpatterns = [
     path("", index, name="index"),
+    path("admin/", admin, name="admin"),
     # -- Character Audit
     path("char/add/", add_char, name="add_char"),
     # -- Corporation Audit
