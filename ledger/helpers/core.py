@@ -25,12 +25,11 @@ def add_info_to_context(request, context: dict) -> dict:
     # AA Ledger
     from ledger.models.characteraudit import CharacterAudit
 
-    theme = None
     try:
         user = UserProfile.objects.get(id=request.user.id)
         theme = user.theme
     except UserProfile.DoesNotExist:
-        pass
+        theme = None
 
     issues = CharacterAudit.objects.get_update_status_issues(user=request.user)
 

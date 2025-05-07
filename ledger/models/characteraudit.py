@@ -147,18 +147,19 @@ class CharacterAudit(models.Model):
         """Get the status of this character."""
         if not self.active:
             return self.UpdateStatus.DISABLED
+
         if not self.ledger_update_status.exists():
             return self.UpdateStatus.DISABLED
-        if self.ledger_update_status.filter(
-            is_success=False, has_token_error=True
-        ).exists():
+
+        if (
+            self.ledger_update_status.filter(
+                is_success=False, has_token_error=False
+            ).exists()
+            or self.ledger_update_status.filter(
+                is_success=False, has_token_error=True
+            ).exists()
+        ):
             return self.UpdateStatus.ERROR
-        if self.ledger_update_status.filter(
-            is_success=False, has_token_error=False
-        ).exists():
-            return self.UpdateStatus.ERROR
-        # if self.calc_update_needed():
-        #    return self.UpdateStatus.NOT_UP_TO_DATE
         return self.UpdateStatus.OK
 
     def get_token(self, scopes=None) -> Token:
@@ -223,6 +224,9 @@ class CharacterAudit(models.Model):
         ).update(
             has_token_error=False,
         )
+        return self.ledger_update_status.filter(
+            has_token_error=True,
+        ).exists()
 
     def update_section_if_changed(
         self,
@@ -276,7 +280,7 @@ class CharacterAudit(models.Model):
         )[0]
         if is_updated:
             obj.last_update_at = obj.last_run_at
-            obj.last_update_finished = timezone.now()
+            obj.last_update_finished_at = timezone.now()
             obj.save()
         status = "successfully" if is_success else "with errors"
         logger.info("%s: %s Update run completed %s", self, section.label, status)
@@ -452,7 +456,7 @@ class CharacterUpdateStatus(models.Model):
         db_index=True,
         help_text="Last update has been started at this time",
     )
-    last_update_finished = models.DateTimeField(
+    last_update_finished_at = models.DateTimeField(
         default=None,
         null=True,
         db_index=True,
@@ -467,7 +471,7 @@ class CharacterUpdateStatus(models.Model):
 
     def need_update(self) -> bool:
         """Check if the update is needed."""
-        if not self.is_success or not self.last_update_finished:
+        if not self.is_success or not self.last_update_finished_at:
             needs_update = True
         else:
             section_time_stale = app_settings.LEDGER_STALE_TYPES.get(self.section, 60)

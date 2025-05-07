@@ -142,7 +142,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "last_update_finished",
+                    "last_update_finished_at",
                     models.DateTimeField(
                         db_index=True,
                         default=None,
@@ -234,7 +234,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "last_update_finished",
+                    "last_update_finished_at",
                     models.DateTimeField(
                         db_index=True,
                         default=None,

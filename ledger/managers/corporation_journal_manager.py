@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 from django.db import models, transaction
 from django.db.models import DecimalField, F, Q, Sum, Value
 from django.db.models.functions import Coalesce, Round
-from django.utils import timezone
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
@@ -227,11 +226,8 @@ class CorporationWalletManagerBase(models.Manager):
             list(EveEntity.objects.all().values_list("eve_id", flat=True))
         )
 
-        _min_time = timezone.now()
         items = []
         for item in objs:
-            _min_time = min(_min_time, item.get("date"))
-
             if item.get("id") not in _current_journal:
                 if item.get("second_party_id") not in _current_eve_ids:
                     _new_names.append(item.get("second_party_id"))

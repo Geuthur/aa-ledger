@@ -140,7 +140,7 @@ def update_all_characters(runs: int = 0, force_refresh=False):
 
 @shared_task(**TASK_DEFAULTS_ONCE)
 @when_esi_is_available
-def update_subset_characters(subset=5, min_runs=10, max_runs=200, force_refresh=False):
+def update_subset_characters(subset=2, min_runs=10, max_runs=200, force_refresh=False):
     """Update a batch of characters to prevent overload ESI"""
     total_characters = CharacterAudit.objects.filter(active=1).count()
     characters_count = min(max(total_characters // subset, min_runs), total_characters)

@@ -12,7 +12,7 @@ from app_utils.testing import add_character_to_user
 from eveuniverse.models import EveType
 
 # AA Ledger
-from ledger.models.characteraudit import CharacterAudit
+from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
 
 
 def create_character(eve_character: EveCharacter, **kwargs) -> CharacterAudit:
@@ -25,6 +25,19 @@ def create_character(eve_character: EveCharacter, **kwargs) -> CharacterAudit:
     character = CharacterAudit(**params)
     character.save()
     return character
+
+
+def create_update_status(
+    character_audit: CharacterAudit, **kwargs
+) -> CharacterUpdateStatus:
+    """Create a Update Status for a Character Audit"""
+    params = {
+        "character": character_audit,
+    }
+    params.update(kwargs)
+    update_status = CharacterUpdateStatus(**params)
+    update_status.save()
+    return update_status
 
 
 def create_user_from_evecharacter_with_access(

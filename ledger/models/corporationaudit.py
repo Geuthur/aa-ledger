@@ -168,7 +168,7 @@ class CorporationAudit(models.Model):
         )
         if is_updated:
             obj.last_update_at = obj.last_run_at
-            obj.last_update_finished = timezone.now()
+            obj.last_update_finished_at = timezone.now()
             obj.save()
         status = "successfully" if is_success else "with errors"
         logger.info("%s: %s Update run completed %s", self, section.label, status)
@@ -273,7 +273,11 @@ class CorporationWalletDivision(models.Model):
 
 
 class CorporationWalletJournalEntry(WalletJournalEntry):
-    division = models.ForeignKey(CorporationWalletDivision, on_delete=models.CASCADE)
+    division = models.ForeignKey(
+        CorporationWalletDivision,
+        on_delete=models.CASCADE,
+        related_name="ledger_corporation_journal",
+    )
 
     objects = CorporationWalletManager()
 
@@ -320,7 +324,7 @@ class CorporationUpdateStatus(models.Model):
         db_index=True,
         help_text="Last update has been started at this time",
     )
-    last_update_finished = models.DateTimeField(
+    last_update_finished_at = models.DateTimeField(
         default=None,
         null=True,
         db_index=True,
@@ -335,7 +339,7 @@ class CorporationUpdateStatus(models.Model):
 
     def need_update(self) -> bool:
         """Check if the update is needed."""
-        if not self.is_success or not self.last_update_finished:
+        if not self.is_success or not self.last_update_finished_at:
             needs_update = True
         else:
             section_time_stale = app_settings.LEDGER_STALE_TYPES.get(self.section, 60)
