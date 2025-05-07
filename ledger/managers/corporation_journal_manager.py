@@ -227,6 +227,7 @@ class CorporationWalletManagerBase(models.Manager):
         )
 
         items = []
+        # pylint: disable=duplicate-code
         for item in objs:
             if item.get("id") not in _current_journal:
                 if item.get("second_party_id") not in _current_eve_ids:
