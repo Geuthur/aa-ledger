@@ -53,6 +53,8 @@
 <script type="application/javascript">
 
 const AdminUrl = "{% url 'ledger:api:get_planetary_overview' %}"
+let PlanetaryOverviewUrl = "{% url 'ledger:planetary_ledger' character_id=1337 %}"
+
 PlanetaryAjax = {
     url: AdminUrl,
     type: 'GET',
@@ -88,7 +90,16 @@ PlanetaryAjax = {
                     className: 'text-end',
                     sortable: false,
                     render: function (data, type, row) {
-                        return '<a href="/ledger/planetary_ledger/'+ row.character_id +'/"><button class="btn btn-primary btn-sm" title="{% trans "Show" %}" data-tooltip-toggle="char-tooltip" data-bs-placement="left"><i class="fa-solid fa-eye"></i></button></a>';
+                        var OverviewUrl = PlanetaryOverviewUrl.replace('1337', row.character_id);
+                        return `<a href="${OverviewUrl}">
+                            <button class="btn btn-primary btn-sm"
+                                title="{% trans "Show" %}"
+                                data-tooltip-toggle="char-tooltip"
+                                data-bs-placement="left"
+                            >
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </a>`;
                     },
                 }
             ],

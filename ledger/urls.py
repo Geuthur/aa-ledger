@@ -31,22 +31,22 @@ urlpatterns = [
     path("corporation/add/", add_corp, name="add_corp"),
     # -- -- Alliance Ledger
     path(
-        "alliance_ledger/",
+        "alliance/",
         alliance_ledger.alliance_ledger_index,
         name="alliance_ledger_index",
     ),
     path(
-        "alliance_ledger/<int:alliance_id>/",
+        "alliance/<int:alliance_id>/",
         alliance_ledger.alliance_ledger,
         name="alliance_ledger",
     ),
     path(
-        "alliance_ledger/<int:alliance_id>/view/administration/",
+        "alliance/<int:alliance_id>/view/administration/",
         alliance_ledger.alliance_administration,
         name="alliance_administration",
     ),
     path(
-        "alliance_overview/",
+        "alliance/view/overview/",
         alliance_ledger.alliance_overview,
         name="alliance_overview",
     ),
@@ -104,22 +104,24 @@ urlpatterns = [
     path("events/ajax/load_events", corp_events.load_events, name="load_events"),
     # -- -- Planetary
     path(
-        "planetary_ledger/",
+        "character/view/planetary/",
         planetary.planetary_ledger_index,
         name="planetary_ledger_index",
     ),
     path(
-        "planetary_ledger/<int:character_id>/",
+        "character/<int:character_id>/view/planetary/",
         planetary.planetary_ledger,
         name="planetary_ledger",
     ),
     path(
-        "planetary/switch_alarm/",
+        "character/switch_alarm/",
         planetary.switch_alarm,
         name="switch_alarm",
     ),
     path(
-        "planetary_overview/", planetary.planetary_overview, name="planetary_overview"
+        "character/view/planetary/overview/",
+        planetary.planetary_overview,
+        name="planetary_overview",
     ),
     # -- API System
     re_path(r"^api/", api.urls),
