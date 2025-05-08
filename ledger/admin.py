@@ -1,13 +1,12 @@
 """Admin models"""
 
-# Third Party
-from humanize.time import naturaldelta, naturaltime
-
 # Django
 from django.contrib import admin
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.db.models import Max, Q
 from django.utils import timezone
 from django.utils.html import format_html
+from django.utils.timesince import timesince
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -72,7 +71,7 @@ class CorporationUpdateStatusAdminInline(admin.TabularInline):
 
     @admin.display
     def _update_duration(self, obj: CorporationUpdateStatus) -> float:
-        return self._calc_duration(obj.last_update_at, obj.last_update_finished)
+        return self._calc_duration(obj.last_update_at, obj.last_update_finished_at)
 
     @staticmethod
     def _calc_duration(
@@ -81,7 +80,7 @@ class CorporationUpdateStatusAdminInline(admin.TabularInline):
         if not started_at or not finished_at:
             return "-"
 
-        return naturaldelta(finished_at - started_at)
+        return timesince(finished_at - started_at)
 
 
 @admin.register(CorporationAudit)
@@ -197,16 +196,15 @@ class CharacterUpdateStatusAdminInline(admin.TabularInline):
 
     @admin.display
     def _update_duration(self, obj: CharacterUpdateStatus) -> float:
-        return self._calc_duration(obj.last_update_at, obj.last_update_finished)
+        return self._calc_duration(obj.last_update_at, obj.last_update_finished_at)
 
     @staticmethod
     def _calc_duration(
         started_at: timezone.datetime, finished_at: timezone.datetime
-    ) -> timezone.timedelta:
+    ) -> str:
         if not started_at or not finished_at:
             return "-"
-
-        return naturaldelta(finished_at - started_at)
+        return timesince(finished_at - started_at)
 
 
 @admin.register(CharacterAudit)
