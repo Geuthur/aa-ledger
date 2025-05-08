@@ -87,7 +87,7 @@ class TestEtagHelpers(NoSocketsTestCase):
         self.assertEqual(result, "param1: value1, param2: value2")
 
 
-class TestEtagHandler(NoSocketsTestCase):
+class TestEtagPageHandler(NoSocketsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -114,8 +114,7 @@ class TestEtagHandler(NoSocketsTestCase):
         cls.headers_no_etag.headers = {}
         cache.set("ledger-cache_key_2", "DCBA", MAX_ETAG_LIFE)
 
-    @patch("django_redis.cache.RedisCache.set")
-    def test_handle_page_results(self, _):
+    def test_handle_page_results_should_be_success_with_page_3(self):
         results, current_page, total_pages = handle_page_results(
             self.operation, 1, 2, False, False
         )
@@ -124,28 +123,26 @@ class TestEtagHandler(NoSocketsTestCase):
         self.assertEqual(total_pages, 2)
 
     @patch(MODULE_PATH + ".handle_etag_headers")
-    @patch("django_redis.cache.RedisCache.set")
-    def test_handle_page_results_notmodified(self, _, mock_handle_etag_headers):
+    def test_handle_page_results_should_raise_notmodifiederror(
+        self, mock_handle_etag_headers
+    ):
         # given
-        mock_error = NotModifiedError()
-        mock_error.response = Mock()
-        mock_error.response.headers = {
-            "ETag": "ETAG",
-            "X-Pages": "2",
-        }  # Ensure headers is a dictionary
-        mock_handle_etag_headers.side_effect = mock_error
-
+        mock_handle_etag_headers.side_effect = NotModifiedError()
         # when
-        try:
-            results, current_page, total_pages = handle_page_results(
-                self.operation, 1, 2, False, False
-            )
-        except NotModifiedError:
-            # Handle the expected exception
-            results, current_page, total_pages = [], 1, 2
+        with self.assertRaises(NotModifiedError):
+            handle_page_results(self.operation, 1, 2, False, False)
 
-        # then
-        mock_handle_etag_headers.assert_called()
-        self.assertEqual(current_page, 1)
-        self.assertEqual(total_pages, 2)
-        self.assertEqual(results, [])
+    @patch(MODULE_PATH + ".handle_etag_headers")
+    def test_handle_page_results_should_raise_http_not_modified(
+        self, mock_handle_etag_headers
+    ):
+        # given
+        mock_response = Mock()
+        mock_response.status_code = 304
+        mock_response.headers = {"ETag": "ETAG", "X-Pages": "2"}
+        mock_handle_etag_headers.side_effect = HTTPNotModified(mock_response)
+        # when
+        with self.assertRaises(
+            NotModifiedError
+        ):  # Raise NotModifiedError after raising HTTPNotModified
+            handle_page_results(self.operation, 1, 2, False, False)
