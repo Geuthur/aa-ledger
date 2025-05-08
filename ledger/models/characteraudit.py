@@ -56,33 +56,36 @@ class CharacterAudit(models.Model):
 
     class UpdateStatus(models.TextChoices):
         DISABLED = "disabled", _("disabled")
-        NOT_UP_TO_DATE = "not_up_to_date", _("not up to date")
+        TOKEN_ERROR = "token_error", _("token error")
         ERROR = "error", _("error")
         OK = "ok", _("ok")
+        INCOMPLETE = "incomplete", _("incomplete")
+        IN_PROGRESS = "in_progress", _("in progress")
 
         def bootstrap_icon(self) -> str:
             """Return bootstrap corresponding icon class."""
             update_map = {
-                self.DISABLED: mark_safe(
+                status: mark_safe(
                     f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>"
-                ),
-                self.NOT_UP_TO_DATE: mark_safe(
-                    f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>"
-                ),
-                self.ERROR: mark_safe(
-                    f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>"
-                ),
-                self.OK: mark_safe(
-                    f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>"
-                ),
+                )
+                for status in [
+                    self.DISABLED,
+                    self.TOKEN_ERROR,
+                    self.ERROR,
+                    self.INCOMPLETE,
+                    self.IN_PROGRESS,
+                    self.OK,
+                ]
             }
             return update_map.get(self, "")
 
         def bootstrap_text_style_class(self) -> str:
             """Return bootstrap corresponding bootstrap text style class."""
             update_map = {
-                self.DISABLED: "text-warning",
-                self.NOT_UP_TO_DATE: "text-warning",
+                self.DISABLED: "text-muted",
+                self.TOKEN_ERROR: "text-warning",
+                self.INCOMPLETE: "text-warning",
+                self.IN_PROGRESS: "text-info",
                 self.ERROR: "text-danger",
                 self.OK: "text-success",
             }
@@ -92,9 +95,9 @@ class CharacterAudit(models.Model):
             """Return description for an enum object."""
             update_map = {
                 self.DISABLED: _("Update is disabled"),
-                self.NOT_UP_TO_DATE: _(
-                    "One of the updates is older than {} day"
-                ).format(app_settings.LEDGER_CHAR_MAX_INACTIVE_DAYS),
+                self.TOKEN_ERROR: _("One section has a token error during update"),
+                self.INCOMPLETE: _("One or more sections have not been updated"),
+                self.IN_PROGRESS: _("Update is in progress"),
                 self.ERROR: _("An error occurred during update"),
                 self.OK: _("Updates completed successfully"),
             }
@@ -145,22 +148,12 @@ class CharacterAudit(models.Model):
     @property
     def get_status(self) -> UpdateStatus:
         """Get the status of this character."""
-        if not self.active:
+        if self.active is False:
             return self.UpdateStatus.DISABLED
 
-        if not self.ledger_update_status.exists():
-            return self.UpdateStatus.DISABLED
-
-        if (
-            self.ledger_update_status.filter(
-                is_success=False, has_token_error=False
-            ).exists()
-            or self.ledger_update_status.filter(
-                is_success=False, has_token_error=True
-            ).exists()
-        ):
-            return self.UpdateStatus.ERROR
-        return self.UpdateStatus.OK
+        qs = CharacterAudit.objects.filter(pk=self.pk).annotate_total_update_status()
+        total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
+        return self.UpdateStatus(total_update_status)
 
     def get_token(self, scopes=None) -> Token:
         """Get the token for this character."""
@@ -219,14 +212,15 @@ class CharacterAudit(models.Model):
 
     def reset_has_token_error(self) -> None:
         """Reset the has_token_error flag for this character."""
-        self.ledger_update_status.filter(
-            has_token_error=True,
-        ).update(
-            has_token_error=False,
-        )
-        return self.ledger_update_status.filter(
-            has_token_error=True,
-        ).exists()
+        update_status = self.get_status
+        if update_status == self.UpdateStatus.TOKEN_ERROR:
+            self.ledger_update_status.filter(
+                has_token_error=True,
+            ).update(
+                has_token_error=False,
+            )
+            return True
+        return False
 
     def update_section_if_changed(
         self,

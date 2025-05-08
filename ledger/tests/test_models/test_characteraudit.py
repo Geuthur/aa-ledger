@@ -34,16 +34,26 @@ class TestCharacterWalletJournalModel(TestCase):
         cls.audit = add_charactermaudit_character_to_user(
             cls.user, cls.character_ownership.character.character_id
         )
-        cls.update_status = create_update_status(
-            cls.audit,
-            section="wallet_journal",
-            is_success=True,
-            error_message="",
-            has_token_error=False,
-            last_run_at=timezone.now(),
-            last_run_finished_at=timezone.now(),
-            last_update_at=timezone.now(),
-            last_update_finished_at=timezone.now(),
+        scetions = CharacterAudit.UpdateSection.get_sections()
+        for section in scetions:
+            create_update_status(
+                cls.audit,
+                section=section,
+                is_success=True,
+                error_message="",
+                has_token_error=False,
+                last_run_at=timezone.now(),
+                last_run_finished_at=timezone.now(),
+                last_update_at=timezone.now(),
+                last_update_finished_at=timezone.now(),
+            )
+        cls.update_status_wallet = CharacterUpdateStatus.objects.get(
+            character=cls.audit,
+            section=CharacterAudit.UpdateSection.WALLET_JOURNAL,
+        )
+        cls.update_status_mining_ledger = CharacterUpdateStatus.objects.get(
+            character=cls.audit,
+            section=CharacterAudit.UpdateSection.MINING_LEDGER,
         )
 
     def test_str(self):
@@ -65,7 +75,7 @@ class TestCharacterWalletJournalModel(TestCase):
         )
 
     def test_get_status_states(self):
-        update_status = self.update_status
+        update_status = self.update_status_wallet
         audit = self.audit
 
         self.assertEqual(
@@ -89,6 +99,17 @@ class TestCharacterWalletJournalModel(TestCase):
 
         self.assertEqual(
             self.audit.get_status,
+            CharacterAudit.UpdateStatus.TOKEN_ERROR,
+        )
+
+        audit.active = True
+        audit.save()
+        update_status.is_success = False
+        update_status.has_token_error = False
+        update_status.save()
+
+        self.assertEqual(
+            self.audit.get_status,
             CharacterAudit.UpdateStatus.ERROR,
         )
 
@@ -96,7 +117,7 @@ class TestCharacterWalletJournalModel(TestCase):
 
         self.assertEqual(
             self.audit.get_status,
-            CharacterAudit.UpdateStatus.DISABLED,
+            CharacterAudit.UpdateStatus.INCOMPLETE,
         )
 
     def test_reset_has_token_error(self):
@@ -105,6 +126,14 @@ class TestCharacterWalletJournalModel(TestCase):
         self.assertEqual(
             audit.reset_has_token_error(),
             False,
+        )
+
+        self.update_status_mining_ledger.has_token_error = True
+        self.update_status_mining_ledger.save()
+
+        self.assertEqual(
+            audit.reset_has_token_error(),
+            True,
         )
 
     def test_reset_update_status(self):

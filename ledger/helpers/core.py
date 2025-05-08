@@ -3,7 +3,7 @@ Core View Helper
 """
 
 # Django
-from django.db.models import Q, QuerySet
+from django.db.models import Q, QuerySet, Sum
 
 # Alliance Auth
 from allianceauth.authentication.models import UserProfile
@@ -31,12 +31,16 @@ def add_info_to_context(request, context: dict) -> dict:
     except UserProfile.DoesNotExist:
         theme = None
 
-    issues = CharacterAudit.objects.get_update_status_issues(user=request.user)
+    total_issues = (
+        CharacterAudit.objects.annotate_total_update_status_user(user=request.user)
+        .aggregate(total_failed=Sum("num_sections_failed"))
+        .get("total_failed", 0)
+    )
 
     new_context = {
         **{
             "theme": theme,
-            "issues": issues,
+            "issues": total_issues,
         },
         **context,
     }
