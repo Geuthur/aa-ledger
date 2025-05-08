@@ -80,8 +80,13 @@ def switch_alarm(request):
     form = forms.ConfirmForm(request.POST)
 
     if form.is_valid():
+        is_all = False
         character_id = int(form.cleaned_data["character_id"])
         planet_id = int(form.cleaned_data["planet_id"])
+
+        if character_id == 0:
+            character_id = request.user.profile.main_character.character_id
+            is_all = True
 
         perm, main = get_character(request, character_id)
 
@@ -93,7 +98,7 @@ def switch_alarm(request):
                 safe=False,
             )
 
-        if character_id == 0:
+        if is_all:
             characters = get_alts_queryset(main)
             characters = characters.values_list("character_id", flat=True)
         else:
