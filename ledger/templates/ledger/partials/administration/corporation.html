@@ -1,26 +1,70 @@
 {% load i18n %}
+{% if corporation|length == 0 %}
+    <div class="card-body">
+        <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
+            <h3 class="text-white">{% translate "Corporation" %}</h3>
+        </div>
+        <div class="card-body bg-secondary">
+            <!-- Corporation Name -->
+            <div class="card-header text-center">
+                {{ corporation.corporation_name }} {{ corporation.get_status.bootstrap_icon }}
+            </div>
+            <!-- Corporation Logo -->
+            <div class="card-body text-center">
+                <a href="{% url 'ledger:corporation_ledger' corporation_id=corporation.corporation.corporation_id %}?single=True">
+                    <img src="{{ corporation.corporation.logo_url_256 }}">
+                </a>
+            </div>
+            <!-- Corporation Actions -->
+            <div class="card-footer text-center">
+                <a class="btn btn-success btn-sm"
+                    href="{% url 'ledger:corporation_ledger' corporation_id=corporation.corporation.corporation_id %}?single=True"
+                    role="button"
+                    data-tooltip-toggle="ledger-tooltip"
+                    title="{% translate 'View Corporation Ledger' %}">
+                    <i class="fas fa-sign-in-alt"></i>
+                </a>
 
-{% if characters|length == 0 %}
-    <div class="alert alert-info" role="alert">
-        {% translate "No Characters found." %}
-    </div>
-{% else %}
-    <div class="card-characters-container">
-        <ul>
-            <table class="table table-dark table-striped table-hover w-100" id="corporation-table">
-                <thead>
-                    <th>Portrait</th>
-                    <th>Character Name</th>
-                </thead>
-                <tbody>
-                    {% for character in characters %}
-                        <tr>
-                            <td><img src="{{ character.character.portrait_url_256 }}"></td>
-                            <td>{{ character.character.character_name }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </ul>
+                <button type="button" class="btn btn-danger btn-sm btn-square me-2"
+                    data-bs-toggle="modal"
+                    data-tooltip-toggle="ledger-tooltip"
+                    data-title="{% translate 'Delete Corporation' %} {{ corporation.corporation.corporation_name }}"
+                    data-text="{% translate 'Are you sure to Delete this Corporation?' %}"
+                    data-bs-target="#ledger-delete-confirm"
+                    data-action="{% url 'ledger:delete_corp' corporation_id=corporation.corporation.corporation_id %}"
+                    >
+                    <span class="fas fa-trash"></span>
+                </button>
+            </div>
+        </div>
     </div>
 {% endif %}
+<div class="card-body">
+    <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
+        <h3 class="text-white">{% translate "Characters" %}</h3>
+    </div>
+    {% if characters|length == 0 %}
+        <div class="alert alert-info" role="alert">
+            {% translate "No Characters found." %}
+        </div>
+    {% else %}
+        <div class="card-characters-container card-body bg-secondary">
+            <ul>
+                <table class="table table-dark table-striped table-hover w-100" id="corporation-table">
+                    <thead>
+                        <th>Portrait</th>
+                        <th>Character Name</th>
+                    </thead>
+                    <tbody>
+                        {% for character in characters %}
+                            <tr>
+                                <td><img src="{{ character.character.portrait_url_256 }}"></td>
+                                <td>{{ character.character.character_name }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </ul>
+        </div>
+    {% endif %}
+</div>

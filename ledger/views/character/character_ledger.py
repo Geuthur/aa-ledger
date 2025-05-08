@@ -127,7 +127,7 @@ def character_administration(request, character_id=None):
 @login_required
 @permission_required("ledger.basic_access")
 @require_POST
-def character_delete(request, character_id=None):
+def character_delete(request, character_id):
     """
     Character Delete
     """

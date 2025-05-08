@@ -29,6 +29,11 @@ urlpatterns = [
     ),
     # -- Corporation Audit
     path("corporation/add/", add_corp, name="add_corp"),
+    path(
+        "corporation/delete/<int:corporation_id>/",
+        corporation_ledger.corporation_delete,
+        name="delete_corp",
+    ),
     # -- -- Alliance Ledger
     path(
         "alliance/",

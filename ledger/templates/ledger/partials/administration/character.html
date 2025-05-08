@@ -35,7 +35,7 @@
                                 data-title="{% translate 'Delete Character' %} {{ character.character.character_name }}"
                                 data-text="{% translate 'Are you sure to Delete this Character?' %}"
                                 data-bs-target="#ledger-delete-confirm"
-                                data-action="{% url 'ledger:delete_char' character_id=character.character.character_id %}" aria-label="Toggle Alarm"
+                                data-action="{% url 'ledger:delete_char' character_id=character.character.character_id %}"
                                 >
                                 <span class="fas fa-trash"></span>
                             </button>
@@ -47,15 +47,15 @@
             {% for character in missing_characters %}
                 <li class="card-item">
                     <div class="card bg-danger opacity-25">
-                        <!-- Corporation Name -->
+                        <!-- Character Name -->
                         <div class="card-header">
                             {{ character.character_name }}
                         </div>
-                        <!-- Corporation Logo -->
+                        <!-- Character Logo -->
                         <div class="card-body">
                             <img src="{{ character.portrait_url_256 }}">
                         </div>
-                        <!-- Corporation Actions -->
+                        <!-- Character Actions -->
                         <div class="card-footer no-opacity">
                             {% translate "Character is not registered in Ledger." %}
                         </div>

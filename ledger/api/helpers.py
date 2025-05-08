@@ -39,7 +39,7 @@ def get_character(request, character_id) -> tuple[bool, EveCharacter | None]:
 def get_corporation(
     request, corporation_id
 ) -> tuple[bool | None, models.CorporationAudit | None]:
-    """Get Corporation and check permissions for each corporation"""
+    """Return Corporation and check permissions"""
     perms = True
 
     try:
@@ -51,6 +51,26 @@ def get_corporation(
 
     # Check access
     visible = models.CorporationAudit.objects.visible_to(request.user)
+    if main_corp not in visible:
+        perms = False
+    return perms, main_corp
+
+
+def get_manage_corporation(
+    request, corporation_id
+) -> tuple[bool | None, models.CorporationAudit | None]:
+    """Returns a tuple of the permissions and the corporation object if manageable"""
+    perms = True
+
+    try:
+        main_corp = models.CorporationAudit.objects.get(
+            corporation__corporation_id=corporation_id
+        )
+    except ObjectDoesNotExist:
+        return None, None
+
+    # Check access
+    visible = models.CorporationAudit.objects.manage_to(request.user)
     if main_corp not in visible:
         perms = False
     return perms, main_corp

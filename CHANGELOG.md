@@ -4,7 +4,7 @@
 
 ## Added
 
-- Update Section System - Inspired by @Eric Kalkoken
+- Update Section System - Inspired by @\[[Eric Kalkoken](https://gitlab.com/ErikKalkoken/)\]
   - TokenError Handler
   - HTTPInternalServerError, HTTPGatewayTimeoutError Handler
   - Update Section retrieves information between Etag System (Not Updating if NotModified)
@@ -14,6 +14,8 @@
 - Admin Menu (superuser only)
 - Subset Task for Corporations
 - Delete Option in Administration
+- Add Corporation Actions for Corporation Ledger to Administration
+- Add Missing Registered Corporation Members to Administration
 
 ## Fixed
 
