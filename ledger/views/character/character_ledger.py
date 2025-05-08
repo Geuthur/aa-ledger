@@ -148,7 +148,7 @@ def character_delete(request, character_id=None):
 
     audit.delete()
 
-    msg = _(f"Character {audit.character.character_name} Deleted")
+    msg = _(f"{audit.character.character_name} successfully deleted")
     return JsonResponse(
         {"success": True, "message": msg}, status=HTTPStatus.OK, safe=False
     )
