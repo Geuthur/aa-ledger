@@ -27,6 +27,7 @@
 - Use one navigation menu for Ledger
 - Use app_utils `LoggerAddTag` Logger System
 - Make `README` logger settings optional
+- Optimized Url Paths
 
 ## Removed
 
