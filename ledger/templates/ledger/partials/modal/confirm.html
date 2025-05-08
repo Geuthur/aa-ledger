@@ -3,7 +3,7 @@
 {% load bootstrap %}
 
 <!-- Approve Request Modal -->
-<div class="modal fade" id="ledger-planetary-confirm" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="ledger-delete-confirm" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -17,21 +17,17 @@
                     <div id="modal-request-text">
                         <!-- Modal Request Text -->
                     </div>
-
                     <form method="post">
                         {% csrf_token %}
-                        <fieldset class="ledger-planetary-confirm-form">
-                            {{ forms.confirm|bootstrap }}
-                        </fieldset>
                     </form>
                     {% include 'ledger/partials/form/error-message.html' %}
                 </div>
             <div class="modal-footer">
-                <button id="modal-button-cancel-confirm-request" type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                <button id="modal-button-cancel-delete-request" type="button" class="btn btn-danger" data-bs-dismiss="modal">
                     <i class="fa-solid fa-hand"></i> {% trans "Cancel" %}
                 </button>
 
-                <button id="modal-button-confirm-confirm-request" type="button" class="btn btn-success">
+                <button id="modal-button-confirm-delete-request" type="button" class="btn btn-success">
                     <i class="fa-solid fa-check"></i> {% trans "Confirm" %}
                 </button>
             </div>
