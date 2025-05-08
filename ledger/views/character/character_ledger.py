@@ -3,12 +3,15 @@
 # Standard Library
 import logging
 from datetime import datetime
+from http import HTTPStatus
 
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
+from django.views.decorators.http import require_POST
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
@@ -118,4 +121,34 @@ def character_administration(request, character_id=None):
         request,
         "ledger/charledger/admin/character_administration.html",
         context=context,
+    )
+
+
+@login_required
+@permission_required("ledger.basic_access")
+@require_POST
+def character_delete(request, character_id=None):
+    """
+    Character Delete
+    """
+    perms = get_character(request, character_id)[0]
+    if not perms:
+        msg = _("Permission Denied")
+        return JsonResponse(
+            {"success": False, "message": msg}, status=HTTPStatus.FORBIDDEN, safe=False
+        )
+
+    try:
+        audit = CharacterAudit.objects.get(character__character_id=character_id)
+    except CharacterAudit.DoesNotExist:
+        msg = _("Character not found")
+        return JsonResponse(
+            {"success": False, "message": msg}, status=HTTPStatus.NOT_FOUND, safe=False
+        )
+
+    audit.delete()
+
+    msg = _(f"Character {audit.character.character_name} Deleted")
+    return JsonResponse(
+        {"success": True, "message": msg}, status=HTTPStatus.OK, safe=False
     )

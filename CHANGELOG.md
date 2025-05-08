@@ -13,6 +13,11 @@
   - Update Issues Badge
 - Admin Menu (superuser only)
 - Subset Task for Corporations
+- Delete Option in Administration
+
+## Fixed
+
+- CSS Issue with Modals
 
 ## Changed
 

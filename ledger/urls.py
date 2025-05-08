@@ -21,7 +21,12 @@ urlpatterns = [
     path("", index, name="index"),
     path("admin/", admin, name="admin"),
     # -- Character Audit
-    path("char/add/", add_char, name="add_char"),
+    path("character/add/", add_char, name="add_char"),
+    path(
+        "character/delete/<int:character_id>/",
+        character_ledger.character_delete,
+        name="delete_char",
+    ),
     # -- Corporation Audit
     path("corporation/add/", add_corp, name="add_corp"),
     # -- -- Alliance Ledger
@@ -48,43 +53,43 @@ urlpatterns = [
     path("alliance/add/", add_ally, name="add_ally"),
     # -- -- Corporation Ledger
     path(
-        "corporation_ledger/",
+        "corporation/",
         corporation_ledger.corporation_ledger_index,
         name="corporation_ledger_index",
     ),
     path(
-        "corporation_ledger/<int:corporation_id>/",
+        "corporation/<int:corporation_id>/",
         corporation_ledger.corporation_ledger,
         name="corporation_ledger",
     ),
     path(
-        "corporation_ledger/<int:corporation_id>/view/administration/",
+        "corporation/<int:corporation_id>/view/administration/",
         corporation_ledger.corporation_administration,
         name="corporation_administration",
     ),
     path(
-        "corporation_overview/",
+        "corporation/view/overview/",
         corporation_ledger.corporation_overview,
         name="corporation_overview",
     ),
     # -- -- Character Ledger
     path(
-        "character_ledger/",
+        "character/",
         character_ledger.character_ledger_index,
         name="character_ledger_index",
     ),
     path(
-        "character_ledger/<int:character_id>/",
+        "character/<int:character_id>/",
         character_ledger.character_ledger,
         name="character_ledger",
     ),
     path(
-        "character_ledger/<int:character_id>/view/administration/",
+        "character/<int:character_id>/view/administration/",
         character_ledger.character_administration,
         name="character_administration",
     ),
     path(
-        "character_overview/",
+        "character/view/overview/",
         character_ledger.character_overview,
         name="character_overview",
     ),

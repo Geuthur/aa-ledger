@@ -21,11 +21,9 @@ logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 def get_character(request, character_id) -> tuple[bool, EveCharacter | None]:
     """Get Character and check permissions"""
     perms = True
-    if character_id == 0:
-        character_id = request.user.profile.main_character.character_id
 
     try:
-        main_char = EveCharacter.objects.get(character_id=character_id)
+        character = EveCharacter.objects.get(character_id=character_id)
     except ObjectDoesNotExist:
         return False, None
     except ValueError:
@@ -33,9 +31,9 @@ def get_character(request, character_id) -> tuple[bool, EveCharacter | None]:
 
     # check access
     visible = models.CharacterAudit.objects.visible_eve_characters(request.user)
-    if main_char not in visible:
+    if character not in visible:
         perms = False
-    return perms, main_char
+    return perms, character
 
 
 def get_corporation(

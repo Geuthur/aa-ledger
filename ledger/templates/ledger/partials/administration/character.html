@@ -1,5 +1,4 @@
 {% load i18n %}
-
 {% if characters|length == 0 %}
     <div class="alert alert-info" role="alert">
         {% translate "No Characters found." %}
@@ -29,6 +28,17 @@
                                 title="{% translate 'View Character Ledger' %}">
                                 <i class="fas fa-sign-in-alt"></i>
                             </a>
+
+                            <button type="button" class="btn btn-danger btn-sm btn-square me-2"
+                                data-bs-toggle="modal"
+                                data-tooltip-toggle="ledger-tooltip"
+                                data-title="{% translate 'Delete Character' %} {{ character.character.character_name }}"
+                                data-text="{% translate 'Are you sure to Delete this Character?' %}"
+                                data-bs-target="#ledger-delete-confirm"
+                                data-action="{% url 'ledger:delete_char' character_id=character.character.character_id %}" aria-label="Toggle Alarm"
+                                >
+                                <span class="fas fa-trash"></span>
+                            </button>
                         </div>
                     </div>
                 </li>
