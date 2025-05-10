@@ -164,7 +164,6 @@ class CharacterAudit(models.Model):
             .first()
         )
         if not token:
-            # TODO add Discord Notification?
             raise TokenDoesNotExist(
                 f"Token does not exist for {self} with scopes {scopes}"
             )
@@ -286,6 +285,7 @@ class CharacterAudit(models.Model):
         try:
             result = method(*args, **kwargs)
         except Exception as exc:
+            # TODO ADD DISCORD NOTIFICATION?
             error_message = f"{type(exc).__name__}: {str(exc)}"
             is_token_error = isinstance(exc, (TokenError))
             logger.error(
