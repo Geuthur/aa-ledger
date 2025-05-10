@@ -176,11 +176,8 @@ class PlanetaryDetailsQuerySet(models.QuerySet):
 
     def _update_facility(self, planet: "CharacterPlanetDetails"):
         facility_info = self.get_facility_info(planet)
-        logger.debug("Facility Info: %s", facility_info)
         planet.facilitys = facility_info
         planet.save()
-        logger.debug("Planet %s saved with updated facilitys", planet)
-        logger.debug("Facilitys: %s", planet.facilitys)
         return planet
 
     # TODO make code easier or split it to peaces for better readable
