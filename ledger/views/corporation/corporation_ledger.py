@@ -17,7 +17,7 @@ from django.views.decorators.http import require_POST
 from allianceauth.authentication.models import CharacterOwnership
 
 # AA Ledger
-from ledger.api.helpers import get_corporation, get_manage_corporation
+from ledger.api.helpers import get_manage_corporation
 from ledger.helpers.core import add_info_to_context
 
 # Ledger
@@ -75,12 +75,12 @@ def corporation_overview(request):
 
 
 @login_required
-@permission_required("ledger.advanced_access")
+@permission_required("ledger.admin_access")
 def corporation_administration(request, corporation_id):
     """
     Corporation Administration
     """
-    perm, corporation = get_corporation(request, corporation_id)
+    perm, corporation = get_manage_corporation(request, corporation_id)
 
     if perm is False:
         msg = _("Permission Denied")
@@ -110,7 +110,7 @@ def corporation_administration(request, corporation_id):
 
 
 @login_required
-@permission_required("ledger.basic_access")
+@permission_required("ledger.admin_access")
 @require_POST
 def corporation_delete(request, corporation_id):
     """
