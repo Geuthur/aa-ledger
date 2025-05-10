@@ -160,7 +160,7 @@ The Following Settings can be setting up in the `local.py`
 
 Advanced Settings: Stale Status for Each Section
 
-- LEDGER_STALE_TYPES = `{     "wallet_journal": 60,     "mining_ledger": 60,     "planets": 60,     "planets_details": 60, }` - Defines the stale status duration (in minutes) for each section.
+- LEDGER_STALE_TYPES = `{     "wallet_journal": 60,     "wallet_division": 60,     "mining_ledger": 30,     "planets": 30,     "planets_details": 30, }` - Defines the stale status duration (in minutes) for each section.
 
 ## Highlights<a name="highlights"></a>
 
