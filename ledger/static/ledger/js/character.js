@@ -7,6 +7,8 @@ const entityType = ledgersettings.entity_type;
 const characteraltsShow = ledgersettings.altShow;
 const overviewText = ledgersettings.overviewText;
 const planetaryText = ledgersettings.planetaryText;
+let planetaryUrl = ledgersettings.planetaryUrl;
+let characterUrl = ledgersettings.characterUrl;
 
 var singleView = '';
 // Check if singleView is true and append '?single=True' to the URLs
@@ -52,6 +54,7 @@ function generateLedger(TableName, url) {
             const total_amount_mining = data.total.total_amount_mining;
             const total_amount_combined = data.total.total_amount_all;
             const total_amount_costs = data.total.total_amount_costs;
+            var CharacterPlanetaryUrl = planetaryUrl.replace('1337', entityPk);
 
             if (entityPk > 0 && characteraltsShow) {
                 $('#lookup').removeClass('d-none');
@@ -65,7 +68,7 @@ function generateLedger(TableName, url) {
                 $('#amount_costs').html(formatAndColor(total_amount_costs));
                 $('#amount_summary').html(formatAndColor(total_amount_combined));
                 $('#planetary_interaction').html(`
-                    <a href="/ledger/planetary_ledger/${entityPk}/?single=true">
+                    <a href="${CharacterPlanetaryUrl}?single=true">
                         <image src="/static/ledger/images/pi.png"
                             title="${planetaryText}"
                             height="256" data-tooltip-toggle="ledger-tooltip" data-bs-placement="top">
@@ -108,13 +111,15 @@ function generateLedger(TableName, url) {
                                     imageUrl += 'characters/0/portrait?size=32'; // Beispiel für ein Platzhalterbild
                                 }
 
+                                var charUrl = characterUrl.replace('1337', row.main_id);
+
                                 var imageHTML = `
                                     <img src="${imageUrl}"
                                         class="rounded-circle"
                                         title="${data}"
                                         data-tooltip-toggle="ledger-tooltip" data-bs-placement="right"
                                         height="30"> ${data}
-                                    <a href="/ledger/character_ledger/${row.main_id}/?single=True">
+                                    <a href="${charUrl}?single=True">
                                         <button
                                             class="btn btn-primary btn-sm btn-square"
                                             id="lookup"

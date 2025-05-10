@@ -1,12 +1,20 @@
 # Standard Library
-import logging
+from typing import TYPE_CHECKING
 
 # Django
-from django.db import models
+from django.db import models, transaction
 from django.db.models import DecimalField, F, Q, Sum, Value
 from django.db.models.functions import Coalesce
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+from esi.errors import TokenError
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
 # AA Ledger
+from ledger import __title__
 from ledger.constants import (
     ASSETS,
     BOUNTY_PRIZES,
@@ -25,8 +33,20 @@ from ledger.constants import (
     SKILL,
     TRAVELING,
 )
+from ledger.decorators import log_timing
+from ledger.providers import esi
+from ledger.task_helpers.etag_helpers import (
+    etag_results,
+)
 
-logger = logging.getLogger(__name__)
+if TYPE_CHECKING:
+    # AA Ledger
+    from ledger.models.characteraudit import (
+        CharacterAudit,
+    )
+    from ledger.models.general import UpdateSectionResult
+
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 # PVE
 BOUNTY_FILTER = Q(ref_type__in=BOUNTY_PRIZES)
@@ -337,8 +357,85 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
         )
 
 
+# pylint: disable=used-before-assignment
 class CharWalletQuerySet(CharWalletCostQueryFilter):
-    pass
+    @log_timing(logger)
+    def update_or_create_esi(
+        self, character: "CharacterAudit", force_refresh: bool = False
+    ) -> "UpdateSectionResult":
+        """Update or Create a wallet journal entry from ESI data."""
+        return character.update_section_if_changed(
+            section=character.UpdateSection.WALLET_JOURNAL,
+            fetch_func=self._fetch_esi_data,
+            force_refresh=force_refresh,
+        )
+
+    def _fetch_esi_data(
+        self, character: "CharacterAudit", force_refresh: bool = False
+    ) -> None:
+        """Fetch wallet journal entries from ESI data."""
+        req_scopes = ["esi-wallet.read_character_wallet.v1"]
+
+        token = character.get_token(scopes=req_scopes)
+        journal_items_ob = esi.client.Wallet.get_characters_character_id_wallet_journal(
+            character_id=character.character.character_id
+        )
+        journal_items = etag_results(
+            journal_items_ob, token, force_refresh=force_refresh
+        )
+        self._update_or_create_objs(character, journal_items)
+
+    @transaction.atomic()
+    def _update_or_create_objs(self, character: "CharacterAudit", objs: list) -> None:
+        """Update or Create wallet journal entries from objs data."""
+        # pylint: disable=import-outside-toplevel
+        # AA Ledger
+        from ledger.models.general import EveEntity
+
+        _current_journal = self.filter(character=character).values_list(
+            "entry_id", flat=True
+        )  # TODO add time filter
+        _current_eve_ids = list(
+            EveEntity.objects.all().values_list("eve_id", flat=True)
+        )
+
+        _new_names = []
+
+        items = []
+        for item in objs:
+            if item.get("id") not in _current_journal:
+                if item.get("second_party_id") not in _current_eve_ids:
+                    _new_names.append(item.get("second_party_id"))
+                    _current_eve_ids.append(item.get("second_party_id"))
+                if item.get("first_party_id") not in _current_eve_ids:
+                    _new_names.append(item.get("first_party_id"))
+                    _current_eve_ids.append(item.get("first_party_id"))
+
+                # pylint: disable=duplicate-code
+                asset_item = self.model(
+                    character=character,
+                    amount=item.get("amount"),
+                    balance=item.get("balance"),
+                    context_id=item.get("context_id"),
+                    context_id_type=item.get("context_id_type"),
+                    date=item.get("date"),
+                    description=item.get("description"),
+                    first_party_id=item.get("first_party_id"),
+                    entry_id=item.get("id"),
+                    reason=item.get("reason"),
+                    ref_type=item.get("ref_type"),
+                    second_party_id=item.get("second_party_id"),
+                    tax=item.get("tax"),
+                    tax_receiver_id=item.get("tax_receiver_id"),
+                )
+                items.append(asset_item)
+
+        created_names = EveEntity.objects.create_bulk_from_esi(_new_names)
+
+        if created_names:
+            self.bulk_create(items)
+        else:
+            raise TokenError("ESI Fail")
 
 
 class CharWalletManagerBase(models.Manager):

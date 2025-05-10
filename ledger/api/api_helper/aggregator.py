@@ -1,12 +1,17 @@
 # Standard Library
-import logging
 from decimal import Decimal
 
 # Django
 from django.db.models import Q, QuerySet, Sum
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
 # AA Ledger
-from ledger import app_settings
+from ledger import __title__, app_settings
 from ledger.constants import (
     ASSETS,
     BOUNTY_PRIZES,
@@ -32,7 +37,7 @@ from ledger.models.corporationaudit import (
     CorporationWalletJournalEntry,
 )
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 def convert_corp_tax(amount: Decimal) -> Decimal:

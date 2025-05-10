@@ -60,7 +60,7 @@ class TestAddCorpView(TestCase):
         self.assertEqual(
             response.url, reverse("ledger:corporation_ledger", args=[2001])
         )
-        self.assertTrue(mock_tasks.update_corp.apply_async.called)
+        self.assertTrue(mock_tasks.update_corporation.apply_async.called)
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(
             CorporationAudit.objects.filter(corporation__corporation_id=2001).exists()

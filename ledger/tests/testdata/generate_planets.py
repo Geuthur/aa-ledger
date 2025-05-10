@@ -39,6 +39,7 @@ def create_character_planet_details(
 ) -> CharacterPlanetDetails:
     """Create a CharacterPlanetDetails from CharacterPlanet."""
     params = {
+        "character": characterplanet.character,
         "planet": characterplanet,
     }
     params.update(kwargs)

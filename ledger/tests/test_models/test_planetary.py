@@ -30,7 +30,6 @@ class TestPlanetModel(TestCase):
         cls.planet_params = {
             "upgrade_level": 5,
             "num_pins": 5,
-            "last_update": None,
         }
 
         cls.audit = create_characteraudit_character(1001)
@@ -55,7 +54,6 @@ class TestPlanetaryDetailsModel(TestCase):
         cls.planet_params = {
             "upgrade_level": 5,
             "num_pins": 5,
-            "last_update": None,
         }
 
         cls.audit = create_characteraudit_character(1001)

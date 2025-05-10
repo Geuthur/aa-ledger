@@ -2,29 +2,26 @@
 Etag Helpers
 """
 
-# Standard Library
-import logging
-
 # Third Party
 from bravado.exception import HTTPGatewayTimeout, HTTPNotModified
 
 # Django
 from django.core.cache import cache
 
-# AA Ledger
-from ledger.decorators import log_timing
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
 
-logger = logging.getLogger(__name__)
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
+# AA Ledger
+from ledger import __title__
+from ledger.decorators import log_timing
+from ledger.errors import HTTPGatewayTimeoutError, NotModifiedError
+
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 MAX_ETAG_LIFE = 60 * 60 * 24 * 7  # 7 Days
-
-
-class NotModifiedError(Exception):
-    pass
-
-
-class HTTPGatewayTimeoutError(Exception):
-    pass
 
 
 def get_etag_key(operation):
@@ -144,7 +141,7 @@ def handle_page_results(
 
             if not etags_incomplete and not force_refresh:
                 logger.debug(
-                    "ETag: No Etag %s - %s",
+                    "ETag: No Etag: %s - %s",
                     operation.operation.operation_id,
                     stringify_params(operation),
                 )
@@ -153,17 +150,22 @@ def handle_page_results(
                 etags_incomplete = True
 
         except (HTTPNotModified, NotModifiedError) as e:
+            try:
+                etag = e.response.headers["ETag"]
+            except AttributeError:
+                etag = None
+
             if isinstance(e, NotModifiedError):
                 logger.debug(
-                    "ETag: Match Cache - Etag:%s, %s",
-                    operation.operation.operation_id,
+                    "ETag: Match Cache - Etag: %s, %s",
+                    etag,
                     stringify_params(operation),
                 )
                 total_pages = int(headers.headers["X-Pages"])
             else:
                 logger.debug(
                     "ETag: Match ESI - Etag: %s - %s ETag-Incomplete: %s",
-                    operation.operation.operation_id,
+                    etag,
                     stringify_params(operation),
                     etags_incomplete,
                 )
@@ -185,6 +187,11 @@ def handle_page_results(
 @log_timing(logger)
 def etag_results(operation, token, force_refresh=False):
     """Handle ETag results"""
+    logger.debug(
+        "ETag: etag_results %s - %s",
+        operation.operation.operation_id,
+        force_refresh,
+    )
     operation.request_config.also_return_response = True
     if token:
         operation.future.request.headers["Authorization"] = (

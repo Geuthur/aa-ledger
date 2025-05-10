@@ -15,7 +15,7 @@
 
 {% block header_nav_collapse_left %}
 
-{% include 'ledger/partials/menu/corp/navigation.html' %}
+{% include 'ledger/partials/menu/navigation.html' %}
 
 {% endblock header_nav_collapse_left %}
 
@@ -52,6 +52,8 @@
 <script type="application/javascript">
 
 const AdminUrl = "{% url 'ledger:api:get_corporation_overview' %}"
+let CorporationOverviewUrl = "{% url 'ledger:corporation_ledger' corporation_id=1337 %}"
+
 CorpsAjax = {
     url: AdminUrl,
     type: 'GET',
@@ -85,8 +87,17 @@ CorpsAjax = {
                     className: 'text-end',
                     sortable: false,
                     render: function (data, type, row) {
-                        return '<a href="/ledger/corporation_ledger/'+ row.corporation_id +'/"><button class="btn btn-primary btn-sm" title="{% trans "Show" %}" data-tooltip-toggle="corp-tooltip" data-bs-placement="left"><i class="fa-solid fa-eye"></i></button></a>';
-                    },
+                        var OverviewUrl = CorporationOverviewUrl.replace('1337', row.corporation_id);
+                        return `<a href="${OverviewUrl}">
+                            <button class="btn btn-primary btn-sm"
+                                title="{% trans "Show" %}"
+                                data-tooltip-toggle="char-tooltip"
+                                data-bs-placement="left"
+                            >
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </a>`;
+                  },
                 }
             ],
             order: [[1, 'asc']],

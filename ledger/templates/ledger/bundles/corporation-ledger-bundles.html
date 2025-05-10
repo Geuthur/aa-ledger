@@ -3,6 +3,7 @@
 {% load static %}
 <script type="application/javascript">
     let ledgersettings = {
+        csrfToken: '{% csrf_token %}',
         entity_pk: {{ entity_pk }},
         entity_type: "{{ entity_type }}",
     };

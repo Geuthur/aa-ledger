@@ -29,11 +29,12 @@ def add_char(request, token):
     char, _ = CharacterAudit.objects.update_or_create(
         character=EveCharacter.objects.get_character_by_id(token.character_id),
         defaults={
+            "active": True,
             "character_name": token.character_name,
         },
     )
     tasks.update_character.apply_async(
-        args=[token.character_id], kwargs={"force_refresh": True}, priority=6
+        args=[char.pk], kwargs={"force_refresh": True}, priority=6
     )
 
     msg = trans("{character_name} successfully added/updated to Ledger").format(

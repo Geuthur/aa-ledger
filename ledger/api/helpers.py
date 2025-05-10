@@ -1,5 +1,4 @@
 # Standard Library
-import logging
 from datetime import datetime
 
 # Django
@@ -8,21 +7,23 @@ from django.db.models import Q, QuerySet
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
-from ledger import models
+from ledger import __title__, models
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 def get_character(request, character_id) -> tuple[bool, EveCharacter | None]:
     """Get Character and check permissions"""
     perms = True
-    if character_id == 0:
-        character_id = request.user.profile.main_character.character_id
 
     try:
-        main_char = EveCharacter.objects.get(character_id=character_id)
+        character = EveCharacter.objects.get(character_id=character_id)
     except ObjectDoesNotExist:
         return False, None
     except ValueError:
@@ -30,15 +31,15 @@ def get_character(request, character_id) -> tuple[bool, EveCharacter | None]:
 
     # check access
     visible = models.CharacterAudit.objects.visible_eve_characters(request.user)
-    if main_char not in visible:
+    if character not in visible:
         perms = False
-    return perms, main_char
+    return perms, character
 
 
 def get_corporation(
     request, corporation_id
 ) -> tuple[bool | None, models.CorporationAudit | None]:
-    """Get Corporation and check permissions for each corporation"""
+    """Return Corporation and check permissions"""
     perms = True
 
     try:
@@ -50,6 +51,26 @@ def get_corporation(
 
     # Check access
     visible = models.CorporationAudit.objects.visible_to(request.user)
+    if main_corp not in visible:
+        perms = False
+    return perms, main_corp
+
+
+def get_manage_corporation(
+    request, corporation_id
+) -> tuple[bool | None, models.CorporationAudit | None]:
+    """Returns a tuple of the permissions and the corporation object if manageable"""
+    perms = True
+
+    try:
+        main_corp = models.CorporationAudit.objects.get(
+            corporation__corporation_id=corporation_id
+        )
+    except ObjectDoesNotExist:
+        return None, None
+
+    # Check access
+    visible = models.CorporationAudit.objects.manage_to(request.user)
     if main_corp not in visible:
         perms = False
     return perms, main_corp

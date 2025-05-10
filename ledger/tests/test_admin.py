@@ -71,15 +71,6 @@ class TestCorporationAuditAdmin(TestCase):
             2001,
         )
 
-    def test_last_update_wallet(self):
-        self.client.force_login(self.user)
-        request = self.factory.get("/")
-        request.user = self.user
-        self.assertEqual(
-            self.corporation_audit_admin._last_update_wallet(self.corporation_audit),
-            None,
-        )
-
     def test_has_add_permission(self):
         self.client.force_login(self.user)
         request = self.factory.get("/")
@@ -133,18 +124,6 @@ class TestCharacterAuditAdmin(TestCase):
         self.assertEqual(
             self.character_audit_admin._character__character_name(self.character_audit),
             self.character_audit.character.character_name,
-        )
-
-    def test_last_update_wallet(self):
-        self.assertEqual(
-            self.character_audit_admin._last_update_wallet(self.character_audit),
-            self.character_audit.last_update_wallet,
-        )
-
-    def test_last_update_mining(self):
-        self.assertEqual(
-            self.character_audit_admin._last_update_mining(self.character_audit),
-            self.character_audit.last_update_mining,
         )
 
     def test_has_add_permission(self):

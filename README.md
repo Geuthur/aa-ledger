@@ -95,15 +95,22 @@ CELERYBEAT_SCHEDULE["ledger_character_audit_update_subset_characters"] = {
     "task": "ledger.tasks.update_subset_characters",
     "schedule": crontab(minute="15,45"),
 }
-CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
-    "task": "ledger.tasks.update_all_corps",
+CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_subset_corporations"] = {
+    "task": "ledger.tasks.update_subset_corporations",
     "schedule": crontab(minute="15,45"),
 }
 CELERYBEAT_SCHEDULE["ledger_check_planetary_alarms"] = {
     "task": "ledger.tasks.check_planetary_alarms",
     "schedule": crontab(minute=0, hour="*/3"),
 }
+```
 
+### Step 3.1 - (Optional) Add own Logger File
+
+To set up the Logger add following code to your `local.py`
+Ensure that you have writing permission in logs folder.
+
+```python
 LOGGING["handlers"]["ledger_file"] = {
     "level": "INFO",
     "class": "logging.handlers.RotatingFileHandler",
@@ -112,7 +119,7 @@ LOGGING["handlers"]["ledger_file"] = {
     "maxBytes": 1024 * 1024 * 5,
     "backupCount": 5,
 }
-LOGGING["loggers"]["ledger"] = {
+LOGGING["loggers"]["extensions.ledger"] = {
     "handlers": ["ledger_file"],
     "level": "DEBUG",
 }
@@ -137,7 +144,7 @@ With the Following IDs you can set up the permissions for the Ledger
 | :------------------------- | :----------------------------------------- | :----------------------------------------------------- |
 | `basic_access`             | Can access the Ledger module               | All Members with the Permission can access the Ledger. |
 | `advanced_access`          | Can access Corporation and Alliance Ledger | Can see Corporation & Alliance Ledger.                 |
-| `admin_access`             | Can access the Administration tools        | Can add Corporations, Alliances.                       |
+| `admin_access`             | Can access the Administration tools        | Can add/manage Corporations, Alliances.                |
 | `event_admin_access`       | Can access Events Tools                    | Can add/edit Events.                                   |
 | `char_audit_manager`       | Has Access to all characters for own Corp  | Can see all Chars from Corps he is in.                 |
 | `char_audit_admin_manager` | Has Access to all Characters               | Can see all Chars.                                     |
@@ -148,9 +155,12 @@ With the Following IDs you can set up the permissions for the Ledger
 The Following Settings can be setting up in the `local.py`
 
 - LEDGER_APP_NAME: `"YOURNAME"` - Set the name of the APP
-- LEDGER_STALE_STATUS: `60` - Defines the time (in minutes) after which data is considered outdated and needs a update
 - LEDGER_TASKS_TIME_LIMIT: `7200` - Defines the time (in seconds) a task will timeout
 - LEDGER_CORP_TAX: `15` - Set Tax Value for ESS Payout Calculation
+
+Advanced Settings: Stale Status for Each Section
+
+- LEDGER_STALE_TYPES = `{     "wallet_journal": 60,     "wallet_division": 60,     "mining_ledger": 30,     "planets": 30,     "planets_details": 30, }` - Defines the stale status duration (in minutes) for each section.
 
 ## Highlights<a name="highlights"></a>
 

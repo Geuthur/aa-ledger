@@ -1,6 +1,3 @@
-# Standard Library
-import logging
-
 # Third Party
 from ninja import NinjaAPI
 
@@ -12,8 +9,13 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
+from ledger import __title__
 from ledger.api import schema
 from ledger.api.api_helper.alliance_helper import AllianceProcess
 from ledger.api.api_helper.character_helper import CharacterProcess
@@ -27,7 +29,7 @@ from ledger.api.helpers import (
     get_corporation,
 )
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 def ledger_api_process(

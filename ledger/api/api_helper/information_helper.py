@@ -1,5 +1,4 @@
 # Standard Library
-import logging
 from collections import defaultdict
 from dataclasses import dataclass
 
@@ -9,13 +8,18 @@ from django.utils import timezone
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
+from ledger import __title__
 from ledger.models.corporationaudit import (
     CorporationAudit,
 )
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @dataclass
