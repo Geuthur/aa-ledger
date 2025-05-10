@@ -118,8 +118,6 @@ def corporation_delete(request, corporation_id):
     """
     perms = get_manage_corporation(request, corporation_id)[0]
 
-    print(perms)
-
     if perms is False:
         msg = _("Permission Denied")
         return JsonResponse(
