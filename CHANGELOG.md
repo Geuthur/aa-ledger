@@ -15,6 +15,7 @@
 - Subset Task for Corporations
 - Delete Option in Administration
 - Add Corporation Actions for Corporation Ledger to Administration
+- Disable Characters with no Owner
 
 ## Fixed
 
