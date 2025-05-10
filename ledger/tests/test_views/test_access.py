@@ -23,13 +23,135 @@ from ledger.tests.testdata.generate_corporationaudit import (
 )
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
+from ledger.views import index
 from ledger.views.alliance import alliance_ledger
 from ledger.views.character import character_ledger, planetary
 from ledger.views.corporation import corporation_ledger
 
+INDEX_PATH = "ledger.views.index"
 CHARLEDGER_PATH = "ledger.views.character.character_ledger"
 CORPLEDGER_PATH = "ledger.views.corporation.corporation_ledger"
 ALLYLEDGER_PATH = "ledger.views.alliance.alliance_ledger"
+
+
+@patch(INDEX_PATH + ".messages")
+class TestViewIndexAccess(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        load_allianceauth()
+        load_eveuniverse()
+
+        cls.factory = RequestFactory()
+        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
+            1002
+        )
+        cls.superuser, cls.character_ownership = (
+            create_user_from_evecharacter_with_access(1001)
+        )
+
+    def test_admin(self, mock_messages):
+        """Test admin access."""
+        # given
+        self.superuser.is_superuser = True
+        self.superuser.save()
+
+        request = self.factory.get(reverse("ledger:admin"))
+        request.user = self.superuser
+        # when
+        response = index.admin(request)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Administration")
+
+    def test_admin_no_access(self, mock_messages):
+        """Test admin access."""
+        # given
+        request = self.factory.get(reverse("ledger:admin"))
+        request.user = self.user
+
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        # when
+        response = index.admin(request)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertTrue(mock_messages.error.called)
+
+    def test_admin_clear_all_etags(self, mock_messages):
+        """Test clear all etags."""
+        # given
+        self.superuser.is_superuser = True
+        self.superuser.save()
+        request = self.factory.post(
+            reverse("ledger:admin"), data={"run_clear_etag": True}
+        )
+        request.user = self.superuser
+
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        # when
+        response = index.admin(request)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        mock_messages.info.assert_called_once_with(request, "Queued Clear All ETags")
+
+    def test_force_refresh(self, mock_messages):
+        """Test force refresh."""
+        # given
+        self.superuser.is_superuser = True
+        self.superuser.save()
+        request = self.factory.post(
+            reverse("ledger:admin"), data={"force_refresh": True}
+        )
+        request.user = self.superuser
+
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        # when
+        response = index.admin(request)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_run_char_updates(self, mock_messages):
+        """Test run char updates."""
+        # given
+        self.superuser.is_superuser = True
+        self.superuser.save()
+        request = self.factory.post(
+            reverse("ledger:admin"), data={"run_char_updates": True}
+        )
+        request.user = self.superuser
+
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        # when
+        response = index.admin(request)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        mock_messages.info.assert_called_once_with(
+            request, "Queued Update All Characters"
+        )
+
+    def test_run_corp_updates(self, mock_messages):
+        """Test Run corp updates."""
+        # given
+        self.superuser.is_superuser = True
+        self.superuser.save()
+        request = self.factory.post(
+            reverse("ledger:admin"), data={"run_corp_updates": True}
+        )
+        request.user = self.superuser
+
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        # when
+        response = index.admin(request)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        mock_messages.info.assert_called_once_with(
+            request, "Queued Update All Corporations"
+        )
 
 
 class TestViewCharacterLedgerAccess(TestCase):

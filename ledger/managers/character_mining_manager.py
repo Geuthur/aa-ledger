@@ -144,7 +144,6 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
         new_events = []
         old_events = []
         for entry in objs:
-
             type_ids.add(entry.get("type_id"))
             pk = self.model.create_primary_key(character.pk, entry)
             _e = self.model(
