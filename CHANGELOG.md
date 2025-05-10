@@ -15,7 +15,6 @@
 - Subset Task for Corporations
 - Delete Option in Administration
 - Add Corporation Actions for Corporation Ledger to Administration
-- Add Missing Registered Corporation Members to Administration
 
 ## Fixed
 
