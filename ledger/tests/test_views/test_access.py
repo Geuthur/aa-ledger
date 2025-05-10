@@ -288,6 +288,7 @@ class TestViewCorporationLedgerAccess(TestCase):
             permissions=[
                 "ledger.basic_access",
                 "ledger.advanced_access",
+                "ledger.admin_access",
             ],
         )
         cls.user_no_perm, cls.character_ownership_no_perm = (
@@ -296,6 +297,7 @@ class TestViewCorporationLedgerAccess(TestCase):
                 permissions=[
                     "ledger.basic_access",
                     "ledger.advanced_access",
+                    "ledger.admin_access",
                 ],
             )
         )

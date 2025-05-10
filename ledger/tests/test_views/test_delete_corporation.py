@@ -40,7 +40,12 @@ class TestDeleteCorporationView(TestCase):
         )
         cls.audit = add_corporationaudit_corporation_to_user(cls.user, 1001)
         cls.no_audit_user, cls.character_ownership = create_user_from_evecharacter(
-            1002, permissions=["ledger.basic_access", "ledger.advanced_access"]
+            1002,
+            permissions=[
+                "ledger.basic_access",
+                "ledger.advanced_access",
+                "ledger.admin_access",
+            ],
         )
 
     def test_delete_corporation(self):
