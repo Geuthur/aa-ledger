@@ -34,8 +34,8 @@ class TestCharacterWalletJournalModel(TestCase):
         cls.audit = add_charactermaudit_character_to_user(
             cls.user, cls.character_ownership.character.character_id
         )
-        scetions = CharacterAudit.UpdateSection.get_sections()
-        for section in scetions:
+        sections = CharacterAudit.UpdateSection.get_sections()
+        for section in sections:
             create_update_status(
                 cls.audit,
                 section=section,

@@ -128,6 +128,26 @@ class CharacterAuditQuerySet(models.QuerySet):
 
         return qs
 
+    def disable_characters_with_no_owner(self) -> int:
+        """Disable characters which have no owner. Return count of disabled characters."""
+        orphaned_characters = self.filter(
+            character__character_ownership__isnull=True, active=True
+        )
+        if orphaned_characters.exists():
+            orphans = list(
+                orphaned_characters.values_list(
+                    "character__character_name", flat=True
+                ).order_by("character__character_name")
+            )
+            orphaned_characters.update(active=False)
+            logger.info(
+                "Disabled %d characters which do not belong to a user: %s",
+                len(orphans),
+                ", ".join(orphans),
+            )
+            return len(orphans)
+        return 0
+
 
 class CharacterAuditManagerBase(models.Manager):
     def get_queryset(self):

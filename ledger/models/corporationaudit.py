@@ -181,6 +181,7 @@ class CorporationAudit(models.Model):
         try:
             result = method(*args, **kwargs)
         except Exception as exc:
+            # TODO ADD DISCORD NOTIFICATION?
             error_message = f"{type(exc).__name__}: {str(exc)}"
             is_token_error = isinstance(exc, (TokenError))
             logger.error(

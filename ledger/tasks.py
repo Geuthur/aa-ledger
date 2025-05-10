@@ -129,6 +129,8 @@ def check_planetary_alarms(runs: int = 0):
 @when_esi_is_available
 def update_all_characters(runs: int = 0, force_refresh=False):
     """Update all characters"""
+    # Disable characters with no owner
+    CharacterAudit.objects.disable_characters_with_no_owner()
     characters = CharacterAudit.objects.select_related("character").filter(active=1)
     for char in characters:
         update_character.apply_async(
@@ -142,6 +144,8 @@ def update_all_characters(runs: int = 0, force_refresh=False):
 @when_esi_is_available
 def update_subset_characters(subset=2, min_runs=10, max_runs=200, force_refresh=False):
     """Update a batch of characters to prevent overload ESI"""
+    # Disable characters with no owner
+    CharacterAudit.objects.disable_characters_with_no_owner()
     total_characters = CharacterAudit.objects.filter(active=1).count()
     characters_count = min(max(total_characters // subset, min_runs), total_characters)
 
