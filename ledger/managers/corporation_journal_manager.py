@@ -284,7 +284,7 @@ class CorporationDivisionManagerBase(models.Manager):
     def update_or_create_esi(
         self, corporation: "CorporationAudit", force_refresh: bool = False
     ) -> None:
-        """Update or Create a wallet journal entry from ESI data."""
+        """Update or Create a division entry from ESI data."""
         return corporation.update_section_if_changed(
             section=corporation.UpdateSection.WALLET_DIVISION,
             fetch_func=self._fetch_esi_data,
@@ -294,7 +294,7 @@ class CorporationDivisionManagerBase(models.Manager):
     def _fetch_esi_data(
         self, corporation: "CorporationAudit", force_refresh: bool = False
     ) -> None:
-        """Fetch wallet journal entries from ESI data."""
+        """Fetch division entries from ESI data."""
         req_scopes = [
             "esi-wallet.read_corporation_wallets.v1",
             "esi-characters.read_corporation_roles.v1",
@@ -331,7 +331,7 @@ class CorporationDivisionManagerBase(models.Manager):
         objs: list,
         names: dict,
     ) -> None:
-        """Update or Create wallet journal entries from objs data."""
+        """Update or Create division entries from objs data."""
         for division in objs:
             self.update_or_create(
                 corporation=corporation,

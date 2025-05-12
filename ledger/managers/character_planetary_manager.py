@@ -47,7 +47,7 @@ class PlanetaryManagerBase(models.Manager):
     def update_or_create_esi(
         self, character: "CharacterAudit", force_refresh: bool = False
     ) -> "UpdateSectionResult":
-        """Update or Create a wallet journal entry from ESI data."""
+        """Update or Create a planets entry from ESI data."""
         return character.update_section_if_changed(
             section=character.UpdateSection.PLANETS,
             fetch_func=self._fetch_esi_data,
@@ -57,7 +57,7 @@ class PlanetaryManagerBase(models.Manager):
     def _fetch_esi_data(
         self, character: "CharacterAudit", force_refresh: bool = False
     ) -> None:
-        """Fetch wallet journal entries from ESI data."""
+        """Fetch planetary entries from ESI data."""
         req_scopes = ["esi-planets.manage_planets.v1"]
 
         token = character.get_token(scopes=req_scopes)
@@ -281,7 +281,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
     def update_or_create_esi(
         self, character: "CharacterAudit", force_refresh: bool = False
     ) -> "UpdateSectionResult":
-        """Update or Create a wallet journal entry from ESI data."""
+        """Update or Create a planets details entry from ESI data."""
         return character.update_section_if_changed(
             section=character.UpdateSection.PLANETS_DETAILS,
             fetch_func=self._fetch_esi_data,
@@ -291,7 +291,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
     def _fetch_esi_data(
         self, character: "CharacterAudit", force_refresh: bool = False
     ) -> None:
-        """Fetch wallet journal entries from ESI data."""
+        """Fetch planets details entries from ESI data."""
         # pylint: disable=import-outside-toplevel
         # AA Ledger
         from ledger.models.planetary import CharacterPlanet

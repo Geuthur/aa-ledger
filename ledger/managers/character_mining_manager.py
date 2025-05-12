@@ -111,7 +111,7 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
     def update_or_create_esi(
         self, character: "CharacterAudit", force_refresh: bool = False
     ) -> "UpdateSectionResult":
-        """Update or Create a wallet journal entry from ESI data."""
+        """Update or Create a mining ledger entry from ESI data."""
         return character.update_section_if_changed(
             section=character.UpdateSection.MINING_LEDGER,
             fetch_func=self._fetch_esi_data,
@@ -121,7 +121,7 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
     def _fetch_esi_data(
         self, character: "CharacterAudit", force_refresh: bool = False
     ) -> None:
-        """Fetch wallet journal entries from ESI data."""
+        """Fetch mining ledger entries from ESI data."""
         req_scopes = ["esi-industry.read_character_mining.v1"]
 
         token = character.get_token(scopes=req_scopes)
