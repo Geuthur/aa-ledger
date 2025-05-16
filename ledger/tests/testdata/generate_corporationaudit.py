@@ -10,16 +10,14 @@ from app_utils.testing import (
 )
 
 # AA Ledger
-from ledger.models.corporationaudit import CorporationAudit
+from ledger.models.corporationaudit import CorporationAudit, CorporationUpdateStatus
 from ledger.tests.testdata.generate_characteraudit import (
     add_auth_character_to_user,
     create_user_from_evecharacter_with_access,
 )
 
 
-def create_corporationaudit_from_evecharacter(
-    eve_character: EveCharacter, **kwargs
-) -> CorporationAudit:
+def create_corporationaudit(eve_character: EveCharacter, **kwargs) -> CorporationAudit:
     """Create a LedgerAudit Corporation from EveCharacter"""
     params = {
         "corporation_name": eve_character.corporation_name,
@@ -31,15 +29,38 @@ def create_corporationaudit_from_evecharacter(
     return corporation
 
 
-def create_corporationaudit_character(character_id: int, **kwargs) -> CorporationAudit:
+def create_corporation_update_status(
+    corporation_audit: CorporationAudit, **kwargs
+) -> CorporationUpdateStatus:
+    """Create a Update Status for a Character Audit"""
+    params = {
+        "corporation": corporation_audit,
+    }
+    params.update(kwargs)
+    update_status = CorporationUpdateStatus(**params)
+    update_status.save()
+    return update_status
+
+
+def create_corporationaudit_from_user(user: User, **kwargs) -> CorporationAudit:
+    """Create a Character Audit from a user"""
+    eve_character = user.profile.main_character
+    if not eve_character:
+        raise ValueError("User needs to have a main character.")
+
+    kwargs.update({"eve_character": eve_character})
+    return create_corporationaudit(**kwargs)
+
+
+def create_corporationaudit_from_evecharacter(
+    character_id: int, **kwargs
+) -> CorporationAudit:
     """Create a Audit Character from a existing EveCharacter"""
 
     _, character_ownership = create_user_from_evecharacter_with_access(
         character_id, disconnect_signals=True
     )
-    return create_corporationaudit_from_evecharacter(
-        character_ownership.character, **kwargs
-    )
+    return create_corporationaudit(character_ownership.character, **kwargs)
 
 
 def add_corporationaudit_corporation_to_user(
@@ -50,6 +71,4 @@ def add_corporationaudit_corporation_to_user(
         character_id,
         disconnect_signals=disconnect_signals,
     )
-    return create_corporationaudit_from_evecharacter(
-        character_ownership.character, **kwargs
-    )
+    return create_corporationaudit(character_ownership.character, **kwargs)

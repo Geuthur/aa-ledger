@@ -12,7 +12,7 @@ from app_utils.testing import NoSocketsTestCase
 from ledger.models.general import EveEntity
 from ledger.tests.testdata.esi_stub import esi_client_stub
 from ledger.tests.testdata.generate_corporationaudit import (
-    create_corporationaudit_from_evecharacter,
+    create_corporationaudit_from_user,
     create_user_from_evecharacter,
 )
 from ledger.tests.testdata.generate_walletjournal import (
@@ -40,9 +40,7 @@ class TestCharacterJournalManager(NoSocketsTestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter(
             1001,
         )
-        cls.audit = create_corporationaudit_from_evecharacter(
-            cls.character_ownership.character
-        )
+        cls.audit = create_corporationaudit_from_user(cls.user)
 
         cls.eve_character_first_party = EveEntity.objects.get(eve_id=2001)
         cls.eve_character_second_party = EveEntity.objects.get(eve_id=1001)

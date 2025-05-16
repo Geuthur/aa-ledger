@@ -12,7 +12,7 @@ from django.utils.translation import gettext as _
 # AA Ledger
 # Ledger
 from ledger.helpers.core import add_info_to_context
-from ledger.tasks import clear_all_etags, update_all_characters, update_all_corps
+from ledger.tasks import clear_all_etags, update_all_characters, update_all_corporations
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ def admin(request):
             )
         if request.POST.get("run_corp_updates"):
             messages.info(request, _("Queued Update All Corporations"))
-            update_all_corps.apply_async(
+            update_all_corporations.apply_async(
                 kwargs={"force_refresh": force_refresh}, priority=7
             )
     return render(request, "ledger/admin.html")

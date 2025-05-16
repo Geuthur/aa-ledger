@@ -12,7 +12,7 @@ from eveuniverse.models import EveSolarSystem, EveType
 # AA Ledger
 from ledger.tests.testdata.esi_stub import esi_client_stub
 from ledger.tests.testdata.generate_characteraudit import (
-    create_characteraudit_character,
+    create_characteraudit_from_evecharacter,
 )
 from ledger.tests.testdata.generate_miningledger import create_miningledger
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
@@ -33,7 +33,7 @@ class TestCharacterMiningManager(NoSocketsTestCase):
         load_allianceauth()
         load_eveuniverse()
         load_eveentity()
-        cls.audit = create_characteraudit_character(1001)
+        cls.audit = create_characteraudit_from_evecharacter(1001)
 
         cls.eve_type = EveType.objects.get(id=17425)
         cls.eve_system = EveSolarSystem.objects.get(id=30004783)

@@ -40,6 +40,16 @@ def create_update_status(
     return update_status
 
 
+def create_characteraudit_from_user(user: User, **kwargs) -> CharacterAudit:
+    """Create a Character Audit from a user"""
+    eve_character = user.profile.main_character
+    if not eve_character:
+        raise ValueError("User needs to have a main character.")
+
+    kwargs.update({"eve_character": eve_character})
+    return create_character(**kwargs)
+
+
 def create_user_from_evecharacter_with_access(
     character_id: int, disconnect_signals: bool = True
 ) -> tuple[User, CharacterOwnership]:
@@ -60,7 +70,9 @@ def create_user_from_evecharacter_with_access(
     return user, character_ownership
 
 
-def create_characteraudit_character(character_id: int, **kwargs) -> CharacterAudit:
+def create_characteraudit_from_evecharacter(
+    character_id: int, **kwargs
+) -> CharacterAudit:
     """Create a Audit Character from a existing EveCharacter"""
 
     _, character_ownership = create_user_from_evecharacter_with_access(

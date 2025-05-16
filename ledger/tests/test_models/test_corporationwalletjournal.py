@@ -16,7 +16,7 @@ from ledger.models.corporationaudit import (
 from ledger.models.general import EveEntity
 from ledger.tests.testdata.generate_characteraudit import create_character
 from ledger.tests.testdata.generate_corporationaudit import (
-    add_corporationaudit_corporation_to_user,
+    create_corporationaudit_from_user,
     create_user_from_evecharacter,
 )
 from ledger.tests.testdata.generate_walletjournal import (
@@ -41,9 +41,7 @@ class TestCorporationWalletJournalModel(TestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter(
             1001, permissions=["ledger.basic_access"]
         )
-        cls.audit = add_corporationaudit_corporation_to_user(
-            cls.user, cls.character_ownership.character.character_id
-        )
+        cls.audit = create_corporationaudit_from_user(cls.user)
         cls.division = create_division(
             corporation=cls.audit, name="MEGA KONTO", balance=1000000, division_id=1
         )

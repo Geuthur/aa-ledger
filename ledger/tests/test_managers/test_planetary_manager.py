@@ -13,7 +13,7 @@ from app_utils.testing import NoSocketsTestCase
 from ledger.models.general import EveEntity
 from ledger.tests.testdata.esi_stub import esi_client_stub
 from ledger.tests.testdata.generate_characteraudit import (
-    create_characteraudit_character,
+    create_characteraudit_from_evecharacter,
 )
 from ledger.tests.testdata.generate_planets import create_character_planet
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
@@ -33,7 +33,7 @@ class TestPlanetaryManager(NoSocketsTestCase):
         load_allianceauth()
         load_eveuniverse()
         load_eveentity()
-        cls.audit = create_characteraudit_character(1001)
+        cls.audit = create_characteraudit_from_evecharacter(1001)
 
     def test_update_planets(self, mock_etag, mock_esi):
         # given
@@ -86,7 +86,7 @@ class TestPlanetaryDetailsManager(NoSocketsTestCase):
         load_allianceauth()
         load_eveuniverse()
         load_eveentity()
-        cls.audit = create_characteraudit_character(1001)
+        cls.audit = create_characteraudit_from_evecharacter(1001)
         cls.planet = create_character_planet(
             characteraudit=cls.audit, planet_id=4001, upgrade_level=5, num_pins=5
         )

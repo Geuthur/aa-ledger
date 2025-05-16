@@ -63,30 +63,22 @@ def check_planetary_alarms(runs: int = 0):
         if planet.is_expired and not planet.notification_sent and planet.notification:
             character_id = planet.planet.character.character.character_id
 
-            # Determine if the character_id is part of any main character's alts
-            main_id = None
-            for main, alts in owner_ids.items():
-                if character_id in alts:
-                    main_id = main
-                    break
+            try:
+                owner = CharacterOwnership.objects.get(
+                    character__character_id=character_id
+                )
+                main = owner.user.profile.main_character
+                alts = main.character_ownership.user.character_ownerships.all()
 
-            if main_id is None:
-                try:
-                    owner = CharacterOwnership.objects.get(
-                        character__character_id=character_id
-                    )
-                    main = owner.user.profile.main_character
-                    alts = main.character_ownership.user.character_ownerships.all()
+                owner_ids[main.character_id] = alts.values_list(
+                    "character__character_id", flat=True
+                )
 
-                    owner_ids[main.character_id] = alts.values_list(
-                        "character__character_id", flat=True
-                    )
-
-                    main_id = main.character_id
-                except CharacterOwnership.DoesNotExist:
-                    continue
-                except AttributeError:
-                    continue
+                main_id = main.character_id
+            except CharacterOwnership.DoesNotExist:
+                continue
+            except AttributeError:
+                continue
 
             msg = _("%(charname)s on %(planetname)s") % {
                 "charname": planet.planet.character.character.character_name,
@@ -283,7 +275,7 @@ def _update_character_section(character_pk: int, section: str, force_refresh: bo
 # Corporation Audit - Tasks
 @shared_task(**TASK_DEFAULTS_ONCE)
 @when_esi_is_available
-def update_all_corps(runs: int = 0, force_refresh=False):
+def update_all_corporations(runs: int = 0, force_refresh=False):
     corps = CorporationAudit.objects.select_related("corporation").filter(active=1)
     for corp in corps:
         update_corporation.apply_async(

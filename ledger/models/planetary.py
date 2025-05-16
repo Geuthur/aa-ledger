@@ -137,6 +137,9 @@ class CharacterPlanetDetails(models.Model):
         return None
 
     def get_planet_expiry_date(self):
+        if self.pins is None:
+            return None
+
         expiry_times = [
             pin.get("expiry_time")
             for pin in self.pins
