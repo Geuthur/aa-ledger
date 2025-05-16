@@ -71,6 +71,7 @@ jobs:
           - mysql:8.4     # [LTS] Maintained until: April 2032
           # https://endoflife.date/mariadb and https://mariadb.com/kb/en/mariadb-server-release-dates/
           - mariadb:10.11 # [LTS] Maintained until: February 2028
+          - mariadb:11.4 # [LTS] Maintained until: January 2032
 
 #    continue-on-error: ${{ matrix.python-version == '3.12' }}
 
