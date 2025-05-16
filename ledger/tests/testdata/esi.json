@@ -314,12 +314,14 @@
    },
    "Industry":{
       "get_characters_character_id_mining":{
-         "1001":{
-            "date":"2016-10-29",
-            "quantity":5000,
-            "solar_system_id":30000142,
-            "type_id":17425
-         }
+         "1001":[
+            {
+               "date":"2014-10-29",
+               "quantity": 5000,
+               "solar_system_id": 30004783,
+               "type_id": 17425
+            }
+         ]
       }
    },
    "Planetary_Interaction":{
