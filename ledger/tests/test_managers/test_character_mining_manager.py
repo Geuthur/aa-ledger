@@ -41,23 +41,7 @@ class TestCharacterMiningManager(NoSocketsTestCase):
     def test_update_mining_ledger(self, _, mock_etag, mock_esi):
         # given
         mock_esi.client = esi_client_stub
-        mock_etag.return_value = [
-            {
-                "date": timezone.datetime.replace(
-                    timezone.now(),
-                    year=2014,
-                    month=10,
-                    day=29,
-                    hour=0,
-                    minute=0,
-                    second=0,
-                    microsecond=0,
-                ),
-                "quantity": 5000,
-                "solar_system_id": 30004783,
-                "type_id": 17425,
-            }
-        ]
+        mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()
 
         self.audit.update_mining_ledger(force_refresh=False)
 

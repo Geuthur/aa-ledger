@@ -64,47 +64,7 @@ class TestCharacterJournalManager(NoSocketsTestCase):
     def test_update_wallet_journal(self, mock_eveentity, mock_etag, mock_esi):
         # given
         mock_esi.client = esi_client_stub
-        mock_etag.return_value = [
-            {
-                "amount": 1000,
-                "balance": 2000,
-                "context_id": 1,
-                "context_id_type": "test_id",
-                "date": "2016-10-29T14:00:00Z",
-                "description": "Test Journal",
-                "first_party_id": 1001,
-                "id": 10,
-                "reason": "Test Reason",
-                "ref_type": "player_donation",
-                "second_party_id": 1002,
-            },
-            {
-                "amount": 5000,
-                "balance": 10000,
-                "context_id": 2,
-                "context_id_type": "courier_id",
-                "date": "2016-12-01T14:00:00Z",
-                "description": "Courier Contract",
-                "first_party_id": 2001,
-                "id": 13,
-                "reason": "Courier has been completed",
-                "ref_type": "courier_contract",
-                "second_party_id": 1001,
-            },
-            {
-                "amount": 10000,
-                "balance": 20000,
-                "context_id": 4,
-                "context_id_type": "missing_id",
-                "date": "2016-12-01T14:00:00Z",
-                "description": "Unknown Second Party",
-                "first_party_id": 1001,
-                "id": 16,
-                "reason": "Second party unknown",
-                "ref_type": "missing_party",
-                "second_party_id": 9999,
-            },
-        ]
+        mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()
 
         mock_eveentity.objects.create_bulk_from_esi.return_value = True
 
