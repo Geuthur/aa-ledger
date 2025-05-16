@@ -54,7 +54,7 @@ DATABASES["default"] = {
 
 # Add any additional apps to this list.
 INSTALLED_APPS += [
-    "allianceauth.corputils",
+    "allianceauth.services.modules.discord",
     PACKAGE,
     "eveuniverse",
 ]
@@ -112,15 +112,5 @@ DEFAULT_FROM_EMAIL = ""
 # Add any custom settings below here. #
 #######################################
 
-CELERYBEAT_SCHEDULE["ledger_character_audit_update_all"] = {
-    "task": "ledger.tasks.update_all_characters",
-    "schedule": crontab(minute=0, hour="*/1"),
-}
-CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_all"] = {
-    "task": "ledger.tasks.update_all_corps",
-    "schedule": crontab(minute=0, hour="*/1"),
-}
-CELERYBEAT_SCHEDULE["ledger_check_planetary_alarms"] = {
-    "task": "ledger.tasks.check_planetary_alarms",
-    "schedule": crontab(minute=0, hour="*/3"),
-}
+# Discord
+DISCORD_GUILD_ID = "1234567890123456789"
