@@ -202,9 +202,16 @@ def etag_results(operation, token, force_refresh=False):
         total_pages = 1
         etags_incomplete = False
 
-        results, current_page, total_pages = handle_page_results(
-            operation, current_page, total_pages, etags_incomplete, force_refresh
-        )
+        try:
+            results, current_page, total_pages = handle_page_results(
+                operation, current_page, total_pages, etags_incomplete, force_refresh
+            )
+        except HTTPGatewayTimeout as e:
+            logger.debug("ETag: Gateway Timeout %s", operation.operation.operation_id)
+            raise HTTPGatewayTimeoutError() from e
+        except NotModifiedError as e:
+            logger.debug("ETag: Not Modified %s", operation.operation.operation_id)
+            raise NotModifiedError() from e
     else:
         if not force_refresh:
             inject_etag_header(operation)
