@@ -20,6 +20,7 @@
 ## Fixed
 
 - CSS Issue with Modals
+- ETag System Error Catch (HTTPGatewayTimeout, NotModifiedError)
 
 ## Changed
 

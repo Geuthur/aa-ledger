@@ -44,7 +44,6 @@ if TYPE_CHECKING:
         CorporationAudit,
         CorporationWalletDivision,
     )
-    from ledger.models.general import UpdateSectionResult
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 

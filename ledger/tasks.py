@@ -102,9 +102,7 @@ def check_planetary_alarms(runs: int = 0):
                 chunk = messages[i : i + 50]
                 msg = "\n".join(chunk)
 
-                full_message = format_html(
-                    "Following Planet Extractor Heads have expired: \n{}", msg
-                )
+                full_message = format_html(msg)
 
                 send_user_notification.delay(
                     user_id=owner.user.id,
