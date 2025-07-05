@@ -269,6 +269,11 @@ class CorporationProcess:
             "total_amount_day": day_aggregate.aggregate_mission(self.entity_ids),
         }
 
+        amounts["incursion_income"] = {
+            "total_amount": self.glance.aggregate_incursion(self.entity_ids),
+            "total_amount_day": day_aggregate.aggregate_incursion(self.entity_ids),
+        }
+
         amounts["market_income"] = {
             "total_amount": self.glance.aggregate_market(second_party=self.entity_ids),
             "total_amount_day": day_aggregate.aggregate_market(
@@ -311,6 +316,11 @@ class CorporationProcess:
 
         # Only Corporation will have costs
         if not self.main_character:
+            amounts["asset_cost"] = {
+                "total_amount": self.glance.aggregate_assets(self.entity_ids),
+                "total_amount_day": day_aggregate.aggregate_assets(self.entity_ids),
+            }
+
             amounts["market_cost"] = {
                 "total_amount": self.glance.aggregate_market_cost(self.entity_ids),
                 "total_amount_day": day_aggregate.aggregate_market_cost(
