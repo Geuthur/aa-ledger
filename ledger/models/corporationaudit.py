@@ -3,25 +3,59 @@ Corporation Audit Model
 """
 
 # Standard Library
-import logging
+from collections.abc import Callable
+
+# Third Party
+from bravado.exception import HTTPInternalServerError
 
 # Django
 from django.db import models
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
-from allianceauth.eveonline.models import EveCorporationInfo
+from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+from allianceauth.services.hooks import get_extension_logger
+from esi.errors import TokenError
+from esi.models import Token
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
-from ledger.managers.corpaudit_manager import CorpAuditManager
-from ledger.managers.corpjournal_manager import CorpWalletManager
+from ledger import __title__, app_settings
+from ledger.errors import HTTPGatewayTimeoutError, NotModifiedError
+from ledger.managers.corporation_audit_manager import CorporationAuditManager
+from ledger.managers.corporation_journal_manager import (
+    CorporationDivisionManager,
+    CorporationWalletManager,
+)
 from ledger.models.characteraudit import WalletJournalEntry
+from ledger.models.general import UpdateSectionResult, _NeedsUpdate
+from ledger.providers import esi
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class CorporationAudit(models.Model):
 
+    class UpdateSection(models.TextChoices):
+        WALLET_DIVISION = "wallet_division", _("Divisions")
+        WALLET_JOURNAL = "wallet_journal", _("Wallet Journal")
+
+        @classmethod
+        def get_sections(cls) -> list[str]:
+            """Return list of section values."""
+            return [choice.value for choice in cls]
+
+        @property
+        def method_name(self) -> str:
+            """Return method name for this section."""
+            return f"update_{self.value}"
+
     corporation_name = models.CharField(max_length=100, null=True, default=None)
+
+    active = models.BooleanField(default=True)
 
     corporation = models.OneToOneField(
         EveCorporationInfo,
@@ -29,12 +63,145 @@ class CorporationAudit(models.Model):
         related_name="ledger_corporationaudit",
     )
 
-    last_update_wallet = models.DateTimeField(null=True, default=None, blank=True)
+    objects = CorporationAuditManager()
 
-    objects = CorpAuditManager()
+    def __str__(self) -> str:
+        try:
+            return f"{self.corporation.corporation_name} ({self.id})"
+        except AttributeError:
+            return f"{self.corporation} ({self.id})"
 
-    def __str__(self):
-        return f"{self.corporation.corporation_name}'s Corporation Data"
+    def update_wallet_division(self, force_refresh: bool) -> None:
+        return self.ledger_corporation_division.update_or_create_esi(
+            self, force_refresh=force_refresh
+        )
+
+    def update_wallet_journal(self, force_refresh: bool) -> None:
+        return CorporationWalletJournalEntry.objects.update_or_create_esi(
+            self, force_refresh=force_refresh
+        )
+
+    # pylint: disable=duplicate-code
+    def calc_update_needed(self) -> _NeedsUpdate:
+        """Calculate if an update is needed."""
+        sections: models.QuerySet[CorporationUpdateStatus] = (
+            self.ledger_corporation_update_status.all()
+        )
+        needs_update = {}
+        for section in sections:
+            needs_update[section.section] = section.need_update()
+        return _NeedsUpdate(section_map=needs_update)
+
+    # pylint: disable=duplicate-code
+    def reset_update_status(self, section: UpdateSection) -> "CorporationUpdateStatus":
+        """Reset the status of a given update section and return it."""
+        update_status_obj: CorporationUpdateStatus = (
+            self.ledger_corporation_update_status.get_or_create(
+                section=section,
+            )[0]
+        )
+        update_status_obj.reset()
+        return update_status_obj
+
+    # pylint: disable=duplicate-code
+    def reset_has_token_error(self) -> None:
+        """Reset the has_token_error flag for this corporation."""
+        self.ledger_corporation_update_status.filter(
+            has_token_error=True,
+        ).update(
+            has_token_error=False,
+        )
+
+    # pylint: disable=duplicate-code
+    def update_section_if_changed(
+        self,
+        section: UpdateSection,
+        fetch_func: Callable,
+        force_refresh: bool = False,
+    ):
+        """Update the status of a specific section if it has changed."""
+        section = self.UpdateSection(section)
+        try:
+            data = fetch_func(corporation=self, force_refresh=force_refresh)
+            logger.debug("%s: Update has changed, section: %s", self, section.label)
+        except HTTPInternalServerError as exc:
+            logger.debug("%s: Update has an HTTP internal server error: %s", self, exc)
+            return UpdateSectionResult(is_changed=False, is_updated=False)
+        except NotModifiedError:
+            logger.debug("%s: Update has not changed, section: %s", self, section.label)
+            return UpdateSectionResult(is_changed=False, is_updated=False)
+        except HTTPGatewayTimeoutError as exc:
+            logger.debug(
+                "%s: Update has a gateway timeout error, section: %s: %s",
+                self,
+                section.label,
+                exc,
+            )
+            return UpdateSectionResult(is_changed=False, is_updated=False)
+        return UpdateSectionResult(
+            is_changed=True,
+            is_updated=True,
+            data=data,
+        )
+
+    # pylint: disable=duplicate-code
+    def update_section_log(
+        self,
+        section: UpdateSection,
+        is_success: bool,
+        is_updated: bool = False,
+        error_message: str = None,
+    ) -> None:
+        """Update the status of a specific section."""
+        error_message = error_message if error_message else ""
+        defaults = {
+            "is_success": is_success,
+            "error_message": error_message,
+            "has_token_error": False,
+            "last_run_finished_at": timezone.now(),
+        }
+        obj: CorporationUpdateStatus = (
+            self.ledger_corporation_update_status.update_or_create(
+                section=section,
+                defaults=defaults,
+            )[0]
+        )
+        if is_updated:
+            obj.last_update_at = obj.last_run_at
+            obj.last_update_finished_at = timezone.now()
+            obj.save()
+        status = "successfully" if is_success else "with errors"
+        logger.info("%s: %s Update run completed %s", self, section.label, status)
+
+    # pylint: disable=duplicate-code
+    def perform_update_status(
+        self, section: UpdateSection, method: Callable, *args, **kwargs
+    ) -> UpdateSectionResult:
+        """Perform update status."""
+        try:
+            result = method(*args, **kwargs)
+        except Exception as exc:
+            # TODO ADD DISCORD NOTIFICATION?
+            error_message = f"{type(exc).__name__}: {str(exc)}"
+            is_token_error = isinstance(exc, (TokenError))
+            logger.error(
+                "%s: %s: Error during update status: %s",
+                self,
+                section.label,
+                error_message,
+                exc_info=not is_token_error,  # do not log token errors
+            )
+            self.ledger_corporation_update_status.update_or_create(
+                section=section,
+                defaults={
+                    "is_success": False,
+                    "error_message": error_message,
+                    "has_token_error": is_token_error,
+                    "last_update_at": timezone.now(),
+                },
+            )
+            raise exc
+        return result
 
     @classmethod
     def get_esi_scopes(cls) -> list[str]:
@@ -53,12 +220,46 @@ class CorporationAudit(models.Model):
             "esi-corporations.read_divisions.v1",
         ]
 
+    def get_token(self, scopes, req_roles) -> Token:
+        """Get the token for this corporation."""
+        if "esi-characters.read_corporation_roles.v1" not in scopes:
+            scopes.append("esi-characters.read_corporation_roles.v1")
+
+        char_ids = EveCharacter.objects.filter(
+            corporation_id=self.corporation.corporation_id
+        ).values("character_id")
+
+        tokens = Token.objects.filter(character_id__in=char_ids).require_scopes(scopes)
+
+        for token in tokens:
+            try:
+                roles = esi.client.Character.get_characters_character_id_roles(
+                    character_id=token.character_id, token=token.valid_access_token()
+                ).result()
+
+                has_roles = False
+                for role in roles.get("roles", []):
+                    if role in req_roles:
+                        has_roles = True
+
+                if has_roles:
+                    return token
+            except TokenError as e:
+                logger.error(
+                    "Token ID: %s (%s)",
+                    token.pk,
+                    e,
+                )
+        return False
+
     class Meta:
         default_permissions = ()
         permissions = (("corp_audit_admin_manager", "Has access to all Corporations"),)
 
 
 class CorporationWalletDivision(models.Model):
+    objects = CorporationDivisionManager()
+
     corporation = models.ForeignKey(
         CorporationAudit,
         on_delete=models.CASCADE,
@@ -66,16 +267,20 @@ class CorporationWalletDivision(models.Model):
     )
     name = models.CharField(max_length=100, null=True, default=None)
     balance = models.DecimalField(max_digits=20, decimal_places=2)
-    division = models.IntegerField()
+    division_id = models.IntegerField()
 
     class Meta:
         default_permissions = ()
 
 
 class CorporationWalletJournalEntry(WalletJournalEntry):
-    division = models.ForeignKey(CorporationWalletDivision, on_delete=models.CASCADE)
+    division = models.ForeignKey(
+        CorporationWalletDivision,
+        on_delete=models.CASCADE,
+        related_name="ledger_corporation_journal",
+    )
 
-    objects = CorpWalletManager()
+    objects = CorporationWalletManager()
 
     def __str__(self):
         return f"Corporation Wallet Journal: RefType: {self.ref_type} - {self.first_party.name} -> {self.second_party.name}: {self.amount} ISK"
@@ -84,3 +289,79 @@ class CorporationWalletJournalEntry(WalletJournalEntry):
     def get_visible(cls, user):
         corps_vis = CorporationAudit.objects.visible_to(user)
         return cls.objects.filter(division__corporation__in=corps_vis)
+
+
+# pylint: disable=duplicate-code
+class CorporationUpdateStatus(models.Model):
+    """A Model to track the status of the last update."""
+
+    corporation = models.ForeignKey(
+        CorporationAudit,
+        on_delete=models.CASCADE,
+        related_name="ledger_corporation_update_status",
+    )
+    section = models.CharField(
+        max_length=32, choices=CorporationAudit.UpdateSection.choices, db_index=True
+    )
+    is_success = models.BooleanField(default=None, null=True, db_index=True)
+    error_message = models.TextField()
+    has_token_error = models.BooleanField(default=False)
+
+    last_run_at = models.DateTimeField(
+        default=None,
+        null=True,
+        db_index=True,
+        help_text="Last run has been started at this time",
+    )
+    last_run_finished_at = models.DateTimeField(
+        default=None,
+        null=True,
+        db_index=True,
+        help_text="Last run has been successful finished at this time",
+    )
+    last_update_at = models.DateTimeField(
+        default=None,
+        null=True,
+        db_index=True,
+        help_text="Last update has been started at this time",
+    )
+    last_update_finished_at = models.DateTimeField(
+        default=None,
+        null=True,
+        db_index=True,
+        help_text="Last update has been successful finished at this time",
+    )
+
+    class Meta:
+        default_permissions = ()
+
+    def __str__(self) -> str:
+        return f"{self.corporation} - {self.section} - {self.is_success}"
+
+    def need_update(self) -> bool:
+        """Check if the update is needed."""
+        if not self.is_success or not self.last_update_finished_at:
+            needs_update = True
+        else:
+            section_time_stale = app_settings.LEDGER_STALE_TYPES.get(self.section, 60)
+            stale = timezone.now() - timezone.timedelta(minutes=section_time_stale)
+            needs_update = self.last_run_finished_at <= stale
+
+        if needs_update and self.has_token_error:
+            logger.info(
+                "%s: Ignoring update because of token error, section: %s",
+                self.corporation,
+                self.section,
+            )
+            needs_update = False
+
+        return needs_update
+
+    def reset(self) -> None:
+        """Reset this update status."""
+        self.is_success = None
+        self.error_message = ""
+        self.has_token_error = False
+        self.last_run_at = timezone.now()
+        self.last_run_finished_at = None
+        self.save()

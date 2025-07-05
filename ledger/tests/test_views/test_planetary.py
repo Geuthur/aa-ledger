@@ -36,7 +36,6 @@ class TestViewSwitchAlarm(TestCase):
         cls.planet_params = {
             "upgrade_level": 5,
             "num_pins": 5,
-            "last_update": None,
         }
 
         cls.factory = RequestFactory()

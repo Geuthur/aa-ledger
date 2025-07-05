@@ -1,6 +1,3 @@
-# Standard Library
-import logging
-
 # Third Party
 from ninja import NinjaAPI
 
@@ -9,7 +6,14 @@ from django.db.models import Q
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
 # AA Ledger
+from ledger import __title__
 from ledger.api import schema
 from ledger.api.api_helper.planetary_helper import (
     generate_progressbar,
@@ -18,7 +22,7 @@ from ledger.api.api_helper.planetary_helper import (
 from ledger.api.helpers import get_alts_queryset, get_character
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class LedgerPlanetaryApiEndpoints:
@@ -32,15 +36,20 @@ class LedgerPlanetaryApiEndpoints:
             tags=self.tags,
         )
         def get_planetary(request, character_id: int, planet_id: int):
-            perm, main = get_character(request, character_id)
+            is_all = False
+            if character_id == 0:
+                character_id = request.user.profile.main_character.character_id
+                is_all = True
+
+            perm, character = get_character(request, character_id)
 
             if not perm:
                 return 403, str(_("Permission Denied"))
 
-            if character_id == 0:
-                characters = get_alts_queryset(main)
+            if is_all:
+                characters = get_alts_queryset(character)
             else:
-                characters = [main]
+                characters = [character]
 
             filters = Q(character__character__in=characters)
             if not planet_id == 0:
@@ -74,15 +83,15 @@ class LedgerPlanetaryApiEndpoints:
         # pylint: disable=too-many-locals
         def get_planetarydetails(request, character_id: int, planet_id: int):
             singleview = request.GET.get("single", False)
-            perm, main = get_character(request, character_id)
+            perm, character = get_character(request, character_id)
 
             if not perm:
                 return 403, str(_("Permission Denied"))
 
             if not singleview:
-                characters = get_alts_queryset(main)
+                characters = get_alts_queryset(character)
             else:
-                characters = [main]
+                characters = [character]
 
             filters = Q(planet__character__character__in=characters)
             if not planet_id == 0:

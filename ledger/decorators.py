@@ -3,17 +3,21 @@ Decorators
 """
 
 # Standard Library
-import logging
 import time
 from functools import wraps
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
 # Alliance Auth (External Libs)
 from app_utils.esi import EsiDailyDowntime, fetch_esi_status
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
+from ledger import __title__
 from ledger.app_settings import IS_TESTING
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 def when_esi_is_available(func):

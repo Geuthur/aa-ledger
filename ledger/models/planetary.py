@@ -2,27 +2,34 @@
 Planetary Model
 """
 
-# Standard Library
-import logging
-
 # Django
 from django.db import models
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
 # Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 from eveuniverse.models import EvePlanet, EveType
 
 # AA Ledger
+from ledger import __title__
 from ledger.constants import EXTRACTOR_CONTROL_UNIT, P0_PRODUCTS, SPACEPORTS
-from ledger.managers.planetary_manager import PlanetaryManager
-from ledger.models.characteraudit import CharacterAudit
+from ledger.managers.character_planetary_manager import (
+    PlanetaryDetailsManager,
+    PlanetaryManager,
+)
+from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class CharacterPlanet(models.Model):
+    objects = PlanetaryManager()
+
     id = models.AutoField(primary_key=True)
 
     planet_name = models.CharField(max_length=100, null=True, default=None)
@@ -32,7 +39,7 @@ class CharacterPlanet(models.Model):
     )
 
     character = models.ForeignKey(
-        CharacterAudit, on_delete=models.CASCADE, related_name="ledger_characterplanet"
+        CharacterAudit, on_delete=models.CASCADE, related_name="ledger_character_planet"
     )
 
     upgrade_level = models.IntegerField(
@@ -42,10 +49,6 @@ class CharacterPlanet(models.Model):
     num_pins = models.IntegerField(
         default=0, help_text=_("Number of pins on the planet")
     )
-
-    last_update = models.DateTimeField(null=True, default=None, blank=True)
-
-    # objects = PlanetaryManager()
 
     class Meta:
         default_permissions = ()
@@ -57,6 +60,18 @@ class CharacterPlanet(models.Model):
     def __str__(self):
         return f"Planet Data: {self.character.character.character_name} - {self.planet.name}"
 
+    @property
+    def last_update(self) -> timezone.datetime:
+        """Return the last update time of the planet."""
+        try:
+            last_update = CharacterUpdateStatus.objects.get(
+                character=self.character,
+                section=CharacterAudit.UpdateSection.PLANETS,
+            ).last_update_at
+        except CharacterUpdateStatus.DoesNotExist:
+            last_update = None
+        return last_update
+
     @classmethod
     def get_esi_scopes(cls) -> list[str]:
         """Return list of required ESI scopes to fetch."""
@@ -66,12 +81,22 @@ class CharacterPlanet(models.Model):
 
 
 class CharacterPlanetDetails(models.Model):
+    """Model to store the details of a planet"""
+
+    objects = PlanetaryDetailsManager()
+
     id = models.AutoField(primary_key=True)
 
     planet = models.ForeignKey(
         CharacterPlanet,
         on_delete=models.CASCADE,
-        related_name="ledger_characterplanetdetails",
+        related_name="ledger_planet_details",
+    )
+
+    character = models.ForeignKey(
+        CharacterAudit,
+        on_delete=models.CASCADE,
+        related_name="ledger_character_planet_details",
     )
 
     links = models.JSONField(null=True, default=None, blank=True)
@@ -79,13 +104,10 @@ class CharacterPlanetDetails(models.Model):
     routes = models.JSONField(null=True, default=None, blank=True)
     facilitys = models.JSONField(null=True, default=None, blank=True)
 
-    last_update = models.DateTimeField(null=True, default=None, blank=True)
     last_alert = models.DateTimeField(null=True, default=None, blank=True)
 
     notification = models.BooleanField(default=False)
     notification_sent = models.BooleanField(default=False)
-
-    objects = PlanetaryManager()
 
     class Meta:
         default_permissions = ()
@@ -115,6 +137,9 @@ class CharacterPlanetDetails(models.Model):
         return None
 
     def get_planet_expiry_date(self):
+        if self.pins is None:
+            return None
+
         expiry_times = [
             pin.get("expiry_time")
             for pin in self.pins
@@ -267,3 +292,15 @@ class CharacterPlanetDetails(models.Model):
         if expiry_date is None:
             return False
         return expiry_date < timezone.now()
+
+    @property
+    def last_update(self) -> timezone.datetime:
+        """Return the last update time of the planet details."""
+        try:
+            last_update = CharacterUpdateStatus.objects.get(
+                character=self.character,
+                section=CharacterAudit.UpdateSection.PLANETS_DETAILS,
+            ).last_update_at
+        except CharacterUpdateStatus.DoesNotExist:
+            last_update = None
+        return last_update

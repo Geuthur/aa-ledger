@@ -1,7 +1,7 @@
 """Hook into Alliance Auth"""
 
 # Django
-# Django
+from django.db.models import Sum
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -10,6 +10,7 @@ from allianceauth.services.hooks import MenuItemHook, UrlHook
 
 # AA Ledger
 from ledger import app_settings, urls
+from ledger.models.characteraudit import CharacterAudit
 
 
 class LedgerMenuItem(MenuItemHook):
@@ -25,6 +26,13 @@ class LedgerMenuItem(MenuItemHook):
 
     def render(self, request):
         if request.user.has_perm("ledger.basic_access"):
+            self.count = (
+                CharacterAudit.objects.annotate_total_update_status_user(
+                    user=request.user
+                )
+                .aggregate(total_failed=Sum("num_sections_failed"))
+                .get("total_failed", 0)
+            )
             return MenuItemHook.render(self, request)
         return ""
 

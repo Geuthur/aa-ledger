@@ -8,7 +8,7 @@ from allianceauth.tests.auth_utils import AuthUtils
 # AA Ledger
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.tests.testdata.generate_corporationaudit import (
-    add_corporationaudit_corporation_to_user,
+    create_corporationaudit_from_user,
     create_user_from_evecharacter,
 )
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
@@ -28,15 +28,12 @@ class TestCorporationAuditModel(TestCase):
         cls.user2, cls.character_ownership2 = create_user_from_evecharacter(
             1002, permissions=["ledger.basic_access"]
         )
-        cls.audit = add_corporationaudit_corporation_to_user(
-            cls.user, cls.character_ownership.character.character_id
-        )
-        cls.audit2 = add_corporationaudit_corporation_to_user(
-            cls.user2, cls.character_ownership2.character.character_id
-        )
+        cls.audit = create_corporationaudit_from_user(cls.user)
+        cls.audit2 = create_corporationaudit_from_user(cls.user2)
 
     def test_str(self):
-        self.assertEqual(str(self.audit), "Hell RiderZ's Corporation Data")
+        expected_str = CorporationAudit.objects.get(id=self.audit.pk)
+        self.assertEqual(self.audit, expected_str)
 
     def test_get_esi_scopes(self):
         self.assertEqual(

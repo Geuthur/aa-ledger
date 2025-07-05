@@ -15,7 +15,7 @@ from allianceauth.eveonline.models import EveCorporationInfo
 
 # AA Ledger
 from ledger.api.helpers import get_all_corporations_from_alliance, get_alliance
-from ledger.view_helpers.core import add_info_to_context
+from ledger.helpers.core import add_info_to_context
 
 logger = logging.getLogger(__name__)
 

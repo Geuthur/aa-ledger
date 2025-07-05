@@ -12,7 +12,7 @@ from app_utils.testing import add_character_to_user
 from eveuniverse.models import EveType
 
 # AA Ledger
-from ledger.models.characteraudit import CharacterAudit
+from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
 
 
 def create_character(eve_character: EveCharacter, **kwargs) -> CharacterAudit:
@@ -25,6 +25,29 @@ def create_character(eve_character: EveCharacter, **kwargs) -> CharacterAudit:
     character = CharacterAudit(**params)
     character.save()
     return character
+
+
+def create_update_status(
+    character_audit: CharacterAudit, **kwargs
+) -> CharacterUpdateStatus:
+    """Create a Update Status for a Character Audit"""
+    params = {
+        "character": character_audit,
+    }
+    params.update(kwargs)
+    update_status = CharacterUpdateStatus(**params)
+    update_status.save()
+    return update_status
+
+
+def create_characteraudit_from_user(user: User, **kwargs) -> CharacterAudit:
+    """Create a Character Audit from a user"""
+    eve_character = user.profile.main_character
+    if not eve_character:
+        raise ValueError("User needs to have a main character.")
+
+    kwargs.update({"eve_character": eve_character})
+    return create_character(**kwargs)
 
 
 def create_user_from_evecharacter_with_access(
@@ -47,7 +70,9 @@ def create_user_from_evecharacter_with_access(
     return user, character_ownership
 
 
-def create_characteraudit_character(character_id: int, **kwargs) -> CharacterAudit:
+def create_characteraudit_from_evecharacter(
+    character_id: int, **kwargs
+) -> CharacterAudit:
     """Create a Audit Character from a existing EveCharacter"""
 
     _, character_ownership = create_user_from_evecharacter_with_access(

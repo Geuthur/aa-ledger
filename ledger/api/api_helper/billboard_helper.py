@@ -1,5 +1,4 @@
 # Standard Library
-import logging
 from dataclasses import dataclass
 from typing import Any
 
@@ -7,7 +6,16 @@ from typing import Any
 from django.db.models import QuerySet
 from django.db.models.functions import TruncDay, TruncHour, TruncMonth
 
-logger = logging.getLogger(__name__)
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
+# AA Ledger
+from ledger import __title__
+
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @dataclass

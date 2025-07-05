@@ -22,7 +22,16 @@
                         <tbody>
                             <tr>
                                 <td>{% trans "Status:" %}</td>
-                                <td class="text-end" id="status"></td>
+                                <td class="text-end text-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span id="status"></span>
+                                </td>
+                            </tr>
+                            <tr id="character-issues" class="d-none">
+                                <td>{% trans "Characters with Issues:" %}</td>
+                                <td class="text-end text-warning">
+                                    <span id="status-issues"></span>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

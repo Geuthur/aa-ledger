@@ -1,4 +1,4 @@
-{% load ledger %}
+{% load sri %}
 {% load i18n %}
 {% load static %}
 <script type="application/javascript">
@@ -22,14 +22,14 @@
 </script>
 
 <!-- Chart Resources -->
-{% ledger_static 'assets/index.js' %}
-{% ledger_static 'assets/xy.js' %}
-{% ledger_static 'assets/percent.js' %}
-{% ledger_static 'assets/flow.js' %}
-{% ledger_static 'assets/Animated.js' %}
-{% ledger_static 'assets/Dark.js' %}
+{% sri_static 'ledger/assets/index.js' %}
+{% sri_static 'ledger/assets/xy.js' %}
+{% sri_static 'ledger/assets/percent.js' %}
+{% sri_static 'ledger/assets/flow.js' %}
+{% sri_static 'ledger/assets/Animated.js' %}
+{% sri_static 'ledger/assets/Dark.js' %}
 
 <!-- Ledger Resources -->
-{% ledger_static 'js/charts.js' %}
-{% ledger_static 'js/ledger-common.js' %}
-{% ledger_static 'js/alliance.js' %}
+{% sri_static 'ledger/js/charts.js' %}
+{% sri_static 'ledger/js/ledger-common.js' %}
+{% sri_static 'ledger/js/alliance.js' %}

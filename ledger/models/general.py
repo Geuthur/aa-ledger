@@ -4,7 +4,8 @@ General Model
 
 # Standard Library
 import datetime
-import logging
+from dataclasses import dataclass
+from typing import Any, NamedTuple
 
 # Django
 from django.core.validators import MinValueValidator
@@ -18,11 +19,16 @@ from allianceauth.eveonline.models import (
     EveCharacter,
     EveCorporationInfo,
 )
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
+from ledger import __title__
 from ledger.managers.general_manager import EveEntityManager
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 # Permission Manager
 
@@ -125,3 +131,26 @@ class EveEntity(models.Model):
 
     class Meta:
         default_permissions = ()
+
+
+class UpdateSectionResult(NamedTuple):
+    """A result of an attempted section update."""
+
+    is_changed: bool | None
+    is_updated: bool
+    data: Any = None
+
+
+@dataclass(frozen=True)
+class _NeedsUpdate:
+    """An Object to track if an update is needed."""
+
+    section_map: dict[str, bool]
+
+    def __bool__(self) -> bool:
+        """Check if any section needs an update."""
+        return any(self.section_map.values())
+
+    def for_section(self, section: str) -> bool:
+        """Check if an update is needed for a specific section."""
+        return self.section_map.get(section, False)

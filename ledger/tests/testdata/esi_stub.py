@@ -19,7 +19,7 @@ _endpoints = [
         "Character",
         "get_characters_character_id_roles",
         "character_id",
-        needs_token=True,
+        needs_token=False,
     ),
     EsiEndpoint(
         "Wallet",
@@ -37,7 +37,7 @@ _endpoints = [
         "Corporation",
         "get_corporations_corporation_id_divisions",
         "corporation_id",
-        needs_token=True,
+        needs_token=False,
     ),
     EsiEndpoint(
         "Wallet",
@@ -66,10 +66,10 @@ _endpoints = [
     EsiEndpoint(
         "Planetary_Interaction",
         "get_characters_character_id_planets_planet_id",
-        "character_id, planet_id",
+        ("character_id", "planet_id"),
         needs_token=False,
     ),
 ]
 
 esi_client_stub = EsiClientStub(_esi_data, endpoints=_endpoints)
-esi_client_error_stub = EsiClientStub(_esi_data, endpoints=_endpoints, http_error=True)
+esi_client_error_stub = EsiClientStub(_esi_data, endpoints=_endpoints, http_error=502)

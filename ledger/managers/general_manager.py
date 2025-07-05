@@ -1,5 +1,4 @@
 # Standard Library
-import logging
 from typing import Any
 
 # Django
@@ -7,11 +6,16 @@ from django.db import models
 
 # Alliance Auth
 from allianceauth.eveonline.providers import ObjectNotFound
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
+from ledger import __title__
 from ledger.providers import esi
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class EveEntityManager(models.Manager):

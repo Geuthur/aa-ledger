@@ -16,7 +16,7 @@ from app_utils.allianceauth import users_with_permission
 from ledger.app_settings import LEDGER_APP_NAME
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
-from ledger.tasks import update_character, update_corp
+from ledger.tasks import update_character, update_corporation
 
 _corp_perms = [
     "ledger.admin_access",
@@ -25,21 +25,21 @@ _corp_perms = [
 
 # pylint: disable=unused-argument, duplicate-code
 def _add_character_charaudit(request, token):
-    CharacterAudit.objects.update_or_create(
+    character = CharacterAudit.objects.update_or_create(
         character=EveCharacter.objects.get_character_by_id(token.character_id),
         defaults={
             "character_name": token.character_name,
         },
-    )
+    )[0]
     update_character.apply_async(
-        args=[token.character_id], kwargs={"force_refresh": True}, priority=6
+        args=[character.pk], kwargs={"force_refresh": True}, priority=6
     )
 
 
 # pylint: disable=unused-argument, duplicate-code
 def _add_character_corp(request, token):
     char = EveCharacter.objects.get_character_by_id(token.character_id)
-    corp, _ = EveCorporationInfo.objects.get_or_create(
+    eve_corp, _ = EveCorporationInfo.objects.get_or_create(
         corporation_id=char.corporation_id,
         defaults={
             "member_count": 0,
@@ -47,14 +47,14 @@ def _add_character_corp(request, token):
             "corporation_name": char.corporation_name,
         },
     )
-    CorporationAudit.objects.update_or_create(
-        corporation=corp,
+    corp = CorporationAudit.objects.update_or_create(
+        corporation=eve_corp,
         defaults={
-            "corporation_name": corp.corporation_name,
+            "corporation_name": eve_corp.corporation_name,
         },
-    )
-    update_corp.apply_async(
-        args=[char.corporation_id], kwargs={"force_refresh": True}, priority=6
+    )[0]
+    update_corporation.apply_async(
+        args=[corp.pk], kwargs={"force_refresh": True}, priority=6
     )
 
 

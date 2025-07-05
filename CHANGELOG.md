@@ -1,5 +1,44 @@
 # Changelog
 
+# [0.8.0] - 2025-07-05
+
+## Added
+
+- Update Section System - Inspired by @\[[Eric Kalkoken](https://gitlab.com/ErikKalkoken/)\]
+  - TokenError Handler
+  - HTTPInternalServerError, HTTPGatewayTimeoutError Handler
+  - Update Section retrieves information between Etag System (Not Updating if NotModified)
+  - Disable Update on Token Error
+  - Update Information
+  - Update Issues Badge
+- Admin Menu (superuser only)
+- Subset Task for Corporations
+- Delete Option in Administration
+- Add Corporation Actions for Corporation Ledger to Administration
+- Disable Characters with no Owner
+
+## Fixed
+
+- CSS Issue with Modals
+- ETag System Error Catch (HTTPGatewayTimeout, NotModifiedError)
+
+## Changed
+
+- Task System
+  - Use Django Manager for Updates
+  - Refactor `update_character` Task
+- Use one navigation menu for Ledger
+- Use app_utils `LoggerAddTag` Logger System
+- Make `README` logger settings optional
+- Optimized Url Paths
+- AA min. requirements from 4.6.0 to 4.8.0
+
+## Removed
+
+- Cache Busting by [@ppfeufer](https://github.com/ppfeufer)
+- `calculate_ess_stolen`, `calculate_ess_stolen_amount` function
+- `_storage_key`, `get_cache_stale`, `set_cache`, `delete_cache` function
+
 ## [0.7.6] - 2025-05-02
 
 ### Added

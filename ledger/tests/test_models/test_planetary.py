@@ -7,7 +7,7 @@ from django.utils import timezone
 
 # AA Ledger
 from ledger.tests.testdata.generate_characteraudit import (
-    create_characteraudit_character,
+    create_characteraudit_from_evecharacter,
 )
 from ledger.tests.testdata.generate_planets import (
     _planetary_data,
@@ -30,10 +30,9 @@ class TestPlanetModel(TestCase):
         cls.planet_params = {
             "upgrade_level": 5,
             "num_pins": 5,
-            "last_update": None,
         }
 
-        cls.audit = create_characteraudit_character(1001)
+        cls.audit = create_characteraudit_from_evecharacter(1001)
         cls.planetary = create_character_planet(cls.audit, 4001, **cls.planet_params)
 
     def test_str(self):
@@ -55,10 +54,9 @@ class TestPlanetaryDetailsModel(TestCase):
         cls.planet_params = {
             "upgrade_level": 5,
             "num_pins": 5,
-            "last_update": None,
         }
 
-        cls.audit = create_characteraudit_character(1001)
+        cls.audit = create_characteraudit_from_evecharacter(1001)
         cls.planetary = create_character_planet(cls.audit, 4001, **cls.planet_params)
         cls.planetarydetails = create_character_planet_details(
             cls.planetary, **_planetary_data

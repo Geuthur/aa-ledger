@@ -1,5 +1,4 @@
 # Standard Library
-import logging
 from typing import Any
 
 # Third Party
@@ -11,8 +10,13 @@ from django.utils.translation import gettext_lazy as _
 # Alliance Auth
 from allianceauth.authentication.models import CharacterOwnership, UserProfile
 from allianceauth.eveonline.models import EveCorporationInfo
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
+from ledger import __title__
 from ledger.api import schema
 from ledger.api.helpers import (
     get_all_corporations_from_alliance,
@@ -22,7 +26,7 @@ from ledger.api.helpers import (
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class LedgerAdminApiEndpoints:
@@ -188,24 +192,21 @@ class LedgerAdminApiEndpoints:
                 auth_characters - active_characters - inactive_characters
             )
 
-            has_issues = False
-
+            status_msg = None
+            status_issues = None
+            issues = []
             for char in characters:
-                if not char.is_active():
-                    has_issues = True
+                if char.ledger_update_status.filter(is_success=False).exists():
+                    issues.append(char.character.character_name)
 
-            # TODO Create a Update Status Model to handle all update section separately and  make a Status Message
-            # Like "Character is missing Wallet Data" or "Character is missing Mining Data"
-            # or "Character is missing Planetary Data" or "Character is inactive"
-            # Update are not up to date
-            if has_issues:
-                status_msg = _("Please re-register inactive characters")
-            else:
-                status_msg = _("All characters are up to date")
+            if issues:
+                status_msg = _("Please re-register characters with issues")
+                status_issues = ", ".join(issues)
 
             output = {
                 "dashboard": "Character Dashboard",
                 "status": status_msg,
+                "status_issues": status_issues,
                 "statistics": "Character Statistics",
                 "auth_characters": auth_characters,
                 "active_characters": f"{active_characters} / {auth_characters}",

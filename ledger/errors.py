@@ -4,6 +4,14 @@
 from esi.errors import TokenError
 
 
+class NotModifiedError(Exception):
+    pass
+
+
+class HTTPGatewayTimeoutError(Exception):
+    pass
+
+
 class TokenDoesNotExist(TokenError):
     """A token with a specific scope does not exist for a user."""
 
