@@ -1,7 +1,7 @@
 {% load static %}
 {% load i18n %}
 {% load humanize %}
-{% load ledger %}
+{% load sri %}
 
 <script type="application/javascript">
     // Extract the 'main' parameter from the current URL
@@ -31,5 +31,5 @@
     }
 </script>
 
-{% ledger_static 'js/planetary-confirm.js' %}
-{% ledger_static 'js/planetary.js' %}
+{% sri_static 'ledger/js/planetary-confirm.js' %}
+{% sri_static 'ledger/js/planetary.js' %}

@@ -2,12 +2,6 @@
 Constants
 """
 
-# Standard Library
-import os
-
-AA_LEDGER_BASE_DIR = os.path.join(os.path.dirname(__file__))
-AA_LEDGER_STATIC_DIR = os.path.join(AA_LEDGER_BASE_DIR, "static", "ledger")
-
 # Embed colors
 DISCORD_EMBED_COLOR_INFO = 0x5BC0DE
 DISCORD_EMBED_COLOR_SUCCESS = 0x5CB85C
