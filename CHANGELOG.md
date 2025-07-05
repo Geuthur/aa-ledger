@@ -36,9 +36,6 @@
 ## Removed
 
 - Cache Busting by [@ppfeufer](https://github.com/ppfeufer)
-
-## Removed
-
 - `calculate_ess_stolen`, `calculate_ess_stolen_amount` function
 - `_storage_key`, `get_cache_stale`, `set_cache`, `delete_cache` function
 
