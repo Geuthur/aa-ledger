@@ -1,6 +1,6 @@
 # Changelog
 
-# [0.7.x] IN DEVELOPMENT
+# [0.8.0] - 2025-07-05
 
 ## Added
 
@@ -31,6 +31,11 @@
 - Use app_utils `LoggerAddTag` Logger System
 - Make `README` logger settings optional
 - Optimized Url Paths
+- AA min. requirements from 4.6.0 to 4.8.0
+
+## Removed
+
+- Cache Busting by [@ppfeufer](https://github.com/ppfeufer)
 
 ## Removed
 
