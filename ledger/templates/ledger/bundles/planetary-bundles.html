@@ -1,7 +1,21 @@
-{% load static %}
-{% load i18n %}
-{% load humanize %}
 {% load sri %}
+{% load i18n %}
+
+{% include 'ledger/bundles/table-css.html' %}
+{% sri_static 'ledger/css/planetary.css' %}
+
+{% include 'ledger/partials/modal/modal.html' with name="ViewFactory" %}
+{% include 'ledger/partials/modal/modal.html' with name="ViewExtractor" %}
+
+{% include 'ledger/partials/modal/switchalarm_confirm.html' %}
+{% sri_static 'ledger/js/modal/modal-system.js' %}
+
+<script type="application/javascript">
+    setupModal('#modalViewFactoryContainer', 'ajax_factory', '#modalViewFactoryContent', '#modalViewFactoryLoader');
+    setupModal('#modalViewExtractorContainer', 'ajax_extractor', '#modalViewExtractorContent', '#modalViewExtractorLoader');
+</script>
+
+{% include 'bundles/datatables-js-bs5.html' %}
 
 <script type="application/javascript">
     // Extract the 'main' parameter from the current URL

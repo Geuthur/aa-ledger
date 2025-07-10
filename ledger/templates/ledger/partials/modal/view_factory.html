@@ -74,7 +74,7 @@
                             {% endif %}
                         </td>
                         <td class="no-sort">
-                            <img src="/static/ledger/images/{{ facility.is_active|yesno:'green,red' }}.png" style="width: 24px; height: 24px;" title="{{ facility.is_active|yesno:'Producing,Offline' }}" data-tooltip-toggle="planetary">
+                            <img src="{% static 'ledger/images/' %}{{ facility.is_active|yesno:'green,red' }}.png" style="width: 24px; height: 24px;" title="{{ facility.is_active|yesno:'Producing,Offline' }}" data-tooltip-toggle="planetary">
                         </td>
                     </tr>
                     {% endfor %}
