@@ -1,8 +1,13 @@
 {% extends 'ledger/base.html' %}
 {% load i18n %}
 
-{% block page_title %}Error Handler{% endblock %}
-{% block page_topic %}<h1 class="page-header text-center">{% translate "Voices of War - Error" %}</h1>{% endblock page_topic %}
+{% block page_template_title %}
+    Error Handler
+{% endblock page_template_title %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">{% translate "Voices of War - Error" %}</h1>
+{% endblock page_topic %}
 
 {% block ledger_block %}
     <div class="panel panel-primary">
