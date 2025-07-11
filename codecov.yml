@@ -1,0 +1,23 @@
+codecov:
+  require_ci_to_pass: true
+
+comment:
+  layout: "header, reach, diff, flags, changes, files"
+  require_changes: false
+
+coverage:
+  precision: 2
+  round: up
+  range: 70.0..100.0
+
+parsers:
+  javascript:
+    enable_partials: yes # default yes
+  v1:
+    include_full_missed_files: true  # default false
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
