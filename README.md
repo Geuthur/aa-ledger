@@ -1,5 +1,9 @@
 # Ledger module for AllianceAuth.<a name="aa-ledger"></a>
 
+![Release](https://img.shields.io/pypi/v/aa-ledger?label=release)
+![Licence](https://img.shields.io/github/license/geuthur/aa-ledger)
+![Python](https://img.shields.io/pypi/pyversions/aa-ledger)
+![Django](https://img.shields.io/pypi/frameworkversions/django/aa-ledger.svg?label=django)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Geuthur/aa-ledger/master.svg)](https://results.pre-commit.ci/latest/github/Geuthur/aa-ledger/master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Tests](https://github.com/Geuthur/aa-ledger/actions/workflows/autotester.yml/badge.svg)](https://github.com/Geuthur/aa-ledger/actions/workflows/autotester.yml)
