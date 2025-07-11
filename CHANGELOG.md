@@ -1,5 +1,19 @@
 # Changelog
 
+# [0.8.1] - 2025-07-11
+
+## Added
+
+- `django-esi` dependency
+
+## Changed
+
+- Use `django-esi` new User Agent Guidelines
+
+## Removed
+
+- Unused templatetags
+
 # [0.8.0] - 2025-07-05
 
 ## Added
