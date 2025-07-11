@@ -1,9 +1,9 @@
 """Initialize the app"""
 
-# AA Ledger
-from ledger.app_settings import LEDGER_APP_NAME
-
 __version__ = "0.8.0"
 __title__ = "Ledger"
 
-USER_AGENT_TEXT = f"{LEDGER_APP_NAME} v{__version__}"
+__package_name__ = "aa-ledger"
+
+__app_name_useragent__ = "AA-Ledger"
+__github_url__ = f"https://github.com/Geuthur/{__package_name__}"
