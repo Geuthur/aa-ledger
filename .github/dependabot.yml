@@ -15,6 +15,23 @@ updates:
       # Prefix all commit messages with "[github-actions] "
       prefix: "[github-actions] "
 
+  # Maintain dependencies for Python
+  - package-ecosystem: "pip"
+    directory: "/"
+    target-branch: "master"
+    versioning-strategy: increase-if-necessary
+    groups:
+      "Python Dependencies":
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      # Prefix all commit messages with "[python] "
+      prefix: "[python] "
+
   # Maintain dependencies for npm
   - package-ecosystem: "npm"
     directory: "/"
