@@ -2,23 +2,12 @@ name: Checks
 
 on:
   push:
-    paths-ignore:
-      - "**.css"
-      - "**.js"
-      - "**.md"
-
     branches:
       - '**'
 
     tags-ignore:
       - '**'
-
   pull_request:
-    paths-ignore:
-      - "**.css"
-      - "**.js"
-      - "**.md"
-
     branches:
       - '**'
 
@@ -61,19 +50,19 @@ jobs:
       # Set Python versions to test against
       matrix:
         python-version:
-          - '3.10'
-          - '3.11'
-          - '3.12'
-          - '3.13'
+          - '3.10' # [LTS] Maintained until: October 2026
+          - '3.11' # [LTS] Maintained until: October 2027
+          - '3.12' # [LTS] Maintained until: October 2028
+          - '3.13' # [LTS] Maintained until: October 2029
         # MySQL versions to test against
         database:
           # https://endoflife.date/mysql
           - mysql:8.4     # [LTS] Maintained until: April 2032
           # https://endoflife.date/mariadb and https://mariadb.com/kb/en/mariadb-server-release-dates/
           - mariadb:10.11 # [LTS] Maintained until: February 2028
-          - mariadb:11.4 # [LTS] Maintained until: January 2032
+          - mariadb:11.4 # [LTS] Maintained until: May 2029
 
-#    continue-on-error: ${{ matrix.python-version == '3.12' }}
+#    continue-on-error: ${{ matrix.python-version == '3.13' }}
 
     # Set up services
     services:
@@ -81,26 +70,25 @@ jobs:
         image: ${{ matrix.database }}
         env:
           MYSQL_ROOT_PASSWORD: temp_password_aa_tox_tests
-          MYSQL_DATABASE: alliance_auth
+          MYSQL_DATABASE: temp_allianceauth
         ports:
           - 3306:3306
         options: --tmpfs /var/lib/mysql
-
-      redis:
-        image: redis
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          # Maps port 6379 on service container to the host
-          - 6379:6379
 
     steps:
       # Checkout the repository
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Install Redis
+        uses: shogo82148/actions-setup-redis@v1
+        with:
+          redis-version: 'latest'
+
+      - name: Verify Redis is running
+        run: |
+          redis-cli ping
+          redis-cli info
 
       # Set up Python
       - name: Setup Python ${{ matrix.python-version }}
@@ -137,6 +125,7 @@ jobs:
             }}
         uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
