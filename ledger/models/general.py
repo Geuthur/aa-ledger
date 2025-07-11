@@ -34,7 +34,7 @@ logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class General(models.Model):
-    """A model defining commonly used properties and methods for Voices of War."""
+    """A model defining commonly used properties and methods for Ledger."""
 
     class Meta:
         managed = False
