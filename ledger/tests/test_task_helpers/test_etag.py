@@ -9,7 +9,7 @@ from django.test import TestCase
 from app_utils.testing import NoSocketsTestCase
 
 # AA Ledger
-from ledger.task_helpers.etag_helpers import (
+from ledger.helpers.etag import (
     MAX_ETAG_LIFE,
     HTTPNotModified,
     NotModifiedError,
@@ -25,7 +25,7 @@ from ledger.task_helpers.etag_helpers import (
     stringify_params,
 )
 
-MODULE_PATH = "ledger.task_helpers.etag_helpers"
+MODULE_PATH = "ledger.helpers.etag"
 
 
 def clear_cache(cache_key):

@@ -33,9 +33,9 @@ from ledger.constants import (
 )
 from ledger.decorators import log_timing
 from ledger.errors import DatabaseError
+from ledger.helpers.etag import etag_results
 from ledger.models.general import EveEntity
 from ledger.providers import esi
-from ledger.task_helpers.etag_helpers import etag_results
 
 if TYPE_CHECKING:
     # AA Ledger
