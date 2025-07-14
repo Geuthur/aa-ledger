@@ -32,13 +32,6 @@
             </div>
         {% endif %}
 
-        {% if character.stolen.average_hour %}
-            <div class="row description-row">
-                <div class="col-sm-6">{% trans "Avg." %} ESS {% trans "Stolen" %} {% trans "per Hour" %}:</div>
-                <div class='col-sm-4 text-end'><span class="text-warning">{{ character.stolen.average_hour|floatformat:0|intcomma }}</span> ISK</div>
-            </div>
-        {% endif %}
-
         {% if character.mission_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} {% trans "Mission Reward" %} {% trans "per Hour" %}:</div>

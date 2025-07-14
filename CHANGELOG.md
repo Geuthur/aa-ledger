@@ -1,5 +1,23 @@
 # Changelog
 
+# [0.8.2] - 2025-07-14
+
+### Added
+
+- Estimated ESS Payout for Characters
+
+### Changed
+
+- Updated amCharts5 to v5.13.3
+- Optimized templates
+
+### Removed
+
+- amChart5 local static files
+- Character ESS Calculation
+- Old ESS Stolen Calculation
+- Event System
+
 # [0.8.1] - 2025-07-11
 
 ## Added

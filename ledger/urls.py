@@ -9,7 +9,7 @@ from ledger.views.alliance import alliance_ledger
 from ledger.views.alliance.add_ally import add_ally
 from ledger.views.character import character_ledger, planetary
 from ledger.views.character.add_char import add_char
-from ledger.views.corporation import corp_events, corporation_ledger
+from ledger.views.corporation import corporation_ledger
 from ledger.views.corporation.add_corp import add_corp
 
 # AA Example App
@@ -98,15 +98,6 @@ urlpatterns = [
         character_ledger.character_overview,
         name="character_overview",
     ),
-    # -- -- Events
-    path("events/", corp_events.events_index, name="events_index"),
-    path("events/admin/", corp_events.events_admin, name="event_admin"),
-    path("events/create/", corp_events.create_event, name="create_event"),
-    path("events/<int:event_id>/edit/", corp_events.edit_event, name="edit_event"),
-    path(
-        "events/<int:event_id>/delete/", corp_events.delete_event, name="delete_event"
-    ),
-    path("events/ajax/load_events", corp_events.load_events, name="load_events"),
     # -- -- Planetary
     path(
         "character/view/planetary/",

@@ -1,0 +1,27 @@
+{% load sri %}
+{% load i18n %}
+
+<!-- Ledger Resources -->
+{% sri_static 'ledger/js/charts.js' %}
+{% sri_static 'ledger/js/ledger-common.js' %}
+
+<!-- Chart Resources -->
+<script src="https://cdn.amcharts.com/lib/version/5.13.3/index.js"></script>
+<script src="https://cdn.amcharts.com/lib/version/5.13.3/xy.js"></script>
+<script src="https://cdn.amcharts.com/lib/version/5.13.3/themes/Animated.js"></script>
+<script src="https://cdn.amcharts.com/lib/version/5.13.3/themes/Dark.js"></script>
+<script src="https://cdn.amcharts.com/lib/version/5.13.3/percent.js"></script>
+<script src="https://cdn.amcharts.com/lib/version/5.13.3/flow.js"></script>
+
+<script>
+    // Embed translations in a global JavaScript object
+    window.translations = {
+        months: [
+            "{% trans 'January' %}", "{% trans 'February' %}", "{% trans 'March' %}", "{% trans 'April' %}",
+            "{% trans 'May' %}", "{% trans 'June' %}", "{% trans 'July' %}", "{% trans 'August' %}",
+            "{% trans 'September' %}", "{% trans 'October' %}", "{% trans 'November' %}", "{% trans 'December' %}"
+        ],
+        dayText: "{% trans 'Day' %}",
+        monthText: "{% trans 'Month' %}"
+    };
+</script>

@@ -29,13 +29,6 @@
         </div>
     {% endif %}
 
-    {% if character.stolen.total_amount_day %}
-        <div class="row description-row">
-            <div class="col-sm-6">{% trans "Current Day" %} - ESS {% trans "Stolen" %}:</div>
-            <div class='col-sm-4 text-end'><span class="text-warning" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans "Estimated only" %}">{{ character.stolen.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
-        </div>
-    {% endif %}
-
     {% if character.mission_income.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Mission Reward" %}:</div>
