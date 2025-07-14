@@ -1,11 +1,10 @@
 # Standard Library
-from decimal import Decimal
 from typing import TYPE_CHECKING
 
 # Django
 from django.db import models, transaction
 from django.db.models import DecimalField, F, Q, Sum, Value
-from django.db.models.functions import Coalesce, Round
+from django.db.models.functions import Coalesce
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
@@ -14,7 +13,7 @@ from allianceauth.services.hooks import get_extension_logger
 from app_utils.logging import LoggerAddTag
 
 # AA Ledger
-from ledger import __title__, app_settings
+from ledger import __title__
 from ledger.constants import (
     ASSETS,
     BOUNTY_PRIZES,
@@ -89,13 +88,6 @@ COSTS_FILTER = Q(
 
 
 class CorporationWalletQuerySet(models.QuerySet):
-    def _convert_corp_tax(self, ess: models.QuerySet) -> Decimal:
-        """Convert corp tax to correct amount for character ledger"""
-        amount = (ess / app_settings.LEDGER_CORP_TAX) * (
-            100 - app_settings.LEDGER_CORP_TAX
-        )
-        return amount
-
     def annotate_bounty_income(self) -> models.QuerySet:
         return self.annotate(
             bounty_income=Coalesce(
@@ -108,21 +100,7 @@ class CorporationWalletQuerySet(models.QuerySet):
             )
         )
 
-    def annotate_ess_income(self, is_character: bool = False) -> models.QuerySet:
-        if is_character:
-            return self.annotate(
-                ess_income=Round(
-                    Coalesce(
-                        Sum(
-                            self._convert_corp_tax(F("amount")),
-                            filter=(ESS_FILTER),
-                        ),
-                        Value(0),
-                        output_field=DecimalField(),
-                    ),
-                    precision=2,
-                )
-            )
+    def annotate_ess_income(self) -> models.QuerySet:
         return self.annotate(
             ess_income=Coalesce(
                 Sum(

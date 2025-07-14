@@ -149,7 +149,6 @@ With the Following IDs you can set up the permissions for the Ledger
 | `basic_access`             | Can access the Ledger module               | All Members with the Permission can access the Ledger. |
 | `advanced_access`          | Can access Corporation and Alliance Ledger | Can see Corporation & Alliance Ledger.                 |
 | `admin_access`             | Can access the Administration tools        | Can add/manage Corporations, Alliances.                |
-| `event_admin_access`       | Can access Events Tools                    | Can add/edit Events.                                   |
 | `char_audit_manager`       | Has Access to all characters for own Corp  | Can see all Chars from Corps he is in.                 |
 | `char_audit_admin_manager` | Has Access to all Characters               | Can see all Chars.                                     |
 | `corp_audit_admin_manager` | Has Access to all Corporations             | Can see all Corps.                                     |
@@ -160,7 +159,6 @@ The Following Settings can be setting up in the `local.py`
 
 - LEDGER_APP_NAME: `"YOURNAME"` - Set the name of the APP
 - LEDGER_TASKS_TIME_LIMIT: `7200` - Defines the time (in seconds) a task will timeout
-- LEDGER_CORP_TAX: `15` - Set Tax Value for ESS Payout Calculation
 
 Advanced Settings: Stale Status for Each Section
 

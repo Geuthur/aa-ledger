@@ -17,6 +17,7 @@
 - Character ESS Calculation
 - Old ESS Stolen Calculation
 - Event System
+- Daily Calculation for Character (Will be added again later)
 
 # [0.8.1] - 2025-07-11
 

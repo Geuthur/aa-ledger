@@ -132,10 +132,8 @@ class CharacterProcess:
             donation = self.glances.glance_char.aggregate_donation(
                 char.character_id, exclude=self.alt_ids
             )
-            daily_goal = self.glances.glance_corp.aggregate_daily_goal(
-                char.character_id, is_character=True
-            )
-            miscellaneous += donation + daily_goal
+            miscellaneous += donation
+
             costs = self.glances.glance_char.aggregate_costs(char.character_id)
 
             if bounty == 0 and miscellaneous == 0 and costs == 0:
@@ -189,9 +187,6 @@ class CharacterProcess:
             ),
             "total_amount_others": (
                 self.glances.glance_char.aggregate_miscellaneous(self.chars_ids)
-                + self.glances.glance_corp.aggregate_daily_goal(
-                    self.chars_ids, is_character=True
-                )
                 + self.glances.glance_char.aggregate_donation(
                     self.chars_ids, exclude=self.alt_ids
                 )
@@ -226,7 +221,6 @@ class CharacterProcess:
         )
 
         day_glance = AggregateLedger(self.glances.glance_day_char)
-        day_glance_corp = AggregateLedger(self.glances.glance_day_corp)
         day_glance_mining = AggregateMining(self.glances.glance_day_mining)
 
         amounts = defaultdict(lambda: defaultdict(Decimal))
@@ -354,17 +348,6 @@ class CharacterProcess:
                 self.chars_ids
             ),
             "total_amount_day": day_glance.aggregate_planetary(self.chars_ids),
-        }
-
-        # Corporation Stuff
-
-        amounts["daily_goal_income"] = {
-            "total_amount": self.glances.glance_corp.aggregate_daily_goal(
-                self.chars_ids, is_character=True
-            ),
-            "total_amount_day": day_glance_corp.aggregate_daily_goal(
-                self.chars_ids, is_character=True
-            ),
         }
 
         information_dict.update(
