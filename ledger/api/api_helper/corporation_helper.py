@@ -23,7 +23,6 @@ from ledger.api.api_helper.information_helper import (
     InformationData,
 )
 from ledger.api.helpers import get_alts_queryset
-from ledger.helpers.core import events_filter
 from ledger.models.corporationaudit import (
     CorporationAudit,
     CorporationWalletJournalEntry,
@@ -68,9 +67,6 @@ class CorporationProcess:
             self._filter_date(),
             division__corporation__corporation__corporation_id=self.corporation.corporation.corporation_id,
         )
-
-        # Exclude Corp Tax Events
-        self.corporation_journal = events_filter(self.corporation_journal)
 
         # Get Glances
         self.glance = AggregateLedger(self.corporation_journal)

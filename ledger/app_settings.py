@@ -28,9 +28,6 @@ FUZZ_BASE_URL_REGEX = r"^http[s]?:\/\/(www\.)?fuzzwork\.co\.uk\/"
 # Max Time to set Char Inactive
 LEDGER_CHAR_MAX_INACTIVE_DAYS = clean_setting("LEDGER_CHAR_MAX_INACTIVE_DAYS", 3)
 
-# Set the Corporation Tax for Corporation & CharacterLedger Caluclation of ESS Payout
-LEDGER_CORP_TAX = clean_setting("LEDGER_CORP_TAX", 15)
-
 # Global timeout for tasks in seconds to reduce task accumulation during outages.
 LEDGER_TASKS_TIME_LIMIT = clean_setting("LEDGER_TASKS_TIME_LIMIT", 7200)
 

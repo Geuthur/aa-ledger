@@ -1,6 +1,3 @@
-# Standard Library
-from decimal import Decimal
-
 # Django
 from django.db.models import Q, QuerySet, Sum
 
@@ -11,7 +8,7 @@ from allianceauth.services.hooks import get_extension_logger
 from app_utils.logging import LoggerAddTag
 
 # AA Ledger
-from ledger import __title__, app_settings
+from ledger import __title__
 from ledger.constants import (
     ASSETS,
     BOUNTY_PRIZES,
@@ -40,13 +37,6 @@ from ledger.models.corporationaudit import (
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
-def convert_corp_tax(amount: Decimal) -> Decimal:
-    """Convert corp tax to correct amount for character ledger"""
-    return (amount / app_settings.LEDGER_CORP_TAX) * (
-        100 - app_settings.LEDGER_CORP_TAX
-    )
-
-
 class AggregateCore:
     def __init__(self, qs: QuerySet):
         self.queryset = qs
@@ -72,8 +62,10 @@ class AggegratePvE(AggregateCore):
             or 0
         )
 
-    def aggregate_ess(self, second_party=None, is_character=False):
-        """Aggregate ESS data.
+    def aggregate_ess(self, second_party=None):
+        """
+        Aggregate ESS data.
+
         This method is only for CorporationWalletJournalEntry.
         """
         qs = self.queryset
@@ -90,10 +82,6 @@ class AggegratePvE(AggregateCore):
             )["total"]
             or 0
         )
-
-        if is_character:
-            # Convert the ess amount to the correct value
-            ess_amount = int(convert_corp_tax(ess_amount))
 
         return ess_amount
 
@@ -282,10 +270,12 @@ class AggregateCosts(AggregateCore):
 class AggregateCorporation(AggregateCore):
     """Aggregate Corporation class to process corporation data."""
 
-    def aggregate_daily_goal(self, second_party=None, is_character=False):
+    def aggregate_daily_goal(self, second_party=None):
         """
         Aggregate daily goal data.
+
         This method is only for CorporationWalletJournalEntry.
+
         """
         if self.queryset.model != CorporationWalletJournalEntry:
             raise TypeError("This method is only for CorporationWalletJournalEntry")
@@ -304,10 +294,6 @@ class AggregateCorporation(AggregateCore):
             )["total"]
             or 0
         )
-
-        if is_character:
-            # Convert the ess amount to the correct value
-            daily_goal = int(convert_corp_tax(daily_goal))
 
         return daily_goal
 

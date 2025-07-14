@@ -21,7 +21,6 @@ from ledger.api.api_helper.information_helper import (
     InformationData,
 )
 from ledger.api.helpers import get_alts_queryset
-from ledger.helpers.core import events_filter
 from ledger.models.characteraudit import (
     CharacterMiningLedger,
     CharacterWalletJournalEntry,
@@ -117,10 +116,6 @@ class CharacterProcess:
             self._filter_date(),
             Q(first_party_id__in=chars_ids) | Q(second_party_id__in=chars_ids),
         )
-
-        # Exclude Corp Tax Events
-        corporation_journal = events_filter(corporation_journal)
-
         return corporation_journal
 
     def generate_ledger(self):
@@ -130,9 +125,6 @@ class CharacterProcess:
         def process_character(char):
             """Helper method to process a single character."""
             bounty = self.glances.glance_char.aggregate_bounty(char.character_id)
-            ess = self.glances.glance_corp.aggregate_ess(
-                char.character_id, is_character=True
-            )
             mining = self.glances.glance_mining.aggregate_mining(char.character_id)
             miscellaneous = self.glances.glance_char.aggregate_miscellaneous(
                 char.character_id
@@ -140,13 +132,11 @@ class CharacterProcess:
             donation = self.glances.glance_char.aggregate_donation(
                 char.character_id, exclude=self.alt_ids
             )
-            daily_goal = self.glances.glance_corp.aggregate_daily_goal(
-                char.character_id, is_character=True
-            )
-            miscellaneous += donation + daily_goal
+            miscellaneous += donation
+
             costs = self.glances.glance_char.aggregate_costs(char.character_id)
 
-            if bounty == 0 and ess == 0 and miscellaneous == 0 and costs == 0:
+            if bounty == 0 and miscellaneous == 0 and costs == 0:
                 return None
 
             data = {
@@ -154,7 +144,9 @@ class CharacterProcess:
                 "main_name": char.character_name,
                 "entity_type": "character",
                 "total_amount": bounty,
-                "total_amount_ess": ess,
+                "total_amount_ess": (
+                    bounty * Decimal("0.667")
+                ),  # Assuming 2/3 of bounty is ESS
                 "total_amount_mining": mining,
                 "total_amount_others": miscellaneous,
                 "total_amount_costs": costs,
@@ -176,7 +168,6 @@ class CharacterProcess:
 
         # Add Corporation Journal to the billboard
         rattingbar_timeline = billboard.create_timeline(self.corporation_journal)
-        rattingbar = rattingbar_timeline.annotate_ess_income(is_character=True)
         billboard.create_or_update_results(rattingbar)
 
         billboard.create_ratting_bar()
@@ -184,9 +175,10 @@ class CharacterProcess:
         # Aggregate totals
         totals = {
             "total_amount": self.glances.glance_char.aggregate_bounty(self.chars_ids),
-            "total_amount_ess": self.glances.glance_corp.aggregate_ess(
-                self.chars_ids, is_character=True
-            ),
+            "total_amount_ess": self.glances.glance_char.aggregate_bounty(
+                self.chars_ids
+            )
+            * Decimal("0.667"),  # Assuming 2/3 of bounty is ESS
             "total_amount_mining": self.glances.glance_mining.aggregate_mining(
                 self.chars_ids
             ),
@@ -195,9 +187,6 @@ class CharacterProcess:
             ),
             "total_amount_others": (
                 self.glances.glance_char.aggregate_miscellaneous(self.chars_ids)
-                + self.glances.glance_corp.aggregate_daily_goal(
-                    self.chars_ids, is_character=True
-                )
                 + self.glances.glance_char.aggregate_donation(
                     self.chars_ids, exclude=self.alt_ids
                 )
@@ -232,14 +221,22 @@ class CharacterProcess:
         )
 
         day_glance = AggregateLedger(self.glances.glance_day_char)
-        day_glance_corp = AggregateLedger(self.glances.glance_day_corp)
         day_glance_mining = AggregateMining(self.glances.glance_day_mining)
 
         amounts = defaultdict(lambda: defaultdict(Decimal))
 
+        bounty_income = self.glances.glance_char.aggregate_bounty(self.chars_ids)
+        bounty_income_day = day_glance.aggregate_bounty(self.chars_ids)
+
         amounts["bounty_income"] = {
-            "total_amount": self.glances.glance_char.aggregate_bounty(self.chars_ids),
-            "total_amount_day": day_glance.aggregate_bounty(self.chars_ids),
+            "total_amount": bounty_income,
+            "total_amount_day": bounty_income_day,
+        }
+
+        amounts["ess_income"] = {
+            "total_amount": bounty_income
+            * Decimal("0.667"),  # Assuming 2/3 of bounty is ESS
+            "total_amount_day": bounty_income_day * Decimal("0.667"),
         }
 
         amounts["mission_income"] = {
@@ -351,26 +348,6 @@ class CharacterProcess:
                 self.chars_ids
             ),
             "total_amount_day": day_glance.aggregate_planetary(self.chars_ids),
-        }
-
-        # Corporation Stuff
-
-        amounts["ess_income"] = {
-            "total_amount": self.glances.glance_corp.aggregate_ess(
-                self.chars_ids, is_character=True
-            ),
-            "total_amount_day": day_glance_corp.aggregate_ess(
-                self.chars_ids, is_character=True
-            ),
-        }
-
-        amounts["daily_goal_income"] = {
-            "total_amount": self.glances.glance_corp.aggregate_daily_goal(
-                self.chars_ids, is_character=True
-            ),
-            "total_amount_day": day_glance_corp.aggregate_daily_goal(
-                self.chars_ids, is_character=True
-            ),
         }
 
         information_dict.update(

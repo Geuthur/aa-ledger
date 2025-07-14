@@ -8,5 +8,4 @@ from .corporationaudit import (
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
 )
-from .events import Events
 from .general import EveEntity, General
