@@ -18,8 +18,8 @@ from eveuniverse.models import EveType
 # AA Ledger
 from ledger import __title__
 from ledger.decorators import log_timing
+from ledger.helpers.etag import etag_results
 from ledger.providers import esi
-from ledger.task_helpers.etag_helpers import etag_results
 
 if TYPE_CHECKING:
     # AA Ledger

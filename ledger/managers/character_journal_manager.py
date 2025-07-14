@@ -34,10 +34,10 @@ from ledger.constants import (
     TRAVELING,
 )
 from ledger.decorators import log_timing
-from ledger.providers import esi
-from ledger.task_helpers.etag_helpers import (
+from ledger.helpers.etag import (
     etag_results,
 )
+from ledger.providers import esi
 
 if TYPE_CHECKING:
     # AA Ledger
