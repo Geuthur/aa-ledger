@@ -4,7 +4,11 @@
     <thead>
         <th class="col-main-character w-auto">{% trans "Main Character" %}</th>
         <th class="col-total-amount w-auto">{% trans "Ratting Amount" %}</th>
-        <th class="col-total-ess w-auto">{% trans "ESS Payout" %} <i class="fa-regular fa-circle-question" title="{% trans 'Estimated Only' %}" data-tooltip-toggle="ledger-tooltip" data-bs-placement="top"></i></th>
+        <th class="col-total-ess w-auto">{% trans "ESS Payout" %}
+            {% if entity_type == 'character' %}
+                <i class="fa-regular fa-circle-question" title="{% trans 'Estimated Only' %}" data-tooltip-toggle="ledger-tooltip" data-bs-placement="top"></i>
+            {% endif %}
+        </th>
         {% if entity_type == 'character' %}
             <th class="col-total-mining w-auto">{% trans "Mining Amount" %}</th>
         {% endif %}
