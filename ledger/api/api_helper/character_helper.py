@@ -164,12 +164,7 @@ class CharacterProcess:
         rattingbar = rattingbar_timeline.annotate_bounty_income().annotate_miscellaneous_with_exclude(
             exclude=self.alt_ids
         )
-        billboard.create_or_update_results(rattingbar)
-
-        # Add Corporation Journal to the billboard
-        rattingbar_timeline = billboard.create_timeline(self.corporation_journal)
-        billboard.create_or_update_results(rattingbar)
-
+        billboard.create_or_update_results(rattingbar, is_char_ledger=True)
         billboard.create_ratting_bar()
 
         # Aggregate totals
