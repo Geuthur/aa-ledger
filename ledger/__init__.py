@@ -1,6 +1,6 @@
 """Initialize the app"""
 
-__version__ = "0.8.2"
+__version__ = "0.8.3"
 __title__ = "Ledger"
 
 __package_name__ = "aa-ledger"
