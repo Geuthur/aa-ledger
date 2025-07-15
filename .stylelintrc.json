@@ -1,6 +1,6 @@
 {
     "extends": "stylelint-config-standard",
-    "ignoreFiles": ["**/assets/**/*.css", "**/assets/**/*.js"],
+    "ignoreFiles": ["**/libs/**/*.css", "**/libs/**/*.js"],
     "rules": {
         "color-no-hex": true,
         "no-descending-specificity": null

@@ -21,7 +21,6 @@ from ledger.api.api_helper.billboard_helper import BillboardSystem
 from ledger.api.api_helper.information_helper import (
     InformationData,
 )
-from ledger.helpers.core import events_filter
 from ledger.models.corporationaudit import (
     CorporationAudit,
     CorporationWalletJournalEntry,
@@ -65,9 +64,6 @@ class AllianceProcess:
             self._filter_date(),
             division__corporation__corporation__alliance__alliance_id=self.alliance.alliance_id,
         )
-
-        # Exclude Corp Tax Events
-        self.corporation_journal = events_filter(self.corporation_journal)
 
         # Get Glances
         self.glance = AggregateLedger(self.corporation_journal)

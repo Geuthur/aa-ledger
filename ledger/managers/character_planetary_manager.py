@@ -16,9 +16,9 @@ from eveuniverse.models import EvePlanet, EveType
 from ledger import __title__
 from ledger.constants import COMMAND_CENTER, EXTRACTOR_CONTROL_UNIT, SPACEPORTS
 from ledger.decorators import log_timing
+from ledger.helpers.etag import etag_results
 from ledger.models.characteraudit import CharacterAudit
 from ledger.providers import esi
-from ledger.task_helpers.etag_helpers import etag_results
 
 if TYPE_CHECKING:  # pragma: no cover
     # AA Ledger
