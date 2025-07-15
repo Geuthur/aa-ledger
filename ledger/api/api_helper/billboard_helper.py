@@ -1,5 +1,6 @@
 # Standard Library
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import Any
 
 # Django
@@ -148,7 +149,9 @@ class BillboardSystem:
         qs = qs.values("period").order_by("period")
         return qs
 
-    def create_or_update_results(self, qs: QuerySet[dict]):
+    def create_or_update_results(
+        self, qs: QuerySet[dict], is_char_ledger: bool = False
+    ):
         """Create or update the results for the billboard"""
         for entry in qs:
             date = entry["period"]
@@ -164,7 +167,9 @@ class BillboardSystem:
                     "miscellaneous": 0,
                 }
             self.results[date]["bounty"] += bounty
-            self.results[date]["ess"] += ess
+            self.results[date]["ess"] += (
+                ess if not is_char_ledger else bounty * Decimal("0.667")
+            )
             self.results[date]["miscellaneous"] += miscellaneous
 
         return self.results
