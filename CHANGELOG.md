@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.8.3] - 2025-07-15
+
+### Added
+
+- Character ESS Calculation to Billboard
+
 # [0.8.2] - 2025-07-14
 
 ### Added
