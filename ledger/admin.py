@@ -1,7 +1,7 @@
 """Admin models"""
 
 # Django
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.db.models import Max, Q
 from django.utils import timezone
@@ -15,6 +15,7 @@ from allianceauth.eveonline.evelinks import eveimageserver
 # AA Ledger
 from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
 from ledger.models.corporationaudit import CorporationAudit, CorporationUpdateStatus
+from ledger.tasks import update_character, update_corporation
 
 
 class CorporationUpdateStatusAdminInline(admin.TabularInline):
@@ -104,6 +105,7 @@ class CorporationAuditAdmin(admin.ModelAdmin):
 
     actions = [
         "delete_objects",
+        "force_update",
     ]
 
     inlines = (CorporationUpdateStatusAdminInline,)
@@ -140,6 +142,23 @@ class CorporationAuditAdmin(admin.ModelAdmin):
     # pylint: disable=unused-argument
     def has_change_permission(self, request, obj=None):
         return False
+
+    @admin.action(description=_("Force update selected corporations"))
+    def force_update(self, request, queryset):
+        """Force update of selected corporations."""
+        count = 0
+        for corporation_audit in queryset:
+            update_corporation.delay(
+                corporation_pk=corporation_audit.pk, force_refresh=True
+            )
+            count += 1
+
+        messages.success(
+            request,
+            _(
+                f"Started force update for {count} corporation(s). Updates will run in the background."
+            ),
+        )
 
 
 class CharacterUpdateStatusAdminInline(admin.TabularInline):
@@ -228,6 +247,7 @@ class CharacterAuditAdmin(admin.ModelAdmin):
 
     actions = [
         "delete_objects",
+        "force_update",
     ]
 
     inlines = (CharacterUpdateStatusAdminInline,)
@@ -264,3 +284,18 @@ class CharacterAuditAdmin(admin.ModelAdmin):
     # pylint: disable=unused-argument
     def has_change_permission(self, request, obj=None):
         return False
+
+    @admin.action(description=_("Force update selected characters"))
+    def force_update(self, request, queryset):
+        """Force update of selected characters."""
+        count = 0
+        for character_audit in queryset:
+            update_character.delay(character_pk=character_audit.pk, force_refresh=True)
+            count += 1
+
+        messages.success(
+            request,
+            _(
+                f"Started force update for {count} character(s). Updates will run in the background."
+            ),
+        )
