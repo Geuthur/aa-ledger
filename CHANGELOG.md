@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.8.4] - 2025-07-19
+
+### Removed
+
+- 0011 Migration (created now by `calc_update_needed`)
+
+### Fixed
+
+- New Sections not included to Updates
+- Wallet Balance not updating correctly
+
+### Added
+
+- Force Update Option for Django Administration
+
 # [0.8.3] - 2025-07-15
 
 ### Added

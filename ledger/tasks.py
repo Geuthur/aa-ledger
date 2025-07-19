@@ -371,6 +371,16 @@ def update_corporation(
 
 @shared_task(**_update_ledger_corp_params)
 @when_esi_is_available
+def update_corp_wallet_division_names(corporation_pk: int, force_refresh: bool):
+    return _update_corporation_section(
+        corporation_pk,
+        section=CorporationAudit.UpdateSection.WALLET_DIVISION_NAMES,
+        force_refresh=force_refresh,
+    )
+
+
+@shared_task(**_update_ledger_corp_params)
+@when_esi_is_available
 def update_corp_wallet_division(corporation_pk: int, force_refresh: bool):
     return _update_corporation_section(
         corporation_pk,
