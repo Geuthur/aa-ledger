@@ -5,6 +5,7 @@ from unittest.mock import patch
 # Django
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils import timezone
 
 # AA Ledger
 from ledger import tasks
@@ -61,6 +62,20 @@ class TestUpdateCharacter(TestCase):
         cls.audit = create_characteraudit_from_evecharacter(1001)
 
     def test_update_character_should_no_updated(self, mock_logger, __):
+        # given
+        for section in self.audit.UpdateSection.get_sections():
+            create_update_status(
+                self.audit,
+                section=section,
+                is_success=True,
+                error_message="",
+                has_token_error=False,
+                last_run_at=timezone.now(),
+                last_run_finished_at=timezone.now(),
+                last_update_at=timezone.now(),
+                last_update_finished_at=timezone.now(),
+            )
+
         # when
         tasks.update_character(self.audit.pk)
         # then
@@ -122,6 +137,19 @@ class TestUpdateCorporation(TestCase):
         cls.audit = create_corporationaudit_from_evecharacter(1001)
 
     def test_update_corporation_should_no_updated(self, mock_logger, __):
+        # given
+        for section in self.audit.UpdateSection.get_sections():
+            create_corporation_update_status(
+                self.audit,
+                section=section,
+                is_success=True,
+                error_message="",
+                has_token_error=False,
+                last_run_at=timezone.now(),
+                last_run_finished_at=timezone.now(),
+                last_update_at=timezone.now(),
+                last_update_finished_at=timezone.now(),
+            )
         # when
         tasks.update_corporation(self.audit.pk)
         # then

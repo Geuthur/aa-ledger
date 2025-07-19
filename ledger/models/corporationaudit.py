@@ -40,6 +40,7 @@ logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 class CorporationAudit(models.Model):
 
     class UpdateSection(models.TextChoices):
+        WALLET_DIVISION_NAMES = "wallet_division_names", _("Divisions Names")
         WALLET_DIVISION = "wallet_division", _("Divisions")
         WALLET_JOURNAL = "wallet_journal", _("Wallet Journal")
 
@@ -71,6 +72,11 @@ class CorporationAudit(models.Model):
         except AttributeError:
             return f"{self.corporation} ({self.id})"
 
+    def update_wallet_division_names(self, force_refresh: bool) -> None:
+        return self.ledger_corporation_division.update_or_create_esi_names(
+            self, force_refresh=force_refresh
+        )
+
     def update_wallet_division(self, force_refresh: bool) -> None:
         return self.ledger_corporation_division.update_or_create_esi(
             self, force_refresh=force_refresh
@@ -84,13 +90,19 @@ class CorporationAudit(models.Model):
     # pylint: disable=duplicate-code
     def calc_update_needed(self) -> _NeedsUpdate:
         """Calculate if an update is needed."""
-        sections: models.QuerySet[CorporationUpdateStatus] = (
+        sections_needs_update = {
+            section: True for section in self.UpdateSection.get_sections()
+        }
+        existing_sections: models.QuerySet[CorporationUpdateStatus] = (
             self.ledger_corporation_update_status.all()
         )
-        needs_update = {}
-        for section in sections:
-            needs_update[section.section] = section.need_update()
-        return _NeedsUpdate(section_map=needs_update)
+        needs_update = {
+            obj.section: obj.need_update()
+            for obj in existing_sections
+            if obj.section in sections_needs_update
+        }
+        sections_needs_update.update(needs_update)
+        return _NeedsUpdate(section_map=sections_needs_update)
 
     # pylint: disable=duplicate-code
     def reset_update_status(self, section: UpdateSection) -> "CorporationUpdateStatus":

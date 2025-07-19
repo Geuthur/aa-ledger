@@ -33,6 +33,7 @@ LEDGER_TASKS_TIME_LIMIT = clean_setting("LEDGER_TASKS_TIME_LIMIT", 7200)
 
 LEDGER_STALE_TYPES = {
     "wallet_journal": 60,
+    "wallet_division_names": 60,
     "wallet_division": 60,
     "mining_ledger": 30,
     "planets": 30,

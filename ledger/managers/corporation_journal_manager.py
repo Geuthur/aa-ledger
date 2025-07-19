@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from django.db import models, transaction
 from django.db.models import DecimalField, F, Q, Sum, Value
 from django.db.models.functions import Coalesce
+from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
@@ -268,6 +269,36 @@ class CorporationDivisionManagerBase(models.Manager):
             force_refresh=force_refresh,
         )
 
+    @log_timing(logger)
+    def update_or_create_esi_names(
+        self, corporation: "CorporationAudit", force_refresh: bool = False
+    ) -> None:
+        """Update or Create a division entry from ESI data."""
+        return corporation.update_section_if_changed(
+            section=corporation.UpdateSection.WALLET_DIVISION_NAMES,
+            fetch_func=self._fetch_esi_data_names,
+            force_refresh=force_refresh,
+        )
+
+    def _fetch_esi_data_names(
+        self, corporation: "CorporationAudit", force_refresh: bool = False
+    ) -> None:
+        """Fetch division entries from ESI data."""
+        req_scopes = [
+            "esi-corporations.read_divisions.v1",
+        ]
+        req_roles = ["CEO", "Director"]
+
+        token = corporation.get_token(scopes=req_scopes, req_roles=req_roles)
+
+        division_obj = esi.client.Corporation.get_corporations_corporation_id_divisions(
+            corporation_id=corporation.corporation.corporation_id,
+        )
+
+        division_names = etag_results(division_obj, token, force_refresh=force_refresh)
+
+        self._update_or_create_objs_division(corporation, division_names)
+
     def _fetch_esi_data(
         self, corporation: "CorporationAudit", force_refresh: bool = False
     ) -> None:
@@ -281,43 +312,57 @@ class CorporationDivisionManagerBase(models.Manager):
 
         token = corporation.get_token(scopes=req_scopes, req_roles=req_roles)
 
-        names = {}
-
-        division_obj = esi.client.Corporation.get_corporations_corporation_id_divisions(
-            corporation_id=corporation.corporation.corporation_id,
-        )
-
-        division_items = etag_results(division_obj, token, force_refresh=force_refresh)
-
-        for division in division_items.get("wallet"):
-            names[division.get("division")] = division.get("name")
-
         divisions_items_obj = esi.client.Wallet.get_corporations_corporation_id_wallets(
             corporation_id=corporation.corporation.corporation_id
         )
 
-        division_items = etag_results(
+        division_balances = etag_results(
             divisions_items_obj, token, force_refresh=force_refresh
         )
-        self._update_or_create_objs(corporation, division_items, names)
+        self._update_or_create_objs(corporation, division_balances)
+
+    @transaction.atomic()
+    def _update_or_create_objs_division(
+        self,
+        corporation: "CorporationAudit",
+        objs: list,
+    ) -> None:
+        """Update or Create division entries from objs data."""
+        for division in objs.get("wallet"):
+            if division.get("division") == 1:
+                name = _("Master Wallet")
+            else:
+                name = division.get("name", _("Unknown"))
+
+            obj, created = self.get_or_create(
+                corporation=corporation,
+                division_id=division.get("division"),
+                defaults={"balance": 0, "name": name},
+            )
+            if not created:
+                obj.name = name
+                obj.save()
 
     @transaction.atomic()
     def _update_or_create_objs(
         self,
         corporation: "CorporationAudit",
         objs: list,
-        names: dict,
     ) -> None:
         """Update or Create division entries from objs data."""
         for division in objs:
-            self.update_or_create(
+            obj, created = self.get_or_create(
                 corporation=corporation,
                 division_id=division.get("division"),
                 defaults={
                     "balance": division.get("balance"),
-                    "name": names.get(division.get("division"), "Unknown"),
+                    "name": _("Unknown"),
                 },
             )
+
+            if not created:
+                obj.balance = division.get("balance")
+                obj.save()
 
 
 CorporationDivisionManager = CorporationDivisionManagerBase.from_queryset(
