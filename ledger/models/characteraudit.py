@@ -191,13 +191,19 @@ class CharacterAudit(models.Model):
 
     def calc_update_needed(self) -> _NeedsUpdate:
         """Calculate if an update is needed."""
-        sections: models.QuerySet[CharacterUpdateStatus] = (
+        sections_needs_update = {
+            section: True for section in self.UpdateSection.get_sections()
+        }
+        existing_sections: models.QuerySet[CharacterUpdateStatus] = (
             self.ledger_update_status.all()
         )
-        needs_update = {}
-        for section in sections:
-            needs_update[section.section] = section.need_update()
-        return _NeedsUpdate(section_map=needs_update)
+        needs_update = {
+            obj.section: obj.need_update()
+            for obj in existing_sections
+            if obj.section in sections_needs_update
+        }
+        sections_needs_update.update(needs_update)
+        return _NeedsUpdate(section_map=sections_needs_update)
 
     def reset_update_status(self, section: UpdateSection) -> "CharacterUpdateStatus":
         """Reset the status of a given update section and return it."""
