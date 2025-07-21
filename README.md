@@ -148,10 +148,11 @@ With the Following IDs you can set up the permissions for the Ledger
 | :------------------------- | :----------------------------------------- | :----------------------------------------------------- |
 | `basic_access`             | Can access the Ledger module               | All Members with the Permission can access the Ledger. |
 | `advanced_access`          | Can access Corporation and Alliance Ledger | Can see Corporation & Alliance Ledger.                 |
-| `admin_access`             | Can access the Administration tools        | Can add/manage Corporations, Alliances.                |
-| `char_audit_manager`       | Has Access to all characters for own Corp  | Can see all Chars from Corps he is in.                 |
-| `char_audit_admin_manager` | Has Access to all Characters               | Can see all Chars.                                     |
-| `corp_audit_admin_manager` | Has Access to all Corporations             | Can see all Corps.                                     |
+| `manage_access`            | Can Manage Ledger                          | Can add/manage Corporations, Alliances.                |
+| `char_audit_manager`       | Has Access to all characters for own Corp  | Can see all Characters from Corps he is                |
+| `char_audit_admin_manager` | Has Access to all Characters               | Can see all Characters.                                |
+| `corp_audit_manager`       | Has Access to own Corporations             | Can see own Corporations.                              |
+| `corp_audit_admin_manager` | Has Access to all Corporations             | Can see all Corporations.                              |
 
 ### Step 6 - (Optional) Settings<a name="step6"></a>
 

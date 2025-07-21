@@ -75,7 +75,7 @@ def corporation_overview(request):
 
 
 @login_required
-@permission_required("ledger.admin_access")
+@permission_required("ledger.manage_access")
 def corporation_administration(request, corporation_id):
     """
     Corporation Administration
@@ -110,7 +110,7 @@ def corporation_administration(request, corporation_id):
 
 
 @login_required
-@permission_required("ledger.admin_access")
+@permission_required("ledger.manage_access")
 @require_POST
 def corporation_delete(request, corporation_id):
     """

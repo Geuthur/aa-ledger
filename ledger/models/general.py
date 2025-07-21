@@ -42,7 +42,7 @@ class General(models.Model):
         permissions = (
             ("basic_access", "Can access this app, Ledger."),
             ("advanced_access", "Can access Corporation and Alliance Ledger."),
-            ("admin_access", "Has access to all Administration tools"),
+            ("manage_access", "Can manage Ledger."),
         )
 
 

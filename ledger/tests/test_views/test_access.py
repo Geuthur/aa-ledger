@@ -288,7 +288,8 @@ class TestViewCorporationLedgerAccess(TestCase):
             permissions=[
                 "ledger.basic_access",
                 "ledger.advanced_access",
-                "ledger.admin_access",
+                "ledger.manage_access",
+                "ledger.corp_audit_manager",
             ],
         )
         cls.user_no_perm, cls.character_ownership_no_perm = (
@@ -297,7 +298,7 @@ class TestViewCorporationLedgerAccess(TestCase):
                 permissions=[
                     "ledger.basic_access",
                     "ledger.advanced_access",
-                    "ledger.admin_access",
+                    "ledger.manage_access",
                 ],
             )
         )
@@ -429,7 +430,7 @@ class TestViewAllianceLedgerAccess(TestCase):
             permissions=[
                 "ledger.basic_access",
                 "ledger.advanced_access",
-                "ledger.admin_access",
+                "ledger.manage_access",
             ],
         )
         cls.audit = add_corporationaudit_corporation_to_user(cls.user, 1001)

@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 @login_required
 @token_required(scopes=["publicData"])
-@permission_required(["ledger.admin_access"])
+@permission_required(["ledger.manage_access"])
 def add_ally(request, token) -> HttpResponse:
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
     try:
