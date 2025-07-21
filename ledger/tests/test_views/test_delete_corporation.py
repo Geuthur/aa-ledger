@@ -35,7 +35,8 @@ class TestDeleteCorporationView(TestCase):
             permissions=[
                 "ledger.basic_access",
                 "ledger.advanced_access",
-                "ledger.admin_access",
+                "ledger.corp_audit_manager",
+                "ledger.manage_access",
             ],
         )
         cls.audit = add_corporationaudit_corporation_to_user(cls.user, 1001)
@@ -44,7 +45,7 @@ class TestDeleteCorporationView(TestCase):
             permissions=[
                 "ledger.basic_access",
                 "ledger.advanced_access",
-                "ledger.admin_access",
+                "ledger.manage_access",
             ],
         )
 
@@ -77,6 +78,7 @@ class TestDeleteCorporationView(TestCase):
         self.assertEqual(response_data["message"], "Corporation not found")
 
     def test_delete_corporation_no_permission(self):
+        """Test deleting a corporation without being in the corporation."""
         request = self.factory.post(reverse("ledger:delete_corp", args=[2001]))
         request.user = self.no_audit_user
 

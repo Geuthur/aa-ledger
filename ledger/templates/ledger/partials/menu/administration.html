@@ -7,7 +7,7 @@
     </a>
 </li>
 
-{% if perms.ledger.admin_access %}
+{% if perms.ledger.manage_access %}
     <li class="nav-item">
         <a class="nav-link py-0" href="{% url 'ledger:add_corp' %}">
             <span class="btn btn-success">{% translate 'Add Corporation' %}</span>

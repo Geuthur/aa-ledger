@@ -73,7 +73,7 @@ def alliance_overview(request):
 
 
 @login_required
-@permission_required("ledger.admin_access")
+@permission_required("ledger.manage_access")
 def alliance_administration(request, alliance_id):
     """
     Alliance Administration

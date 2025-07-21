@@ -266,7 +266,10 @@ class CorporationAudit(models.Model):
 
     class Meta:
         default_permissions = ()
-        permissions = (("corp_audit_admin_manager", "Has access to all Corporations"),)
+        permissions = (
+            ("corp_audit_manager", "Has Access to own Corporations."),
+            ("corp_audit_admin_manager", "Has access to all Corporations."),
+        )
 
 
 class CorporationWalletDivision(models.Model):

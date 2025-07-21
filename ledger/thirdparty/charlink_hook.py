@@ -19,7 +19,7 @@ from ledger.models.corporationaudit import CorporationAudit
 from ledger.tasks import update_character, update_corporation
 
 _corp_perms = [
-    "ledger.admin_access",
+    "ledger.manage_access",
 ]
 
 

@@ -30,16 +30,23 @@ class CorporationAuditQuerySet(models.QuerySet):
         try:
             char = user.profile.main_character
             assert char
-            query = None
+            queries = []
 
             if user.has_perm("ledger.advanced_access"):
-                query = models.Q(corporation__corporation_id=char.corporation_id)
+                # If the user has advanced access, return all corps from their characters
+                corp_ids = char.character_ownership.user.character_ownerships.all().values_list(
+                    "character__corporation_id", flat=True
+                )
+                queries.append(models.Q(corporation__corporation_id__in=corp_ids))
 
-            logger.debug("Returning own corps for User %s.", user)
+            logger.debug("%s queries for User %s.", len(queries), user)
 
-            if query is None:
+            if len(queries) == 0:
                 return self.none()
 
+            query = queries.pop()
+            for q in queries:
+                query |= q
             return self.filter(query)
         except AssertionError:
             logger.debug("User %s has no main character. Nothing visible.", user)
@@ -61,16 +68,23 @@ class CorporationAuditQuerySet(models.QuerySet):
         try:
             char = user.profile.main_character
             assert char
-            query = None
+            queries = []
 
-            if user.has_perm("ledger.admin_access"):
-                query = models.Q(corporation__corporation_id=char.corporation_id)
+            if user.has_perm("ledger.corp_audit_manager"):
+                # If the user has corp management access, return all corps from their characters
+                corp_ids = char.character_ownership.user.character_ownerships.all().values_list(
+                    "character__corporation_id", flat=True
+                )
+                queries.append(models.Q(corporation__corporation_id__in=corp_ids))
 
-            logger.debug("Returning own corps for User %s.", user)
+            logger.debug("%s queries for User %s.", len(queries), user)
 
-            if query is None:
+            if len(queries) == 0:
                 return self.none()
 
+            query = queries.pop()
+            for q in queries:
+                query |= q
             return self.filter(query)
         except AssertionError:
             logger.debug("User %s has no main character. Nothing visible.", user)
