@@ -20,7 +20,7 @@ from ledger import __title__
 from ledger.api import schema
 from ledger.api.helpers import (
     get_all_corporations_from_alliance,
-    get_character,
+    get_character_or_none,
     get_corporation,
 )
 from ledger.models.characteraudit import CharacterAudit
@@ -167,22 +167,19 @@ class LedgerAdminApiEndpoints:
             tags=self.tags,
         )
         def get_character_dashboard(request, character_id: int):
-            perm, character = get_character(request, character_id)
+            perm, character = get_character_or_none(request, character_id)
 
             if not perm:
                 return 403, "Permission Denied"
             if perm is None:
                 return 403, "Character not found"
 
-            linked_characters = (
-                character.character_ownership.user.character_ownerships.all()
-            )
-            linked_characters_ids = linked_characters.values_list(
-                "character__character_id", flat=True
+            linked_characters_ids = character.alts.values_list(
+                "character_id", flat=True
             )
 
             characters = CharacterAudit.objects.filter(
-                character__character_id__in=linked_characters_ids
+                eve_character__character_id__in=linked_characters_ids
             )
 
             auth_characters = len(linked_characters_ids)
@@ -197,7 +194,7 @@ class LedgerAdminApiEndpoints:
             issues = []
             for char in characters:
                 if char.ledger_update_status.filter(is_success=False).exists():
-                    issues.append(char.character.character_name)
+                    issues.append(char.eve_character.character_name)
 
             if issues:
                 status_msg = _("Please re-register characters with issues")

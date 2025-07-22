@@ -63,7 +63,7 @@ class PlanetaryManagerBase(models.Manager):
         token = character.get_token(scopes=req_scopes)
         planets_obj = (
             esi.client.Planetary_Interaction.get_characters_character_id_planets(
-                character_id=character.character.character_id
+                character_id=character.eve_character.character_id
             )
         )
         planets_items = etag_results(planets_obj, token, force_refresh=force_refresh)
@@ -306,7 +306,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
 
         for planet_id in planets_ids:
             planets_obj = esi.client.Planetary_Interaction.get_characters_character_id_planets_planet_id(
-                character_id=character.character.character_id, planet_id=planet_id
+                character_id=character.eve_character.character_id, planet_id=planet_id
             )
             planets_items = etag_results(
                 planets_obj, token, force_refresh=force_refresh
@@ -330,7 +330,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
             logger.warning(
                 "Planet %s not found for character %s",
                 planet_id,
-                character.character.character_name,
+                character.eve_character.character_name,
             )
             return
 
@@ -349,7 +349,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
                 logger.debug(
                     "Planet %s Extractor Heads Expired for: %s",
                     planet_details.planet.planet.name,
-                    planet_details.planet.character.character.character_name,
+                    planet_details.planet.character.eve_character.character_name,
                 )
                 planet_details.last_alert = timezone.now()
 
@@ -361,7 +361,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
             ):
                 logger.debug(
                     "Notification Reseted for %s Planet: %s",
-                    planet_details.planet.character.character.character_name,
+                    planet_details.planet.character.eve_character.character_name,
                     planet_details.planet.planet.name,
                 )
                 planet_details.last_alert = None

@@ -26,6 +26,7 @@
         planetaryUrl: '{% url "ledger:api:get_planetarydetails" character_id=character_id planet_id=0 %}',
         viewFactoryUrl: '{% url "ledger:api:get_factory_info" character_id=1337 planet_id=1337 %}',
         viewExtractorUrl: '{% url "ledger:api:get_extractor_info" character_id=1337 planet_id=1337 %}',
+        viewSwitchAlarmUrl: '{% url "ledger:switch_alarm" %}',
 		csrfToken: '{% csrf_token %}',
 		switchAlarmText: '{% translate "Are you sure to Switch Notification" %}',
         switchAlarm: '{% translate "Switch Notification" %}',

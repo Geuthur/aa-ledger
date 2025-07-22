@@ -263,7 +263,7 @@ class CharacterAuditAdmin(admin.ModelAdmin):
 
     @admin.display(description="")
     def _entity_pic(self, obj: CharacterAudit):
-        eve_id = obj.character.character_id
+        eve_id = obj.eve_character.character_id
         return format_html(
             '<img src="{}" class="img-circle">',
             eveimageserver._eve_entity_image_url("character", eve_id, 32),
@@ -271,7 +271,7 @@ class CharacterAuditAdmin(admin.ModelAdmin):
 
     @admin.display(description="Character Name", ordering="character__character_name")
     def _character__character_name(self, obj: CharacterAudit):
-        return obj.character.character_name
+        return obj.eve_character.character_name
 
     @admin.display(ordering="last_update_at", description=_("last update run"))
     def _last_update_at(self, obj: CharacterAudit):

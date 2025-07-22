@@ -19,7 +19,7 @@ from ledger.api.api_helper.planetary_helper import (
     generate_progressbar,
     get_facilities_info,
 )
-from ledger.api.helpers import get_alts_queryset, get_character
+from ledger.api.helpers import get_alts_queryset, get_character_or_none
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -41,7 +41,7 @@ class LedgerPlanetaryApiEndpoints:
                 character_id = request.user.profile.main_character.character_id
                 is_all = True
 
-            perm, character = get_character(request, character_id)
+            perm, character = get_character_or_none(request, character_id)
 
             if not perm:
                 return 403, str(_("Permission Denied"))
@@ -51,7 +51,7 @@ class LedgerPlanetaryApiEndpoints:
             else:
                 characters = [character]
 
-            filters = Q(character__character__in=characters)
+            filters = Q(character__eve_character__in=characters)
             if not planet_id == 0:
                 filters &= Q(planet__id=planet_id)
 
@@ -64,8 +64,8 @@ class LedgerPlanetaryApiEndpoints:
             for p in planets:
                 output.append(
                     {
-                        "character_id": p.character.character.character_id,
-                        "character_name": p.character.character.character_name,
+                        "character_id": p.character.eve_character.character_id,
+                        "character_name": p.character.eve_character.character_name,
                         "planet": p.planet.name,
                         "planet_id": p.planet.id,
                         "upgrade_level": p.upgrade_level,
@@ -83,7 +83,7 @@ class LedgerPlanetaryApiEndpoints:
         # pylint: disable=too-many-locals
         def get_planetarydetails(request, character_id: int, planet_id: int):
             singleview = request.GET.get("single", False)
-            perm, character = get_character(request, character_id)
+            perm, character = get_character_or_none(request, character_id)
 
             if not perm:
                 return 403, str(_("Permission Denied"))
@@ -93,7 +93,7 @@ class LedgerPlanetaryApiEndpoints:
             else:
                 characters = [character]
 
-            filters = Q(planet__character__character__in=characters)
+            filters = Q(planet__character__in=characters)
             if not planet_id == 0:
                 filters &= Q(planet__planet__id=planet_id)
 
@@ -103,7 +103,6 @@ class LedgerPlanetaryApiEndpoints:
                     "planet",
                     "planet__planet",
                     "planet__character",
-                    "planet__character__character",
                 )
                 .select_related("planet__planet")
             )
@@ -121,8 +120,8 @@ class LedgerPlanetaryApiEndpoints:
 
                 output.append(
                     {
-                        "character_id": p.planet.character.character.character_id,
-                        "character_name": p.planet.character.character.character_name,
+                        "character_id": p.planet.character.eve_character.character_id,
+                        "character_name": p.planet.character.eve_character.character_name,
                         "planet": p.planet.planet.name,
                         "planet_id": p.planet.planet.id,
                         "planet_type_id": p.planet.planet.eve_type.id,
@@ -148,12 +147,12 @@ class LedgerPlanetaryApiEndpoints:
         )
         def get_factory_info(request, character_id: int, planet_id: int):
             # Get the character
-            perm, character = get_character(request, character_id)
+            perm, character = get_character_or_none(request, character_id)
 
             if not perm:
                 return 403, str(_("Permission Denied"))
 
-            filters = Q(planet__character__character=character)
+            filters = Q(planet__character=character)
             if planet_id != 0:
                 filters &= Q(planet__planet__id=planet_id)
 
@@ -164,8 +163,8 @@ class LedgerPlanetaryApiEndpoints:
 
                 output = {
                     "title": _("Factory Information"),
-                    "character_id": planet.planet.character.character.character_id,
-                    "character_name": planet.planet.character.character.character_name,
+                    "character_id": planet.planet.character.eve_character.character_id,
+                    "character_name": planet.planet.character.eve_character.character_name,
                     "planet_id": planet.planet.planet.id,
                     "planet_name": planet.planet.planet.name,
                     "facilities": facilities,
@@ -194,12 +193,12 @@ class LedgerPlanetaryApiEndpoints:
             tags=self.tags,
         )
         def get_extractor_info(request, character_id: int, planet_id: int):
-            perm, character = get_character(request, character_id)
+            perm, character = get_character_or_none(request, character_id)
 
             if not perm:
                 return 403, str(_("Permission Denied"))
 
-            filters = Q(planet__character__character=character)
+            filters = Q(planet__character=character)
             if not planet_id == 0:
                 filters &= Q(planet__planet__id=planet_id)
 
@@ -207,8 +206,8 @@ class LedgerPlanetaryApiEndpoints:
                 planet = CharacterPlanetDetails.objects.get(filters)
                 output = {
                     "title": _("Extractor Information"),
-                    "character_id": planet.planet.character.character.character_id,
-                    "character_name": planet.planet.character.character.character_name,
+                    "character_id": planet.planet.character.eve_character.character_id,
+                    "character_name": planet.planet.character.eve_character.character_name,
                     "planet_id": planet.planet.planet.id,
                     "planet_name": planet.planet.planet.name,
                     "extractors": planet.get_extractors_info(),

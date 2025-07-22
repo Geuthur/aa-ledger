@@ -11,7 +11,7 @@ from django.urls import reverse
 
 # AA Ledger
 from ledger.tests.testdata.generate_characteraudit import (
-    add_charactermaudit_character_to_user,
+    add_characteraudit_character_to_user,
     create_user_from_evecharacter_with_access,
 )
 from ledger.tests.testdata.generate_planets import (
@@ -45,14 +45,14 @@ class TestViewSwitchAlarm(TestCase):
         cls.user_nopermission, cls.character_ownership_no_pm = (
             create_user_from_evecharacter_with_access(1002)
         )
-        cls.audit = add_charactermaudit_character_to_user(cls.user, 1001)
+        cls.audit = add_characteraudit_character_to_user(cls.user, 1001)
         cls.planetary = create_character_planet(cls.audit, 4001, **cls.planet_params)
         cls.planetarydetails = create_character_planet_details(
             cls.planetary, **_planetary_data
         )
 
     def test_switch_alarm(self):
-        character_id = self.audit.character.character_id
+        character_id = self.audit.eve_character.character_id
         form_data = {
             "character_id": character_id,
             "planet_id": 4001,

@@ -13,7 +13,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
 from app_utils.logging import LoggerAddTag
-from eveuniverse.models import EveType
+from eveuniverse.models import EveSolarSystem, EveType
 
 # AA Ledger
 from ledger import __title__
@@ -46,8 +46,8 @@ class CharacterMiningLedgerEntryQueryset(models.QuerySet):
         return (
             self.annotate_pricing()
             .values(
-                "character__character__character_id",
-                "character__character__character_name",
+                "character__eve_character__character_id",
+                "character__eve_character__character_name",
             )
             .annotate(
                 total_amount=Round(
@@ -65,7 +65,7 @@ class CharacterMiningLedgerEntryQueryset(models.QuerySet):
         self, amounts: defaultdict, chars_list: list, filter_date: timezone.datetime
     ) -> dict:
         """Generate data template for the ledger character information view."""
-        qs = self.filter(Q(character__character__character_id__in=chars_list))
+        qs = self.filter(Q(character__eve_character__character_id__in=chars_list))
         qs = qs.annotate_pricing()
         qs = qs.aggregate(
             total_amount=Round(
@@ -93,7 +93,7 @@ class CharacterMiningLedgerEntryQueryset(models.QuerySet):
 
     def annotate_billboard(self, chars_list: list) -> models.QuerySet:
         """Annotate billboard columns."""
-        qs = self.filter(Q(character__character__character_id__in=chars_list))
+        qs = self.filter(Q(character__eve_character__character_id__in=chars_list))
         return qs.annotate(
             total_amount=Round(
                 Coalesce(
@@ -126,7 +126,7 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
 
         token = character.get_token(scopes=req_scopes)
         mining_obj = esi.client.Industry.get_characters_character_id_mining(
-            character_id=character.character.character_id
+            character_id=character.eve_character.character_id
         )
         mining_items = etag_results(mining_obj, token, force_refresh=force_refresh)
         self._update_or_create_objs(character, mining_items)
@@ -141,10 +141,13 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
             ).values_list("id", flat=True)
         )
         type_ids = set()
+        system_ids = set()
         new_events = []
         old_events = []
+
         for entry in objs:
             type_ids.add(entry.get("type_id"))
+            system_ids.add(entry.get("solar_system_id"))
             pk = self.model.create_primary_key(character.pk, entry)
             _e = self.model(
                 character=character,
@@ -159,7 +162,9 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
             else:
                 new_events.append(_e)
 
+        # Ensure both EveType and EveSolarSystem objects exist before creating mining entries
         EveType.objects.bulk_get_or_create_esi(ids=list(type_ids))
+        EveSolarSystem.objects.bulk_get_or_create_esi(ids=list(system_ids))
 
         if new_events:
             self.bulk_create(new_events, ignore_conflicts=True)

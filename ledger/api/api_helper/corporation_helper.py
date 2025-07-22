@@ -9,7 +9,6 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.authentication.models import UserProfile
-from allianceauth.eveonline.models import EveCharacter
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -22,7 +21,7 @@ from ledger.api.api_helper.billboard_helper import BillboardSystem
 from ledger.api.api_helper.information_helper import (
     InformationData,
 )
-from ledger.api.helpers import get_alts_queryset
+from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import (
     CorporationAudit,
     CorporationWalletJournalEntry,
@@ -39,7 +38,7 @@ class CorporationProcess:
         self,
         corporation: CorporationAudit,
         date: timezone.datetime,
-        main_character: EveCharacter,
+        main_character: CharacterAudit,
         view=None,
     ):
         self.main_character = main_character
@@ -73,9 +72,9 @@ class CorporationProcess:
 
         # Get Entity IDs from Character or Corporation
         if self.main_character:
-            entity_ids = get_alts_queryset(self.main_character)
+            alts = self.main_character.alts
             self.entity_ids = EveEntity.objects.filter(
-                eve_id__in=entity_ids.values_list("character_id", flat=True),
+                eve_id__in=alts.values_list("character_id", flat=True),
             ).values_list("eve_id", flat=True)
         else:
             self.entity_ids = set(

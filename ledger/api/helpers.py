@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, QuerySet
 
 # Alliance Auth
-from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
+from allianceauth.eveonline.models import EveAllianceInfo
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -18,12 +18,16 @@ from ledger import __title__, models
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
-def get_character(request, character_id) -> tuple[bool, EveCharacter | None]:
+def get_character_or_none(
+    request, character_id
+) -> tuple[bool, models.CharacterAudit | None]:
     """Get Character and check permissions"""
     perms = True
 
     try:
-        character = EveCharacter.objects.get(character_id=character_id)
+        character = models.CharacterAudit.objects.get(
+            eve_character__character_id=character_id
+        )
     except ObjectDoesNotExist:
         return False, None
     except ValueError:
@@ -31,7 +35,7 @@ def get_character(request, character_id) -> tuple[bool, EveCharacter | None]:
 
     # check access
     visible = models.CharacterAudit.objects.visible_eve_characters(request.user)
-    if character not in visible:
+    if character.eve_character not in visible:
         perms = False
     return perms, character
 
@@ -122,18 +126,23 @@ def get_all_corporations_from_alliance(
     return perms, corporations
 
 
-def get_alts_queryset(main_char) -> QuerySet[list[EveCharacter]]:
+def get_alts_queryset(
+    character: models.CharacterAudit,
+) -> QuerySet[list[models.CharacterAudit]]:
     """Get all alts for a main character."""
     try:
         linked_characters = (
-            main_char.character_ownership.user.character_ownerships.all()
+            character.eve_character.character_ownership.user.character_ownerships.all()
         )
 
         linked_characters = linked_characters.values_list("character_id", flat=True)
-
-        return EveCharacter.objects.filter(id__in=linked_characters)
+        return models.CharacterAudit.objects.filter(
+            eve_character__id__in=linked_characters
+        )
     except ObjectDoesNotExist:
-        return EveCharacter.objects.filter(pk=main_char.pk)
+        return models.CharacterAudit.objects.filter(
+            eve_character__pk=character.eve_character.pk
+        )
 
 
 def get_journal_entitys(date: datetime, view, corporations=None) -> set:

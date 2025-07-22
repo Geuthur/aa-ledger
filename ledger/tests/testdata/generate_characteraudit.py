@@ -19,7 +19,7 @@ def create_character(eve_character: EveCharacter, **kwargs) -> CharacterAudit:
     """Create a Skillfarm Character from EveCharacter"""
     params = {
         "character_name": eve_character.character_name,
-        "character": eve_character,
+        "eve_character": eve_character,
     }
     params.update(kwargs)
     character = CharacterAudit(**params)
@@ -94,7 +94,7 @@ def add_auth_character_to_user(
     )
 
 
-def add_charactermaudit_character_to_user(
+def add_characteraudit_character_to_user(
     user: User, character_id: int, disconnect_signals: bool = True, **kwargs
 ) -> CharacterAudit:
     """Add a Character Audit Character to a user"""

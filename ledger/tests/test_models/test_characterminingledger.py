@@ -8,7 +8,7 @@ from eveuniverse.models import EveSolarSystem, EveType
 # AA Ledger
 from ledger.models.characteraudit import CharacterMiningLedger
 from ledger.tests.testdata.generate_characteraudit import (
-    add_charactermaudit_character_to_user,
+    add_characteraudit_character_to_user,
     create_user_from_evecharacter_with_access,
 )
 from ledger.tests.testdata.generate_miningledger import create_miningledger
@@ -30,7 +30,7 @@ class TestCharacterMiningLedgerModel(TestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
             1001,
         )
-        cls.audit = add_charactermaudit_character_to_user(
+        cls.audit = add_characteraudit_character_to_user(
             cls.user, cls.character_ownership.character.character_id
         )
         cls.eve_type = EveType.objects.get(id=17425)
@@ -65,7 +65,7 @@ class TestCharacterMiningLedgerModel(TestCase):
     def test_create_primary_key(self):
         # when
         primary_key = CharacterMiningLedger.create_primary_key(
-            self.audit.character.character_id, self.miningrecord
+            self.audit.eve_character.character_id, self.miningrecord
         )
         # then
         self.assertEqual(primary_key, "20240101-1-1001-1")

@@ -5,8 +5,9 @@ $(document).ready(() => {
     var switchAlarm = planetarySettings.switchAlarm;
     var alarmActivated = planetarySettings.alarmActivated;
     var alarmDeactivated = planetarySettings.alarmDeactivated;
+    var viewSwitchAlarmUrl = planetarySettings.viewSwitchAlarmUrl;
 
-    function viewFactioyUrl(characterId, planetId) {
+    function viewFactoryUrl(characterId, planetId) {
         return planetarySettings.viewFactoryUrl.replace('1337', characterId).replace('1337', planetId);
     }
 
@@ -55,7 +56,7 @@ $(document).ready(() => {
                     <button class="btn btn-primary btn-sm btn-square"
                         data-bs-toggle="modal"
                         data-bs-target="#modalViewFactoryContainer"
-                        data-ajax_factory="${viewFactioyUrl(row.character_id, row.planet_id)}"
+                        data-ajax_factory="${viewFactoryUrl(row.character_id, row.planet_id)}"
                         data-tooltip-toggle="ledger"
                         data-bs-placement="left"
                         title="${row.character_name} - ${row.planet}"
@@ -107,7 +108,7 @@ $(document).ready(() => {
                 data: 'actions',
                 render: function(data, type, row) {
                     return `
-                        <button type="button" class="btn btn-primary btn-sm btn-square me-2" data-bs-toggle="modal" data-tooltip-toggle="ledger" data-character-id="${row.character_id}" data-planet-id="${row.planet_id}" data-title="${switchAlarm}" data-text="${switchAlarmText} \n${row.character_name} - ${row.planet}?" data-bs-target="#ledger-planetary-confirm" data-action="/ledger/planetary/switch_alarm/" aria-label="Toggle Alarm">
+                        <button type="button" class="btn btn-primary btn-sm btn-square me-2" data-bs-toggle="modal" data-tooltip-toggle="ledger" data-character-id="${row.character_id}" data-planet-id="${row.planet_id}" data-title="${switchAlarm}" data-text="${switchAlarmText} \n${row.character_name} - ${row.planet}?" data-bs-target="#ledger-planetary-confirm" data-action="${viewSwitchAlarmUrl}" aria-label="Toggle Alarm">
                             <span class="fas fa-bullhorn"></span>
                         </button>
                     `;

@@ -7,7 +7,6 @@ from django.db.models import Q, QuerySet
 from django.utils import timezone
 
 # Alliance Auth
-from allianceauth.eveonline.models import EveCharacter
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -20,8 +19,8 @@ from ledger.api.api_helper.billboard_helper import BillboardSystem
 from ledger.api.api_helper.information_helper import (
     InformationData,
 )
-from ledger.api.helpers import get_alts_queryset
 from ledger.models.characteraudit import (
+    CharacterAudit,
     CharacterMiningLedger,
     CharacterWalletJournalEntry,
 )
@@ -64,8 +63,8 @@ class CharacterProcess:
 
     def __init__(
         self,
-        main: EveCharacter,
-        chars: QuerySet[EveCharacter],
+        main: CharacterAudit,
+        chars: QuerySet[CharacterAudit],
         date: timezone.datetime,
         view=None,
     ):
@@ -89,19 +88,19 @@ class CharacterProcess:
 
     def _init_journal(self):
         """Initialize the data for the ledger"""
-        self.chars_ids = [char.character_id for char in self.chars]
+        self.chars_ids = self.chars.values_list(
+            "eve_character__character_id", flat=True
+        )
         self.alt_ids = self.chars_ids
         if len(self.chars) == 1:
-            self.alt_ids = get_alts_queryset(self.main).values_list(
-                "character_id", flat=True
-            )
+            self.alt_ids = self.main.alts.values_list("character_id", flat=True)
 
         self.character_journal = CharacterWalletJournalEntry.objects.filter(
-            self._filter_date(), character__character__character_id__in=self.chars_ids
-        )
+            character__in=self.chars
+        ).filter(self._filter_date())
         self.mining_journal = CharacterMiningLedger.objects.filter(
-            self._filter_date(), character__character__character_id__in=self.chars_ids
-        )
+            character__in=self.chars
+        ).filter(self._filter_date())
         self.corporation_journal = self._init_corporation_journal(self.chars_ids)
 
         self.glances = CharacterGlances(
@@ -122,26 +121,41 @@ class CharacterProcess:
         ratting = {}
         billboard = BillboardSystem(self.view)
 
-        def process_character(char):
+        def process_character(char: CharacterAudit) -> dict | None:
             """Helper method to process a single character."""
-            bounty = self.glances.glance_char.aggregate_bounty(char.character_id)
-            mining = self.glances.glance_mining.aggregate_mining(char.character_id)
+            update_states = {}
+
+            for status in char.ledger_update_status.all():
+                update_states[status.section] = {
+                    "is_success": status.is_success,
+                    "last_update_finished_at": status.last_update_finished_at,
+                    "last_run_finished_at": status.last_run_finished_at,
+                }
+
+            bounty = self.glances.glance_char.aggregate_bounty(
+                char.eve_character.character_id
+            )
+            mining = self.glances.glance_mining.aggregate_mining(
+                char.eve_character.character_id
+            )
             miscellaneous = self.glances.glance_char.aggregate_miscellaneous(
-                char.character_id
+                char.eve_character.character_id
             )
             donation = self.glances.glance_char.aggregate_donation(
-                char.character_id, exclude=self.alt_ids
+                char.eve_character.character_id, exclude=self.alt_ids
             )
             miscellaneous += donation
 
-            costs = self.glances.glance_char.aggregate_costs(char.character_id)
+            costs = self.glances.glance_char.aggregate_costs(
+                char.eve_character.character_id
+            )
 
             if bounty == 0 and miscellaneous == 0 and costs == 0:
                 return None
 
             data = {
-                "main_id": char.character_id,
-                "main_name": char.character_name,
+                "main_id": char.eve_character.character_id,
+                "main_name": char.eve_character.character_name,
                 "entity_type": "character",
                 "total_amount": bounty,
                 "total_amount_ess": (
@@ -150,13 +164,14 @@ class CharacterProcess:
                 "total_amount_mining": mining,
                 "total_amount_others": miscellaneous,
                 "total_amount_costs": costs,
+                "update_states": update_states,
             }
             return data
 
         for char in self.chars:
             data = process_character(char)
             if data:
-                ratting[char.character_id] = data
+                ratting[char.eve_character.character_id] = data
                 billboard.chord_add_char_data_from_dict(data)
 
         # Add Character Journal to the billboard

@@ -107,7 +107,7 @@ class CharacterAudit(models.Model):
 
     character_name = models.CharField(max_length=100, null=True, default=None)
 
-    character = models.OneToOneField(
+    eve_character = models.OneToOneField(
         EveCharacter, on_delete=models.CASCADE, related_name="ledger_character"
     )
 
@@ -121,7 +121,7 @@ class CharacterAudit(models.Model):
 
     def __str__(self) -> str:
         try:
-            return f"{self.character.character_name} ({self.id})"
+            return f"{self.eve_character.character_name} ({self.id})"
         except AttributeError:
             return f"{self.character_name} ({self.id})"
 
@@ -155,10 +155,18 @@ class CharacterAudit(models.Model):
         total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
         return self.UpdateStatus(total_update_status)
 
+    @property
+    def alts(self) -> models.QuerySet[EveCharacter]:
+        """Get all alts for this character."""
+        alts = EveCharacter.objects.filter(
+            character_ownership__user=self.eve_character.character_ownership.user
+        )
+        return alts
+
     def get_token(self, scopes=None) -> Token:
         """Get the token for this character."""
         token = (
-            Token.objects.filter(character_id=self.character.character_id)
+            Token.objects.filter(character_id=self.eve_character.character_id)
             .require_scopes(scopes if scopes else self.get_esi_scopes())
             .require_valid()
             .first()

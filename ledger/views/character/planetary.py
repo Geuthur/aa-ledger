@@ -16,7 +16,7 @@ from django.views.decorators.http import require_POST
 
 # AA Ledger
 from ledger import forms
-from ledger.api.helpers import get_alts_queryset, get_character
+from ledger.api.helpers import get_character_or_none
 from ledger.helpers.core import add_info_to_context
 from ledger.models.planetary import CharacterPlanetDetails
 
@@ -84,11 +84,13 @@ def switch_alarm(request):
         character_id = int(form.cleaned_data["character_id"])
         planet_id = int(form.cleaned_data["planet_id"])
 
-        if character_id == 0:
+        if character_id == 0:  # pylint: disable=duplicate-code
             character_id = request.user.profile.main_character.character_id
             is_all = True
 
-        perm, main = get_character(request, character_id)
+        perm, character = get_character_or_none(
+            request, character_id
+        )  # pylint: disable=duplicate-code
 
         if not perm:
             msg = _("Permission Denied")
@@ -99,12 +101,11 @@ def switch_alarm(request):
             )
 
         if is_all:
-            characters = get_alts_queryset(main)
-            characters = characters.values_list("character_id", flat=True)
+            characters = character.alts.values_list("character_id", flat=True)
         else:
             characters = [character_id]
 
-        filters = Q(planet__character__character__character_id__in=characters)
+        filters = Q(planet__character__eve_character__character_id__in=characters)
         if planet_id != 0:
             filters &= Q(planet__planet__id=planet_id)
         try:

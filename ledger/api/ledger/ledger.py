@@ -8,7 +8,6 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
-from allianceauth.eveonline.models import EveCharacter
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -25,9 +24,10 @@ from ledger.api.api_helper.corporation_helper import (
 from ledger.api.helpers import (
     get_alliance,
     get_alts_queryset,
-    get_character,
+    get_character_or_none,
     get_corporation,
 )
+from ledger.models.characteraudit import CharacterAudit
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -41,18 +41,21 @@ def ledger_api_process(
 
     if entity_type == "character":
         character_id = request.GET.get("character_id", None)
-        perm, character = get_character(request, entity_id)
+        perm, character = get_character_or_none(request, entity_id)
+
+        if character is None:
+            return None, None
 
         if character_id is None and singleview is False:
             characters = get_alts_queryset(character)
         elif character_id is None:
-            characters = EveCharacter.objects.filter(
-                character_id=character.character_id,
+            characters = CharacterAudit.objects.filter(
+                eve_character__character_id=character.eve_character.character_id,
             )
         else:
-            perm, character = get_character(request, character_id)
-            characters = EveCharacter.objects.filter(
-                character_id=character_id,
+            perm, character = get_character_or_none(request, character_id)
+            characters = CharacterAudit.objects.filter(
+                eve_character__character_id=character_id,
             )
 
         if character is not None:
@@ -68,7 +71,7 @@ def ledger_api_process(
 
         if corporation is not None:
             if main_character_id:
-                main_character = get_character(request, main_character_id)[1]
+                main_character = get_character_or_none(request, main_character_id)[1]
 
             result["perm"] = perm
             result["process"] = CorporationProcess(

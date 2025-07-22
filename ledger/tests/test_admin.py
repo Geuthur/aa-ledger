@@ -13,7 +13,7 @@ from ledger.admin import CharacterAuditAdmin, CorporationAuditAdmin
 from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.tests.testdata.generate_characteraudit import (
-    add_charactermaudit_character_to_user,
+    add_characteraudit_character_to_user,
 )
 from ledger.tests.testdata.generate_corporationaudit import (
     add_corporationaudit_corporation_to_user,
@@ -103,7 +103,7 @@ class TestCharacterAuditAdmin(TestCase):
             ["ledger.basic_access"],
         )
         cls.character_audit_admin = CharacterAuditAdmin(CharacterAudit, cls.site)
-        cls.character_audit = add_charactermaudit_character_to_user(
+        cls.character_audit = add_characteraudit_character_to_user(
             cls.user,
             cls.character_ownership.character.character_id,
         )
@@ -113,7 +113,7 @@ class TestCharacterAuditAdmin(TestCase):
         self.client.force_login(self.user)
         expected_html = '<img src="{}" class="img-circle">'.format(
             eveimageserver._eve_entity_image_url(
-                "character", self.character_audit.character.character_id, 32
+                "character", self.character_audit.eve_character.character_id, 32
             )
         )
         self.assertEqual(
@@ -123,7 +123,7 @@ class TestCharacterAuditAdmin(TestCase):
     def test_character_character_name(self):
         self.assertEqual(
             self.character_audit_admin._character__character_name(self.character_audit),
-            self.character_audit.character.character_name,
+            self.character_audit.eve_character.character_name,
         )
 
     def test_has_add_permission(self):

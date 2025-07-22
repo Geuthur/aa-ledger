@@ -1,5 +1,43 @@
 # Changelog
 
+## [IN DEVELOPMENT] - ????-??-??
+
+### Fixed
+
+- Corporation Overview not show all corps from own Characters
+- Planetary Switch Alarm path error
+- Total Mining Amount only count 1 Character
+
+### Changed
+
+- Refactor Character Ledger
+
+  - CharacterAudit
+    - `character` changed to `eve_character`
+    - Refactored API System
+
+- ESI Overload Prevention
+
+  - Decreased Update Interval
+    - Journal Update from `60` to `120`
+    - Corporation Update from `60` to `120`
+    - Planets Update from `30` to `60`
+  - Task Schedule from crontab to every `1800` seconds (30 minutes)
+  - `update_subset_characters` updated
+    - max run limit increased from `200` to `500`
+    - min run limit increased from `10` to `50`
+
+- Renamed `admin_access` to `manage_access`
+
+- Optimized Corporation Administration CSS
+
+### Added
+
+- Task Settings Check from ([Eric Kalkoken](https://gitlab.com/ErikKalkoken/))
+- Update Information in Character View
+- `corp_audit_manager` permission
+- `character_mining_manager` added EveSolarSystem if not exist
+
 ## [0.8.4] - 2025-07-19
 
 ### Removed

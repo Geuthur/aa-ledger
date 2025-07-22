@@ -378,7 +378,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
 
         token = character.get_token(scopes=req_scopes)
         journal_items_ob = esi.client.Wallet.get_characters_character_id_wallet_journal(
-            character_id=character.character.character_id
+            character_id=character.eve_character.character_id
         )
         journal_items = etag_results(
             journal_items_ob, token, force_refresh=force_refresh

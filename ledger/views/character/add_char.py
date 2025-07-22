@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 @permission_required("ledger.basic_access")
 def add_char(request, token):
     char, _ = CharacterAudit.objects.update_or_create(
-        character=EveCharacter.objects.get_character_by_id(token.character_id),
+        eve_character=EveCharacter.objects.get_character_by_id(token.character_id),
         defaults={
             "active": True,
             "character_name": token.character_name,
@@ -38,7 +38,9 @@ def add_char(request, token):
     )
 
     msg = trans("{character_name} successfully added/updated to Ledger").format(
-        character_name=char.character.character_name,
+        character_name=char.eve_character.character_name,
     )
     messages.info(request, msg)
-    return redirect("ledger:character_ledger", character_id=char.character.character_id)
+    return redirect(
+        "ledger:character_ledger", character_id=char.eve_character.character_id
+    )

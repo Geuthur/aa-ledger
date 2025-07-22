@@ -52,8 +52,8 @@
         </ul>
     </div>
     <div class="ms-auto">
-        <a href="{% url 'ledger:character_administration' character_id=character_id %}"><button class="btn btn-secondary me-2 administration">{% translate 'Administration' %}{% if issues %} <span class="badge bg-warning">{{ issues }}</span>{% endif %}</button></a>
-        <a href="{% url 'ledger:character_overview' %}"><button class="btn btn-secondary overview">{% translate 'Account Overview' %}</button></a>
+        <a href="{% url 'ledger:character_administration' character_id=character_id %}" class="administration"><button class="btn btn-secondary me-2 administration">{% translate 'Administration' %}{% if issues %} <span class="badge bg-warning">{{ issues }}</span>{% endif %}</button></a>
+        <a href="{% url 'ledger:character_overview' %}" class="overview"><button class="btn btn-secondary overview">{% translate 'Account Overview' %}</button></a>
     </div>
 </div>
 <div class="card-body rounded-bottom">
@@ -67,6 +67,7 @@
 {% endblock %}
 {% block extra_javascript %}
 
+{% include 'bundles/moment-js.html' %}
 {% include 'bundles/datatables-js-bs5.html' %}
 {% include 'ledger/bundles/ledger-bundles.html' %}
 {% include 'ledger/bundles/character-ledger-bundles.html' %}

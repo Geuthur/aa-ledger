@@ -15,7 +15,7 @@ from ledger.models.corporationaudit import (
 )
 from ledger.models.general import EveEntity
 from ledger.tests.testdata.generate_characteraudit import (
-    add_charactermaudit_character_to_user,
+    add_characteraudit_character_to_user,
     create_user_from_evecharacter_with_access,
 )
 from ledger.tests.testdata.generate_walletjournal import (
@@ -39,7 +39,7 @@ class TestCharacterWalletJournalModel(TestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
             1001,
         )
-        cls.audit = add_charactermaudit_character_to_user(
+        cls.audit = add_characteraudit_character_to_user(
             cls.user, cls.character_ownership.character.character_id
         )
         cls.eve_character_first_party = EveEntity.objects.get(eve_id=1001)

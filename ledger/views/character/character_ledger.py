@@ -18,7 +18,7 @@ from allianceauth.eveonline.models import EveCharacter
 
 # AA Ledger
 # Ledger
-from ledger.api.helpers import get_character
+from ledger.api.helpers import get_character_or_none
 from ledger.helpers.core import add_info_to_context
 from ledger.models.characteraudit import CharacterAudit
 
@@ -84,29 +84,23 @@ def character_administration(request, character_id=None):
     if character_id is None:
         character_id = request.user.profile.main_character.character_id
 
-    perms, character = get_character(request, character_id)
+    perms, character = get_character_or_none(request, character_id)
 
     if not perms:
         msg = _("Permission Denied")
         messages.error(request, msg)
         return redirect("ledger:character_ledger_index")
 
-    linked_characters = character.character_ownership.user.character_ownerships.all()
-    linked_characters_ids = linked_characters.values_list(
-        "character__character_id", flat=True
-    )
+    linked_characters_ids = character.alts.values_list("character_id", flat=True)
 
     characters = CharacterAudit.objects.filter(
-        character__character_id__in=linked_characters_ids
-    ).order_by("character__character_name")
+        eve_character__character_id__in=linked_characters_ids
+    ).order_by("eve_character__character_name")
+    characters_ids = characters.values_list("eve_character__character_id", flat=True)
 
     missing_characters = (
         EveCharacter.objects.filter(character_id__in=linked_characters_ids)
-        .exclude(
-            character_id__in=characters.values_list(
-                "character__character_id", flat=True
-            )
-        )
+        .exclude(character_id__in=characters_ids)
         .order_by("character_name")
     )
 
@@ -131,7 +125,7 @@ def character_delete(request, character_id):
     """
     Character Delete
     """
-    perms = get_character(request, character_id)[0]
+    perms = get_character_or_none(request, character_id)[0]
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -139,7 +133,7 @@ def character_delete(request, character_id):
         )
 
     try:
-        audit = CharacterAudit.objects.get(character__character_id=character_id)
+        audit = CharacterAudit.objects.get(eve_character__character_id=character_id)
     except CharacterAudit.DoesNotExist:
         msg = _("Character not found")
         return JsonResponse(
@@ -148,7 +142,7 @@ def character_delete(request, character_id):
 
     audit.delete()
 
-    msg = _(f"{audit.character.character_name} successfully deleted")
+    msg = _(f"{audit.eve_character.character_name} successfully deleted")
     return JsonResponse(
         {"success": True, "message": msg}, status=HTTPStatus.OK, safe=False
     )

@@ -32,10 +32,10 @@ LEDGER_CHAR_MAX_INACTIVE_DAYS = clean_setting("LEDGER_CHAR_MAX_INACTIVE_DAYS", 3
 LEDGER_TASKS_TIME_LIMIT = clean_setting("LEDGER_TASKS_TIME_LIMIT", 7200)
 
 LEDGER_STALE_TYPES = {
-    "wallet_journal": 60,
-    "wallet_division_names": 60,
-    "wallet_division": 60,
+    "wallet_journal": 120,
+    "wallet_division_names": 120,
+    "wallet_division": 120,
     "mining_ledger": 30,
-    "planets": 30,
-    "planets_details": 30,
+    "planets": 60,
+    "planets_details": 60,
 }

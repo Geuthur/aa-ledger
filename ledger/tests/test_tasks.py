@@ -81,7 +81,7 @@ class TestUpdateCharacter(TestCase):
         # then
         mock_logger.info.assert_called_once_with(
             "No updates needed for %s",
-            self.audit.character.character_name,
+            self.audit.eve_character.character_name,
         )
 
     def test_update_character_should_update(self, mock_logger, mock_chain):

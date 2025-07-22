@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 # Alliance Auth
-from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
+from allianceauth.eveonline.models import EveAllianceInfo
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -15,6 +15,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
+from ledger.models.characteraudit import CharacterAudit
 from ledger.models.corporationaudit import (
     CorporationAudit,
 )
@@ -29,7 +30,7 @@ class InformationData:
 
     date: timezone.datetime
     view: str
-    character: EveCharacter = None
+    character: CharacterAudit = None
     corporation: CorporationAudit = None
     alliance: EveAllianceInfo = None
     current_date: timezone.datetime = None
@@ -55,7 +56,7 @@ class InformationData:
         # Information Title
         if self.character is not None:
             self.name = self.character.character_name
-            self.id = self.character.character_id
+            self.id = self.character.eve_character.character_id
         elif self.corporation is not None:
             self.name = self.corporation.corporation.corporation_name
             self.id = self.corporation.corporation.corporation_id

@@ -133,12 +133,13 @@ class AggregateMining(AggregateCore):
             characters = [characters]
 
         if characters:
-            qs = qs.filter(character__character__character_id__in=characters)
+            qs = qs.filter(character__eve_character__character_id__in=characters)
 
         qs = qs.annotate_mining()
 
         if qs:
-            return int(qs[0]["total_amount"])
+            total_sum = sum(item["total_amount"] for item in qs)
+            return int(total_sum)
         return 0
 
 

@@ -1,4 +1,4 @@
-/* global ledgersettings, load_or_create_Chart, initCharts, updateUrls, handleDropdownClick, populateDays, showLoading, hideContainer, initTooltip, formatAndColor, hideLoading */
+/* global ledgersettings, load_or_create_Chart, initCharts, updateUrls, handleDropdownClick, populateDays, showLoading, hideContainer, initTooltip, formatAndColor, hideLoading, moment */
 
 var LedgerUrl;
 
@@ -61,12 +61,18 @@ function generateLedger(TableName, url) {
                 // Daten direkt in die HTML-Elemente einfügen
                 $('#portrait').html('<img width="256" height="256" class="rounded" src="https://images.evetech.net/characters/' + char_id + '/portrait?size=256">');
                 $('#character_name').text(char_name);
+
+                $('#wallet_update').text(moment(data.ratting[0].update_states.wallet_journal.last_update_finished_at).fromNow());
+                $('#mining_ledger_update').text(moment(data.ratting[0].update_states.mining_ledger.last_update_finished_at).fromNow());
+                $('#planets_update').text(moment(data.ratting[0].update_states.planets_details.last_update_finished_at).fromNow());
+
                 $('#amount_ratting').html(formatAndColor(total_amount));
                 $('#amount_ess').html(formatAndColor(total_amount_ess));
                 $('#amount_mining').html(formatAndColor(total_amount_mining));
                 $('#amount_misc').html(formatAndColor(total_amount_others));
                 $('#amount_costs').html(formatAndColor(total_amount_costs));
                 $('#amount_summary').html(formatAndColor(total_amount_combined));
+
                 $('#planetary_interaction').html(`
                     <a href="${CharacterPlanetaryUrl}?single=true">
                         <image src="/static/ledger/images/pi.png"
