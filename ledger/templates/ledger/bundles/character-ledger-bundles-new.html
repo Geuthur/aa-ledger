@@ -1,0 +1,17 @@
+{% load sri %}
+{% load i18n %}
+
+<script type="application/javascript">
+    // Extract the 'main' parameter from the current URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const mainParam = urlParams.get('single');
+
+    let ledgersettings = {
+		csrfToken: '{% csrf_token %}',
+        planetaryUrl: "{% url 'ledger:planetary_ledger' character_id=1337 %}",
+        characterUrl: "{% url 'ledger:character_ledger' character_id=1337 %}",
+    };
+</script>
+
+<!-- Ledger Resources -->
+<!-- Ledger Resources {% sri_static 'ledger/js/character.js' %} -->

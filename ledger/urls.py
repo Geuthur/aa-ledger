@@ -89,6 +89,21 @@ urlpatterns = [
         name="character_ledger",
     ),
     path(
+        "character/<int:character_id>/<int:year>/",
+        character_ledger.character_ledger_new,
+        name="character_ledger_year",
+    ),
+    path(
+        "character/<int:character_id>/<int:year>/<int:month>/",
+        character_ledger.character_ledger_new,
+        name="character_ledger_year_month",
+    ),
+    path(
+        "character/<int:character_id>/<int:year>/<int:month>/<int:day>/",
+        character_ledger.character_ledger_new,
+        name="character_ledger_year_month_day",
+    ),
+    path(
         "character/<int:character_id>/view/administration/",
         character_ledger.character_administration,
         name="character_administration",

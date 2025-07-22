@@ -437,6 +437,24 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         else:
             raise TokenError("ESI Fail")
 
+    def aggregate_bounty(self) -> dict:
+        """Aggregate bounty income."""
+        return self.filter(ref_type__in=BOUNTY_PRIZES).aggregate(
+            total_bounty=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
+        )["total_bounty"]
+
+    def aggregate_costs(self) -> dict:
+        """Aggregate costs."""
+        return self.filter(COST_FILTER).aggregate(
+            total_costs=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
+        )["total_costs"]
+
+    def aggregate_miscellaneous(self) -> dict:
+        """Aggregate miscellaneous income."""
+        return self.filter(MISC_FILTER).aggregate(
+            total_misc=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
+        )["total_misc"]
+
 
 class CharWalletManagerBase(models.Manager):
     pass

@@ -1,0 +1,291 @@
+{% extends 'ledger/base.html' %}
+{% load i18n %}
+{% load humanize %}
+
+{% block page_template_title %}
+    {{ title }}
+{% endblock page_template_title %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block ledger_block %}
+<div class="card-body bg-primary rounded-top d-flex align-items-center">
+    <h3 class="me-3">{% translate "Character Ledger" %}</h3>
+    <div class="dropdown px-2">
+        <button id="yearDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% now "Y" %}
+        </button>
+        <ul class="dropdown-menu" id="yearDropdown">
+            {% for year in years %}
+                <li><a class="dropdown-item" data-bs-year-id="{{ year }}" href="#">{{ year }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="dropdown px-2">
+        <button id="monthDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% now "F" %}
+        </button>
+        <ul class="dropdown-menu" id="monthDropdown">
+            <li><a class="dropdown-item" data-bs-month-id="1" href="#">{% trans "January" %}</a></li>
+            <li><a class="dropdown-item" data-bs-month-id="2" href="#">{% trans "February" %}</a></li>
+            <li><a class="dropdown-item" data-bs-month-id="3" href="#">{% trans "March" %}</a></li>
+            <li><a class="dropdown-item" data-bs-month-id="4" href="#">{% trans "April" %}</a></li>
+            <li><a class="dropdown-item" data-bs-month-id="5" href="#">{% trans "May" %}</a></li>
+            <li><a class="dropdown-item" data-bs-month-id="6" href="#">{% trans "June" %}</a></li>
+            <li><a class="dropdown-item" data-bs-month-id="7" href="#">{% trans "July" %}</a></li>
+            <li><a class="dropdown-item" data-bs-month-id="8" href="#">{% trans "August" %}</a></li>
+            <li><a class="dropdown-item" data-bs-month-id="9" href="#">{% trans "September" %}</a></li>
+            <li><a class="dropdown-item" data-bs-month-id="10" href="#">{% trans "October" %}</a></li>
+            <li><a class="dropdown-item" data-bs-month-id="11" href="#">{% trans "November" %}</a></li>
+            <li><a class="dropdown-item" data-bs-month-id="12" href="#">{% trans "December" %}</a></li>
+        </ul>
+    </div>
+    <div class="dropdown px-2">
+        <button id="dayDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% trans "Day" %}
+        </button>
+        <ul class="dropdown-menu" id="dayDropdown">
+            <!-- Days will be populated here -->
+        </ul>
+    </div>
+    <div class="ms-auto">
+        <a href="{% url 'ledger:character_administration' character_id=character_id %}" class="administration"><button class="btn btn-secondary me-2 administration">{% translate 'Administration' %}{% if issues %} <span class="badge bg-warning">{{ issues }}</span>{% endif %}</button></a>
+        <a href="{% url 'ledger:character_overview' %}" class="overview"><button class="btn btn-secondary overview">{% translate 'Account Overview' %}</button></a>
+    </div>
+</div>
+<div class="card-body rounded-bottom">
+
+    <div role="tabpanel" class="tab-pane active fade show" id="tab-current_month">
+        <div class="card-body bg-secondary table-responsive">
+
+                <table class="table table-dark table-striped table-hover w-100" id="ratting">
+                    <thead>
+                        <th class="col-main-character w-auto">{% trans "Character" %}</th>
+                        <th class="col-total-amount w-auto">{% trans "Ratting Amount" %}</th>
+                        <th class="col-total-ess w-auto">{% trans "ESS Payout" %}
+                            <i class="fa-regular fa-circle-question" title="{% trans 'Estimated Only' %}" data-tooltip-toggle="ledger-tooltip" data-bs-placement="top"></i>
+                        </th>
+                        <th class="col-total-mining w-auto">{% trans "Mining Amount" %}</th>
+                        <th class="col-total-others w-auto">{% trans "Misc. Amount" %}</th>
+                        <th class="col-total-singlecosts w-auto">{% trans "Costs" %}</th>
+                        <th class="col-total-action w-auto"></th>
+                    </thead>
+                    <tbody>
+                        {% for character_data in characters %}
+                            <tr>
+                                <td class="col-main-character nowrap">{{ character_data.character.eve_character.character_name }}</td>
+                                <td class="col-total-amount nowrap" id="amount_ratting_{{ character_data.character.eve_character.character_id }}">{{ character_data.journal.aggregate_bounty|floatformat:0|intcomma }} ISK</td>
+                                <td class="col-total-ess nowrap" id="amount_ess_{{ character_data.character.eve_character.character_id }}">{{ character_data.ess|floatformat:0|intcomma }} ISK</td>
+                                <td class="col-total-mining nowrap" id="amount_mining_{{ character_data.character.eve_character.character_id }}">{{ character_data.mining.aggregate_mining|floatformat:0|intcomma }} ISK</td>
+                                <td class="col-total-others nowrap" id="amount_misc_{{ character_data.character.eve_character.character_id }}">{{ character_data.journal.aggregate_miscellaneous|floatformat:0|intcomma }} ISK</td>
+                                <td class="col-total-costs nowrap" id="amount_costs_{{ character_data.character.eve_character.character_id }}">{{ character_data.journal.aggregate_costs|floatformat:0|intcomma }} ISK</td>
+                                <td class="col-total-action">
+                                    <a href="{% url 'ledger:character_ledger' character_id=character_data.character.eve_character.character_id %}?single=True" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                    </a>
+                                    <button
+                                        class="btn btn-primary btn-sm btn-square"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalViewCharacterContainer"
+                                        data-ajax_url="{% url 'ledger:api:get_entity_information' entity_type='character' entity_id=character_data.character.eve_character.character_id date='2025-07-01' view=view %}?character_id={{ character_data.character.eve_character.character_id }}"
+                                        title="{{ character_data.character.eve_character.character_name }}"
+                                        data-tooltip-toggle="ledger-tooltip" data-bs-placement="right">
+                                        <span class="fas fa-info"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+
+                    <tfoot id="foot" style="display: none;">
+                        <tr>
+                            <th><strong>{% trans "Summary" %}</strong></th>
+                            <th class="col-total-amount"></th>
+                            <th class="col-total-ess"></th>
+                            <th class="col-total-mining"></th>
+                            <th class="col-total-others"></th>
+                            <th class="col-total-costs"></th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <th><strong>{% trans "Total" %}</strong></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th class="col-total-gesamt"></th>
+                            <th class="col-total-button"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+
+        </div>
+
+        <div class="rounded-top">
+            <div class="row g-0">
+                <div class="col-md-6 g-2 d-none" id="rattingBarContainer">
+                    <div class="card-header bg-primary d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0" id="barTitle">{% trans "Diagram" %}</h3>
+                    </div>
+                    <div class="card-body bg-secondary">
+                        <div id="rattingBar" class="w-100" style="height: 300px;"></div>
+                    </div>
+                </div>
+                <div class="col-md-6 g-2 d-none" id="ChartContainer">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">{% trans "Chord" %}</h3>
+                    </div>
+                    <div class="card-body bg-secondary">
+                        <div id="rattingChart" class="w-100" style="height: 600px"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- Tab Session -->
+{% include 'ledger/partials/modal/modal.html' with name="ViewCharacter" %}
+{% endblock %}
+{% block extra_css %}
+{% include 'ledger/bundles/table-css.html' %}
+{% endblock %}
+{% block extra_javascript %}
+
+{% include 'bundles/moment-js.html' %}
+{% include 'bundles/datatables-js-bs5.html' %}
+{% include 'ledger/bundles/ledger-bundles.html' %}
+{% include 'ledger/bundles/character-ledger-bundles-new.html' %}
+
+<script>
+    // State object to keep track of selected values
+    const ledgerState = {
+        selectedYear: {{ current_year|default:"{% now 'Y' %}" }},
+        selectedMonth: {{ month|default:"null" }},
+        selectedDay: {{ day|default:"null" }},
+        characterId: {{ character_id }}
+    };
+
+    function handleDropdownClickNew(event, dropdownType) {
+        if (event.target && event.target.matches('a.dropdown-item')) {
+            const items = event.currentTarget.querySelectorAll('a.dropdown-item');
+            items.forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update the button text with selected value
+            const button = event.currentTarget.previousElementSibling;
+
+            if (dropdownType === 'year') {
+                ledgerState.selectedYear = parseInt(event.target.dataset.bsYearId);
+                button.textContent = ledgerState.selectedYear;
+                // Reset month and day when year changes
+                ledgerState.selectedMonth = null;
+                ledgerState.selectedDay = null;
+                document.getElementById('monthDropDownButton').textContent = '{% trans "Month" %}';
+                document.getElementById('dayDropDownButton').textContent = '{% trans "Day" %}';
+            } else if (dropdownType === 'month') {
+                ledgerState.selectedMonth = parseInt(event.target.dataset.bsMonthId);
+                button.textContent = event.target.textContent;
+                // Reset day when month changes
+                ledgerState.selectedDay = null;
+                document.getElementById('dayDropDownButton').textContent = '{% trans "Day" %}';
+
+                // Populate days dropdown based on selected month/year
+                populateDaysDropdown(ledgerState.selectedYear, ledgerState.selectedMonth);
+            } else if (dropdownType === 'day') {
+                ledgerState.selectedDay = parseInt(event.target.textContent);
+                button.textContent = ledgerState.selectedDay;
+            }
+
+            // Navigate to the new URL
+            navigateToSelectedDate();
+        }
+    }
+
+    function populateDaysDropdown(year, month) {
+        const dayDropdown = document.getElementById('dayDropdown');
+        dayDropdown.innerHTML = '';
+
+        if (!month) return;
+
+        const daysInMonth = new Date(year, month, 0).getDate();
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.className = 'dropdown-item';
+            a.href = '#';
+            a.textContent = day;
+            li.appendChild(a);
+            dayDropdown.appendChild(li);
+        }
+    }
+
+    function navigateToSelectedDate() {
+        let url = `{% url 'ledger:character_ledger_year' character_id=0 year=0 %}`.replace('/0/0/', `/${ledgerState.characterId}/${ledgerState.selectedYear}/`);
+
+        if (ledgerState.selectedMonth) {
+            url = `{% url 'ledger:character_ledger_year_month' character_id=0 year=0 month=0 %}`.replace('/0/0/0/', `/${ledgerState.characterId}/${ledgerState.selectedYear}/${ledgerState.selectedMonth}/`);
+
+            if (ledgerState.selectedDay) {
+                url = `{% url 'ledger:character_ledger_year_month_day' character_id=0 year=0 month=0 day=0 %}`.replace('/0/0/0/0/', `/${ledgerState.characterId}/${ledgerState.selectedYear}/${ledgerState.selectedMonth}/${ledgerState.selectedDay}/`);
+            }
+        }
+
+        // Navigate to the new URL
+        window.location.href = url;
+    }
+
+    // Initialize dropdowns on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // dataTable initialization
+        $('#ratting').DataTable({
+            "order": [[1, "desc"]],
+            "columnDefs": [
+                { "orderable": false, "targets": 6 } // Disable sorting on the last column
+            ],
+        });
+
+        // Set active states for current selections
+        if (ledgerState.selectedYear) {
+            const yearItem = document.querySelector(`[data-bs-year-id="${ledgerState.selectedYear}"]`);
+            if (yearItem) {
+                yearItem.classList.add('active');
+                document.getElementById('yearDropDownButton').textContent = ledgerState.selectedYear;
+            }
+        }
+
+        if (ledgerState.selectedMonth) {
+            const monthItem = document.querySelector(`[data-bs-month-id="${ledgerState.selectedMonth}"]`);
+            if (monthItem) {
+                monthItem.classList.add('active');
+                document.getElementById('monthDropDownButton').textContent = monthItem.textContent;
+                populateDaysDropdown(ledgerState.selectedYear, ledgerState.selectedMonth);
+            }
+        }
+
+        if (ledgerState.selectedDay) {
+            // Wait for days to be populated
+            setTimeout(() => {
+                const dayItem = document.querySelector(`#dayDropdown a:contains('${ledgerState.selectedDay}')`);
+                if (dayItem) {
+                    dayItem.classList.add('active');
+                    document.getElementById('dayDropDownButton').textContent = ledgerState.selectedDay;
+                }
+            }, 100);
+        }
+
+        // Add event listeners to dropdowns
+        document.getElementById('yearDropdown').addEventListener('click', (e) => handleDropdownClickNew(e, 'year'));
+        document.getElementById('monthDropdown').addEventListener('click', (e) => handleDropdownClickNew(e, 'month'));
+        document.getElementById('dayDropdown').addEventListener('click', (e) => handleDropdownClickNew(e, 'day'));
+    });
+</script>
+
+{% endblock extra_javascript %}
+{% block extra_script %}
+{% endblock extra_script %}

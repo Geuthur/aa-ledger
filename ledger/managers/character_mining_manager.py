@@ -61,6 +61,20 @@ class CharacterMiningLedgerEntryQueryset(models.QuerySet):
             )
         )
 
+    def aggregate_mining(self):
+        """Aggregate mining amounts."""
+        qs = self.annotate_pricing()
+        return qs.aggregate(
+            total_amount=Round(
+                Coalesce(
+                    Sum(F("total")),
+                    Value(0),
+                    output_field=DecimalField(),
+                ),
+                precision=2,
+            )
+        )["total_amount"]
+
     def aggregate_amounts_information_modal(
         self, amounts: defaultdict, chars_list: list, filter_date: timezone.datetime
     ) -> dict:
