@@ -1,7 +1,6 @@
 """PvE Views"""
 
 # Standard Library
-import logging
 from datetime import datetime
 from http import HTTPStatus
 
@@ -15,15 +14,20 @@ from django.views.decorators.http import require_POST
 
 # Alliance Auth
 from allianceauth.authentication.models import CharacterOwnership
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
+from ledger import __title__
 from ledger.api.helpers import get_manage_corporation
 from ledger.helpers.core import add_info_to_context
 
 # Ledger
 from ledger.models.corporationaudit import CorporationAudit
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @login_required

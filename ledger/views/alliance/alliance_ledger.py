@@ -1,7 +1,6 @@
 """PvE Views"""
 
 # Standard Library
-import logging
 from datetime import datetime
 
 # Django
@@ -12,12 +11,17 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCorporationInfo
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
+from ledger import __title__
 from ledger.api.helpers import get_all_corporations_from_alliance, get_alliance
 from ledger.helpers.core import add_info_to_context
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @login_required

@@ -160,6 +160,8 @@ class CharacterAudit(models.Model):
         """Get all alts for this character."""
         alts = EveCharacter.objects.filter(
             character_ownership__user=self.eve_character.character_ownership.user
+        ).select_related(
+            "character_ownership",
         )
         return alts
 

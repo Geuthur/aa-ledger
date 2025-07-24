@@ -12,9 +12,13 @@
 
 - Refactor Character Ledger
 
+  - Character View Paths
+    - Date Path instead of API
   - CharacterAudit
     - `character` changed to `eve_character`
     - Refactored API System
+  - Ref Type System
+    - Create all in one Ref Type Manager
 
 - ESI Overload Prevention
 
@@ -30,6 +34,12 @@
 - Renamed `admin_access` to `manage_access`
 
 - Optimized Corporation Administration CSS
+
+- Optimized Single View CSS
+
+- Optimized Table CSS
+
+- Optimized Billboard Visual Optic
 
 ### Added
 

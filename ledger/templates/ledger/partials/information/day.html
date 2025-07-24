@@ -70,6 +70,13 @@
         </div>
     {% endif %}
 
+    {% if character.corporation_income.total_amount_day %}
+        <div class="row description-row">
+            <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Corporation" %}:</div>
+            <div class='col-sm-4 text-end'><span class="text-warning">{{ character.corporation_income.total_amount_day|floatformat:0|intcomma }}</span> ISK</div>
+        </div>
+    {% endif %}
+
     {% if character.donation_income.total_amount_day %}
         <div class="row description-row">
             <div class="col-sm-6">{% trans "Current Day" %} - {% trans "Donation" %}:</div>

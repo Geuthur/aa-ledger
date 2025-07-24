@@ -70,6 +70,13 @@
             </div>
         {% endif %}
 
+        {% if character.corporation_income %}
+            <div class="row description-row">
+                <div class="col-sm-6">{% trans "Avg." %} {% trans "Corporation" %} {% trans "per Hour" %}:</div>
+                <div class='col-sm-4 text-end'><span class="text-success">{{ character.corporation_income.average_hour|floatformat:0|intcomma }}</span> ISK</div>
+            </div>
+        {% endif %}
+
         {% if character.donation_income %}
             <div class="row description-row">
                 <div class="col-sm-6">{% trans "Avg." %} {% trans "Donation sent" %} {% trans "per Hour" %}:</div>

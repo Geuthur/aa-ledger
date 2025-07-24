@@ -17,17 +17,14 @@ from app_utils.logging import LoggerAddTag
 from ledger import __title__
 from ledger.api import schema
 from ledger.api.api_helper.alliance_helper import AllianceProcess
-from ledger.api.api_helper.character_helper import CharacterProcess
 from ledger.api.api_helper.corporation_helper import (
     CorporationProcess,
 )
 from ledger.api.helpers import (
     get_alliance,
-    get_alts_queryset,
     get_character_or_none,
     get_corporation,
 )
-from ledger.models.characteraudit import CharacterAudit
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -35,36 +32,10 @@ logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 def ledger_api_process(
     request, entity_type: str, entity_id: int, date: timezone.datetime, view: str
 ):
-    singleview = request.GET.get("single", False)
     perm = True
     result = {"perm": None, "process": None}
 
-    if entity_type == "character":
-        character_id = request.GET.get("character_id", None)
-        perm, character = get_character_or_none(request, entity_id)
-
-        if character is None:
-            return None, None
-
-        if character_id is None and singleview is False:
-            characters = get_alts_queryset(character)
-        elif character_id is None:
-            characters = CharacterAudit.objects.filter(
-                eve_character__character_id=character.eve_character.character_id,
-            )
-        else:
-            perm, character = get_character_or_none(request, character_id)
-            characters = CharacterAudit.objects.filter(
-                eve_character__character_id=character_id,
-            )
-
-        if character is not None:
-            result["perm"] = perm
-            result["process"] = CharacterProcess(
-                main=character, chars=characters, date=date, view=view
-            )
-
-    elif entity_type == "corporation":
+    if entity_type == "corporation":
         main_character_id = request.GET.get("main_character_id", None)
         perm, corporation = get_corporation(request, entity_id)
         main_character = None

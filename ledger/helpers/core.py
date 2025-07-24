@@ -6,7 +6,6 @@ Core View Helper
 from django.db.models import Sum
 
 # Alliance Auth
-from allianceauth.authentication.models import UserProfile
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -24,12 +23,6 @@ def add_info_to_context(request, context: dict) -> dict:
     # AA Ledger
     from ledger.models.characteraudit import CharacterAudit
 
-    try:
-        user = UserProfile.objects.get(id=request.user.id)
-        theme = user.theme
-    except UserProfile.DoesNotExist:
-        theme = None
-
     total_issues = (
         CharacterAudit.objects.annotate_total_update_status_user(user=request.user)
         .aggregate(total_failed=Sum("num_sections_failed"))
@@ -38,7 +31,6 @@ def add_info_to_context(request, context: dict) -> dict:
 
     new_context = {
         **{
-            "theme": theme,
             "issues": total_issues,
         },
         **context,

@@ -1,5 +1,5 @@
 # Standard Library
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from decimal import Decimal
 from typing import Any
 
@@ -25,6 +25,20 @@ class ChartData:
     categories: list[str]
     series: list[dict[str, Any]]
 
+    def serialize_decimals(self, obj):
+        if isinstance(obj, dict):
+            return {k: self.serialize_decimals(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [self.serialize_decimals(i) for i in obj]
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return obj
+
+    def asdict(self) -> dict:
+        """Return this object as dict."""
+        serialized_data = self.serialize_decimals(asdict(self))
+        return serialized_data
+
 
 class BillboardSystem:
     """BillboardSystem class to process billboard data."""
@@ -36,6 +50,16 @@ class BillboardSystem:
         charts: ChartData = None
         rattingbar: ChartData = None
         workflowgauge: ChartData = None
+
+        def asdict(self) -> dict:
+            """Return this object as dict."""
+            return {
+                "charts": self.charts.asdict() if self.charts else None,
+                "rattingbar": self.rattingbar.asdict() if self.rattingbar else None,
+                "workflowgauge": (
+                    self.workflowgauge.asdict() if self.workflowgauge else None
+                ),
+            }
 
     def __init__(
         self,

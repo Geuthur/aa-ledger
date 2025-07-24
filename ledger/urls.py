@@ -79,30 +79,42 @@ urlpatterns = [
     ),
     # -- -- Character Ledger
     path(
-        "character/",
-        character_ledger.character_ledger_index,
-        name="character_ledger_index",
-    ),
-    path(
         "character/<int:character_id>/",
         character_ledger.character_ledger,
         name="character_ledger",
     ),
     path(
         "character/<int:character_id>/<int:year>/",
-        character_ledger.character_ledger_new,
+        character_ledger.character_ledger,
         name="character_ledger_year",
     ),
     path(
         "character/<int:character_id>/<int:year>/<int:month>/",
-        character_ledger.character_ledger_new,
+        character_ledger.character_ledger,
         name="character_ledger_year_month",
     ),
     path(
         "character/<int:character_id>/<int:year>/<int:month>/<int:day>/",
-        character_ledger.character_ledger_new,
+        character_ledger.character_ledger,
         name="character_ledger_year_month_day",
     ),
+    # -- -- Character Details
+    path(
+        "character/<int:character_id>/<int:year>/view/details/",
+        character_ledger.character_details,
+        name="character_details_year",
+    ),
+    path(
+        "character/<int:character_id>/<int:year>/<int:month>/view/details/",
+        character_ledger.character_details,
+        name="character_details_year_month",
+    ),
+    path(
+        "character/<int:character_id>/<int:year>/<int:month>/<int:day>/view/details/",
+        character_ledger.character_details,
+        name="character_details_year_month_day",
+    ),
+    # -- -- Character Administration
     path(
         "character/<int:character_id>/view/administration/",
         character_ledger.character_administration,

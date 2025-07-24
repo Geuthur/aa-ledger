@@ -1,0 +1,74 @@
+{% load i18n %}
+{% load evelinks %}
+{% load humanize %}
+
+<table class="table table-dark table-striped table-hover w-100" id="ratting">
+    <thead>
+        <th class="col-main-character w-auto">{% trans "Character" %}</th>
+        <th class="col-total-amount w-auto">{% trans "Ratting Amount" %}</th>
+        <th class="col-total-ess w-auto">{% trans "ESS Payout" %}
+            <i class="fa-regular fa-circle-question" title="{% trans 'Estimated Only' %}" data-tooltip-toggle="ledger-tooltip" data-bs-placement="top"></i>
+        </th>
+        <th class="col-total-mining w-auto">{% trans "Mining Amount" %}</th>
+        <th class="col-total-others w-auto">{% trans "Misc. Amount" %}</th>
+        <th class="col-total-singlecosts w-auto">{% trans "Costs" %}</th>
+        <th class="col-total-total w-auto" style="border-left: 2px solid #888;">{% trans "Total" %}</th>
+        <th class="col-total-action w-auto"></th>
+    </thead>
+    <tbody>
+        {% for character_data in ledger %}
+            <tr>
+                <td class="col-main-character nowrap">
+                    <img src="{{ character_data.character.eve_character.character_id|character_portrait_url:32 }}" class="rounded-circle" alt="{{ character_data.character.eve_character.character_name }}">
+                    {{ character_data.character.eve_character.character_name }}
+                </td>
+                <td class="col-total-amount nowrap text-success" id="amount_ratting_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.bounty|default:0 }}">{{ character_data.bounty|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-ess nowrap text-success" id="amount_ess_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ess|default:0 }}">{{ character_data.ess|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-mining nowrap text-success" id="amount_mining_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.mining|default:0 }}">{{ character_data.mining|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-others nowrap text-success" id="amount_misc_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.miscellaneous|default:0 }}">{{ character_data.miscellaneous|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-costs nowrap text-danger" id="amount_costs_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.costs|default:0 }}">{{ character_data.costs|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-total nowrap {% if character_data.total < 0 %}text-danger {% else %}text-success{% endif %}" style="border-left: 2px solid #888;" id="amount_total_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.total|default:0 }}">{{ character_data.total|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-action">
+                    <a href="{{ character_data.single_url }}?single=True"
+                        class="btn btn-primary btn-sm"
+                        data-tooltip-toggle="ledger-tooltip"
+                        title="{% trans 'View Character' %}">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </a>
+                    <button
+                        class="btn btn-primary btn-sm btn-square"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalViewCharacterContainer"
+                        data-ajax_url="{{ character_data.details_url }}"
+                        title="{% trans 'View Details' %}"
+                        data-tooltip-toggle="ledger-tooltip" data-bs-placement="right">
+                        <span class="fas fa-info"></span>
+                    </button>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+
+    <tfoot id="foot">
+        <tr>
+            <th><strong>{% trans "Summary" %}</strong></th>
+            <th class="col-total-amount nowrap {% if totals.bounty < 0 %}text-danger {% else %}text-success{% endif %}" id="total_bounty" data-sort="{{ totals.bounty|default:0 }}">{{ totals.bounty|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+            <th class="col-total-ess nowrap {% if totals.ess < 0 %}text-danger {% else %}text-success{% endif %}" id="total_ess" data-sort="{{ totals.ess|default:0 }}">{{ totals.ess|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+            <th class="col-total-mining nowrap {% if totals.mining < 0 %}text-danger {% else %}text-success{% endif %}" id="total_mining" data-sort="{{ totals.mining|default:0 }}">{{ totals.mining|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+            <th class="col-total-others nowrap {% if totals.miscellaneous < 0 %}text-danger {% else %}text-success{% endif %}" id="total_misc" data-sort="{{ totals.miscellaneous|default:0 }}">{{ totals.miscellaneous|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+            <th class="col-total-costs nowrap {% if totals.costs < 0 %}text-danger {% else %}text-success{% endif %}" id="total_costs" data-sort="{{ totals.costs|default:0 }}">{{ totals.costs|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+            <th class="col-total-total nowrap {% if totals.total < 0 %}text-danger {% else %}text-success{% endif %}" style="border-left: 2px solid #888;" id="total_total" data-sort="{{ totals.total|default:0 }}">{{ totals.total|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+            <th>
+                <button
+                    class="btn btn-primary btn-sm btn-square"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalViewCharacterContainer"
+                    data-ajax_url="{{ view.details_url }}?all=True"
+                    title="{% trans 'View Details' %}"
+                    data-tooltip-toggle="ledger-tooltip" data-bs-placement="right">
+                    <span class="fas fa-info"></span>
+                </button>
+            </th>
+        </tr>
+    </tfoot>
+</table>

@@ -9,26 +9,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.constants import (
-    ASSETS,
-    BOUNTY_PRIZES,
-    CONTRACT,
-    CORP_WITHDRAW,
-    DAILY_GOAL_REWARD,
-    DONATION,
-    ESS_TRANSFER,
-    INCURSION,
-    INSURANCE,
-    LP,
-    MARKET,
-    MILESTONE_REWARD,
-    MISSION_REWARD,
-    PLANETARY,
-    PRODUCTION,
-    RENTAL,
-    SKILL,
-    TRAVELING,
-)
+from ledger.helpers.ref_type import RefTypeCategories
 from ledger.models.characteraudit import CharacterMiningLedger
 from ledger.models.corporationaudit import (
     CorporationWalletJournalEntry,
@@ -56,9 +37,9 @@ class AggegratePvE(AggregateCore):
             qs = qs.filter(second_party__in=second_party)
 
         return (
-            qs.filter(Q(ref_type__in=BOUNTY_PRIZES) & Q(amount__gt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.BOUNTY_PRIZES) & Q(amount__gt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -77,9 +58,9 @@ class AggegratePvE(AggregateCore):
             qs = qs.filter(second_party__in=second_party)
 
         ess_amount = (
-            qs.filter(Q(ref_type__in=ESS_TRANSFER) & Q(amount__gt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.ESS_TRANSFER) & Q(amount__gt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -96,9 +77,9 @@ class AggegratePvE(AggregateCore):
             qs = qs.filter(second_party__in=second_party)
 
         return (
-            qs.filter(Q(ref_type__in=MISSION_REWARD) & Q(amount__gt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.MISSION_REWARD) & Q(amount__gt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -113,9 +94,9 @@ class AggegratePvE(AggregateCore):
             qs = qs.filter(second_party__in=second_party)
 
         return (
-            qs.filter(Q(ref_type__in=INCURSION) & Q(amount__gt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.INCURSION) & Q(amount__gt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -157,9 +138,9 @@ class AggregateCosts(AggregateCore):
             qs = qs.filter(first_party__in=first_party)
 
         return (
-            qs.filter(Q(ref_type__in=MARKET) & Q(amount__lt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.MARKET) & Q(amount__lt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -175,9 +156,9 @@ class AggregateCosts(AggregateCore):
             qs = qs.filter(first_party__in=first_party)
 
         return (
-            qs.filter(Q(ref_type__in=INSURANCE) & Q(amount__lt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.INSURANCE) & Q(amount__lt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -193,9 +174,9 @@ class AggregateCosts(AggregateCore):
             qs = qs.filter(first_party__in=first_party)
 
         return (
-            qs.filter(Q(ref_type__in=CONTRACT) & Q(amount__lt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.CONTRACT) & Q(amount__lt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -211,7 +192,7 @@ class AggregateCosts(AggregateCore):
             qs = qs.filter(first_party__in=first_party)
 
         return (
-            qs.filter(Q(ref_type__in=LP) & Q(amount__lt=0)).aggregate(
+            qs.filter(Q(ref_type__in=RefTypeCategories.LP) & Q(amount__lt=0)).aggregate(
                 total=Sum("amount")
             )["total"]
             or 0
@@ -229,9 +210,9 @@ class AggregateCosts(AggregateCore):
             qs = qs.filter(first_party__in=first_party)
 
         return (
-            qs.filter(Q(ref_type__in=PRODUCTION) & Q(amount__lt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.PRODUCTION) & Q(amount__lt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -248,21 +229,7 @@ class AggregateCosts(AggregateCore):
 
         return (
             qs.filter(
-                Q(
-                    ref_type__in=[
-                        *MARKET,
-                        *CONTRACT,
-                        *TRAVELING,
-                        *PRODUCTION,
-                        *ASSETS,
-                        *SKILL,
-                        *PLANETARY,
-                        *LP,
-                        *INSURANCE,
-                        *RENTAL,
-                    ]
-                )
-                & Q(amount__lt=0)
+                Q(ref_type__in=RefTypeCategories.costs()) & Q(amount__lt=0)
             ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
@@ -290,9 +257,9 @@ class AggregateCorporation(AggregateCore):
             qs = qs.filter(second_party__in=second_party)
 
         daily_goal = (
-            qs.filter(Q(ref_type__in=DAILY_GOAL_REWARD, amount__gt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.DAILY_GOAL_REWARD, amount__gt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -316,9 +283,9 @@ class AggregateCorporation(AggregateCore):
             qs = qs.exclude(second_party_id__in=exclude)
 
         return (
-            qs.filter(Q(ref_type__in=CORP_WITHDRAW) & Q(amount__gt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.CORPORATION) & Q(amount__gt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -340,9 +307,9 @@ class AggregateCorporation(AggregateCore):
             qs = qs.exclude(second_party_id__in=exclude)
 
         return (
-            qs.filter(Q(ref_type__in=CORP_WITHDRAW) & Q(amount__lt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.CORPORATION) & Q(amount__lt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -364,9 +331,9 @@ class AggregateLedger(
             qs = qs.filter(second_party__in=second_party)
 
         return (
-            qs.filter(Q(ref_type__in=INSURANCE) & Q(amount__gt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.INSURANCE) & Q(amount__gt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -382,9 +349,9 @@ class AggregateLedger(
             qs = qs.filter(second_party__in=second_party)
 
         return (
-            qs.filter(Q(ref_type__in=MARKET) & Q(amount__gt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.MARKET) & Q(amount__gt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -400,9 +367,9 @@ class AggregateLedger(
             qs = qs.filter(second_party__in=second_party)
 
         return (
-            qs.filter(Q(ref_type__in=CONTRACT) & Q(amount__gt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.CONTRACT) & Q(amount__gt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -423,9 +390,9 @@ class AggregateLedger(
             qs = qs.filter(second_party__in=second_party)
 
         return (
-            qs.filter(Q(ref_type__in=DONATION, amount__gt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.DONATION, amount__gt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -440,9 +407,9 @@ class AggregateLedger(
             qs = qs.filter(second_party__in=second_party)
 
         return (
-            qs.filter(Q(ref_type__in=MILESTONE_REWARD, amount__gt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.MILESTONE_REWARD, amount__gt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -458,9 +425,9 @@ class AggregateLedger(
             qs = qs.filter(first_party__in=first_party)
 
         return (
-            qs.filter(Q(ref_type__in=PRODUCTION) & Q(amount__gt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.PRODUCTION) & Q(amount__gt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -476,7 +443,9 @@ class AggregateLedger(
             qs = qs.filter(first_party__in=first_party)
 
         return (
-            qs.filter(Q(ref_type__in=TRAVELING)).aggregate(total=Sum("amount"))["total"]
+            qs.filter(Q(ref_type__in=RefTypeCategories.TRAVELING)).aggregate(
+                total=Sum("amount")
+            )["total"]
             or 0
         )
 
@@ -492,9 +461,9 @@ class AggregateLedger(
             qs = qs.filter(first_party__in=first_party)
 
         return (
-            qs.filter(Q(ref_type__in=ASSETS) & Q(amount__lt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.ASSETS) & Q(amount__lt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -510,9 +479,9 @@ class AggregateLedger(
             qs = qs.filter(first_party__in=first_party)
 
         return (
-            qs.filter(Q(ref_type__in=SKILL) & Q(amount__lt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.SKILL) & Q(amount__lt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -528,9 +497,9 @@ class AggregateLedger(
             qs = qs.filter(first_party__in=first_party)
 
         return (
-            qs.filter(Q(ref_type__in=PLANETARY) & Q(amount__lt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.PLANETARY) & Q(amount__lt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -546,9 +515,9 @@ class AggregateLedger(
             qs = qs.filter(first_party__in=first_party)
 
         return (
-            qs.filter(Q(ref_type__in=RENTAL) & Q(amount__lt=0)).aggregate(
-                total=Sum("amount")
-            )["total"]
+            qs.filter(
+                Q(ref_type__in=RefTypeCategories.RENTAL) & Q(amount__lt=0)
+            ).aggregate(total=Sum("amount"))["total"]
             or 0
         )
 
@@ -565,23 +534,7 @@ class AggregateLedger(
 
         return (
             qs.filter(
-                Q(
-                    ref_type__in=[
-                        *ASSETS,
-                        *CONTRACT,
-                        *DAILY_GOAL_REWARD,
-                        *INCURSION,
-                        *INSURANCE,
-                        *MISSION_REWARD,
-                        *MARKET,
-                        *PRODUCTION,
-                        *TRAVELING,
-                        *SKILL,
-                        *PLANETARY,
-                        *LP,
-                    ]
-                )
-                & Q(amount__gt=0)
+                Q(ref_type__in=RefTypeCategories.miscellaneous()) & Q(amount__gt=0)
             ).aggregate(total=Sum("amount"))["total"]
             or 0
         )

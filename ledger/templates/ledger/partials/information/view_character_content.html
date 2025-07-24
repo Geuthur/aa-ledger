@@ -4,8 +4,7 @@
 {% if character %}
     <div>
         <h4 id="modal-title">
-            <img src="{{ character.main_id|character_portrait_url:32 }}" class="rounded-circle" alt="{{ data.main_name }}">
-            {{character.main_name}} - {{character.date}}
+            {{ information }}
         </h4>
     </div>
     <div>

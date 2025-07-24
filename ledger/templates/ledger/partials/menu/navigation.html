@@ -2,7 +2,7 @@
 {% load navactive %}
 
 <li class="nav-item">
-    <a class="nav-link" href="{% url 'ledger:character_ledger_index' %}">
+    <a class="nav-link" href="{% url 'ledger:index' %}">
         {% translate 'Character Ledger' %}
         {% if issues %} <span class="badge bg-warning">{{ issues}}</span>{% endif %}
     </a>

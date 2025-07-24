@@ -2,9 +2,6 @@
 Corporation Audit
 """
 
-# Standard Library
-import logging
-
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -15,9 +12,16 @@ from django.utils.translation import gettext_lazy as _
 # Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
 from allianceauth.eveonline.providers import ObjectNotFound, provider
+from allianceauth.services.hooks import get_extension_logger
 from esi.decorators import token_required
 
-logger = logging.getLogger(__name__)
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
+# AA Ledger
+from ledger import __title__
+
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @login_required

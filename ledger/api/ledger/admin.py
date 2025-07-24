@@ -40,12 +40,14 @@ class LedgerAdminApiEndpoints:
             tags=self.tags,
         )
         def get_character_overview(request):
-            chars_visible = CharacterAudit.objects.visible_eve_characters(request.user)
+            chars_visible = CharacterAudit.objects.visible_to(request.user)
 
             if chars_visible is None:
                 return 403, "Permission Denied"
 
-            chars_ids = chars_visible.values_list("character_id", flat=True)
+            chars_ids = chars_visible.values_list(
+                "eve_character__character_id", flat=True
+            )
 
             users_char_ids = UserProfile.objects.filter(
                 main_character__isnull=False, main_character__character_id__in=chars_ids
