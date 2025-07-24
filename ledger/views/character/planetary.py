@@ -3,7 +3,6 @@ Planetary Audit
 """
 
 # Standard Library
-import logging
 from http import HTTPStatus
 
 # Django
@@ -14,13 +13,19 @@ from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
 # AA Ledger
-from ledger import forms
+from ledger import __title__, forms
 from ledger.api.helpers import get_character_or_none
 from ledger.helpers.core import add_info_to_context
 from ledger.models.planetary import CharacterPlanetDetails
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @login_required

@@ -1,27 +1,186 @@
 {% load sri %}
 {% load i18n %}
 
-<script type="application/javascript">
-    // Extract the 'main' parameter from the current URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const mainParam = urlParams.get('single');
+<script>
+    const ledgerState = {
+        selectedYear: {{ view.date.year|default:"null" }} || {{ view.date.current.year }},
+        selectedMonth: {{ view.date.month|default:"null" }} || {{ view.date.current.month }},
+        selectedDay: {{ view.date.day|default:"null" }},
+        characterId: {{ character_id }},
+        view: "{{ view.type|default:'ledger' }}",
+    };
 
-    let singleViewParam = false;
-    if (mainParam) {
-        singleViewParam = true;
+    function handleDropdownClickNew(event, dropdownType) {
+        if (event.target && event.target.matches('a.dropdown-item')) {
+            const items = event.currentTarget.querySelectorAll('a.dropdown-item');
+            items.forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update the button text with selected value
+            const button = event.currentTarget.previousElementSibling;
+
+            if (dropdownType === 'year') {
+                ledgerState.selectedYear = parseInt(event.target.dataset.bsYearId);
+                button.textContent = ledgerState.selectedYear;
+                // Reset month and day when year changes
+                ledgerState.selectedMonth = null;
+                ledgerState.selectedDay = null;
+                document.getElementById('monthDropDownButton').textContent = '{% trans "Month" %}';
+                document.getElementById('dayDropDownButton').textContent = '{% trans "Day" %}';
+            } else if (dropdownType === 'month') {
+                ledgerState.selectedMonth = parseInt(event.target.dataset.bsMonthId);
+                button.textContent = event.target.textContent;
+                // Reset day when month changes
+                ledgerState.selectedDay = null;
+                document.getElementById('dayDropDownButton').textContent = '{% trans "Day" %}';
+
+                // Populate days dropdown based on selected month/year
+                populateDaysDropdown(ledgerState.selectedYear, ledgerState.selectedMonth);
+            } else if (dropdownType === 'day') {
+                ledgerState.selectedDay = parseInt(event.target.textContent);
+                button.textContent = ledgerState.selectedDay;
+            }
+
+            // Navigate to the new URL
+            navigateToSelectedDate();
+        }
     }
 
-    let ledgersettings = {
-		csrfToken: '{% csrf_token %}',
-        entity_pk: {{ entity_pk }},
-        entity_type: "{{ entity_type }}",
-        altShow: singleViewParam,
-        overviewText: '{% translate "Overview" %}',
-        planetaryText: '{% translate "Show Planetary Interaction" %}',
-        planetaryUrl: "{% url 'ledger:planetary_ledger' character_id=1337 %}",
-        characterUrl: "{% url 'ledger:character_ledger' character_id=1337 %}",
-    };
+    function populateDaysDropdown(year, month) {
+        const dayDropdown = document.getElementById('dayDropdown');
+        dayDropdown.innerHTML = '';
+
+        if (!month) return;
+
+        const daysInMonth = new Date(year, month, 0).getDate();
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.className = 'dropdown-item';
+            a.href = '#';
+            a.textContent = day;
+            li.appendChild(a);
+            dayDropdown.appendChild(li);
+        }
+    }
+
+    function navigateToSelectedDate() {
+        let url = `{% url 'ledger:character_ledger_year' character_id=0 year=0 %}`.replace('/0/0/', `/${ledgerState.characterId}/${ledgerState.selectedYear}/`);
+
+        if (ledgerState.selectedMonth) {
+            url = `{% url 'ledger:character_ledger_year_month' character_id=0 year=0 month=0 %}`.replace('/0/0/0/', `/${ledgerState.characterId}/${ledgerState.selectedYear}/${ledgerState.selectedMonth}/`);
+
+            if (ledgerState.selectedDay) {
+                url = `{% url 'ledger:character_ledger_year_month_day' character_id=0 year=0 month=0 day=0 %}`.replace('/0/0/0/0/', `/${ledgerState.characterId}/${ledgerState.selectedYear}/${ledgerState.selectedMonth}/${ledgerState.selectedDay}/`);
+            }
+        }
+
+        // Append ?single=True if view is 'single'
+        if (ledgerState.view === 'single') {
+            if (url.indexOf('?') === -1) {
+                url += '?single=True';
+            } else {
+                url += '&single=True';
+            }
+        }
+        // Navigate to the new URL
+        window.location.href = url;
+    }
+
+    // Initialize dropdowns on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const BillboardData = {{ billboard|safe }};
+        initCharts(BillboardData);
+
+        const tableContainer = $('#ratting')
+        const tableRatting = tableContainer.DataTable(
+            {
+                "order": [[1, "desc"]],
+                "columnDefs": [
+                    { "orderable": false, "targets": 7 }, // Disable sorting on the last column
+                    { "type": "num", "targets": [1, 2, 3, 4, 5, 6] }, // Numeric sorting for ISK columns
+                    {
+                        "targets": [1, 2, 3, 4, 5],
+                        "render": function (data, type, row, meta) {
+                            // Remove ISK and thousands separator for sorting
+                            if (type === 'sort' || type === 'type') {
+                                if (typeof data === 'string') {
+                                    return parseFloat(data.replace(/[^\d\-\.]/g, '')) || 0;
+                                }
+                                return data;
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        "targets": 6, // Total column
+                        "render": function (data, type, row, meta) {
+                            if (type === 'sort' || type === 'type') {
+                                if (typeof data === 'string') {
+                                    // Extrahiere Zahl inkl. Minuszeichen am Anfang, robust gegen Leerzeichen
+                                    let match = data.match(/-?\d[\d.,]*/);
+                                    if (match) {
+                                        // Ersetze Kommas durch nichts, Punkte durch Dezimalpunkt
+                                        let num = match[0].replace(/\./g, '').replace(/,/g, '.');
+                                        return parseFloat(num) || 0;
+                                    }
+                                    return 0;
+                                }
+                                return data;
+                            }
+                            return data;
+                        }
+                    }
+                ],
+                "orderCellsTop": true
+            }
+        );
+
+        // Initialize tooltips
+        $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({ trigger: 'hover' });
+        tableRatting.on('draw', function() {
+            $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({});
+        });
+
+        // Set active states for current selections
+        if (ledgerState.selectedYear) {
+            const yearItem = document.querySelector(`[data-bs-year-id="${ledgerState.selectedYear}"]`);
+            if (yearItem) {
+                yearItem.classList.add('active');
+                document.getElementById('yearDropDownButton').textContent = ledgerState.selectedYear;
+            }
+        }
+
+        if (ledgerState.selectedMonth) {
+            const monthItem = document.querySelector(`[data-bs-month-id="${ledgerState.selectedMonth}"]`);
+            if (monthItem) {
+                monthItem.classList.add('active');
+                document.getElementById('monthDropDownButton').textContent = monthItem.textContent;
+                populateDaysDropdown(ledgerState.selectedYear, ledgerState.selectedMonth);
+            }
+        }
+
+        if (ledgerState.selectedDay) {
+            // Wait for days to be populated
+            setTimeout(() => {
+                const dayLinks = document.querySelectorAll('#dayDropdown a.dropdown-item');
+                dayLinks.forEach(link => {
+                    if (parseInt(link.textContent) === parseInt(ledgerState.selectedDay)) {
+                        link.classList.add('active');
+                        document.getElementById('dayDropDownButton').textContent = ledgerState.selectedDay;
+                    }
+                });
+            }, 100);
+        }
+
+        // Add event listeners to dropdowns
+        document.getElementById('yearDropdown').addEventListener('click', (e) => handleDropdownClickNew(e, 'year'));
+        document.getElementById('monthDropdown').addEventListener('click', (e) => handleDropdownClickNew(e, 'month'));
+        document.getElementById('dayDropdown').addEventListener('click', (e) => handleDropdownClickNew(e, 'day'));
+    });
 </script>
 
+{% sri_static 'ledger/js/charts.js' %}
 <!-- Ledger Resources -->
-{% sri_static 'ledger/js/character.js' %}
+<!-- Ledger Resources {% sri_static 'ledger/js/character.js' %} -->

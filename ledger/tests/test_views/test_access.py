@@ -173,16 +173,6 @@ class TestViewCharacterLedgerAccess(TestCase):
             cls.user, cls.character_ownership.character.character_id
         )
 
-    def test_view_character_ledger_index(self):
-        """Test view character ledger index."""
-        # given
-        request = self.factory.get(reverse("ledger:character_ledger_index"))
-        request.user = self.user
-        # when
-        response = character_ledger.character_ledger_index(request)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-
     def test_view_character_ledger(self):
         """Test view character ledger."""
         # given

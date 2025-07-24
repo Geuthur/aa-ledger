@@ -160,8 +160,20 @@ class CharacterAudit(models.Model):
         """Get all alts for this character."""
         alts = EveCharacter.objects.filter(
             character_ownership__user=self.eve_character.character_ownership.user
+        ).select_related(
+            "character_ownership",
         )
         return alts
+
+    @property
+    def mining_ledger(self):
+        """Get the mining ledger for this character."""
+        return self.ledger_character_mining
+
+    @property
+    def wallet_journal(self):
+        """Get the wallet journal for this character."""
+        return self.ledger_character_journal
 
     def get_token(self, scopes=None) -> Token:
         """Get the token for this character."""
