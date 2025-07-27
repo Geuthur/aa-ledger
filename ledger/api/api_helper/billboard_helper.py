@@ -171,10 +171,6 @@ class BillboardSystem:
         self.dict.charts.series = sorted(
             new_series, key=lambda x: x["value"], reverse=True
         )
-        logger.debug(
-            "Chord series sorted by value (with overflow handled per category): %s",
-            self.dict.charts.series,
-        )
 
     # TODO Add Mining to the billboard
     def create_timeline(self, journal: QuerySet):
