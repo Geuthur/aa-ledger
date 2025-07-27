@@ -17,12 +17,8 @@ from app_utils.logging import LoggerAddTag
 from ledger import __title__
 from ledger.api import schema
 from ledger.api.api_helper.alliance_helper import AllianceProcess
-from ledger.api.api_helper.corporation_helper import (
-    CorporationProcess,
-)
 from ledger.api.helpers import (
     get_alliance,
-    get_character_or_none,
     get_corporation,
 )
 
@@ -35,24 +31,7 @@ def ledger_api_process(
     perm = True
     result = {"perm": None, "process": None}
 
-    if entity_type == "corporation":
-        main_character_id = request.GET.get("main_character_id", None)
-        perm, corporation = get_corporation(request, entity_id)
-        main_character = None
-
-        if corporation is not None:
-            if main_character_id:
-                main_character = get_character_or_none(request, main_character_id)[1]
-
-            result["perm"] = perm
-            result["process"] = CorporationProcess(
-                corporation=corporation,
-                date=date,
-                main_character=main_character,
-                view=view,
-            )
-
-    elif entity_type == "alliance":
+    if entity_type == "alliance":
         corporation_id = request.GET.get("corporation_id", None)
         perm, alliance = get_alliance(request, entity_id)
         corporation = None

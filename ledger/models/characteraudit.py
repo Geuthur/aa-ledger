@@ -24,14 +24,19 @@ from app_utils.logging import LoggerAddTag
 from eveuniverse.models import EveSolarSystem, EveType
 
 # AA Ledger
-from ledger import __title__, app_settings
+from ledger import __title__
 from ledger.errors import HTTPGatewayTimeoutError, NotModifiedError, TokenDoesNotExist
 from ledger.managers.character_audit_manager import (
     CharacterAuditManager,
 )
 from ledger.managers.character_journal_manager import CharWalletManager
 from ledger.managers.character_mining_manager import CharacterMiningLedgerEntryManager
-from ledger.models.general import EveEntity, UpdateSectionResult, _NeedsUpdate
+from ledger.models.general import (
+    EveEntity,
+    UpdateSectionResult,
+    UpdateStatus,
+    _NeedsUpdate,
+)
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -287,6 +292,7 @@ class CharacterAudit(models.Model):
     ) -> None:
         """Update the status of a specific section."""
         error_message = error_message if error_message else ""
+
         defaults = {
             "is_success": is_success,
             "error_message": error_message,
@@ -445,7 +451,7 @@ class CharacterMiningLedger(models.Model):
         return f"{self.character} {self.id}"
 
 
-class CharacterUpdateStatus(models.Model):
+class CharacterUpdateStatus(UpdateStatus):
     """A Model to track the status of the last update."""
 
     character = models.ForeignKey(
@@ -454,65 +460,6 @@ class CharacterUpdateStatus(models.Model):
     section = models.CharField(
         max_length=32, choices=CharacterAudit.UpdateSection.choices, db_index=True
     )
-    is_success = models.BooleanField(default=None, null=True, db_index=True)
-    error_message = models.TextField()
-    has_token_error = models.BooleanField(default=False)
-
-    last_run_at = models.DateTimeField(
-        default=None,
-        null=True,
-        db_index=True,
-        help_text="Last run has been started at this time",
-    )
-    last_run_finished_at = models.DateTimeField(
-        default=None,
-        null=True,
-        db_index=True,
-        help_text="Last run has been successful finished at this time",
-    )
-    last_update_at = models.DateTimeField(
-        default=None,
-        null=True,
-        db_index=True,
-        help_text="Last update has been started at this time",
-    )
-    last_update_finished_at = models.DateTimeField(
-        default=None,
-        null=True,
-        db_index=True,
-        help_text="Last update has been successful finished at this time",
-    )
-
-    class Meta:
-        default_permissions = ()
 
     def __str__(self) -> str:
         return f"{self.character} - {self.section} - {self.is_success}"
-
-    def need_update(self) -> bool:
-        """Check if the update is needed."""
-        if not self.is_success or not self.last_update_finished_at:
-            needs_update = True
-        else:
-            section_time_stale = app_settings.LEDGER_STALE_TYPES.get(self.section, 60)
-            stale = timezone.now() - timezone.timedelta(minutes=section_time_stale)
-            needs_update = self.last_run_finished_at <= stale
-
-        if needs_update and self.has_token_error:
-            logger.info(
-                "%s: Ignoring update because of token error, section: %s",
-                self.character,
-                self.section,
-            )
-            needs_update = False
-
-        return needs_update
-
-    def reset(self) -> None:
-        """Reset this update status."""
-        self.is_success = None
-        self.error_message = ""
-        self.has_token_error = False
-        self.last_run_at = timezone.now()
-        self.last_run_finished_at = None
-        self.save()

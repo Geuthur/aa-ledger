@@ -1,9 +1,6 @@
-# Standard Library
-from datetime import datetime
-
 # Django
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q, QuerySet
+from django.db.models import QuerySet
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo
@@ -143,26 +140,3 @@ def get_alts_queryset(
         return models.CharacterAudit.objects.filter(
             eve_character__pk=character.eve_character.pk
         )
-
-
-def get_journal_entitys(date: datetime, view, corporations=None) -> set:
-    """Get all entity ids from Corporation Journal Queryset filtered by date."""
-    filter_date = Q(date__year=date.year)
-    if view == "month":
-        filter_date &= Q(date__month=date.month)
-    elif view == "day":
-        filter_date &= Q(date__month=date.month)
-        filter_date &= Q(date__day=date.day)
-
-    first_party_ids = models.CorporationWalletJournalEntry.objects.filter(
-        filter_date,
-        division__corporation__corporation__corporation_id__in=corporations,
-    ).values_list("first_party_id", flat=True)
-
-    second_party_ids = models.CorporationWalletJournalEntry.objects.filter(
-        filter_date, division__corporation__corporation__corporation_id__in=corporations
-    ).values_list("second_party_id", flat=True)
-
-    entity_ids = set(first_party_ids) | set(second_party_ids)
-
-    return entity_ids

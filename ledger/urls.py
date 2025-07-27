@@ -68,6 +68,37 @@ urlpatterns = [
         name="corporation_ledger",
     ),
     path(
+        "corporation/<int:corporation_id>/<int:year>/",
+        corporation_ledger.corporation_ledger,
+        name="corporation_ledger_year",
+    ),
+    path(
+        "corporation/<int:corporation_id>/<int:year>/<int:month>/",
+        corporation_ledger.corporation_ledger,
+        name="corporation_ledger_year_month",
+    ),
+    path(
+        "corporation/<int:corporation_id>/<int:year>/<int:month>/<int:day>/",
+        corporation_ledger.corporation_ledger,
+        name="corporation_ledger_year_month_day",
+    ),
+    # -- -- Corporation Details
+    path(
+        "corporation/<int:corporation_id>/<int:year>/view/details/<int:entity_id>/",
+        corporation_ledger.corporation_details,
+        name="corporation_details_year",
+    ),
+    path(
+        "corporation/<int:corporation_id>/<int:year>/<int:month>/view/details/<int:entity_id>/",
+        corporation_ledger.corporation_details,
+        name="corporation_details_year_month",
+    ),
+    path(
+        "corporation/<int:corporation_id>/<int:year>/<int:month>/<int:day>/view/details/<int:entity_id>/",
+        corporation_ledger.corporation_details,
+        name="corporation_details_year_month_day",
+    ),
+    path(
         "corporation/<int:corporation_id>/view/administration/",
         corporation_ledger.corporation_administration,
         name="corporation_administration",

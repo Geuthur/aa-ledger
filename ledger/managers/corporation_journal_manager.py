@@ -15,26 +15,10 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.constants import (
-    ASSETS,
-    BOUNTY_PRIZES,
-    CONTRACT,
-    DAILY_GOAL_REWARD,
-    DONATION,
-    ESS_TRANSFER,
-    INCURSION,
-    INSURANCE,
-    LP,
-    MARKET,
-    MISSION_REWARD,
-    PRODUCTION,
-    RENTAL,
-    SKILL,
-    TRAVELING,
-)
 from ledger.decorators import log_timing
-from ledger.errors import DatabaseError
+from ledger.errors import DatabaseError, NotModifiedError
 from ledger.helpers.etag import etag_results
+from ledger.helpers.ref_type import RefTypeCategories
 from ledger.models.general import EveEntity
 from ledger.providers import esi
 
@@ -47,54 +31,19 @@ if TYPE_CHECKING:
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
-# Filters
-BOUNTY_FILTER = Q(ref_type__in=BOUNTY_PRIZES, amount__gt=0)
-ESS_FILTER = Q(ref_type__in=ESS_TRANSFER, amount__gt=0)
-INCURSION_FILTER = Q(ref_type__in=INCURSION, amount__gt=0)
-MISSION_FILTER = Q(ref_type__in=MISSION_REWARD, amount__gt=0)
-DAILY_GOAL_REWARD_FILTER = Q(ref_type__in=DAILY_GOAL_REWARD, amount__gt=0)
-CITADEL_FILTER = Q(ref_type__in=PRODUCTION, amount__gt=0)
-
-MISC_FILTER = Q(
-    ref_type__in=[
-        *ASSETS,
-        *CONTRACT,
-        *DAILY_GOAL_REWARD,
-        *DONATION,
-        *INCURSION,
-        *INSURANCE,
-        *MISSION_REWARD,
-        *PRODUCTION,
-        *MARKET,
-        *TRAVELING,
-        *LP,
-    ],
-    amount__gt=0,
-)
-
-COSTS_FILTER = Q(
-    ref_type__in=[
-        *ASSETS,
-        *CONTRACT,
-        *INSURANCE,
-        *LP,
-        *MARKET,
-        *TRAVELING,
-        *PRODUCTION,
-        *SKILL,
-        *RENTAL,
-    ],
-    amount__lt=0,
-)
-
 
 class CorporationWalletQuerySet(models.QuerySet):
-    def annotate_bounty_income(self) -> models.QuerySet:
+    # pylint: disable=duplicate-code
+    def annotate_bounty_income(
+        self,
+    ) -> models.QuerySet:
         return self.annotate(
             bounty_income=Coalesce(
                 Sum(
                     "amount",
-                    filter=(BOUNTY_FILTER),
+                    filter=Q(
+                        ref_type__in=RefTypeCategories.BOUNTY_PRIZES, amount__gt=0
+                    ),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -106,7 +55,7 @@ class CorporationWalletQuerySet(models.QuerySet):
             ess_income=Coalesce(
                 Sum(
                     F("amount"),
-                    filter=(ESS_FILTER),
+                    filter=Q(ref_type__in=RefTypeCategories.ESS_TRANSFER, amount__gt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -119,7 +68,9 @@ class CorporationWalletQuerySet(models.QuerySet):
             miscellaneous=Coalesce(
                 Sum(
                     "amount",
-                    filter=(MISC_FILTER),
+                    filter=Q(
+                        ref_type__in=RefTypeCategories.miscellaneous(), amount__gt=0
+                    ),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -131,12 +82,79 @@ class CorporationWalletQuerySet(models.QuerySet):
             costs=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(COSTS_FILTER) & Q(amount__lt=0),
+                    filter=Q(ref_type__in=RefTypeCategories.costs(), amount__lt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
             )
         )
+
+    def aggregate_bounty(self) -> dict:
+        """Aggregate bounty income."""
+        return self.filter(ref_type__in=RefTypeCategories.BOUNTY_PRIZES).aggregate(
+            total_bounty=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
+        )["total_bounty"]
+
+    def aggregate_ess(self) -> dict:
+        """Aggregate ESS income."""
+        return self.filter(ref_type__in=RefTypeCategories.ESS_TRANSFER).aggregate(
+            total_ess=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
+        )["total_ess"]
+
+    def aggregate_miscellaneous(self) -> dict:
+        """Aggregate miscellaneous income (nur positive Beträge)."""
+        return self.filter(
+            ref_type__in=RefTypeCategories.miscellaneous(), amount__gt=0
+        ).aggregate(
+            total_misc=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
+        )[
+            "total_misc"
+        ]
+
+    def aggregate_costs(self) -> dict:
+        """Aggregate costs."""
+        return self.filter(
+            ref_type__in=RefTypeCategories.costs(), amount__lt=0
+        ).aggregate(
+            total_costs=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
+        )[
+            "total_costs"
+        ]
+
+    # pylint: disable=too-many-positional-arguments, duplicate-code
+    def aggregate_ref_type(
+        self,
+        ref_type: list,
+        first_party=None,
+        second_party=None,
+        exclude=None,
+        income: bool = False,
+    ) -> dict:
+        """Aggregate income by ref_type."""
+        qs = self.filter(ref_type__in=ref_type)
+        if first_party is not None:
+            if isinstance(first_party, int):
+                first_party = [first_party]
+            qs = qs.filter(first_party__in=first_party)
+
+        if second_party is not None:
+            if isinstance(second_party, int):
+                second_party = [second_party]
+            qs = qs.filter(second_party__in=second_party)
+
+        if exclude is not None:
+            if isinstance(exclude, int):
+                exclude = [exclude]
+            qs = qs.exclude(first_party__in=exclude)
+
+        if income:
+            qs = qs.filter(amount__gt=0)
+        else:
+            qs = qs.filter(amount__lt=0)
+
+        return qs.aggregate(
+            total=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
+        )["total"]
 
 
 class CorporationWalletManagerBase(models.Manager):
@@ -169,6 +187,10 @@ class CorporationWalletManagerBase(models.Manager):
 
         divisions = CorporationWalletDivision.objects.filter(corporation=corporation)
 
+        # Get the count of divisions to track not modified
+        division_count = divisions.count()
+        not_modified = 0
+
         for division in divisions:
             current_page = 1
             total_pages = 1
@@ -177,13 +199,44 @@ class CorporationWalletManagerBase(models.Manager):
                     corporation_id=corporation.corporation.corporation_id,
                     division=division.division_id,
                     page=current_page,
+                    token=token.valid_access_token(),
                 )
-                journal_items = etag_results(
-                    journal_items_ob, token, force_refresh=force_refresh
+
+                journal_items_ob.request_config.also_return_response = True
+                __, headers = journal_items_ob.result()
+                total_pages = int(headers.headers.get("X-Pages", 1))
+
+                logger.debug(
+                    "Fetching Journal Items for %s - Division: %s - Page: %s/%s",
+                    corporation.corporation.corporation_name,
+                    division.division_id,
+                    current_page,
+                    total_pages,
                 )
+
+                try:
+                    journal_items = etag_results(
+                        journal_items_ob,
+                        token,
+                        force_refresh=force_refresh,
+                    )
+                except NotModifiedError:
+                    not_modified += 1
+                    logger.debug(
+                        "NotModifiedError: %s - Division: %s - Page: %s",
+                        corporation.corporation.corporation_name,
+                        division.division_id,
+                        current_page,
+                    )
+                    current_page += 1
+                    continue
 
                 self._update_or_create_objs(division, journal_items)
                 current_page += 1
+
+        # Ensure only raise NotModifiedError if all divisions returned NotModified
+        if not_modified == division_count:
+            raise NotModifiedError()
 
     @transaction.atomic()
     def _update_or_create_objs(

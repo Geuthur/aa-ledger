@@ -1,12 +1,12 @@
 """PvE Views"""
 
 # Standard Library
-from datetime import datetime
 from http import HTTPStatus
 
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
@@ -21,10 +21,12 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.api.helpers import get_manage_corporation
+from ledger.api.helpers import (
+    get_corporation,
+    get_manage_corporation,
+)
 from ledger.helpers.core import add_info_to_context
-
-# Ledger
+from ledger.helpers.corporation import CorporationData, LedgerEntity
 from ledger.models.corporationaudit import CorporationAudit
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -43,26 +45,97 @@ def corporation_ledger_index(request):
 
 @login_required
 @permission_required("ledger.advanced_access")
-def corporation_ledger(request, corporation_id=None):
+def corporation_ledger(
+    request: WSGIRequest, corporation_id=None, year=None, month=None, day=None
+):
     """
     Corporation Ledger
     """
     if corporation_id is None:
         corporation_id = request.user.profile.main_character.corporation_id
 
+    perms, corporation = get_corporation(request, corporation_id)
+
     # pylint: disable=duplicate-code
-    current_year = datetime.now().year
-    years = [current_year - i for i in range(6)]
+    if not perms:
+        msg = _("Permission Denied")
+        messages.error(request, msg)
+        context = {
+            "error": msg,
+            "corporation_id": corporation_id,
+        }
+        context = add_info_to_context(request, context)
+        return render(
+            request, "ledger/corpledger/corporation_ledger_new.html", context=context
+        )
+
+    corporation_data = CorporationData(
+        request=request, corporation=corporation, year=year, month=month, day=day
+    )
+
+    # Create the Corporation ledger data
+    context = corporation_data.generate_ledger_data()
+    # Add additional information to the context
+    context = add_info_to_context(request, context)
+
+    return render(request, "ledger/corpledger/corporation_ledger.html", context=context)
+
+
+# pylint: disable=too-many-positional-arguments
+@login_required
+@permission_required("ledger.advanced_access")
+def corporation_details(
+    request: WSGIRequest,
+    corporation_id=None,
+    entity_id=None,
+    year=None,
+    month=None,
+    day=None,
+):
+    """
+    Corporation Details
+    """
+
+    perms, corporation = get_corporation(request, corporation_id)
+
+    # pylint: disable=duplicate-code
+    if not perms:
+        msg = _("Permission Denied")
+        messages.error(request, msg)
+        context = {
+            "error": msg,
+            "corporation_id": corporation_id,
+        }
+        context = add_info_to_context(request, context)
+        return render(
+            request, "ledger/corpledger/corporation_ledger.html", context=context
+        )
+
+    corporation_data = CorporationData(
+        request=request, corporation=corporation, year=year, month=month, day=day
+    )
+
+    # Create the Entity for the ledger
+    entity = LedgerEntity(
+        entity_id=entity_id,
+    )
+
+    amounts = corporation_data._create_corporation_details(entity=entity)
+    details = corporation_data._add_average_details(request, amounts, day)
 
     context = {
-        "title": "Corporation Ledger",
-        "years": years,
-        "entity_pk": corporation_id,
-        "corporation_id": corporation_id,
-        "entity_type": "corporation",
+        "title": f"Corporation Details - {corporation.corporation_name}",
+        "type": "corporation",
+        "character": details,
+        "information": f"Corporation Details - {corporation_data.get_details_title}",
     }
     context = add_info_to_context(request, context)
-    return render(request, "ledger/corpledger/corporation_ledger.html", context=context)
+    # pylint: disable=duplicate-code
+    return render(
+        request,
+        "ledger/partials/information/view_character_content.html",
+        context=context,
+    )
 
 
 @login_required

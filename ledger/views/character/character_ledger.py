@@ -79,6 +79,7 @@ def character_details(request, character_id, year=None, month=None, day=None):
 
     perms, character = get_character_or_none(request, character_id)
 
+    # pylint: disable=duplicate-code
     if not perms:
         return render(
             request,
@@ -92,10 +93,11 @@ def character_details(request, character_id, year=None, month=None, day=None):
     character_data = CharacterData(request, character, year, month, day)
 
     amounts = character_data._create_character_details()
-    details = character_data._add_average_details(amounts, day)
+    details = character_data._add_average_details(request, amounts, day)
 
     context = {
         "title": f"Character Details - {character.eve_character.character_name}",
+        "type": "character",
         "character": details,
         "information": f"Character Details - {character_data.get_details_title}",
     }

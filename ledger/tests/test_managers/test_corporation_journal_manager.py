@@ -1,5 +1,5 @@
 # Standard Library
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 # Django
 from django.test import override_settings
@@ -71,11 +71,13 @@ class TestCharacterJournalManager(NoSocketsTestCase):
             second_party=cls.eve_character_second_party,
             ref_type="player_donation",
         )
+        cls.token = cls.character_ownership.user.token_set.first()
+        cls.audit.get_token = MagicMock(return_value=cls.token)
 
     def test_update_wallet_journal(self, mock_eveentity, mock_etag, mock_esi):
         # given
         mock_esi.client = esi_client_stub
-        mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()
+        mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()[0]
 
         mock_eveentity.objects.create_bulk_from_esi.return_value = True
 

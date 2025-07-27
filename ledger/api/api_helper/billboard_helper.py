@@ -145,9 +145,9 @@ class BillboardSystem:
         self.dict.charts.series = sorted(
             self.dict.charts.series, key=lambda x: x["value"], reverse=True
         )
-        if len(self.dict.charts.series) > 10:
-            others_value = sum(entry["value"] for entry in self.dict.charts.series[10:])
-            self.dict.charts.series = self.dict.charts.series[:10]
+        if len(self.dict.charts.series) > 20:
+            others_value = sum(entry["value"] for entry in self.dict.charts.series[20:])
+            self.dict.charts.series = self.dict.charts.series[:20]
             self.dict.charts.series.append(
                 {
                     "from": "Others",

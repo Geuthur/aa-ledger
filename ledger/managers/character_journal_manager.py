@@ -501,6 +501,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             if isinstance(exclude, int):
                 exclude = [exclude]
             qs = qs.exclude(first_party__in=exclude)
+
         if income:
             qs = qs.filter(amount__gt=0)
         else:

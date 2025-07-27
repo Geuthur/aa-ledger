@@ -3,6 +3,17 @@
 # Standard Library
 import enum
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
+# AA Ledger
+from ledger import __title__
+
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+
 
 # Unified Journal Reference Type Enum - All ref types in one place
 class JournalRefType(enum.Enum):
@@ -244,8 +255,11 @@ class RefTypeCategories:
         JournalRefType.CONTRACT_REVERSAL.name.lower(),
     ]
 
+    CORPORATION_CONTRACT = [
+        JournalRefType.CONTRACT_PRICE_PAYMENT_CORP.name.lower(),
+    ]
+
     CORPORATION = [
-        JournalRefType.CORPORATION_ACCOUNT_WITHDRAWAL.name.lower(),
         JournalRefType.CORPORATION_DIVIDEND_PAYMENT.name.lower(),
         JournalRefType.CORPORATION_REGISTRATION_FEE.name.lower(),
         JournalRefType.CORPORATION_LOGO_CHANGE_COST.name.lower(),
@@ -253,6 +267,7 @@ class RefTypeCategories:
     ]
 
     DONATION = [
+        JournalRefType.CORPORATION_ACCOUNT_WITHDRAWAL.name.lower(),
         JournalRefType.PLAYER_DONATION.name.lower(),
         JournalRefType.AGENT_DONATION.name.lower(),
     ]
@@ -313,6 +328,11 @@ class RefTypeCategories:
         JournalRefType.ALLIGNMENT_BASED_GATE_TOLL.name.lower(),
     ]
 
+    # Propaganda/Information
+    INFORMATION = [
+        JournalRefType.ADVERTISEMENT_LISTING_FEE.name.lower(),
+    ]
+
     # Skills/Learning
     SKILL = [
         JournalRefType.SKILL_PURCHASE.name.lower(),
@@ -333,6 +353,7 @@ class RefTypeCategories:
     def get_all_categories(cls) -> dict[str, list[str]]:
         """Get all categories and their ref types."""
         return {
+            "ASSETS": cls.ASSETS,
             "BOUNTY_PRIZES": cls.BOUNTY_PRIZES,
             "MISSION_REWARD": cls.MISSION_REWARD,
             "ESS_TRANSFER": cls.ESS_TRANSFER,
@@ -346,7 +367,6 @@ class RefTypeCategories:
             "MILESTONE_REWARD": cls.MILESTONE_REWARD,
             "PRODUCTION": cls.PRODUCTION,
             "PLANETARY": cls.PLANETARY,
-            "ASSETS": cls.ASSETS,
             "TRAVELING": cls.TRAVELING,
             "SKILL": cls.SKILL,
             "LP": cls.LP,
@@ -368,12 +388,21 @@ class RefTypeCategories:
             "MARKET": cls.MARKET,
             "PRODUCTION": cls.PRODUCTION,
             "PLANETARY": cls.PLANETARY,
+            "RENTAL": cls.RENTAL,
+            "INFORMATION": cls.INFORMATION,
             "SKILL": cls.SKILL,
             "TRAVELING": cls.TRAVELING,
         }
 
     @classmethod
-    def get_miscellaneous(cls) -> list[str]:
+    def get_costs_corporation(cls) -> dict[str, list[str]]:
+        """Get all cost categories and their ref types."""
+        return {
+            "CONTRACT": cls.CORPORATION_CONTRACT,
+        }
+
+    @classmethod
+    def get_miscellaneous(cls) -> dict[str, list[str]]:
         """Get all miscellaneous categories and their ref types."""
         return {
             "ASSETS": cls.ASSETS,
@@ -388,8 +417,16 @@ class RefTypeCategories:
             "MARKET": cls.MARKET,
             "PRODUCTION": cls.PRODUCTION,
             "PLANETARY": cls.PLANETARY,
+            "RENTAL": cls.RENTAL,
             "SKILL": cls.SKILL,
             "TRAVELING": cls.TRAVELING,
+        }
+
+    @classmethod
+    def get_miscellaneous_corporation(cls) -> dict[str, list[str]]:
+        """Get all miscellaneous categories and their ref types for corporations."""
+        return {
+            "DAILY_GOAL_REWARD": cls.DAILY_GOAL_REWARD,
         }
 
     @classmethod
@@ -402,9 +439,27 @@ class RefTypeCategories:
         return costs
 
     @classmethod
+    def costs_corporation(cls) -> list[str]:
+        """Get all cost categories and their ref types for corporations."""
+        costs_ref_types = cls.get_costs_corporation()
+        costs = []
+        for __, ref_types in costs_ref_types.items():
+            costs.extend(ref_types)
+        return costs
+
+    @classmethod
     def miscellaneous(cls) -> list[str]:
         """Get all miscellaneous categories and their ref types."""
         misc_ref_types = cls.get_miscellaneous()
+        miscellaneous = []
+        for __, ref_types in misc_ref_types.items():
+            miscellaneous.extend(ref_types)
+        return miscellaneous
+
+    @classmethod
+    def miscellaneous_corporation(cls) -> list[str]:
+        """Get all miscellaneous categories and their ref types for corporations."""
+        misc_ref_types = cls.get_miscellaneous_corporation()
         miscellaneous = []
         for __, ref_types in misc_ref_types.items():
             miscellaneous.extend(ref_types)

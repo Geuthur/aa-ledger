@@ -7,8 +7,14 @@
 - Corporation Overview not show all corps from own Characters
 - Planetary Switch Alarm path error
 - Total Mining Amount only count 1 Character
+- Update Status Stale Error
+- Corporation Wallet Journal not Updating until ETag expire
 
 ### Changed
+
+- Ref Type System
+
+  - Create all in one Ref Type Manager
 
 - Refactor Character Ledger
 
@@ -16,16 +22,17 @@
     - Date Path instead of API
   - CharacterAudit
     - `character` changed to `eve_character`
-    - Refactored API System
-  - Ref Type System
-    - Create all in one Ref Type Manager
+  - Removed API
+
+- Refactor Corporation Ledger
+
+  - Character View Paths
+    - Date Path instead of API
+  - Removed API
 
 - ESI Overload Prevention
 
   - Decreased Update Interval
-    - Journal Update from `60` to `120`
-    - Corporation Update from `60` to `120`
-    - Planets Update from `30` to `60`
   - Task Schedule from crontab to every `1800` seconds (30 minutes)
   - `update_subset_characters` updated
     - max run limit increased from `200` to `500`
@@ -40,6 +47,8 @@
 - Optimized Table CSS
 
 - Optimized Billboard Visual Optic
+
+- Optimized Details Template System
 
 ### Added
 

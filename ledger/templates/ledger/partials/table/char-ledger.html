@@ -2,7 +2,7 @@
 {% load evelinks %}
 {% load humanize %}
 
-<table class="table table-dark table-striped table-hover w-100" id="ratting">
+<table class="table table-dark table-striped table-hover w-100 d-none" id="ratting">
     <thead>
         <th class="col-main-character w-auto">{% trans "Character" %}</th>
         <th class="col-total-amount w-auto">{% trans "Ratting Amount" %}</th>
@@ -22,12 +22,12 @@
                     <img src="{{ character_data.character.eve_character.character_id|character_portrait_url:32 }}" class="rounded-circle" alt="{{ character_data.character.eve_character.character_name }}">
                     {{ character_data.character.eve_character.character_name }}
                 </td>
-                <td class="col-total-amount nowrap text-success" id="amount_ratting_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.bounty|default:0 }}">{{ character_data.bounty|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
-                <td class="col-total-ess nowrap text-success" id="amount_ess_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ess|default:0 }}">{{ character_data.ess|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
-                <td class="col-total-mining nowrap text-success" id="amount_mining_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.mining|default:0 }}">{{ character_data.mining|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
-                <td class="col-total-others nowrap text-success" id="amount_misc_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.miscellaneous|default:0 }}">{{ character_data.miscellaneous|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
-                <td class="col-total-costs nowrap text-danger" id="amount_costs_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.costs|default:0 }}">{{ character_data.costs|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
-                <td class="col-total-total nowrap {% if character_data.total < 0 %}text-danger {% else %}text-success{% endif %}" style="border-left: 2px solid #888;" id="amount_total_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.total|default:0 }}">{{ character_data.total|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-amount nowrap text-success" id="amount_ratting_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.bounty|default:0 }}">{{ character_data.ledger.bounty|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-ess nowrap text-success" id="amount_ess_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.ess|default:0 }}">{{ character_data.ledger.ess|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-mining nowrap text-success" id="amount_mining_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.mining|default:0 }}">{{ character_data.ledger.mining|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-others nowrap text-success" id="amount_misc_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.miscellaneous|default:0 }}">{{ character_data.ledger.miscellaneous|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-costs nowrap text-danger" id="amount_costs_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.costs|default:0 }}">{{ character_data.ledger.costs|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-total nowrap {% if character_data.ledger.total < 0 %}text-danger {% else %}text-success{% endif %}" style="border-left: 2px solid #888;" id="amount_total_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.total|default:0 }}">{{ character_data.ledger.total|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
                 <td class="col-total-action">
                     <a href="{{ character_data.single_url }}?single=True"
                         class="btn btn-primary btn-sm"

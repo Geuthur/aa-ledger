@@ -133,6 +133,14 @@ def handle_page_results(
 
             result, headers = operation.result()
             total_pages = int(headers.headers["X-Pages"])
+            logger.debug(
+                "Cached ETag: %s - ESI ETag: %s - Last-Modified: %s - Operation ID: %s",
+                get_etag_header(operation),
+                headers.headers.get("ETag"),
+                headers.headers.get("Last-Modified"),
+                operation.operation.operation_id,
+            )
+
             handle_etag_headers(operation, headers, force_refresh, etags_incomplete)
 
             # Store results
@@ -218,7 +226,7 @@ def etag_results(operation, token, force_refresh=False):
         try:
             results, headers = operation.result()
         except HTTPNotModified as e:
-            logger.debug("ETag: Not Modified %s", operation.operation.operation_id)
+            logger.debug("ETag: HTTP Not Modified %s", operation.operation.operation_id)
             set_etag_header(operation, e.response)
             raise NotModifiedError() from e
         except HTTPGatewayTimeout as e:
