@@ -66,7 +66,7 @@ def corporation_ledger(
         }
         context = add_info_to_context(request, context)
         return render(
-            request, "ledger/corpledger/corporation_ledger_new.html", context=context
+            request, "ledger/corpledger/corporation_ledger.html", context=context
         )
 
     corporation_data = CorporationData(
