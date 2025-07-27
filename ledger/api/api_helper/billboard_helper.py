@@ -1,4 +1,5 @@
 # Standard Library
+from collections import defaultdict
 from dataclasses import asdict, dataclass
 from decimal import Decimal
 from typing import Any
@@ -138,23 +139,42 @@ class BillboardSystem:
         self.dict.charts.series.append(data)
 
     def chord_handle_overflow(self):
-        """Order and handle overflow data for the billboard"""
+        """Order and handle overflow data for the billboard, for each 'to' category"""
         if self.dict.charts is None:
             return
 
+        # Group by 'to' category
+        grouped = defaultdict(list)
+        for entry in self.dict.charts.series:
+            grouped[entry["to"]].append(entry)
+
+        new_series = []
+        for to_category, entries in grouped.items():
+            # Sort each group by value descending
+            sorted_entries = sorted(entries, key=lambda x: x["value"], reverse=True)
+            if len(sorted_entries) > 25:
+                # Keep top 30, sum the rest as 'Others'
+                top_entries = sorted_entries[:25]
+                others_value = sum(e["value"] for e in sorted_entries[25:])
+                top_entries.append(
+                    {
+                        "from": "Others",
+                        "to": to_category,
+                        "value": others_value,
+                    }
+                )
+                new_series.extend(top_entries)
+            else:
+                new_series.extend(sorted_entries)
+
+        # Sort the final series by value descending for display
         self.dict.charts.series = sorted(
-            self.dict.charts.series, key=lambda x: x["value"], reverse=True
+            new_series, key=lambda x: x["value"], reverse=True
         )
-        if len(self.dict.charts.series) > 20:
-            others_value = sum(entry["value"] for entry in self.dict.charts.series[20:])
-            self.dict.charts.series = self.dict.charts.series[:20]
-            self.dict.charts.series.append(
-                {
-                    "from": "Others",
-                    "to": "Wallet",
-                    "value": others_value,
-                }
-            )
+        logger.debug(
+            "Chord series sorted by value (with overflow handled per category): %s",
+            self.dict.charts.series,
+        )
 
     # TODO Add Mining to the billboard
     def create_timeline(self, journal: QuerySet):
