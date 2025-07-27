@@ -45,7 +45,7 @@ class CorporationData(LedgerCore):
         self.corporation = corporation
 
     def setup_ledger(self, entity: LedgerEntity = None):
-        """Set up the ledger based on the view type."""
+        """Setup the Ledger Data for the Corporation."""
         if entity is not None:
             character_ids = entity.get_alts_ids_or_self()
             self.journal = CorporationWalletJournalEntry.objects.filter(
@@ -110,12 +110,13 @@ class CorporationData(LedgerCore):
                     costs += row.get("costs") or Decimal(0)
                     used_pks.add(pk)
 
-        # Entferne die verwendeten pks aus entries
+        # Remove Used Pks from Entries
+        # This is to prevent the entries from being used in the future
         for pk in used_pks:
             self.entries.pop(pk, None)
 
         misc = miscellaneous
-        total = bounty + ess + misc + costs
+        total = sum([bounty, ess, miscellaneous, costs])
 
         if total == 0:
             return None
@@ -142,6 +143,11 @@ class CorporationData(LedgerCore):
             chord_from=entity.entity_name,
             chord_to="Costs",
             value=abs(costs),
+        )
+        self.billboard.chord_add_data(
+            chord_from=entity.entity_name,
+            chord_to="Miscellaneous",
+            value=abs(miscellaneous),
         )
 
         return char_data
@@ -218,21 +224,22 @@ class CorporationData(LedgerCore):
 
         remaining_entities = self.entities - finished_entities
         if remaining_entities:
-            # Ensure that the Character or Corporation are always first in the list
             for entity_id in remaining_entities:
-                if entity_id in [
-                    1000132,
-                    1000413,
-                ]:  # Skip NPC Entities like CONCORD, AIR Laboratories
+                # Skip NPC Entities like CONCORD, AIR Laboratories
+                if entity_id in [1000132, 1000413]:
                     continue
-                details_url = self.create_url(
-                    viewname="corporation_details",
-                    corporation_id=self.corporation.corporation.corporation_id,
-                    entity_id=entity_id,
-                )
+
+                # Create the LedgerEntity object for the entity
                 entity_obj = LedgerEntity(
                     entity_id,
                     details_url=details_url,
+                )
+
+                # Create Details URL for the entity
+                details_url = self.create_url(
+                    viewname="corporation_details",
+                    corporation_id=self.corporation.corporation.corporation_id,
+                    entity_id=entity_obj.entity_id,
                 )
 
                 char_data = self.create_entity_data(
@@ -285,6 +292,7 @@ class CorporationData(LedgerCore):
 
     # pylint: disable=duplicate-code
     def _create_corporation_details(self, entity: LedgerEntity) -> dict:
+        """Create the corporation amounts for the Details View."""
         self.setup_ledger(entity=entity)
 
         amounts = {}

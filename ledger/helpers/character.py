@@ -49,10 +49,13 @@ class CharacterData(LedgerCore):
         return self.character.alts.values_list("character_id", flat=True)
 
     def setup_ledger(self, character: CharacterAudit):
-        """Set up the ledger based on the view type."""
+        """Setup the Ledger Data for the Character."""
+
+        # Show Card Template for Character Ledger
         if self.request.GET.get("single", False):
             self.ledger_type = "single"
 
+        # Get All Journal Entries for the Character and its Alts for Details View
         if self.request.GET.get("all", False):
             self.journal = CharacterWalletJournalEntry.objects.filter(
                 self.filter_date,
@@ -67,11 +70,13 @@ class CharacterData(LedgerCore):
                 ),
             )
         else:
+            # Get Journal Entries for the Character and its Alts
             self.journal = character.ledger_character_journal.filter(self.filter_date)
             self.mining = character.ledger_character_mining.filter(self.filter_date)
 
     def generate_ledger_data(self) -> dict:
         """Generate the ledger data for the character and its alts."""
+        # Only show the character if 'single' is set in the request
         if self.request.GET.get("single", False):
             characters = CharacterAudit.objects.filter(
                 eve_character__character_id=self.character.eve_character.character_id
@@ -89,6 +94,7 @@ class CharacterData(LedgerCore):
                 if character_data:
                     ledger.append(character_data)
 
+        # Generate the totals for the ledger
         totals = self._calculate_totals(ledger)
 
         # Evaluate the existing years for the view
@@ -211,6 +217,7 @@ class CharacterData(LedgerCore):
         self.billboard.create_ratting_bar()
 
     def _create_character_details(self) -> dict:
+        """Create the character amounts for the Details View."""
         self.setup_ledger(self.character)
 
         amounts = {}
@@ -228,7 +235,7 @@ class CharacterData(LedgerCore):
         if mining_income > 0:
             amounts["mining_income"] = {"total_amount": mining_income}
 
-        # ESS Income (nur wenn bounty_income existiert)
+        # ESS Income (only if bounty income exists)
         if bounty_income > 0:
             ess_income = bounty_income * Decimal(0.667)
             if ess_income > 0:
