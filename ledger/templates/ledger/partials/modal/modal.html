@@ -15,11 +15,7 @@
 
             <div class="modal-body">
                 <div id="modal{{ name }}Loader">
-                    {% if NIGHT_MODE %}
-                        <img src="{% static 'ledger/images/Spinner-1s-64px-dark.gif' %}">
-                    {% else %}
-                        <img src="{% static 'ledger/images/Spinner-1s-64px-light.gif' %}">
-                    {% endif %}
+                    <img src="{% static 'ledger/images/Spinner-1s-64px-light.gif' %}">
                 </div>
                 <div class="card border-0" id="modal{{ name }}Content" style="display: none !important;"></div>
             </div>
