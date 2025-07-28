@@ -146,6 +146,10 @@ class CorporationData(LedgerCore):
             for alt in alts:
                 alts_dict[alt.character.character_id] = alt.character.character_name
 
+            # Remove the main character from the alts dictionary only one entry
+            if len(alts_dict) == 1:
+                alts_dict.pop(entity.entity_id, None)
+
         used_pks = set()
         bounty = Decimal(0)
         ess = Decimal(0)
