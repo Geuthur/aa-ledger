@@ -112,7 +112,7 @@ function createChordChart(root, data, id) {
         maxWidth: 100,
         wrap: true,
         layer: 0,
-        layerMargin: { left: 70, right: 70, top: 70, bottom: 70 }
+        layerMargin: { left: 30, right: 30, top: 70, bottom: 70 }
     });
 
     series.children.moveValue(series.bulletsContainer, 0);
