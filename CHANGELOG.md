@@ -75,6 +75,26 @@
 - Character, Corporation, Alliance Ledger API Endpoint
 - Details API Endpoint
 
+## [0.8.5] - 2025-07-22
+
+> [!NOTE]
+> For Managing Stuff you need to add the new `manage_access` permission
+> `corp_audit_manager` Permission will show own corporations in Administration instead of `manage_access` (old `admin_access`)
+
+### Fixed
+
+- Corporation Overview not show all corps from own Characters
+- missing Migration hint [#129](https://github.com/Geuthur/aa-ledger/issues/129)
+
+### Added
+
+- `corp_audit_manager` permission
+
+### Changed
+
+- Renamed `admin_access` to `manage_access`
+- Permissions & Section
+
 ## [0.8.4] - 2025-07-19
 
 ### Removed
