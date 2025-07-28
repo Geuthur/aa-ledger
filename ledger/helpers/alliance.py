@@ -96,6 +96,7 @@ class AllianceData(LedgerCore):
 
         return unique_ids
 
+    # pylint: disable=duplicate-code
     def create_entity_data(
         self,
         entity: LedgerEntity,
@@ -161,6 +162,7 @@ class AllianceData(LedgerCore):
 
         return entity_ledger_info
 
+    # pylint: disable=duplicate-code
     def generate_ledger_data(self) -> dict:
         """Generate the ledger data for the character and its alts."""
         self.setup_ledger()
