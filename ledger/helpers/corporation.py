@@ -6,7 +6,7 @@ from decimal import Decimal
 
 # Django
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import DecimalField, Q, Sum
+from django.db.models import DecimalField, Q, QuerySet, Sum
 from django.utils.translation import gettext as _
 
 # Alliance Auth
@@ -47,35 +47,60 @@ class CorporationData(LedgerCore):
 
     def setup_ledger(self, entity: LedgerEntity = None):
         """Setup the Ledger Data for the Corporation."""
+
+        # Get all Auth Accounts with main character
+        self.accounts = (
+            UserProfile.objects.filter(
+                main_character__isnull=False,
+            )
+            .prefetch_related(
+                "user__profile__main_character",
+            )
+            .order_by(
+                "user__profile__main_character__character_name",
+            )
+        )
+
         if entity is not None:
             character_ids = entity.get_alts_ids_or_self()
-            self.journal = CorporationWalletJournalEntry.objects.filter(
-                self.filter_date,
-                division__corporation=self.corporation,
-            ).filter(
-                Q(first_party_id__in=character_ids)
-                | Q(second_party_id__in=character_ids)
+
+            self.journal = (
+                CorporationWalletJournalEntry.objects.filter(
+                    self.filter_date,
+                    division__corporation=self.corporation,
+                )  # Filter by date and division
+                .filter(
+                    Q(first_party_id__in=character_ids)
+                    | Q(second_party_id__in=character_ids)
+                )  # Filter only needed Character IDs
+                .exclude(
+                    first_party_id=self.corporation.corporation.corporation_id,
+                    second_party_id=self.corporation.corporation.corporation_id,
+                )  # exclude Transaction between the corporation itself
             )
-            self.entities = set(
-                self.journal.values_list("second_party_id", flat=True)
-            ) | set(self.journal.values_list("first_party_id", flat=True))
-        else:
-            self.journal = CorporationWalletJournalEntry.objects.filter(
-                self.filter_date, division__corporation=self.corporation
-            ).exclude(
-                first_party_id=self.corporation.corporation.corporation_id,
-                second_party_id=self.corporation.corporation.corporation_id,
-            )
+
+            # Get All Entities from the Journal
             self.entities = set(
                 self.journal.values_list("second_party_id", flat=True)
             ) | set(self.journal.values_list("first_party_id", flat=True))
 
-            # Get all Auth Accounts with main character
-            self.accounts = UserProfile.objects.filter(
-                main_character__isnull=False,
-            ).prefetch_related(
-                "user__profile__main_character",
-            )
+            # If the entity is a corporation or alliance, we need to exclude the accounts Character IDs
+            # from the journal to prevent double counting
+            if entity.type in ["alliance", "corporation"]:
+                exclude_ids = self.get_all_account_ids(accounts=self.accounts) - set(
+                    character_ids
+                )
+                self.journal = self.journal.exclude(
+                    Q(first_party_id__in=exclude_ids)
+                    | Q(second_party_id__in=exclude_ids)
+                )
+        else:
+            self.journal = CorporationWalletJournalEntry.objects.filter(
+                self.filter_date, division__corporation=self.corporation
+            ).exclude(  # Filter by date and division
+                first_party_id=self.corporation.corporation.corporation_id,
+                second_party_id=self.corporation.corporation.corporation_id,
+            )  # exclude Transaction between the corporation itself
 
             # Evaluate the existing years for the view
             self.existing_years = (
@@ -87,6 +112,21 @@ class CorporationData(LedgerCore):
                 .order_by("-date__year")
                 .distinct()
             )
+
+            # Get All Entities from the Journal
+            self.entities = set(
+                self.journal.values_list("second_party_id", flat=True)
+            ) | set(self.journal.values_list("first_party_id", flat=True))
+
+    def get_all_account_ids(self, accounts: list[QuerySet]) -> set:
+        """Get all account Character IDs for the corporation."""
+        account_character_ids = set()
+        for account in accounts:
+            alts = account.user.character_ownerships.all()
+            account_character_ids.update(
+                alts.values_list("character__character_id", flat=True)
+            )
+        return account_character_ids
 
     def create_entity_data(
         self,
@@ -115,6 +155,12 @@ class CorporationData(LedgerCore):
         for pk, rows in list(self.entries.items()):
             for row in rows:
                 if row["first_party_id"] in ids or row["second_party_id"] in ids:
+                    # Skip Market Transactions from buyer between the corporation and its members (Only Count Seller)
+                    if (
+                        row["ref_type"] == "market_transaction"
+                        and row["first_party_id"] in ids
+                    ):
+                        continue
                     bounty += row.get("bounty") or Decimal(0)
                     ess += row.get("ess") or Decimal(0)
                     miscellaneous += row.get("miscellaneous") or Decimal(0)
@@ -172,7 +218,7 @@ class CorporationData(LedgerCore):
         finished_entities = set()
 
         journal = self.journal.values(
-            "first_party_id", "second_party_id", "pk"
+            "first_party_id", "second_party_id", "pk", "ref_type"
         ).annotate(
             bounty=Sum(
                 "amount",
@@ -239,8 +285,13 @@ class CorporationData(LedgerCore):
         remaining_entities = self.entities - finished_entities
         if remaining_entities:
             for entity_id in remaining_entities:
-                # Skip NPC Entities like CONCORD, AIR Laboratories
-                if entity_id in [1000132, 1000413]:
+                # Skip NPC Entities like CONCORD, AIR Laboratories, etc.
+                if entity_id in [
+                    1000125,  # Concord Bounties (Bounty Prizes, ESS, etc.)
+                    1000132,  # Secure Commerce Commission (Market Fees)
+                    1000413,  # Air Laboratories (Daily Login Rewards, etc.)
+                    self.corporation.corporation.corporation_id,
+                ]:
                     continue
 
                 # Create Details URL for the entity
@@ -376,5 +427,4 @@ class CorporationData(LedgerCore):
         ]
         amounts["income_types"] = income_types
         amounts["cost_types"] = cost_types
-        logger.debug(amounts)
         return amounts

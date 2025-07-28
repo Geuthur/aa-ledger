@@ -61,6 +61,14 @@
 
         // Initialize tooltips
         $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({ trigger: 'hover' });
+
+        tableRatting.on('draw', function() {
+            $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({});
+            $('[data-bs-toggle="corp-popover"]').popover({
+                trigger: 'hover',
+                html: true,
+            });
+        });
     });
 </script>
 
