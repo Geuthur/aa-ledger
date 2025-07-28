@@ -1,6 +1,6 @@
 # Changelog
 
-## [IN DEVELOPMENT] - ????-??-??
+## [0.9.0a1] - 2025-07-28
 
 ### Fixed
 
@@ -9,6 +9,13 @@
 - Total Mining Amount only count 1 Character
 - Update Status Stale Error
 - Corporation Wallet Journal not Updating until ETag expire
+
+### Added
+
+- Task Settings Check from ([Eric Kalkoken](https://gitlab.com/ErikKalkoken/))
+- Update Information in Character View
+- `corp_audit_manager` permission
+- `character_mining_manager` added EveSolarSystem if not exist
 
 ### Changed
 
@@ -26,7 +33,13 @@
 
 - Refactor Corporation Ledger
 
-  - Character View Paths
+  - Alliance View Paths
+    - Date Path instead of API
+  - Removed API
+
+- Refactor Alliance Ledger
+
+  - Alliance View Paths
     - Date Path instead of API
   - Removed API
 
@@ -37,6 +50,10 @@
   - `update_subset_characters` updated
     - max run limit increased from `200` to `500`
     - min run limit increased from `10` to `50`
+
+- Billboard Overflow System limited from `10` to `25`
+
+- Billboard Chord added Miscellaneous. Data
 
 - Renamed `admin_access` to `manage_access`
 
@@ -50,12 +67,13 @@
 
 - Optimized Details Template System
 
-### Added
+### Removed
 
-- Task Settings Check from ([Eric Kalkoken](https://gitlab.com/ErikKalkoken/))
-- Update Information in Character View
-- `corp_audit_manager` permission
-- `character_mining_manager` added EveSolarSystem if not exist
+- `character.js`, `corporation.js`, `alliance.js`, `ledger-common.js`
+- `Aggregator System`
+- `ìnformation_helper`
+- Character, Corporation, Alliance Ledger API Endpoint
+- Details API Endpoint
 
 ## [0.8.4] - 2025-07-19
 
