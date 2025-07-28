@@ -14,7 +14,7 @@ from django.utils.translation import gettext as _
 
 # Alliance Auth
 from allianceauth.authentication.models import CharacterOwnership
-from allianceauth.eveonline.models import EveCharacter
+from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -49,19 +49,25 @@ def add_info_to_context(request, context: dict) -> dict:
     return new_context
 
 
-class DummyEveCharacter:
-    """Dummy Eve Character class for fallback when no character is found."""
+class DummyEveEntity:
+    """Dummy Eve Entity class for fallback when no entity is found."""
 
-    def __init__(self, character_id, character_name="Unknown"):
-        self.entity_id = character_id
-        self.entity_name = character_name
+    def __init__(self, entity_id, entity_name="Unknown"):
+        self.entity_id = entity_id
+        self.entity_name = entity_name
         self.type = "character"
 
 
 class LedgerEntity:
     """Class to hold character or corporation data for the ledger."""
 
-    def __init__(self, entity_id, character_obj: EveCharacter = None, details_url=None):
+    def __init__(
+        self,
+        entity_id,
+        character_obj: EveCharacter = None,
+        corporation_obj: EveCorporationInfo = None,
+        details_url=None,
+    ):
         self.type = "character"
         self.entity = None
         self.entity_id = entity_id
@@ -71,6 +77,10 @@ class LedgerEntity:
             self.entity = character_obj
             self.entity_id = character_obj.character_id
             self.entity_name = character_obj.character_name
+        elif corporation_obj and hasattr(corporation_obj, "corporation_id"):
+            self.entity = corporation_obj
+            self.entity_id = corporation_obj.corporation_id
+            self.entity_name = corporation_obj.corporation_name
         else:
             try:
                 entity_obj = EveEntity.objects.get(eve_id=entity_id)
@@ -79,7 +89,7 @@ class LedgerEntity:
                 self.entity_name = entity_obj.name
                 self.type = entity_obj.category
             except EveEntity.DoesNotExist:
-                self.entity = DummyEveCharacter(entity_id, "Unknown")
+                self.entity = DummyEveEntity(entity_id, "Unknown")
                 self.entity_id = entity_id
                 self.entity_name = "Unknown"
 

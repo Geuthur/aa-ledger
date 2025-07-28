@@ -46,6 +46,37 @@ urlpatterns = [
         name="alliance_ledger",
     ),
     path(
+        "alliance/<int:alliance_id>/<int:year>/",
+        alliance_ledger.alliance_ledger,
+        name="alliance_ledger_year",
+    ),
+    path(
+        "alliance/<int:alliance_id>/<int:year>/<int:month>/",
+        alliance_ledger.alliance_ledger,
+        name="alliance_ledger_year_month",
+    ),
+    path(
+        "alliance/<int:alliance_id>/<int:year>/<int:month>/<int:day>/",
+        alliance_ledger.alliance_ledger,
+        name="alliance_ledger_year_month_day",
+    ),
+    # -- -- Alliance Details
+    path(
+        "alliance/<int:alliance_id>/<int:year>/view/details/<int:entity_id>/",
+        alliance_ledger.alliance_details,
+        name="alliance_details_year",
+    ),
+    path(
+        "alliance/<int:alliance_id>/<int:year>/<int:month>/view/details/<int:entity_id>/",
+        alliance_ledger.alliance_details,
+        name="alliance_details_year_month",
+    ),
+    path(
+        "alliance/<int:alliance_id>/<int:year>/<int:month>/<int:day>/view/details/<int:entity_id>/",
+        alliance_ledger.alliance_details,
+        name="alliance_details_year_month_day",
+    ),
+    path(
         "alliance/<int:alliance_id>/view/administration/",
         alliance_ledger.alliance_administration,
         name="alliance_administration",

@@ -1,11 +1,9 @@
 """PvE Views"""
 
-# Standard Library
-from datetime import datetime
-
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
 
@@ -19,7 +17,8 @@ from app_utils.logging import LoggerAddTag
 # AA Ledger
 from ledger import __title__
 from ledger.api.helpers import get_all_corporations_from_alliance, get_alliance
-from ledger.helpers.core import add_info_to_context
+from ledger.helpers.alliance import AllianceData
+from ledger.helpers.core import LedgerEntity, add_info_to_context
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -42,23 +41,95 @@ def alliance_ledger_index(request):
 
 @login_required
 @permission_required("ledger.advanced_access")
-def alliance_ledger(request, alliance_id):
+def alliance_ledger(request, alliance_id=None, year=None, month=None, day=None):
     """
     Alliance Ledger
     """
+    if alliance_id is None:
+        alliance_id = request.user.profile.main_character.alliance_id
+
+    perms, alliance = get_alliance(request, alliance_id)
+
     # pylint: disable=duplicate-code
-    current_year = datetime.now().year
-    years = [current_year - i for i in range(6)]
+    if not perms:
+        msg = _("Permission Denied")
+        messages.error(request, msg)
+        context = {
+            "error": msg,
+            "alliance_id": alliance_id,
+        }
+        context = add_info_to_context(request, context)
+        return render(
+            request, "ledger/allyledger/alliance_ledger.html", context=context
+        )
+
+    alliance_data = AllianceData(
+        request=request, alliance=alliance, year=year, month=month, day=day
+    )
+
+    # Create the Alliance ledger data
+    context = alliance_data.generate_ledger_data()
+    # Add additional information to the context
+    context = add_info_to_context(request, context)
+
+    return render(request, "ledger/allyledger/alliance_ledger.html", context=context)
+
+
+# pylint: disable=too-many-positional-arguments
+@login_required
+@permission_required("ledger.advanced_access")
+def alliance_details(
+    request: WSGIRequest,
+    alliance_id=None,
+    entity_id=None,
+    year=None,
+    month=None,
+    day=None,
+):
+    """
+    Corporation Details
+    """
+
+    perms, alliance = get_alliance(request, alliance_id=alliance_id)
+
+    # pylint: disable=duplicate-code
+    if not perms:
+        msg = _("Permission Denied")
+        messages.error(request, msg)
+        context = {
+            "error": msg,
+            "alliance_id": alliance_id,
+        }
+        context = add_info_to_context(request, context)
+        return render(
+            request, "ledger/allyledger/alliance_ledger.html", context=context
+        )
+
+    alliance_data = AllianceData(
+        request=request, alliance=alliance, year=year, month=month, day=day
+    )
+
+    # Create the Entity for the ledger
+    entity = LedgerEntity(
+        entity_id=entity_id,
+    )
+
+    amounts = alliance_data._create_corporation_details(entity=entity)
+    details = alliance_data._add_average_details(request, amounts, day)
 
     context = {
-        "title": "Alliance Ledger",
-        "years": years,
-        "alliance_id": alliance_id,
-        "entity_pk": alliance_id,
-        "entity_type": "alliance",
+        "title": f"Alliance Details - {alliance.alliance_name}",
+        "type": "alliance",
+        "character": details,
+        "information": f"Alliance Details - {alliance_data.get_details_title}",
     }
     context = add_info_to_context(request, context)
-    return render(request, "ledger/allyledger/alliance_ledger.html", context=context)
+    # pylint: disable=duplicate-code
+    return render(
+        request,
+        "ledger/partials/information/view_character_content.html",
+        context=context,
+    )
 
 
 @login_required

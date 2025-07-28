@@ -20,6 +20,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
+from ledger.models.general import EveEntity
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -49,6 +50,15 @@ def add_ally(request, token) -> HttpResponse:
             )
             # Add/Update All Corporations to eveuniverse model
             ally.populate_alliance()
+
+            # Add the alliance to the EveEntity model
+            EveEntity.objects.get_or_create(
+                eve_id=ally.alliance_id,
+                defaults={
+                    "name": ally.alliance_name,
+                    "category": "alliance",
+                },
+            )
             msg = _("{alliance_name} successfully added to Ledger").format(
                 alliance_name=ally.alliance_name,
             )
