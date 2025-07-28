@@ -11,6 +11,7 @@ from django.utils.translation import gettext as _
 
 # Alliance Auth
 from allianceauth.authentication.models import UserProfile
+from allianceauth.eveonline.models import EveCharacter
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -90,10 +91,20 @@ class CorporationData(LedgerCore):
     def create_entity_data(
         self,
         entity: LedgerEntity,
-        alts_ids: list = None,
+        alts: EveCharacter = None,
     ) -> dict:
         """Create the URL for entity details based on the view type."""
-        ids = list(alts_ids) if alts_ids is not None else [entity.entity_id]
+        ids = (
+            list(alts.values_list("character__character_id", flat=True))
+            if alts is not None
+            else [entity.entity_id]
+        )
+
+        # Create Alts Dictionary
+        alts_dict = {}
+        if alts is not None:
+            for alt in alts:
+                alts_dict[alt.character.character_id] = alt.character.character_name
 
         used_pks = set()
         bounty = Decimal(0)
@@ -123,6 +134,7 @@ class CorporationData(LedgerCore):
 
         char_data = {
             "entity": entity,
+            "alts": alts_dict,
             "ledger": {
                 "bounty": bounty,
                 "ess": ess,
@@ -189,11 +201,13 @@ class CorporationData(LedgerCore):
             self.entries.setdefault(row["pk"], []).append(row)
 
         for account in self.accounts:
-            alts_ids = account.user.character_ownerships.all().values_list(
-                "character__character_id", flat=True
-            )
+            alts = account.user.character_ownerships.all()
 
-            existing_alts = set(alts_ids).intersection(self.entities)
+            existing_alts = set(
+                alts.values_list("character__character_id", flat=True)
+            ).intersection(self.entities)
+
+            alts = alts.filter(character__character_id__in=existing_alts)
 
             if not existing_alts:
                 continue
@@ -213,14 +227,14 @@ class CorporationData(LedgerCore):
 
             char_data = self.create_entity_data(
                 entity=entity_obj,
-                alts_ids=existing_alts,
+                alts=alts,
             )
 
             if char_data is None:
                 continue
 
             ledger.append(char_data)
-            finished_entities.update(alts_ids)
+            finished_entities.update(existing_alts)
 
         remaining_entities = self.entities - finished_entities
         if remaining_entities:
@@ -229,17 +243,17 @@ class CorporationData(LedgerCore):
                 if entity_id in [1000132, 1000413]:
                     continue
 
-                # Create the LedgerEntity object for the entity
-                entity_obj = LedgerEntity(
-                    entity_id,
-                    details_url=details_url,
-                )
-
                 # Create Details URL for the entity
                 details_url = self.create_url(
                     viewname="corporation_details",
                     corporation_id=self.corporation.corporation.corporation_id,
-                    entity_id=entity_obj.entity_id,
+                    entity_id=entity_id,
+                )
+
+                # Create the LedgerEntity object for the entity
+                entity_obj = LedgerEntity(
+                    entity_id,
+                    details_url=details_url,
                 )
 
                 char_data = self.create_entity_data(

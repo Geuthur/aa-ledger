@@ -50,6 +50,10 @@
                 "orderCellsTop": true,
                 initComplete: function() {
                     $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({});
+                    $('[data-bs-toggle="corp-popover"]').popover({
+                        trigger: 'hover',
+                        html: true,
+                    });
                     $('#ratting').removeClass('d-none');
                 },
             }

@@ -19,6 +19,16 @@
                 <td class="col-main-character nowrap">
                     <img src="{{ corporation_data.entity.portrait_url }}" class="rounded-circle" alt="{{ corporation_data.entity.entity_name }}">
                     {{ corporation_data.entity.entity_name }}
+                    {% if corporation_data.alts %}
+                    <i class="fa-regular fa-circle-question"
+                       data-bs-toggle="corp-popover"
+                       data-bs-html="true"
+                       data-bs-trigger="hover focus"
+                       data-bs-placement="top"
+                       title="Included Characters"
+                       data-bs-content="{% for alt_id, alt_name in corporation_data.alts.items %}<p><img src='{{ alt_id|character_portrait_url:32 }}' class='rounded-circle'>{{ alt_name }}</p>{% endfor %}">
+                    </i>
+                    {% endif %}
                 </td>
                 <td class="col-total-amount nowrap text-success" id="amount_ratting_{{ corporation_data.entity.entity_id }}" data-order="{{ corporation_data.ledger.bounty|default:0 }}">{{ corporation_data.ledger.bounty|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
                 <td class="col-total-ess nowrap text-success" id="amount_ess_{{ corporation_data.entity.entity_id }}" data-order="{{ corporation_data.ledger.ess|default:0 }}">{{ corporation_data.ledger.ess|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
