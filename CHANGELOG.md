@@ -12,7 +12,6 @@
 
 ### Added
 
-- Task Settings Check from ([Eric Kalkoken](https://gitlab.com/ErikKalkoken/))
 - Update Information in Character View
 - `corp_audit_manager` permission
 - `character_mining_manager` added EveSolarSystem if not exist
@@ -50,6 +49,8 @@
   - `update_subset_characters` updated
     - max run limit increased from `200` to `500`
     - min run limit increased from `10` to `50`
+  - `update_subset_corporations` updated
+    - min run limit increased from `10` to `20`
 
 - Billboard Overflow System limited from `10` to `25`
 
