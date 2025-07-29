@@ -24,7 +24,7 @@ def range_filter(value):
 
 
 @register.filter
-def month_name(value):
+def month_name(month):
     """Returns the month name for a given month number (1-12), übersetzbar."""
     months = [
         _("January"),
@@ -41,9 +41,11 @@ def month_name(value):
         _("December"),
     ]
     try:
-        return months[int(value) - 1]
+        if 1 <= month <= 12:
+            return months[month - 1]
     except (IndexError, ValueError, TypeError):
-        return ""
+        pass
+    return ""
 
 
 @register.simple_tag
@@ -74,4 +76,7 @@ def month_days(date_info):
 
 @register.filter
 def get_item(dictionary, key):
-    return dictionary.get(key)
+    """Returns the value for a given key in a dictionary, or empty dict if not found."""
+    if isinstance(dictionary, dict):
+        return dictionary.get(key, {})
+    return {}
