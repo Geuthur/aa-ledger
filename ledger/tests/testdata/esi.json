@@ -441,12 +441,40 @@
       }
    },
    "Universe": {
-      "post_universe_names": [
-         {
-            "category":"character",
-            "id":9999,
-            "name":"Test Character 1"
-         }
-      ]
+      "post_universe_names": {
+         "[1001]": [
+            {
+               "id": 1001,
+               "name": "Gneuten",
+               "category": "character"
+            }
+         ],
+         "[9996]": [
+            {
+               "id": 9996,
+               "name": "Create Character",
+               "category": "character"
+            }
+         ],
+         "[9999]": [
+            {
+               "id": 9999,
+               "name": "New Test Character",
+               "category": "character"
+            }
+         ],
+         "[9997, 9998]": [
+            {
+               "id": 9997,
+               "name": "Bulk Character",
+               "category": "character"
+            },
+            {
+               "id": 9998,
+               "name": "Bulk Character 2",
+               "category": "character"
+            }
+         ]
+      }
    }
 }

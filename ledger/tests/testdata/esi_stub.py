@@ -69,6 +69,12 @@ _endpoints = [
         ("character_id", "planet_id"),
         needs_token=False,
     ),
+    EsiEndpoint(
+        "Universe",
+        "post_universe_names",
+        "ids",
+        needs_token=False,
+    ),
 ]
 
 esi_client_stub = EsiClientStub(_esi_data, endpoints=_endpoints)
