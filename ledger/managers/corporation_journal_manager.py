@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 # Django
 from django.db import models, transaction
-from django.db.models import DecimalField, F, Q, Sum, Value
+from django.db.models import DecimalField, Q, Sum, Value
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 
@@ -54,7 +54,7 @@ class CorporationWalletQuerySet(models.QuerySet):
         return self.annotate(
             ess_income=Coalesce(
                 Sum(
-                    F("amount"),
+                    "amount",
                     filter=Q(ref_type__in=RefTypeCategories.ESS_TRANSFER, amount__gt=0),
                 ),
                 Value(0),

@@ -1,16 +1,25 @@
+# Standard Library
+import datetime
+from unittest.mock import patch
+
 # Django
 from django.contrib.admin.sites import AdminSite
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, override_settings
 
 # Alliance Auth
 from allianceauth.eveonline.evelinks import eveimageserver
 
 # Alliance Auth (External Libs)
 from app_utils.testdata_factories import UserFactory
+from app_utils.testing import NoSocketsTestCase
 
 # AA Ledger
-from ledger.admin import CharacterAuditAdmin, CorporationAuditAdmin
-from ledger.models.characteraudit import CharacterAudit
+from ledger.admin import (
+    CharacterAuditAdmin,
+    CharacterUpdateStatusAdminInline,
+    CorporationAuditAdmin,
+)
+from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
 from ledger.models.corporationaudit import CorporationAudit
 from ledger.tests.testdata.generate_characteraudit import (
     add_characteraudit_character_to_user,
@@ -21,12 +30,15 @@ from ledger.tests.testdata.generate_corporationaudit import (
 )
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
 
+ADMIN_PATH = "ledger.admin"
+
 
 class MockRequest:
     pass
 
 
-class TestCorporationAuditAdmin(TestCase):
+@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
+class TestCorporationAuditAdmin(NoSocketsTestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -45,6 +57,26 @@ class TestCorporationAuditAdmin(TestCase):
             cls.character_ownership.character.character_id,
         )
         cls.user.is_superuser = True
+
+    def test_last_update_at(self):
+        # last_update_at sollte '-' zurückgeben, wenn kein Wert gesetzt ist
+        self.assertEqual(
+            self.corporation_audit_admin._last_update_at(self.corporation_audit), "-"
+        )
+
+    def test_get_queryset(self):
+        qs = self.corporation_audit_admin.get_queryset(
+            self.corporation_audit_admin, CorporationAudit.objects.all()
+        )
+        self.assertIsNotNone(qs)
+
+    @patch(ADMIN_PATH + ".update_character.delay")
+    def test_force_update(self, mock_update_character_delay):
+        request = self.factory.get("/")
+        request.user = self.user
+        queryset = CorporationAudit.objects.filter(pk=self.corporation_audit.pk)
+        self.corporation_audit_admin.force_update(request, queryset)
+        mock_update_character_delay.assert_called_once()
 
     def test_entity_pic(self):
         self.client.force_login(self.user)
@@ -90,7 +122,7 @@ class TestCorporationAuditAdmin(TestCase):
         )
 
 
-class TestCharacterAuditAdmin(TestCase):
+class TestCharacterAuditAdmin(NoSocketsTestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -108,6 +140,45 @@ class TestCharacterAuditAdmin(TestCase):
             cls.character_ownership.character.character_id,
         )
         cls.user.is_superuser = True
+
+    def test_last_update_at(self):
+        # last_update_at sollte '-' zurückgeben, wenn kein Wert gesetzt ist
+        self.assertEqual(
+            self.character_audit_admin._last_update_at(self.character_audit), "-"
+        )
+
+    def test_get_queryset(self):
+        qs = self.character_audit_admin.get_queryset(
+            self.character_audit_admin, CharacterAudit.objects.all()
+        )
+        self.assertIsNotNone(qs)
+
+    @patch(ADMIN_PATH + ".update_character.delay")
+    def test_force_update(self, mock_update_character_delay):
+        queryset = CharacterAudit.objects.filter(pk=self.character_audit.pk)
+        request = self.factory.get("/")
+        self.character_audit_admin.force_update(request, queryset)
+        mock_update_character_delay.assert_called_once()
+
+    def test_run_update_duration(self):
+        inline = CharacterUpdateStatusAdminInline(CharacterUpdateStatus, self.site)
+
+        # Dummy-Objekt mit Zeitstempeln
+        class Dummy:
+            is_enabled = True
+            last_run_at = datetime.datetime(2024, 1, 1, 12, 0, 0)
+            last_run_finished_at = datetime.datetime(2024, 1, 1, 12, 1, 0)
+            last_update_at = datetime.datetime(2024, 1, 1, 12, 0, 0)
+            last_update_finished_at = datetime.datetime(2024, 1, 1, 12, 2, 0)
+            has_token_error = False
+
+        dummy = Dummy()
+        # _run_duration
+        self.assertIn("minute", inline._run_duration(dummy))
+        # _update_duration
+        self.assertIn("2 minutes", inline._update_duration(dummy))
+        # _calc_duration mit None
+        self.assertEqual(inline._calc_duration(None, None), "-")
 
     def test_entity_pic(self):
         self.client.force_login(self.user)

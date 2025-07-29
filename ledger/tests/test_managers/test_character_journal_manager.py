@@ -318,7 +318,7 @@ class TestCharacterJournalManagerAnnotations(TestCase):
             self.assertEqual(obj.lp_cost, 0)
 
 
-class TestCharacterJournalManagerAggregate(TestCase):
+class TestCharacterJournalManagerAggregate(NoSocketsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
