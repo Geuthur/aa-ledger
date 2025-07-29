@@ -34,14 +34,11 @@ logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 @login_required
 @permission_required("ledger.basic_access")
 def character_ledger(
-    request: WSGIRequest, character_id: int = None, year=None, month=None, day=None
+    request: WSGIRequest, character_id: int, year=None, month=None, day=None
 ):
     """
     Character Ledger
     """
-    if character_id is None:
-        character_id = request.user.profile.main_character.character_id
-
     perms, character = get_character_or_none(request, character_id)
 
     if not perms:
@@ -74,18 +71,27 @@ def character_details(request, character_id, year=None, month=None, day=None):
     """
     Character Details
     """
-    if character_id is None:
-        character_id = request.user.profile.main_character.character_id
-
     perms, character = get_character_or_none(request, character_id)
 
     # pylint: disable=duplicate-code
-    if not perms:
+    if perms is False:
+        msg = _("Permission Denied")
         return render(
             request,
             "ledger/partials/information/view_character_content.html",
             {
-                "error": _("Permission Denied"),
+                "error": msg,
+                "character_id": character_id,
+            },
+        )
+    # pylint: disable=duplicate-code
+    if perms is None:
+        msg = _("Corporation not found")
+        return render(
+            request,
+            "ledger/partials/information/view_character_content.html",
+            {
+                "error": msg,
                 "character_id": character_id,
             },
         )

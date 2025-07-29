@@ -35,6 +35,11 @@
         </div>
         {% endif %}
     </div>
+{% elif error %}
+    <div class="alert alert-danger">
+        <h4 class="alert-heading">{% trans "Error" %}</h4>
+        <p>{{ error }}</p>
+    </div>
 {% else %}
     {% trans "No ratting data found..." %}
 {% endif %}

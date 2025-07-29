@@ -46,25 +46,30 @@ def corporation_ledger_index(request):
 @login_required
 @permission_required("ledger.advanced_access")
 def corporation_ledger(
-    request: WSGIRequest, corporation_id=None, year=None, month=None, day=None
+    request: WSGIRequest, corporation_id, year=None, month=None, day=None
 ):
     """
     Corporation Ledger
     """
-    if corporation_id is None:
-        corporation_id = request.user.profile.main_character.corporation_id
 
     perms, corporation = get_corporation(request, corporation_id)
 
+    context = {
+        "title": "Corporation Ledger",
+        "corporation_id": corporation_id,
+    }
+
     # pylint: disable=duplicate-code
-    if not perms:
+    if perms is False:
         msg = _("Permission Denied")
         messages.error(request, msg)
-        context = {
-            "error": msg,
-            "corporation_id": corporation_id,
-        }
-        context = add_info_to_context(request, context)
+        return render(
+            request, "ledger/corpledger/corporation_ledger.html", context=context
+        )
+    # pylint: disable=duplicate-code
+    if perms is None:
+        msg = _("Corporation not found")
+        messages.info(request, msg)
         return render(
             request, "ledger/corpledger/corporation_ledger.html", context=context
         )
@@ -86,8 +91,8 @@ def corporation_ledger(
 @permission_required("ledger.advanced_access")
 def corporation_details(
     request: WSGIRequest,
-    corporation_id=None,
-    entity_id=None,
+    corporation_id,
+    entity_id,
     year=None,
     month=None,
     day=None,
@@ -95,20 +100,34 @@ def corporation_details(
     """
     Corporation Details
     """
-
     perms, corporation = get_corporation(request, corporation_id)
 
+    context = {
+        "title": "Corporation Ledger",
+        "corporation_id": corporation_id,
+    }
+
     # pylint: disable=duplicate-code
-    if not perms:
+    if perms is False:
         msg = _("Permission Denied")
-        messages.error(request, msg)
-        context = {
-            "error": msg,
-            "corporation_id": corporation_id,
-        }
-        context = add_info_to_context(request, context)
         return render(
-            request, "ledger/corpledger/corporation_ledger.html", context=context
+            request,
+            "ledger/partials/information/view_character_content.html",
+            {
+                "error": msg,
+                "corporation_id": corporation_id,
+            },
+        )
+    # pylint: disable=duplicate-code
+    if perms is None:
+        msg = _("Corporation not found")
+        return render(
+            request,
+            "ledger/partials/information/view_character_content.html",
+            {
+                "error": msg,
+                "corporation_id": corporation_id,
+            },
         )
 
     corporation_data = CorporationData(

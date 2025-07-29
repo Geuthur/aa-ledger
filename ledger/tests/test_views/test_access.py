@@ -5,6 +5,7 @@ from http import HTTPStatus
 from unittest.mock import Mock, patch
 
 # Django
+from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
@@ -191,21 +192,64 @@ class TestViewCharacterLedgerAccess(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Character Ledger")
 
-    def test_view_character_ledger_without_character_id(self):
-        """Test view character ledger."""
+    @patch(CHARLEDGER_PATH + ".messages")
+    def test_view_character_ledger_without_permission(self, mock_messages):
+        """Test view character ledger without permission."""
+        # given
+        request = self.factory.get(reverse("ledger:character_ledger", args=[1003]))
+        request.user = self.user
+
+        # Add session middleware to process the request
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        message_middleware = MessageMiddleware(Mock())
+        message_middleware.process_request(request)
+        # when
+        response = character_ledger.character_ledger(request, 1003)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Character Ledger")
+        self.assertTrue(mock_messages.error.called)
+
+    def test_view_character_details(self):
+        """Test view character details."""
         # given
         request = self.factory.get(
             reverse(
-                "ledger:character_ledger",
-                args=[self.character_ownership.character.character_id],
+                "ledger:character_details_year",
+                args=[self.character_ownership.character.character_id, 2025],
             )
         )
         request.user = self.user
         # when
-        response = character_ledger.character_ledger(request)
+        response = character_ledger.character_details(
+            request, self.character_ownership.character.character_id, year=2025
+        )
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Character Ledger")
+        self.assertContains(
+            response,
+            "Orange Color is for Info only and is not included in the Calculation",
+        )
+
+    def test_view_character_details_no_permission(self):
+        """Test view character details."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "ledger:character_details_year",
+                args=[self.character_ownership.character.character_id, 2025],
+            )
+        )
+        request.user = self.user2
+
+        # when
+        response = character_ledger.character_details(
+            request, self.character_ownership.character.character_id, year=2025
+        )
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Permission Denied")
 
     def test_view_character_overview(self):
         """Test view character overview."""
@@ -326,21 +370,102 @@ class TestViewCorporationLedgerAccess(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Corporation Ledger")
 
-    def test_view_corporation_ledger_without_corporation_id(self):
-        """Test view corporation ledger."""
+    @patch(CORPLEDGER_PATH + ".messages")
+    def test_view_corporation_ledger_not_found(self, mock_messages):
+        """Test view corporation ledger not found."""
+        # given
+        request = self.factory.get(reverse("ledger:corporation_ledger", args=[9999]))
+        request.user = self.user
+
+        # Add session middleware to process the request
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        message_middleware = MessageMiddleware(Mock())
+        message_middleware.process_request(request)
+        # when
+        response = corporation_ledger.corporation_ledger(request, 9999)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Corporation Ledger")
+        self.assertTrue(mock_messages.info.called)
+
+    @patch(CORPLEDGER_PATH + ".messages")
+    def test_view_corporation_ledger_without_permission(self, mock_messages):
+        """Test view corporation ledger without permission."""
+        # given
+        request = self.factory.get(reverse("ledger:corporation_ledger", args=[2001]))
+        request.user = self.user_no_perm
+
+        # Add session middleware to process the request
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        message_middleware = MessageMiddleware(Mock())
+        message_middleware.process_request(request)
+        # when
+        response = corporation_ledger.corporation_ledger(request, 2001)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Corporation Ledger")
+        self.assertTrue(mock_messages.error.called)
+
+    def test_view_corporation_details(self):
+        """Test view corporation details."""
         # given
         request = self.factory.get(
             reverse(
-                "ledger:corporation_ledger",
-                args=[self.character_ownership.character.corporation_id],
+                "ledger:corporation_details_year",
+                args=[self.character_ownership.character.corporation_id, 2025, 1001],
             )
         )
         request.user = self.user
         # when
-        response = corporation_ledger.corporation_ledger(request)
+        response = corporation_ledger.corporation_details(
+            request,
+            self.character_ownership.character.corporation_id,
+            entity_id=1001,
+            year=2025,
+        )
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Corporation Ledger")
+        self.assertContains(response, "No ratting data found...")
+
+    def test_view_corporation_details_no_permission(self):
+        """Test view corporation details."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "ledger:corporation_details_year",
+                args=[2001, 2025, 1001],
+            )
+        )
+        request.user = self.user_no_perm
+
+        # when
+        response = corporation_ledger.corporation_details(
+            request, 2001, entity_id=1001, year=2025
+        )
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Permission Denied")
+
+    def test_view_corporation_details_not_found(self):
+        """Test view corporation details."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "ledger:corporation_details_year",
+                args=[9999, 2025, 9999],
+            )
+        )
+        request.user = self.user_no_perm
+
+        # when
+        response = corporation_ledger.corporation_details(
+            request, 9999, entity_id=9999, year=2025
+        )
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Corporation not found")
 
     def test_view_corporation_overview(self):
         """Test view corporation overview."""
@@ -419,6 +544,15 @@ class TestViewAllianceLedgerAccess(TestCase):
                 "ledger.advanced_access",
             ],
         )
+        cls.user_no_perm, cls.character_ownership_no_perm = (
+            create_user_from_evecharacter(
+                1003,
+                permissions=[
+                    "ledger.basic_access",
+                    "ledger.advanced_access",
+                ],
+            )
+        )
         cls.user_admin, cls.character_ownership_admin = create_user_from_evecharacter(
             1002,
             permissions=[
@@ -486,6 +620,103 @@ class TestViewAllianceLedgerAccess(TestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Alliance Ledger")
+
+    @patch(ALLYLEDGER_PATH + ".messages")
+    def test_view_alliance_ledger_not_found(self, mock_messages):
+        """Test view alliance ledger not found."""
+        # given
+        request = self.factory.get(reverse("ledger:alliance_ledger", args=[9999]))
+        request.user = self.user
+
+        # Add session middleware to process the request
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        message_middleware = MessageMiddleware(Mock())
+        message_middleware.process_request(request)
+        # when
+        response = alliance_ledger.alliance_ledger(request, 9999)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Alliance Ledger")
+        self.assertTrue(mock_messages.info.called)
+
+    @patch(ALLYLEDGER_PATH + ".messages")
+    def test_view_alliance_ledger_without_permission(self, mock_messages):
+        """Test view alliance ledger without permission."""
+        # given
+        request = self.factory.get(reverse("ledger:alliance_ledger", args=[3001]))
+        request.user = self.user_no_perm
+
+        # Add session middleware to process the request
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        message_middleware = MessageMiddleware(Mock())
+        message_middleware.process_request(request)
+        # when
+        response = alliance_ledger.alliance_ledger(request, 3001)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Alliance Ledger")
+        self.assertTrue(mock_messages.error.called)
+
+    def test_view_alliance_details(self):
+        """Test view alliance details."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "ledger:alliance_details_year",
+                args=[self.character_ownership.character.alliance_id, 2025, 1001],
+            )
+        )
+        request.user = self.user
+        # when
+        response = alliance_ledger.alliance_details(
+            request,
+            self.character_ownership.character.alliance_id,
+            entity_id=1001,
+            year=2025,
+        )
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "No ratting data found...")
+
+    def test_view_alliance_details_no_permission(self):
+        """Test view alliance details without permission."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "ledger:alliance_details_year",
+                args=[3001, 2025, 2001],
+            )
+        )
+        request.user = self.user_no_perm
+
+        # when
+        response = alliance_ledger.alliance_details(
+            request, 3001, entity_id=2001, year=2025
+        )
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Permission Denied")
+
+    def test_view_alliance_details_not_found(self):
+        """Test view alliance details not found."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "ledger:alliance_details_year",
+                args=[9999, 2025, 9999],
+            )
+        )
+        request.user = self.user_no_perm
+
+        # when
+        response = alliance_ledger.alliance_details(
+            request, 9999, entity_id=9999, year=2025
+        )
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Alliance not found")
 
     def test_view_alliance_overview(self):
         """Test view alliance overview."""

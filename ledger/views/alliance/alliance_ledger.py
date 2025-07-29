@@ -41,24 +41,28 @@ def alliance_ledger_index(request):
 
 @login_required
 @permission_required("ledger.advanced_access")
-def alliance_ledger(request, alliance_id=None, year=None, month=None, day=None):
+def alliance_ledger(request, alliance_id, year=None, month=None, day=None):
     """
     Alliance Ledger
     """
-    if alliance_id is None:
-        alliance_id = request.user.profile.main_character.alliance_id
-
     perms, alliance = get_alliance(request, alliance_id)
 
+    context = {
+        "title": "Alliance Ledger",
+        "alliance_id": alliance_id,
+    }
+
     # pylint: disable=duplicate-code
-    if not perms:
+    if perms is False:
         msg = _("Permission Denied")
         messages.error(request, msg)
-        context = {
-            "error": msg,
-            "alliance_id": alliance_id,
-        }
-        context = add_info_to_context(request, context)
+        return render(
+            request, "ledger/allyledger/alliance_ledger.html", context=context
+        )
+    # pylint: disable=duplicate-code
+    if perms is None:
+        msg = _("Alliance not found")
+        messages.info(request, msg)
         return render(
             request, "ledger/allyledger/alliance_ledger.html", context=context
         )
@@ -89,20 +93,29 @@ def alliance_details(
     """
     Corporation Details
     """
-
     perms, alliance = get_alliance(request, alliance_id=alliance_id)
 
     # pylint: disable=duplicate-code
-    if not perms:
+    if perms is False:
         msg = _("Permission Denied")
-        messages.error(request, msg)
-        context = {
-            "error": msg,
-            "alliance_id": alliance_id,
-        }
-        context = add_info_to_context(request, context)
         return render(
-            request, "ledger/allyledger/alliance_ledger.html", context=context
+            request,
+            "ledger/partials/information/view_character_content.html",
+            {
+                "error": msg,
+                "alliance_id": alliance_id,
+            },
+        )
+    # pylint: disable=duplicate-code
+    if perms is None:
+        msg = _("Alliance not found")
+        return render(
+            request,
+            "ledger/partials/information/view_character_content.html",
+            {
+                "error": msg,
+                "alliance_id": alliance_id,
+            },
         )
 
     alliance_data = AllianceData(
