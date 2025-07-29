@@ -1,16 +1,18 @@
 # Standard Library
-import datetime
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 # Django
 from django.contrib.admin.sites import AdminSite
+from django.contrib.messages.middleware import MessageMiddleware
+from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, override_settings
+from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 # Alliance Auth
 from allianceauth.eveonline.evelinks import eveimageserver
 
 # Alliance Auth (External Libs)
-from app_utils.testdata_factories import UserFactory
 from app_utils.testing import NoSocketsTestCase
 
 # AA Ledger
@@ -18,14 +20,17 @@ from ledger.admin import (
     CharacterAuditAdmin,
     CharacterUpdateStatusAdminInline,
     CorporationAuditAdmin,
+    CorporationUpdateStatusAdminInline,
 )
 from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
-from ledger.models.corporationaudit import CorporationAudit
+from ledger.models.corporationaudit import CorporationAudit, CorporationUpdateStatus
 from ledger.tests.testdata.generate_characteraudit import (
     add_characteraudit_character_to_user,
+    create_update_status,
 )
 from ledger.tests.testdata.generate_corporationaudit import (
     add_corporationaudit_corporation_to_user,
+    create_corporation_update_status,
     create_user_from_evecharacter,
 )
 from ledger.tests.testdata.load_allianceauth import load_allianceauth
@@ -58,22 +63,41 @@ class TestCorporationAuditAdmin(NoSocketsTestCase):
         )
         cls.user.is_superuser = True
 
-    def test_last_update_at(self):
-        # last_update_at sollte '-' zurückgeben, wenn kein Wert gesetzt ist
-        self.assertEqual(
-            self.corporation_audit_admin._last_update_at(self.corporation_audit), "-"
+        cls.update_status = create_corporation_update_status(
+            cls.corporation_audit,
+            section="wallet_journal",
+            last_update_at=timezone.now() - timezone.timedelta(minutes=5),
+            last_update_finished_at=timezone.now() - timezone.timedelta(minutes=3),
+            last_run_at=timezone.now() - timezone.timedelta(minutes=4),
+            last_run_finished_at=timezone.now() - timezone.timedelta(minutes=2),
         )
 
     def test_get_queryset(self):
-        qs = self.corporation_audit_admin.get_queryset(
-            self.corporation_audit_admin, CorporationAudit.objects.all()
-        )
+        qs = self.corporation_audit_admin.get_queryset(CorporationAudit.objects.all())
         self.assertIsNotNone(qs)
 
-    @patch(ADMIN_PATH + ".update_character.delay")
+    def test_run_update_duration(self):
+        inline = CorporationUpdateStatusAdminInline(CorporationUpdateStatus, self.site)
+
+        run_duration = inline._run_duration(self.update_status)
+        update_duration = inline._update_duration(self.update_status).replace(
+            "\xa0", " "
+        )
+        self.assertIn("minute", run_duration)
+        self.assertIn("2 minutes", update_duration)
+        self.assertEqual(inline._calc_duration(None, None), "-")
+
+    @patch(ADMIN_PATH + ".update_corporation.delay")
     def test_force_update(self, mock_update_character_delay):
         request = self.factory.get("/")
         request.user = self.user
+
+        # Add session middleware to process the request
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        message_middleware = MessageMiddleware(Mock())
+        message_middleware.process_request(request)
+
         queryset = CorporationAudit.objects.filter(pk=self.corporation_audit.pk)
         self.corporation_audit_admin.force_update(request, queryset)
         mock_update_character_delay.assert_called_once()
@@ -140,44 +164,42 @@ class TestCharacterAuditAdmin(NoSocketsTestCase):
             cls.character_ownership.character.character_id,
         )
         cls.user.is_superuser = True
-
-    def test_last_update_at(self):
-        # last_update_at sollte '-' zurückgeben, wenn kein Wert gesetzt ist
-        self.assertEqual(
-            self.character_audit_admin._last_update_at(self.character_audit), "-"
+        cls.update_status = create_update_status(
+            cls.character_audit,
+            section="wallet_journal",
+            last_update_at=timezone.now() - timezone.timedelta(minutes=5),
+            last_update_finished_at=timezone.now() - timezone.timedelta(minutes=3),
+            last_run_at=timezone.now() - timezone.timedelta(minutes=4),
+            last_run_finished_at=timezone.now() - timezone.timedelta(minutes=2),
         )
 
     def test_get_queryset(self):
-        qs = self.character_audit_admin.get_queryset(
-            self.character_audit_admin, CharacterAudit.objects.all()
-        )
+        qs = self.character_audit_admin.get_queryset(CharacterAudit.objects.all())
         self.assertIsNotNone(qs)
 
     @patch(ADMIN_PATH + ".update_character.delay")
     def test_force_update(self, mock_update_character_delay):
         queryset = CharacterAudit.objects.filter(pk=self.character_audit.pk)
         request = self.factory.get("/")
+
+        # Add session middleware to process the request
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        message_middleware = MessageMiddleware(Mock())
+        message_middleware.process_request(request)
+
         self.character_audit_admin.force_update(request, queryset)
         mock_update_character_delay.assert_called_once()
 
     def test_run_update_duration(self):
         inline = CharacterUpdateStatusAdminInline(CharacterUpdateStatus, self.site)
 
-        # Dummy-Objekt mit Zeitstempeln
-        class Dummy:
-            is_enabled = True
-            last_run_at = datetime.datetime(2024, 1, 1, 12, 0, 0)
-            last_run_finished_at = datetime.datetime(2024, 1, 1, 12, 1, 0)
-            last_update_at = datetime.datetime(2024, 1, 1, 12, 0, 0)
-            last_update_finished_at = datetime.datetime(2024, 1, 1, 12, 2, 0)
-            has_token_error = False
-
-        dummy = Dummy()
-        # _run_duration
-        self.assertIn("minute", inline._run_duration(dummy))
-        # _update_duration
-        self.assertIn("2 minutes", inline._update_duration(dummy))
-        # _calc_duration mit None
+        run_duration = inline._run_duration(self.update_status)
+        update_duration = inline._update_duration(self.update_status).replace(
+            "\xa0", " "
+        )
+        self.assertIn("minute", run_duration)
+        self.assertIn("2 minutes", update_duration)
         self.assertEqual(inline._calc_duration(None, None), "-")
 
     def test_entity_pic(self):
@@ -193,7 +215,9 @@ class TestCharacterAuditAdmin(NoSocketsTestCase):
 
     def test_character_character_name(self):
         self.assertEqual(
-            self.character_audit_admin._character__character_name(self.character_audit),
+            self.character_audit_admin._eve_character__character_name(
+                self.character_audit
+            ),
             self.character_audit.eve_character.character_name,
         )
 
