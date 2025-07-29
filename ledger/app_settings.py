@@ -25,9 +25,6 @@ FUZZ_BASE_URL = "https://www.fuzzwork.co.uk/"
 FUZZ_API_URL = "https://www.fuzzwork.co.uk/api/"
 FUZZ_BASE_URL_REGEX = r"^http[s]?:\/\/(www\.)?fuzzwork\.co\.uk\/"
 
-# Max Time to set Char Inactive
-LEDGER_CHAR_MAX_INACTIVE_DAYS = clean_setting("LEDGER_CHAR_MAX_INACTIVE_DAYS", 3)
-
 # Global timeout for tasks in seconds to reduce task accumulation during outages.
 LEDGER_TASKS_TIME_LIMIT = clean_setting("LEDGER_TASKS_TIME_LIMIT", 7200)
 
