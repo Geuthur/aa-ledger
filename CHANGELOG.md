@@ -42,10 +42,8 @@
     - Date Path instead of API
   - Removed API
 
-- ESI Overload Prevention
+- Tasks
 
-  - Decreased Update Interval
-  - Task Schedule from crontab to every `1800` seconds (30 minutes)
   - `update_subset_characters` updated
     - max run limit increased from `200` to `500`
     - min run limit increased from `10` to `50`
