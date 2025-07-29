@@ -5,7 +5,7 @@ from django.utils import timezone
 # AA Ledger
 from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
 from ledger.tests.testdata.generate_characteraudit import (
-    add_charactermaudit_character_to_user,
+    add_characteraudit_character_to_user,
     create_update_status,
     create_user_from_evecharacter_with_access,
 )
@@ -26,7 +26,7 @@ class TestCharacterAuditManager(TestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
             1001,
         )
-        cls.audit = add_charactermaudit_character_to_user(cls.user, 1001)
+        cls.audit = add_characteraudit_character_to_user(cls.user, 1001)
 
         cls.character_ownership.delete()
 
@@ -63,7 +63,7 @@ class TestCharacterAnnotateTotalUpdateStatus(TestCase):
 
     def test_should_be_ok(self):
         # given
-        character = add_charactermaudit_character_to_user(self.user, 1001)
+        character = add_characteraudit_character_to_user(self.user, 1001)
         sections = CharacterAudit.UpdateSection.get_sections()
         for section in sections:
             create_update_status(
@@ -87,7 +87,7 @@ class TestCharacterAnnotateTotalUpdateStatus(TestCase):
 
     def test_should_be_incomplete(self):
         # given
-        character = add_charactermaudit_character_to_user(self.user, 1001)
+        character = add_characteraudit_character_to_user(self.user, 1001)
         sections = CharacterAudit.UpdateSection.get_sections()
         for section in sections[:2]:
             create_update_status(
@@ -113,7 +113,7 @@ class TestCharacterAnnotateTotalUpdateStatus(TestCase):
 
     def test_should_be_token_error(self):
         # given
-        character = add_charactermaudit_character_to_user(self.user, 1001)
+        character = add_characteraudit_character_to_user(self.user, 1001)
         sections = CharacterAudit.UpdateSection.get_sections()
         for section in sections:
             create_update_status(
@@ -151,7 +151,7 @@ class TestCharacterAnnotateTotalUpdateStatus(TestCase):
 
     def test_should_be_disabled(self):
         # given
-        character = add_charactermaudit_character_to_user(self.user, 1001)
+        character = add_characteraudit_character_to_user(self.user, 1001)
         sections = CharacterAudit.UpdateSection.get_sections()
         for section in sections:
             create_update_status(
@@ -178,7 +178,7 @@ class TestCharacterAnnotateTotalUpdateStatus(TestCase):
 
     def test_should_be_error(self):
         # given
-        character = add_charactermaudit_character_to_user(self.user, 1001)
+        character = add_characteraudit_character_to_user(self.user, 1001)
         sections = CharacterAudit.UpdateSection.get_sections()
         for section in sections:
             create_update_status(

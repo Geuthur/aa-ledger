@@ -1,20 +1,25 @@
 """PvE Views"""
 
-# Standard Library
-import logging
-
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
 
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
 # AA Ledger
+from ledger import __title__
+
 # Ledger
 from ledger.helpers.core import add_info_to_context
 from ledger.tasks import clear_all_etags, update_all_characters, update_all_corporations
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @login_required
@@ -26,7 +31,8 @@ def index(request):
     }
     context = add_info_to_context(request, context)
     return redirect(
-        "ledger:character_ledger", request.user.profile.main_character.character_id
+        "ledger:character_ledger",
+        character_id=request.user.profile.main_character.character_id,
     )
 
 

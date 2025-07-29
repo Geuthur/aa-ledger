@@ -81,7 +81,7 @@ class CorporationUpdateStatusAdminInline(admin.TabularInline):
         if not started_at or not finished_at:
             return "-"
 
-        return timesince(finished_at - started_at)
+        return timesince(started_at, finished_at)
 
 
 @admin.register(CorporationAudit)
@@ -223,27 +223,27 @@ class CharacterUpdateStatusAdminInline(admin.TabularInline):
     ) -> str:
         if not started_at or not finished_at:
             return "-"
-        return timesince(finished_at - started_at)
+        return timesince(started_at, finished_at)
 
 
 @admin.register(CharacterAudit)
 class CharacterAuditAdmin(admin.ModelAdmin):
     list_display = (
         "_entity_pic",
-        "_character__character_name",
+        "_eve_character__character_name",
         "_last_update_at",
     )
 
     list_display_links = (
         "_entity_pic",
-        "_character__character_name",
+        "_eve_character__character_name",
     )
 
-    list_select_related = ("character",)
+    list_select_related = ("eve_character",)
 
-    ordering = ["character__character_name"]
+    ordering = ["eve_character__character_name"]
 
-    search_fields = ["character__character_name"]
+    search_fields = ["eve_character__character_name"]
 
     actions = [
         "delete_objects",
@@ -263,15 +263,17 @@ class CharacterAuditAdmin(admin.ModelAdmin):
 
     @admin.display(description="")
     def _entity_pic(self, obj: CharacterAudit):
-        eve_id = obj.character.character_id
+        eve_id = obj.eve_character.character_id
         return format_html(
             '<img src="{}" class="img-circle">',
             eveimageserver._eve_entity_image_url("character", eve_id, 32),
         )
 
-    @admin.display(description="Character Name", ordering="character__character_name")
-    def _character__character_name(self, obj: CharacterAudit):
-        return obj.character.character_name
+    @admin.display(
+        description="Character Name", ordering="eve_character__character_name"
+    )
+    def _eve_character__character_name(self, obj: CharacterAudit):
+        return obj.eve_character.character_name
 
     @admin.display(ordering="last_update_at", description=_("last update run"))
     def _last_update_at(self, obj: CharacterAudit):

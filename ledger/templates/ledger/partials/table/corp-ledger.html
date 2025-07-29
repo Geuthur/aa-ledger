@@ -1,0 +1,54 @@
+{% load i18n %}
+{% load evelinks %}
+{% load humanize %}
+
+<table class="table table-dark table-striped table-hover w-100 d-none" id="ratting">
+    <thead>
+        <th class="col-main-character w-auto">{% trans "Character" %}</th>
+        <th class="col-total-amount w-auto">{% trans "Ratting Amount" %}</th>
+        <th class="col-total-ess w-auto">{% trans "ESS Payout" %}
+        </th>
+        <th class="col-total-others w-auto">{% trans "Misc. Amount" %}</th>
+        <th class="col-total-singlecosts w-auto">{% trans "Costs" %}</th>
+        <th class="col-total-total w-auto" style="border-left: 2px solid #888;">{% trans "Total" %}</th>
+        <th class="col-total-action w-auto"></th>
+    </thead>
+    <tbody>
+        {% for corporation_data in ledger %}
+            <tr>
+                <td class="col-main-character nowrap">
+                    <img src="{{ corporation_data.entity.portrait_url }}" class="rounded-circle" alt="{{ corporation_data.entity.entity_name }}">
+                    {{ corporation_data.entity.entity_name }}
+                    {% if corporation_data.alts %}
+                    <i class="fa-regular fa-circle-question"
+                       data-bs-toggle="corp-popover"
+                       data-bs-html="true"
+                       data-bs-trigger="hover focus"
+                       data-bs-placement="top"
+                       title="Included Characters"
+                       data-bs-content="{% for alt_id, alt_name in corporation_data.alts.items %}<p><img src='{{ alt_id|character_portrait_url:32 }}' class='rounded-circle'>{{ alt_name }}</p>{% endfor %}">
+                    </i>
+                    {% endif %}
+                </td>
+                <td class="col-total-amount nowrap text-success" id="amount_ratting_{{ corporation_data.entity.entity_id }}" data-order="{{ corporation_data.ledger.bounty|default:0 }}">{{ corporation_data.ledger.bounty|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-ess nowrap text-success" id="amount_ess_{{ corporation_data.entity.entity_id }}" data-order="{{ corporation_data.ledger.ess|default:0 }}">{{ corporation_data.ledger.ess|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-others nowrap text-success" id="amount_misc_{{ corporation_data.entity.entity_id }}" data-order="{{ corporation_data.ledger.miscellaneous|default:0 }}">{{ corporation_data.ledger.miscellaneous|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-costs nowrap text-danger" id="amount_costs_{{ corporation_data.entity.entity_id }}" data-order="{{ corporation_data.ledger.costs|default:0 }}">{{ corporation_data.ledger.costs|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-total nowrap {% if corporation_data.ledger.total < 0 %}text-danger {% else %}text-success{% endif %}" style="border-left: 2px solid #888;" id="amount_total_{{ corporation_data.entity.entity_id }}" data-order="{{ corporation_data.ledger.total|default:0 }}">{{ corporation_data.ledger.total|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-action">{{ corporation_data.entity.create_button }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+
+    <tfoot id="foot">
+        <tr>
+            <th><strong>{% trans "Summary" %}</strong></th>
+            <th class="col-total-amount nowrap {% if totals.bounty < 0 %}text-danger {% else %}text-success{% endif %}" id="total_bounty" data-sort="{{ totals.bounty|default:0 }}">{{ totals.bounty|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+            <th class="col-total-ess nowrap {% if totals.ess < 0 %}text-danger {% else %}text-success{% endif %}" id="total_ess" data-sort="{{ totals.ess|default:0 }}">{{ totals.ess|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+            <th class="col-total-others nowrap {% if totals.miscellaneous < 0 %}text-danger {% else %}text-success{% endif %}" id="total_misc" data-sort="{{ totals.miscellaneous|default:0 }}">{{ totals.miscellaneous|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+            <th class="col-total-costs nowrap {% if totals.costs < 0 %}text-danger {% else %}text-success{% endif %}" id="total_costs" data-sort="{{ totals.costs|default:0 }}">{{ totals.costs|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+            <th class="col-total-total nowrap {% if totals.total < 0 %}text-danger {% else %}text-success{% endif %}" style="border-left: 2px solid #888;" id="total_total" data-sort="{{ totals.total|default:0 }}">{{ totals.total|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+            <th></th>
+        </tr>
+    </tfoot>
+</table>

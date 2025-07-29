@@ -32,3 +32,29 @@ function setupModal(modalId, ajaxDataAttr, contentId, loaderId) {
         $(this).find(contentId).html('');
     });
 }
+
+$('#modalViewCharacterContainer').on('show.bs.modal', function (event) {
+    const button = $(event.relatedTarget);
+    const ajax_url = button.data('ajax_url');
+    const modal = $(this);
+
+    // reactive loader
+    modal.find('#modalViewCharacterContent').hide();
+    modal.find('#modalViewCharacterLoader').show();
+
+    $('#modalViewCharacterContent').load(
+        ajax_url,
+        function(response, status, xhr) {
+            modal.find('#modalViewCharacterLoader').hide();
+            modal.find('#modalViewCharacterContent').show();
+
+            if (xhr.status === 403) {
+                $('#modalViewCharacterContent').html(response);
+            }
+            // Extract and set the modal title
+            const title = $('#modalViewCharacterContent').find('#modal-title').html();
+            modal.find('.modal-title').html(title);
+            $('#modalViewCharacterContent').find('#modal-title').hide();
+        }
+    );
+});

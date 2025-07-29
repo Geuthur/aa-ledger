@@ -2,9 +2,6 @@
 Corporation Audit
 """
 
-# Standard Library
-import logging
-
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -15,9 +12,17 @@ from django.utils.translation import gettext_lazy as _
 # Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
 from allianceauth.eveonline.providers import ObjectNotFound, provider
+from allianceauth.services.hooks import get_extension_logger
 from esi.decorators import token_required
 
-logger = logging.getLogger(__name__)
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
+# AA Ledger
+from ledger import __title__
+from ledger.models.general import EveEntity
+
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @login_required
@@ -45,6 +50,15 @@ def add_ally(request, token) -> HttpResponse:
             )
             # Add/Update All Corporations to eveuniverse model
             ally.populate_alliance()
+
+            # Add the alliance to the EveEntity model
+            EveEntity.objects.get_or_create(
+                eve_id=ally.alliance_id,
+                defaults={
+                    "name": ally.alliance_name,
+                    "category": "alliance",
+                },
+            )
             msg = _("{alliance_name} successfully added to Ledger").format(
                 alliance_name=ally.alliance_name,
             )

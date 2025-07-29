@@ -1,16 +1,19 @@
 {% load i18n %}
+{% load evelinks %}
+{% load humanize %}
+{% load static %}
 
 <!-- Style -->
 <style>
     @media (min-width: 768px) {
         .dl-horizontal dt {
             float: left;
-            width: 140px;
+            width: 180px;
             clear: left;
             text-align: left;
             overflow: hidden;
             text-overflow: ellipsis;
-            margin-right: 8px;
+            margin-right: 1px;
         }
         .dl-horizontal dd {
             overflow: hidden;
@@ -19,11 +22,12 @@
     }
 </style>
 
-<div class="card d-none" id="lookup">
+<div class="card" id="lookup">
     <div class="card-header bg-primary text-center" id="title"><h3>{% trans "Overview" %}</h3></div>
     <div class="card-body d-flex">
         <!-- Bildbereich -->
         <div class="text-center" id="portrait">
+            <img src="{{ character_id|character_portrait_url:256 }}" class="rounded-circle">
         </div>
         <div class="card-body">
             <div class="row">
@@ -31,12 +35,52 @@
                 <div class="col-md-8 w-auto" id="info-panel">
                     <dl class="dl-horizontal">
                         <dt>{% trans "Charakter" %}:</dt>
-                        <dd class="nowrap" id="character_name"></dd>
+                        <dd class="nowrap" id="character_name">
+                            {{ ledger.character.eve_character.character_name|default:"(No Character)" }}
+                        </dd>
+                    </dl>
+
+                    <dl class="dl-horizontal">
+                        <dt>{% trans "Wallet Journal" %}:</dt>
+                        <dd class="nowrap" id="wallet_update">
+                            {{ ledger.update_states.wallet_journal.last_update_finished_at|naturaltime|default:"(No data)" }}
+                        </dd>
+                    </dl>
+
+                    <dl class="dl-horizontal">
+                        <dt>{% trans "Mining Ledger" %}:</dt>
+                        <dd class="nowrap" id="mining_ledger_update">
+                            {{ ledger.update_states.mining_ledger.last_update_finished_at|naturaltime|default:"(No data)" }}
+                        </dd>
+                    </dl>
+
+
+                    <dl class="dl-horizontal">
+                        <dt>{% trans "Planets" %}:</dt>
+                        <dd class="nowrap" id="planets_update">
+                            {{ ledger.update_states.planets.last_update_finished_at|naturaltime|default:"(No data)" }}
+                        </dd>
                     </dl>
 
                     <dl class="dl-horizontal">
                         <dt>{% trans "Detailed Sheet" %}:</dt>
-                        <dd class="nowrap" id="get_template"></dd>
+                        {% if ledger.details_url %}
+                            <dd class="nowrap" id="get_template">
+                                <button
+                                    class="btn btn-primary btn-sm btn-square"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalViewCharacterContainer"
+                                    data-ajax_url="{{ ledger.details_url }}?single=True"
+                                    title="{{ ledger.character.eve_character.character_name }}"
+                                    data-tooltip-toggle="ledger-tooltip" data-bs-placement="right">
+                                    <span class="fas fa-info"></span>
+                                </button>
+                            </dd>
+                        {% else %}
+                            <dd class="nowrap" id="get_template">
+                                (No data)
+                            </dd>
+                        {% endif %}
                     </dl>
                 </div>
                 <!-- Costs Info -->
@@ -44,41 +88,72 @@
 
                     <dl class="dl-horizontal">
                         <dt>{% trans "Ratting" %}:</dt>
-                        <dd class="nowrap" id="amount_ratting"></dd>
+                        <dd class="nowrap" id="amount_ratting">
+                            <span class="{% if totals.bounty == 0 %}text-white{% else %}text-success{% endif %}">
+                                {{ totals.bounty|floatformat:0|intcomma|default:"0" }} <span class="text-white">ISK</span>
+                            </span>
+                        </dd>
                     </dl>
 
                     <dl class="dl-horizontal">
                         <dt>{% trans "ESS Payout" %}:</dt>
-                        <dd class="nowrap" id="amount_ess"></dd>
+                        <dd class="nowrap" id="amount_ess">
+                            <span class="{% if totals.ess == 0 %}text-white{% else %}text-success{% endif %}">
+                                {{ totals.ess|floatformat:0|intcomma|default:"0" }} <span class="text-white">ISK</span>
+                            </span>
+                            <i class="fa-regular fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Estimated' %}"></i>
+                        </dd>
                     </dl>
 
                     <dl class="dl-horizontal">
                         <dt>{% trans "Mining" %}:</dt>
-                        <dd class="nowrap" id="amount_mining"></dd>
+                        <dd class="nowrap" id="amount_mining">
+                            <span class="{% if totals.mining == 0 %}text-white{% else %}text-success{% endif %}">
+                                {{ totals.mining|floatformat:0|intcomma|default:"0" }} <span class="text-white">ISK</span>
+                            </span>
+                        </dd>
                     </dl>
 
                     <dl class="dl-horizontal">
                         <dt>{% trans "Misc" %}:</dt>
-                        <dd class="nowrap" id="amount_misc"></dd>
+                        <dd class="nowrap" id="amount_misc">
+                            <span class="{% if totals.miscellaneous == 0 %}text-white{% else %}text-success{% endif %}">
+                                {{ totals.miscellaneous|floatformat:0|intcomma|default:"0" }} <span class="text-white">ISK</span>
+                            </span>
+                        </dd>
                     </dl>
 
                     <dl class="dl-horizontal">
                         <dt>{% trans "Costs" %}:</dt>
-                        <dd class="nowrap" id="amount_costs"></dd>
+                        <dd class="nowrap" id="amount_costs">
+                            <span class="{% if totals.costs == 0 %}text-white{% else %}text-danger{% endif %}">
+                                {{ totals.costs|floatformat:0|intcomma|default:"0" }} <span class="text-white">ISK</span>
+                            </span>
+                        </dd>
                     </dl>
 
                     <dl class="dl-horizontal">
                         <dt>{% trans "Summary" %}:</dt>
-                        <dd class="nowrap" id="amount_summary"></dd>
+                        <dd class="nowrap" id="amount_summary">
+                            <span class="{% if totals.total == 0 %}text-white{% elif totals.total > 0 %}text-success {% else %}text-danger{% endif %}">
+                                {{ totals.total|floatformat:0|intcomma|default:"0" }} <span class="text-white">ISK</span>
+                            </span>
+                        </dd>
                     </dl>
                 </div>
-                <!-- Additional Costs Info -->
-                <div class="col-md-8 w-auto text-end" id="info-additional-panel">
-                    <dl class="dl-horizontal">
-                        <dt></dt>
-                        <dd class="nowrap" id="planetary_interaction"></dd>
-                    </dl>
-                </div>
+                {% if not error %}
+                    <!-- Additional Costs Info -->
+                    <div class="col-md-8 w-auto text-end" id="info-additional-panel">
+                        <dl class="dl-horizontal">
+                            <dt></dt>
+                            <dd class="nowrap" id="planetary_interaction">
+                                <a href="{% url 'ledger:planetary_ledger' character_id=character_id %}" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Planetary Interaction' %}">
+                                    <img src="{% static 'ledger/images/pi.png' %}" alt="{% trans 'Planetary Interaction' %}">
+                                </a>
+                            </dd>
+                        </dl>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>

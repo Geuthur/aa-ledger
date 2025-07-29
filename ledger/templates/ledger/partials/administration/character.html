@@ -15,14 +15,14 @@
                         </div>
                         <!-- Character Logo -->
                         <div class="card-body text-center">
-                            <a href="{% url 'ledger:character_ledger' character_id=character.character.character_id %}?single=True">
-                                <img src="{{ character.character.portrait_url_256 }}">
+                            <a href="{% url 'ledger:character_ledger' character_id=character.eve_character.character_id %}?single=True">
+                                <img src="{{ character.eve_character.portrait_url_256 }}">
                             </a>
                         </div>
                         <!-- Character Actions -->
                         <div class="card-footer">
                             <a class="btn btn-success btn-sm"
-                                href="{% url 'ledger:character_ledger' character_id=character.character.character_id %}?single=True"
+                                href="{% url 'ledger:character_ledger' character_id=character.eve_character.character_id %}?single=True"
                                 role="button"
                                 data-tooltip-toggle="ledger-tooltip"
                                 title="{% translate 'View Character Ledger' %}">
@@ -32,10 +32,10 @@
                             <button type="button" class="btn btn-danger btn-sm btn-square me-2"
                                 data-bs-toggle="modal"
                                 data-tooltip-toggle="ledger-tooltip"
-                                data-title="{% translate 'Delete Character' %} {{ character.character.character_name }}"
+                                data-title="{% translate 'Delete Character' %} {{ character.eve_character.character_name }}"
                                 data-text="{% translate 'Are you sure to Delete this Character?' %}"
                                 data-bs-target="#ledger-delete-confirm"
-                                data-action="{% url 'ledger:delete_char' character_id=character.character.character_id %}"
+                                data-action="{% url 'ledger:delete_char' character_id=character.eve_character.character_id %}"
                                 >
                                 <span class="fas fa-trash"></span>
                             </button>

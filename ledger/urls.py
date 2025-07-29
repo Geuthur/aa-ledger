@@ -46,6 +46,37 @@ urlpatterns = [
         name="alliance_ledger",
     ),
     path(
+        "alliance/<int:alliance_id>/<int:year>/",
+        alliance_ledger.alliance_ledger,
+        name="alliance_ledger_year",
+    ),
+    path(
+        "alliance/<int:alliance_id>/<int:year>/<int:month>/",
+        alliance_ledger.alliance_ledger,
+        name="alliance_ledger_year_month",
+    ),
+    path(
+        "alliance/<int:alliance_id>/<int:year>/<int:month>/<int:day>/",
+        alliance_ledger.alliance_ledger,
+        name="alliance_ledger_year_month_day",
+    ),
+    # -- -- Alliance Details
+    path(
+        "alliance/<int:alliance_id>/<int:year>/view/details/<int:entity_id>/",
+        alliance_ledger.alliance_details,
+        name="alliance_details_year",
+    ),
+    path(
+        "alliance/<int:alliance_id>/<int:year>/<int:month>/view/details/<int:entity_id>/",
+        alliance_ledger.alliance_details,
+        name="alliance_details_year_month",
+    ),
+    path(
+        "alliance/<int:alliance_id>/<int:year>/<int:month>/<int:day>/view/details/<int:entity_id>/",
+        alliance_ledger.alliance_details,
+        name="alliance_details_year_month_day",
+    ),
+    path(
         "alliance/<int:alliance_id>/view/administration/",
         alliance_ledger.alliance_administration,
         name="alliance_administration",
@@ -68,6 +99,37 @@ urlpatterns = [
         name="corporation_ledger",
     ),
     path(
+        "corporation/<int:corporation_id>/<int:year>/",
+        corporation_ledger.corporation_ledger,
+        name="corporation_ledger_year",
+    ),
+    path(
+        "corporation/<int:corporation_id>/<int:year>/<int:month>/",
+        corporation_ledger.corporation_ledger,
+        name="corporation_ledger_year_month",
+    ),
+    path(
+        "corporation/<int:corporation_id>/<int:year>/<int:month>/<int:day>/",
+        corporation_ledger.corporation_ledger,
+        name="corporation_ledger_year_month_day",
+    ),
+    # -- -- Corporation Details
+    path(
+        "corporation/<int:corporation_id>/<int:year>/view/details/<int:entity_id>/",
+        corporation_ledger.corporation_details,
+        name="corporation_details_year",
+    ),
+    path(
+        "corporation/<int:corporation_id>/<int:year>/<int:month>/view/details/<int:entity_id>/",
+        corporation_ledger.corporation_details,
+        name="corporation_details_year_month",
+    ),
+    path(
+        "corporation/<int:corporation_id>/<int:year>/<int:month>/<int:day>/view/details/<int:entity_id>/",
+        corporation_ledger.corporation_details,
+        name="corporation_details_year_month_day",
+    ),
+    path(
         "corporation/<int:corporation_id>/view/administration/",
         corporation_ledger.corporation_administration,
         name="corporation_administration",
@@ -79,15 +141,42 @@ urlpatterns = [
     ),
     # -- -- Character Ledger
     path(
-        "character/",
-        character_ledger.character_ledger_index,
-        name="character_ledger_index",
-    ),
-    path(
         "character/<int:character_id>/",
         character_ledger.character_ledger,
         name="character_ledger",
     ),
+    path(
+        "character/<int:character_id>/<int:year>/",
+        character_ledger.character_ledger,
+        name="character_ledger_year",
+    ),
+    path(
+        "character/<int:character_id>/<int:year>/<int:month>/",
+        character_ledger.character_ledger,
+        name="character_ledger_year_month",
+    ),
+    path(
+        "character/<int:character_id>/<int:year>/<int:month>/<int:day>/",
+        character_ledger.character_ledger,
+        name="character_ledger_year_month_day",
+    ),
+    # -- -- Character Details
+    path(
+        "character/<int:character_id>/<int:year>/view/details/",
+        character_ledger.character_details,
+        name="character_details_year",
+    ),
+    path(
+        "character/<int:character_id>/<int:year>/<int:month>/view/details/",
+        character_ledger.character_details,
+        name="character_details_year_month",
+    ),
+    path(
+        "character/<int:character_id>/<int:year>/<int:month>/<int:day>/view/details/",
+        character_ledger.character_details,
+        name="character_details_year_month_day",
+    ),
+    # -- -- Character Administration
     path(
         "character/<int:character_id>/view/administration/",
         character_ledger.character_administration,

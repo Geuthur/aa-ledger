@@ -30,10 +30,12 @@ class CharacterAuditQuerySet(models.QuerySet):
         try:
             char = user.profile.main_character
             assert char
-            queries = [models.Q(character__character_ownership__user=user)]
+            queries = [models.Q(eve_character__character_ownership__user=user)]
 
             if user.has_perm("ledger.char_audit_manager"):
-                queries.append(models.Q(character__corporation_id=char.corporation_id))
+                queries.append(
+                    models.Q(eve_character__corporation_id=char.corporation_id)
+                )
 
             logger.debug(
                 "%s queries for user %s visible chracters.", len(queries), user
@@ -52,7 +54,7 @@ class CharacterAuditQuerySet(models.QuerySet):
         char = user.profile.main_character
         assert char
 
-        query = models.Q(character__character_ownership__user=user)
+        query = models.Q(eve_character__character_ownership__user=user)
 
         return self.filter(query).annotate_total_update_status()
 
@@ -131,13 +133,13 @@ class CharacterAuditQuerySet(models.QuerySet):
     def disable_characters_with_no_owner(self) -> int:
         """Disable characters which have no owner. Return count of disabled characters."""
         orphaned_characters = self.filter(
-            character__character_ownership__isnull=True, active=True
+            eve_character__character_ownership__isnull=True, active=True
         )
         if orphaned_characters.exists():
             orphans = list(
                 orphaned_characters.values_list(
-                    "character__character_name", flat=True
-                ).order_by("character__character_name")
+                    "eve_character__character_name", flat=True
+                ).order_by("eve_character__character_name")
             )
             orphaned_characters.update(active=False)
             logger.info(

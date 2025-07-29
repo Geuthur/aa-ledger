@@ -57,5 +57,5 @@ class TestAddCharView(TestCase):
         self.assertTrue(mock_tasks.update_character.apply_async.called)
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(
-            CharacterAudit.objects.filter(character__character_id=1001).exists()
+            CharacterAudit.objects.filter(eve_character__character_id=1001).exists()
         )

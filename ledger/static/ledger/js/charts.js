@@ -106,10 +106,13 @@ function createChordChart(root, data, id) {
 
     series.nodes.labels.template.setAll({
         textType: 'radial',
-        centerX: 0,
         fontSize: 16,
-        maxWidth: 150,
+        centerX: am5.percent(0),
+        oversizedBehavior: 'fit',
+        maxWidth: 100,
         wrap: true,
+        layer: 0,
+        layerMargin: { left: 30, right: 30, top: 70, bottom: 70 }
     });
 
     series.children.moveValue(series.bulletsContainer, 0);

@@ -1,13 +1,12 @@
 """PvE Views"""
 
 # Standard Library
-import logging
-from datetime import datetime
 from http import HTTPStatus
 
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
@@ -15,15 +14,22 @@ from django.views.decorators.http import require_POST
 
 # Alliance Auth
 from allianceauth.authentication.models import CharacterOwnership
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
-from ledger.api.helpers import get_manage_corporation
+from ledger import __title__
+from ledger.api.helpers import (
+    get_corporation,
+    get_manage_corporation,
+)
 from ledger.helpers.core import add_info_to_context
-
-# Ledger
+from ledger.helpers.corporation import CorporationData, LedgerEntity
 from ledger.models.corporationaudit import CorporationAudit
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @login_required
@@ -39,26 +45,116 @@ def corporation_ledger_index(request):
 
 @login_required
 @permission_required("ledger.advanced_access")
-def corporation_ledger(request, corporation_id=None):
+def corporation_ledger(
+    request: WSGIRequest, corporation_id, year=None, month=None, day=None
+):
     """
     Corporation Ledger
     """
-    if corporation_id is None:
-        corporation_id = request.user.profile.main_character.corporation_id
 
-    # pylint: disable=duplicate-code
-    current_year = datetime.now().year
-    years = [current_year - i for i in range(6)]
+    perms, corporation = get_corporation(request, corporation_id)
 
     context = {
         "title": "Corporation Ledger",
-        "years": years,
-        "entity_pk": corporation_id,
         "corporation_id": corporation_id,
-        "entity_type": "corporation",
+    }
+
+    # pylint: disable=duplicate-code
+    if perms is False:
+        msg = _("Permission Denied")
+        messages.error(request, msg)
+        return render(
+            request, "ledger/corpledger/corporation_ledger.html", context=context
+        )
+    # pylint: disable=duplicate-code
+    if perms is None:
+        msg = _("Corporation not found")
+        messages.info(request, msg)
+        return render(
+            request, "ledger/corpledger/corporation_ledger.html", context=context
+        )
+
+    corporation_data = CorporationData(
+        request=request, corporation=corporation, year=year, month=month, day=day
+    )
+
+    # Create the Corporation ledger data
+    context = corporation_data.generate_ledger_data()
+    # Add additional information to the context
+    context = add_info_to_context(request, context)
+
+    return render(request, "ledger/corpledger/corporation_ledger.html", context=context)
+
+
+# pylint: disable=too-many-positional-arguments
+@login_required
+@permission_required("ledger.advanced_access")
+def corporation_details(
+    request: WSGIRequest,
+    corporation_id,
+    entity_id,
+    year=None,
+    month=None,
+    day=None,
+):
+    """
+    Corporation Details
+    """
+    perms, corporation = get_corporation(request, corporation_id)
+
+    context = {
+        "title": "Corporation Ledger",
+        "corporation_id": corporation_id,
+    }
+
+    # pylint: disable=duplicate-code
+    if perms is False:
+        msg = _("Permission Denied")
+        return render(
+            request,
+            "ledger/partials/information/view_character_content.html",
+            {
+                "error": msg,
+                "corporation_id": corporation_id,
+            },
+        )
+    # pylint: disable=duplicate-code
+    if perms is None:
+        msg = _("Corporation not found")
+        return render(
+            request,
+            "ledger/partials/information/view_character_content.html",
+            {
+                "error": msg,
+                "corporation_id": corporation_id,
+            },
+        )
+
+    corporation_data = CorporationData(
+        request=request, corporation=corporation, year=year, month=month, day=day
+    )
+
+    # Create the Entity for the ledger
+    entity = LedgerEntity(
+        entity_id=entity_id,
+    )
+
+    amounts = corporation_data._create_corporation_details(entity=entity)
+    details = corporation_data._add_average_details(request, amounts, day)
+
+    context = {
+        "title": f"Corporation Details - {corporation.corporation_name}",
+        "type": "corporation",
+        "character": details,
+        "information": f"Corporation Details - {corporation_data.get_details_title}",
     }
     context = add_info_to_context(request, context)
-    return render(request, "ledger/corpledger/corporation_ledger.html", context=context)
+    # pylint: disable=duplicate-code
+    return render(
+        request,
+        "ledger/partials/information/view_character_content.html",
+        context=context,
+    )
 
 
 @login_required

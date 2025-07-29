@@ -9,7 +9,7 @@ from django.utils import timezone
 from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
 from ledger.models.general import _NeedsUpdate
 from ledger.tests.testdata.generate_characteraudit import (
-    add_charactermaudit_character_to_user,
+    add_characteraudit_character_to_user,
     create_update_status,
     create_user_from_evecharacter_with_access,
 )
@@ -31,7 +31,7 @@ class TestCharacterWalletJournalModel(TestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
             1001,
         )
-        cls.audit = add_charactermaudit_character_to_user(
+        cls.audit = add_characteraudit_character_to_user(
             cls.user, cls.character_ownership.character.character_id
         )
         sections = CharacterAudit.UpdateSection.get_sections()

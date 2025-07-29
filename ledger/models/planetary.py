@@ -58,7 +58,7 @@ class CharacterPlanet(models.Model):
         ]
 
     def __str__(self):
-        return f"Planet Data: {self.character.character.character_name} - {self.planet.name}"
+        return f"Planet Data: {self.character.eve_character.character_name} - {self.planet.name}"
 
     @property
     def last_update(self) -> timezone.datetime:
@@ -116,7 +116,7 @@ class CharacterPlanetDetails(models.Model):
         ]
 
     def __str__(self):
-        return f"Planet Details Data: {self.planet.character.character.character_name} - {self.planet.planet.name}"
+        return f"Planet Details Data: {self.planet.character.eve_character.character_name} - {self.planet.planet.name}"
 
     def count_extractors(self):
         return len(

@@ -1,13 +1,12 @@
 """PvE Views"""
 
 # Standard Library
-import logging
-from datetime import datetime
 from http import HTTPStatus
 
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
@@ -15,48 +14,106 @@ from django.views.decorators.http import require_POST
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 
 # AA Ledger
-# Ledger
-from ledger.api.helpers import get_character
+from ledger import __title__
+from ledger.api.helpers import get_character_or_none
+from ledger.helpers.character import CharacterData
 from ledger.helpers.core import add_info_to_context
-from ledger.models.characteraudit import CharacterAudit
+from ledger.models.characteraudit import (
+    CharacterAudit,
+)
 
-logger = logging.getLogger(__name__)
-
-
-@login_required
-@permission_required("ledger.basic_access")
-def character_ledger_index(request):
-    """Character Ledger Index View"""
-    context = {}
-    context = add_info_to_context(request, context)
-    return redirect(
-        "ledger:character_ledger", request.user.profile.main_character.character_id
-    )
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @login_required
 @permission_required("ledger.basic_access")
-def character_ledger(request, character_id=None):
+def character_ledger(
+    request: WSGIRequest, character_id: int, year=None, month=None, day=None
+):
     """
     Character Ledger
     """
-    if character_id is None:
-        character_id = request.user.profile.main_character.character_id
+    perms, character = get_character_or_none(request, character_id)
 
-    current_year = datetime.now().year
-    years = [current_year - i for i in range(6)]
+    if not perms:
+        msg = _("Permission Denied")
+        messages.error(request, msg)
+        context = {
+            "error": msg,
+            "character_id": character_id,
+        }
+        context = add_info_to_context(request, context)
+        return render(
+            request, "ledger/charledger/character_ledger.html", context=context
+        )
+
+    character_data = CharacterData(
+        request=request, character=character, year=year, month=month, day=day
+    )
+
+    # Create the ledger data
+    context = character_data.generate_ledger_data()
+    # Add additional information to the context
+    context = add_info_to_context(request, context)
+
+    return render(request, "ledger/charledger/character_ledger.html", context=context)
+
+
+@login_required
+@permission_required("ledger.basic_access")
+def character_details(request, character_id, year=None, month=None, day=None):
+    """
+    Character Details
+    """
+    perms, character = get_character_or_none(request, character_id)
+
+    # pylint: disable=duplicate-code
+    if perms is False:
+        msg = _("Permission Denied")
+        return render(
+            request,
+            "ledger/partials/information/view_character_content.html",
+            {
+                "error": msg,
+                "character_id": character_id,
+            },
+        )
+    # pylint: disable=duplicate-code
+    if perms is None:
+        msg = _("Corporation not found")
+        return render(
+            request,
+            "ledger/partials/information/view_character_content.html",
+            {
+                "error": msg,
+                "character_id": character_id,
+            },
+        )
+
+    character_data = CharacterData(request, character, year, month, day)
+
+    amounts = character_data._create_character_details()
+    details = character_data._add_average_details(request, amounts, day)
 
     context = {
-        "title": "Character Ledger",
-        "years": years,
-        "entity_pk": character_id,
-        "character_id": character_id,
-        "entity_type": "character",
+        "title": f"Character Details - {character.eve_character.character_name}",
+        "type": "character",
+        "character": details,
+        "information": f"Character Details - {character_data.get_details_title}",
     }
     context = add_info_to_context(request, context)
-    return render(request, "ledger/charledger/character_ledger.html", context=context)
+
+    return render(
+        request,
+        "ledger/partials/information/view_character_content.html",
+        context=context,
+    )
 
 
 @login_required
@@ -84,29 +141,23 @@ def character_administration(request, character_id=None):
     if character_id is None:
         character_id = request.user.profile.main_character.character_id
 
-    perms, character = get_character(request, character_id)
+    perms, character = get_character_or_none(request, character_id)
 
     if not perms:
         msg = _("Permission Denied")
         messages.error(request, msg)
-        return redirect("ledger:character_ledger_index")
+        return redirect("ledger:index")
 
-    linked_characters = character.character_ownership.user.character_ownerships.all()
-    linked_characters_ids = linked_characters.values_list(
-        "character__character_id", flat=True
-    )
+    linked_characters_ids = character.alts.values_list("character_id", flat=True)
 
     characters = CharacterAudit.objects.filter(
-        character__character_id__in=linked_characters_ids
-    ).order_by("character__character_name")
+        eve_character__character_id__in=linked_characters_ids
+    ).order_by("eve_character__character_name")
+    characters_ids = characters.values_list("eve_character__character_id", flat=True)
 
     missing_characters = (
         EveCharacter.objects.filter(character_id__in=linked_characters_ids)
-        .exclude(
-            character_id__in=characters.values_list(
-                "character__character_id", flat=True
-            )
-        )
+        .exclude(character_id__in=characters_ids)
         .order_by("character_name")
     )
 
@@ -131,7 +182,7 @@ def character_delete(request, character_id):
     """
     Character Delete
     """
-    perms = get_character(request, character_id)[0]
+    perms = get_character_or_none(request, character_id)[0]
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -139,7 +190,7 @@ def character_delete(request, character_id):
         )
 
     try:
-        audit = CharacterAudit.objects.get(character__character_id=character_id)
+        audit = CharacterAudit.objects.get(eve_character__character_id=character_id)
     except CharacterAudit.DoesNotExist:
         msg = _("Character not found")
         return JsonResponse(
@@ -148,7 +199,7 @@ def character_delete(request, character_id):
 
     audit.delete()
 
-    msg = _(f"{audit.character.character_name} successfully deleted")
+    msg = _(f"{audit.eve_character.character_name} successfully deleted")
     return JsonResponse(
         {"success": True, "message": msg}, status=HTTPStatus.OK, safe=False
     )

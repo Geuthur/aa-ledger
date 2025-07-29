@@ -1,13 +1,76 @@
 {% load sri %}
 {% load i18n %}
 
-<script type="application/javascript">
-    let ledgersettings = {
-        csrfToken: '{% csrf_token %}',
-        entity_pk: {{ entity_pk }},
-        entity_type: "{{ entity_type }}",
-    };
+<script>
+    // Initialize dropdowns on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const BillboardData = {{ billboard|default:"null"|safe }};
+        initCharts(BillboardData);
+
+        const tableContainer = $('#ratting')
+        const tableRatting = tableContainer.DataTable(
+            {
+                "order": [[1, "desc"]],
+                "columnDefs": [
+                    { "orderable": false, "targets": 6 }, // Disable sorting on the last column
+                    { "type": "num", "targets": [1, 2, 3, 4, 5] }, // Numeric sorting for ISK columns
+                    {
+                        "targets": [1, 2, 3, 4],
+                        "render": function (data, type, row, meta) {
+                            // Remove ISK and thousands separator for sorting
+                            if (type === 'sort' || type === 'type') {
+                                if (typeof data === 'string') {
+                                    return parseFloat(data.replace(/[^\d\-\.]/g, '')) || 0;
+                                }
+                                return data;
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        "targets": 6, // Total column
+                        "render": function (data, type, row, meta) {
+                            if (type === 'sort' || type === 'type') {
+                                if (typeof data === 'string') {
+                                    // Extrahiere Zahl inkl. Minuszeichen am Anfang, robust gegen Leerzeichen
+                                    let match = data.match(/-?\d[\d.,]*/);
+                                    if (match) {
+                                        // Ersetze Kommas durch nichts, Punkte durch Dezimalpunkt
+                                        let num = match[0].replace(/\./g, '').replace(/,/g, '.');
+                                        return parseFloat(num) || 0;
+                                    }
+                                    return 0;
+                                }
+                                return data;
+                            }
+                            return data;
+                        }
+                    }
+                ],
+                "orderCellsTop": true,
+                initComplete: function() {
+                    $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({});
+                    $('[data-bs-toggle="corp-popover"]').popover({
+                        trigger: 'hover',
+                        html: true,
+                    });
+                    $('#ratting').removeClass('d-none');
+                },
+            }
+        );
+
+        // Initialize tooltips
+        $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({ trigger: 'hover' });
+
+        tableRatting.on('draw', function() {
+            $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({});
+            $('[data-bs-toggle="corp-popover"]').popover({
+                trigger: 'hover',
+                html: true,
+            });
+        });
+    });
 </script>
 
-<!-- Ledger Resources -->
-{% sri_static 'ledger/js/corporation.js' %}
+{% sri_static 'ledger/js/charts.js' %}
+{% sri_static 'ledger/js/modal/modal-system.js' %}

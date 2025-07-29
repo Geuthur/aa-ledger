@@ -18,9 +18,16 @@
         </div>
         <!-- Content -->
         <div class="card-body">
-            {% include 'ledger/partials/administration/dashboard.html' %}
+            <div class="row">
+                <div class="col-lg-6 col-md-12">
+                    {% include 'ledger/partials/administration/dashboard.html' %}
+                </div>
+                <div class="col-lg-6 col-md-12">
+                    {% include 'ledger/partials/administration/corporation.html' %}
+                </div>
+            </div>
+            {% include 'ledger/partials/administration/corporation_characters.html' %}
         </div>
-        {% include 'ledger/partials/administration/corporation.html' %}
     </div>
 {% endblock %}
 

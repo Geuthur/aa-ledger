@@ -14,3 +14,8 @@ class LedgerConfig(AppConfig):
     name = "ledger"
     label = "ledger"
     verbose_name = f"Ledger v{__version__}"
+
+    def ready(self):
+        """Ready"""
+        # pylint: disable=import-outside-toplevel, unused-import
+        from . import checks

@@ -1,5 +1,80 @@
 # Changelog
 
+## [0.9.0a1] - 2025-07-28
+
+### Fixed
+
+- Corporation Overview not show all corps from own Characters
+- Planetary Switch Alarm path error
+- Total Mining Amount only count 1 Character
+- Update Status Stale Error
+- Corporation Wallet Journal not Updating until ETag expire
+
+### Added
+
+- Task Settings Check from ([Eric Kalkoken](https://gitlab.com/ErikKalkoken/))
+- Update Information in Character View
+- `corp_audit_manager` permission
+- `character_mining_manager` added EveSolarSystem if not exist
+
+### Changed
+
+- Ref Type System
+
+  - Create all in one Ref Type Manager
+
+- Refactor Character Ledger
+
+  - Character View Paths
+    - Date Path instead of API
+  - CharacterAudit
+    - `character` changed to `eve_character`
+  - Removed API
+
+- Refactor Corporation Ledger
+
+  - Alliance View Paths
+    - Date Path instead of API
+  - Removed API
+
+- Refactor Alliance Ledger
+
+  - Alliance View Paths
+    - Date Path instead of API
+  - Removed API
+
+- ESI Overload Prevention
+
+  - Decreased Update Interval
+  - Task Schedule from crontab to every `1800` seconds (30 minutes)
+  - `update_subset_characters` updated
+    - max run limit increased from `200` to `500`
+    - min run limit increased from `10` to `50`
+
+- Billboard Overflow System limited from `10` to `25`
+
+- Billboard Chord added Miscellaneous. Data
+
+- Renamed `admin_access` to `manage_access`
+
+- Optimized Corporation Administration CSS
+
+- Optimized Single View CSS
+
+- Optimized Table CSS
+
+- Optimized Billboard Visual Optic
+
+- Optimized Details Template System
+
+### Removed
+
+- `character.js`, `corporation.js`, `alliance.js`, `ledger-common.js`
+- `Aggregator System`
+- `ìnformation_helper`
+- Character, Corporation, Alliance Ledger API Endpoint
+- Details API Endpoint
+
 ## [0.8.5] - 2025-07-22
 
 > [!NOTE]

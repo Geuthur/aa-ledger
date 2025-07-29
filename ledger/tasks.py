@@ -61,7 +61,7 @@ def check_planetary_alarms(runs: int = 0):
 
     for planet in all_planets:
         if planet.is_expired and not planet.notification_sent and planet.notification:
-            character_id = planet.planet.character.character.character_id
+            character_id = planet.planet.character.eve_character.character_id
 
             try:
                 owner = CharacterOwnership.objects.get(
@@ -81,7 +81,7 @@ def check_planetary_alarms(runs: int = 0):
                 continue
 
             msg = _("%(charname)s on %(planetname)s") % {
-                "charname": planet.planet.character.character.character_name,
+                "charname": planet.planet.character.eve_character.character_name,
                 "planetname": planet.planet.planet.name,
             }
 
@@ -121,7 +121,7 @@ def update_all_characters(runs: int = 0, force_refresh=False):
     """Update all characters"""
     # Disable characters with no owner
     CharacterAudit.objects.disable_characters_with_no_owner()
-    characters = CharacterAudit.objects.select_related("character").filter(active=1)
+    characters = CharacterAudit.objects.select_related("eve_character").filter(active=1)
     for char in characters:
         update_character.apply_async(
             args=[char.pk], kwargs={"force_refresh": force_refresh}
@@ -132,7 +132,7 @@ def update_all_characters(runs: int = 0, force_refresh=False):
 
 @shared_task(**TASK_DEFAULTS_ONCE)
 @when_esi_is_available
-def update_subset_characters(subset=2, min_runs=10, max_runs=200, force_refresh=False):
+def update_subset_characters(subset=2, min_runs=50, max_runs=500, force_refresh=False):
     """Update a batch of characters to prevent overload ESI"""
     # Disable characters with no owner
     CharacterAudit.objects.disable_characters_with_no_owner()
@@ -168,7 +168,8 @@ def update_character(character_pk: int, force_refresh=False):
     priority = 7
 
     logger.debug(
-        "Processing Audit Updates for %s", format(character.character.character_name)
+        "Processing Audit Updates for %s",
+        format(character.eve_character.character_name),
     )
 
     if force_refresh:
@@ -178,7 +179,7 @@ def update_character(character_pk: int, force_refresh=False):
     needs_update = character.calc_update_needed()
 
     if not needs_update and not force_refresh:
-        logger.info("No updates needed for %s", character.character.character_name)
+        logger.info("No updates needed for %s", character.eve_character.character_name)
         return
 
     sections = character.UpdateSection.get_sections()
@@ -188,7 +189,7 @@ def update_character(character_pk: int, force_refresh=False):
         if not force_refresh and not needs_update.for_section(section):
             logger.debug(
                 "No updates needed for %s (%s)",
-                character.character.character_name,
+                character.eve_character.character_name,
                 section,
             )
             continue
@@ -203,7 +204,7 @@ def update_character(character_pk: int, force_refresh=False):
     logger.debug(
         "Queued %s Audit Updates for %s",
         len(que),
-        character.character.character_name,
+        character.eve_character.character_name,
     )
 
 
@@ -254,7 +255,7 @@ def _update_character_section(character_pk: int, section: str, force_refresh: bo
     section = CharacterAudit.UpdateSection(section)
     character = CharacterAudit.objects.get(pk=character_pk)
     logger.debug(
-        "Updating %s for %s", section.label, character.character.character_name
+        "Updating %s for %s", section.label, character.eve_character.character_name
     )
 
     character.reset_update_status(section)
@@ -286,7 +287,7 @@ def update_all_corporations(runs: int = 0, force_refresh=False):
 @shared_task(**TASK_DEFAULTS_ONCE)
 @when_esi_is_available
 def update_subset_corporations(
-    subset=5, min_runs=10, max_runs=200, force_refresh=False
+    subset=5, min_runs=20, max_runs=200, force_refresh=False
 ):
     """Update a batch of corporations to prevent overload ESI"""
     total_corporations = CorporationAudit.objects.filter(active=1).count()
