@@ -180,11 +180,6 @@ class BillboardSystem:
 
         self.dict.charts.series.sort(key=lambda x: (x["from"], x["to"]))
 
-        if self.dict.charts is None:
-            return
-
-        self.dict.charts.series.sort(key=lambda x: (x["from"], x["to"]))
-
     # TODO Add Mining to the billboard
     def create_timeline(self, journal: QuerySet):
         """Create the timeline data for the billboard"""
