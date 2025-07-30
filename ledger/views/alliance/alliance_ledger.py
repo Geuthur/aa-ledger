@@ -173,7 +173,7 @@ def alliance_administration(request, alliance_id):
         messages.error(request, msg)
         return redirect("ledger:alliance_ledger_index")
     if perm is None:
-        msg = _("Alliance not Found")
+        msg = _("Alliance not found")
         messages.info(request, msg)
         return redirect("ledger:alliance_ledger_index")
 

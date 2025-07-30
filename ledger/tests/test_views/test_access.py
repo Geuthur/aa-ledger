@@ -777,7 +777,7 @@ class TestViewAllianceLedgerAccess(TestCase):
         response = alliance_ledger.alliance_administration(request, 6666)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.info.assert_called_once_with(request, "Alliance not Found")
+        mock_messages.info.assert_called_once_with(request, "Alliance not found")
 
 
 class TestViewPlanetaryLedgerAccess(TestCase):

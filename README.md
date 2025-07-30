@@ -167,17 +167,12 @@ Advanced Settings: Stale Status for Each Section
 
 ## Highlights<a name="highlights"></a>
 
-![ledger1](ledger/docs/images/preview1.png)
-
-![ledger2](ledger/docs/images/preview2.png)
-
-![ledger3](ledger/docs/images/preview3.png)
-
-![ledger4](ledger/docs/images/preview4.png)
-
-![ledger5](ledger/docs/images/preview5.png)
-
-![ledger6](ledger/docs/images/preview6.png)
+![Ledger](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview1.png "Ledger")
+![Single Character Ledger](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview2.png "Single Character Ledger")
+![Details Modal](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview3.png "Details Modal")
+![Planetary Ledger](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview4.png "Planetary Ledger")
+![Factory Modal](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview5.png "Factory Modal")
+![Extractor Modal](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview6.png "Extractor Modal")
 
 > [!NOTE]
 > Contributing
