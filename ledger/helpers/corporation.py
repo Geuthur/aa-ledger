@@ -261,12 +261,12 @@ class CorporationData(LedgerCore):
             ),
             costs=Sum(
                 "amount",
-                filter=Q(ref_type__in=RefTypeCategories.costs(), amount__lt=0),
+                filter=Q(ref_type__in=RefTypeCategories.all_ref_types(), amount__lt=0),
                 output_field=DecimalField(),
             ),
             miscellaneous=Sum(
                 "amount",
-                filter=Q(ref_type__in=RefTypeCategories.miscellaneous(), amount__gt=0),
+                filter=Q(ref_type__in=RefTypeCategories.all_ref_types(), amount__gt=0),
                 output_field=DecimalField(),
             ),
         )
@@ -407,8 +407,7 @@ class CorporationData(LedgerCore):
 
         amounts = {}
 
-        ref_types_income = RefTypeCategories.get_miscellaneous()
-        ref_types_costs = RefTypeCategories.get_costs()
+        ref_types = RefTypeCategories.get_all_categories()
 
         # Bounty Income
         if not entity.entity_id == 1000125:  # Remove Concord Bountys
@@ -422,8 +421,9 @@ class CorporationData(LedgerCore):
             amounts["ess_income"] = {"total_amount": ess_income}
 
         # Income Ref Types
-        for ref_type, value in ref_types_income.items():
+        for ref_type, value in ref_types.items():
             ref_type_name = ref_type.lower()
+
             aggregated_data = self.journal.aggregate_ref_type(
                 ref_type=value,
                 income=True,
@@ -431,16 +431,14 @@ class CorporationData(LedgerCore):
             if aggregated_data > 0:
                 amounts[f"{ref_type_name}_income"] = {"total_amount": aggregated_data}
 
-        # Cost Ref Types
-        for ref_type, value in ref_types_costs.items():
-            ref_type_name = ref_type.lower()
-
-            aggregated_data = self.journal.aggregate_ref_type(
+            aggregated_data_cost = self.journal.aggregate_ref_type(
                 ref_type=value,
                 income=False,
             )
-            if aggregated_data < 0:
-                amounts[f"{ref_type_name}_cost"] = {"total_amount": aggregated_data}
+            if aggregated_data_cost < 0:
+                amounts[f"{ref_type_name}_cost"] = {
+                    "total_amount": aggregated_data_cost
+                }
 
         # Summary
         summary = [
@@ -464,11 +462,11 @@ class CorporationData(LedgerCore):
         income_types = [("bounty_income", _("Ratting")), ("ess_income", _("ESS"))]
         income_types += [
             (f"{ref_type.lower()}_income", _(ref_type.replace("_", " ").title()))
-            for ref_type in ref_types_income
+            for ref_type in ref_types
         ]
         cost_types = [
             (f"{ref_type.lower()}_cost", _(ref_type.replace("_", " ").title()))
-            for ref_type in ref_types_costs
+            for ref_type in ref_types
         ]
         amounts["income_types"] = income_types
         amounts["cost_types"] = cost_types

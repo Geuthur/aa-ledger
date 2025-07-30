@@ -237,8 +237,7 @@ class CharacterData(LedgerCore):
 
         amounts = {}
 
-        ref_types_income = RefTypeCategories.get_miscellaneous()
-        ref_types_costs = RefTypeCategories.get_costs()
+        ref_types = RefTypeCategories.get_all_categories()
 
         # Bounty Income
         bounty_income = self.journal.aggregate_bounty()
@@ -257,7 +256,7 @@ class CharacterData(LedgerCore):
                 amounts["ess_income"] = {"total_amount": ess_income}
 
         # Income Ref Types
-        for ref_type, value in ref_types_income.items():
+        for ref_type, value in ref_types.items():
             ref_type_name = ref_type.lower()
 
             # Check if the ref_type is a donation and handle it accordingly
@@ -267,9 +266,21 @@ class CharacterData(LedgerCore):
                     income=True,
                     exclude=self.alts_ids,
                 )
+
+                aggregated_data_cost = self.journal.aggregate_ref_type(
+                    ref_type=value,
+                    income=False,
+                    exclude=self.alts_ids,
+                )
+
                 if aggregated_data > 0:
                     amounts[f"{ref_type_name}_income"] = {
                         "total_amount": aggregated_data
+                    }
+
+                if aggregated_data_cost < 0:
+                    amounts[f"{ref_type_name}_cost"] = {
+                        "total_amount": aggregated_data_cost
                     }
                 continue
 
@@ -280,27 +291,14 @@ class CharacterData(LedgerCore):
             if aggregated_data > 0:
                 amounts[f"{ref_type_name}_income"] = {"total_amount": aggregated_data}
 
-        # Cost Ref Types
-        for ref_type, value in ref_types_costs.items():
-            ref_type_name = ref_type.lower()
-
-            # Check if the ref_type is a donation and handle it accordingly
-            if ref_type_name == "donation":
-                aggregated_data = self.journal.aggregate_ref_type(
-                    ref_type=value,
-                    income=False,
-                    exclude=self.alts_ids,
-                )
-                if aggregated_data < 0:
-                    amounts[f"{ref_type_name}_cost"] = {"total_amount": aggregated_data}
-                continue
-
-            aggregated_data = self.journal.aggregate_ref_type(
+            aggregated_data_cost = self.journal.aggregate_ref_type(
                 ref_type=value,
                 income=False,
             )
-            if aggregated_data < 0:
-                amounts[f"{ref_type_name}_cost"] = {"total_amount": aggregated_data}
+            if aggregated_data_cost < 0:
+                amounts[f"{ref_type_name}_cost"] = {
+                    "total_amount": aggregated_data_cost
+                }
 
         # Summary
         summary = [
@@ -319,11 +317,11 @@ class CharacterData(LedgerCore):
         income_types = [("bounty_income", _("Ratting")), ("ess_income", _("ESS"))]
         income_types += [
             (f"{ref_type.lower()}_income", _(ref_type.replace("_", " ").title()))
-            for ref_type in ref_types_income
+            for ref_type in ref_types
         ]
         cost_types = [
             (f"{ref_type.lower()}_cost", _(ref_type.replace("_", " ").title()))
-            for ref_type in ref_types_costs
+            for ref_type in ref_types
         ]
         amounts["income_types"] = income_types
         amounts["cost_types"] = cost_types

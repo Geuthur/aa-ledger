@@ -198,15 +198,6 @@ class TestCharacterJournalManagerAnnotations(TestCase):
             )
             self.assertEqual(obj.milestone_income, 0)
 
-    def test_annotate_corporation_income(self):
-        qs = self.audit.ledger_character_journal.all().annotate_corporation_income()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "corporation_income"),
-                "Corporation income annotation should be present",
-            )
-            self.assertEqual(obj.corporation_income, 0)
-
     def test_annotate_daily_goal_income(self):
         qs = self.audit.ledger_character_journal.all().annotate_daily_goal_income()
         for obj in qs:

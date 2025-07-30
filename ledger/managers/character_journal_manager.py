@@ -141,19 +141,6 @@ class CharWalletIncomeFilter(models.QuerySet):
             )
         )
 
-    def annotate_corporation_income(self) -> models.QuerySet:
-        """Annotate corporation income."""
-        return self.annotate(
-            corporation_income=Coalesce(
-                Sum(
-                    "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.CORPORATION, amount__gt=0),
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            )
-        )
-
     def annotate_daily_goal_income(self) -> models.QuerySet:
         """Annotate daily goal income."""
         return self.annotate(
@@ -177,7 +164,7 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
                 Sum(
                     "amount",
                     filter=Q(
-                        ref_type__in=RefTypeCategories.miscellaneous(), amount__gt=0
+                        ref_type__in=RefTypeCategories.all_ref_types(), amount__gt=0
                     ),
                 ),
                 Value(0),
@@ -215,7 +202,9 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
             costs=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.costs(), amount__lt=0),
+                    filter=Q(
+                        ref_type__in=RefTypeCategories.all_ref_types(), amount__lt=0
+                    ),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -423,7 +412,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
     def aggregate_costs(self, first_party=None, second_party=None) -> dict:
         """Aggregate costs. first_party wird für donation exkludiert."""
         qs = self
-        cost_types = RefTypeCategories.costs()
+        cost_types = RefTypeCategories.all_ref_types()
         donation_types = RefTypeCategories.DONATION
 
         if first_party is not None:
@@ -451,7 +440,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         """Aggregate miscellaneous income. first_party wird nur für donation angewandt."""
         qs = self
 
-        misc_types = RefTypeCategories.miscellaneous()
+        misc_types = RefTypeCategories.all_ref_types()
         donation_types = RefTypeCategories.DONATION
 
         if first_party is not None:
