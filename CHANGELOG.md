@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.9.1] - 2025-07-30
+
+### Added
+
+- Corporation, Alliance Details Button
+
+### Fixed
+
+- Own Corporation not shown in Corporation Ledger
+- Corporation Details in Alliance Ledger always show all
+
+### Changed
+
+- Cleanup Stuff
+- Updated German Translation
+- Updated Showcase images
+- Chord Sorted by `from` to `to`
+
 ## [0.9.0] - 2025-07-29
 
 ### Fixed
