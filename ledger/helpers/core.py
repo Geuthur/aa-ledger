@@ -96,8 +96,12 @@ class LedgerEntity:
     def portrait_url(self):
         """Return the portrait URL for the entity."""
         try:
+            if isinstance(self.entity, EveCorporationInfo):
+                return self.entity.logo_url_32
+
             if hasattr(self.entity, "portrait_url"):
                 return self.entity.portrait_url(size=32)
+
             if self.entity.category == "faction":
                 return ""
             return self.entity.icon_url(size=32)

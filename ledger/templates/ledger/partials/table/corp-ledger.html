@@ -48,7 +48,17 @@
             <th class="col-total-others nowrap {% if totals.miscellaneous < 0 %}text-danger {% else %}text-success{% endif %}" id="total_misc" data-sort="{{ totals.miscellaneous|default:0 }}">{{ totals.miscellaneous|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
             <th class="col-total-costs nowrap {% if totals.costs < 0 %}text-danger {% else %}text-success{% endif %}" id="total_costs" data-sort="{{ totals.costs|default:0 }}">{{ totals.costs|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
             <th class="col-total-total nowrap {% if totals.total < 0 %}text-danger {% else %}text-success{% endif %}" style="border-left: 2px solid #888;" id="total_total" data-sort="{{ totals.total|default:0 }}">{{ totals.total|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
-            <th></th>
+            <th>
+                <button
+                    class="btn btn-primary btn-sm btn-square"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalViewCharacterContainer"
+                    data-ajax_url="{{ view.details_url }}?all=True"
+                    title="{% trans 'View Details' %}"
+                    data-tooltip-toggle="ledger-tooltip" data-bs-placement="right">
+                    <span class="fas fa-info"></span>
+                </button>
+            </th>
         </tr>
     </tfoot>
 </table>

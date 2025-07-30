@@ -28,6 +28,12 @@ from ledger.models.corporationaudit import (
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
+NPC_ENTITIES = [
+    1000125,  # Concord Bounties (Bounty Prizes, ESS
+    1000132,  # Secure Commerce Commission (Market Fees)
+    1000413,  # Air Laboratories (Daily Login Rewards, etc.)
+]
+
 
 class CorporationData(LedgerCore):
     """Class to hold character data for the ledger."""
@@ -62,38 +68,53 @@ class CorporationData(LedgerCore):
         )
 
         if entity is not None:
-            character_ids = entity.get_alts_ids_or_self()
-
-            self.journal = (
-                CorporationWalletJournalEntry.objects.filter(
+            if (
+                self.request.GET.get("all", False)
+                and entity.entity_id == self.corporation.corporation.corporation_id
+            ):
+                self.journal = CorporationWalletJournalEntry.objects.filter(
                     self.filter_date,
                     division__corporation=self.corporation,
-                )  # Filter by date and division
-                .filter(
-                    Q(first_party_id__in=character_ids)
-                    | Q(second_party_id__in=character_ids)
-                )  # Filter only needed Character IDs
-                .exclude(
+                ).exclude(  # Filter by date and division
                     first_party_id=self.corporation.corporation.corporation_id,
                     second_party_id=self.corporation.corporation.corporation_id,
                 )  # exclude Transaction between the corporation itself
-            )
+            else:
+                character_ids = entity.get_alts_ids_or_self()
+                self.journal = (
+                    CorporationWalletJournalEntry.objects.filter(
+                        self.filter_date,
+                        division__corporation=self.corporation,
+                    )  # Filter by date and division
+                    .filter(
+                        Q(first_party_id__in=character_ids)
+                        | Q(second_party_id__in=character_ids)
+                    )  # Filter only needed Character IDs
+                    .exclude(
+                        first_party_id=self.corporation.corporation.corporation_id,
+                        second_party_id=self.corporation.corporation.corporation_id,
+                    )  # exclude Transaction between the corporation itself
+                )
 
+                if entity.entity_id == self.corporation.corporation.corporation_id:
+                    self.journal = self.journal.filter(
+                        Q(first_party_id__in=NPC_ENTITIES)
+                        | Q(second_party_id__in=NPC_ENTITIES)
+                    )
+                # If the entity is a corporation or alliance, we need to exclude the accounts Character IDs
+                # from the journal to prevent double counting
+                if entity.type in ["alliance", "corporation"]:
+                    exclude_ids = self.get_all_account_ids(
+                        accounts=self.accounts
+                    ) - set(character_ids)
+                    self.journal = self.journal.exclude(
+                        Q(first_party_id__in=exclude_ids)
+                        | Q(second_party_id__in=exclude_ids)
+                    )
             # Get All Entities from the Journal
             self.entities = set(
                 self.journal.values_list("second_party_id", flat=True)
             ) | set(self.journal.values_list("first_party_id", flat=True))
-
-            # If the entity is a corporation or alliance, we need to exclude the accounts Character IDs
-            # from the journal to prevent double counting
-            if entity.type in ["alliance", "corporation"]:
-                exclude_ids = self.get_all_account_ids(accounts=self.accounts) - set(
-                    character_ids
-                )
-                self.journal = self.journal.exclude(
-                    Q(first_party_id__in=exclude_ids)
-                    | Q(second_party_id__in=exclude_ids)
-                )
         else:
             self.journal = CorporationWalletJournalEntry.objects.filter(
                 self.filter_date, division__corporation=self.corporation
@@ -176,7 +197,6 @@ class CorporationData(LedgerCore):
         for pk in used_pks:
             self.entries.pop(pk, None)
 
-        misc = miscellaneous
         total = sum([bounty, ess, miscellaneous, costs])
 
         if total == 0:
@@ -188,7 +208,7 @@ class CorporationData(LedgerCore):
             "ledger": {
                 "bounty": bounty,
                 "ess": ess,
-                "miscellaneous": misc,
+                "miscellaneous": miscellaneous,
                 "costs": costs,
                 "total": total,
             },
@@ -290,12 +310,11 @@ class CorporationData(LedgerCore):
         if remaining_entities:
             for entity_id in remaining_entities:
                 # Skip NPC Entities like CONCORD, AIR Laboratories, etc.
-                if entity_id in [
-                    1000125,  # Concord Bounties (Bounty Prizes, ESS, etc.)
-                    1000132,  # Secure Commerce Commission (Market Fees)
-                    1000413,  # Air Laboratories (Daily Login Rewards, etc.)
-                    self.corporation.corporation.corporation_id,
-                ]:
+                if entity_id in NPC_ENTITIES:
+                    continue
+
+                # Skip the corporation itself to ensure it will be added last in #343
+                if entity_id == self.corporation.corporation.corporation_id:
                     continue
 
                 # Create Details URL for the entity
@@ -320,6 +339,23 @@ class CorporationData(LedgerCore):
 
                 ledger.append(char_data)
                 finished_entities.add(entity_id)
+
+        # Create the last entity data for the corporation itself
+        corporation_entity = LedgerEntity(
+            self.corporation.corporation.corporation_id,
+            corporation_obj=self.corporation.corporation,
+            details_url=self.create_url(
+                viewname="corporation_details",
+                corporation_id=self.corporation.corporation.corporation_id,
+                entity_id=self.corporation.corporation.corporation_id,
+            ),
+        )
+        char_data = self.create_entity_data(
+            entity=corporation_entity,
+        )
+
+        if char_data is not None:
+            ledger.append(char_data)
 
         # Create the billboard data
         self.create_rattingbar(list(finished_entities), is_char_ledger=False)
