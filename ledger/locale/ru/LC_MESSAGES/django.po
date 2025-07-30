@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-30 06:53+0200\n"
+"POT-Creation-Date: 2025-07-30 10:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -80,19 +80,52 @@ msgstr ""
 msgid "Extractor Information"
 msgstr ""
 
-#: helpers/alliance.py:325 helpers/character.py:304 helpers/corporation.py:423
-#: templates/ledger/partials/information/day.html:8
+#: helpers/alliance.py:157 helpers/corporation.py:221
+msgid "Ratting (Wallet)"
+msgstr ""
+
+#: helpers/alliance.py:162 helpers/corporation.py:226
+msgid "ESS (Wallet)"
+msgstr ""
+
+#: helpers/alliance.py:167 helpers/corporation.py:231
+msgid "Costs (Wallet)"
+msgstr ""
+
+#: helpers/alliance.py:172 helpers/corporation.py:236
+msgid "Miscellaneous (Wallet)"
+msgstr ""
+
+#: helpers/alliance.py:338 helpers/character.py:187 helpers/character.py:319
+#: helpers/corporation.py:464 templates/ledger/partials/information/day.html:8
 #: templates/ledger/partials/information/hourly.html:8
 #: templates/ledger/partials/information/summary.html:9
+#: templates/ledger/partials/view/card.html:90
 msgid "Ratting"
 msgstr ""
 
-#: helpers/alliance.py:325 helpers/character.py:304 helpers/corporation.py:423
+#: helpers/alliance.py:338 helpers/character.py:192 helpers/character.py:319
+#: helpers/corporation.py:464
 msgid "ESS"
 msgstr ""
 
-#: helpers/core.py:132 templates/ledger/partials/table/char-ledger.html:43
+#: helpers/character.py:197 templates/ledger/partials/view/card.html:109
+msgid "Mining"
+msgstr ""
+
+#: helpers/character.py:202
+msgid "Miscellaneous"
+msgstr ""
+
+#: helpers/character.py:207 templates/ledger/partials/table/char-ledger.html:14
+#: templates/ledger/partials/table/corp-ledger.html:12
+#: templates/ledger/partials/view/card.html:127
+msgid "Costs"
+msgstr ""
+
+#: helpers/core.py:136 templates/ledger/partials/table/char-ledger.html:43
 #: templates/ledger/partials/table/char-ledger.html:67
+#: templates/ledger/partials/table/corp-ledger.html:58
 msgid "View Details"
 msgstr ""
 
@@ -106,14 +139,15 @@ msgid "Unknown"
 msgstr ""
 
 #: models/characteraudit.py:47 models/corporationaudit.py:45
+#: templates/ledger/partials/view/card.html:44
 msgid "Wallet Journal"
 msgstr ""
 
-#: models/characteraudit.py:48
+#: models/characteraudit.py:48 templates/ledger/partials/view/card.html:51
 msgid "Mining Ledger"
 msgstr ""
 
-#: models/characteraudit.py:49
+#: models/characteraudit.py:49 templates/ledger/partials/view/card.html:59
 msgid "Planets"
 msgstr ""
 
@@ -569,9 +603,9 @@ msgstr ""
 #: templates/ledger/partials/information/day.html:47
 #: templates/ledger/partials/information/summary.html:48
 #: templates/ledger/partials/information/view_character_content.html:13
-#: templates/ledger/partials/table/ally-ledger.html:35
 #: templates/ledger/partials/table/char-ledger.html:54
 #: templates/ledger/partials/table/corp-ledger.html:45
+#: templates/ledger/partials/view/card.html:136
 msgid "Summary"
 msgstr ""
 
@@ -712,41 +746,21 @@ msgstr ""
 msgid "No output"
 msgstr ""
 
-#: templates/ledger/partials/table/ally-ledger.html:7
 #: templates/ledger/partials/table/char-ledger.html:7
 #: templates/ledger/partials/table/corp-ledger.html:7
 #: templates/ledger/partials/table/planetary.html:5
 msgid "Character"
 msgstr ""
 
-#: templates/ledger/partials/table/ally-ledger.html:8
 #: templates/ledger/partials/table/char-ledger.html:8
 #: templates/ledger/partials/table/corp-ledger.html:8
 msgid "Ratting Amount"
 msgstr ""
 
-#: templates/ledger/partials/table/ally-ledger.html:9
 #: templates/ledger/partials/table/char-ledger.html:9
 #: templates/ledger/partials/table/corp-ledger.html:9
+#: templates/ledger/partials/view/card.html:99
 msgid "ESS Payout"
-msgstr ""
-
-#: templates/ledger/partials/table/ally-ledger.html:11
-#: templates/ledger/partials/table/char-ledger.html:13
-#: templates/ledger/partials/table/corp-ledger.html:11
-msgid "Misc. Amount"
-msgstr ""
-
-#: templates/ledger/partials/table/ally-ledger.html:12
-#: templates/ledger/partials/table/char-ledger.html:14
-#: templates/ledger/partials/table/corp-ledger.html:12
-msgid "Costs"
-msgstr ""
-
-#: templates/ledger/partials/table/ally-ledger.html:13
-#: templates/ledger/partials/table/char-ledger.html:15
-#: templates/ledger/partials/table/corp-ledger.html:13
-msgid "Total"
 msgstr ""
 
 #: templates/ledger/partials/table/char-ledger.html:10
@@ -755,6 +769,16 @@ msgstr ""
 
 #: templates/ledger/partials/table/char-ledger.html:12
 msgid "Mining Amount"
+msgstr ""
+
+#: templates/ledger/partials/table/char-ledger.html:13
+#: templates/ledger/partials/table/corp-ledger.html:11
+msgid "Misc. Amount"
+msgstr ""
+
+#: templates/ledger/partials/table/char-ledger.html:15
+#: templates/ledger/partials/table/corp-ledger.html:13
+msgid "Total"
 msgstr ""
 
 #: templates/ledger/partials/table/char-ledger.html:35
@@ -793,6 +817,31 @@ msgstr ""
 msgid "Chord"
 msgstr ""
 
+#: templates/ledger/partials/view/card.html:26
+msgid "Overview"
+msgstr ""
+
+#: templates/ledger/partials/view/card.html:37
+msgid "Charakter"
+msgstr ""
+
+#: templates/ledger/partials/view/card.html:66
+msgid "Detailed Sheet"
+msgstr ""
+
+#: templates/ledger/partials/view/card.html:104
+msgid "Estimated"
+msgstr ""
+
+#: templates/ledger/partials/view/card.html:118
+msgid "Misc"
+msgstr ""
+
+#: templates/ledger/partials/view/card.html:150
+#: templates/ledger/partials/view/card.html:151
+msgid "Planetary Interaction"
+msgstr ""
+
 #: templates/ledger/permission.html:2
 msgid "You don't have Permission to view this Page"
 msgstr ""
@@ -813,11 +862,8 @@ msgid "Failed to fetch Alliance data for {alliance_name}"
 msgstr ""
 
 #: views/alliance/alliance_ledger.py:64 views/alliance/alliance_ledger.py:111
-msgid "Alliance not found"
-msgstr ""
-
 #: views/alliance/alliance_ledger.py:176
-msgid "Alliance not Found"
+msgid "Alliance not found"
 msgstr ""
 
 #: views/character/character_ledger.py:89
