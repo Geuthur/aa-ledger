@@ -139,7 +139,7 @@ class BillboardSystem:
         self.dict.charts.series.append(data)
 
     def chord_handle_overflow(self):
-        """Order and handle overflow data for the billboard, for each 'to' category"""
+        """Order and handle overflow data for the billboard, for each 'to' category and sort it by from and to."""
         if self.dict.charts is None:
             return
 
@@ -171,6 +171,19 @@ class BillboardSystem:
         self.dict.charts.series = sorted(
             new_series, key=lambda x: x["value"], reverse=True
         )
+        self.sort_chord_data()
+
+    def sort_chord_data(self):
+        """Sort the chord data by 'from' and 'to' categories."""
+        if self.dict.charts is None:
+            return
+
+        self.dict.charts.series.sort(key=lambda x: (x["from"], x["to"]))
+
+        if self.dict.charts is None:
+            return
+
+        self.dict.charts.series.sort(key=lambda x: (x["from"], x["to"]))
 
     # TODO Add Mining to the billboard
     def create_timeline(self, journal: QuerySet):

@@ -154,17 +154,22 @@ class AllianceData(LedgerCore):
         # Create the chord data for the billboard
         self.billboard.chord_add_data(
             chord_from=entity.entity_name,
-            chord_to="Wallet",
-            value=bounty + ess + miscellaneous,
+            chord_to="Ratting (Wallet)",
+            value=bounty,
         )
         self.billboard.chord_add_data(
             chord_from=entity.entity_name,
-            chord_to="Costs",
+            chord_to="ESS (Wallet)",
+            value=ess,
+        )
+        self.billboard.chord_add_data(
+            chord_from=entity.entity_name,
+            chord_to="Costs (Wallet)",
             value=abs(costs),
         )
         self.billboard.chord_add_data(
             chord_from=entity.entity_name,
-            chord_to="Miscellaneous",
+            chord_to="Miscellaneous (Wallet)",
             value=abs(miscellaneous),
         )
 

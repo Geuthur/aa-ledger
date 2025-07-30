@@ -184,8 +184,23 @@ class CharacterData(LedgerCore):
         # Create the chord data for the billboard
         self.billboard.chord_add_data(
             chord_from=character.eve_character.character_name,
-            chord_to="Wallet",
-            value=bounty + ess + mining_val + miscellaneous,
+            chord_to="Bounty",
+            value=bounty,
+        )
+        self.billboard.chord_add_data(
+            chord_from=character.eve_character.character_name,
+            chord_to="ESS",
+            value=ess,
+        )
+        self.billboard.chord_add_data(
+            chord_from=character.eve_character.character_name,
+            chord_to="Mining",
+            value=mining_val,
+        )
+        self.billboard.chord_add_data(
+            chord_from=character.eve_character.character_name,
+            chord_to="Miscellaneous",
+            value=miscellaneous,
         )
         self.billboard.chord_add_data(
             chord_from=character.eve_character.character_name,

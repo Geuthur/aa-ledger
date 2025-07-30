@@ -62,6 +62,8 @@ function createChordChart(root, data, id) {
 
     var series = root.container.children.push(
         am5flow.ChordDirected.new(root, {
+            padAngle: 1,
+            startAngle: 80,
             sourceIdField: 'from',
             targetIdField: 'to',
             valueField: 'value',
