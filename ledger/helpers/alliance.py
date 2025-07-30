@@ -6,7 +6,7 @@ from decimal import Decimal
 
 # Django
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import DecimalField, F, Q, Sum
+from django.db.models import DecimalField, F, Q, QuerySet, Sum
 from django.utils.translation import gettext as _
 
 # Alliance Auth
@@ -47,10 +47,20 @@ class AllianceData(LedgerCore):
     def setup_ledger(self, entity: LedgerEntity = None):
         """Setup the Ledger Data for the Corporation."""
         if entity is not None:
-            self.journal = CorporationWalletJournalEntry.objects.filter(
-                self.filter_date,
-                division__corporation__corporation__alliance__alliance_id=self.alliance.alliance_id,
-            )
+            if (
+                self.request.GET.get("all", False)
+                and entity.entity_id == self.alliance.alliance_id
+            ):
+                self.journal = CorporationWalletJournalEntry.objects.filter(
+                    self.filter_date,
+                    division__corporation__corporation__alliance__alliance_id=self.alliance.alliance_id,
+                )
+            else:
+                self.journal = CorporationWalletJournalEntry.objects.filter(
+                    self.filter_date,
+                    division__corporation__corporation__corporation_id=entity.entity_id,
+                )
+
             self.entities = self.get_all_entities(self.journal)
 
             self.journal = self.journal.filter(
@@ -85,16 +95,14 @@ class AllianceData(LedgerCore):
             corporation__alliance__alliance_id=self.alliance.alliance_id
         ).values_list("corporation__corporation_id", flat=True)
 
-    def get_all_entities(self, journal) -> list[int]:
+    def get_all_entities(
+        self, journal: QuerySet[CorporationWalletJournalEntry]
+    ) -> list[int]:
         """Get all entities in the alliance."""
-        entities_ids = journal.values_list("first_party_id", "second_party_id")
-        unique_ids = set()
-        for id1, id2 in entities_ids:
-            unique_ids.add(id1)
-            unique_ids.add(id2)
-        unique_ids = list(unique_ids)
-
-        return unique_ids
+        entities_ids = set(journal.values_list("second_party_id", flat=True)) | set(
+            journal.values_list("first_party_id", flat=True)
+        )
+        return list(entities_ids)
 
     # pylint: disable=duplicate-code
     def create_entity_data(
@@ -333,5 +341,4 @@ class AllianceData(LedgerCore):
         ]
         amounts["income_types"] = income_types
         amounts["cost_types"] = cost_types
-        logger.debug(amounts)
         return amounts
