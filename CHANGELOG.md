@@ -5,6 +5,7 @@
 ### Added
 
 - Corporation, Alliance Details Button
+- Translation for Chord Categories
 
 ### Fixed
 
