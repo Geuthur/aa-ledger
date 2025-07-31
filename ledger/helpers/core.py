@@ -23,6 +23,7 @@ from app_utils.logging import LoggerAddTag
 # AA Ledger
 from ledger import __title__
 from ledger.api.api_helper.billboard_helper import BillboardSystem
+from ledger.helpers.ref_type import RefTypeCategories
 from ledger.models.general import EveEntity
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -308,6 +309,72 @@ class LedgerCore:
                 **kwargs,
             ),
         }
+
+    def _create_corporation_details(self, entity: LedgerEntity) -> dict:
+        """Create the corporation amounts for the Details View."""
+        # NOTE (can only used if setup_ledger is defined in the subclass)
+        self.setup_ledger(entity=entity)  # pylint: disable=no-member
+
+        amounts = {}
+
+        ref_types = RefTypeCategories.get_all_categories()
+
+        # Bounty Income
+        if not entity.entity_id == 1000125:  # Remove Concord Bountys
+            bounty_income = self.journal.aggregate_bounty()
+            if bounty_income > 0:
+                amounts["bounty_income"] = {"total_amount": bounty_income}
+
+        # ESS Income (nur wenn bounty_income existiert)
+        ess_income = self.journal.aggregate_ess()
+        if ess_income > 0:
+            amounts["ess_income"] = {"total_amount": ess_income}
+
+        # Income/Cost Ref Types (DRY)
+        for ref_type, value in ref_types.items():
+            ref_type_name = ref_type.lower()
+            for kind, income_flag in (("income", True), ("cost", False)):
+                kwargs = {"ref_type": value, "income": income_flag}
+                if (
+                    ref_type_name == "corporation_contract"
+                    and entity.entity.category == "character"
+                ):  # Only Count Contract Creator
+                    kwargs["first_party"] = entity.entity_id
+                agg = self.journal.aggregate_ref_type(**kwargs)
+                if (income_flag and agg > 0) or (not income_flag and agg < 0):
+                    amounts[f"{ref_type_name}_{kind}"] = {"total_amount": agg}
+
+        # Summary
+        summary = [
+            amount
+            for amount in amounts.values()
+            if isinstance(amount, dict) and "total_amount" in amount
+        ]
+
+        summary = sum(
+            amount["total_amount"] for amount in summary if "total_amount" in amount
+        )
+
+        if summary == 0:
+            return None
+
+        amounts["summary"] = {
+            "total_amount": summary,
+        }
+
+        # Dynamische Income/Cost-Typen für das Template
+        income_types = [("bounty_income", _("Ratting")), ("ess_income", _("ESS"))]
+        income_types += [
+            (f"{ref_type.lower()}_income", _(ref_type.replace("_", " ").title()))
+            for ref_type in ref_types
+        ]
+        cost_types = [
+            (f"{ref_type.lower()}_cost", _(ref_type.replace("_", " ").title()))
+            for ref_type in ref_types
+        ]
+        amounts["income_types"] = income_types
+        amounts["cost_types"] = cost_types
+        return amounts
 
     def _add_average_details(self, request, amounts, day: int = None):
         """Add average details to the amounts dictionary, skipping if no data or total is 0."""

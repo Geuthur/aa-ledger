@@ -231,6 +231,7 @@ class CharacterData(LedgerCore):
         )
         self.billboard.create_ratting_bar()
 
+    # pylint: disable=duplicate-code
     def _create_character_details(self) -> dict:
         """Create the character amounts for the Details View."""
         self.setup_ledger(self.character)
@@ -255,50 +256,17 @@ class CharacterData(LedgerCore):
             if ess_income > 0:
                 amounts["ess_income"] = {"total_amount": ess_income}
 
-        # Income Ref Types
+        # Income/Cost Ref Types (DRY, mit special case donation)
         for ref_type, value in ref_types.items():
             ref_type_name = ref_type.lower()
+            for kind, income_flag in (("income", True), ("cost", False)):
+                kwargs = {"ref_type": value, "income": income_flag}
+                if ref_type_name == "donation":
+                    kwargs["exclude"] = self.alts_ids
 
-            # Check if the ref_type is a donation and handle it accordingly
-            if ref_type_name == "donation":
-                aggregated_data = self.journal.aggregate_ref_type(
-                    ref_type=value,
-                    income=True,
-                    exclude=self.alts_ids,
-                )
-
-                aggregated_data_cost = self.journal.aggregate_ref_type(
-                    ref_type=value,
-                    income=False,
-                    exclude=self.alts_ids,
-                )
-
-                if aggregated_data > 0:
-                    amounts[f"{ref_type_name}_income"] = {
-                        "total_amount": aggregated_data
-                    }
-
-                if aggregated_data_cost < 0:
-                    amounts[f"{ref_type_name}_cost"] = {
-                        "total_amount": aggregated_data_cost
-                    }
-                continue
-
-            aggregated_data = self.journal.aggregate_ref_type(
-                ref_type=value,
-                income=True,
-            )
-            if aggregated_data > 0:
-                amounts[f"{ref_type_name}_income"] = {"total_amount": aggregated_data}
-
-            aggregated_data_cost = self.journal.aggregate_ref_type(
-                ref_type=value,
-                income=False,
-            )
-            if aggregated_data_cost < 0:
-                amounts[f"{ref_type_name}_cost"] = {
-                    "total_amount": aggregated_data_cost
-                }
+                agg = self.journal.aggregate_ref_type(**kwargs)
+                if (income_flag and agg > 0) or (not income_flag and agg < 0):
+                    amounts[f"{ref_type_name}_{kind}"] = {"total_amount": agg}
 
         # Summary
         summary = [

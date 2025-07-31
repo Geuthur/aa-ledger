@@ -217,13 +217,15 @@ class RefTypeCategories:
         JournalRefType.CONTRACT_DEPOSIT_SALES_TAX.name.lower(),
         JournalRefType.CONTRACT_AUCTION_BID_CORP.name.lower(),
         JournalRefType.CONTRACT_COLLATERAL_DEPOSITED_CORP.name.lower(),
-        JournalRefType.CONTRACT_PRICE_PAYMENT_CORP.name.lower(),
-        JournalRefType.CONTRACT_BROKERS_FEE_CORP.name.lower(),
         JournalRefType.CONTRACT_DEPOSIT_CORP.name.lower(),
         JournalRefType.CONTRACT_DEPOSIT_REFUND.name.lower(),
         JournalRefType.CONTRACT_REWARD_DEPOSITED.name.lower(),
         JournalRefType.CONTRACT_REWARD_DEPOSITED_CORP.name.lower(),
         JournalRefType.CONTRACT_REVERSAL.name.lower(),
+    ]
+
+    CORPORATION_CONTRACT = [
+        JournalRefType.CONTRACT_PRICE_PAYMENT_CORP.name.lower(),
     ]
 
     CORPORATION_ADMINISTRATION = [
@@ -354,6 +356,7 @@ class RefTypeCategories:
             "ASSETS": cls.ASSETS,
             "CONTRACT": cls.CONTRACT,
             "CORPORATION_ADMINISTRATION": cls.CORPORATION_ADMINISTRATION,
+            "CORPORATION_CONTRACT": cls.CORPORATION_CONTRACT,
             "DAILY_GOAL_REWARD": cls.DAILY_GOAL_REWARD,
             "DONATION": cls.DONATION,
             "FREELANCE_JOBS": cls.FREELANCE_JOBS,
