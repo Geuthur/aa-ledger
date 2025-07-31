@@ -50,10 +50,10 @@ class CorporationData(LedgerCore):
         LedgerCore.__init__(self, year, month, day)
         self.request = request
         self.corporation = corporation
+        self.create_account_information()
 
-    def setup_ledger(self, entity: LedgerEntity = None):
-        """Setup the Ledger Data for the Corporation."""
-
+    def create_account_information(self):
+        """Create the account information for the corporation."""
         # Get all Auth Accounts with main character
         self.accounts = (
             UserProfile.objects.filter(
@@ -66,6 +66,10 @@ class CorporationData(LedgerCore):
                 "user__profile__main_character__character_name",
             )
         )
+        self.account_char_ids = self.get_all_account_ids(accounts=self.accounts)
+
+    def setup_ledger(self, entity: LedgerEntity = None):
+        """Setup the Ledger Data for the Corporation."""
 
         if entity is not None:
             if (
@@ -101,6 +105,7 @@ class CorporationData(LedgerCore):
                         Q(first_party_id__in=NPC_ENTITIES)
                         | Q(second_party_id__in=NPC_ENTITIES)
                     )
+
                 # If the entity is a corporation or alliance, we need to exclude the accounts Character IDs
                 # from the journal to prevent double counting
                 if entity.type in ["alliance", "corporation"]:
@@ -177,14 +182,24 @@ class CorporationData(LedgerCore):
         miscellaneous = Decimal(0)
         costs = Decimal(0)
 
+        def special_cases(row):
+            """Handle special cases for the corporation."""
+            # Skip Market Transactions from buyer between the corporation and its members (only count transactions from creator)
+            if row["ref_type"] == "market_transaction" and row["first_party_id"] in ids:
+                return True
+            # Skip Contract if Contract Creator is Registered as a Member of the Corporation (only count the contract creator)
+            if (
+                row["ref_type"] == "contract_price_payment_corp"
+                and row["first_party_id"] in self.account_char_ids
+                and row["second_party_id"] in ids
+            ):
+                return True
+            return False
+
         for pk, rows in list(self.entries.items()):
             for row in rows:
                 if row["first_party_id"] in ids or row["second_party_id"] in ids:
-                    # Skip Market Transactions from buyer between the corporation and its members (Only Count Seller)
-                    if (
-                        row["ref_type"] == "market_transaction"
-                        and row["first_party_id"] in ids
-                    ):
+                    if special_cases(row):
                         continue
                     bounty += row.get("bounty") or Decimal(0)
                     ess += row.get("ess") or Decimal(0)
@@ -399,75 +414,3 @@ class CorporationData(LedgerCore):
             rattingbar, is_char_ledger=is_char_ledger
         )
         self.billboard.create_ratting_bar()
-
-    # pylint: disable=duplicate-code
-    def _create_corporation_details(self, entity: LedgerEntity) -> dict:
-        """Create the corporation amounts for the Details View."""
-        self.setup_ledger(entity=entity)
-
-        amounts = {}
-
-        ref_types = RefTypeCategories.get_all_categories()
-
-        # Bounty Income
-        if not entity.entity_id == 1000125:  # Remove Concord Bountys
-            bounty_income = self.journal.aggregate_bounty()
-            if bounty_income > 0:
-                amounts["bounty_income"] = {"total_amount": bounty_income}
-
-        # ESS Income (nur wenn bounty_income existiert)
-        ess_income = self.journal.aggregate_ess()
-        if ess_income > 0:
-            amounts["ess_income"] = {"total_amount": ess_income}
-
-        # Income Ref Types
-        for ref_type, value in ref_types.items():
-            ref_type_name = ref_type.lower()
-
-            aggregated_data = self.journal.aggregate_ref_type(
-                ref_type=value,
-                income=True,
-            )
-            if aggregated_data > 0:
-                amounts[f"{ref_type_name}_income"] = {"total_amount": aggregated_data}
-
-            aggregated_data_cost = self.journal.aggregate_ref_type(
-                ref_type=value,
-                income=False,
-            )
-            if aggregated_data_cost < 0:
-                amounts[f"{ref_type_name}_cost"] = {
-                    "total_amount": aggregated_data_cost
-                }
-
-        # Summary
-        summary = [
-            amount
-            for amount in amounts.values()
-            if isinstance(amount, dict) and "total_amount" in amount
-        ]
-
-        summary = sum(
-            amount["total_amount"] for amount in summary if "total_amount" in amount
-        )
-
-        if summary == 0:
-            return None
-
-        amounts["summary"] = {
-            "total_amount": summary,
-        }
-
-        # Dynamische Income/Cost-Typen für das Template
-        income_types = [("bounty_income", _("Ratting")), ("ess_income", _("ESS"))]
-        income_types += [
-            (f"{ref_type.lower()}_income", _(ref_type.replace("_", " ").title()))
-            for ref_type in ref_types
-        ]
-        cost_types = [
-            (f"{ref_type.lower()}_cost", _(ref_type.replace("_", " ").title()))
-            for ref_type in ref_types
-        ]
-        amounts["income_types"] = income_types
-        amounts["cost_types"] = cost_types
-        return amounts
