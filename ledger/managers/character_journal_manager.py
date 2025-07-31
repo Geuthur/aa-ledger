@@ -19,7 +19,7 @@ from ledger.decorators import log_timing
 from ledger.helpers.etag import (
     etag_results,
 )
-from ledger.helpers.ref_type import RefTypeCategories
+from ledger.helpers.ref_type import RefTypeManager
 from ledger.providers import esi
 
 if TYPE_CHECKING:
@@ -39,9 +39,7 @@ class CharWalletIncomeFilter(models.QuerySet):
             bounty_income=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(
-                        ref_type__in=RefTypeCategories.BOUNTY_PRIZES, amount__gt=0
-                    ),
+                    filter=Q(ref_type__in=RefTypeManager.BOUNTY_PRIZES, amount__gt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -53,9 +51,7 @@ class CharWalletIncomeFilter(models.QuerySet):
             mission_income=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(
-                        ref_type__in=RefTypeCategories.MISSION_REWARD, amount__gt=0
-                    ),
+                    filter=Q(ref_type__in=RefTypeManager.MISSION_REWARD, amount__gt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -67,7 +63,7 @@ class CharWalletIncomeFilter(models.QuerySet):
             incursion_income=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.INCURSION, amount__gt=0),
+                    filter=Q(ref_type__in=RefTypeManager.INCURSION, amount__gt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -80,7 +76,7 @@ class CharWalletIncomeFilter(models.QuerySet):
             market_income=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.MARKET, amount__gt=0),
+                    filter=Q(ref_type__in=RefTypeManager.MARKET, amount__gt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -88,11 +84,14 @@ class CharWalletIncomeFilter(models.QuerySet):
         )
 
     def annotate_contract_income(self) -> models.QuerySet:
+        contract_types = list(RefTypeManager.CONTRACT) + list(
+            RefTypeManager.CORPORATION_CONTRACT
+        )
         return self.annotate(
             contract_income=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.CONTRACT, amount__gt=0),
+                    filter=Q(ref_type__in=contract_types, amount__gt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -107,7 +106,7 @@ class CharWalletIncomeFilter(models.QuerySet):
             donation_income=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.DONATION, amount__gt=0)
+                    filter=Q(ref_type__in=RefTypeManager.DONATION, amount__gt=0)
                     & ~Q(first_party_id__in=exclude),
                 ),
                 Value(0),
@@ -120,7 +119,7 @@ class CharWalletIncomeFilter(models.QuerySet):
             insurance_income=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.INSURANCE, amount__gt=0),
+                    filter=Q(ref_type__in=RefTypeManager.INSURANCE, amount__gt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -133,7 +132,7 @@ class CharWalletIncomeFilter(models.QuerySet):
                 Sum(
                     "amount",
                     filter=Q(
-                        ref_type__in=RefTypeCategories.MILESTONE_REWARD, amount__gt=0
+                        ref_type__in=RefTypeManager.MILESTONE_REWARD, amount__gt=0
                     ),
                 ),
                 Value(0),
@@ -148,7 +147,7 @@ class CharWalletIncomeFilter(models.QuerySet):
                 Sum(
                     "amount",
                     filter=Q(
-                        ref_type__in=RefTypeCategories.DAILY_GOAL_REWARD, amount__gt=0
+                        ref_type__in=RefTypeManager.DAILY_GOAL_REWARD, amount__gt=0
                     ),
                 ),
                 Value(0),
@@ -163,9 +162,7 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
             miscellaneous=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(
-                        ref_type__in=RefTypeCategories.all_ref_types(), amount__gt=0
-                    ),
+                    filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -202,9 +199,7 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
             costs=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(
-                        ref_type__in=RefTypeCategories.all_ref_types(), amount__lt=0
-                    ),
+                    filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -219,7 +214,7 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
             contract_cost=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.CONTRACT, amount__lt=0),
+                    filter=Q(ref_type__in=RefTypeManager.CONTRACT, amount__lt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -231,7 +226,7 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
             market_cost=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.MARKET, amount__lt=0),
+                    filter=Q(ref_type__in=RefTypeManager.MARKET, amount__lt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -243,7 +238,7 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
             asset_cost=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.ASSETS, amount__lt=0),
+                    filter=Q(ref_type__in=RefTypeManager.ASSETS, amount__lt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -255,7 +250,7 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
             traveling_cost=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.TRAVELING, amount__lt=0),
+                    filter=Q(ref_type__in=RefTypeManager.TRAVELING, amount__lt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -267,7 +262,7 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
             production_cost=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.PRODUCTION, amount__lt=0),
+                    filter=Q(ref_type__in=RefTypeManager.PRODUCTION, amount__lt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -279,7 +274,7 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
             skill_cost=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.SKILL, amount__lt=0),
+                    filter=Q(ref_type__in=RefTypeManager.SKILL, amount__lt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -291,7 +286,7 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
             insurance_cost=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.INSURANCE, amount__lt=0),
+                    filter=Q(ref_type__in=RefTypeManager.INSURANCE, amount__lt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -303,7 +298,7 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
             planetary_cost=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.PLANETARY, amount__lt=0),
+                    filter=Q(ref_type__in=RefTypeManager.PLANETARY, amount__lt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -315,7 +310,7 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
             lp_cost=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeCategories.LP, amount__lt=0),
+                    filter=Q(ref_type__in=RefTypeManager.LP, amount__lt=0),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -405,15 +400,15 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
 
     def aggregate_bounty(self) -> dict:
         """Aggregate bounty income."""
-        return self.filter(ref_type__in=RefTypeCategories.BOUNTY_PRIZES).aggregate(
+        return self.filter(ref_type__in=RefTypeManager.BOUNTY_PRIZES).aggregate(
             total_bounty=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
         )["total_bounty"]
 
     def aggregate_costs(self, first_party=None, second_party=None) -> dict:
         """Aggregate costs. first_party wird für donation exkludiert."""
         qs = self
-        cost_types = RefTypeCategories.all_ref_types()
-        donation_types = RefTypeCategories.DONATION
+        cost_types = RefTypeManager.all_ref_types()
+        donation_types = RefTypeManager.DONATION
 
         if first_party is not None:
             if isinstance(first_party, int):
@@ -440,8 +435,8 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         """Aggregate miscellaneous income. first_party wird nur für donation angewandt."""
         qs = self
 
-        misc_types = RefTypeCategories.all_ref_types()
-        donation_types = RefTypeCategories.DONATION
+        misc_types = RefTypeManager.all_ref_types()
+        donation_types = RefTypeManager.DONATION
 
         if first_party is not None:
             if isinstance(first_party, int):
