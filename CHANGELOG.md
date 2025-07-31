@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.9.2] - 2025-07-31
+
+### Changed
+
+- renamed `RefTypeCategories` to `RefTypeManager`
+- make all in one function for ref types
+- moved `_create_corporation_details` to core.py
+- Special cases handled by RefTypeManager
+
+### Fixed
+
+- Some Characters not shown in Character Ledger
+
 ## [0.9.1] - 2025-07-30
 
 ### Added
