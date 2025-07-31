@@ -6,7 +6,6 @@ from decimal import Decimal
 
 # Django
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import Sum
 from django.utils.translation import gettext as _
 
 # Alliance Auth
@@ -17,8 +16,8 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.helpers.core import LedgerCore
-from ledger.helpers.ref_type import RefTypeCategories
+from ledger.helpers.core import LedgerCore, LedgerEntity
+from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.characteraudit import (
     CharacterAudit,
     CharacterMiningLedger,
@@ -43,9 +42,10 @@ class CharacterData(LedgerCore):
         LedgerCore.__init__(self, year, month, day)
         self.request = request
         self.character = character
+        self.alts_ids = self.get_alt_ids
 
     @property
-    def alts_ids(self):
+    def get_alt_ids(self):
         return self.character.alts.values_list("character_id", flat=True)
 
     def setup_ledger(self, character: CharacterAudit):
@@ -59,15 +59,11 @@ class CharacterData(LedgerCore):
         if self.request.GET.get("all", False):
             self.journal = CharacterWalletJournalEntry.objects.filter(
                 self.filter_date,
-                character__eve_character__character_id__in=self.character.alts.values_list(
-                    "character_id", flat=True
-                ),
+                character__eve_character__character_id__in=self.alts_ids,
             )
             self.mining = CharacterMiningLedger.objects.filter(
                 self.filter_date,
-                character__eve_character__character_id__in=self.character.alts.values_list(
-                    "character_id", flat=True
-                ),
+                character__eve_character__character_id__in=self.alts_ids,
             )
         else:
             # Get Journal Entries for the Character and its Alts
@@ -135,13 +131,8 @@ class CharacterData(LedgerCore):
         """Create a dictionary with character data and update billboard/ledger."""
         self.setup_ledger(character)
 
+        # If no journal or mining data exists, return None
         if not self.journal.exists() and not self.mining.exists():
-            return None
-
-        journal_sum = self.journal.aggregate(total=Sum("amount"))["total"] or 0
-        mining_sum = self.mining.aggregate(total=Sum("quantity"))["total"] or 0
-
-        if journal_sum == 0 and mining_sum == 0:
             return None
 
         bounty = self.journal.aggregate_bounty()
@@ -149,7 +140,19 @@ class CharacterData(LedgerCore):
         mining_val = self.mining.aggregate_mining()
         costs = self.journal.aggregate_costs(second_party=self.alts_ids)
         miscellaneous = self.journal.aggregate_miscellaneous(first_party=self.alts_ids)
-        total = bounty + ess + mining_val + miscellaneous + costs
+        total = sum(
+            [
+                bounty,
+                ess,
+                mining_val,
+                costs,
+                miscellaneous,
+            ]
+        )
+
+        # If total is 0, we do not need to create a character data entry
+        if int(total) == 0:
+            return None
 
         update_states = {}
 
@@ -231,14 +234,14 @@ class CharacterData(LedgerCore):
         )
         self.billboard.create_ratting_bar()
 
+    # pylint: disable=duplicate-code
     def _create_character_details(self) -> dict:
         """Create the character amounts for the Details View."""
         self.setup_ledger(self.character)
 
         amounts = {}
 
-        ref_types_income = RefTypeCategories.get_miscellaneous()
-        ref_types_costs = RefTypeCategories.get_costs()
+        ref_types = RefTypeManager.get_all_categories()
 
         # Bounty Income
         bounty_income = self.journal.aggregate_bounty()
@@ -256,51 +259,26 @@ class CharacterData(LedgerCore):
             if ess_income > 0:
                 amounts["ess_income"] = {"total_amount": ess_income}
 
-        # Income Ref Types
-        for ref_type, value in ref_types_income.items():
+        # Income/Cost Ref Types (DRY, mit special case donation)
+        for ref_type, value in ref_types.items():
             ref_type_name = ref_type.lower()
-
-            # Check if the ref_type is a donation and handle it accordingly
-            if ref_type_name == "donation":
-                aggregated_data = self.journal.aggregate_ref_type(
-                    ref_type=value,
-                    income=True,
-                    exclude=self.alts_ids,
+            for kind, income_flag in (("income", True), ("cost", False)):
+                kwargs = {"ref_type": value, "income": income_flag}
+                entity = LedgerEntity(
+                    entity_id=self.character.eve_character.character_id,
+                    character_obj=self.character.eve_character,
                 )
-                if aggregated_data > 0:
-                    amounts[f"{ref_type_name}_income"] = {
-                        "total_amount": aggregated_data
-                    }
-                continue
-
-            aggregated_data = self.journal.aggregate_ref_type(
-                ref_type=value,
-                income=True,
-            )
-            if aggregated_data > 0:
-                amounts[f"{ref_type_name}_income"] = {"total_amount": aggregated_data}
-
-        # Cost Ref Types
-        for ref_type, value in ref_types_costs.items():
-            ref_type_name = ref_type.lower()
-
-            # Check if the ref_type is a donation and handle it accordingly
-            if ref_type_name == "donation":
-                aggregated_data = self.journal.aggregate_ref_type(
-                    ref_type=value,
-                    income=False,
-                    exclude=self.alts_ids,
+                kwargs = RefTypeManager.special_cases_details(
+                    value,
+                    entity,
+                    kwargs,
+                    journal_type="character",
+                    char_ids=self.alts_ids,
                 )
-                if aggregated_data < 0:
-                    amounts[f"{ref_type_name}_cost"] = {"total_amount": aggregated_data}
-                continue
 
-            aggregated_data = self.journal.aggregate_ref_type(
-                ref_type=value,
-                income=False,
-            )
-            if aggregated_data < 0:
-                amounts[f"{ref_type_name}_cost"] = {"total_amount": aggregated_data}
+                agg = self.journal.aggregate_ref_type(**kwargs)
+                if (income_flag and agg > 0) or (not income_flag and agg < 0):
+                    amounts[f"{ref_type_name}_{kind}"] = {"total_amount": agg}
 
         # Summary
         summary = [
@@ -319,11 +297,11 @@ class CharacterData(LedgerCore):
         income_types = [("bounty_income", _("Ratting")), ("ess_income", _("ESS"))]
         income_types += [
             (f"{ref_type.lower()}_income", _(ref_type.replace("_", " ").title()))
-            for ref_type in ref_types_income
+            for ref_type in ref_types
         ]
         cost_types = [
             (f"{ref_type.lower()}_cost", _(ref_type.replace("_", " ").title()))
-            for ref_type in ref_types_costs
+            for ref_type in ref_types
         ]
         amounts["income_types"] = income_types
         amounts["cost_types"] = cost_types

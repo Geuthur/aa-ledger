@@ -2,6 +2,10 @@
 
 # Standard Library
 import enum
+from typing import TYPE_CHECKING
+
+# Django
+from django.utils.translation import gettext as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
@@ -11,6 +15,10 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
+
+if TYPE_CHECKING:
+    # AA Ledger
+    from ledger.helpers.core import LedgerEntity
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -181,8 +189,24 @@ class JournalRefType(enum.Enum):
     GM_PLEX_FEE_REFUND = 192
 
 
-class RefTypeCategories:
+class RefTypeManager:
     """Categories for wallet journal reference types."""
+
+    # Translations for reference types
+    _("Corporation Contract")
+    _("Corporation Withdrawal")
+    _("Mission Reward")
+    _("Market")
+    _("Rental")
+    _("Daily Goal Reward")
+
+    # Assets/Items
+    ASSETS = [
+        JournalRefType.REPAIR_BILL.name.lower(),
+        JournalRefType.ASSET_SAFETY_RECOVERY_TAX.name.lower(),
+        JournalRefType.REPROCESSING_TAX.name.lower(),
+        JournalRefType.ITEM_TRADER_PAYMENT.name.lower(),
+    ]
 
     # PVE Income
     BOUNTY_PRIZES = [
@@ -191,43 +215,6 @@ class RefTypeCategories:
         JournalRefType.BOUNTY_PRIZES.name.lower(),
         JournalRefType.BOUNTY_REIMBURSEMENT.name.lower(),
         JournalRefType.BOUNTY_SURCHARGE.name.lower(),
-    ]
-
-    MISSION_REWARD = [
-        JournalRefType.MISSION_REWARD.name.lower(),
-        JournalRefType.MISSION_COMPLETION.name.lower(),
-        JournalRefType.AGENT_MISSION_REWARD.name.lower(),
-        JournalRefType.AGENT_MISSION_TIME_BONUS_REWARD.name.lower(),
-        JournalRefType.AGENTS_PREWARD.name.lower(),
-    ]
-
-    ESS_TRANSFER = [
-        JournalRefType.ESS_ESCROW_TRANSFER.name.lower(),
-    ]
-
-    INCURSION = [
-        JournalRefType.RESOURCE_WARS_REWARD.name.lower(),
-        JournalRefType.INSURGENCY_CORRUPTION_CONTRIBUTION_REWARD.name.lower(),
-        JournalRefType.INSURGENCY_SUPPRESSION_CONTRIBUTION_REWARD.name.lower(),
-        JournalRefType.CORPORATE_REWARD_PAYOUT.name.lower(),
-    ]
-
-    DAILY_GOAL_REWARD = [
-        JournalRefType.DAILY_GOAL_PAYOUTS.name.lower(),
-        JournalRefType.DAILY_CHALLENGE_REWARD.name.lower(),
-        JournalRefType.SEASON_CHALLENGE_REWARD.name.lower(),
-        JournalRefType.OPPORTUNITY_REWARD.name.lower(),
-        JournalRefType.AIR_CAREER_PROGRAM_REWARD.name.lower(),
-    ]
-
-    # Trading Income
-    MARKET = [
-        JournalRefType.MARKET_TRANSACTION.name.lower(),
-        JournalRefType.MARKET_ESCROW.name.lower(),
-        JournalRefType.BROKERS_FEE.name.lower(),
-        JournalRefType.TRANSACTION_TAX.name.lower(),
-        JournalRefType.MARKET_FINE_PAID.name.lower(),
-        JournalRefType.MARKET_PROVIDER_TAX.name.lower(),
     ]
 
     CONTRACT = [
@@ -246,8 +233,6 @@ class RefTypeCategories:
         JournalRefType.CONTRACT_DEPOSIT_SALES_TAX.name.lower(),
         JournalRefType.CONTRACT_AUCTION_BID_CORP.name.lower(),
         JournalRefType.CONTRACT_COLLATERAL_DEPOSITED_CORP.name.lower(),
-        JournalRefType.CONTRACT_PRICE_PAYMENT_CORP.name.lower(),
-        JournalRefType.CONTRACT_BROKERS_FEE_CORP.name.lower(),
         JournalRefType.CONTRACT_DEPOSIT_CORP.name.lower(),
         JournalRefType.CONTRACT_DEPOSIT_REFUND.name.lower(),
         JournalRefType.CONTRACT_REWARD_DEPOSITED.name.lower(),
@@ -255,25 +240,70 @@ class RefTypeCategories:
         JournalRefType.CONTRACT_REVERSAL.name.lower(),
     ]
 
-    CORPORATION_CONTRACT = [
-        JournalRefType.CONTRACT_PRICE_PAYMENT_CORP.name.lower(),
-    ]
-
-    CORPORATION = [
+    CORPORATION_ADMINISTRATION = [
         JournalRefType.CORPORATION_DIVIDEND_PAYMENT.name.lower(),
         JournalRefType.CORPORATION_REGISTRATION_FEE.name.lower(),
         JournalRefType.CORPORATION_LOGO_CHANGE_COST.name.lower(),
         JournalRefType.CORPORATION_BULK_PAYMENT.name.lower(),
+        JournalRefType.ADVERTISEMENT_LISTING_FEE.name.lower(),
+    ]
+
+    CORPORATION_CONTRACT = [
+        JournalRefType.CONTRACT_PRICE_PAYMENT_CORP.name.lower(),
+    ]
+
+    CORPORATION_DONATION = [
+        JournalRefType.CORPORATION_ACCOUNT_WITHDRAWAL.name.lower(),
+    ]
+
+    DAILY_GOAL_REWARD = [
+        JournalRefType.DAILY_GOAL_PAYOUTS.name.lower(),
+        JournalRefType.DAILY_CHALLENGE_REWARD.name.lower(),
+        JournalRefType.SEASON_CHALLENGE_REWARD.name.lower(),
+        JournalRefType.OPPORTUNITY_REWARD.name.lower(),
+        JournalRefType.AIR_CAREER_PROGRAM_REWARD.name.lower(),
     ]
 
     DONATION = [
-        JournalRefType.CORPORATION_ACCOUNT_WITHDRAWAL.name.lower(),
         JournalRefType.PLAYER_DONATION.name.lower(),
         JournalRefType.AGENT_DONATION.name.lower(),
     ]
 
+    ESS_TRANSFER = [
+        JournalRefType.ESS_ESCROW_TRANSFER.name.lower(),
+    ]
+
+    FREELANCE_JOBS = [
+        JournalRefType.FREELANCE_JOBS_DURATION_FEE.name.lower(),
+        JournalRefType.FREELANCE_JOBS_BROADCASTING_FEE.name.lower(),
+        JournalRefType.FREELANCE_JOBS_REWARD_ESCROW.name.lower(),
+        JournalRefType.FREELANCE_JOBS_REWARD.name.lower(),
+        JournalRefType.FREELANCE_JOBS_ESCROW_REFUND.name.lower(),
+        JournalRefType.FREELANCE_JOBS_REWARD_CORPORATION_TAX.name.lower(),
+    ]
+
+    INCURSION = [
+        JournalRefType.RESOURCE_WARS_REWARD.name.lower(),
+        JournalRefType.INSURGENCY_CORRUPTION_CONTRIBUTION_REWARD.name.lower(),
+        JournalRefType.INSURGENCY_SUPPRESSION_CONTRIBUTION_REWARD.name.lower(),
+        JournalRefType.CORPORATE_REWARD_PAYOUT.name.lower(),
+    ]
+
     INSURANCE = [
         JournalRefType.INSURANCE.name.lower(),
+    ]
+
+    LP = [
+        JournalRefType.LP_STORE.name.lower(),
+    ]
+
+    MARKET = [
+        JournalRefType.MARKET_TRANSACTION.name.lower(),
+        JournalRefType.MARKET_ESCROW.name.lower(),
+        JournalRefType.BROKERS_FEE.name.lower(),
+        JournalRefType.TRANSACTION_TAX.name.lower(),
+        JournalRefType.MARKET_FINE_PAID.name.lower(),
+        JournalRefType.MARKET_PROVIDER_TAX.name.lower(),
     ]
 
     MILESTONE_REWARD = [
@@ -282,7 +312,20 @@ class RefTypeCategories:
         JournalRefType.PROJECT_PAYOUTS.name.lower(),
     ]
 
-    # Production/Industry
+    MISSION_REWARD = [
+        JournalRefType.MISSION_REWARD.name.lower(),
+        JournalRefType.MISSION_COMPLETION.name.lower(),
+        JournalRefType.AGENT_MISSION_REWARD.name.lower(),
+        JournalRefType.AGENT_MISSION_TIME_BONUS_REWARD.name.lower(),
+        JournalRefType.AGENTS_PREWARD.name.lower(),
+    ]
+
+    PLANETARY = [
+        JournalRefType.PLANETARY_IMPORT_TAX.name.lower(),
+        JournalRefType.PLANETARY_EXPORT_TAX.name.lower(),
+        JournalRefType.PLANETARY_CONSTRUCTION.name.lower(),
+    ]
+
     PRODUCTION = [
         JournalRefType.MANUFACTURING.name.lower(),
         JournalRefType.RESEARCHING_TECHNOLOGY.name.lower(),
@@ -294,13 +337,6 @@ class RefTypeCategories:
         JournalRefType.REACTION.name.lower(),
     ]
 
-    # Planetary
-    PLANETARY = [
-        JournalRefType.PLANETARY_IMPORT_TAX.name.lower(),
-        JournalRefType.PLANETARY_EXPORT_TAX.name.lower(),
-        JournalRefType.PLANETARY_CONSTRUCTION.name.lower(),
-    ]
-
     RENTAL = [
         JournalRefType.OFFICE_RENTAL_FEE.name.lower(),
         JournalRefType.FACTORY_SLOT_RENTAL_FEE.name.lower(),
@@ -308,15 +344,11 @@ class RefTypeCategories:
         JournalRefType.INFRASTRUCTURE_HUB_MAINTENANCE.name.lower(),
     ]
 
-    # Assets/Items
-    ASSETS = [
-        JournalRefType.REPAIR_BILL.name.lower(),
-        JournalRefType.ASSET_SAFETY_RECOVERY_TAX.name.lower(),
-        JournalRefType.REPROCESSING_TAX.name.lower(),
-        JournalRefType.ITEM_TRADER_PAYMENT.name.lower(),
+    SKILL = [
+        JournalRefType.SKILL_PURCHASE.name.lower(),
+        JournalRefType.DATACORE_FEE.name.lower(),
     ]
 
-    # Traveling/Movement
     TRAVELING = [
         JournalRefType.DOCKING_FEE.name.lower(),
         JournalRefType.ACCELERATION_GATE_FEE.name.lower(),
@@ -328,139 +360,91 @@ class RefTypeCategories:
         JournalRefType.ALLIGNMENT_BASED_GATE_TOLL.name.lower(),
     ]
 
-    # Propaganda/Information
-    INFORMATION = [
-        JournalRefType.ADVERTISEMENT_LISTING_FEE.name.lower(),
-    ]
-
-    # Skills/Learning
-    SKILL = [
-        JournalRefType.SKILL_PURCHASE.name.lower(),
-        JournalRefType.DATACORE_FEE.name.lower(),
-    ]
-
-    # LP Store
-    LP = [
-        JournalRefType.LP_STORE.name.lower(),
-    ]
-
     @classmethod
-    def get_category_values(cls, category_name: str) -> list[str]:
-        """Get all ref type values for a category."""
-        return getattr(cls, category_name, [])
+    def get_ref_types_from_category(cls, category: str) -> list[str]:
+        """Get all ref types from a specific category."""
+        if hasattr(cls, category):
+            return getattr(cls, category)
+        logger.debug(f"Category '{category}' does not exist in RefTypeCategories.")
+        return []
 
     @classmethod
     def get_all_categories(cls) -> dict[str, list[str]]:
-        """Get all categories and their ref types."""
-        return {
-            "ASSETS": cls.ASSETS,
-            "BOUNTY_PRIZES": cls.BOUNTY_PRIZES,
-            "MISSION_REWARD": cls.MISSION_REWARD,
-            "ESS_TRANSFER": cls.ESS_TRANSFER,
-            "CORPORATION": cls.CORPORATION,
-            "INCURSION": cls.INCURSION,
-            "DAILY_GOAL_REWARD": cls.DAILY_GOAL_REWARD,
-            "MARKET": cls.MARKET,
-            "CONTRACT": cls.CONTRACT,
-            "DONATION": cls.DONATION,
-            "INSURANCE": cls.INSURANCE,
-            "MILESTONE_REWARD": cls.MILESTONE_REWARD,
-            "PRODUCTION": cls.PRODUCTION,
-            "PLANETARY": cls.PLANETARY,
-            "TRAVELING": cls.TRAVELING,
-            "SKILL": cls.SKILL,
-            "LP": cls.LP,
-        }
-
-    @classmethod
-    def get_costs(cls) -> dict[str, list[str]]:
-        """Get all cost categories and their ref types."""
+        """Get all categories and their ref types, sorted alphabetically by key in the dict literal."""
         return {
             "ASSETS": cls.ASSETS,
             "CONTRACT": cls.CONTRACT,
-            "CORPORATION": cls.CORPORATION,
+            "CORPORATION_ADMINISTRATION": cls.CORPORATION_ADMINISTRATION,
+            "CORPORATION_CONTRACT": cls.CORPORATION_CONTRACT,
+            "CORPORATION_WITHDRAWAL": cls.CORPORATION_DONATION,
             "DAILY_GOAL_REWARD": cls.DAILY_GOAL_REWARD,
             "DONATION": cls.DONATION,
+            "FREELANCE_JOBS": cls.FREELANCE_JOBS,
             "INCURSION": cls.INCURSION,
             "INSURANCE": cls.INSURANCE,
             "LP": cls.LP,
-            "MISSION_REWARD": cls.MISSION_REWARD,
             "MARKET": cls.MARKET,
-            "PRODUCTION": cls.PRODUCTION,
-            "PLANETARY": cls.PLANETARY,
-            "RENTAL": cls.RENTAL,
-            "INFORMATION": cls.INFORMATION,
-            "SKILL": cls.SKILL,
-            "TRAVELING": cls.TRAVELING,
-        }
-
-    @classmethod
-    def get_costs_corporation(cls) -> dict[str, list[str]]:
-        """Get all cost categories and their ref types."""
-        return {
-            "CONTRACT": cls.CORPORATION_CONTRACT,
-        }
-
-    @classmethod
-    def get_miscellaneous(cls) -> dict[str, list[str]]:
-        """Get all miscellaneous categories and their ref types."""
-        return {
-            "ASSETS": cls.ASSETS,
-            "CONTRACT": cls.CONTRACT,
-            "CORPORATION": cls.CORPORATION,
-            "DAILY_GOAL_REWARD": cls.DAILY_GOAL_REWARD,
-            "DONATION": cls.DONATION,
-            "INCURSION": cls.INCURSION,
-            "INSURANCE": cls.INSURANCE,
-            "LP": cls.LP,
             "MISSION_REWARD": cls.MISSION_REWARD,
-            "MARKET": cls.MARKET,
-            "PRODUCTION": cls.PRODUCTION,
             "PLANETARY": cls.PLANETARY,
+            "PRODUCTION": cls.PRODUCTION,
             "RENTAL": cls.RENTAL,
             "SKILL": cls.SKILL,
             "TRAVELING": cls.TRAVELING,
         }
 
     @classmethod
-    def get_miscellaneous_corporation(cls) -> dict[str, list[str]]:
-        """Get all miscellaneous categories and their ref types for corporations."""
-        return {
-            "DAILY_GOAL_REWARD": cls.DAILY_GOAL_REWARD,
-        }
+    def all_ref_types(cls) -> list[str]:
+        """Get all ref types from all categories."""
+        all_ref_types = cls.get_all_categories()
+        ref_types_items = []
+        for __, ref_types in all_ref_types.items():
+            ref_types_items.extend(ref_types)
+        return ref_types_items
 
-    @classmethod
-    def costs(cls) -> list[str]:
-        """Get all cost categories and their ref types."""
-        costs_ref_types = cls.get_costs()
-        costs = []
-        for __, ref_types in costs_ref_types.items():
-            costs.extend(ref_types)
-        return costs
+    @staticmethod
+    def special_cases(row: dict, ids: set[int], account_char_ids: set[int]) -> bool:
+        """Handle special cases in Ledger."""
+        if isinstance(row, dict) is False:
+            logger.debug("Row is not a dictionary, skipping special case checks.")
+            return False
 
-    @classmethod
-    def costs_corporation(cls) -> list[str]:
-        """Get all cost categories and their ref types for corporations."""
-        costs_ref_types = cls.get_costs_corporation()
-        costs = []
-        for __, ref_types in costs_ref_types.items():
-            costs.extend(ref_types)
-        return costs
+        # Skip Market Transactions from buyer between the corporation and its members (only count transactions from creator)
+        if row["ref_type"] == "market_transaction" and row["first_party_id"] in ids:
+            return True
+        # Skip Contract if Contract Creator is Registered as a Member of the Corporation (only count the contract creator)
+        if (
+            row["ref_type"] == "contract_price_payment_corp"
+            and row["first_party_id"] in account_char_ids
+            and row["second_party_id"] in ids
+        ):
+            return True
+        return False
 
-    @classmethod
-    def miscellaneous(cls) -> list[str]:
-        """Get all miscellaneous categories and their ref types."""
-        misc_ref_types = cls.get_miscellaneous()
-        miscellaneous = []
-        for __, ref_types in misc_ref_types.items():
-            miscellaneous.extend(ref_types)
-        return miscellaneous
+    @staticmethod
+    def special_cases_details(
+        value: list,
+        entity: "LedgerEntity",
+        kwargs: dict[str, int],
+        journal_type: str,
+        char_ids: set[int] = None,
+    ) -> bool:
+        """Handle special cases in Ledger for Details View."""
+        # Skip Contract if Contract Creator is Registered as a Member of the Corporation (only count the contract creator)
+        if (
+            "contract_price_payment_corp" in value
+            and entity.type == "character"
+            and journal_type == "corporation"
+        ):  # Only Count Contract Creator
+            kwargs["first_party"] = entity.entity_id
+            return kwargs
 
-    @classmethod
-    def miscellaneous_corporation(cls) -> list[str]:
-        """Get all miscellaneous categories and their ref types for corporations."""
-        misc_ref_types = cls.get_miscellaneous_corporation()
-        miscellaneous = []
-        for __, ref_types in misc_ref_types.items():
-            miscellaneous.extend(ref_types)
-        return miscellaneous
+        # Skip Player Donation if it is to own alts
+        if (
+            "player_donation" in value
+            and entity.is_eve_character
+            and journal_type == "character"
+        ):
+            if char_ids is None:
+                return kwargs
+            kwargs["exclude"] = char_ids
+        return kwargs

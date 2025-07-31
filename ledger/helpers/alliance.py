@@ -19,7 +19,7 @@ from app_utils.logging import LoggerAddTag
 # AA Ledger
 from ledger import __title__
 from ledger.helpers.core import LedgerCore, LedgerEntity
-from ledger.helpers.ref_type import RefTypeCategories
+from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.corporationaudit import (
     CorporationAudit,
     CorporationWalletJournalEntry,
@@ -188,22 +188,22 @@ class AllianceData(LedgerCore):
         ).annotate(
             bounty=Sum(
                 "amount",
-                filter=Q(ref_type__in=RefTypeCategories.BOUNTY_PRIZES),
+                filter=Q(ref_type__in=RefTypeManager.BOUNTY_PRIZES),
                 output_field=DecimalField(),
             ),
             ess=Sum(
                 "amount",
-                filter=Q(ref_type__in=RefTypeCategories.ESS_TRANSFER),
+                filter=Q(ref_type__in=RefTypeManager.ESS_TRANSFER),
                 output_field=DecimalField(),
             ),
             costs=Sum(
                 "amount",
-                filter=Q(ref_type__in=RefTypeCategories.costs(), amount__lt=0),
+                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0),
                 output_field=DecimalField(),
             ),
             miscellaneous=Sum(
                 "amount",
-                filter=Q(ref_type__in=RefTypeCategories.miscellaneous(), amount__gt=0),
+                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0),
                 output_field=DecimalField(),
             ),
         )
@@ -273,77 +273,3 @@ class AllianceData(LedgerCore):
             rattingbar, is_char_ledger=is_char_ledger
         )
         self.billboard.create_ratting_bar()
-
-    # pylint: disable=duplicate-code
-    def _create_corporation_details(self, entity: LedgerEntity) -> dict:
-        """Create the corporation amounts for the Details View."""
-        self.setup_ledger(entity=entity)
-
-        amounts = {}
-
-        ref_types_income = RefTypeCategories.get_miscellaneous()
-        ref_types_costs = RefTypeCategories.get_costs()
-
-        # Bounty Income
-        if not entity.entity_id == 1000125:  # Remove Concord Bountys
-            bounty_income = self.journal.aggregate_bounty()
-            if bounty_income > 0:
-                amounts["bounty_income"] = {"total_amount": bounty_income}
-
-        # ESS Income (nur wenn bounty_income existiert)
-        ess_income = self.journal.aggregate_ess()
-        if ess_income > 0:
-            amounts["ess_income"] = {"total_amount": ess_income}
-
-        # Income Ref Types
-        for ref_type, value in ref_types_income.items():
-            ref_type_name = ref_type.lower()
-            aggregated_data = self.journal.aggregate_ref_type(
-                ref_type=value,
-                income=True,
-            )
-            if aggregated_data > 0:
-                amounts[f"{ref_type_name}_income"] = {"total_amount": aggregated_data}
-
-        # Cost Ref Types
-        for ref_type, value in ref_types_costs.items():
-            ref_type_name = ref_type.lower()
-
-            aggregated_data = self.journal.aggregate_ref_type(
-                ref_type=value,
-                income=False,
-            )
-            if aggregated_data < 0:
-                amounts[f"{ref_type_name}_cost"] = {"total_amount": aggregated_data}
-
-        # Summary
-        summary = [
-            amount
-            for amount in amounts.values()
-            if isinstance(amount, dict) and "total_amount" in amount
-        ]
-
-        summary = sum(
-            amount["total_amount"] for amount in summary if "total_amount" in amount
-        )
-
-        if summary == 0:
-            return None
-
-        amounts["summary"] = {
-            "total_amount": summary,
-        }
-
-        # Dynamische Income/Cost-Typen für das Template
-        income_types = [("bounty_income", _("Ratting")), ("ess_income", _("ESS"))]
-        income_types += [
-            (f"{ref_type.lower()}_income", _(ref_type.replace("_", " ").title()))
-            for ref_type in ref_types_income
-        ]
-        cost_types = [
-            (f"{ref_type.lower()}_cost", _(ref_type.replace("_", " ").title()))
-            for ref_type in ref_types_costs
-        ]
-        amounts["income_types"] = income_types
-        amounts["cost_types"] = cost_types
-        return amounts
