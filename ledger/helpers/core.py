@@ -6,7 +6,7 @@ Core View Helper
 from decimal import Decimal
 
 # Django
-from django.db.models import Q, Sum
+from django.db.models import Q, QuerySet, Sum
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -23,7 +23,7 @@ from app_utils.logging import LoggerAddTag
 # AA Ledger
 from ledger import __title__
 from ledger.api.api_helper.billboard_helper import BillboardSystem
-from ledger.helpers.ref_type import RefTypeCategories
+from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.general import EveEntity
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -82,6 +82,7 @@ class LedgerEntity:
             self.entity = corporation_obj
             self.entity_id = corporation_obj.corporation_id
             self.entity_name = corporation_obj.corporation_name
+            self.type = "corporation"
         else:
             try:
                 entity_obj = EveEntity.objects.get(eve_id=entity_id)
@@ -93,6 +94,33 @@ class LedgerEntity:
                 self.entity = DummyEveEntity(entity_id, "Unknown")
                 self.entity_id = entity_id
                 self.entity_name = "Unknown"
+
+    @property
+    def is_eve_character(self):
+        """Check if the entity is an Eve Character."""
+        return isinstance(self.entity, EveCharacter)
+
+    @property
+    def is_eve_corporation(self):
+        """Check if the entity is an Eve Corporation."""
+        return isinstance(self.entity, EveCorporationInfo)
+
+    @property
+    def is_eve_entity(self):
+        """Check if the entity is an Eve Entity."""
+        return isinstance(self.entity, EveEntity)
+
+    @property
+    def alts(self) -> QuerySet[EveCharacter]:
+        """Get all alts for this character."""
+        if not isinstance(self.entity, EveCharacter):
+            raise ValueError("Entity is not an EveCharacter.")
+        alts = EveCharacter.objects.filter(
+            character_ownership__user=self.entity.character_ownership.user
+        ).select_related(
+            "character_ownership",
+        )
+        return alts
 
     def portrait_url(self):
         """Return the portrait URL for the entity."""
@@ -317,7 +345,7 @@ class LedgerCore:
 
         amounts = {}
 
-        ref_types = RefTypeCategories.get_all_categories()
+        ref_types = RefTypeManager.get_all_categories()
 
         # Bounty Income
         if not entity.entity_id == 1000125:  # Remove Concord Bountys
@@ -335,11 +363,9 @@ class LedgerCore:
             ref_type_name = ref_type.lower()
             for kind, income_flag in (("income", True), ("cost", False)):
                 kwargs = {"ref_type": value, "income": income_flag}
-                if (
-                    ref_type_name == "corporation_contract"
-                    and entity.entity.category == "character"
-                ):  # Only Count Contract Creator
-                    kwargs["first_party"] = entity.entity_id
+                kwargs = RefTypeManager.special_cases_details(
+                    value, entity, kwargs, journal_type="corporation"
+                )
                 agg = self.journal.aggregate_ref_type(**kwargs)
                 if (income_flag and agg > 0) or (not income_flag and agg < 0):
                     amounts[f"{ref_type_name}_{kind}"] = {"total_amount": agg}

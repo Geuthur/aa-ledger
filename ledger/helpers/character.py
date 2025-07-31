@@ -6,7 +6,6 @@ from decimal import Decimal
 
 # Django
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import Sum
 from django.utils.translation import gettext as _
 
 # Alliance Auth
@@ -17,8 +16,8 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.helpers.core import LedgerCore
-from ledger.helpers.ref_type import RefTypeCategories
+from ledger.helpers.core import LedgerCore, LedgerEntity
+from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.characteraudit import (
     CharacterAudit,
     CharacterMiningLedger,
@@ -43,9 +42,10 @@ class CharacterData(LedgerCore):
         LedgerCore.__init__(self, year, month, day)
         self.request = request
         self.character = character
+        self.alts_ids = self.get_alt_ids
 
     @property
-    def alts_ids(self):
+    def get_alt_ids(self):
         return self.character.alts.values_list("character_id", flat=True)
 
     def setup_ledger(self, character: CharacterAudit):
@@ -59,15 +59,11 @@ class CharacterData(LedgerCore):
         if self.request.GET.get("all", False):
             self.journal = CharacterWalletJournalEntry.objects.filter(
                 self.filter_date,
-                character__eve_character__character_id__in=self.character.alts.values_list(
-                    "character_id", flat=True
-                ),
+                character__eve_character__character_id__in=self.alts_ids,
             )
             self.mining = CharacterMiningLedger.objects.filter(
                 self.filter_date,
-                character__eve_character__character_id__in=self.character.alts.values_list(
-                    "character_id", flat=True
-                ),
+                character__eve_character__character_id__in=self.alts_ids,
             )
         else:
             # Get Journal Entries for the Character and its Alts
@@ -135,13 +131,8 @@ class CharacterData(LedgerCore):
         """Create a dictionary with character data and update billboard/ledger."""
         self.setup_ledger(character)
 
+        # If no journal or mining data exists, return None
         if not self.journal.exists() and not self.mining.exists():
-            return None
-
-        journal_sum = self.journal.aggregate(total=Sum("amount"))["total"] or 0
-        mining_sum = self.mining.aggregate(total=Sum("quantity"))["total"] or 0
-
-        if journal_sum == 0 and mining_sum == 0:
             return None
 
         bounty = self.journal.aggregate_bounty()
@@ -149,7 +140,19 @@ class CharacterData(LedgerCore):
         mining_val = self.mining.aggregate_mining()
         costs = self.journal.aggregate_costs(second_party=self.alts_ids)
         miscellaneous = self.journal.aggregate_miscellaneous(first_party=self.alts_ids)
-        total = bounty + ess + mining_val + miscellaneous + costs
+        total = sum(
+            [
+                bounty,
+                ess,
+                mining_val,
+                costs,
+                miscellaneous,
+            ]
+        )
+
+        # If total is 0, we do not need to create a character data entry
+        if int(total) == 0:
+            return None
 
         update_states = {}
 
@@ -238,7 +241,7 @@ class CharacterData(LedgerCore):
 
         amounts = {}
 
-        ref_types = RefTypeCategories.get_all_categories()
+        ref_types = RefTypeManager.get_all_categories()
 
         # Bounty Income
         bounty_income = self.journal.aggregate_bounty()
@@ -261,8 +264,17 @@ class CharacterData(LedgerCore):
             ref_type_name = ref_type.lower()
             for kind, income_flag in (("income", True), ("cost", False)):
                 kwargs = {"ref_type": value, "income": income_flag}
-                if ref_type_name == "donation":
-                    kwargs["exclude"] = self.alts_ids
+                entity = LedgerEntity(
+                    entity_id=self.character.eve_character.character_id,
+                    character_obj=self.character.eve_character,
+                )
+                kwargs = RefTypeManager.special_cases_details(
+                    value,
+                    entity,
+                    kwargs,
+                    journal_type="character",
+                    char_ids=self.alts_ids,
+                )
 
                 agg = self.journal.aggregate_ref_type(**kwargs)
                 if (income_flag and agg > 0) or (not income_flag and agg < 0):

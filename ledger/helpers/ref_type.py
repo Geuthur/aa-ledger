@@ -2,6 +2,7 @@
 
 # Standard Library
 import enum
+from typing import TYPE_CHECKING
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
@@ -11,6 +12,10 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
+
+if TYPE_CHECKING:
+    # AA Ledger
+    from ledger.helpers.core import LedgerEntity
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -181,7 +186,7 @@ class JournalRefType(enum.Enum):
     GM_PLEX_FEE_REFUND = 192
 
 
-class RefTypeCategories:
+class RefTypeManager:
     """Categories for wallet journal reference types."""
 
     # Assets/Items
@@ -224,16 +229,20 @@ class RefTypeCategories:
         JournalRefType.CONTRACT_REVERSAL.name.lower(),
     ]
 
-    CORPORATION_CONTRACT = [
-        JournalRefType.CONTRACT_PRICE_PAYMENT_CORP.name.lower(),
-    ]
-
     CORPORATION_ADMINISTRATION = [
         JournalRefType.CORPORATION_DIVIDEND_PAYMENT.name.lower(),
         JournalRefType.CORPORATION_REGISTRATION_FEE.name.lower(),
         JournalRefType.CORPORATION_LOGO_CHANGE_COST.name.lower(),
         JournalRefType.CORPORATION_BULK_PAYMENT.name.lower(),
         JournalRefType.ADVERTISEMENT_LISTING_FEE.name.lower(),
+    ]
+
+    CORPORATION_CONTRACT = [
+        JournalRefType.CONTRACT_PRICE_PAYMENT_CORP.name.lower(),
+    ]
+
+    CORPORATION_DONATION = [
+        JournalRefType.CORPORATION_ACCOUNT_WITHDRAWAL.name.lower(),
     ]
 
     DAILY_GOAL_REWARD = [
@@ -245,7 +254,6 @@ class RefTypeCategories:
     ]
 
     DONATION = [
-        JournalRefType.CORPORATION_ACCOUNT_WITHDRAWAL.name.lower(),
         JournalRefType.PLAYER_DONATION.name.lower(),
         JournalRefType.AGENT_DONATION.name.lower(),
     ]
@@ -357,6 +365,7 @@ class RefTypeCategories:
             "CONTRACT": cls.CONTRACT,
             "CORPORATION_ADMINISTRATION": cls.CORPORATION_ADMINISTRATION,
             "CORPORATION_CONTRACT": cls.CORPORATION_CONTRACT,
+            "CORPORATION_WITHDRAWAL": cls.CORPORATION_DONATION,
             "DAILY_GOAL_REWARD": cls.DAILY_GOAL_REWARD,
             "DONATION": cls.DONATION,
             "FREELANCE_JOBS": cls.FREELANCE_JOBS,
@@ -380,3 +389,51 @@ class RefTypeCategories:
         for __, ref_types in all_ref_types.items():
             ref_types_items.extend(ref_types)
         return ref_types_items
+
+    @staticmethod
+    def special_cases(row: dict, ids: set[int], account_char_ids: set[int]) -> bool:
+        """Handle special cases in Ledger."""
+        if isinstance(row, dict) is False:
+            logger.debug("Row is not a dictionary, skipping special case checks.")
+            return False
+
+        # Skip Market Transactions from buyer between the corporation and its members (only count transactions from creator)
+        if row["ref_type"] == "market_transaction" and row["first_party_id"] in ids:
+            return True
+        # Skip Contract if Contract Creator is Registered as a Member of the Corporation (only count the contract creator)
+        if (
+            row["ref_type"] == "contract_price_payment_corp"
+            and row["first_party_id"] in account_char_ids
+            and row["second_party_id"] in ids
+        ):
+            return True
+        return False
+
+    @staticmethod
+    def special_cases_details(
+        value: list,
+        entity: "LedgerEntity",
+        kwargs: dict[str, int],
+        journal_type: str,
+        char_ids: set[int] = None,
+    ) -> bool:
+        """Handle special cases in Ledger for Details View."""
+        # Skip Contract if Contract Creator is Registered as a Member of the Corporation (only count the contract creator)
+        if (
+            "contract_price_payment_corp" in value
+            and entity.type == "character"
+            and journal_type == "corporation"
+        ):  # Only Count Contract Creator
+            kwargs["first_party"] = entity.entity_id
+            return kwargs
+
+        # Skip Player Donation if it is to own alts
+        if (
+            "player_donation" in value
+            and entity.is_eve_character
+            and journal_type == "character"
+        ):
+            if char_ids is None:
+                return kwargs
+            kwargs["exclude"] = char_ids
+        return kwargs

@@ -20,7 +20,7 @@ from app_utils.logging import LoggerAddTag
 # AA Ledger
 from ledger import __title__
 from ledger.helpers.core import LedgerCore, LedgerEntity
-from ledger.helpers.ref_type import RefTypeCategories
+from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.corporationaudit import (
     CorporationAudit,
     CorporationWalletJournalEntry,
@@ -182,24 +182,12 @@ class CorporationData(LedgerCore):
         miscellaneous = Decimal(0)
         costs = Decimal(0)
 
-        def special_cases(row):
-            """Handle special cases for the corporation."""
-            # Skip Market Transactions from buyer between the corporation and its members (only count transactions from creator)
-            if row["ref_type"] == "market_transaction" and row["first_party_id"] in ids:
-                return True
-            # Skip Contract if Contract Creator is Registered as a Member of the Corporation (only count the contract creator)
-            if (
-                row["ref_type"] == "contract_price_payment_corp"
-                and row["first_party_id"] in self.account_char_ids
-                and row["second_party_id"] in ids
-            ):
-                return True
-            return False
-
         for pk, rows in list(self.entries.items()):
             for row in rows:
                 if row["first_party_id"] in ids or row["second_party_id"] in ids:
-                    if special_cases(row):
+                    if RefTypeManager.special_cases(
+                        row, ids=ids, account_char_ids=self.account_char_ids
+                    ):
                         continue
                     bounty += row.get("bounty") or Decimal(0)
                     ess += row.get("ess") or Decimal(0)
@@ -266,22 +254,22 @@ class CorporationData(LedgerCore):
         ).annotate(
             bounty=Sum(
                 "amount",
-                filter=Q(ref_type__in=RefTypeCategories.BOUNTY_PRIZES),
+                filter=Q(ref_type__in=RefTypeManager.BOUNTY_PRIZES),
                 output_field=DecimalField(),
             ),
             ess=Sum(
                 "amount",
-                filter=Q(ref_type__in=RefTypeCategories.ESS_TRANSFER),
+                filter=Q(ref_type__in=RefTypeManager.ESS_TRANSFER),
                 output_field=DecimalField(),
             ),
             costs=Sum(
                 "amount",
-                filter=Q(ref_type__in=RefTypeCategories.all_ref_types(), amount__lt=0),
+                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0),
                 output_field=DecimalField(),
             ),
             miscellaneous=Sum(
                 "amount",
-                filter=Q(ref_type__in=RefTypeCategories.all_ref_types(), amount__gt=0),
+                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0),
                 output_field=DecimalField(),
             ),
         )

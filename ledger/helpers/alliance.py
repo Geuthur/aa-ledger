@@ -19,7 +19,7 @@ from app_utils.logging import LoggerAddTag
 # AA Ledger
 from ledger import __title__
 from ledger.helpers.core import LedgerCore, LedgerEntity
-from ledger.helpers.ref_type import RefTypeCategories
+from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.corporationaudit import (
     CorporationAudit,
     CorporationWalletJournalEntry,
@@ -188,22 +188,22 @@ class AllianceData(LedgerCore):
         ).annotate(
             bounty=Sum(
                 "amount",
-                filter=Q(ref_type__in=RefTypeCategories.BOUNTY_PRIZES),
+                filter=Q(ref_type__in=RefTypeManager.BOUNTY_PRIZES),
                 output_field=DecimalField(),
             ),
             ess=Sum(
                 "amount",
-                filter=Q(ref_type__in=RefTypeCategories.ESS_TRANSFER),
+                filter=Q(ref_type__in=RefTypeManager.ESS_TRANSFER),
                 output_field=DecimalField(),
             ),
             costs=Sum(
                 "amount",
-                filter=Q(ref_type__in=RefTypeCategories.all_ref_types(), amount__lt=0),
+                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0),
                 output_field=DecimalField(),
             ),
             miscellaneous=Sum(
                 "amount",
-                filter=Q(ref_type__in=RefTypeCategories.all_ref_types(), amount__gt=0),
+                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0),
                 output_field=DecimalField(),
             ),
         )
