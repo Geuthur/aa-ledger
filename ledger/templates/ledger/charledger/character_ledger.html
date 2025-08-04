@@ -88,7 +88,7 @@
 {% endblock %}
 {% block extra_javascript %}
 
-    {% include 'bundles/moment-js.html' %}
+    {% include 'bundles/moment-js.html' with locale=True %}
     {% include 'bundles/datatables-js-bs5.html' %}
     {% include 'ledger/bundles/ledger-bundles.html' %}
     {% include 'ledger/bundles/character-ledger-bundles.html' %}

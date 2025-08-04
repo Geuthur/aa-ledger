@@ -294,7 +294,11 @@ class CharacterData(LedgerCore):
         }
 
         # Dynamische Income/Cost-Typen für das Template
-        income_types = [("bounty_income", _("Ratting")), ("ess_income", _("ESS"))]
+        income_types = [
+            ("bounty_income", _("Ratting")),
+            ("ess_income", _("ESS")),
+            ("mining_income", _("Mining")),
+        ]
         income_types += [
             (f"{ref_type.lower()}_income", _(ref_type.replace("_", " ").title()))
             for ref_type in ref_types
