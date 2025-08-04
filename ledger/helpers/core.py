@@ -247,6 +247,7 @@ class LedgerCore:
             "bounty": Decimal(0),
             "ess": Decimal(0),
             "costs": Decimal(0),
+            "mining": Decimal(0),
             "miscellaneous": Decimal(0),
             "total": Decimal(0),
         }
@@ -265,6 +266,7 @@ class LedgerCore:
             totals["bounty"] += total["ledger"]["bounty"]
             totals["ess"] += total["ledger"]["ess"]
             totals["costs"] += total["ledger"]["costs"]
+            totals["mining"] += total["ledger"]["mining"]
             totals["miscellaneous"] += total["ledger"]["miscellaneous"]
             totals["total"] += total["ledger"]["total"]
         return totals
