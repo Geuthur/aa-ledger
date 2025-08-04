@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.9.3] - 2025-08-04
+
+### Changed
+
+- Added localisation for `moment.js`
+
+### Fixed
+
+- Mining Amounts Total, Details
+
 ## [0.9.2] - 2025-07-31
 
 ### Changed
