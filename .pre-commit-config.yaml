@@ -132,7 +132,7 @@ repos:
           )
 
   - repo: https://github.com/eslint/eslint
-    rev: v9.30.1
+    rev: v9.32.0
     hooks:
       - id: eslint
         name: ESLint
@@ -145,7 +145,7 @@ repos:
         args: [--fix, --color, --max-warnings, '0']
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
-    rev: v16.21.1
+    rev: v16.23.0
     hooks:
       - id: stylelint
         name: Stylelint
@@ -286,7 +286,7 @@ repos:
           - mdformat-shfmt==0.1.0  # Mdformat plugin to format shell code blocks » https://github.com/hukkin/mdformat-shfmt/tags
 
   - repo: https://github.com/tox-dev/tox-ini-fmt
-    rev: 1.5.0
+    rev: 1.6.0
     hooks:
       - id: tox-ini-fmt
         name: tox.ini formatter
