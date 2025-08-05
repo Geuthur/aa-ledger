@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.9.3.1] - 2025-08-05
+
+### Fixed
+
+- KeyError in Corporation, Alliance Ledger
+
 ## [0.9.3] - 2025-08-04
 
 ### Changed

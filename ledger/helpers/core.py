@@ -263,12 +263,12 @@ class LedgerCore:
             if total is None:
                 continue
 
-            totals["bounty"] += total["ledger"]["bounty"]
-            totals["ess"] += total["ledger"]["ess"]
-            totals["costs"] += total["ledger"]["costs"]
-            totals["mining"] += total["ledger"]["mining"]
-            totals["miscellaneous"] += total["ledger"]["miscellaneous"]
-            totals["total"] += total["ledger"]["total"]
+            totals["bounty"] += total["ledger"].get("bounty", 0)
+            totals["ess"] += total["ledger"].get("ess", 0)
+            totals["costs"] += total["ledger"].get("costs", 0)
+            totals["mining"] += total["ledger"].get("mining", 0)
+            totals["miscellaneous"] += total["ledger"].get("miscellaneous", 0)
+            totals["total"] += total["ledger"].get("total", 0)
         return totals
 
     def create_url(self, viewname: str, **kwargs):
