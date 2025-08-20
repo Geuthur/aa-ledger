@@ -26,7 +26,7 @@ _corp_perms = [
 # pylint: disable=unused-argument, duplicate-code
 def _add_character_charaudit(request, token):
     character = CharacterAudit.objects.update_or_create(
-        character=EveCharacter.objects.get_character_by_id(token.character_id),
+        eve_character=EveCharacter.objects.get_character_by_id(token.character_id),
         defaults={
             "character_name": token.character_name,
         },
@@ -110,7 +110,7 @@ app_import = AppImport(
             check_permissions=lambda user: user.has_perm("ledger.basic_access"),
             is_character_added=_is_character_added_charaudit,
             is_character_added_annotation=Exists(
-                CharacterAudit.objects.filter(character_id=OuterRef("pk"))
+                CharacterAudit.objects.filter(eve_character_id=OuterRef("pk"))
             ),
             get_users_with_perms=_users_with_perms_charaudit,
         ),
