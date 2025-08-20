@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.9.4] - 2025-08-20
+
+### Changed
+
+- Task Schedule to avoid request spikes
+
+### Fixed
+
+- [#142 \[BUG\]: CharLink Integration not working](https://github.com/Geuthur/aa-ledger/issues/142)
+
 ## [0.9.3.1] - 2025-08-05
 
 ### Fixed
