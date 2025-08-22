@@ -4,8 +4,9 @@
 
 ### Fixed
 
-- Alliance Ledger not shown all Corporations
+- [#146 \[BUG\]: Only one Corp showing in the alliance overview](https://github.com/Geuthur/aa-ledger/issues/146)
 - Total sorting not working for Corporation & Alliance Ledger
+- [#145 \[BUG\]: Click on Corporation in Backend gives error](https://github.com/Geuthur/aa-ledger/issues/145)
 
 ## [0.9.4] - 2025-08-20
 
