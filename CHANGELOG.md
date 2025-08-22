@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.5] - 2025-08-21
+
+### Fixed
+
+- Alliance Ledger not shown all Corporations
+- Total sorting not working for Corporation & Alliance Ledger
+
 ## [0.9.4] - 2025-08-20
 
 ### Changed
