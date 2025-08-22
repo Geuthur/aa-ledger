@@ -14,7 +14,11 @@ from django.utils.translation import gettext as _
 
 # Alliance Auth
 from allianceauth.authentication.models import CharacterOwnership
-from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+from allianceauth.eveonline.models import (
+    EveAllianceInfo,
+    EveCharacter,
+    EveCorporationInfo,
+)
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -62,11 +66,13 @@ class DummyEveEntity:
 class LedgerEntity:
     """Class to hold character or corporation data for the ledger."""
 
+    # pylint: disable=too-many-positional-arguments
     def __init__(
         self,
         entity_id,
         character_obj: EveCharacter = None,
         corporation_obj: EveCorporationInfo = None,
+        alliance_obj: EveAllianceInfo = None,
         details_url=None,
     ):
         self.type = "character"
@@ -83,6 +89,11 @@ class LedgerEntity:
             self.entity_id = corporation_obj.corporation_id
             self.entity_name = corporation_obj.corporation_name
             self.type = "corporation"
+        elif alliance_obj and hasattr(alliance_obj, "alliance_id"):
+            self.entity = alliance_obj
+            self.entity_id = alliance_obj.alliance_id
+            self.entity_name = alliance_obj.alliance_name
+            self.type = "alliance"
         else:
             try:
                 entity_obj = EveEntity.objects.get(eve_id=entity_id)
@@ -366,7 +377,7 @@ class LedgerCore:
             for kind, income_flag in (("income", True), ("cost", False)):
                 kwargs = {"ref_type": value, "income": income_flag}
                 kwargs = RefTypeManager.special_cases_details(
-                    value, entity, kwargs, journal_type="corporation"
+                    value, entity, kwargs, journal_type=entity.type
                 )
                 agg = self.journal.aggregate_ref_type(**kwargs)
                 if (income_flag and agg > 0) or (not income_flag and agg < 0):

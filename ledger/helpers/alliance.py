@@ -43,6 +43,19 @@ class AllianceData(LedgerCore):
         LedgerCore.__init__(self, year, month, day)
         self.request = request
         self.alliance = alliance
+        self.corporations = CorporationAudit.objects.filter(
+            corporation__alliance__alliance_id=self.alliance.alliance_id
+        ).values_list("corporation__corporation_id", flat=True)
+        # Evaluate the existing years for the view
+        self.existing_years = (
+            CorporationWalletJournalEntry.objects.filter(
+                division__corporation__corporation__alliance__alliance_id=self.alliance.alliance_id
+            )
+            .exclude(date__year__isnull=True)
+            .values_list("date__year", flat=True)
+            .order_by("-date__year")
+            .distinct()
+        )
 
     def setup_ledger(self, entity: LedgerEntity = None):
         """Setup the Ledger Data for the Corporation."""
@@ -80,20 +93,6 @@ class AllianceData(LedgerCore):
             )
 
             self.entities = self.get_all_entities(self.journal)
-
-            # Evaluate the existing years for the view
-            self.existing_years = (
-                CorporationWalletJournalEntry.objects.filter(
-                    division__corporation__corporation__alliance__alliance_id=self.alliance.alliance_id
-                )
-                .exclude(date__year__isnull=True)
-                .values_list("date__year", flat=True)
-                .order_by("-date__year")
-                .distinct()
-            )
-        self.corporations = CorporationAudit.objects.filter(
-            corporation__alliance__alliance_id=self.alliance.alliance_id
-        ).values_list("corporation__corporation_id", flat=True)
 
     def get_all_entities(
         self, journal: QuerySet[CorporationWalletJournalEntry]
@@ -178,41 +177,41 @@ class AllianceData(LedgerCore):
     # pylint: disable=duplicate-code
     def generate_ledger_data(self) -> dict:
         """Generate the ledger data for the character and its alts."""
-        self.setup_ledger()
-
         ledger = []
         finished_entities = set()
 
-        journal = self.journal.values(
-            "first_party_id", "second_party_id", "pk"
-        ).annotate(
-            bounty=Sum(
-                "amount",
-                filter=Q(ref_type__in=RefTypeManager.BOUNTY_PRIZES),
-                output_field=DecimalField(),
-            ),
-            ess=Sum(
-                "amount",
-                filter=Q(ref_type__in=RefTypeManager.ESS_TRANSFER),
-                output_field=DecimalField(),
-            ),
-            costs=Sum(
-                "amount",
-                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0),
-                output_field=DecimalField(),
-            ),
-            miscellaneous=Sum(
-                "amount",
-                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0),
-                output_field=DecimalField(),
-            ),
-        )
-
-        self.entries = {}
-        for row in journal:
-            self.entries.setdefault(row["pk"], []).append(row)
-
         for corporation_id in self.corporations:
+            self.setup_ledger(entity=LedgerEntity(entity_id=corporation_id))
+
+            journal = self.journal.values(
+                "first_party_id", "second_party_id", "pk"
+            ).annotate(
+                bounty=Sum(
+                    "amount",
+                    filter=Q(ref_type__in=RefTypeManager.BOUNTY_PRIZES),
+                    output_field=DecimalField(),
+                ),
+                ess=Sum(
+                    "amount",
+                    filter=Q(ref_type__in=RefTypeManager.ESS_TRANSFER),
+                    output_field=DecimalField(),
+                ),
+                costs=Sum(
+                    "amount",
+                    filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0),
+                    output_field=DecimalField(),
+                ),
+                miscellaneous=Sum(
+                    "amount",
+                    filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0),
+                    output_field=DecimalField(),
+                ),
+            )
+
+            self.entries = {}
+            for row in journal:
+                self.entries.setdefault(row["pk"], []).append(row)
+
             # Create Details URL for the entity
             details_url = self.create_url(
                 viewname="alliance_details",
