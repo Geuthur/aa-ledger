@@ -125,6 +125,7 @@ def alliance_details(
     # Create the Entity for the ledger
     entity = LedgerEntity(
         entity_id=entity_id,
+        alliance_obj=alliance if entity_id == alliance.alliance_id else None,
     )
 
     amounts = alliance_data._create_corporation_details(entity=entity)
