@@ -26,9 +26,9 @@ class CorporationUpdateStatusAdminInline(admin.TabularInline):
         "_is_success",
         "_is_token_ok",
         "error_message",
-        "run_finished_at",
+        "last_run_finished_at",
         "_run_duration",
-        "update_finished_at",
+        "last_update_finished_at",
         "_update_duration",
     )
     readonly_fields = (
