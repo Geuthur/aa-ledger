@@ -411,6 +411,7 @@ class RefTypeManager:
         # Skip Market Transactions from buyer between the corporation and its members (only count transactions from creator)
         if row["ref_type"] == "market_transaction" and row["first_party_id"] in ids:
             return True
+
         # Skip Contract if Contract Creator is Registered as a Member of the Corporation (only count the contract creator)
         if (
             row["ref_type"] == "contract_price_payment_corp"

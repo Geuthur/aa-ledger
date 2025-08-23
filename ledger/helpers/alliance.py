@@ -56,6 +56,7 @@ class AllianceData(LedgerCore):
             .order_by("-date__year")
             .distinct()
         )
+        self.auth_char_ids = self.auth_character_ids
 
     def setup_ledger(self, entity: LedgerEntity = None):
         """Setup the Ledger Data for the Corporation."""
@@ -118,9 +119,13 @@ class AllianceData(LedgerCore):
         for pk, rows in list(self.entries.items()):
             for row in rows:
                 if (
-                    row["first_party_id"] in self.entities
-                    or row["second_party_id"] in self.entities
+                    row["division__corporation__corporation__corporation_id"]
+                    == entity.entity_id
                 ):
+                    if RefTypeManager.special_cases(
+                        row, ids=[], account_char_ids=self.auth_char_ids
+                    ):
+                        continue
                     bounty += row.get("bounty") or Decimal(0)
                     ess += row.get("ess") or Decimal(0)
                     miscellaneous += row.get("miscellaneous") or Decimal(0)
@@ -176,42 +181,46 @@ class AllianceData(LedgerCore):
 
     # pylint: disable=duplicate-code
     def generate_ledger_data(self) -> dict:
-        """Generate the ledger data for the character and its alts."""
+        """Generate the ledger data for the alliance."""
         ledger = []
         finished_entities = set()
 
+        self.setup_ledger()
+
+        journal = self.journal.values(
+            "first_party_id",
+            "second_party_id",
+            "pk",
+            "ref_type",
+            "division__corporation__corporation__corporation_id",
+        ).annotate(
+            bounty=Sum(
+                "amount",
+                filter=Q(ref_type__in=RefTypeManager.BOUNTY_PRIZES),
+                output_field=DecimalField(),
+            ),
+            ess=Sum(
+                "amount",
+                filter=Q(ref_type__in=RefTypeManager.ESS_TRANSFER),
+                output_field=DecimalField(),
+            ),
+            costs=Sum(
+                "amount",
+                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0),
+                output_field=DecimalField(),
+            ),
+            miscellaneous=Sum(
+                "amount",
+                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0),
+                output_field=DecimalField(),
+            ),
+        )
+
+        self.entries = {}
+        for row in journal:
+            self.entries.setdefault(row["pk"], []).append(row)
+
         for corporation_id in self.corporations:
-            self.setup_ledger(entity=LedgerEntity(entity_id=corporation_id))
-
-            journal = self.journal.values(
-                "first_party_id", "second_party_id", "pk"
-            ).annotate(
-                bounty=Sum(
-                    "amount",
-                    filter=Q(ref_type__in=RefTypeManager.BOUNTY_PRIZES),
-                    output_field=DecimalField(),
-                ),
-                ess=Sum(
-                    "amount",
-                    filter=Q(ref_type__in=RefTypeManager.ESS_TRANSFER),
-                    output_field=DecimalField(),
-                ),
-                costs=Sum(
-                    "amount",
-                    filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0),
-                    output_field=DecimalField(),
-                ),
-                miscellaneous=Sum(
-                    "amount",
-                    filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0),
-                    output_field=DecimalField(),
-                ),
-            )
-
-            self.entries = {}
-            for row in journal:
-                self.entries.setdefault(row["pk"], []).append(row)
-
             # Create Details URL for the entity
             details_url = self.create_url(
                 viewname="alliance_details",
@@ -225,14 +234,14 @@ class AllianceData(LedgerCore):
                 details_url=details_url,
             )
 
-            char_data = self.create_entity_data(
+            corp_data = self.create_entity_data(
                 entity=entity_obj,
             )
 
-            if char_data is None:
+            if corp_data is None:
                 continue
 
-            ledger.append(char_data)
+            ledger.append(corp_data)
             finished_entities.add(corporation_id)
 
         # Create the billboard data

@@ -6,11 +6,10 @@ from decimal import Decimal
 
 # Django
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import DecimalField, Q, QuerySet, Sum
+from django.db.models import DecimalField, Q, Sum
 from django.utils.translation import gettext as _
 
 # Alliance Auth
-from allianceauth.authentication.models import UserProfile
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.services.hooks import get_extension_logger
 
@@ -50,27 +49,10 @@ class CorporationData(LedgerCore):
         LedgerCore.__init__(self, year, month, day)
         self.request = request
         self.corporation = corporation
-        self.create_account_information()
-
-    def create_account_information(self):
-        """Create the account information for the corporation."""
-        # Get all Auth Accounts with main character
-        self.accounts = (
-            UserProfile.objects.filter(
-                main_character__isnull=False,
-            )
-            .prefetch_related(
-                "user__profile__main_character",
-            )
-            .order_by(
-                "user__profile__main_character__character_name",
-            )
-        )
-        self.account_char_ids = self.get_all_account_ids(accounts=self.accounts)
+        self.auth_char_ids = self.auth_character_ids
 
     def setup_ledger(self, entity: LedgerEntity = None):
         """Setup the Ledger Data for the Corporation."""
-
         if entity is not None:
             if (
                 self.request.GET.get("all", False)
@@ -109,9 +91,7 @@ class CorporationData(LedgerCore):
                 # If the entity is a corporation or alliance, we need to exclude the accounts Character IDs
                 # from the journal to prevent double counting
                 if entity.type in ["alliance", "corporation"]:
-                    exclude_ids = self.get_all_account_ids(
-                        accounts=self.accounts
-                    ) - set(character_ids)
+                    exclude_ids = self.auth_char_ids - set(character_ids)
                     self.journal = self.journal.exclude(
                         Q(first_party_id__in=exclude_ids)
                         | Q(second_party_id__in=exclude_ids)
@@ -143,16 +123,6 @@ class CorporationData(LedgerCore):
             self.entities = set(
                 self.journal.values_list("second_party_id", flat=True)
             ) | set(self.journal.values_list("first_party_id", flat=True))
-
-    def get_all_account_ids(self, accounts: list[QuerySet]) -> set:
-        """Get all account Character IDs for the corporation."""
-        account_character_ids = set()
-        for account in accounts:
-            alts = account.user.character_ownerships.all()
-            account_character_ids.update(
-                alts.values_list("character__character_id", flat=True)
-            )
-        return account_character_ids
 
     def create_entity_data(
         self,
@@ -186,7 +156,7 @@ class CorporationData(LedgerCore):
             for row in rows:
                 if row["first_party_id"] in ids or row["second_party_id"] in ids:
                     if RefTypeManager.special_cases(
-                        row, ids=ids, account_char_ids=self.account_char_ids
+                        row, ids=ids, account_char_ids=self.auth_char_ids
                     ):
                         continue
                     bounty += row.get("bounty") or Decimal(0)
@@ -243,7 +213,7 @@ class CorporationData(LedgerCore):
         return char_data
 
     def generate_ledger_data(self) -> dict:
-        """Generate the ledger data for the character and its alts."""
+        """Generate the ledger data for the corporation."""
         self.setup_ledger()
 
         ledger = []
@@ -278,7 +248,7 @@ class CorporationData(LedgerCore):
         for row in journal:
             self.entries.setdefault(row["pk"], []).append(row)
 
-        for account in self.accounts:
+        for account in self.auth_accounts:
             alts = account.user.character_ownerships.all()
 
             existing_alts = set(
@@ -338,14 +308,14 @@ class CorporationData(LedgerCore):
                     details_url=details_url,
                 )
 
-                char_data = self.create_entity_data(
+                entity_data = self.create_entity_data(
                     entity=entity_obj,
                 )
 
-                if char_data is None:
+                if entity_data is None:
                     continue
 
-                ledger.append(char_data)
+                ledger.append(entity_data)
                 finished_entities.add(entity_id)
 
         # Create the last entity data for the corporation itself
@@ -358,12 +328,12 @@ class CorporationData(LedgerCore):
                 entity_id=self.corporation.corporation.corporation_id,
             ),
         )
-        char_data = self.create_entity_data(
+        corporation_data = self.create_entity_data(
             entity=corporation_entity,
         )
 
-        if char_data is not None:
-            ledger.append(char_data)
+        if corporation_data is not None:
+            ledger.append(corporation_data)
 
         # Create the billboard data
         self.create_rattingbar(list(finished_entities), is_char_ledger=False)
