@@ -13,7 +13,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 # Alliance Auth
-from allianceauth.authentication.models import CharacterOwnership
+from allianceauth.authentication.models import CharacterOwnership, UserProfile
 from allianceauth.eveonline.models import (
     EveAllianceInfo,
     EveCharacter,
@@ -243,6 +243,32 @@ class LedgerCore:
         if self.year:
             return f"{self.year:04d}"
         return "Character Ledger Details"
+
+    @property
+    def auth_accounts(self):
+        """Get all user accounts with a main character."""
+        return (
+            UserProfile.objects.filter(
+                main_character__isnull=False,
+            )
+            .prefetch_related(
+                "user__profile__main_character",
+            )
+            .order_by(
+                "user__profile__main_character__character_name",
+            )
+        )
+
+    @property
+    def auth_character_ids(self) -> set:
+        """Get all account Character IDs from Alliance Auth."""
+        account_character_ids = set()
+        for account in self.auth_accounts:
+            alts = account.user.character_ownerships.all()
+            account_character_ids.update(
+                alts.values_list("character__character_id", flat=True)
+            )
+        return account_character_ids
 
     def _calculate_totals(self, ledger) -> dict:
         """
