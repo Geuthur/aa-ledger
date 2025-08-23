@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.9.6] - 2025-08-23
+
+### Changed
+
+- Optimize Alliance & Corporation Ledger
+
 ## [0.9.5] - 2025-08-21
 
 ### Fixed
