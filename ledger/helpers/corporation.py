@@ -245,20 +245,21 @@ class CorporationData(LedgerCore):
 
         # Get the journal hash and cache header
         ledger_hash = self._get_ledger_journal_hash(self.journal.values_list("pk"))
+        ledger_header = self._get_ledger_header(
+            self.corporation.corporation.corporation_id,
+            self.year,
+            self.month,
+            self.day,
+        )
         cache_header = cache.get(
-            self._get_ledger_header(
-                self.corporation.corporation.corporation_id,
-                self.year,
-                self.month,
-                self.day,
-            ),
+            ledger_header,
             False,
         )
         logger.debug(f"Cache Header: {cache_header}, Journal Hash: {ledger_hash}")
 
         # Check if the journal is up to date
         journal_up_to_date = cache_header == ledger_hash
-        ledger_key = self._build_ledger_cache_key(journal)
+        ledger_key = self._build_ledger_cache_key(ledger_header)
 
         # Check if we have newest cached version of the ledger
         cached_ledger = self._get_cached_ledger(

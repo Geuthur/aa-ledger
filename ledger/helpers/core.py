@@ -3,7 +3,6 @@ Core View Helper
 """
 
 # Standard Library
-import json
 from decimal import Decimal
 from hashlib import md5
 
@@ -278,17 +277,9 @@ class LedgerCore:
         """Generate a hash for the ledger journal."""
         return md5(",".join(str(x) for x in sorted(journal)).encode()).hexdigest()
 
-    def _get_ledger_hash(self, journal: list[str]) -> str:
+    def _get_ledger_hash(self, header_key: str) -> str:
         """Generate a hash for the ledger journal."""
-        as_strings = [
-            (
-                json.dumps(x, sort_keys=True, default=str)
-                if isinstance(x, dict)
-                else str(x)
-            )
-            for x in journal
-        ]
-        return md5(",".join(sorted(as_strings)).encode()).hexdigest()
+        return md5(header_key.encode()).hexdigest()
 
     def _get_ledger_header(
         self, entity_id: int, year: int, month: int, day: int
@@ -296,9 +287,9 @@ class LedgerCore:
         """Generate a header string for the ledger."""
         return f"{entity_id}_{year}_{month}_{day}"
 
-    def _build_ledger_cache_key(self, journal):
+    def _build_ledger_cache_key(self, header_key: str) -> str:
         """Build a cache key for the ledger."""
-        return LEDGER_CACHE_KEY.format(self._get_ledger_hash(journal))
+        return LEDGER_CACHE_KEY.format(self._get_ledger_hash(header_key))
 
     def _get_cached_ledger(self, journal_up_to_date, ledger_key, journal_hash):
         if journal_up_to_date:
