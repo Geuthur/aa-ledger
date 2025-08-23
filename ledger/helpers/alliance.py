@@ -5,6 +5,7 @@ import json
 from decimal import Decimal
 
 # Django
+from django.core.cache import cache
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import DecimalField, F, Q, QuerySet, Sum
 from django.utils.translation import gettext as _
@@ -18,6 +19,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
+from ledger.app_settings import LEDGER_CACHE_STALE
 from ledger.helpers.core import LedgerCore, LedgerEntity
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.corporationaudit import (
@@ -216,10 +218,33 @@ class AllianceData(LedgerCore):
             ),
         )
 
+        # Build up the journal Cache
+        ledger_hash = self._get_ledger_journal_hash(self.journal.values_list("pk"))
+        cache_header = cache.get(
+            self._get_ledger_header(
+                self.alliance.alliance_id, self.year, self.month, self.day
+            ),
+            False,
+        )
+        logger.debug(f"Cache Header: {cache_header}, Journal Hash: {ledger_hash}")
+
+        # Check if the journal is up to date
+        journal_up_to_date = cache_header == ledger_hash
+        ledger_key = self._build_ledger_cache_key(journal)
+
+        # Check if we have newest cached version of the ledger
+        cached_ledger = self._get_cached_ledger(
+            journal_up_to_date, ledger_key, ledger_hash
+        )
+        if cached_ledger is not None:
+            return cached_ledger
+
+        # Build the entries from the journal
         self.entries = {}
         for row in journal:
             self.entries.setdefault(row["pk"], []).append(row)
 
+        # Build Data for each corporation
         for corporation_id in self.corporations:
             # Create Details URL for the entity
             details_url = self.create_url(
@@ -249,7 +274,26 @@ class AllianceData(LedgerCore):
         # Prevent overflow in the chord data
         self.billboard.chord_handle_overflow()
 
-        context = {
+        # Build the context for the ledger view
+        context = self._build_context(ledger_hash, ledger)
+
+        cache.set(
+            ledger_key,
+            context,
+            LEDGER_CACHE_STALE,
+        )
+        cache.set(
+            self._get_ledger_header(
+                self.alliance.alliance_id, self.year, self.month, self.day
+            ),
+            ledger_hash,
+        )
+        return context
+
+    def _build_context(self, journal_hash, ledger):
+        """Build the context for the ledger view."""
+        return {
+            "ledger_hash": journal_hash,
             "title": f"Alliance Ledger - {self.alliance.alliance_name}",
             "alliance_id": self.alliance.alliance_id,
             "billboard": json.dumps(self.billboard.dict.asdict()),
@@ -262,7 +306,6 @@ class AllianceData(LedgerCore):
                 entity_id=self.alliance.alliance_id,
             ),
         }
-        return context
 
     def create_rattingbar(
         self, entities_ids: list = None, is_char_ledger: bool = False

@@ -3,9 +3,12 @@ Core View Helper
 """
 
 # Standard Library
+import json
 from decimal import Decimal
+from hashlib import md5
 
 # Django
+from django.core.cache import cache
 from django.db.models import Q, QuerySet, Sum
 from django.urls import reverse
 from django.utils import timezone
@@ -27,6 +30,7 @@ from app_utils.logging import LoggerAddTag
 # AA Ledger
 from ledger import __title__
 from ledger.api.api_helper.billboard_helper import BillboardSystem
+from ledger.app_settings import LEDGER_CACHE_KEY
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.general import EveEntity
 
@@ -269,6 +273,41 @@ class LedgerCore:
                 alts.values_list("character__character_id", flat=True)
             )
         return account_character_ids
+
+    def _get_ledger_journal_hash(self, journal: list[str]) -> str:
+        """Generate a hash for the ledger journal."""
+        return md5(",".join(str(x) for x in sorted(journal)).encode()).hexdigest()
+
+    def _get_ledger_hash(self, journal: list[str]) -> str:
+        """Generate a hash for the ledger journal."""
+        as_strings = [
+            (
+                json.dumps(x, sort_keys=True, default=str)
+                if isinstance(x, dict)
+                else str(x)
+            )
+            for x in journal
+        ]
+        return md5(",".join(sorted(as_strings)).encode()).hexdigest()
+
+    def _get_ledger_header(
+        self, entity_id: int, year: int, month: int, day: int
+    ) -> str:
+        """Generate a header string for the ledger."""
+        return f"{entity_id}_{year}_{month}_{day}"
+
+    def _build_ledger_cache_key(self, journal):
+        """Build a cache key for the ledger."""
+        return LEDGER_CACHE_KEY.format(self._get_ledger_hash(journal))
+
+    def _get_cached_ledger(self, journal_up_to_date, ledger_key, journal_hash):
+        if journal_up_to_date:
+            cached_ledger = cache.get(ledger_key, False)
+            if cached_ledger is not False:
+                if cached_ledger.get("ledger_hash", False) == journal_hash:
+                    logger.debug("Using cached ledger data")
+                    return cached_ledger
+        return None
 
     def _calculate_totals(self, ledger) -> dict:
         """

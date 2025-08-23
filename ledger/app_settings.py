@@ -36,3 +36,7 @@ LEDGER_STALE_TYPES = {
     "planets": 30,
     "planets_details": 30,
 }
+
+# Ledger Cache System
+LEDGER_CACHE_STALE = 60 * 60 * 168  # 168 hours
+LEDGER_CACHE_KEY = "LEDGER_{}"
