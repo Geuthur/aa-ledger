@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.9.7] - 2025-08-24
+
+> [!NOTE]
+> Since 21.06.2025, CCP has integrated all ref types into the Character Journal Endpoint. This means it is now possible to correctly calculate the Encounter Surveillance System (ESS) and other related data.
+> There is a compatibility function for 2025, which means all ESS amounts before the change will still use the old calculation. This also applies to the 2025 view.
+
+### Added
+
+- Cache System for Corporation, Alliance Ledgerr to support larger Corporation/Alliance.
+
+### Changed
+
+- Update Translation
+- Implemented all Ref Types that not have a Category
+- Full Name for ESS in Information Modal
+- New ESS Calculation for Character Ledger
+
 ## [0.9.6] - 2025-08-23
 
 ### Changed
