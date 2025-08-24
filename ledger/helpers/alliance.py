@@ -226,7 +226,9 @@ class AllianceData(LedgerCore):
         cache_header = cache.get(
             ledger_header,
         )
-        logger.debug(f"Cache Header: {cache_header}, Journal Hash: {ledger_hash}")
+        logger.debug(
+            f"Ledger Header: {ledger_header}, Cache Header: {cache_header}, Journal Hash: {ledger_hash}"
+        )
 
         # Check if the journal is up to date
         journal_up_to_date = cache_header == ledger_hash
@@ -278,15 +280,15 @@ class AllianceData(LedgerCore):
         context = self._build_context(ledger_hash, ledger)
 
         cache.set(
-            ledger_key,
-            context,
-            LEDGER_CACHE_STALE,
+            key=ledger_key,
+            value=context,
+            timeout=LEDGER_CACHE_STALE,
         )
         cache.set(
-            self._get_ledger_header(
+            key=self._get_ledger_header(
                 self.alliance.alliance_id, self.year, self.month, self.day
             ),
-            ledger_hash,
+            value=ledger_hash,
         )
         return context
 
