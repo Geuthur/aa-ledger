@@ -16,7 +16,7 @@
             {% with value=character|get_item:key %}
                 {% if value %}
                     <div class="row description-row">
-                        <div class="col-sm-6">{{ label }}:</div>
+                        <div class="col-sm-6 {% if label == 'Not Defined Category' %}text-warning{% endif %}">{{ label }}:</div>
                         <div class='col-sm-4 text-end'>
                             <span class="text-success">
                                 {{ value.total_amount|floatformat:0|intcomma }}
@@ -33,7 +33,7 @@
             {% with value=character|get_item:key %}
                 {% if value %}
                     <div class="row description-row">
-                        <div class="col-sm-6">{{ label }} {% trans "Cost" %}:</div>
+                        <div class="col-sm-6 {% if label == 'Not Defined Category' %}text-warning{% endif %}">{{ label }} {% trans "Cost" %}:</div>
                         <div class='col-sm-4 text-end'>
                             <span class="text-danger">{{ value.total_amount|floatformat:0|intcomma }}</span> ISK
                         </div>

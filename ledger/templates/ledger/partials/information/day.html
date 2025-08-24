@@ -14,7 +14,7 @@
     {% with value=character|get_item:key %}
         {% if value.current_day %}
             <div class="row description-row">
-                <div class="col-sm-6">{% trans "Current Day -" %} {{ label }}:</div>
+                <div class="col-sm-6 {% if label == 'Not Defined Category' %}text-warning{% endif %}">{% trans "Current Day -" %} {{ label }}:</div>
                 <div class='col-sm-4 text-end'>
                     <span class="text-success">
                         {{ value.current_day|floatformat:0|intcomma }}
@@ -31,7 +31,7 @@
     {% with value=character|get_item:key %}
         {% if value.current_day %}
             <div class="row description-row">
-                <div class="col-sm-6">{% trans "Current Day Cost -" %} {{ label }}:</div>
+                <div class="col-sm-6 {% if label == 'Not Defined Category' %}text-warning{% endif %}">{% trans "Current Day Cost -" %} {{ label }}:</div>
                 <div class='col-sm-4 text-end'>
                     <span class="text-danger">{{ value.current_day|floatformat:0|intcomma }}</span> ISK
                 </div>
