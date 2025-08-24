@@ -293,6 +293,7 @@ class CorporationData(LedgerCore):
                 self.day,
             ),
             value=ledger_hash,
+            timeout=None,  # Cache forever until the journal changes
         )
         return context
 
