@@ -7,7 +7,9 @@
         <th class="col-main-character w-auto">{% trans "Character" %}</th>
         <th class="col-total-amount w-auto">{% trans "Ratting Amount" %}</th>
         <th class="col-total-ess w-auto">{% trans "ESS Payout" %}
-            <i class="fa-regular fa-circle-question" title="{% trans 'Estimated Only' %}" data-tooltip-toggle="ledger-tooltip" data-bs-placement="top"></i>
+            {% if is_old_ess %}
+                <i class="fa-regular fa-circle-question" title="{% trans 'Estimated Only' %}" data-tooltip-toggle="ledger-tooltip" data-bs-placement="top"></i>
+            {% endif %}
         </th>
         <th class="col-total-mining w-auto">{% trans "Mining Amount" %}</th>
         <th class="col-total-others w-auto">{% trans "Misc. Amount" %}</th>

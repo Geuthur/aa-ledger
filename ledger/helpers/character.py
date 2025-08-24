@@ -50,13 +50,18 @@ class CharacterData(LedgerCore):
 
     @property
     def is_old_ess(self):
-        """Compatibility check for old ESS income calculation."""
+        """
+        Compatibility check for old ESS income calculation.
+        Since Swagger ESI has added ESS Ref Type to the Character Journal Endpoint
+        """
         try:
-            if self.year <= 2025 and self.month <= 6:
-                return True
+            if self.month is None and self.year is None:
+                return False
+            if self.year >= 2025 and self.month >= 6:
+                return False
         except TypeError:
-            return False  # Handle Main View
-        return False
+            return True
+        return True
 
     def setup_ledger(self, character: CharacterAudit):
         """Setup the Ledger Data for the Character."""
@@ -131,6 +136,7 @@ class CharacterData(LedgerCore):
                 viewname="character_details",
                 character_id=self.character.eve_character.character_id,
             ),
+            "is_old_ess": self.is_old_ess,
         }
         return context
 
@@ -312,7 +318,7 @@ class CharacterData(LedgerCore):
         # Dynamische Income/Cost-Typen für das Template
         income_types = [
             ("bounty_income", _("Ratting")),
-            ("ess_income", _("ESS")),
+            ("ess_income", _("Encounter Surveillance System")),
             ("mining_income", _("Mining")),
         ]
 
