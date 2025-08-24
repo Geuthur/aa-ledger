@@ -458,7 +458,10 @@ class LedgerCore:
         }
 
         # Dynamische Income/Cost-Typen für das Template
-        income_types = [("bounty_income", _("Ratting")), ("ess_income", _("ESS"))]
+        income_types = [
+            ("bounty_income", _("Ratting")),
+            ("ess_income", _("Encounter Surveillance System")),
+        ]
         income_types += [
             (f"{ref_type.lower()}_income", _(ref_type.replace("_", " ").title()))
             for ref_type in ref_types
