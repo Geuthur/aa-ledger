@@ -370,8 +370,8 @@ class RefTypeManager:
 
     @classmethod
     def get_all_categories(cls) -> dict[str, list[str]]:
-        """Get all categories and their ref types, sorted alphabetically by key in the dict literal."""
-        return {
+        """Get all categories and their ref types, sorted alphabetically by key in the dict literal. Add NO_CATEGORY for missing JournalRefType."""
+        categories = {
             "ASSETS": cls.ASSETS,
             "CONTRACT": cls.CONTRACT,
             "CORPORATION_ADMINISTRATION": cls.CORPORATION_ADMINISTRATION,
@@ -391,6 +391,30 @@ class RefTypeManager:
             "SKILL": cls.SKILL,
             "TRAVELING": cls.TRAVELING,
         }
+
+        # Alle zugeordneten ref_types sammeln
+        assigned = set()
+        for ref_types in categories.values():
+            assigned.update(ref_types)
+
+        # Alle JournalRefType-Namen in Kleinbuchstaben
+        all_types = {jt.name.lower() for jt in JournalRefType}
+
+        # Exclude Bounty and ESS
+        pve = set()
+        # Bounty-Prizes
+        if hasattr(cls, "BOUNTY_PRIZES"):
+            pve.update(cls.BOUNTY_PRIZES)
+        # ESS Transfer
+        if hasattr(cls, "ESS_TRANSFER"):
+            pve.update(cls.ESS_TRANSFER)
+
+        # Nicht zugeordnete Typen bestimmen, aber special auslassen
+        not_defined = sorted((all_types - assigned) - pve)
+        if not_defined:
+            categories["NOT_DEFINED_CATEGORY"] = not_defined
+
+        return categories
 
     @classmethod
     def all_ref_types(cls) -> list[str]:
