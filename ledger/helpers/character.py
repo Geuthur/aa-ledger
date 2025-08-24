@@ -48,6 +48,21 @@ class CharacterData(LedgerCore):
     def get_alt_ids(self):
         return self.character.alts.values_list("character_id", flat=True)
 
+    @property
+    def is_old_ess(self):
+        """
+        Compatibility check for old ESS income calculation.
+        Since Swagger ESI has added ESS Ref Type to the Character Journal Endpoint
+        """
+        try:
+            if self.month is None and self.year is None:
+                return False
+            if self.year >= 2025 and self.month >= 6:
+                return False
+        except TypeError:
+            return True
+        return True
+
     def setup_ledger(self, character: CharacterAudit):
         """Setup the Ledger Data for the Character."""
 
@@ -104,7 +119,7 @@ class CharacterData(LedgerCore):
 
         # Create the ratting bar for the view
         self.create_rattingbar(
-            is_char_ledger=True,
+            is_old_ess=self.is_old_ess,
             character_ids=characters.values_list(
                 "eve_character__character_id", flat=True
             ),
@@ -121,6 +136,7 @@ class CharacterData(LedgerCore):
                 viewname="character_details",
                 character_id=self.character.eve_character.character_id,
             ),
+            "is_old_ess": self.is_old_ess,
         }
         return context
 
@@ -136,7 +152,11 @@ class CharacterData(LedgerCore):
             return None
 
         bounty = self.journal.aggregate_bounty()
-        ess = bounty * Decimal(0.667)
+        ess = (
+            self.journal.aggregate_bounty() * Decimal(0.667)
+            if self.is_old_ess
+            else self.journal.aggregate_ess()
+        )
         mining_val = self.mining.aggregate_mining()
         costs = self.journal.aggregate_costs(second_party=self.alts_ids)
         miscellaneous = self.journal.aggregate_miscellaneous(first_party=self.alts_ids)
@@ -213,9 +233,7 @@ class CharacterData(LedgerCore):
 
         return char_data
 
-    def create_rattingbar(
-        self, character_ids: list = None, is_char_ledger: bool = False
-    ):
+    def create_rattingbar(self, character_ids: list = None, is_old_ess: bool = False):
         """Create the ratting bar for the view."""
         if not character_ids:
             return
@@ -226,12 +244,12 @@ class CharacterData(LedgerCore):
                 character__eve_character__character_id__in=character_ids,
             )
         )
-        rattingbar = rattingbar_timeline.annotate_bounty_income().annotate_miscellaneous_with_exclude(
-            exclude=self.alts_ids
+        rattingbar = (
+            rattingbar_timeline.annotate_bounty_income()
+            .annotate_ess_income()
+            .annotate_miscellaneous_with_exclude(exclude=self.alts_ids)
         )
-        self.billboard.create_or_update_results(
-            rattingbar, is_char_ledger=is_char_ledger
-        )
+        self.billboard.create_or_update_results(rattingbar, is_old_ess=is_old_ess)
         self.billboard.create_ratting_bar()
 
     # pylint: disable=duplicate-code
@@ -254,10 +272,13 @@ class CharacterData(LedgerCore):
             amounts["mining_income"] = {"total_amount": mining_income}
 
         # ESS Income (only if bounty income exists)
-        if bounty_income > 0:
-            ess_income = bounty_income * Decimal(0.667)
-            if ess_income > 0:
-                amounts["ess_income"] = {"total_amount": ess_income}
+        ess_income = (
+            bounty_income * Decimal(0.667)
+            if self.is_old_ess and bounty_income
+            else self.journal.aggregate_ess()
+        )
+        if ess_income > 0:
+            amounts["ess_income"] = {"total_amount": ess_income}
 
         # Income/Cost Ref Types (DRY, mit special case donation)
         for ref_type, value in ref_types.items():
@@ -268,6 +289,7 @@ class CharacterData(LedgerCore):
                     entity_id=self.character.eve_character.character_id,
                     character_obj=self.character.eve_character,
                 )
+
                 kwargs = RefTypeManager.special_cases_details(
                     value,
                     entity,
@@ -296,9 +318,10 @@ class CharacterData(LedgerCore):
         # Dynamische Income/Cost-Typen für das Template
         income_types = [
             ("bounty_income", _("Ratting")),
-            ("ess_income", _("ESS")),
+            ("ess_income", _("Encounter Surveillance System")),
             ("mining_income", _("Mining")),
         ]
+
         income_types += [
             (f"{ref_type.lower()}_income", _(ref_type.replace("_", " ").title()))
             for ref_type in ref_types

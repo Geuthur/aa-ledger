@@ -46,6 +46,18 @@ class CharWalletIncomeFilter(models.QuerySet):
             )
         )
 
+    def annotate_ess_income(self) -> models.QuerySet:
+        return self.annotate(
+            ess_income=Coalesce(
+                Sum(
+                    "amount",
+                    filter=Q(ref_type__in=RefTypeManager.ESS_TRANSFER, amount__gt=0),
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            )
+        )
+
     def annotate_mission_income(self) -> models.QuerySet:
         return self.annotate(
             mission_income=Coalesce(
@@ -403,6 +415,12 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         return self.filter(ref_type__in=RefTypeManager.BOUNTY_PRIZES).aggregate(
             total_bounty=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
         )["total_bounty"]
+
+    def aggregate_ess(self) -> dict:
+        """Aggregate ESS income."""
+        return self.filter(ref_type__in=RefTypeManager.ESS_TRANSFER).aggregate(
+            total_ess=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
+        )["total_ess"]
 
     def aggregate_costs(self, first_party=None, second_party=None) -> dict:
         """Aggregate costs. first_party wird für donation exkludiert."""

@@ -197,9 +197,7 @@ class BillboardSystem:
         qs = qs.values("period").order_by("period")
         return qs
 
-    def create_or_update_results(
-        self, qs: QuerySet[dict], is_char_ledger: bool = False
-    ):
+    def create_or_update_results(self, qs: QuerySet[dict], is_old_ess: bool = False):
         """Create or update the results for the billboard"""
         for entry in qs:
             date = entry["period"]
@@ -216,7 +214,7 @@ class BillboardSystem:
                 }
             self.results[date]["bounty"] += bounty
             self.results[date]["ess"] += (
-                ess if not is_char_ledger else bounty * Decimal("0.667")
+                ess if not is_old_ess else bounty * Decimal("0.667")
             )
             self.results[date]["miscellaneous"] += miscellaneous
 

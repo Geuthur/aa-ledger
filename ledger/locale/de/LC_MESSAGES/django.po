@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-30 10:20+0200\n"
+"POT-Creation-Date: 2025-08-24 16:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,10 +19,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: admin.py:134 admin.py:278
-#, fuzzy
-#| msgid "Last Updated"
 msgid "last update run"
-msgstr "Letztes Update"
+msgstr "Letztes Update ausgeführt"
 
 #: admin.py:146
 msgid "Force update selected corporations"
@@ -57,7 +55,7 @@ msgstr "Bitte registriere betroffene Charaktere erneut"
 #: api/ledger/planetary.py:47 api/ledger/planetary.py:89
 #: api/ledger/planetary.py:153 api/ledger/planetary.py:199
 #: views/alliance/alliance_ledger.py:57 views/alliance/alliance_ledger.py:100
-#: views/alliance/alliance_ledger.py:172 views/character/character_ledger.py:45
+#: views/alliance/alliance_ledger.py:173 views/character/character_ledger.py:45
 #: views/character/character_ledger.py:78
 #: views/character/character_ledger.py:147
 #: views/character/character_ledger.py:187 views/character/planetary.py:101
@@ -65,14 +63,10 @@ msgstr "Bitte registriere betroffene Charaktere erneut"
 #: views/corporation/corporation_ledger.py:112
 #: views/corporation/corporation_ledger.py:182
 #: views/corporation/corporation_ledger.py:218
-#, fuzzy
-#| msgid "No Permission"
 msgid "Permission Denied"
-msgstr "Keine Berechtigung"
+msgstr "Berechtigung Verweigert"
 
 #: api/ledger/planetary.py:165
-#, fuzzy
-#| msgid "Extractor Information"
 msgid "Factory Information"
 msgstr "Anlagen Information"
 
@@ -84,63 +78,89 @@ msgstr "Planet nicht gefunden"
 msgid "Extractor Information"
 msgstr "Extraktor Information"
 
-#: helpers/alliance.py:157 helpers/corporation.py:221
+#: helpers/alliance.py:163 helpers/corporation.py:196
 msgid "Ratting (Wallet)"
 msgstr "Ratting (Konto)"
 
-#: helpers/alliance.py:162 helpers/corporation.py:226
+#: helpers/alliance.py:168 helpers/corporation.py:201
 msgid "ESS (Wallet)"
 msgstr "ESS (Konto)"
 
-#: helpers/alliance.py:167 helpers/corporation.py:231
+#: helpers/alliance.py:173 helpers/corporation.py:206
 msgid "Costs (Wallet)"
 msgstr "Kosten (Konto)"
 
-#: helpers/alliance.py:172 helpers/corporation.py:236
+#: helpers/alliance.py:178 helpers/corporation.py:211
 msgid "Miscellaneous (Wallet)"
 msgstr "Verschiedenes (Konto)"
 
-#: helpers/alliance.py:338 helpers/character.py:187 helpers/character.py:319
-#: helpers/corporation.py:464 templates/ledger/partials/information/day.html:8
+#: helpers/character.py:210 helpers/character.py:320 helpers/core.py:462
+#: templates/ledger/partials/information/day.html:8
 #: templates/ledger/partials/information/hourly.html:8
 #: templates/ledger/partials/information/summary.html:9
 #: templates/ledger/partials/view/card.html:90
 msgid "Ratting"
 msgstr "Ratting"
 
-#: helpers/alliance.py:338 helpers/character.py:192 helpers/character.py:319
-#: helpers/corporation.py:464
+#: helpers/character.py:215
 msgid "ESS"
 msgstr ""
 
-#: helpers/character.py:197 templates/ledger/partials/view/card.html:109
-#, fuzzy
-#| msgid "Mining Ledger"
+#: helpers/character.py:220 helpers/character.py:322
+#: templates/ledger/partials/view/card.html:109
 msgid "Mining"
-msgstr "Mining Ledger"
+msgstr "Bergbau"
 
-#: helpers/character.py:202
+#: helpers/character.py:225
 msgid "Miscellaneous"
 msgstr "Verschiedenes"
 
-#: helpers/character.py:207 templates/ledger/partials/table/char-ledger.html:14
+#: helpers/character.py:230 templates/ledger/partials/table/char-ledger.html:16
 #: templates/ledger/partials/table/corp-ledger.html:12
 #: templates/ledger/partials/view/card.html:127
 msgid "Costs"
 msgstr "Kosten"
 
-#: helpers/core.py:136 templates/ledger/partials/table/char-ledger.html:43
-#: templates/ledger/partials/table/char-ledger.html:67
+#: helpers/character.py:321 helpers/core.py:463
+msgid "Encounter Surveillance System"
+msgstr "Gefechtsüberwachungssystem"
+
+#: helpers/core.py:179 templates/ledger/partials/table/char-ledger.html:45
+#: templates/ledger/partials/table/char-ledger.html:69
 #: templates/ledger/partials/table/corp-ledger.html:58
 msgid "View Details"
 msgstr "Zeige Details"
 
-#: managers/corporation_journal_manager.py:386
+#: helpers/ref_type.py:196
+msgid "Corporation Contract"
+msgstr "Corporation Vertrag"
+
+#: helpers/ref_type.py:197
+msgid "Corporation Withdrawal"
+msgstr "Corporation Überweisung"
+
+#: helpers/ref_type.py:198
+msgid "Mission Reward"
+msgstr "Mission Belohnung"
+
+#: helpers/ref_type.py:199
+msgid "Market"
+msgstr "Markt"
+
+#: helpers/ref_type.py:200
+msgid "Rental"
+msgstr ""
+
+#: helpers/ref_type.py:201
+msgid "Daily Goal Reward"
+msgstr "Tägliche Ziele Belohnung"
+
+#: managers/corporation_journal_manager.py:382
 msgid "Master Wallet"
 msgstr "Hauptkonto"
 
-#: managers/corporation_journal_manager.py:388
-#: managers/corporation_journal_manager.py:412
+#: managers/corporation_journal_manager.py:384
+#: managers/corporation_journal_manager.py:408
 msgid "Unknown"
 msgstr "Unbekannt"
 
@@ -182,8 +202,6 @@ msgid "incomplete"
 msgstr "unvollständig"
 
 #: models/characteraudit.py:68
-#, fuzzy
-#| msgid "Progress"
 msgid "in progress"
 msgstr "in Arbeit"
 
@@ -611,7 +629,7 @@ msgstr "Aktueller Tag"
 #: templates/ledger/partials/information/day.html:47
 #: templates/ledger/partials/information/summary.html:48
 #: templates/ledger/partials/information/view_character_content.html:13
-#: templates/ledger/partials/table/char-ledger.html:54
+#: templates/ledger/partials/table/char-ledger.html:56
 #: templates/ledger/partials/table/corp-ledger.html:45
 #: templates/ledger/partials/view/card.html:136
 msgid "Summary"
@@ -763,6 +781,7 @@ msgstr "Keine Ausgabe"
 #: templates/ledger/partials/table/char-ledger.html:7
 #: templates/ledger/partials/table/corp-ledger.html:7
 #: templates/ledger/partials/table/planetary.html:5
+#: templates/ledger/partials/view/card.html:37
 msgid "Character"
 msgstr "Charakter"
 
@@ -777,25 +796,25 @@ msgstr "Ratting Menge"
 msgid "ESS Payout"
 msgstr "ESS Auszahlung"
 
-#: templates/ledger/partials/table/char-ledger.html:10
+#: templates/ledger/partials/table/char-ledger.html:11
 msgid "Estimated Only"
 msgstr "Nur Schätzung."
 
-#: templates/ledger/partials/table/char-ledger.html:12
+#: templates/ledger/partials/table/char-ledger.html:14
 msgid "Mining Amount"
 msgstr "Bergbau Menge"
 
-#: templates/ledger/partials/table/char-ledger.html:13
+#: templates/ledger/partials/table/char-ledger.html:15
 #: templates/ledger/partials/table/corp-ledger.html:11
 msgid "Misc. Amount"
 msgstr "Verschiedenes Menge"
 
-#: templates/ledger/partials/table/char-ledger.html:15
+#: templates/ledger/partials/table/char-ledger.html:17
 #: templates/ledger/partials/table/corp-ledger.html:13
 msgid "Total"
 msgstr "Gesamt"
 
-#: templates/ledger/partials/table/char-ledger.html:35
+#: templates/ledger/partials/table/char-ledger.html:37
 msgid "View Character"
 msgstr "Zeige Charakter"
 
@@ -872,7 +891,7 @@ msgid "Failed to fetch Alliance data for {alliance_name}"
 msgstr "Allianzdaten für {alliance_name} konnten nicht abgerufen werden"
 
 #: views/alliance/alliance_ledger.py:64 views/alliance/alliance_ledger.py:111
-#: views/alliance/alliance_ledger.py:176
+#: views/alliance/alliance_ledger.py:177
 msgid "Alliance not found"
 msgstr "Allianz wurde nicht gefunden"
 

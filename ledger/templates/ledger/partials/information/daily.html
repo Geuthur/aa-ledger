@@ -11,7 +11,7 @@
             {% with value=character|get_item:key %}
                 {% if value %}
                     <div class="row description-row">
-                        <div class="col-sm-6">{% trans "Avg." %} {{ label }} {% trans "per Day" %}:</div>
+                        <div class="col-sm-6 {% if label == 'Not Defined Category' %}text-warning{% endif %}">{% trans "Avg." %} {{ label }} {% trans "per Day" %}:</div>
                         <div class='col-sm-4 text-end'>
                             <span class="text-success">
                                 {{ value.average_day|floatformat:0|intcomma }}
@@ -28,7 +28,7 @@
             {% with value=character|get_item:key %}
                 {% if value %}
                     <div class="row description-row">
-                        <div class="col-sm-6">{% trans "Avg." %} {{ label }} {% trans "Cost per Day" %}:</div>
+                        <div class="col-sm-6 {% if label == 'Not Defined Category' %}text-warning{% endif %}">{% trans "Avg." %} {{ label }} {% trans "Cost per Day" %}:</div>
                         <div class='col-sm-4 text-end'>
                             <span class="text-danger">{{ value.average_day|floatformat:0|intcomma }}</span> ISK
                         </div>
