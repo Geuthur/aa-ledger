@@ -280,7 +280,7 @@ class CorporationData(LedgerCore):
         self._add_corporation_entity(ledger)
 
         # Finalize the billboard for the ledger.
-        self.create_rattingbar(list(finished_entities), is_char_ledger=False)
+        self.create_rattingbar(list(finished_entities))
         self.billboard.chord_handle_overflow()
 
         context = self._build_context(ledger_hash, ledger)
@@ -390,9 +390,7 @@ class CorporationData(LedgerCore):
             ),
         }
 
-    def create_rattingbar(
-        self, entities_ids: list = None, is_char_ledger: bool = False
-    ):
+    def create_rattingbar(self, entities_ids: list = None):
         """Create the ratting bar for the view."""
         if not entities_ids:
             return
@@ -403,7 +401,5 @@ class CorporationData(LedgerCore):
             .annotate_ess_income()
             .annotate_miscellaneous()
         )
-        self.billboard.create_or_update_results(
-            rattingbar, is_char_ledger=is_char_ledger
-        )
+        self.billboard.create_or_update_results(rattingbar)
         self.billboard.create_ratting_bar()

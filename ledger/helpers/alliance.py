@@ -272,7 +272,7 @@ class AllianceData(LedgerCore):
             finished_entities.add(corporation_id)
 
         # Create the billboard data
-        self.create_rattingbar(list(finished_entities), is_char_ledger=False)
+        self.create_rattingbar(list(finished_entities))
         # Prevent overflow in the chord data
         self.billboard.chord_handle_overflow()
 
@@ -310,9 +310,7 @@ class AllianceData(LedgerCore):
             ),
         }
 
-    def create_rattingbar(
-        self, entities_ids: list = None, is_char_ledger: bool = False
-    ):
+    def create_rattingbar(self, entities_ids: list = None):
         """Create the ratting bar for the view."""
         if not entities_ids:
             return
@@ -323,7 +321,5 @@ class AllianceData(LedgerCore):
             .annotate_ess_income()
             .annotate_miscellaneous()
         )
-        self.billboard.create_or_update_results(
-            rattingbar, is_char_ledger=is_char_ledger
-        )
+        self.billboard.create_or_update_results(rattingbar)
         self.billboard.create_ratting_bar()
