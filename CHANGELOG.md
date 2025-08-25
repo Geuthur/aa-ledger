@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.9.8] - 2025-08-25
+
+### Added
+
+- Ref Types Popover to Information Modal
+
+### Changed
+
+- Update Translation
+
+### Fixed
+
+- Tooltip not disappear on Information Modal
+
+### Removed
+
+- Information Text
+
 ## [0.9.7] - 2025-08-24
 
 > [!NOTE]
