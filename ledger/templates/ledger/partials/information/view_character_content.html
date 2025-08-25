@@ -24,16 +24,6 @@
             {% include "ledger/partials/information/daily.html" with character=character type=type %}
             {% include "ledger/partials/information/hourly.html" with character=character type=type %}
         </div>
-        <div class="mb-1">
-            <span class="btn btn-primary btn-sm btn-square fas fa-info"></span>
-            <span> {% trans "Orange Color is for Info only and is not included in the Calculation" %}.</span>
-        </div>
-        {% if mode == "TAX" %}
-        <div class="">
-            <span class="btn btn-primary btn-sm btn-square fas fa-info"></span>
-            <span> {% trans "All amounts shown are taxes collected from characters" %}.</span>
-        </div>
-        {% endif %}
     </div>
 {% elif error %}
     <div class="alert alert-danger">
