@@ -407,11 +407,15 @@ class LedgerCore:
             ),
         }
 
-    def _create_corporation_details(self, entity: LedgerEntity) -> dict:
-        """Create the corporation amounts for the Details View."""
-        # NOTE (can only used if setup_ledger is defined in the subclass)
-        self.setup_ledger(entity=entity)  # pylint: disable=no-member
-
+    # pylint: disable=too-many-locals
+    def _generate_amounts(
+        self,
+        income_types: list,
+        entity: LedgerEntity,
+        is_old_ess: bool = False,
+        char_ids: list = None,
+    ) -> dict:
+        """Generate amounts for the entity based on income types and reference types."""
         amounts = {}
 
         ref_types = RefTypeManager.get_all_categories()
@@ -420,12 +424,31 @@ class LedgerCore:
         if not entity.entity_id == 1000125:  # Remove Concord Bountys
             bounty_income = self.journal.aggregate_bounty()
             if bounty_income > 0:
-                amounts["bounty_income"] = {"total_amount": bounty_income}
+                amounts["bounty_income"] = {
+                    "total_amount": bounty_income,
+                    "ref_types": ["bounty_prizes"],
+                }
+
+        if isinstance(entity.entity, EveCharacter):
+            # Mining Income
+            mining_income = self.mining.aggregate_mining()
+            if mining_income > 0:
+                amounts["mining_income"] = {
+                    "total_amount": mining_income,
+                    "ref_types": ["mining"],
+                }
 
         # ESS Income (nur wenn bounty_income existiert)
-        ess_income = self.journal.aggregate_ess()
+        ess_income = (
+            bounty_income * Decimal(0.667)
+            if is_old_ess and bounty_income
+            else self.journal.aggregate_ess()
+        )
         if ess_income > 0:
-            amounts["ess_income"] = {"total_amount": ess_income}
+            amounts["ess_income"] = {
+                "total_amount": ess_income,
+                "ref_types": ["ess_escrow_transfer"],
+            }
 
         # Income/Cost Ref Types (DRY)
         for ref_type, value in ref_types.items():
@@ -433,11 +456,14 @@ class LedgerCore:
             for kind, income_flag in (("income", True), ("cost", False)):
                 kwargs = {"ref_type": value, "income": income_flag}
                 kwargs = RefTypeManager.special_cases_details(
-                    value, entity, kwargs, journal_type=entity.type
+                    value, entity, kwargs, journal_type=entity.type, char_ids=char_ids
                 )
                 agg = self.journal.aggregate_ref_type(**kwargs)
                 if (income_flag and agg > 0) or (not income_flag and agg < 0):
-                    amounts[f"{ref_type_name}_{kind}"] = {"total_amount": agg}
+                    amounts[f"{ref_type_name}_{kind}"] = {
+                        "total_amount": agg,
+                        "ref_types": value,
+                    }
 
         # Summary
         summary = [
@@ -458,10 +484,6 @@ class LedgerCore:
         }
 
         # Dynamische Income/Cost-Typen für das Template
-        income_types = [
-            ("bounty_income", _("Ratting")),
-            ("ess_income", _("Encounter Surveillance System")),
-        ]
         income_types += [
             (f"{ref_type.lower()}_income", _(ref_type.replace("_", " ").title()))
             for ref_type in ref_types
@@ -472,6 +494,48 @@ class LedgerCore:
         ]
         amounts["income_types"] = income_types
         amounts["cost_types"] = cost_types
+        return amounts
+
+    def _create_corporation_details(self, entity: LedgerEntity) -> dict:
+        """Create the corporation amounts for the Information View."""
+        # NOTE (can only used if setup_ledger is defined in the subclass)
+        self.setup_ledger(entity=entity)  # pylint: disable=no-member
+
+        income_types = [
+            ("bounty_income", _("Ratting")),
+            ("ess_income", _("Encounter Surveillance System")),
+        ]
+        amounts = self._generate_amounts(income_types=income_types, entity=entity)
+        return amounts
+
+    # pylint: disable=no-member
+    def _create_character_details(self) -> dict:
+        """
+        Create the character amounts for the Information View.
+        Only work with CharacterData Class
+        """
+        if not self.character:
+            raise ValueError("No Character Data found.")
+
+        # NOTE (can only used if setup_ledger is defined in the subclass)
+        self.setup_ledger(self.character)
+
+        entity = LedgerEntity(
+            entity_id=self.character.eve_character.character_id,
+            character_obj=self.character.eve_character,
+        )
+
+        income_types = [
+            ("bounty_income", _("Ratting")),
+            ("ess_income", _("Encounter Surveillance System")),
+            ("mining_income", _("Mining")),
+        ]
+        amounts = self._generate_amounts(
+            income_types=income_types,
+            entity=entity,
+            is_old_ess=self.is_old_ess,
+            char_ids=self.alts_ids,
+        )
         return amounts
 
     def _add_average_details(self, request, amounts, day: int = None):

@@ -229,7 +229,7 @@ class TestViewCharacterLedgerAccess(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(
             response,
-            "Orange Color is for Info only and is not included in the Calculation",
+            "No ratting data found...",
         )
 
     def test_view_character_details_no_permission(self):

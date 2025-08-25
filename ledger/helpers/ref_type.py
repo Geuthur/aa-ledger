@@ -199,6 +199,7 @@ class RefTypeManager:
     _("Market")
     _("Rental")
     _("Daily Goal Reward")
+    _("Structure Rental")
 
     # Assets/Items
     ASSETS = [
@@ -337,7 +338,7 @@ class RefTypeManager:
         JournalRefType.REACTION.name.lower(),
     ]
 
-    RENTAL = [
+    STRUCTURE_RENTAL = [
         JournalRefType.OFFICE_RENTAL_FEE.name.lower(),
         JournalRefType.FACTORY_SLOT_RENTAL_FEE.name.lower(),
         JournalRefType.SOVEREIGNITY_BILL.name.lower(),
@@ -387,8 +388,8 @@ class RefTypeManager:
             "MISSION_REWARD": cls.MISSION_REWARD,
             "PLANETARY": cls.PLANETARY,
             "PRODUCTION": cls.PRODUCTION,
-            "RENTAL": cls.RENTAL,
             "SKILL": cls.SKILL,
+            "STRUCTURE_RENTAL": cls.STRUCTURE_RENTAL,
             "TRAVELING": cls.TRAVELING,
         }
 
