@@ -16,8 +16,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.helpers.core import LedgerCore, LedgerEntity
-from ledger.helpers.ref_type import RefTypeManager
+from ledger.helpers.core import LedgerCore
 from ledger.models.characteraudit import (
     CharacterAudit,
     CharacterMiningLedger,
@@ -251,86 +250,3 @@ class CharacterData(LedgerCore):
         )
         self.billboard.create_or_update_results(rattingbar, is_old_ess=is_old_ess)
         self.billboard.create_ratting_bar()
-
-    # pylint: disable=duplicate-code
-    def _create_character_details(self) -> dict:
-        """Create the character amounts for the Details View."""
-        self.setup_ledger(self.character)
-
-        amounts = {}
-
-        ref_types = RefTypeManager.get_all_categories()
-
-        # Bounty Income
-        bounty_income = self.journal.aggregate_bounty()
-        if bounty_income > 0:
-            amounts["bounty_income"] = {"total_amount": bounty_income}
-
-        # Mining Income
-        mining_income = self.mining.aggregate_mining()
-        if mining_income > 0:
-            amounts["mining_income"] = {"total_amount": mining_income}
-
-        # ESS Income (only if bounty income exists)
-        ess_income = (
-            bounty_income * Decimal(0.667)
-            if self.is_old_ess and bounty_income
-            else self.journal.aggregate_ess()
-        )
-        if ess_income > 0:
-            amounts["ess_income"] = {"total_amount": ess_income}
-
-        # Income/Cost Ref Types (DRY, mit special case donation)
-        for ref_type, value in ref_types.items():
-            ref_type_name = ref_type.lower()
-            for kind, income_flag in (("income", True), ("cost", False)):
-                kwargs = {"ref_type": value, "income": income_flag}
-                entity = LedgerEntity(
-                    entity_id=self.character.eve_character.character_id,
-                    character_obj=self.character.eve_character,
-                )
-
-                kwargs = RefTypeManager.special_cases_details(
-                    value,
-                    entity,
-                    kwargs,
-                    journal_type="character",
-                    char_ids=self.alts_ids,
-                )
-
-                agg = self.journal.aggregate_ref_type(**kwargs)
-                if (income_flag and agg > 0) or (not income_flag and agg < 0):
-                    amounts[f"{ref_type_name}_{kind}"] = {"total_amount": agg}
-
-        # Summary
-        summary = [
-            amount
-            for amount in amounts.values()
-            if isinstance(amount, dict) and "total_amount" in amount
-        ]
-        summary = sum(
-            amount["total_amount"] for amount in summary if "total_amount" in amount
-        )
-        amounts["summary"] = {
-            "total_amount": summary,
-        }
-
-        # Dynamische Income/Cost-Typen für das Template
-        income_types = [
-            ("bounty_income", _("Ratting")),
-            ("ess_income", _("Encounter Surveillance System")),
-            ("mining_income", _("Mining")),
-        ]
-
-        income_types += [
-            (f"{ref_type.lower()}_income", _(ref_type.replace("_", " ").title()))
-            for ref_type in ref_types
-        ]
-        cost_types = [
-            (f"{ref_type.lower()}_cost", _(ref_type.replace("_", " ").title()))
-            for ref_type in ref_types
-        ]
-        amounts["income_types"] = income_types
-        amounts["cost_types"] = cost_types
-
-        return amounts
