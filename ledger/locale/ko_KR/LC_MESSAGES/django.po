@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-24 16:57+0200\n"
+"POT-Creation-Date: 2025-08-25 12:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -93,7 +93,7 @@ msgstr ""
 msgid "Miscellaneous (Wallet)"
 msgstr ""
 
-#: helpers/character.py:210 helpers/character.py:320 helpers/core.py:462
+#: helpers/character.py:209 helpers/core.py:505 helpers/core.py:529
 #: templates/ledger/partials/information/day.html:8
 #: templates/ledger/partials/information/hourly.html:8
 #: templates/ledger/partials/information/summary.html:9
@@ -101,33 +101,33 @@ msgstr ""
 msgid "Ratting"
 msgstr ""
 
-#: helpers/character.py:215
+#: helpers/character.py:214
 msgid "ESS"
 msgstr ""
 
-#: helpers/character.py:220 helpers/character.py:322
+#: helpers/character.py:219 helpers/core.py:531
 #: templates/ledger/partials/view/card.html:109
 msgid "Mining"
 msgstr ""
 
-#: helpers/character.py:225
+#: helpers/character.py:224
 msgid "Miscellaneous"
 msgstr ""
 
-#: helpers/character.py:230 templates/ledger/partials/table/char-ledger.html:16
+#: helpers/character.py:229 templates/ledger/partials/table/char-ledger.html:16
 #: templates/ledger/partials/table/corp-ledger.html:12
 #: templates/ledger/partials/view/card.html:127
 msgid "Costs"
-msgstr ""
-
-#: helpers/character.py:321 helpers/core.py:463
-msgid "Encounter Surveillance System"
 msgstr ""
 
 #: helpers/core.py:179 templates/ledger/partials/table/char-ledger.html:45
 #: templates/ledger/partials/table/char-ledger.html:69
 #: templates/ledger/partials/table/corp-ledger.html:58
 msgid "View Details"
+msgstr ""
+
+#: helpers/core.py:506 helpers/core.py:530
+msgid "Encounter Surveillance System"
 msgstr ""
 
 #: helpers/ref_type.py:196
@@ -147,11 +147,11 @@ msgid "Market"
 msgstr ""
 
 #: helpers/ref_type.py:200
-msgid "Rental"
+msgid "Daily Goal Reward"
 msgstr ""
 
 #: helpers/ref_type.py:201
-msgid "Daily Goal Reward"
+msgid "Structure Rental"
 msgstr ""
 
 #: managers/corporation_journal_manager.py:382
@@ -626,7 +626,7 @@ msgid "Current Day"
 msgstr ""
 
 #: templates/ledger/partials/information/day.html:47
-#: templates/ledger/partials/information/summary.html:48
+#: templates/ledger/partials/information/summary.html:69
 #: templates/ledger/partials/information/view_character_content.html:13
 #: templates/ledger/partials/table/char-ledger.html:56
 #: templates/ledger/partials/table/corp-ledger.html:45
@@ -646,7 +646,12 @@ msgstr ""
 msgid "Summary Hour"
 msgstr ""
 
-#: templates/ledger/partials/information/summary.html:36
+#: templates/ledger/partials/information/summary.html:26
+#: templates/ledger/partials/information/summary.html:53
+msgid "Included Categories"
+msgstr ""
+
+#: templates/ledger/partials/information/summary.html:47
 msgid "Cost"
 msgstr ""
 
@@ -658,19 +663,11 @@ msgstr ""
 msgid "Hourly"
 msgstr ""
 
-#: templates/ledger/partials/information/view_character_content.html:29
-msgid "Orange Color is for Info only and is not included in the Calculation"
-msgstr ""
-
-#: templates/ledger/partials/information/view_character_content.html:34
-msgid "All amounts shown are taxes collected from characters"
-msgstr ""
-
-#: templates/ledger/partials/information/view_character_content.html:40
+#: templates/ledger/partials/information/view_character_content.html:30
 msgid "Error"
 msgstr ""
 
-#: templates/ledger/partials/information/view_character_content.html:44
+#: templates/ledger/partials/information/view_character_content.html:34
 msgid "No ratting data found..."
 msgstr ""
 

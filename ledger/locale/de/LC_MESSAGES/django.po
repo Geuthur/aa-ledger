@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-24 16:57+0200\n"
+"POT-Creation-Date: 2025-08-25 12:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -94,7 +94,7 @@ msgstr "Kosten (Konto)"
 msgid "Miscellaneous (Wallet)"
 msgstr "Verschiedenes (Konto)"
 
-#: helpers/character.py:210 helpers/character.py:320 helpers/core.py:462
+#: helpers/character.py:209 helpers/core.py:505 helpers/core.py:529
 #: templates/ledger/partials/information/day.html:8
 #: templates/ledger/partials/information/hourly.html:8
 #: templates/ledger/partials/information/summary.html:9
@@ -102,34 +102,34 @@ msgstr "Verschiedenes (Konto)"
 msgid "Ratting"
 msgstr "Ratting"
 
-#: helpers/character.py:215
+#: helpers/character.py:214
 msgid "ESS"
 msgstr ""
 
-#: helpers/character.py:220 helpers/character.py:322
+#: helpers/character.py:219 helpers/core.py:531
 #: templates/ledger/partials/view/card.html:109
 msgid "Mining"
 msgstr "Bergbau"
 
-#: helpers/character.py:225
+#: helpers/character.py:224
 msgid "Miscellaneous"
 msgstr "Verschiedenes"
 
-#: helpers/character.py:230 templates/ledger/partials/table/char-ledger.html:16
+#: helpers/character.py:229 templates/ledger/partials/table/char-ledger.html:16
 #: templates/ledger/partials/table/corp-ledger.html:12
 #: templates/ledger/partials/view/card.html:127
 msgid "Costs"
 msgstr "Kosten"
-
-#: helpers/character.py:321 helpers/core.py:463
-msgid "Encounter Surveillance System"
-msgstr "Gefechtsüberwachungssystem"
 
 #: helpers/core.py:179 templates/ledger/partials/table/char-ledger.html:45
 #: templates/ledger/partials/table/char-ledger.html:69
 #: templates/ledger/partials/table/corp-ledger.html:58
 msgid "View Details"
 msgstr "Zeige Details"
+
+#: helpers/core.py:506 helpers/core.py:530
+msgid "Encounter Surveillance System"
+msgstr "Gefechtsüberwachungssystem"
 
 #: helpers/ref_type.py:196
 msgid "Corporation Contract"
@@ -148,12 +148,12 @@ msgid "Market"
 msgstr "Markt"
 
 #: helpers/ref_type.py:200
-msgid "Rental"
-msgstr ""
-
-#: helpers/ref_type.py:201
 msgid "Daily Goal Reward"
 msgstr "Tägliche Ziele Belohnung"
+
+#: helpers/ref_type.py:201
+msgid "Structure Rental"
+msgstr "Strukturen Miete"
 
 #: managers/corporation_journal_manager.py:382
 msgid "Master Wallet"
@@ -627,7 +627,7 @@ msgid "Current Day"
 msgstr "Aktueller Tag"
 
 #: templates/ledger/partials/information/day.html:47
-#: templates/ledger/partials/information/summary.html:48
+#: templates/ledger/partials/information/summary.html:69
 #: templates/ledger/partials/information/view_character_content.html:13
 #: templates/ledger/partials/table/char-ledger.html:56
 #: templates/ledger/partials/table/corp-ledger.html:45
@@ -647,7 +647,12 @@ msgstr "Kosten pro Stunde"
 msgid "Summary Hour"
 msgstr "Zusammenfassung Stunde"
 
-#: templates/ledger/partials/information/summary.html:36
+#: templates/ledger/partials/information/summary.html:26
+#: templates/ledger/partials/information/summary.html:53
+msgid "Included Categories"
+msgstr ""
+
+#: templates/ledger/partials/information/summary.html:47
 msgid "Cost"
 msgstr "Kosten"
 
@@ -659,22 +664,11 @@ msgstr "Täglich"
 msgid "Hourly"
 msgstr "Stündlich"
 
-#: templates/ledger/partials/information/view_character_content.html:29
-msgid "Orange Color is for Info only and is not included in the Calculation"
-msgstr ""
-"Die orange Farbe dient nur zur Information und wird nicht in die Berechnung "
-"einbezogen"
-
-#: templates/ledger/partials/information/view_character_content.html:34
-msgid "All amounts shown are taxes collected from characters"
-msgstr ""
-"Alle angegebenen Beträge sind Steuern, die von Charaktären erhoben werden"
-
-#: templates/ledger/partials/information/view_character_content.html:40
+#: templates/ledger/partials/information/view_character_content.html:30
 msgid "Error"
 msgstr ""
 
-#: templates/ledger/partials/information/view_character_content.html:44
+#: templates/ledger/partials/information/view_character_content.html:34
 msgid "No ratting data found..."
 msgstr "Keine Ratting daten gefunden..."
 
@@ -940,3 +934,12 @@ msgstr "Udate alle Characters - in Warteschlange eingereiht"
 #: views/index.py:59
 msgid "Queued Update All Corporations"
 msgstr "Update alle Corporations - in Warteschlange eingereiht"
+
+#~ msgid "Orange Color is for Info only and is not included in the Calculation"
+#~ msgstr ""
+#~ "Die orange Farbe dient nur zur Information und wird nicht in die "
+#~ "Berechnung einbezogen"
+
+#~ msgid "All amounts shown are taxes collected from characters"
+#~ msgstr ""
+#~ "Alle angegebenen Beträge sind Steuern, die von Charaktären erhoben werden"

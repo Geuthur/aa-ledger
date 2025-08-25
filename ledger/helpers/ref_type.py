@@ -197,7 +197,6 @@ class RefTypeManager:
     _("Corporation Withdrawal")
     _("Mission Reward")
     _("Market")
-    _("Rental")
     _("Daily Goal Reward")
     _("Structure Rental")
 
