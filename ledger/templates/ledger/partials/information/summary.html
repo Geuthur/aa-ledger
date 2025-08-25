@@ -16,8 +16,18 @@
             {% with value=character|get_item:key %}
                 {% if value %}
                     <div class="row description-row">
-                        <div class="col-sm-6 {% if label == 'Not Defined Category' %}text-warning{% endif %}">{{ label }}:</div>
-                        <div class='col-sm-4 text-end'>
+                        <div class="col-sm-6 {% if label == 'Not Defined Category' %}text-warning{% endif %}">
+                            {{ label }}
+                            <i class="fa-regular fa-circle-question"
+                                data-bs-toggle="info-popover"
+                                data-bs-html="true"
+                                data-bs-trigger="hover focus"
+                                data-bs-placement="top"
+                                title="{% trans 'Included Categories' %}"
+                                data-bs-content="{{ value.ref_types|join:', ' }}">
+                            </i>
+                            :
+                        </div>                        <div class='col-sm-4 text-end'>
                             <span class="text-success">
                                 {{ value.total_amount|floatformat:0|intcomma }}
                             </span> ISK
@@ -33,7 +43,18 @@
             {% with value=character|get_item:key %}
                 {% if value %}
                     <div class="row description-row">
-                        <div class="col-sm-6 {% if label == 'Not Defined Category' %}text-warning{% endif %}">{{ label }} {% trans "Cost" %}:</div>
+                        <div class="col-sm-6 {% if label == 'Not Defined Category' %}text-warning{% endif %}">
+                            {{ label }} {% trans "Cost" %}
+                            <i class="fa-regular fa-circle-question"
+                                data-bs-toggle="info-popover"
+                                data-bs-html="true"
+                                data-bs-trigger="hover focus"
+                                data-bs-placement="top"
+                                title="{% trans 'Included Categories' %}"
+                                data-bs-content="{{ value.ref_types|join:', ' }}">
+                            </i>
+                            :
+                        </div>
                         <div class='col-sm-4 text-end'>
                             <span class="text-danger">{{ value.total_amount|floatformat:0|intcomma }}</span> ISK
                         </div>
@@ -59,5 +80,9 @@
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
           return new bootstrap.Tooltip(tooltipTriggerEl)
         })
+        $('[data-bs-toggle="info-popover"]').popover({
+            trigger: 'hover',
+            html: true,
+        });
     });
 </script>
