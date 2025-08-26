@@ -129,6 +129,7 @@ $(document).ready(() => {
             $('[data-tooltip-toggle="ledger"]').tooltip({
                 trigger: 'hover',
             });
+            $('#ledger-index').addClass('show');
         },
         drawCallback: function() {
             $('[data-tooltip-toggle="ledger"]').tooltip({

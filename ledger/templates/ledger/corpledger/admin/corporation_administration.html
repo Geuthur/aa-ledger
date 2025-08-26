@@ -17,16 +17,18 @@
             <h3 class="me-3">{% translate "Administration" %}</h3>
         </div>
         <!-- Content -->
-        <div class="card-body">
-            <div class="row">
-                <div class="col-lg-6 col-md-12">
-                    {% include 'ledger/partials/administration/dashboard.html' %}
+        <div id="ledger-index" class="card-body rounded-bottom fade">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-6 col-md-12">
+                        {% include 'ledger/partials/administration/dashboard.html' %}
+                    </div>
+                    <div class="col-lg-6 col-md-12">
+                        {% include 'ledger/partials/administration/corporation.html' %}
+                    </div>
                 </div>
-                <div class="col-lg-6 col-md-12">
-                    {% include 'ledger/partials/administration/corporation.html' %}
-                </div>
+                {% include 'ledger/partials/administration/corporation_characters.html' %}
             </div>
-            {% include 'ledger/partials/administration/corporation_characters.html' %}
         </div>
     </div>
 {% endblock %}

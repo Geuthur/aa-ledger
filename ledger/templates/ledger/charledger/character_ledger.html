@@ -64,20 +64,16 @@
             <a href="{% url 'ledger:character_overview' %}" class="overview"><button class="btn btn-secondary overview">{% translate 'Account Overview' %}</button></a>
         </div>
     </div>
-    <div class="card-body rounded-bottom">
-
-        <div role="tabpanel" class="tab-pane active fade show" id="tab-current_month">
-            <div class="card-body bg-secondary table-responsive">
-                {% if view.type == "ledger" %}
-                    {% include 'ledger/partials/table/char-ledger.html' with characters=characters totals=totals is_old_ess=is_old_ess %}
-                {% else %}
-                    {% include 'ledger/partials/view/card.html' with character=character totals=totals %}
-                {% endif %}
-            </div>
-
-            {% include 'ledger/partials/thirdparty/billboard.html' %}
+    <div id="ledger-index" class="card-body rounded-bottom fade">
+        <div class="card-body bg-secondary table-responsive">
+            {% if view.type == "ledger" %}
+                {% include 'ledger/partials/table/char-ledger.html' with characters=characters totals=totals is_old_ess=is_old_ess %}
+            {% else %}
+                {% include 'ledger/partials/view/card.html' with character=character totals=totals %}
+            {% endif %}
         </div>
 
+        {% include 'ledger/partials/thirdparty/billboard.html' %}
     </div>
     <!-- Tab Session -->
     {% include 'ledger/partials/modal/modal.html' with name="ViewCharacter" %}
