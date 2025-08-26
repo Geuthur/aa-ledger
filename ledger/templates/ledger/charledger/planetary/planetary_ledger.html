@@ -21,15 +21,11 @@
             </a>
         </div>
     </div>
-    <div class="card-body bg-secondary tab-content rounded-bottom">
-        <div class="d-flex justify-content-between align-items-center">
+    <div id="ledger-index" class="card-body rounded-bottom fade">
+        <div class="card-body bg-secondary table-responsive">
             <span>
                 <i class="fa-solid fa-bullhorn"></i> {% trans "Notification" %} <span class="text-success">{% trans "ON" %}</span>/<span class="text-danger">{% trans "OFF" %}</span>
             </span>
-            <span id="next-update" class="text-end"></span>
-        </div>
-
-        <div class="tab-content">
             {% include 'ledger/partials/table/planetary.html' %}
             <button id="turn-all-notification" type="button" class="btn btn-primary btn-sm btn-square me-2 d-none"
                 data-bs-toggle="modal"

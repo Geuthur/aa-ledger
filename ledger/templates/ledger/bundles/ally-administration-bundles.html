@@ -48,6 +48,8 @@
                 manageDashboardStatistics.removeClass('d-none');
                 manageDashboardStatisticsTable.removeClass('d-none');
 
+                // Show the ledger content after initialization
+                $('#ledger-index').addClass('show');
             },
             error: function(xhr, status, error) {
                 console.error('Error fetching data:', error);

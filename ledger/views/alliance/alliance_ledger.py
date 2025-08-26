@@ -191,6 +191,7 @@ def alliance_administration(request, alliance_id):
     context = {
         "alliance_id": alliance_id,
         "title": "Alliance Administration",
+        "alliance": alliance,
         "corporations": corporations,
         "missing_corporations": missing_corporations,
     }

@@ -1,58 +1,37 @@
 {% load i18n %}
 
-{% if corporations|length == 0 %}
+{% if not alliance %}
     <div class="alert alert-info" role="alert">
-        {% translate "No Corporations found." %}
+        {% translate "No Alliance found." %}
     </div>
 {% else %}
-    <div class="card-characters-container">
+    <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
+        <h3 class="text-white">{% translate "Alliance" %}</h3>
+    </div>
+    <div class="card-body bg-secondary">
         <ul class="card-characters">
-            {% for corporation in corporations %}
-                <li class="card-item">
-                    <div class="card">
-                        <!-- Corporation Name -->
-                        <div class="card-header">
-                            {{ corporation.corporation_name }} {{ corporation.get_status.bootstrap_icon }}
-                        </div>
-                        <!-- Corporation Logo -->
-                        <div class="card-body text-center {{ corporation.get_status_opacity }}">
-                            <a href="{% url 'ledger:corporation_ledger' corporation_id=corporation.corporation.corporation_id %}">
-                                <img src="{{ corporation.corporation.logo_url_256 }}">
-                            </a>
-                        </div>
-                        <!-- Corporation Actions -->
-                        <div class="card-footer">
-                            <a class="btn btn-success btn-sm"
-                                href="{% url 'ledger:corporation_ledger' corporation_id=corporation.corporation.corporation_id %}"
-                                role="button"
-                                data-tooltip-toggle="ledger-tooltip"
-                                title="{% translate 'View Corporation Ledger' %}">
-                                <i class="fas fa-sign-in-alt"></i>
-                            </a>
-                        </div>
-                    </div>
-                </li>
-            {% endfor %}
-
-            {% comment %} Is a EveCorporationInfo QuerySet {% endcomment %}
-            {% for corporation in missing_corporations %}
-                <li class="card-item">
-                    <div class="card bg-danger opacity-25">
-                        <!-- Corporation Name -->
-                        <div class="card-header">
-                            {{ corporation.corporation_name }}
-                        </div>
-                        <!-- Corporation Logo -->
-                        <div class="card-body">
-                            <img src="{{ corporation.logo_url_256 }}">
-                        </div>
-                        <!-- Corporation Actions -->
-                        <div class="card-footer no-opacity">
-                            {% translate "Corporation is not registered in Ledger." %}
-                        </div>
-                    </div>
-                </li>
-            {% endfor %}
+            <div class="card">
+                <!-- Alliance Name -->
+                <div class="card-header text-center">
+                    {{ alliance.alliance_name }} {{ alliance.get_status.bootstrap_icon }}
+                </div>
+                <!-- Alliance Logo -->
+                <div class="card-body text-center">
+                    <a href="{% url 'ledger:alliance_ledger' alliance_id=alliance.alliance_id %}?single=True">
+                        <img src="{{ alliance.logo_url_256 }}">
+                    </a>
+                </div>
+                <!-- Alliance Actions -->
+                <div class="card-footer text-center">
+                    <a class="btn btn-success btn-sm"
+                        href="{% url 'ledger:alliance_ledger' alliance_id=alliance.alliance_id %}?single=True"
+                        role="button"
+                        data-tooltip-toggle="ledger-tooltip"
+                        title="{% translate 'View Alliance Ledger' %}">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </a>
+                </div>
+            </div>
         </ul>
     </div>
 {% endif %}

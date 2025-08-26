@@ -50,13 +50,16 @@
                 "orderCellsTop": true,
                 initComplete: function() {
                     $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({ trigger: 'hover' });
-                    $('#ratting').removeClass('d-none');
                 },
             }
         );
 
-        // Initialize tooltips
-        $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({ trigger: 'hover' });
+        tableRatting.on('draw', function() {
+            $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({ trigger: 'hover' });
+        });
+
+        // Show the ledger content after initialization
+        $('#ledger-index').addClass('show');
     });
 </script>
 
