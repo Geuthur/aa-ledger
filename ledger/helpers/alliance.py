@@ -322,9 +322,4 @@ class AllianceData(LedgerCore):
             .annotate_miscellaneous()
         )
         self.billboard.create_or_update_results(rattingbar)
-        xy_data = self.billboard.generate_xy_series()
-        self.billboard.create_xy_chart(
-            title="Ratting Bar",
-            categories=["Bounty", "ESS", "Miscellaneous"],
-            series=xy_data,
-        )
+        self._build_xy_chart(title=_("Ratting Bar"))

@@ -5,8 +5,9 @@ from decimal import Decimal
 from typing import Any
 
 # Django
-from django.db.models import QuerySet
+from django.db.models import QuerySet, TextChoices
 from django.db.models.functions import TruncDay, TruncHour, TruncMonth
+from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
@@ -43,6 +44,16 @@ class ChartData:
 
 class BillboardSystem:
     """BillboardSystem class to process billboard data."""
+
+    class Categories(TextChoices):
+        """Translation Helper"""
+
+        BOUNTY = "Bounty", _("Bounty")
+        ESS = "ESS", _("ESS")
+        MINING = "Mining", _("Mining")
+        MISCELLANEOUS = "Miscellaneous", _("Miscellaneous")
+        COSTS = "Costs", _("Costs")
+        UNKNOWN = "Unknown", _("Unknown")
 
     @dataclass
     class BillboardDict:
@@ -204,11 +215,11 @@ class BillboardSystem:
             ess = entry.get("ess_income", 0)
             miscellaneous = entry.get("miscellaneous", 0)
 
-            self.results[date]["bounty"] += bounty
-            self.results[date]["ess"] += (
+            self.results[date][self.Categories.BOUNTY] += bounty
+            self.results[date][self.Categories.ESS] += (
                 ess if not is_old_ess else bounty * Decimal("0.667")
             )
-            self.results[date]["miscellaneous"] += miscellaneous
+            self.results[date][self.Categories.MISCELLANEOUS] += miscellaneous
 
         return self.results
 
@@ -220,15 +231,19 @@ class BillboardSystem:
         for entry in qs:
             date = entry["period"]
             category_value = entry.get(f"{category}_income", 0)
-            self.results[date][category] += category_value
+            try:
+                self.results[date][self.Categories[category.upper()]] += category_value
+            except KeyError:
+                self.results[date][self.Categories.UNKNOWN] += category_value
 
     def generate_xy_series(self):
-        """Create the ratting bar amounts for the billboard"""
+        """Create the ratting bar amounts and categories for the billboard"""
         formatted_results = []
+        category_set = set()
 
         for date, values in self.results.items():
             # Remove categories with value 0
-            filtered_values = {k: v for k, v in values.items() if v != 0}
+            filtered_values = {str(k): v for k, v in values.items() if v != 0}
             if not filtered_values:
                 continue  # Skip if all categories are 0
 
@@ -238,10 +253,20 @@ class BillboardSystem:
                     **{k: int(v) for k, v in filtered_values.items()},
                 }
             )
+            category_set.update(filtered_values.keys())
+
+        # Create categories
+        categories = []
+        for cat in sorted(category_set):
+            try:
+                label = self.Categories(cat).label
+            except Exception:  # pylint: disable=broad-except
+                label = cat
+            categories.append({"name": cat, "label": str(label)})
 
         if not formatted_results:
-            return []
-        return formatted_results
+            return [], []
+        return formatted_results, categories
 
     def create_xy_chart(self, title, categories, series):
         """Create the XY chart for the billboard"""

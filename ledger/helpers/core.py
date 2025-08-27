@@ -563,3 +563,15 @@ class LedgerCore:
                 amounts[key]["average_day_tick"] = total / avg / 20
                 amounts[key]["average_hour_tick"] = total / avg / 24 / 20
         return amounts
+
+    def _build_xy_chart(self, title: str):
+        """Build the XY chart for the billboard."""
+        if not self.billboard.results:
+            return
+
+        xy_data, categories = self.billboard.generate_xy_series()
+        self.billboard.create_xy_chart(
+            title=title,
+            categories=categories,
+            series=xy_data,
+        )

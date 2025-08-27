@@ -258,9 +258,4 @@ class CharacterData(LedgerCore):
         rattingbar_mining = rattingbar_mining_timeline.annotate_mining(with_period=True)
         self.billboard.create_or_update_results(rattingbar, is_old_ess=is_old_ess)
         self.billboard.add_category(rattingbar_mining, category="mining")
-        xy_data = self.billboard.generate_xy_series()
-        self.billboard.create_xy_chart(
-            title="Ratting Bar",
-            categories=["Bounty", "ESS", "Mining", "Miscellaneous"],
-            series=xy_data,
-        )
+        self._build_xy_chart(title=_("Ratting Bar"))
