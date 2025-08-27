@@ -96,7 +96,7 @@
                     </dl>
 
                     <dl class="dl-horizontal">
-                        <dt>{% trans "ESS Payout" %}:</dt>
+                        <dt>{% trans "ESS Amount" %}:</dt>
                         <dd class="nowrap" id="amount_ess">
                             <span class="{% if totals.ess == 0 %}text-white{% else %}text-success{% endif %}">
                                 {{ totals.ess|floatformat:0|intcomma|default:"0" }} <span class="text-white">ISK</span>

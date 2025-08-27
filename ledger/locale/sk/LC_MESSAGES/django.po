@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-25 12:48+0200\n"
+"POT-Creation-Date: 2025-08-27 18:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -96,9 +96,6 @@ msgid "Miscellaneous (Wallet)"
 msgstr ""
 
 #: helpers/character.py:209 helpers/core.py:505 helpers/core.py:529
-#: templates/ledger/partials/information/day.html:8
-#: templates/ledger/partials/information/hourly.html:8
-#: templates/ledger/partials/information/summary.html:9
 #: templates/ledger/partials/view/card.html:90
 msgid "Bounty"
 msgstr ""
@@ -297,35 +294,33 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-#: templates/ledger/allyledger/admin/alliance_administration.html:25
+#: templates/ledger/allyledger/admin/alliance_administration.html:33
 msgid "Corporations"
 msgstr ""
 
-#: templates/ledger/allyledger/admin/alliance_overview.html:17
+#: templates/ledger/allyledger/admin/alliance_overview.html:16
 #: templates/ledger/allyledger/alliance_ledger.html:62
 msgid "Alliance Overview"
 msgstr ""
 
+#: templates/ledger/allyledger/admin/alliance_overview.html:25
+#: templates/ledger/partials/administration/alliance.html:9
+msgid "Alliance"
+msgstr ""
+
 #: templates/ledger/allyledger/admin/alliance_overview.html:26
-#: templates/ledger/charledger/admin/character_overview.html:26
+#: templates/ledger/charledger/admin/character_overview.html:27
 #: templates/ledger/charledger/planetary/admin/planetary_overview.html:26
-#: templates/ledger/corpledger/admin/corporation_overview.html:25
+#: templates/ledger/corpledger/admin/corporation_overview.html:26
 #: templates/ledger/partials/table/planetary.html:13
 msgid "Actions"
 msgstr ""
 
-#: templates/ledger/allyledger/admin/alliance_overview.html:79
-#: templates/ledger/charledger/admin/character_overview.html:80
+#: templates/ledger/allyledger/admin/alliance_overview.html:76
+#: templates/ledger/charledger/admin/character_overview.html:74
 #: templates/ledger/charledger/planetary/admin/planetary_overview.html:80
-#: templates/ledger/corpledger/admin/corporation_overview.html:77
+#: templates/ledger/corpledger/admin/corporation_overview.html:76
 msgid "Show"
-msgstr ""
-
-#: templates/ledger/allyledger/admin/alliance_overview.html:104
-#: templates/ledger/charledger/admin/character_overview.html:105
-#: templates/ledger/charledger/planetary/admin/planetary_overview.html:105
-#: templates/ledger/corpledger/admin/corporation_overview.html:102
-msgid "No Permission"
 msgstr ""
 
 #: templates/ledger/allyledger/alliance_ledger.html:16
@@ -421,8 +416,8 @@ msgstr ""
 msgid "Notification Deactivated"
 msgstr ""
 
-#: templates/ledger/charledger/admin/character_administration.html:25
-#: templates/ledger/partials/administration/corporation_characters.html:9
+#: templates/ledger/charledger/admin/character_administration.html:26
+#: templates/ledger/partials/administration/corporation_characters.html:8
 msgid "Characters"
 msgstr ""
 
@@ -441,6 +436,10 @@ msgstr ""
 msgid "Planetary Overview"
 msgstr ""
 
+#: templates/ledger/charledger/planetary/admin/planetary_overview.html:105
+msgid "No Permission"
+msgstr ""
+
 #: templates/ledger/charledger/planetary/planetary_ledger.html:17
 msgid "Planetary Details"
 msgstr ""
@@ -457,21 +456,26 @@ msgstr ""
 msgid "OFF"
 msgstr ""
 
-#: templates/ledger/charledger/planetary/planetary_ledger.html:39
+#: templates/ledger/charledger/planetary/planetary_ledger.html:35
 msgid "Toggle Alarm"
 msgstr ""
 
-#: templates/ledger/charledger/planetary/planetary_ledger.html:40
+#: templates/ledger/charledger/planetary/planetary_ledger.html:36
 msgid "Are you sure to Turn On/Off all Notifications?"
 msgstr ""
 
-#: templates/ledger/charledger/planetary/planetary_ledger.html:44
+#: templates/ledger/charledger/planetary/planetary_ledger.html:40
 msgid "Turn All On/Off"
 msgstr ""
 
 #: templates/ledger/corpledger/admin/corporation_overview.html:16
 #: templates/ledger/corpledger/corporation_ledger.html:62
 msgid "Corporation Overview"
+msgstr ""
+
+#: templates/ledger/corpledger/admin/corporation_overview.html:25
+#: templates/ledger/partials/administration/corporation.html:9
+msgid "Corporation"
 msgstr ""
 
 #: templates/ledger/corpledger/corporation_ledger.html:16
@@ -488,21 +492,29 @@ msgid "Index"
 msgstr ""
 
 #: templates/ledger/partials/administration/alliance.html:5
+msgid "No Alliance found."
+msgstr ""
+
+#: templates/ledger/partials/administration/alliance.html:30
+msgid "View Alliance Ledger"
+msgstr ""
+
+#: templates/ledger/partials/administration/alliance_corporations.html:5
 msgid "No Corporations found."
 msgstr ""
 
-#: templates/ledger/partials/administration/alliance.html:29
+#: templates/ledger/partials/administration/alliance_corporations.html:29
 #: templates/ledger/partials/administration/corporation.html:30
 msgid "View Corporation Ledger"
 msgstr ""
 
-#: templates/ledger/partials/administration/alliance.html:52
+#: templates/ledger/partials/administration/alliance_corporations.html:52
 msgid "Corporation is not registered in Ledger."
 msgstr ""
 
 #: templates/ledger/partials/administration/character.html:4
 #: templates/ledger/partials/administration/corporation_characters.html:4
-#: templates/ledger/partials/administration/corporation_characters.html:13
+#: templates/ledger/partials/administration/corporation_characters.html:12
 msgid "No Characters found."
 msgstr ""
 
@@ -524,10 +536,6 @@ msgstr ""
 
 #: templates/ledger/partials/administration/corporation.html:5
 msgid "No Corporation found."
-msgstr ""
-
-#: templates/ledger/partials/administration/corporation.html:9
-msgid "Corporation"
 msgstr ""
 
 #: templates/ledger/partials/administration/corporation.html:37
@@ -591,9 +599,9 @@ msgstr ""
 #: templates/ledger/partials/information/daily.html:14
 #: templates/ledger/partials/information/daily.html:31
 #: templates/ledger/partials/information/daily.html:44
-#: templates/ledger/partials/information/hourly.html:20
-#: templates/ledger/partials/information/hourly.html:37
-#: templates/ledger/partials/information/hourly.html:50
+#: templates/ledger/partials/information/hourly.html:14
+#: templates/ledger/partials/information/hourly.html:31
+#: templates/ledger/partials/information/hourly.html:44
 msgid "Avg."
 msgstr ""
 
@@ -609,26 +617,20 @@ msgstr ""
 msgid "Summary Day"
 msgstr ""
 
-#: templates/ledger/partials/information/day.html:6
-#: templates/ledger/partials/information/hourly.html:6
-#: templates/ledger/partials/information/summary.html:7
-msgid "TAX"
-msgstr ""
-
-#: templates/ledger/partials/information/day.html:17
+#: templates/ledger/partials/information/day.html:11
 msgid "Current Day -"
 msgstr ""
 
-#: templates/ledger/partials/information/day.html:34
+#: templates/ledger/partials/information/day.html:28
 msgid "Current Day Cost -"
 msgstr ""
 
-#: templates/ledger/partials/information/day.html:47
+#: templates/ledger/partials/information/day.html:41
 msgid "Current Day"
 msgstr ""
 
-#: templates/ledger/partials/information/day.html:47
-#: templates/ledger/partials/information/summary.html:69
+#: templates/ledger/partials/information/day.html:41
+#: templates/ledger/partials/information/summary.html:63
 #: templates/ledger/partials/information/view_character_content.html:13
 #: templates/ledger/partials/table/char-ledger.html:56
 #: templates/ledger/partials/table/corp-ledger.html:45
@@ -636,24 +638,24 @@ msgstr ""
 msgid "Summary"
 msgstr ""
 
-#: templates/ledger/partials/information/hourly.html:20
+#: templates/ledger/partials/information/hourly.html:14
 msgid "per Hour"
 msgstr ""
 
-#: templates/ledger/partials/information/hourly.html:37
+#: templates/ledger/partials/information/hourly.html:31
 msgid "Cost per Hour"
 msgstr ""
 
-#: templates/ledger/partials/information/hourly.html:50
+#: templates/ledger/partials/information/hourly.html:44
 msgid "Summary Hour"
 msgstr ""
 
-#: templates/ledger/partials/information/summary.html:26
-#: templates/ledger/partials/information/summary.html:53
+#: templates/ledger/partials/information/summary.html:20
+#: templates/ledger/partials/information/summary.html:47
 msgid "Included Categories"
 msgstr ""
 
-#: templates/ledger/partials/information/summary.html:47
+#: templates/ledger/partials/information/summary.html:41
 msgid "Cost"
 msgstr ""
 
@@ -785,7 +787,7 @@ msgstr ""
 #: templates/ledger/partials/table/char-ledger.html:9
 #: templates/ledger/partials/table/corp-ledger.html:9
 #: templates/ledger/partials/view/card.html:99
-msgid "ESS Payout"
+msgid "ESS Amount"
 msgstr ""
 
 #: templates/ledger/partials/table/char-ledger.html:11
