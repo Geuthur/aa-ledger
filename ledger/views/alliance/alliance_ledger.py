@@ -61,7 +61,7 @@ def alliance_ledger(request, alliance_id, year=None, month=None, day=None):
         )
     # pylint: disable=duplicate-code
     if perms is None:
-        msg = _("Alliance not found")
+        msg = _("Alliance not found.")
         messages.info(request, msg)
         return render(
             request, "ledger/allyledger/alliance_ledger.html", context=context
@@ -108,7 +108,7 @@ def alliance_details(
         )
     # pylint: disable=duplicate-code
     if perms is None:
-        msg = _("Alliance not found")
+        msg = _("Alliance not found.")
         return render(
             request,
             "ledger/partials/information/view_character_content.html",
@@ -174,7 +174,7 @@ def alliance_administration(request, alliance_id):
         messages.error(request, msg)
         return redirect("ledger:alliance_ledger_index")
     if perm is None:
-        msg = _("Alliance not found")
+        msg = _("Alliance not found.")
         messages.info(request, msg)
         return redirect("ledger:alliance_ledger_index")
 

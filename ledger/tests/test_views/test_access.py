@@ -716,7 +716,7 @@ class TestViewAllianceLedgerAccess(TestCase):
         )
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Alliance not found")
+        self.assertContains(response, "Alliance not found.")
 
     def test_view_alliance_overview(self):
         """Test view alliance overview."""
@@ -777,7 +777,7 @@ class TestViewAllianceLedgerAccess(TestCase):
         response = alliance_ledger.alliance_administration(request, 6666)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.info.assert_called_once_with(request, "Alliance not found")
+        mock_messages.info.assert_called_once_with(request, "Alliance not found.")
 
 
 class TestViewPlanetaryLedgerAccess(TestCase):

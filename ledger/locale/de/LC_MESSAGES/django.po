@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-27 18:51+0200\n"
+"POT-Creation-Date: 2025-08-27 20:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,6 +43,38 @@ msgid ""
 "Started force update for {count} character(s). Updates will run in the "
 "background."
 msgstr ""
+
+#: api/api_helper/billboard_helper.py:50 helpers/character.py:209
+#: helpers/core.py:505 helpers/core.py:529
+#: templates/ledger/partials/view/card.html:90
+msgid "Bounty"
+msgstr "Kopfgeld"
+
+#: api/api_helper/billboard_helper.py:51 helpers/character.py:214
+msgid "ESS"
+msgstr ""
+
+#: api/api_helper/billboard_helper.py:52 helpers/character.py:219
+#: helpers/core.py:531 templates/ledger/partials/view/card.html:109
+msgid "Mining"
+msgstr "Bergbau"
+
+#: api/api_helper/billboard_helper.py:53 helpers/character.py:224
+msgid "Miscellaneous"
+msgstr "Verschiedenes"
+
+#: api/api_helper/billboard_helper.py:54 helpers/character.py:229
+#: templates/ledger/partials/table/char-ledger.html:16
+#: templates/ledger/partials/table/corp-ledger.html:12
+#: templates/ledger/partials/view/card.html:127
+msgid "Costs"
+msgstr "Kosten"
+
+#: api/api_helper/billboard_helper.py:55
+#: managers/corporation_journal_manager.py:384
+#: managers/corporation_journal_manager.py:408
+msgid "Unknown"
+msgstr "Unbekannt"
 
 #: api/api_helper/planetary_helper.py:44
 msgid "No facility"
@@ -80,7 +112,7 @@ msgstr "Extraktor Information"
 
 #: helpers/alliance.py:163 helpers/corporation.py:196
 msgid "Bounty (Wallet)"
-msgstr "Bounty (Konto)"
+msgstr "Kopfgeld (Konto)"
 
 #: helpers/alliance.py:168 helpers/corporation.py:201
 msgid "ESS (Wallet)"
@@ -94,29 +126,9 @@ msgstr "Kosten (Konto)"
 msgid "Miscellaneous (Wallet)"
 msgstr "Verschiedenes (Konto)"
 
-#: helpers/character.py:209 helpers/core.py:505 helpers/core.py:529
-#: templates/ledger/partials/view/card.html:90
-msgid "Bounty"
-msgstr "Kopfgeld"
-
-#: helpers/character.py:214
-msgid "ESS"
+#: helpers/alliance.py:327 helpers/character.py:263 helpers/corporation.py:407
+msgid "Ratting Bar"
 msgstr ""
-
-#: helpers/character.py:219 helpers/core.py:531
-#: templates/ledger/partials/view/card.html:109
-msgid "Mining"
-msgstr "Bergbau"
-
-#: helpers/character.py:224
-msgid "Miscellaneous"
-msgstr "Verschiedenes"
-
-#: helpers/character.py:229 templates/ledger/partials/table/char-ledger.html:16
-#: templates/ledger/partials/table/corp-ledger.html:12
-#: templates/ledger/partials/view/card.html:127
-msgid "Costs"
-msgstr "Kosten"
 
 #: helpers/core.py:179 templates/ledger/partials/table/char-ledger.html:45
 #: templates/ledger/partials/table/char-ledger.html:69
@@ -155,11 +167,6 @@ msgstr "Strukturen Miete"
 #: managers/corporation_journal_manager.py:382
 msgid "Master Wallet"
 msgstr "Hauptkonto"
-
-#: managers/corporation_journal_manager.py:384
-#: managers/corporation_journal_manager.py:408
-msgid "Unknown"
-msgstr "Unbekannt"
 
 #: models/characteraudit.py:47 models/corporationaudit.py:45
 #: templates/ledger/partials/view/card.html:44
@@ -489,6 +496,12 @@ msgstr "Ledger - Error"
 #: templates/ledger/error.html:15
 msgid "Index"
 msgstr ""
+
+#: templates/ledger/partials/administration/alliance.html:5
+#: views/alliance/alliance_ledger.py:64 views/alliance/alliance_ledger.py:111
+#: views/alliance/alliance_ledger.py:177
+msgid "Alliance not found."
+msgstr "Allianz wurde nicht gefunden."
 
 #: templates/ledger/partials/administration/alliance.html:30
 msgid "View Alliance Ledger"
@@ -881,12 +894,6 @@ msgstr "{alliance_name} erfolgreich zum Ledger hinzugefügt"
 #, python-brace-format
 msgid "Failed to fetch Alliance data for {alliance_name}"
 msgstr "Allianzdaten für {alliance_name} konnten nicht abgerufen werden"
-
-#: templates/ledger/partials/administration/alliance.html:5
-#: views/alliance/alliance_ledger.py:64 views/alliance/alliance_ledger.py:111
-#: views/alliance/alliance_ledger.py:177
-msgid "Alliance not found"
-msgstr "Allianz wurde nicht gefunden"
 
 #: views/character/character_ledger.py:89
 #: views/corporation/corporation_ledger.py:71

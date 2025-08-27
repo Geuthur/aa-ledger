@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-27 18:51+0200\n"
+"POT-Creation-Date: 2025-08-27 20:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,6 +45,38 @@ msgstr ""
 msgid ""
 "Started force update for {count} character(s). Updates will run in the "
 "background."
+msgstr ""
+
+#: api/api_helper/billboard_helper.py:50 helpers/character.py:209
+#: helpers/core.py:505 helpers/core.py:529
+#: templates/ledger/partials/view/card.html:90
+msgid "Bounty"
+msgstr ""
+
+#: api/api_helper/billboard_helper.py:51 helpers/character.py:214
+msgid "ESS"
+msgstr ""
+
+#: api/api_helper/billboard_helper.py:52 helpers/character.py:219
+#: helpers/core.py:531 templates/ledger/partials/view/card.html:109
+msgid "Mining"
+msgstr ""
+
+#: api/api_helper/billboard_helper.py:53 helpers/character.py:224
+msgid "Miscellaneous"
+msgstr ""
+
+#: api/api_helper/billboard_helper.py:54 helpers/character.py:229
+#: templates/ledger/partials/table/char-ledger.html:16
+#: templates/ledger/partials/table/corp-ledger.html:12
+#: templates/ledger/partials/view/card.html:127
+msgid "Costs"
+msgstr ""
+
+#: api/api_helper/billboard_helper.py:55
+#: managers/corporation_journal_manager.py:384
+#: managers/corporation_journal_manager.py:408
+msgid "Unknown"
 msgstr ""
 
 #: api/api_helper/planetary_helper.py:44
@@ -97,28 +129,8 @@ msgstr ""
 msgid "Miscellaneous (Wallet)"
 msgstr ""
 
-#: helpers/character.py:209 helpers/core.py:505 helpers/core.py:529
-#: templates/ledger/partials/view/card.html:90
-msgid "Bounty"
-msgstr ""
-
-#: helpers/character.py:214
-msgid "ESS"
-msgstr ""
-
-#: helpers/character.py:219 helpers/core.py:531
-#: templates/ledger/partials/view/card.html:109
-msgid "Mining"
-msgstr ""
-
-#: helpers/character.py:224
-msgid "Miscellaneous"
-msgstr ""
-
-#: helpers/character.py:229 templates/ledger/partials/table/char-ledger.html:16
-#: templates/ledger/partials/table/corp-ledger.html:12
-#: templates/ledger/partials/view/card.html:127
-msgid "Costs"
+#: helpers/alliance.py:327 helpers/character.py:263 helpers/corporation.py:407
+msgid "Ratting Bar"
 msgstr ""
 
 #: helpers/core.py:179 templates/ledger/partials/table/char-ledger.html:45
@@ -157,11 +169,6 @@ msgstr ""
 
 #: managers/corporation_journal_manager.py:382
 msgid "Master Wallet"
-msgstr ""
-
-#: managers/corporation_journal_manager.py:384
-#: managers/corporation_journal_manager.py:408
-msgid "Unknown"
 msgstr ""
 
 #: models/characteraudit.py:47 models/corporationaudit.py:45
@@ -494,7 +501,9 @@ msgid "Index"
 msgstr ""
 
 #: templates/ledger/partials/administration/alliance.html:5
-msgid "No Alliance found."
+#: views/alliance/alliance_ledger.py:64 views/alliance/alliance_ledger.py:111
+#: views/alliance/alliance_ledger.py:177
+msgid "Alliance not found."
 msgstr ""
 
 #: templates/ledger/partials/administration/alliance.html:30
@@ -884,11 +893,6 @@ msgstr ""
 #: views/alliance/add_ally.py:67
 #, python-brace-format
 msgid "Failed to fetch Alliance data for {alliance_name}"
-msgstr ""
-
-#: views/alliance/alliance_ledger.py:64 views/alliance/alliance_ledger.py:111
-#: views/alliance/alliance_ledger.py:177
-msgid "Alliance not found"
 msgstr ""
 
 #: views/character/character_ledger.py:89
