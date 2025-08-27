@@ -243,10 +243,20 @@ class CharacterData(LedgerCore):
                 character__eve_character__character_id__in=character_ids,
             )
         )
+        rattingbar_mining_timeline = self.billboard.create_timeline(
+            CharacterMiningLedger.objects.filter(
+                self.filter_date,
+                character__eve_character__character_id__in=character_ids,
+            )
+        )
+        logger.info(rattingbar_mining_timeline)
         rattingbar = (
             rattingbar_timeline.annotate_bounty_income()
             .annotate_ess_income()
             .annotate_miscellaneous_with_exclude(exclude=self.alts_ids)
         )
-        self.billboard.create_or_update_results(rattingbar, is_old_ess=is_old_ess)
+        rattingbar_mining = rattingbar_mining_timeline.annotate_mining(with_period=True)
+        self.billboard.create_or_update_results(
+            rattingbar, mining_qs=rattingbar_mining, is_old_ess=is_old_ess
+        )
         self.billboard.create_ratting_bar()

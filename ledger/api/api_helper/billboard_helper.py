@@ -197,7 +197,12 @@ class BillboardSystem:
         qs = qs.values("period").order_by("period")
         return qs
 
-    def create_or_update_results(self, qs: QuerySet[dict], is_old_ess: bool = False):
+    def create_or_update_results(
+        self,
+        qs: QuerySet[dict],
+        mining_qs: QuerySet[dict] = None,
+        is_old_ess: bool = False,
+    ):
         """Create or update the results for the billboard"""
         for entry in qs:
             date = entry["period"]
@@ -210,6 +215,7 @@ class BillboardSystem:
                 self.results[date] = {
                     "bounty": 0,
                     "ess": 0,
+                    "mining": 0,
                     "miscellaneous": 0,
                 }
             self.results[date]["bounty"] += bounty
@@ -218,7 +224,25 @@ class BillboardSystem:
             )
             self.results[date]["miscellaneous"] += miscellaneous
 
+        if mining_qs is not None:
+            self.add_mining(mining_qs)
+
         return self.results
+
+    def add_mining(self, qs: QuerySet[dict]):
+        """Add mining data to the results"""
+        for entry in qs:
+            date = entry["period"]
+            mining = entry.get("mining_income", 0)
+
+            if date not in self.results:
+                self.results[date] = {
+                    "bounty": 0,
+                    "ess": 0,
+                    "mining": 0,
+                    "miscellaneous": 0,
+                }
+            self.results[date]["mining"] += mining
 
     def create_ratting_bar(self):
         """Create the ratting bar data for the billboard"""
@@ -242,7 +266,7 @@ class BillboardSystem:
 
         self.dict.rattingbar = ChartData(
             title="Ratting Bar",
-            categories=["Bounty", "ESS", "Miscellaneous"],
+            categories=["Bounty", "ESS", "Miscellaneous", "Mining"],
             series=formatted_results,
         )
         return formatted_results
