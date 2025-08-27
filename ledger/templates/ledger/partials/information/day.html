@@ -2,12 +2,6 @@
 {% load humanize %}
 {% load evelinks %}
 
-{% if mode == "TAX" %}
-    {% trans "TAX" as mode_trans %}
-{% else %}
-    {% trans "Ratting" as mode_trans %}
-{% endif %}
-
 <!--##############################DAILY#######################-->
 
 {% for key, label in character.income_types %}

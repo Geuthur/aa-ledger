@@ -82,7 +82,7 @@ msgid "Extractor Information"
 msgstr ""
 
 #: helpers/alliance.py:163 helpers/corporation.py:196
-msgid "Ratting (Wallet)"
+msgid "Bounty (Wallet)"
 msgstr ""
 
 #: helpers/alliance.py:168 helpers/corporation.py:201
@@ -102,7 +102,7 @@ msgstr ""
 #: templates/ledger/partials/information/hourly.html:8
 #: templates/ledger/partials/information/summary.html:9
 #: templates/ledger/partials/view/card.html:90
-msgid "Ratting"
+msgid "Bounty"
 msgstr ""
 
 #: helpers/character.py:214
@@ -781,7 +781,7 @@ msgstr ""
 
 #: templates/ledger/partials/table/char-ledger.html:8
 #: templates/ledger/partials/table/corp-ledger.html:8
-msgid "Ratting Amount"
+msgid "Bounty Amount"
 msgstr ""
 
 #: templates/ledger/partials/table/char-ledger.html:9

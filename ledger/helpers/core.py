@@ -502,7 +502,7 @@ class LedgerCore:
         self.setup_ledger(entity=entity)  # pylint: disable=no-member
 
         income_types = [
-            ("bounty_income", _("Ratting")),
+            ("bounty_income", _("Bounty")),
             ("ess_income", _("Encounter Surveillance System")),
         ]
         amounts = self._generate_amounts(income_types=income_types, entity=entity)
@@ -526,7 +526,7 @@ class LedgerCore:
         )
 
         income_types = [
-            ("bounty_income", _("Ratting")),
+            ("bounty_income", _("Bounty")),
             ("ess_income", _("Encounter Surveillance System")),
             ("mining_income", _("Mining")),
         ]

@@ -79,8 +79,8 @@ msgid "Extractor Information"
 msgstr "Extraktor Information"
 
 #: helpers/alliance.py:163 helpers/corporation.py:196
-msgid "Ratting (Wallet)"
-msgstr "Ratting (Konto)"
+msgid "Bounty (Wallet)"
+msgstr "Bounty (Konto)"
 
 #: helpers/alliance.py:168 helpers/corporation.py:201
 msgid "ESS (Wallet)"
@@ -99,8 +99,8 @@ msgstr "Verschiedenes (Konto)"
 #: templates/ledger/partials/information/hourly.html:8
 #: templates/ledger/partials/information/summary.html:9
 #: templates/ledger/partials/view/card.html:90
-msgid "Ratting"
-msgstr "Ratting"
+msgid "Bounty"
+msgstr "Bounty"
 
 #: helpers/character.py:214
 msgid "ESS"
@@ -670,7 +670,7 @@ msgstr ""
 
 #: templates/ledger/partials/information/view_character_content.html:34
 msgid "No ratting data found..."
-msgstr "Keine Ratting daten gefunden..."
+msgstr "Keine Bounty daten gefunden..."
 
 #: templates/ledger/partials/menu/administration.html:6
 msgid "Add Character"
@@ -781,8 +781,8 @@ msgstr "Charakter"
 
 #: templates/ledger/partials/table/char-ledger.html:8
 #: templates/ledger/partials/table/corp-ledger.html:8
-msgid "Ratting Amount"
-msgstr "Ratting Menge"
+msgid "Bounty Amount"
+msgstr "Bounty Menge"
 
 #: templates/ledger/partials/table/char-ledger.html:9
 #: templates/ledger/partials/table/corp-ledger.html:9
