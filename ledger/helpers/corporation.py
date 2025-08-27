@@ -19,7 +19,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.app_settings import LEDGER_CACHE_STALE
+from ledger.app_settings import LEDGER_CACHE_ENABLED, LEDGER_CACHE_STALE
 from ledger.helpers.core import LedgerCore, LedgerEntity
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.corporationaudit import (
@@ -190,32 +190,13 @@ class CorporationData(LedgerCore):
             "type": entity.type,
         }
 
-        # Create the chord data for the billboard
-        self.billboard.chord_add_data(
-            chord_from=entity.entity_name,
-            chord_to=_("Bounty (Wallet)"),
-            value=bounty,
-        )
-        self.billboard.chord_add_data(
-            chord_from=entity.entity_name,
-            chord_to=_("ESS (Wallet)"),
-            value=ess,
-        )
-        self.billboard.chord_add_data(
-            chord_from=entity.entity_name,
-            chord_to=_("Costs (Wallet)"),
-            value=abs(costs),
-        )
-        self.billboard.chord_add_data(
-            chord_from=entity.entity_name,
-            chord_to=_("Miscellaneous (Wallet)"),
-            value=abs(miscellaneous),
-        )
-
         return char_data
 
     def generate_ledger_data(self) -> dict:
         """Generate the ledger data for the corporation."""
+        ledger = False
+        finished_entities = False
+
         self.setup_ledger()
 
         journal = self.journal.values(
@@ -264,27 +245,33 @@ class CorporationData(LedgerCore):
         ledger_key = self._build_ledger_cache_key(ledger_header)
 
         # Check if we have newest cached version of the ledger
-        cached_ledger = self._get_cached_ledger(
-            journal_up_to_date, ledger_key, ledger_hash
-        )
-        if cached_ledger is not None:
-            return cached_ledger
+        if journal_up_to_date and LEDGER_CACHE_ENABLED:
+            ledger = cache.get(f"{ledger_key}-data", False)
+            finished_entities = cache.get(f"{ledger_key}-finished_entities", False)
 
-        # Build the entries from the journal
-        self.entries = {}
-        for row in journal:
-            self.entries.setdefault(row["pk"], []).append(row)
+        if finished_entities is False or ledger is False:
+            # Build the entries from the journal
+            self.entries = {}
+            for row in journal:
+                self.entries.setdefault(row["pk"], []).append(row)
 
-        ledger, finished_entities = self._process_accounts()
-        self._process_remaining_entities(ledger, finished_entities)
-        self._add_corporation_entity(ledger)
+            ledger, finished_entities = self._process_accounts()
+            self._process_remaining_entities(ledger, finished_entities)
+            self._add_corporation_entity(ledger)
 
         # Finalize the billboard for the ledger.
         self.create_rattingbar(list(finished_entities))
-        self.billboard.chord_handle_overflow()
+        self.create_chord(ledger)
 
-        context = self._build_context(ledger_hash, ledger)
-        cache.set(key=ledger_key, value=context, timeout=LEDGER_CACHE_STALE)
+        context = self._build_context(ledger=ledger)
+
+        # Create Cache
+        cache.set(key=f"{ledger_key}-data", value=ledger, timeout=LEDGER_CACHE_STALE)
+        cache.set(
+            key=f"{ledger_key}-finished_entities",
+            value=finished_entities,
+            timeout=LEDGER_CACHE_STALE,
+        )
         cache.set(
             key=self._get_ledger_header(
                 self.corporation.corporation.corporation_id,
@@ -373,10 +360,9 @@ class CorporationData(LedgerCore):
         if corporation_data is not None:
             ledger.append(corporation_data)
 
-    def _build_context(self, journal_hash, ledger):
+    def _build_context(self, ledger):
         """Build the context for the ledger view."""
         return {
-            "ledger_hash": journal_hash,
             "title": f"Corporation Ledger - {self.corporation.corporation.corporation_name}",
             "corporation_id": self.corporation.corporation.corporation_id,
             "billboard": json.dumps(self.billboard.dict.asdict()),
@@ -403,3 +389,33 @@ class CorporationData(LedgerCore):
         )
         self.billboard.create_or_update_results(rattingbar)
         self._build_xy_chart(title=_("Ratting Bar"))
+
+    def create_chord(self, ledger_data: list[dict]):
+        """Create the chord chart for the view."""
+        if not ledger_data:
+            return
+
+        for entry in ledger_data:
+            entity_name = entry["entity"].entity_name
+            ledger = entry["ledger"]
+            self.billboard.chord_add_data(
+                chord_from=entity_name,
+                chord_to=_("Bounty (Wallet)"),
+                value=ledger.get("bounty", 0),
+            )
+            self.billboard.chord_add_data(
+                chord_from=entity_name,
+                chord_to=_("ESS (Wallet)"),
+                value=ledger.get("ess", 0),
+            )
+            self.billboard.chord_add_data(
+                chord_from=entity_name,
+                chord_to=_("Costs (Wallet)"),
+                value=abs(ledger.get("costs", 0)),
+            )
+            self.billboard.chord_add_data(
+                chord_from=entity_name,
+                chord_to=_("Miscellaneous (Wallet)"),
+                value=abs(ledger.get("miscellaneous", 0)),
+            )
+        self.billboard.chord_handle_overflow()

@@ -9,6 +9,7 @@ from django.test import TestCase
 from app_utils.testing import NoSocketsTestCase
 
 # AA Ledger
+from ledger.app_settings import LEDGER_CACHE_KEY
 from ledger.helpers.etag import (
     MAX_ETAG_LIFE,
     HTTPNotModified,
@@ -37,7 +38,7 @@ class TestEtagHelpers(NoSocketsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        clear_cache("ledger-cache_key")
+        clear_cache(f"{LEDGER_CACHE_KEY}-cache_key")
         cls.headers = Mock()
         cls.headers.headers = {
             "ETag": "ETAG",
@@ -57,15 +58,15 @@ class TestEtagHelpers(NoSocketsTestCase):
 
         cls.headers_no_etag = Mock()
         cls.headers_no_etag.headers = {}
-        cache.set("ledger-cache_key", "ABCD", MAX_ETAG_LIFE)
+        cache.set(f"{LEDGER_CACHE_KEY}-cache_key", "ABCD", MAX_ETAG_LIFE)
 
     def test_get_etag_key(self):
         result = get_etag_key(self.operation)
-        self.assertEqual(result, "ledger-cache_key")
+        self.assertEqual(result, f"{LEDGER_CACHE_KEY}-cache_key")
 
     def test_get_etag_header(self):
         # given
-        cache.set("ledger-cache_key", "ABCD", MAX_ETAG_LIFE)
+        cache.set(f"{LEDGER_CACHE_KEY}-cache_key", "ABCD", MAX_ETAG_LIFE)
         # when
         result = get_etag_header(self.operation)
         # then
@@ -91,7 +92,7 @@ class TestEtagPageHandler(NoSocketsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        clear_cache("ledger-cache_key_2")
+        clear_cache(f"{LEDGER_CACHE_KEY}-cache_key_2")
         cls.headers = Mock()
         cls.headers.headers = {
             "ETag": "ETAG",
@@ -112,7 +113,7 @@ class TestEtagPageHandler(NoSocketsTestCase):
 
         cls.headers_no_etag = Mock()
         cls.headers_no_etag.headers = {}
-        cache.set("ledger-cache_key_2", "DCBA", MAX_ETAG_LIFE)
+        cache.set(f"{LEDGER_CACHE_KEY}-cache_key_2", "DCBA", MAX_ETAG_LIFE)
 
     def test_handle_page_results_should_be_success_with_page_3(self):
         results, current_page, total_pages = handle_page_results(

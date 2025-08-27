@@ -19,7 +19,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.app_settings import LEDGER_CACHE_STALE
+from ledger.app_settings import LEDGER_CACHE_ENABLED, LEDGER_CACHE_STALE
 from ledger.helpers.core import LedgerCore, LedgerEntity
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.corporationaudit import (
@@ -157,35 +157,13 @@ class AllianceData(LedgerCore):
             "type": entity.type,
         }
 
-        # Create the chord data for the billboard
-        self.billboard.chord_add_data(
-            chord_from=entity.entity_name,
-            chord_to=_("Bounty (Wallet)"),
-            value=bounty,
-        )
-        self.billboard.chord_add_data(
-            chord_from=entity.entity_name,
-            chord_to=_("ESS (Wallet)"),
-            value=ess,
-        )
-        self.billboard.chord_add_data(
-            chord_from=entity.entity_name,
-            chord_to=_("Costs (Wallet)"),
-            value=abs(costs),
-        )
-        self.billboard.chord_add_data(
-            chord_from=entity.entity_name,
-            chord_to=_("Miscellaneous (Wallet)"),
-            value=abs(miscellaneous),
-        )
-
         return entity_ledger_info
 
     # pylint: disable=duplicate-code
     def generate_ledger_data(self) -> dict:
         """Generate the ledger data for the alliance."""
-        ledger = []
-        finished_entities = set()
+        ledger = False
+        finished_entities = False
 
         self.setup_ledger()
 
@@ -235,53 +213,55 @@ class AllianceData(LedgerCore):
         ledger_key = self._build_ledger_cache_key(ledger_header)
 
         # Check if we have newest cached version of the ledger
-        cached_ledger = self._get_cached_ledger(
-            journal_up_to_date, ledger_key, ledger_hash
-        )
-        if cached_ledger is not None:
-            return cached_ledger
+        if journal_up_to_date and LEDGER_CACHE_ENABLED:
+            ledger = cache.get(f"{ledger_key}-data", False)
+            finished_entities = cache.get(f"{ledger_key}-finished_entities", False)
 
-        # Build the entries from the journal
-        self.entries = {}
-        for row in journal:
-            self.entries.setdefault(row["pk"], []).append(row)
+        if finished_entities is False or ledger is False:
+            ledger = []
+            finished_entities = set()
 
-        # Build Data for each corporation
-        for corporation_id in self.corporations:
-            # Create Details URL for the entity
-            details_url = self.create_url(
-                viewname="alliance_details",
-                alliance_id=self.alliance.alliance_id,
-                entity_id=corporation_id,
-            )
+            # Build the entries from the journal
+            self.entries = {}
+            for row in journal:
+                self.entries.setdefault(row["pk"], []).append(row)
 
-            # Create the LedgerEntity object for the entity
-            entity_obj = LedgerEntity(
-                entity_id=corporation_id,
-                details_url=details_url,
-            )
+            # Build Data for each corporation
+            for corporation_id in self.corporations:
+                # Create Details URL for the entity
+                details_url = self.create_url(
+                    viewname="alliance_details",
+                    alliance_id=self.alliance.alliance_id,
+                    entity_id=corporation_id,
+                )
 
-            corp_data = self.create_entity_data(
-                entity=entity_obj,
-            )
+                # Create the LedgerEntity object for the entity
+                entity_obj = LedgerEntity(
+                    entity_id=corporation_id,
+                    details_url=details_url,
+                )
 
-            if corp_data is None:
-                continue
+                corp_data = self.create_entity_data(
+                    entity=entity_obj,
+                )
 
-            ledger.append(corp_data)
-            finished_entities.add(corporation_id)
+                if corp_data is None:
+                    continue
+
+                ledger.append(corp_data)
+                finished_entities.add(corporation_id)
 
         # Create the billboard data
         self.create_rattingbar(list(finished_entities))
-        # Prevent overflow in the chord data
-        self.billboard.chord_handle_overflow()
+        self.create_chord(ledger)
 
         # Build the context for the ledger view
-        context = self._build_context(ledger_hash, ledger)
+        context = self._build_context(ledger=ledger)
 
+        cache.set(key=f"{ledger_key}-data", value=ledger, timeout=LEDGER_CACHE_STALE)
         cache.set(
-            key=ledger_key,
-            value=context,
+            key=f"{ledger_key}-finished_entities",
+            value=finished_entities,
             timeout=LEDGER_CACHE_STALE,
         )
         cache.set(
@@ -293,10 +273,9 @@ class AllianceData(LedgerCore):
         )
         return context
 
-    def _build_context(self, journal_hash, ledger):
+    def _build_context(self, ledger):
         """Build the context for the ledger view."""
         return {
-            "ledger_hash": journal_hash,
             "title": f"Alliance Ledger - {self.alliance.alliance_name}",
             "alliance_id": self.alliance.alliance_id,
             "billboard": json.dumps(self.billboard.dict.asdict()),
@@ -323,3 +302,33 @@ class AllianceData(LedgerCore):
         )
         self.billboard.create_or_update_results(rattingbar)
         self._build_xy_chart(title=_("Ratting Bar"))
+
+    def create_chord(self, ledger_data: list[dict]):
+        """Create the chord chart for the view."""
+        if not ledger_data:
+            return
+
+        for entry in ledger_data:
+            entity_name = entry["entity"].entity_name
+            ledger = entry["ledger"]
+            self.billboard.chord_add_data(
+                chord_from=entity_name,
+                chord_to=_("Bounty (Wallet)"),
+                value=ledger.get("bounty", 0),
+            )
+            self.billboard.chord_add_data(
+                chord_from=entity_name,
+                chord_to=_("ESS (Wallet)"),
+                value=ledger.get("ess", 0),
+            )
+            self.billboard.chord_add_data(
+                chord_from=entity_name,
+                chord_to=_("Costs (Wallet)"),
+                value=abs(ledger.get("costs", 0)),
+            )
+            self.billboard.chord_add_data(
+                chord_from=entity_name,
+                chord_to=_("Miscellaneous (Wallet)"),
+                value=abs(ledger.get("miscellaneous", 0)),
+            )
+        self.billboard.chord_handle_overflow()

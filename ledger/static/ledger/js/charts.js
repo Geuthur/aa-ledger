@@ -205,7 +205,7 @@ function createRattingBarChart(root, data, id) {
 
         // Use categories from the data (now as array of dicts: {name, label})
         if (Array.isArray(data.categories) && typeof data.categories[0] === 'object') {
-            data.categories.forEach((cat) => makeSeries(cat.name || cat.label, cat.name));
+            data.categories.forEach((cat) => makeSeries(cat.label || cat.label, cat.name));
         } else {
             // fallback for old format (array of strings)
             data.categories.forEach((name) => makeSeries(name, name));

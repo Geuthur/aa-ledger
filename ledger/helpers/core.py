@@ -7,7 +7,6 @@ from decimal import Decimal
 from hashlib import md5
 
 # Django
-from django.core.cache import cache
 from django.db.models import Q, QuerySet, Sum
 from django.urls import reverse
 from django.utils import timezone
@@ -29,7 +28,7 @@ from app_utils.logging import LoggerAddTag
 # AA Ledger
 from ledger import __title__
 from ledger.api.api_helper.billboard_helper import BillboardSystem
-from ledger.app_settings import LEDGER_CACHE_ENABLED, LEDGER_CACHE_KEY
+from ledger.app_settings import LEDGER_CACHE_KEY
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.general import EveEntity
 
@@ -289,16 +288,7 @@ class LedgerCore:
 
     def _build_ledger_cache_key(self, header_key: str) -> str:
         """Build a cache key for the ledger."""
-        return LEDGER_CACHE_KEY.format(self._get_ledger_hash(header_key))
-
-    def _get_cached_ledger(self, journal_up_to_date, ledger_key, journal_hash):
-        if journal_up_to_date and LEDGER_CACHE_ENABLED:
-            cached_ledger = cache.get(ledger_key, False)
-            if cached_ledger is not False:
-                if cached_ledger.get("ledger_hash", False) == journal_hash:
-                    logger.debug("Using cached ledger data")
-                    return cached_ledger
-        return None
+        return f"{LEDGER_CACHE_KEY}-{self._get_ledger_hash(header_key)}"
 
     def _calculate_totals(self, ledger) -> dict:
         """
