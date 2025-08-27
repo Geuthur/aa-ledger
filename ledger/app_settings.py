@@ -28,14 +28,21 @@ FUZZ_BASE_URL_REGEX = r"^http[s]?:\/\/(www\.)?fuzzwork\.co\.uk\/"
 # Global timeout for tasks in seconds to reduce task accumulation during outages.
 LEDGER_TASKS_TIME_LIMIT = clean_setting("LEDGER_TASKS_TIME_LIMIT", 7200)
 
-LEDGER_STALE_TYPES = {
-    "wallet_journal": 30,
-    "wallet_division_names": 30,
-    "wallet_division": 30,
-    "mining_ledger": 30,
-    "planets": 30,
-    "planets_details": 30,
-}
+LEDGER_STALE_TYPES = clean_setting(
+    "LEDGER_STALE_TYPES",
+    {
+        "wallet_journal": 30,
+        "wallet_division_names": 30,
+        "wallet_division": 30,
+        "mining_ledger": 30,
+        "planets": 30,
+        "planets_details": 30,
+    },
+)
+
+# Mining Price Calculation
+LEDGER_USE_COMPRESSED = clean_setting("LEDGER_USE_COMPRESSED", True)
+LEDGER_PRICE_PERCENTAGE = clean_setting("LEDGER_PRICE_PERCENTAGE", 0.9)
 
 # Ledger Cache System
 LEDGER_CACHE_STALE = 60 * 60 * 168  # 168 hours

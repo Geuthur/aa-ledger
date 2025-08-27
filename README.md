@@ -160,6 +160,8 @@ The Following Settings can be setting up in the `local.py`
 
 - LEDGER_APP_NAME: `"YOURNAME"` - Set the name of the APP
 - LEDGER_TASKS_TIME_LIMIT: `7200` - Defines the time (in seconds) a task will timeout
+- LEDGER_USE_COMPRESSED: `True` - Defines if Mining Ledger use Compressed Price or Raw
+- LEDGER_PRICE_PERCENTAGE: `0.9`- Defines Mining Price multiplier
 
 Advanced Settings: Stale Status for Each Section
 
