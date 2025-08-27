@@ -50,16 +50,12 @@ class BillboardSystem:
 
         charts: ChartData = None
         rattingbar: ChartData = None
-        workflowgauge: ChartData = None
 
         def asdict(self) -> dict:
             """Return this object as dict."""
             return {
                 "charts": self.charts.asdict() if self.charts else None,
                 "rattingbar": self.rattingbar.asdict() if self.rattingbar else None,
-                "workflowgauge": (
-                    self.workflowgauge.asdict() if self.workflowgauge else None
-                ),
             }
 
     def __init__(
@@ -68,7 +64,7 @@ class BillboardSystem:
     ):
         self.view = view
         self.dict = self.BillboardDict()
-        self.results = {}
+        self.results = defaultdict(lambda: defaultdict(Decimal))
 
     def _get_formatted_date(self, date, view):
         if view == "year":
@@ -180,7 +176,6 @@ class BillboardSystem:
 
         self.dict.charts.series.sort(key=lambda x: (x["from"], x["to"]))
 
-    # TODO Add Mining to the billboard
     def create_timeline(self, journal: QuerySet):
         """Create the timeline data for the billboard"""
         qs = journal
@@ -200,7 +195,6 @@ class BillboardSystem:
     def create_or_update_results(
         self,
         qs: QuerySet[dict],
-        mining_qs: QuerySet[dict] = None,
         is_old_ess: bool = False,
     ):
         """Create or update the results for the billboard"""
@@ -210,42 +204,26 @@ class BillboardSystem:
             ess = entry.get("ess_income", 0)
             miscellaneous = entry.get("miscellaneous", 0)
 
-            # Store the results in a dictionary
-            if date not in self.results:
-                self.results[date] = {
-                    "bounty": 0,
-                    "ess": 0,
-                    "mining": 0,
-                    "miscellaneous": 0,
-                }
             self.results[date]["bounty"] += bounty
             self.results[date]["ess"] += (
                 ess if not is_old_ess else bounty * Decimal("0.667")
             )
             self.results[date]["miscellaneous"] += miscellaneous
 
-        if mining_qs is not None:
-            self.add_mining(mining_qs)
-
         return self.results
 
-    def add_mining(self, qs: QuerySet[dict]):
-        """Add mining data to the results"""
+    def add_category(self, qs: QuerySet[dict], category: str):
+        """Add category data to the results
+
+        **the annotation must be have _income as ending
+        """
         for entry in qs:
             date = entry["period"]
-            mining = entry.get("mining_income", 0)
+            category_value = entry.get(f"{category}_income", 0)
+            self.results[date][category] += category_value
 
-            if date not in self.results:
-                self.results[date] = {
-                    "bounty": 0,
-                    "ess": 0,
-                    "mining": 0,
-                    "miscellaneous": 0,
-                }
-            self.results[date]["mining"] += mining
-
-    def create_ratting_bar(self):
-        """Create the ratting bar data for the billboard"""
+    def generate_xy_series(self):
+        """Create the ratting bar amounts for the billboard"""
         formatted_results = []
 
         for date, values in self.results.items():
@@ -263,10 +241,12 @@ class BillboardSystem:
 
         if not formatted_results:
             return []
-
-        self.dict.rattingbar = ChartData(
-            title="Ratting Bar",
-            categories=["Bounty", "ESS", "Miscellaneous", "Mining"],
-            series=formatted_results,
-        )
         return formatted_results
+
+    def create_xy_chart(self, title, categories, series):
+        """Create the XY chart for the billboard"""
+        self.dict.rattingbar = ChartData(
+            title=title,
+            categories=categories,
+            series=series,
+        )

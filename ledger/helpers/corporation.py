@@ -193,7 +193,7 @@ class CorporationData(LedgerCore):
         # Create the chord data for the billboard
         self.billboard.chord_add_data(
             chord_from=entity.entity_name,
-            chord_to=_("Ratting (Wallet)"),
+            chord_to=_("Bounty (Wallet)"),
             value=bounty,
         )
         self.billboard.chord_add_data(
@@ -402,4 +402,9 @@ class CorporationData(LedgerCore):
             .annotate_miscellaneous()
         )
         self.billboard.create_or_update_results(rattingbar)
-        self.billboard.create_ratting_bar()
+        xy_data = self.billboard.generate_xy_series()
+        self.billboard.create_xy_chart(
+            title="Ratting Bar",
+            categories=["Bounty", "ESS", "Miscellaneous"],
+            series=xy_data,
+        )
