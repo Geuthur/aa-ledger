@@ -4,8 +4,17 @@ from typing import TYPE_CHECKING
 
 # Django
 from django.db import models, transaction
-from django.db.models import DecimalField, ExpressionWrapper, F, Q, Sum, Value
-from django.db.models.functions import Coalesce, Round
+from django.db.models import (
+    DecimalField,
+    ExpressionWrapper,
+    F,
+    OuterRef,
+    Q,
+    Subquery,
+    Sum,
+    Value,
+)
+from django.db.models.functions import Coalesce, Concat, Round
 from django.utils import timezone
 
 # Alliance Auth
@@ -17,6 +26,7 @@ from eveuniverse.models import EveSolarSystem, EveType
 
 # AA Ledger
 from ledger import __title__
+from ledger.app_settings import LEDGER_PRICE_PERCENTAGE, LEDGER_USE_COMPRESSED
 from ledger.decorators import log_timing
 from ledger.helpers.etag import etag_results
 from ledger.providers import esi
@@ -31,33 +41,66 @@ if TYPE_CHECKING:
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
+def require_valid_price_percentage(func):
+    def wrapper(*args, **kwargs):
+        if not isinstance(LEDGER_PRICE_PERCENTAGE, (int, float)):
+            raise ValueError("LEDGER_PRICE_PERCENTAGE must be a number")
+        if LEDGER_PRICE_PERCENTAGE <= 0:
+            raise ValueError("LEDGER_PRICE_PERCENTAGE must be positive")
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 class CharacterMiningLedgerEntryQueryset(models.QuerySet):
+    @require_valid_price_percentage
     def annotate_pricing(self) -> models.QuerySet:
         """Annotate price and total columns."""
+        if LEDGER_USE_COMPRESSED:
+            return self.annotate_pricing_compressed()
+
         return self.annotate(price=F("type__market_price__average_price")).annotate(
             total=ExpressionWrapper(
-                F("type__market_price__average_price") * F("quantity"),
+                (F("type__market_price__average_price") * F("quantity"))
+                * LEDGER_PRICE_PERCENTAGE,
                 output_field=models.DecimalField(),
             ),
         )
 
-    def annotate_mining(self) -> models.QuerySet:
+    @require_valid_price_percentage
+    def annotate_pricing_compressed(self) -> models.QuerySet:
+        """Annotate compressed price and total columns using the price of the 'Compressed' variant of the type."""
+        compressed_type_qs = EveType.objects.filter(
+            name=Concat(Value("Compressed "), OuterRef("type__name"))
+        ).values("market_price__average_price")[:1]
+
+        return self.annotate(
+            price=Subquery(compressed_type_qs, output_field=models.DecimalField())
+        ).annotate(
+            total=ExpressionWrapper(
+                F("price") * F("quantity") * LEDGER_PRICE_PERCENTAGE,
+                output_field=models.DecimalField(),
+            ),
+        )
+
+    def annotate_mining(self, with_period: bool = False) -> models.QuerySet:
         """Annotate mining columns."""
-        return (
-            self.annotate_pricing()
-            .values(
-                "character__eve_character__character_id",
-                "character__eve_character__character_name",
-            )
-            .annotate(
-                total_amount=Round(
-                    Coalesce(
-                        Sum(F("total")),
-                        Value(0),
-                        output_field=DecimalField(),
-                    ),
-                    precision=2,
-                )
+        qs = self.annotate_pricing()
+        values_fields = [
+            "character__eve_character__character_id",
+            "character__eve_character__character_name",
+        ]
+        if with_period:
+            values_fields.append("period")
+
+        return qs.values(*values_fields).annotate(
+            mining_income=Round(
+                Coalesce(
+                    Sum(F("total")),
+                    Value(0),
+                    output_field=DecimalField(),
+                ),
+                precision=2,
             )
         )
 
