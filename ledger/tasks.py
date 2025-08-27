@@ -440,7 +440,7 @@ def clear_all_etags():
 
         default_cache = caches["default"]
         _client = default_cache.get_master_client()
-    keys = _client.keys(":?:ledger-*")
+    keys = _client.keys(f":?:{app_settings.LEDGER_CACHE_KEY}-*")
     logger.info("Deleting %s etag keys", len(keys))
     if keys:
         deleted = _client.delete(*keys)

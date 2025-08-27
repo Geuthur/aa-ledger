@@ -16,6 +16,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
+from ledger.app_settings import LEDGER_CACHE_KEY
 from ledger.decorators import log_timing
 from ledger.errors import HTTPGatewayTimeoutError, NotModifiedError
 
@@ -26,7 +27,7 @@ MAX_ETAG_LIFE = 60 * 60 * 24 * 7  # 7 Days
 
 def get_etag_key(operation):
     """Get ETag Key"""
-    return "ledger-" + operation._cache_key()
+    return f"{LEDGER_CACHE_KEY}-{operation._cache_key()}"
 
 
 def get_etag_header(operation):

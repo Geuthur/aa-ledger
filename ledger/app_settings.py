@@ -26,7 +26,7 @@ FUZZ_API_URL = "https://www.fuzzwork.co.uk/api/"
 FUZZ_BASE_URL_REGEX = r"^http[s]?:\/\/(www\.)?fuzzwork\.co\.uk\/"
 
 # Global timeout for tasks in seconds to reduce task accumulation during outages.
-LEDGER_TASKS_TIME_LIMIT = clean_setting("LEDGER_TASKS_TIME_LIMIT", 7200)
+LEDGER_TASKS_TIME_LIMIT = clean_setting("LEDGER_TASKS_TIME_LIMIT", 600)
 
 LEDGER_STALE_TYPES = clean_setting(
     "LEDGER_STALE_TYPES",
@@ -46,5 +46,5 @@ LEDGER_PRICE_PERCENTAGE = clean_setting("LEDGER_PRICE_PERCENTAGE", 0.9)
 
 # Ledger Cache System
 LEDGER_CACHE_STALE = 60 * 60 * 168  # 168 hours
-LEDGER_CACHE_KEY = "LEDGER_{}"
+LEDGER_CACHE_KEY = "LEDGER"
 LEDGER_CACHE_ENABLED = True

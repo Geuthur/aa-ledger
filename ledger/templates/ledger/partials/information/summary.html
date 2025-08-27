@@ -3,12 +3,6 @@
 {% load evelinks %}
 {% load ledger %}
 
-{% if mode == "TAX" %}
-    {% trans "TAX" as mode_trans %}
-{% else %}
-    {% trans "Ratting" as mode_trans %}
-{% endif %}
-
 <!--############################## SUMMARY #######################-->
 <div class="tab-pane panel panel-default active" id="tab-summary">
     <div class="card-body modal-tab">

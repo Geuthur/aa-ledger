@@ -264,7 +264,7 @@ class LedgerAdminApiEndpoints:
             if not perm:
                 return 403, "Permission Denied"
             if perm is None:
-                return 403, "Alliance not found"
+                return 403, "Alliance not found."
 
             all_corporations = EveCorporationInfo.objects.filter(
                 alliance__alliance_id=alliance_id

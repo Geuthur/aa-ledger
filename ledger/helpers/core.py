@@ -7,7 +7,6 @@ from decimal import Decimal
 from hashlib import md5
 
 # Django
-from django.core.cache import cache
 from django.db.models import Q, QuerySet, Sum
 from django.urls import reverse
 from django.utils import timezone
@@ -29,7 +28,7 @@ from app_utils.logging import LoggerAddTag
 # AA Ledger
 from ledger import __title__
 from ledger.api.api_helper.billboard_helper import BillboardSystem
-from ledger.app_settings import LEDGER_CACHE_ENABLED, LEDGER_CACHE_KEY
+from ledger.app_settings import LEDGER_CACHE_KEY
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.general import EveEntity
 
@@ -289,16 +288,7 @@ class LedgerCore:
 
     def _build_ledger_cache_key(self, header_key: str) -> str:
         """Build a cache key for the ledger."""
-        return LEDGER_CACHE_KEY.format(self._get_ledger_hash(header_key))
-
-    def _get_cached_ledger(self, journal_up_to_date, ledger_key, journal_hash):
-        if journal_up_to_date and LEDGER_CACHE_ENABLED:
-            cached_ledger = cache.get(ledger_key, False)
-            if cached_ledger is not False:
-                if cached_ledger.get("ledger_hash", False) == journal_hash:
-                    logger.debug("Using cached ledger data")
-                    return cached_ledger
-        return None
+        return f"{LEDGER_CACHE_KEY}-{self._get_ledger_hash(header_key)}"
 
     def _calculate_totals(self, ledger) -> dict:
         """
@@ -502,7 +492,7 @@ class LedgerCore:
         self.setup_ledger(entity=entity)  # pylint: disable=no-member
 
         income_types = [
-            ("bounty_income", _("Ratting")),
+            ("bounty_income", _("Bounty")),
             ("ess_income", _("Encounter Surveillance System")),
         ]
         amounts = self._generate_amounts(income_types=income_types, entity=entity)
@@ -526,7 +516,7 @@ class LedgerCore:
         )
 
         income_types = [
-            ("bounty_income", _("Ratting")),
+            ("bounty_income", _("Bounty")),
             ("ess_income", _("Encounter Surveillance System")),
             ("mining_income", _("Mining")),
         ]
@@ -563,3 +553,15 @@ class LedgerCore:
                 amounts[key]["average_day_tick"] = total / avg / 20
                 amounts[key]["average_hour_tick"] = total / avg / 24 / 20
         return amounts
+
+    def _build_xy_chart(self, title: str):
+        """Build the XY chart for the billboard."""
+        if not self.billboard.results:
+            return
+
+        xy_data, categories = self.billboard.generate_xy_series()
+        self.billboard.create_xy_chart(
+            title=title,
+            categories=categories,
+            series=xy_data,
+        )
