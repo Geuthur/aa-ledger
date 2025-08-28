@@ -8,13 +8,11 @@ from django.db.models import (
     DecimalField,
     ExpressionWrapper,
     F,
-    OuterRef,
     Q,
-    Subquery,
     Sum,
     Value,
 )
-from django.db.models.functions import Coalesce, Concat, Round
+from django.db.models.functions import Coalesce, Round
 from django.utils import timezone
 
 # Alliance Auth
@@ -26,7 +24,7 @@ from eveuniverse.models import EveSolarSystem, EveType
 
 # AA Ledger
 from ledger import __title__
-from ledger.app_settings import LEDGER_PRICE_PERCENTAGE, LEDGER_USE_COMPRESSED
+from ledger.app_settings import LEDGER_PRICE_PERCENTAGE
 from ledger.decorators import log_timing
 from ledger.helpers.etag import etag_results
 from ledger.providers import esi
@@ -56,29 +54,9 @@ class CharacterMiningLedgerEntryQueryset(models.QuerySet):
     @require_valid_price_percentage
     def annotate_pricing(self) -> models.QuerySet:
         """Annotate price and total columns."""
-        if LEDGER_USE_COMPRESSED:
-            return self.annotate_pricing_compressed()
-
-        return self.annotate(price=F("type__market_price__average_price")).annotate(
+        return self.annotate(price=F("price_per_unit")).annotate(
             total=ExpressionWrapper(
-                (F("type__market_price__average_price") * F("quantity"))
-                * LEDGER_PRICE_PERCENTAGE,
-                output_field=models.DecimalField(),
-            ),
-        )
-
-    @require_valid_price_percentage
-    def annotate_pricing_compressed(self) -> models.QuerySet:
-        """Annotate compressed price and total columns using the price of the 'Compressed' variant of the type."""
-        compressed_type_qs = EveType.objects.filter(
-            name=Concat(Value("Compressed "), OuterRef("type__name"))
-        ).values("market_price__average_price")[:1]
-
-        return self.annotate(
-            price=Subquery(compressed_type_qs, output_field=models.DecimalField())
-        ).annotate(
-            total=ExpressionWrapper(
-                F("price") * F("quantity") * LEDGER_PRICE_PERCENTAGE,
+                (F("price_per_unit") * F("quantity")) * LEDGER_PRICE_PERCENTAGE,
                 output_field=models.DecimalField(),
             ),
         )
@@ -228,6 +206,33 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
 
         if old_events:
             self.bulk_update(old_events, fields=["quantity"])
+
+        self._update_mining_price(character)
+
+    def _update_mining_price(self, character: "CharacterAudit") -> None:
+        """Update prices for mining ledger entries."""
+        # Update EveMarketPrice on a Daily basis
+        self.model.update_evemarket_price()
+
+        mining_ledger = character.mining_ledger.all()
+        logger.debug(
+            f"Checking {mining_ledger.count()} mining ledger entries for missing prices."
+        )
+
+        updated_entries = []
+        for entry in mining_ledger:
+            if entry.price_per_unit is None:
+                npc_price = entry.get_npc_price()
+                if npc_price is not None:
+                    entry.price_per_unit = npc_price
+                    updated_entries.append(entry)
+
+        if updated_entries:
+            self.bulk_update(updated_entries, fields=["price_per_unit"])
+
+        logger.debug(
+            f"Updated prices for {len(updated_entries)}({character.character_name}) mining ledger entries."
+        )
 
 
 CharacterMiningLedgerEntryManager = CharacterMiningLedgerEntryManagerBase.from_queryset(

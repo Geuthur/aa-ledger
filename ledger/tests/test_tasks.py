@@ -9,6 +9,7 @@ from django.utils import timezone
 
 # AA Ledger
 from ledger import tasks
+from ledger.app_settings import LEDGER_CACHE_KEY
 from ledger.models.planetary import CharacterPlanetDetails
 from ledger.tests.testdata.generate_characteraudit import (
     create_characteraudit_from_evecharacter,
@@ -205,15 +206,14 @@ class TestClearEtag(TestCase):
         from django_redis import get_redis_connection
 
         _client = get_redis_connection("default")
-        _client.set("skillfarm-test", "test")
-        _client.set("skillfarm-test2", "test2")
+        keys = _client.keys(f":?:{LEDGER_CACHE_KEY}-*")
 
         # when
         tasks.clear_all_etags()
 
         # then
-        mock_logger.info.assert_any_call("Deleting %s etag keys", 2)
-        mock_logger.info.assert_any_call("Deleted %s etag keys", 2)
+        mock_logger.info.assert_any_call("Deleting %s etag keys", len(keys))
+        mock_logger.info.assert_any_call("Deleted %s etag keys", len(keys))
 
 
 @override_settings(

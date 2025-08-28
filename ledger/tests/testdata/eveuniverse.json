@@ -45,6 +45,12 @@
             "published": true
         },
         {
+            "eve_category_id": 25,
+            "id": 465,
+            "name": "Ice",
+            "published": true
+        },
+        {
             "eve_category_id": 42,
             "id": 1033,
             "name": "Planet Liquid-Gas - Raw Resource",
@@ -176,7 +182,7 @@
             "radius": 1,
             "volume": 16
         },
-         {
+        {
             "id":2268,
             "name":"Aqueous Liquids",
             "last_updated":"2025-01-02 16:22:40.192442",
@@ -193,8 +199,8 @@
             "eve_market_group_id": null,
             "enabled_sections": 13,
             "description":"The abundance of water on terrestrial planets is often a misconception: What many refer to offhandedly as \"water\" is often an amalgamation of many liquids, microscopic particles, and saturated compounds combined with water and other liquids. Aqueous liquids represent those liquids from which pure water can be separated easily from waste or hazardous particles, but only using the proper equipment."
-         },
-         {
+        },
+        {
             "id": 2309,
             "name":"Ionic Solutions",
             "last_updated":"2025-01-02 16:22:40.805952",
@@ -211,8 +217,8 @@
             "eve_market_group_id": null,
             "enabled_sections": 13,
             "description":"An electrolyte found in a raw, natural form is called an ionic solution, especially in terms of planetary astronomy. Only after a lengthy process of extraction and refining can the resulting fluid go on to be used for medical, industrial, or nutritive applications."
-         },
-         {
+        },
+        {
             "id": 2390,
             "name":"Electrolytes",
             "last_updated":"2024-09-27 14:25:56.675992",
@@ -229,8 +235,8 @@
             "eve_market_group_id": null,
             "enabled_sections": 0,
             "description":"This conductive liquid is able to carry an electrical current due to its unique ionic properties, making it ideal for use as a reactive coolant, a high-energy fuel, or a transference medium for power plants."
-         },
-         {
+        },
+        {
             "id": 2534,
             "name":"Gas Launchpad",
             "last_updated":"2024-09-27 14:25:56.675992",
@@ -247,8 +253,8 @@
             "eve_market_group_id": null,
             "enabled_sections": 0,
             "description":"."
-         },
-         {
+        },
+        {
             "id": 2557,
             "name":"Storm Launchpad",
             "last_updated":"2024-09-27 14:25:56.675992",
@@ -265,8 +271,8 @@
             "eve_market_group_id": null,
             "enabled_sections": 0,
             "description":"."
-         },
-         {
+        },
+        {
             "id": 3060,
             "name":"Gas Extractor Control Unit",
             "last_updated":"2024-09-27 14:25:56.675992",
@@ -283,8 +289,8 @@
             "eve_market_group_id": null,
             "enabled_sections": 0,
             "description":"."
-         },
-         {
+        },
+        {
             "id": 3645,
             "name":"Water",
             "last_updated":"2025-01-02 16:16:50.272300",
@@ -301,8 +307,8 @@
             "eve_market_group_id": null,
             "enabled_sections": 13,
             "description":"Water is one of the basic conditional elements of human survival. Most worlds have this compound in relative short supply and hence must rely on starship freight."
-         },
-         {
+        },
+        {
             "id": 9832,
             "name":"Coolant",
             "last_updated":"2025-01-02 16:16:34.532296",
@@ -319,7 +325,43 @@
             "eve_market_group_id": null,
             "enabled_sections": 13,
             "description":"This specially blended fluid is ideal for transferring thermal energy away from sensitive machinery or computer components, rerouting it to heat sinks so it can be eliminated from the system."
-         }
+        },
+        {
+            "id": "16268",
+            "name": "Gelidus",
+            "last_updated": "2025-03-09 18:51:27.959352",
+            "capacity": "0",
+            "icon_id": "2558",
+            "mass": "1000",
+            "packaged_volume": "1000",
+            "portion_size": "1",
+            "radius": "1",
+            "published": "1",
+            "volume": "1000",
+            "eve_graphic_id": null,
+            "eve_group_id": "465",
+            "eve_market_group_id": null,
+            "enabled_sections": "24",
+            "description": "Fairly rare and very valuable, Gelidus-type ice formations are a large-scale source of strontium clathrates, one of the rarest ice solids found in the universe, in addition to which they contain unusually large concentrations of heavy water and liquid ozone.\r\n\r\nAvailable in <color='0xFFFF0000'>0.0<\/color> security status solar systems or lower."
+        },
+        {
+            "id": "28437",
+            "name": "Compressed Gelidus",
+            "last_updated": "2025-03-09 18:51:34.183513",
+            "capacity": "0",
+            "icon_id": "3328",
+            "mass": "1000",
+            "packaged_volume": "100",
+            "portion_size": "1",
+            "radius": "1",
+            "published": "1",
+            "volume": "100",
+            "eve_graphic_id": null,
+            "eve_group_id": "465",
+            "eve_market_group_id": null,
+            "enabled_sections": "24",
+            "description": "Fairly rare and very valuable, Gelidus-type ice formations are a large-scale source of strontium clathrates, one of the rarest ice solids found in the universe, in addition to which they contain unusually large concentrations of heavy water and liquid ozone.\r\n\r\nThis material is compressed and a much more compact form of the original material."
+        }
     ],
     "EvePlanet": [
         {
