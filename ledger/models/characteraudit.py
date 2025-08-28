@@ -9,6 +9,7 @@ from collections.abc import Callable
 from bravado.exception import HTTPInternalServerError
 
 # Django
+from django.core.cache import cache
 from django.db import models
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -21,10 +22,11 @@ from esi.errors import TokenError
 
 # Alliance Auth (External Libs)
 from app_utils.logging import LoggerAddTag
-from eveuniverse.models import EveSolarSystem, EveType
+from eveuniverse.models import EveMarketPrice, EveSolarSystem, EveType
 
 # AA Ledger
 from ledger import __title__
+from ledger.app_settings import LEDGER_CACHE_KEY, LEDGER_USE_COMPRESSED
 from ledger.errors import HTTPGatewayTimeoutError, NotModifiedError, TokenDoesNotExist
 from ledger.managers.character_audit_manager import (
     CharacterAuditManager,
@@ -438,9 +440,36 @@ class CharacterMiningLedger(models.Model):
     )
     quantity = models.IntegerField()
 
+    price_per_unit = models.DecimalField(
+        max_digits=20, decimal_places=2, null=True, default=None
+    )
+
     @staticmethod
     def create_primary_key(character_id, mining_record):
         return f"{mining_record['date'].strftime('%Y%m%d')}-{mining_record['type_id']}-{character_id}-{mining_record['solar_system_id']}"
+
+    @staticmethod
+    def update_evemarket_price():  # Dont want to make a task only for this
+        """Update Prices for the EveMarketPrice."""
+        cached_update = cache.get(f"{LEDGER_CACHE_KEY}-eve-market-price", False)
+        if cached_update is False:
+            updated = EveMarketPrice.objects.update_from_esi()
+            cache.set(
+                f"{LEDGER_CACHE_KEY}-eve-market-price", None, (60 * 60 * 24)
+            )  # Cache for 24 hours
+            logger.debug(f"Updated {updated} entries EveMarketPrice")
+
+    def get_npc_price(self):
+        """Get the NPC price for the type."""
+        try:
+            if LEDGER_USE_COMPRESSED:
+                type_name = f"Compressed {self.type.name}"
+                price = EveType.objects.get(name=type_name).market_price.average_price
+            else:
+                price = self.type.market_price.average_price
+        except (EveMarketPrice.DoesNotExist, EveType.DoesNotExist):
+            price = None
+        return price
 
     objects = CharacterMiningLedgerEntryManager()
 
