@@ -214,18 +214,17 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
         # Update EveMarketPrice on a Daily basis
         self.model.update_evemarket_price()
 
-        mining_ledger = character.mining_ledger.all()
+        mining_ledger = character.mining_ledger.filter(price_per_unit__isnull=True)
         logger.debug(
             f"Checking {mining_ledger.count()} mining ledger entries for missing prices."
         )
 
         updated_entries = []
         for entry in mining_ledger:
-            if entry.price_per_unit is None:
-                npc_price = entry.get_npc_price()
-                if npc_price is not None:
-                    entry.price_per_unit = npc_price
-                    updated_entries.append(entry)
+            npc_price = entry.get_npc_price()
+            if npc_price is not None:
+                entry.price_per_unit = npc_price
+                updated_entries.append(entry)
 
         if updated_entries:
             self.bulk_update(updated_entries, fields=["price_per_unit"])

@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-27 20:45+0200\n"
+"POT-Creation-Date: 2025-08-28 11:24+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -44,33 +44,33 @@ msgid ""
 "background."
 msgstr ""
 
-#: api/api_helper/billboard_helper.py:50 helpers/character.py:209
-#: helpers/core.py:505 helpers/core.py:529
+#: api/api_helper/billboard_helper.py:51 helpers/character.py:208
+#: helpers/core.py:495 helpers/core.py:519
 #: templates/ledger/partials/view/card.html:90
 msgid "Bounty"
 msgstr "Kopfgeld"
 
-#: api/api_helper/billboard_helper.py:51 helpers/character.py:214
+#: api/api_helper/billboard_helper.py:52 helpers/character.py:213
 msgid "ESS"
 msgstr ""
 
-#: api/api_helper/billboard_helper.py:52 helpers/character.py:219
-#: helpers/core.py:531 templates/ledger/partials/view/card.html:109
+#: api/api_helper/billboard_helper.py:53 helpers/character.py:218
+#: helpers/core.py:521 templates/ledger/partials/view/card.html:109
 msgid "Mining"
 msgstr "Bergbau"
 
-#: api/api_helper/billboard_helper.py:53 helpers/character.py:224
+#: api/api_helper/billboard_helper.py:54 helpers/character.py:223
 msgid "Miscellaneous"
 msgstr "Verschiedenes"
 
-#: api/api_helper/billboard_helper.py:54 helpers/character.py:229
+#: api/api_helper/billboard_helper.py:55 helpers/character.py:228
 #: templates/ledger/partials/table/char-ledger.html:16
 #: templates/ledger/partials/table/corp-ledger.html:12
 #: templates/ledger/partials/view/card.html:127
 msgid "Costs"
 msgstr "Kosten"
 
-#: api/api_helper/billboard_helper.py:55
+#: api/api_helper/billboard_helper.py:56
 #: managers/corporation_journal_manager.py:384
 #: managers/corporation_journal_manager.py:408
 msgid "Unknown"
@@ -110,33 +110,33 @@ msgstr "Planet nicht gefunden"
 msgid "Extractor Information"
 msgstr "Extraktor Information"
 
-#: helpers/alliance.py:163 helpers/corporation.py:196
-msgid "Bounty (Wallet)"
-msgstr "Kopfgeld (Konto)"
-
-#: helpers/alliance.py:168 helpers/corporation.py:201
-msgid "ESS (Wallet)"
-msgstr "ESS (Konto)"
-
-#: helpers/alliance.py:173 helpers/corporation.py:206
-msgid "Costs (Wallet)"
-msgstr "Kosten (Konto)"
-
-#: helpers/alliance.py:178 helpers/corporation.py:211
-msgid "Miscellaneous (Wallet)"
-msgstr "Verschiedenes (Konto)"
-
-#: helpers/alliance.py:327 helpers/character.py:263 helpers/corporation.py:407
+#: helpers/alliance.py:304 helpers/character.py:260 helpers/corporation.py:391
 msgid "Ratting Bar"
 msgstr ""
 
-#: helpers/core.py:179 templates/ledger/partials/table/char-ledger.html:45
-#: templates/ledger/partials/table/char-ledger.html:69
+#: helpers/alliance.py:316 helpers/corporation.py:403
+msgid "Bounty (Wallet)"
+msgstr "Kopfgeld (Konto)"
+
+#: helpers/alliance.py:321 helpers/corporation.py:408
+msgid "ESS (Wallet)"
+msgstr "ESS (Konto)"
+
+#: helpers/alliance.py:326 helpers/corporation.py:413
+msgid "Costs (Wallet)"
+msgstr "Kosten (Konto)"
+
+#: helpers/alliance.py:331 helpers/corporation.py:418
+msgid "Miscellaneous (Wallet)"
+msgstr "Verschiedenes (Konto)"
+
+#: helpers/core.py:178 templates/ledger/partials/table/char-ledger.html:45
+#: templates/ledger/partials/table/char-ledger.html:78
 #: templates/ledger/partials/table/corp-ledger.html:58
 msgid "View Details"
 msgstr "Zeige Details"
 
-#: helpers/core.py:506 helpers/core.py:530
+#: helpers/core.py:496 helpers/core.py:520
 msgid "Encounter Surveillance System"
 msgstr "Gefechtsüberwachungssystem"
 
@@ -168,68 +168,68 @@ msgstr "Strukturen Miete"
 msgid "Master Wallet"
 msgstr "Hauptkonto"
 
-#: models/characteraudit.py:47 models/corporationaudit.py:45
+#: models/characteraudit.py:49 models/corporationaudit.py:45
 #: templates/ledger/partials/view/card.html:44
 msgid "Wallet Journal"
 msgstr "Transaktionsjournal"
 
-#: models/characteraudit.py:48 templates/ledger/partials/view/card.html:51
+#: models/characteraudit.py:50 templates/ledger/partials/view/card.html:51
 msgid "Mining Ledger"
 msgstr "Mining Ledger"
 
-#: models/characteraudit.py:49 templates/ledger/partials/view/card.html:59
+#: models/characteraudit.py:51 templates/ledger/partials/view/card.html:59
 msgid "Planets"
 msgstr "Planeten"
 
-#: models/characteraudit.py:50
+#: models/characteraudit.py:52
 msgid "Planets Details"
 msgstr ""
 
-#: models/characteraudit.py:63
+#: models/characteraudit.py:65
 msgid "disabled"
 msgstr "deaktiviert"
 
-#: models/characteraudit.py:64
+#: models/characteraudit.py:66
 msgid "token error"
 msgstr "token fehler"
 
-#: models/characteraudit.py:65
+#: models/characteraudit.py:67
 msgid "error"
 msgstr "fehler"
 
-#: models/characteraudit.py:66
+#: models/characteraudit.py:68
 msgid "ok"
 msgstr ""
 
-#: models/characteraudit.py:67
+#: models/characteraudit.py:69
 msgid "incomplete"
 msgstr "unvollständig"
 
-#: models/characteraudit.py:68
+#: models/characteraudit.py:70
 msgid "in progress"
 msgstr "in Arbeit"
 
-#: models/characteraudit.py:102
+#: models/characteraudit.py:104
 msgid "Update is disabled"
 msgstr "Update ist deaktiviert"
 
-#: models/characteraudit.py:103
+#: models/characteraudit.py:105
 msgid "One section has a token error during update"
 msgstr "Eine Sektion hat einen token error während des update"
 
-#: models/characteraudit.py:104
+#: models/characteraudit.py:106
 msgid "One or more sections have not been updated"
 msgstr "Eine oder mehr Sektionen wurden nicht geupdated"
 
-#: models/characteraudit.py:105
+#: models/characteraudit.py:107
 msgid "Update is in progress"
 msgstr "Update ist in Arbeit"
 
-#: models/characteraudit.py:106
+#: models/characteraudit.py:108
 msgid "An error occurred during update"
 msgstr "Ein fehler tratt während des Update auf"
 
-#: models/characteraudit.py:107
+#: models/characteraudit.py:109
 msgid "Updates completed successfully"
 msgstr "Aktualisierungen erfolgreich abgeschlossen"
 
@@ -822,6 +822,10 @@ msgstr "Gesamt"
 #: templates/ledger/partials/table/char-ledger.html:37
 msgid "View Character"
 msgstr "Zeige Charakter"
+
+#: templates/ledger/partials/table/char-ledger.html:64
+msgid "This amount is displayed for information only"
+msgstr "Dieser Betrag dient nur als Information"
 
 #: templates/ledger/partials/table/planetary.html:6
 msgid "Planet"

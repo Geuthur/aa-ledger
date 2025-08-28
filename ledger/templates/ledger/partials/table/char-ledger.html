@@ -26,7 +26,7 @@
                 </td>
                 <td class="col-total-amount nowrap text-success" id="amount_ratting_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.bounty|default:0 }}">{{ character_data.ledger.bounty|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
                 <td class="col-total-ess nowrap text-success" id="amount_ess_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.ess|default:0 }}">{{ character_data.ledger.ess|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
-                <td class="col-total-mining nowrap text-success" id="amount_mining_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.mining|default:0 }}">{{ character_data.ledger.mining|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                <td class="col-total-mining nowrap text-info" id="amount_mining_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.mining|default:0 }}">{{ character_data.ledger.mining|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
                 <td class="col-total-others nowrap text-success" id="amount_misc_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.miscellaneous|default:0 }}">{{ character_data.ledger.miscellaneous|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
                 <td class="col-total-costs nowrap text-danger" id="amount_costs_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.costs|default:0 }}">{{ character_data.ledger.costs|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
                 <td class="col-total-total nowrap {% if character_data.ledger.total < 0 %}text-danger {% else %}text-success{% endif %}" style="border-left: 2px solid #888;" id="amount_total_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.total|default:0 }}">{{ character_data.ledger.total|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
@@ -56,7 +56,16 @@
             <th><strong>{% trans "Summary" %}</strong></th>
             <th class="col-total-amount nowrap {% if totals.bounty < 0 %}text-danger {% else %}text-success{% endif %}" id="total_bounty" data-sort="{{ totals.bounty|default:0 }}">{{ totals.bounty|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
             <th class="col-total-ess nowrap {% if totals.ess < 0 %}text-danger {% else %}text-success{% endif %}" id="total_ess" data-sort="{{ totals.ess|default:0 }}">{{ totals.ess|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
-            <th class="col-total-mining nowrap {% if totals.mining < 0 %}text-danger {% else %}text-success{% endif %}" id="total_mining" data-sort="{{ totals.mining|default:0 }}">{{ totals.mining|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+            <th class="col-total-mining nowrap text-info" id="total_mining" data-sort="{{ totals.mining|default:0 }}">
+                {{ totals.mining|floatformat:0|intcomma }}
+                <span class="text-white">ISK
+                    <i class="fa-regular fa-circle-question"
+                        data-tooltip-toggle="ledger-tooltip" data-bs-placement="right"
+                        title="{% trans 'This amount is displayed for information only' %}"
+                    >
+                    </i>
+                </span>
+            </th>
             <th class="col-total-others nowrap {% if totals.miscellaneous < 0 %}text-danger {% else %}text-success{% endif %}" id="total_misc" data-sort="{{ totals.miscellaneous|default:0 }}">{{ totals.miscellaneous|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
             <th class="col-total-costs nowrap {% if totals.costs < 0 %}text-danger {% else %}text-success{% endif %}" id="total_costs" data-sort="{{ totals.costs|default:0 }}">{{ totals.costs|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
             <th class="col-total-total nowrap {% if totals.total < 0 %}text-danger {% else %}text-success{% endif %}" style="border-left: 2px solid #888;" id="total_total" data-sort="{{ totals.total|default:0 }}">{{ totals.total|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>

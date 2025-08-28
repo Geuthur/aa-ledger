@@ -163,7 +163,6 @@ class CharacterData(LedgerCore):
             [
                 bounty,
                 ess,
-                mining_val,
                 costs,
                 miscellaneous,
             ]
