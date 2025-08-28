@@ -1,5 +1,31 @@
 # Changelog
 
+> [!NOTE]
+> With the change in how mining prices are calculated, all mining amounts will be displayed as 0 until they are updated. This will happen after each character's mining ledger is updated.
+
+## [0.9.9] - 2025-08-28
+
+### Fixed
+
+- Mining Price use every Date the actual Price instead of the Days Price ([#163](https://github.com/Geuthur/aa-ledger/issues/163))
+- Mining Field in Corporation/Alliance Ledger
+- Cached Translation
+- Mining Amount is for Information only ([#164](https://github.com/Geuthur/aa-ledger/issues/164))
+
+### Changed
+
+- Smoother View Loading ([#160](https://github.com/Geuthur/aa-ledger/issues/160))
+- Refactor Categories System
+- Renamed Ratting to Bounty
+- Task Limit to 10min from 2 hours
+- Update Translation
+
+### Added
+
+- Alliance Card
+- Mining to Billboard Rattingbar
+- Compressed Mining Price Calculation
+
 ## [0.9.8] - 2025-08-25
 
 ### Added
