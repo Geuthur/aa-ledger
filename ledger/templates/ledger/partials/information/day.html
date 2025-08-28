@@ -10,7 +10,7 @@
             <div class="row description-row">
                 <div class="col-sm-6 {% if label == 'Not Defined Category' %}text-warning{% endif %}">{% trans "Current Day -" %} {{ label }}:</div>
                 <div class='col-sm-4 text-end'>
-                    <span class="text-success">
+                    <span class="{% if not key == 'mining_income' %}text-success{% else %}text-info{% endif %}">
                         {{ value.current_day|floatformat:0|intcomma }}
                     </span> ISK
                 </div>

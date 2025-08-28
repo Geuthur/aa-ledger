@@ -455,15 +455,13 @@ class LedgerCore:
                         "ref_types": value,
                     }
 
-        # Summary
-        summary = [
-            amount
-            for amount in amounts.values()
-            if isinstance(amount, dict) and "total_amount" in amount
-        ]
-
+        # Summary (exclude mining_income)
         summary = sum(
-            amount["total_amount"] for amount in summary if "total_amount" in amount
+            amount["total_amount"]
+            for key, amount in amounts.items()
+            if key != "mining_income"
+            and isinstance(amount, dict)
+            and "total_amount" in amount
         )
 
         if summary == 0:
