@@ -451,13 +451,15 @@ class CharacterMiningLedger(models.Model):
     @staticmethod
     def update_evemarket_price():  # Dont want to make a task only for this
         """Update Prices for the EveMarketPrice."""
+        updated = 0
         cached_update = cache.get(f"{LEDGER_CACHE_KEY}-eve-market-price", False)
         if cached_update is False:
             updated = EveMarketPrice.objects.update_from_esi()
             cache.set(
                 f"{LEDGER_CACHE_KEY}-eve-market-price", None, (60 * 60 * 24)
             )  # Cache for 24 hours
-            logger.debug(f"Updated {updated} entries EveMarketPrice")
+            logger.debug(f"Updated {updated} for entries EveMarketPrice")
+        return updated
 
     def get_npc_price(self):
         """Get the NPC price for the type."""

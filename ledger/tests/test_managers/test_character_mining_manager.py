@@ -26,6 +26,7 @@ MODULE_PATH = "ledger.managers.character_mining_manager"
 @patch(MODULE_PATH + ".esi")
 @patch(MODULE_PATH + ".etag_results")
 @patch(MODULE_PATH + ".EveType.objects.bulk_get_or_create_esi")
+@patch("ledger.models.characteraudit.CharacterMiningLedger.update_evemarket_price")
 class TestCharacterMiningManager(NoSocketsTestCase):
     @classmethod
     def setUpClass(cls):
@@ -38,7 +39,7 @@ class TestCharacterMiningManager(NoSocketsTestCase):
         cls.eve_type = EveType.objects.get(id=17425)
         cls.eve_system = EveSolarSystem.objects.get(id=30004783)
 
-    def test_update_mining_ledger(self, _, mock_etag, mock_esi):
+    def test_update_mining_ledger(self, _, __, mock_etag, mock_esi):
         # given
         mock_esi.client = esi_client_stub
         mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()
