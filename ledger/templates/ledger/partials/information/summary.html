@@ -22,8 +22,15 @@
                             </i>
                             :
                         </div>                        <div class='col-sm-4 text-end'>
-                            <span class="text-success">
-                                {{ value.total_amount|floatformat:0|intcomma }}
+                            <span class="{% if not key == 'mining_income' %}text-success{% else %}text-info{% endif %}">
+                            {% if key == 'mining_income' %}
+                                <i class="fa-regular fa-circle-question"
+                                    data-tooltip-toggle="info-tooltip" data-bs-placement="right"
+                                    title="{% trans 'This amount is displayed for information only' %}"
+                                >
+                                </i>
+                            {% endif %}
+                            {{ value.total_amount|floatformat:0|intcomma }}
                             </span> ISK
                         </div>
                     </div>
@@ -73,6 +80,9 @@
         $('[data-bs-toggle="info-popover"]').popover({
             trigger: 'hover',
             html: true,
+        });
+        $('[data-tooltip-toggle="info-tooltip"]').tooltip({
+            trigger: 'hover'
         });
     });
 </script>
