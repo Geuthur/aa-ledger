@@ -3,7 +3,7 @@
 @media all {
     #ratting {
         table-layout: fixed;
-        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     #ratting th,

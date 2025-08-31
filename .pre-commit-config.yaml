@@ -6,6 +6,7 @@
 default_language_version:
   # force all unspecified python hooks to run python3
   python: python3
+  node: 22.19.0 # LTS https://nodejs.org/en/blog/release/
 
 # https://pre-commit.ci/
 ci:
@@ -21,19 +22,20 @@ ci:
     - eslint  # Fails due to missing node environment in CI
   submodules: false
 
-  exclude: |
-    (?x)(
-      .github/|
-      LICENSE|
-      .min(.css|.css.map|.js|.js.map)|
-      locale/|
-      static/(.*)/libs/
-    )
+# https://pre-commit.com/#pre-commit-configyaml---top-level
+exclude: |
+  (?x)(
+    .github/|
+    LICENSE|
+    .min(.css|.css.map|.js|.js.map)|
+    locale/|
+    static/(.*)/libs/
+  )
 
 # pre-commit setup
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       # Identify invalid files
       - id: check-ast
@@ -84,12 +86,6 @@ repos:
         name: Fix requirements.txt
         description: Fix the formatting of requirements.txt files.
 
-      - id: fix-encoding-pragma
-        name: Fix encoding pragma
-        description: Fix the encoding pragma in Python files.
-        args:
-          - --remove
-
       - id: fix-byte-order-marker
         name: Fix byte order marker
         description: Fix the byte order marker in Python files.
@@ -110,12 +106,6 @@ repos:
         description: Check for trailing whitespace.
         args:
           - --markdown-linebreak-ext=md
-        exclude: |
-          (?x)(
-            .min(.css|.css.map|.js|.js.map)|
-            locale/|
-            static/(.*)/libs/
-          )
 
       - id: check-executables-have-shebangs
         name: Check for shebangs in executables
@@ -124,43 +114,27 @@ repos:
       - id: end-of-file-fixer
         name: End of file fixer
         description: Ensure that files end with a newline.
-        exclude: |
-          (?x)(
-            .min(.css|.css.map|.js|.js.map)|
-            locale/|
-            static/(.*)/libs/
-          )
 
   - repo: https://github.com/eslint/eslint
-    rev: v9.32.0
+    rev: v9.34.0
     hooks:
       - id: eslint
         name: ESLint
         description: Check for problems in JavaScript files.
-        exclude: |
-          (?x)(
-            .min(.js|.js.map)|
-            static/(.*)/libs/
-          )
         args: [--fix, --color, --max-warnings, '0']
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
-    rev: v16.23.0
+    rev: v16.23.1
     hooks:
       - id: stylelint
         name: Stylelint
         description: Check for problems in CSS files.
-        exclude: |
-          (?x)(
-            .min(.css|.css.map)|
-            static/(.*)/libs/
-          )
         args:
           - --formatter=compact
         additional_dependencies:
           # stylelint itself needs to be here when using additional_dependencies.
-          - stylelint@16.19.0  # https://github.com/stylelint/stylelint/releases/latest
-          - stylelint-config-standard@38.0.0  # https://github.com/stylelint/stylelint-config-standard/releases/latest
+          - stylelint@16.23.1  # https://github.com/stylelint/stylelint/releases/latest
+          - stylelint-config-standard@39.0.0  # https://github.com/stylelint/stylelint-config-standard/releases/latest
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
@@ -190,20 +164,14 @@ repos:
         description: Enforce that python3.6+ type annotations are used instead of type comments.
 
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
-    rev: 3.2.1
+    rev: 3.4.0
     hooks:
       - id: editorconfig-checker
         name: EditorConfig Checker
         description: Check for compliance with the definitions in the EditorConfig file.
-        exclude: |
-          (?x)(
-            LICENSE|
-            .min(.css|.css.map|.js|.js.map)|
-            static/(.*)/libs/
-          )
 
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.25.0
+    rev: 1.27.0
     hooks:
       - id: django-upgrade
         name: Django upgrade
@@ -274,16 +242,11 @@ repos:
       - id: mdformat
         name: Mdformat
         description: Format Markdown files.
-        exclude: |
-          (?x)(
-            .github/|
-            static/(.*)/libs/
-          )
         additional_dependencies:
           - mdformat-gfm==0.4.1  # Mdformat plugin for GitHub Flavored Markdown compatibility » https://github.com/hukkin/mdformat-gfm/tags
           - mdformat-toc==0.3.0  # Mdformat plugin to generate a table of contents » https://github.com/hukkin/mdformat-toc/tags
           - mdformat-black==0.1.1  # Mdformat plugin to Blacken Python code blocks » https://github.com/hukkin/mdformat-black/tags
-          - mdformat-shfmt==0.1.0  # Mdformat plugin to format shell code blocks » https://github.com/hukkin/mdformat-shfmt/tags
+          - mdformat-shfmt==0.2.0  # Mdformat plugin to format shell code blocks » https://github.com/hukkin/mdformat-shfmt/tags
 
   - repo: https://github.com/tox-dev/tox-ini-fmt
     rev: 1.6.0
@@ -301,7 +264,7 @@ repos:
         args:
           - --indent=4
         additional_dependencies:
-          - tox==4.25.0  # https://github.com/tox-dev/tox/releases/latest
+          - tox==4.29.0  # https://github.com/tox-dev/tox/releases/latest
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.24.1
@@ -311,7 +274,7 @@ repos:
         description: Validate the pyproject.toml file.
 
   - repo: https://github.com/pylint-dev/pylint
-    rev: v3.3.7
+    rev: v3.3.8
     hooks:
       - id: pylint
         name: Pylint
@@ -320,7 +283,7 @@ repos:
           - --py-version=3.10  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.33.2
+    rev: 0.33.3
     hooks:
       - id: check-github-actions
         name: Check GitHub Actions
