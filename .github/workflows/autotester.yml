@@ -20,7 +20,7 @@ jobs:
     steps:
       # Checkout the repository
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Set up Python
       - name: Set up Python
@@ -78,7 +78,7 @@ jobs:
     steps:
       # Checkout the repository
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install Redis
         uses: shogo82148/actions-setup-redis@v1
