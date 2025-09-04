@@ -95,8 +95,9 @@ class TestCharacterMiningLedgerModel(TestCase):
         self.assertIsNotNone(npc_price)
         self.assertEqual(npc_price, 100)
 
+    @patch(MODULE_PATH + ".cache.get", return_value=False)
     @patch(MODULE_PATH + ".EveMarketPrice.objects.update_from_esi")
-    def test_update_evemarket_price(self, mock_market_price):
+    def test_update_evemarket_price(self, mock_market_price, mock_cache_get):
         # given
         mock_market_price.return_value = 1337
         # when

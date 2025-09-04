@@ -195,7 +195,7 @@ class PlanetaryDetailsQuerySet(models.QuerySet):
             ):
                 continue
             facility_info[pin_id] = {
-                "facility_id": item_type.id,
+                "facility_id": pin["type_id"],
                 "facility_name": item_type.name,
                 "resources": [],
                 "storage": {
