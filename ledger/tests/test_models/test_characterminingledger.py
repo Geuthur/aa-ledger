@@ -1,4 +1,5 @@
 # Standard Library
+from types import SimpleNamespace
 from unittest.mock import patch
 
 # Django
@@ -58,8 +59,8 @@ class TestCharacterMiningLedgerModel(TestCase):
             system=cls.eve_system,
             quantity=100,
         )
-        cls.miningrecord = {
-            "date": timezone.datetime.replace(
+        cls.miningrecord = SimpleNamespace(
+            date=timezone.datetime.replace(
                 timezone.now(),
                 year=2024,
                 month=1,
@@ -69,9 +70,9 @@ class TestCharacterMiningLedgerModel(TestCase):
                 second=0,
                 microsecond=0,
             ),
-            "type_id": 1,
-            "solar_system_id": 1,
-        }
+            type_id=1,
+            solar_system_id=1,
+        )
         cls.eve_market_price = EveMarketPrice.objects.create(
             eve_type=cls.eve_type_price,
             average_price=100,

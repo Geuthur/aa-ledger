@@ -16,7 +16,6 @@ from eveuniverse.models import EvePlanet, EveType
 from ledger import __title__
 from ledger.constants import COMMAND_CENTER, EXTRACTOR_CONTROL_UNIT, SPACEPORTS
 from ledger.decorators import log_timing
-from ledger.helpers.etag import etag_results
 from ledger.models.characteraudit import CharacterAudit
 from ledger.providers import esi
 
@@ -28,11 +27,75 @@ if TYPE_CHECKING:  # pragma: no cover
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
-def convert_datetime_to_str(data):
+class CharacterPlanetContext:
+    """Context for Get colonies ESI operations."""
+
+    last_update: timezone.datetime
+    num_pins: int
+    owner_id: int
+    planet_id: int
+    planet_type: str
+    solar_system_id: int
+    upgrade_level: int
+
+
+class CharacterPlanetLayoutContext:
+    """Context for Get colony layout ESI operations."""
+
+    class LinksContext:
+        destination_pin_id: int
+        link_level: int
+        source_pin_id: int
+
+    class PinsContext:
+        class ContentsContext:
+            amount: int
+            type_id: int
+
+        class ExtractorDetailsContext:
+            head_id: int
+            installed_time: timezone.datetime
+            latitude: float
+            longitude: float
+            quantity_per_cycle: int
+            type_id: int
+            cycle_time: int
+
+        class FactoryDetailsContext:
+            schematic_id: int
+
+        contents: list[ContentsContext] | list
+        expiry_time: timezone.datetime
+        extractor_details: ExtractorDetailsContext | None
+        factory_details: FactoryDetailsContext | None
+        install_time: timezone.datetime | None
+        last_cycle_start: timezone.datetime | None
+        latitude: float
+        longitude: float
+        pin_id: int
+        schematic_id: int | None
+        type_id: int
+
+    class RoutesContext:
+        content_type_id: int
+        destination_pin_id: int
+        quantity: int
+        route_id: int
+        source_pin_id: int
+        waypoints: list
+
+    links: list[LinksContext]
+    pins: list[PinsContext]
+    routes: list[RoutesContext]
+
+
+def to_json_serializable(data):
     if isinstance(data, dict):
-        return {k: convert_datetime_to_str(v) for k, v in data.items()}
+        return {k: to_json_serializable(v) for k, v in data.items()}
     if isinstance(data, list):
-        return [convert_datetime_to_str(i) for i in data]
+        return [to_json_serializable(i) for i in data]
+    if hasattr(data, "__dict__"):
+        return to_json_serializable(data.__dict__)
     if isinstance(data, timezone.datetime):
         return data.isoformat()
     return data
@@ -61,16 +124,17 @@ class PlanetaryManagerBase(models.Manager):
         req_scopes = ["esi-planets.manage_planets.v1"]
 
         token = character.get_token(scopes=req_scopes)
-        planets_obj = (
-            esi.client.Planetary_Interaction.get_characters_character_id_planets(
-                character_id=character.eve_character.character_id
-            )
+        planets_obj = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanets(
+            character_id=character.eve_character.character_id, token=token
         )
-        planets_items = etag_results(planets_obj, token, force_refresh=force_refresh)
-        self._update_or_create_objs(character, planets_items)
+        self._update_or_create_objs(
+            character, planets_obj.results(return_response=force_refresh)
+        )
 
     @transaction.atomic()
-    def _update_or_create_objs(self, character: "CharacterAudit", objs: list) -> None:
+    def _update_or_create_objs(
+        self, character: "CharacterAudit", objs: list[CharacterPlanetContext]
+    ) -> None:
         """Update or Create planets entries from objs data."""
         # pylint: disable=import-outside-toplevel
         # AA Ledger
@@ -85,7 +149,7 @@ class PlanetaryManagerBase(models.Manager):
         _planets_update = []
 
         for planet in objs:
-            eve_planet, _ = EvePlanet.objects.get_or_create_esi(id=planet["planet_id"])
+            eve_planet, _ = EvePlanet.objects.get_or_create_esi(id=planet.planet_id)
             _planets_ids.append(eve_planet.id)
 
             try:
@@ -99,8 +163,8 @@ class PlanetaryManagerBase(models.Manager):
                 character=character,
                 planet=eve_planet,
                 planet_name=eve_planet.name,
-                upgrade_level=planet["upgrade_level"],
-                num_pins=planet["num_pins"],
+                upgrade_level=planet.upgrade_level,
+                num_pins=planet.num_pins,
             )
 
             if eve_planet.id not in _current_planets:
@@ -144,35 +208,55 @@ class PlanetaryDetailsQuerySet(models.QuerySet):
         self,
         character: CharacterAudit,
         planet: "CharacterPlanetDetails",
-        esi_result: dict,
+        objs: list[CharacterPlanetLayoutContext],
     ):
         """Update or Create Layout for a given Planet"""
-        return self._update_or_create(
-            character=character, planet=planet, esi_result=esi_result
-        )
+        return self._update_or_create(character=character, planet=planet, objs=objs)
+
+    def _convert_to_dict(
+        self,
+        result: list[
+            CharacterPlanetLayoutContext.LinksContext
+            | CharacterPlanetLayoutContext.PinsContext
+            | CharacterPlanetLayoutContext.RoutesContext
+        ],
+    ) -> tuple:
+        objects_list = []
+        for data in result:
+            data_dict = to_json_serializable(data)
+            objects_list.append(data_dict)
+        return objects_list
 
     def _update_or_create(
         self,
         character: "CharacterAudit",
         planet: "CharacterPlanetDetails",
-        esi_result: dict,
+        objs: list[CharacterPlanetLayoutContext],
     ):
-        planetdetails, created = self.update_or_create(
-            planet=planet,
-            character=character,
-            defaults={
-                "links": esi_result["links"],
-                "pins": esi_result["pins"],
-                "routes": esi_result["routes"],
-                "facilitys": None,
-            },
-        )
+        """Update or Create Layout for a given Planet"""
+        if not isinstance(objs, list):
+            objs = [objs]
+        for result in objs:
+            links = self._convert_to_dict(result.links)
+            pins = self._convert_to_dict(result.pins)
+            routes = self._convert_to_dict(result.routes)
 
-        self._update_facility(planetdetails)
+            planetdetails, created = self.update_or_create(
+                planet=planet,
+                character=character,
+                defaults={
+                    "links": links,
+                    "pins": pins,
+                    "routes": routes,
+                    "facilitys": None,
+                },
+            )
 
-        logger.debug("Planet %s Facilitys Updated", planetdetails)
+            self._update_facility(planetdetails)
 
-        return planetdetails, created
+            logger.debug("Planet %s Facilitys Updated", planetdetails)
+
+            return planetdetails, created
 
     def _update_facility(self, planet: "CharacterPlanetDetails"):
         facility_info = self.get_facility_info(planet)
@@ -305,17 +389,23 @@ class PlanetaryDetailsManagerBase(models.Manager):
         )
 
         for planet_id in planets_ids:
-            planets_obj = esi.client.Planetary_Interaction.get_characters_character_id_planets_planet_id(
-                character_id=character.eve_character.character_id, planet_id=planet_id
+            planets_obj = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanetsPlanetId(
+                character_id=character.eve_character.character_id,
+                planet_id=planet_id,
+                token=token,
             )
-            planets_items = etag_results(
-                planets_obj, token, force_refresh=force_refresh
+            self._update_or_create_objs(
+                character,
+                planets_obj.results(return_response=force_refresh),
+                planet_id=planet_id,
             )
-            self._update_or_create_objs(character, planets_items, planet_id=planet_id)
 
     @transaction.atomic()
     def _update_or_create_objs(
-        self, character: "CharacterAudit", objs: list, planet_id: int
+        self,
+        character: "CharacterAudit",
+        objs: list[CharacterPlanetLayoutContext],
+        planet_id: int,
     ) -> None:
         """Update or Create planets entries from objs data."""
         # pylint: disable=import-outside-toplevel
@@ -334,13 +424,10 @@ class PlanetaryDetailsManagerBase(models.Manager):
             )
             return
 
-        # Convert Time to string
-        planet_details_items = convert_datetime_to_str(objs)
-
         planet_details, created = self.update_or_create_layout(
             character=character,
             planet=character_planet,
-            esi_result=planet_details_items,
+            objs=objs,
         )
 
         if not created:

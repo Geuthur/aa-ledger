@@ -1,6 +1,6 @@
 {
    "Character":{
-      "get_characters_character_id_roles":{
+      "GetCharactersCharacterIdRoles":{
          "1001":{
             "roles":[
                "Security_Officer",
@@ -119,7 +119,7 @@
       }
    },
    "Corporation":{
-      "get_corporations_corporation_id_divisions":{
+      "GetCorporationsCorporationIdDivisions":{
          "2001":{
             "hangar":[
                {
@@ -184,7 +184,7 @@
       }
    },
    "Wallet":{
-      "get_corporations_corporation_id_wallets":{
+      "GetCorporationsCorporationIdWallets":{
          "2001":[
             {
                "balance":27544210.6212,
@@ -216,7 +216,7 @@
             }
          ]
       },
-      "get_corporations_corporation_id_wallets_division_journal":{
+      "GetCorporationsCorporationIdWalletsDivisionJournal":{
          "2001": [
             {
                "amount":1000,
@@ -265,7 +265,7 @@
             }
          ]
       },
-      "get_characters_character_id_wallet_journal":{
+      "GetCharactersCharacterIdWalletJournal":{
          "1001":[
             {
                "amount":1000,
@@ -278,7 +278,9 @@
                "id":10,
                "reason":"Test Reason",
                "ref_type":"player_donation",
-               "second_party_id":1002
+               "second_party_id":1002,
+               "tax":0,
+               "tax_receiver_id":0
             },
             {
                "amount":5000,
@@ -291,7 +293,9 @@
                "id":13,
                "reason":"Courier has been completed",
                "ref_type":"courier_contract",
-               "second_party_id":1001
+               "second_party_id":1001,
+               "tax":0,
+               "tax_receiver_id":0
             },
             {
                "amount":10000,
@@ -304,16 +308,18 @@
                "id":16,
                "reason":"Second party unknown",
                "ref_type":"missing_party",
-               "second_party_id":9999
+               "second_party_id":9999,
+               "tax":0,
+               "tax_receiver_id":0
             }
          ]
       },
-      "get_characters_character_id_wallet":{
+      "GetCharactersCharacterIdWallet":{
          "1001":"100000"
       }
    },
    "Industry":{
-      "get_characters_character_id_mining":{
+      "GetCharactersCharacterIdMining":{
          "1001":[
             {
                "date":"2014-10-29",
@@ -325,7 +331,7 @@
       }
    },
    "Planetary_Interaction":{
-      "get_characters_character_id_planets":{
+      "GetCharactersCharacterIdPlanets":{
          "1001": [
             {
                "last_update":"2016-10-29T14:00:00Z",
@@ -357,7 +363,7 @@
             }
          ]
       },
-      "get_characters_character_id_planets_planet_id":{
+      "GetCharactersCharacterIdPlanetsPlanetId":{
          "1001": {
             "4001": {
                "links":[
@@ -440,7 +446,42 @@
       }
    },
    "Universe": {
-      "post_universe_names": {
+      "PostUniverseNames": {
+         "[1001]": [
+            {
+               "id": 1001,
+               "name": "Gneuten",
+               "category": "character"
+            }
+         ],
+         "[9996]": [
+            {
+               "id": 9996,
+               "name": "Create Character",
+               "category": "character"
+            }
+         ],
+         "[9999]": [
+            {
+               "id": 9999,
+               "name": "New Test Character",
+               "category": "character"
+            }
+         ],
+         "[9997, 9998]": [
+            {
+               "id": 9997,
+               "name": "Bulk Character",
+               "category": "character"
+            },
+            {
+               "id": 9998,
+               "name": "Bulk Character 2",
+               "category": "character"
+            }
+         ]
+      },
+      "PostUniverseIds": {
          "[1001]": [
             {
                "id": 1001,

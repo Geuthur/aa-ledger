@@ -16,9 +16,6 @@ from app_utils.logging import LoggerAddTag
 # AA Ledger
 from ledger import __title__
 from ledger.decorators import log_timing
-from ledger.helpers.etag import (
-    etag_results,
-)
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.providers import esi
 
@@ -30,6 +27,24 @@ if TYPE_CHECKING:
     from ledger.models.general import UpdateSectionResult
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+
+
+class CharacterJournalContext:
+    """Context for character wallet journal ESI operations."""
+
+    amount: float
+    balance: float
+    context_id: int
+    context_id_type: str
+    date: str
+    description: str
+    first_party_id: int
+    id: int
+    reason: str
+    ref_type: str
+    second_party_id: int
+    tax: float
+    tax_receiver_id: int
 
 
 class CharWalletIncomeFilter(models.QuerySet):
@@ -350,16 +365,17 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         req_scopes = ["esi-wallet.read_character_wallet.v1"]
 
         token = character.get_token(scopes=req_scopes)
-        journal_items_ob = esi.client.Wallet.get_characters_character_id_wallet_journal(
-            character_id=character.eve_character.character_id
+        journal_items_ob = esi.client.Wallet.GetCharactersCharacterIdWalletJournal(
+            character_id=character.eve_character.character_id, token=token
         )
-        journal_items = etag_results(
-            journal_items_ob, token, force_refresh=force_refresh
+        self._update_or_create_objs(
+            character, journal_items_ob.results(return_response=force_refresh)
         )
-        self._update_or_create_objs(character, journal_items)
 
     @transaction.atomic()
-    def _update_or_create_objs(self, character: "CharacterAudit", objs: list) -> None:
+    def _update_or_create_objs(
+        self, character: "CharacterAudit", objs: list[CharacterJournalContext]
+    ) -> None:
         """Update or Create wallet journal entries from objs data."""
         # pylint: disable=import-outside-toplevel
         # AA Ledger
@@ -367,7 +383,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
 
         _current_journal = self.filter(character=character).values_list(
             "entry_id", flat=True
-        )  # TODO add time filter
+        )
         _current_eve_ids = list(
             EveEntity.objects.all().values_list("eve_id", flat=True)
         )
@@ -376,30 +392,29 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
 
         items = []
         for item in objs:
-            if item.get("id") not in _current_journal:
-                if item.get("second_party_id") not in _current_eve_ids:
-                    _new_names.append(item.get("second_party_id"))
-                    _current_eve_ids.append(item.get("second_party_id"))
-                if item.get("first_party_id") not in _current_eve_ids:
-                    _new_names.append(item.get("first_party_id"))
-                    _current_eve_ids.append(item.get("first_party_id"))
+            if item.id not in _current_journal:
+                if item.second_party_id not in _current_eve_ids:
+                    _new_names.append(item.second_party_id)
+                    _current_eve_ids.append(item.second_party_id)
+                if item.first_party_id not in _current_eve_ids:
+                    _new_names.append(item.first_party_id)
+                    _current_eve_ids.append(item.first_party_id)
 
-                # pylint: disable=duplicate-code
                 asset_item = self.model(
                     character=character,
-                    amount=item.get("amount"),
-                    balance=item.get("balance"),
-                    context_id=item.get("context_id"),
-                    context_id_type=item.get("context_id_type"),
-                    date=item.get("date"),
-                    description=item.get("description"),
-                    first_party_id=item.get("first_party_id"),
-                    entry_id=item.get("id"),
-                    reason=item.get("reason"),
-                    ref_type=item.get("ref_type"),
-                    second_party_id=item.get("second_party_id"),
-                    tax=item.get("tax"),
-                    tax_receiver_id=item.get("tax_receiver_id"),
+                    amount=item.amount,
+                    balance=item.balance,
+                    context_id=item.context_id,
+                    context_id_type=item.context_id_type,
+                    date=item.date,
+                    description=item.description,
+                    first_party_id=item.first_party_id,
+                    entry_id=item.id,
+                    reason=item.reason,
+                    ref_type=item.ref_type,
+                    second_party_id=item.second_party_id,
+                    tax=item.tax,
+                    tax_receiver_id=item.tax_receiver_id,
                 )
                 items.append(asset_item)
 

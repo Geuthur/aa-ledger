@@ -17,7 +17,6 @@ from app_utils.logging import LoggerAddTag
 from ledger import __title__
 from ledger.decorators import log_timing
 from ledger.errors import DatabaseError, NotModifiedError
-from ledger.helpers.etag import etag_results
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.general import EveEntity
 from ledger.providers import esi
@@ -30,6 +29,25 @@ if TYPE_CHECKING:
     )
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+
+
+# pylint: disable=duplicate-code
+class CorporationJournalContext:
+    """Context for corporation wallet journal ESI operations."""
+
+    amount: float
+    balance: float
+    context_id: int
+    context_id_type: str
+    date: str
+    description: str
+    first_party_id: int
+    id: int
+    reason: str
+    ref_type: str
+    second_party_id: int
+    tax: float
+    tax_receiver_id: int
 
 
 class CorporationWalletQuerySet(models.QuerySet):
@@ -188,47 +206,16 @@ class CorporationWalletManagerBase(models.Manager):
         not_modified = 0
 
         for division in divisions:
-            current_page = 1
-            total_pages = 1
-            while current_page <= total_pages:
-                journal_items_ob = esi.client.Wallet.get_corporations_corporation_id_wallets_division_journal(
+            journal_items_ob = (
+                esi.client.Wallet.GetCorporationsCorporationIdWalletsDivisionJournal(
                     corporation_id=corporation.corporation.corporation_id,
                     division=division.division_id,
-                    page=current_page,
-                    token=token.valid_access_token(),
+                    token=token,
                 )
-
-                journal_items_ob.request_config.also_return_response = True
-                __, headers = journal_items_ob.result()
-                total_pages = int(headers.headers.get("X-Pages", 1))
-
-                logger.debug(
-                    "Fetching Journal Items for %s - Division: %s - Page: %s/%s",
-                    corporation.corporation.corporation_name,
-                    division.division_id,
-                    current_page,
-                    total_pages,
-                )
-
-                try:
-                    journal_items = etag_results(
-                        journal_items_ob,
-                        token,
-                        force_refresh=force_refresh,
-                    )
-                except NotModifiedError:
-                    not_modified += 1
-                    logger.debug(
-                        "NotModifiedError: %s - Division: %s - Page: %s",
-                        corporation.corporation.corporation_name,
-                        division.division_id,
-                        current_page,
-                    )
-                    current_page += 1
-                    continue
-
-                self._update_or_create_objs(division, journal_items)
-                current_page += 1
+            )
+            self._update_or_create_objs(
+                division, journal_items_ob.results(return_response=force_refresh)
+            )
 
         # Ensure only raise NotModifiedError if all divisions returned NotModified
         if not_modified == division_count:
@@ -256,29 +243,29 @@ class CorporationWalletManagerBase(models.Manager):
         items = []
         # pylint: disable=duplicate-code
         for item in objs:
-            if item.get("id") not in _current_journal:
-                if item.get("second_party_id") not in _current_eve_ids:
-                    _new_names.append(item.get("second_party_id"))
-                    _current_eve_ids.add(item.get("second_party_id"))
-                if item.get("first_party_id") not in _current_eve_ids:
-                    _new_names.append(item.get("first_party_id"))
-                    _current_eve_ids.add(item.get("first_party_id"))
+            if item.id not in _current_journal:
+                if item.second_party_id not in _current_eve_ids:
+                    _new_names.append(item.second_party_id)
+                    _current_eve_ids.add(item.second_party_id)
+                if item.first_party_id not in _current_eve_ids:
+                    _new_names.append(item.first_party_id)
+                    _current_eve_ids.add(item.first_party_id)
 
                 wallet_item = self.model(  # pylint: disable=duplicate-code
                     division=division,
-                    amount=item.get("amount"),
-                    balance=item.get("balance"),
-                    context_id=item.get("context_id"),
-                    context_id_type=item.get("context_id_type"),
-                    date=item.get("date"),
-                    description=item.get("description"),
-                    first_party_id=item.get("first_party_id"),
-                    entry_id=item.get("id"),
-                    reason=item.get("reason"),
-                    ref_type=item.get("ref_type"),
-                    second_party_id=item.get("second_party_id"),
-                    tax=item.get("tax"),
-                    tax_receiver_id=item.get("tax_receiver_id"),
+                    amount=item.amount,
+                    balance=item.balance,
+                    context_id=item.context_id,
+                    context_id_type=item.context_id_type,
+                    date=item.date,
+                    description=item.description,
+                    first_party_id=item.first_party_id,
+                    entry_id=item.id,
+                    reason=item.reason,
+                    ref_type=item.ref_type,
+                    second_party_id=item.second_party_id,
+                    tax=item.tax,
+                    tax_receiver_id=item.tax_receiver_id,
                 )
 
                 items.append(wallet_item)
@@ -340,13 +327,13 @@ class CorporationDivisionManagerBase(models.Manager):
 
         token = corporation.get_token(scopes=req_scopes, req_roles=req_roles)
 
-        division_obj = esi.client.Corporation.get_corporations_corporation_id_divisions(
+        division_obj = esi.client.Corporation.GetCorporationsCorporationIdDivisions(
             corporation_id=corporation.corporation.corporation_id,
+            token=token,
         )
-
-        division_names = etag_results(division_obj, token, force_refresh=force_refresh)
-
-        self._update_or_create_objs_division(corporation, division_names)
+        self._update_or_create_objs_division(
+            corporation, division_obj.results(return_response=force_refresh)
+        )
 
     def _fetch_esi_data(
         self, corporation: "CorporationAudit", force_refresh: bool = False
@@ -361,14 +348,12 @@ class CorporationDivisionManagerBase(models.Manager):
 
         token = corporation.get_token(scopes=req_scopes, req_roles=req_roles)
 
-        divisions_items_obj = esi.client.Wallet.get_corporations_corporation_id_wallets(
-            corporation_id=corporation.corporation.corporation_id
+        divisions_items_obj = esi.client.Wallet.GetCorporationsCorporationIdWallets(
+            corporation_id=corporation.corporation.corporation_id, token=token
         )
-
-        division_balances = etag_results(
-            divisions_items_obj, token, force_refresh=force_refresh
+        self._update_or_create_objs(
+            corporation, divisions_items_obj.results(return_response=force_refresh)
         )
-        self._update_or_create_objs(corporation, division_balances)
 
     @transaction.atomic()
     def _update_or_create_objs_division(
@@ -377,15 +362,15 @@ class CorporationDivisionManagerBase(models.Manager):
         objs: list,
     ) -> None:
         """Update or Create division entries from objs data."""
-        for division in objs.get("wallet"):
-            if division.get("division") == 1:
+        for division in objs.wallet:
+            if division.division == 1:
                 name = _("Master Wallet")
             else:
-                name = division.get("name", _("Unknown"))
+                name = getattr(division, "name", _("Unknown"))
 
             obj, created = self.get_or_create(
                 corporation=corporation,
-                division_id=division.get("division"),
+                division_id=division.division,
                 defaults={"balance": 0, "name": name},
             )
             if not created:
@@ -402,15 +387,15 @@ class CorporationDivisionManagerBase(models.Manager):
         for division in objs:
             obj, created = self.get_or_create(
                 corporation=corporation,
-                division_id=division.get("division"),
+                division_id=division.division,
                 defaults={
-                    "balance": division.get("balance"),
+                    "balance": division.balance,
                     "name": _("Unknown"),
                 },
             )
 
             if not created:
-                obj.balance = division.get("balance")
+                obj.balance = division.balance
                 obj.save()
 
 
