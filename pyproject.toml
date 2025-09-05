@@ -60,3 +60,6 @@ include = [
 
 [tool.hatch.version]
 path = "ledger/__init__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
