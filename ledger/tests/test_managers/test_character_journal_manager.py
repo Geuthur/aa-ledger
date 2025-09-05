@@ -10,7 +10,7 @@ from app_utils.testing import NoSocketsTestCase
 
 # AA Ledger
 from ledger.models.general import EveEntity
-from ledger.tests.testdata.esi_stub import esi_client_stub
+from ledger.tests.testdata.esi_stub import esi_client_stub_openapi
 from ledger.tests.testdata.generate_characteraudit import (
     create_characteraudit_from_evecharacter,
 )
@@ -24,7 +24,6 @@ MODULE_PATH = "ledger.managers.character_journal_manager"
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 @patch(MODULE_PATH + ".esi")
-@patch(MODULE_PATH + ".etag_results")
 @patch("ledger.models.general.EveEntity")
 class TestCharacterJournalManager(NoSocketsTestCase):
     @classmethod
@@ -61,11 +60,9 @@ class TestCharacterJournalManager(NoSocketsTestCase):
             ref_type="player_donation",
         )
 
-    def test_update_wallet_journal(self, mock_eveentity, mock_etag, mock_esi):
+    def test_update_wallet_journal(self, mock_eveentity, mock_esi):
         # given
-        mock_esi.client = esi_client_stub
-        mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()
-
+        mock_esi.client = esi_client_stub_openapi
         mock_eveentity.objects.create_bulk_from_esi.return_value = True
 
         EveEntity.objects.create(

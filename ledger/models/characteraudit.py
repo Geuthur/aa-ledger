@@ -446,7 +446,8 @@ class CharacterMiningLedger(models.Model):
 
     @staticmethod
     def create_primary_key(character_id, mining_record):
-        return f"{mining_record['date'].strftime('%Y%m%d')}-{mining_record['type_id']}-{character_id}-{mining_record['solar_system_id']}"
+        print("DEBUG mining_record:", mining_record, type(mining_record.date))
+        return f"{mining_record.date.strftime('%Y%m%d')}-{mining_record.type_id}-{character_id}-{mining_record.solar_system_id}"
 
     @staticmethod
     def update_evemarket_price():  # Dont want to make a task only for this
