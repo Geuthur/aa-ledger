@@ -122,14 +122,33 @@ class PlanetaryManagerBase(models.Manager):
     ) -> None:
         """Fetch planetary entries from ESI data."""
         req_scopes = ["esi-planets.manage_planets.v1"]
-
         token = character.get_token(scopes=req_scopes)
+
+        # Generate kwargs for OpenAPI request
+        openapi_kwargs = character.generate_openapi3_request(
+            section=character.UpdateSection.PLANETS,
+            force_refresh=force_refresh,
+            character_id=character.eve_character.character_id,
+            token=token,
+        )
+
         planets_obj = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanets(
-            character_id=character.eve_character.character_id, token=token
+            **openapi_kwargs
         )
-        self._update_or_create_objs(
-            character, planets_obj.results(return_response=force_refresh)
+        planets_items, response = planets_obj.results(return_response=True)
+
+        # Set new etag in cache
+        character.set_cache_key(
+            section=character.UpdateSection.PLANETS,
+            etag=response.headers.get("ETag"),
+            character_id=character.eve_character.character_id,
+            token=token,
         )
+        logger.debug(
+            f"New ETag set for {character} Section: {character.UpdateSection.PLANETS}, ETag: {response.headers.get('ETag')}"
+        )
+
+        self._update_or_create_objs(character=character, objs=planets_items)
 
     @transaction.atomic()
     def _update_or_create_objs(
@@ -389,14 +408,38 @@ class PlanetaryDetailsManagerBase(models.Manager):
         )
 
         for planet_id in planets_ids:
-            planets_obj = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanetsPlanetId(
+            # Generate kwargs for OpenAPI request
+            openapi_kwargs = character.generate_openapi3_request(
+                section=character.UpdateSection.PLANETS_DETAILS,
+                force_refresh=force_refresh,
                 character_id=character.eve_character.character_id,
                 planet_id=planet_id,
                 token=token,
             )
+
+            # Make the ESI request NOTE: No ETag support for this endpoint
+            planets_details_obj = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanetsPlanetId(
+                **openapi_kwargs
+            )
+            planets_details_items, response = planets_details_obj.results(
+                return_response=True
+            )
+
+            # Set new etag in cache
+            character.set_cache_key(
+                section=character.UpdateSection.PLANETS_DETAILS,
+                etag=response.headers.get("ETag"),
+                character_id=character.eve_character.character_id,
+                planet_id=planet_id,
+                token=token,
+            )
+            logger.debug(
+                f"New ETag set for {character} Section: {character.UpdateSection.PLANETS_DETAILS}, ETag: {response.headers.get('ETag')}"
+            )
+
             self._update_or_create_objs(
-                character,
-                planets_obj.results(return_response=force_refresh),
+                character=character,
+                objs=planets_details_items,
                 planet_id=planet_id,
             )
 

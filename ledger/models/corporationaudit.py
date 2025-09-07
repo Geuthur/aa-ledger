@@ -6,6 +6,7 @@ Corporation Audit Model
 from collections.abc import Callable
 
 # Third Party
+from aiopenapi3.errors import ContentTypeError
 from bravado.exception import HTTPInternalServerError
 
 # Django
@@ -31,13 +32,19 @@ from ledger.managers.corporation_journal_manager import (
     CorporationWalletManager,
 )
 from ledger.models.characteraudit import WalletJournalEntry
-from ledger.models.general import UpdateSectionResult, UpdateStatus, _NeedsUpdate
+from ledger.models.general import (
+    AuditBase,
+    UpdateSectionResult,
+    UpdateStatus,
+    _NeedsUpdate,
+)
 from ledger.providers import esi
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
-class CorporationAudit(models.Model):
+class CorporationAudit(AuditBase):
+    """A model to store corporation information."""
 
     class UpdateSection(models.TextChoices):
         WALLET_DIVISION_NAMES = "wallet_division_names", _("Divisions Names")
@@ -146,6 +153,15 @@ class CorporationAudit(models.Model):
             logger.debug(
                 "%s: Update has a gateway timeout error, section: %s: %s",
                 self,
+                section.label,
+                exc,
+            )
+            return UpdateSectionResult(is_changed=False, is_updated=False)
+        except (OSError, ContentTypeError) as exc:
+            logger.info(
+                "%s Update has a %s error, section: %s: %s",
+                self,
+                type(exc).__name__,
                 section.label,
                 exc,
             )

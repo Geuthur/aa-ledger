@@ -16,7 +16,7 @@ from app_utils.logging import LoggerAddTag
 # AA Ledger
 from ledger import __title__
 from ledger.decorators import log_timing
-from ledger.errors import DatabaseError, NotModifiedError
+from ledger.errors import DatabaseError
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.general import EveEntity
 from ledger.providers import esi
@@ -48,6 +48,24 @@ class CorporationJournalContext:
     second_party_id: int
     tax: float
     tax_receiver_id: int
+
+
+class CorporationDivisionContext:
+    class WalletContext:
+        division: int
+        name: str | None
+
+    class HangerContext:
+        division: int
+        name: str | None
+
+    hanger: list[HangerContext]
+    wallet: list[WalletContext]
+
+
+class CorporationWalletContext:
+    division: int
+    balance: float
 
 
 class CorporationWalletQuerySet(models.QuerySet):
@@ -201,31 +219,43 @@ class CorporationWalletManagerBase(models.Manager):
 
         divisions = CorporationWalletDivision.objects.filter(corporation=corporation)
 
-        # Get the count of divisions to track not modified
-        division_count = divisions.count()
-        not_modified = 0
-
         for division in divisions:
+            # Generate kwargs for OpenAPI request
+            openapi_kwargs = corporation.generate_openapi3_request(
+                section=corporation.UpdateSection.WALLET_JOURNAL,
+                force_refresh=force_refresh,
+                corporation_id=corporation.corporation.corporation_id,
+                division=division.division_id,
+                token=token,
+            )
+
+            # Make the ESI request
             journal_items_ob = (
                 esi.client.Wallet.GetCorporationsCorporationIdWalletsDivisionJournal(
-                    corporation_id=corporation.corporation.corporation_id,
-                    division=division.division_id,
-                    token=token,
+                    **openapi_kwargs
                 )
             )
-            self._update_or_create_objs(
-                division, journal_items_ob.results(return_response=force_refresh)
+            journal_items, response = journal_items_ob.results(return_response=True)
+
+            # Set new etag in cache
+            corporation.set_cache_key(
+                section=corporation.UpdateSection.WALLET_JOURNAL,
+                etag=response.headers.get("ETag"),
+                corporation_id=corporation.corporation.corporation_id,
+                division=division.division_id,
+                token=token,
+            )
+            logger.debug(
+                f"New ETag set for {corporation} Section: {corporation.UpdateSection.WALLET_JOURNAL}, ETag: {response.headers.get('ETag')}"
             )
 
-        # Ensure only raise NotModifiedError if all divisions returned NotModified
-        if not_modified == division_count:
-            raise NotModifiedError()
+            self._update_or_create_objs(division=division, objs=journal_items)
 
     @transaction.atomic()
     def _update_or_create_objs(
         self,
         division: "CorporationWalletDivision",
-        objs: list,
+        objs: list[CorporationJournalContext],
     ) -> None:
         """Update or Create wallet journal entries from objs data."""
         _new_names = []
@@ -324,15 +354,35 @@ class CorporationDivisionManagerBase(models.Manager):
             "esi-corporations.read_divisions.v1",
         ]
         req_roles = ["CEO", "Director"]
-
         token = corporation.get_token(scopes=req_scopes, req_roles=req_roles)
 
-        division_obj = esi.client.Corporation.GetCorporationsCorporationIdDivisions(
+        # Generate kwargs for OpenAPI request
+        openapi_kwargs = corporation.generate_openapi3_request(
+            section=corporation.UpdateSection.WALLET_DIVISION_NAMES,
+            force_refresh=force_refresh,
             corporation_id=corporation.corporation.corporation_id,
             token=token,
         )
+
+        # Make the ESI request
+        division_obj = esi.client.Corporation.GetCorporationsCorporationIdDivisions(
+            **openapi_kwargs
+        )
+        division_items, response = division_obj.results(return_response=True)
+
+        # Set new etag in cache
+        corporation.set_cache_key(
+            section=corporation.UpdateSection.WALLET_DIVISION_NAMES,
+            etag=response.headers.get("ETag"),
+            corporation_id=corporation.corporation.corporation_id,
+            token=token,
+        )
+        logger.debug(
+            f"New ETag set for {corporation} Section: {corporation.UpdateSection.WALLET_DIVISION_NAMES}, ETag: {response.headers.get('ETag')}"
+        )
+
         self._update_or_create_objs_division(
-            corporation, division_obj.results(return_response=force_refresh)
+            corporation=corporation, objs=division_items
         )
 
     def _fetch_esi_data(
@@ -345,37 +395,56 @@ class CorporationDivisionManagerBase(models.Manager):
             "esi-corporations.read_divisions.v1",
         ]
         req_roles = ["CEO", "Director", "Accountant", "Junior_Accountant"]
-
         token = corporation.get_token(scopes=req_scopes, req_roles=req_roles)
 
+        # Generate kwargs for OpenAPI request
+        openapi_kwargs = corporation.generate_openapi3_request(
+            section=corporation.UpdateSection.WALLET_DIVISION_NAMES,
+            force_refresh=force_refresh,
+            corporation_id=corporation.corporation.corporation_id,
+            token=token,
+        )
+
+        # Make the ESI request
         divisions_items_obj = esi.client.Wallet.GetCorporationsCorporationIdWallets(
-            corporation_id=corporation.corporation.corporation_id, token=token
+            **openapi_kwargs
         )
-        self._update_or_create_objs(
-            corporation, divisions_items_obj.results(return_response=force_refresh)
+        division_items, response = divisions_items_obj.results(return_response=True)
+
+        corporation.set_cache_key(
+            section=corporation.UpdateSection.WALLET_DIVISION_NAMES,
+            etag=response.headers.get("ETag"),
+            corporation_id=corporation.corporation.corporation_id,
+            token=token,
         )
+        logger.debug(
+            f"New ETag set for {corporation} Section: {corporation.UpdateSection.WALLET_DIVISION_NAMES}, ETag: {response.headers.get('ETag')}"
+        )
+
+        self._update_or_create_objs(corporation=corporation, objs=division_items)
 
     @transaction.atomic()
     def _update_or_create_objs_division(
         self,
         corporation: "CorporationAudit",
-        objs: list,
+        objs: list[CorporationDivisionContext],
     ) -> None:
         """Update or Create division entries from objs data."""
-        for division in objs.wallet:
-            if division.division == 1:
-                name = _("Master Wallet")
-            else:
-                name = getattr(division, "name", _("Unknown"))
+        for division in objs:  # list (hanger, wallet)
+            for wallet in division.wallet:
+                if wallet.division == 1:
+                    name = _("Master Wallet")
+                else:
+                    name = getattr(wallet, "name", _("Unknown"))
 
-            obj, created = self.get_or_create(
-                corporation=corporation,
-                division_id=division.division,
-                defaults={"balance": 0, "name": name},
-            )
-            if not created:
-                obj.name = name
-                obj.save()
+                obj, created = self.get_or_create(
+                    corporation=corporation,
+                    division_id=wallet.division,
+                    defaults={"balance": 0, "name": name},
+                )
+                if not created:
+                    obj.name = name
+                    obj.save()
 
     @transaction.atomic()
     def _update_or_create_objs(
