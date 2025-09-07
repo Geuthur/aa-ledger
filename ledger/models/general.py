@@ -5,9 +5,11 @@ General Model
 # Standard Library
 import datetime
 from dataclasses import dataclass
+from hashlib import md5
 from typing import Any, NamedTuple
 
 # Django
+from django.core.cache import cache
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -26,6 +28,10 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__, app_settings
+from ledger.app_settings import (
+    LEDGER_CACHE_KEY,
+    LEDGER_CACHE_STALE,
+)
 from ledger.managers.general_manager import EveEntityManager
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -154,6 +160,38 @@ class _NeedsUpdate:
     def for_section(self, section: str) -> bool:
         """Check if an update is needed for a specific section."""
         return self.section_map.get(section, False)
+
+
+class AuditBase(models.Model):
+    """A base model for audit models."""
+
+    def generate_openapi3_request(self, section, force_refresh: bool, **kwargs) -> dict:
+        """Generate kwargs for an OpenAPI3 request based on the section."""
+        if force_refresh is False:
+            pass
+        etag = cache.get(self.build_cache_key(section, **kwargs))
+        logger.debug(f"Old ETag for {self} Section: {section}: {etag}")
+        if etag:
+            kwargs["If-None-Match"] = etag
+        return kwargs
+
+    def get_openapi3_hash(self, section, **kwargs) -> str:
+        """Get a hash for the kwargs and section."""
+        logger.debug(f"Generating hash for {self} and section {section}")
+        return md5(f"{self}-{section}-{kwargs}".encode()).hexdigest()
+
+    def build_cache_key(self, section, **kwargs) -> str:
+        """Build a cache key based on the kwargs and section."""
+        logger.debug(f"Building cache key for {self} and section {section}")
+        return f"{LEDGER_CACHE_KEY}-{self.get_openapi3_hash(section, **kwargs)}"
+
+    def set_cache_key(self, section, etag: str, **kwargs) -> None:
+        """Set a cache key based on the kwargs and section."""
+        logger.debug(f"New ETag for {self} and section {section} to {etag}")
+        cache.set(self.build_cache_key(section, **kwargs), etag, LEDGER_CACHE_STALE)
+
+    class Meta:
+        abstract = True
 
 
 class UpdateStatus(models.Model):

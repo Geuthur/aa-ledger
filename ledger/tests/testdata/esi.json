@@ -1,116 +1,116 @@
 {
-   "Character":{
-      "GetCharactersCharacterIdRoles":{
-         "1001":{
-            "roles":[
+   "Character": {
+      "GetCharactersCharacterIdRoles": {
+         "1001": {
+            "roles": [
                "Security_Officer",
                "Factory_Manager",
                "Station_Manager",
                "Auditor"
             ],
-            "roles_at_base":[
+            "roles_at_base": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
             ],
-            "roles_at_hq":[
+            "roles_at_hq": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
             ],
-            "roles_at_other":[
+            "roles_at_other": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
             ]
          },
-         "1002":{
-            "roles":[
+         "1002": {
+            "roles": [
                "Security_Officer",
                "Factory_Manager",
                "Station_Manager",
                "Auditor"
             ],
-            "roles_at_base":[
+            "roles_at_base": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
             ],
-            "roles_at_hq":[
+            "roles_at_hq": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
             ],
-            "roles_at_other":[
+            "roles_at_other": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
             ]
          },
-         "1003":{
-            "roles":[
+         "1003": {
+            "roles": [
                "Security_Officer",
                "Factory_Manager",
                "Station_Manager",
                "Auditor"
             ],
-            "roles_at_base":[
+            "roles_at_base": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
             ],
-            "roles_at_hq":[
+            "roles_at_hq": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
             ],
-            "roles_at_other":[
+            "roles_at_other": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
             ]
          },
-         "1004":{
-            "roles":[
+         "1004": {
+            "roles": [
                "Security_Officer",
                "Factory_Manager",
                "Station_Manager",
                "Auditor"
             ],
-            "roles_at_base":[
+            "roles_at_base": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
             ],
-            "roles_at_hq":[
+            "roles_at_hq": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
             ],
-            "roles_at_other":[
+            "roles_at_other": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
             ]
          },
-         "1005":{
-            "roles":[
+         "1005": {
+            "roles": [
                "Security_Officer",
                "Factory_Manager",
                "Station_Manager",
                "Auditor"
             ],
-            "roles_at_base":[
+            "roles_at_base": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
             ],
-            "roles_at_hq":[
+            "roles_at_hq": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
             ],
-            "roles_at_other":[
+            "roles_at_other": [
                "Hangar_Take_1",
                "Hangar_Take_2",
                "Hangar_Take_3"
@@ -118,211 +118,213 @@
          }
       }
    },
-   "Corporation":{
-      "GetCorporationsCorporationIdDivisions":{
-         "2001":{
-            "hangar":[
-               {
-                  "division":1,
-                  "name":"Test Hangar"
-               },
-               {
-                  "division":2,
-                  "name":"Officer Hangar"
-               },
-               {
-                  "division":3,
-                  "name":"Schiffe"
-               },
-               {
-                  "division":4,
-                  "name":"Lager"
-               },
-               {
-                  "division":5,
-                  "name":"Wertvoll"
-               },
-               {
-                  "division":6,
-                  "name":"Produktion"
-               },
-               {
-                  "division":7,
-                  "name":"Blueprints"
-               }
-            ],
-            "wallet":[
-               {
-                  "division":1
-               },
-               {
-                  "division":2,
-                  "name":"Rechnungen"
-               },
-               {
-                  "division":3,
-                  "name":"Event's"
-               },
-               {
-                  "division":4,
-                  "name":"Ship Replacment Abteilung"
-               },
-               {
-                  "division":5,
-                  "name":"Roaming"
-               },
-               {
-                  "division":6,
-                  "name":"Partner"
-               },
-               {
-                  "division":7,
-                  "name":"Backup"
-               }
-            ]
-         }
-      }
-   },
-   "Wallet":{
-      "GetCorporationsCorporationIdWallets":{
-         "2001":[
-            {
-               "balance":27544210.6212,
-               "division":1
-            },
-            {
-               "balance":0,
-               "division":2
-            },
-            {
-               "balance":0,
-               "division":3
-            },
-            {
-               "balance":1600000000,
-               "division":4
-            },
-            {
-               "balance":32320243.96,
-               "division":5
-            },
-            {
-               "balance":0,
-               "division":6
-            },
-            {
-               "balance":0,
-               "division":7
-            }
-         ]
-      },
-      "GetCorporationsCorporationIdWalletsDivisionJournal":{
+   "Corporation": {
+      "GetCorporationsCorporationIdDivisions": {
          "2001": [
             {
-               "amount":1000,
-               "balance":2000,
-               "context_id":1,
-               "context_id_type":"test_id",
-               "date":"2016-10-29T14:00:00Z",
-               "description":"Test Journal",
-               "first_party_id":2001,
-               "id":10,
-               "reason":"Test Reason",
-               "ref_type":"player_donation",
-               "second_party_id":1001,
-               "tax":0,
-               "tax_receiver_id":0
-            },
-            {
-               "amount":5000,
-               "balance":10000,
-               "context_id":2,
-               "context_id_type":"bounty_id",
-               "date":"2016-12-01T14:00:00Z",
-               "description":"Bounty Tax",
-               "first_party_id":1001,
-               "id":13,
-               "reason":"Bounty",
-               "ref_type":"bounty_prizes",
-               "second_party_id":2001,
-               "tax":0,
-               "tax_receiver_id":0
-            },
-            {
-               "amount":10000,
-               "balance":20000,
-               "context_id":4,
-               "context_id_type":"missing_id",
-               "date":"2016-12-01T14:00:00Z",
-               "description":"Unknown Second Party",
-               "first_party_id":1001,
-               "id":16,
-               "reason":"Second party unknown",
-               "ref_type":"missing_party",
-               "second_party_id":9998,
-               "tax":0,
-               "tax_receiver_id":0
+               "hangar": [
+                  {
+                     "division": 1,
+                     "name": "Test Hangar"
+                  },
+                  {
+                     "division": 2,
+                     "name": "Officer Hangar"
+                  },
+                  {
+                     "division": 3,
+                     "name": "Schiffe"
+                  },
+                  {
+                     "division": 4,
+                     "name": "Lager"
+                  },
+                  {
+                     "division": 5,
+                     "name": "Wertvoll"
+                  },
+                  {
+                     "division": 6,
+                     "name": "Produktion"
+                  },
+                  {
+                     "division": 7,
+                     "name": "Blueprints"
+                  }
+               ],
+               "wallet": [
+                  {
+                     "division": 1
+                  },
+                  {
+                     "division": 2,
+                     "name": "Rechnungen"
+                  },
+                  {
+                     "division": 3,
+                     "name": "Event's"
+                  },
+                  {
+                     "division": 4,
+                     "name": "Ship Replacment Abteilung"
+                  },
+                  {
+                     "division": 5,
+                     "name": "Roaming"
+                  },
+                  {
+                     "division": 6,
+                     "name": "Partner"
+                  },
+                  {
+                     "division": 7,
+                     "name": "Backup"
+                  }
+               ]
             }
          ]
-      },
-      "GetCharactersCharacterIdWalletJournal":{
-         "1001":[
-            {
-               "amount":1000,
-               "balance":2000,
-               "context_id":1,
-               "context_id_type":"test_id",
-               "date":"2016-10-29T14:00:00Z",
-               "description":"Test Journal",
-               "first_party_id":1001,
-               "id":10,
-               "reason":"Test Reason",
-               "ref_type":"player_donation",
-               "second_party_id":1002,
-               "tax":0,
-               "tax_receiver_id":0
-            },
-            {
-               "amount":5000,
-               "balance":10000,
-               "context_id":2,
-               "context_id_type":"courier_id",
-               "date":"2016-12-01T14:00:00Z",
-               "description":"Courier Contract",
-               "first_party_id":2001,
-               "id":13,
-               "reason":"Courier has been completed",
-               "ref_type":"courier_contract",
-               "second_party_id":1001,
-               "tax":0,
-               "tax_receiver_id":0
-            },
-            {
-               "amount":10000,
-               "balance":20000,
-               "context_id":4,
-               "context_id_type":"missing_id",
-               "date":"2016-12-01T14:00:00Z",
-               "description":"Unknown Second Party",
-               "first_party_id":1001,
-               "id":16,
-               "reason":"Second party unknown",
-               "ref_type":"missing_party",
-               "second_party_id":9999,
-               "tax":0,
-               "tax_receiver_id":0
-            }
-         ]
-      },
-      "GetCharactersCharacterIdWallet":{
-         "1001":"100000"
       }
    },
-   "Industry":{
-      "GetCharactersCharacterIdMining":{
-         "1001":[
+   "Wallet": {
+      "GetCorporationsCorporationIdWallets": {
+         "2001": [
             {
-               "date":"2014-10-29",
+               "balance": 27544210.6212,
+               "division": 1
+            },
+            {
+               "balance": 0,
+               "division": 2
+            },
+            {
+               "balance": 0,
+               "division": 3
+            },
+            {
+               "balance": 1600000000,
+               "division": 4
+            },
+            {
+               "balance": 32320243.96,
+               "division": 5
+            },
+            {
+               "balance": 0,
+               "division": 6
+            },
+            {
+               "balance": 0,
+               "division": 7
+            }
+         ]
+      },
+      "GetCorporationsCorporationIdWalletsDivisionJournal": {
+         "2001": [
+            {
+               "amount": 1000,
+               "balance": 2000,
+               "context_id": 1,
+               "context_id_type": "test_id",
+               "date": "2016-10-29T14:00:00Z",
+               "description": "Test Journal",
+               "first_party_id": 2001,
+               "id": 10,
+               "reason": "Test Reason",
+               "ref_type": "player_donation",
+               "second_party_id": 1001,
+               "tax": 0,
+               "tax_receiver_id": 0
+            },
+            {
+               "amount": 5000,
+               "balance": 10000,
+               "context_id": 2,
+               "context_id_type": "bounty_id",
+               "date": "2016-12-01T14:00:00Z",
+               "description": "Bounty Tax",
+               "first_party_id": 1001,
+               "id": 13,
+               "reason": "Bounty",
+               "ref_type": "bounty_prizes",
+               "second_party_id": 2001,
+               "tax": 0,
+               "tax_receiver_id": 0
+            },
+            {
+               "amount": 10000,
+               "balance": 20000,
+               "context_id": 4,
+               "context_id_type": "missing_id",
+               "date": "2016-12-01T14:00:00Z",
+               "description": "Unknown Second Party",
+               "first_party_id": 1001,
+               "id": 16,
+               "reason": "Second party unknown",
+               "ref_type": "missing_party",
+               "second_party_id": 9998,
+               "tax": 0,
+               "tax_receiver_id": 0
+            }
+         ]
+      },
+      "GetCharactersCharacterIdWalletJournal": {
+         "1001": [
+            {
+               "amount": 1000,
+               "balance": 2000,
+               "context_id": 1,
+               "context_id_type": "test_id",
+               "date": "2016-10-29T14:00:00Z",
+               "description": "Test Journal",
+               "first_party_id": 1001,
+               "id": 10,
+               "reason": "Test Reason",
+               "ref_type": "player_donation",
+               "second_party_id": 1002,
+               "tax": 0,
+               "tax_receiver_id": 0
+            },
+            {
+               "amount": 5000,
+               "balance": 10000,
+               "context_id": 2,
+               "context_id_type": "courier_id",
+               "date": "2016-12-01T14:00:00Z",
+               "description": "Courier Contract",
+               "first_party_id": 2001,
+               "id": 13,
+               "reason": "Courier has been completed",
+               "ref_type": "courier_contract",
+               "second_party_id": 1001,
+               "tax": 0,
+               "tax_receiver_id": 0
+            },
+            {
+               "amount": 10000,
+               "balance": 20000,
+               "context_id": 4,
+               "context_id_type": "missing_id",
+               "date": "2016-12-01T14:00:00Z",
+               "description": "Unknown Second Party",
+               "first_party_id": 1001,
+               "id": 16,
+               "reason": "Second party unknown",
+               "ref_type": "missing_party",
+               "second_party_id": 9999,
+               "tax": 0,
+               "tax_receiver_id": 0
+            }
+         ]
+      },
+      "GetCharactersCharacterIdWallet": {
+         "1001": "100000"
+      }
+   },
+   "Industry": {
+      "GetCharactersCharacterIdMining": {
+         "1001": [
+            {
+               "date": "2014-10-29",
                "quantity": 5000,
                "solar_system_id": 30004783,
                "type_id": 17425
@@ -330,11 +332,11 @@
          ]
       }
    },
-   "Planetary_Interaction":{
-      "GetCharactersCharacterIdPlanets":{
+   "Planetary_Interaction": {
+      "GetCharactersCharacterIdPlanets": {
          "1001": [
             {
-               "last_update":"2016-10-29T14:00:00Z",
+               "last_update": "2016-10-29T14:00:00Z",
                "num_pins": 5,
                "owner_id": 1001,
                "planet_id": 4001,
@@ -343,7 +345,7 @@
                "upgrade_level": 5
             },
             {
-               "last_update":"2016-10-29T14:00:00Z",
+               "last_update": "2016-10-29T14:00:00Z",
                "num_pins": 5,
                "owner_id": 1001,
                "planet_id": 4002,
@@ -354,89 +356,83 @@
          ],
          "1002": [
             {
-               "last_update":"2016-10-29T14:00:00Z",
-               "num_pins":5,
-               "owner_id":1002,
-               "planet_id":4001,
-               "solar_system_id":30004783,
-               "upgrade_level":5
+               "last_update": "2016-10-29T14:00:00Z",
+               "num_pins": 5,
+               "owner_id": 1002,
+               "planet_id": 4001,
+               "solar_system_id": 30004783,
+               "upgrade_level": 5
             }
          ]
       },
-      "GetCharactersCharacterIdPlanetsPlanetId":{
+      "GetCharactersCharacterIdPlanetsPlanetId": {
          "1001": {
             "4001": {
-               "links":[
+               "links": [
                   {
-                     "destination_pin_id":1046238237381,
-                     "link_level":0,
-                     "source_pin_id":1046238237375
+                     "destination_pin_id": 1046238237381,
+                     "link_level": 0,
+                     "source_pin_id": 1046238237375
                   },
                   {
-                     "destination_pin_id":1046238237383,
-                     "link_level":0,
-                     "source_pin_id":1046238237381
+                     "destination_pin_id": 1046238237383,
+                     "link_level": 0,
+                     "source_pin_id": 1046238237381
                   }
                ],
-               "pins":[
+               "pins": [
                   {
-                     "contents":[
-
-                     ],
-                     "latitude":0.015516729094088078,
-                     "longitude":2.3920838832855225,
-                     "pin_id":1046238231981,
-                     "type_id":2534
+                     "contents": [],
+                     "latitude": 0.015516729094088078,
+                     "longitude": 2.3920838832855225,
+                     "pin_id": 1046238231981,
+                     "type_id": 2534
                   },
                   {
-                     "contents":[
-
-                     ],
-                     "expiry_time":"2024-08-26T17:17:02Z",
-                     "extractor_details":{
-                        "cycle_time":14400,
-                        "head_radius":0.05000000074505806,
-                        "heads":[
+                     "contents": [],
+                     "expiry_time": "2024-08-26T17:17:02Z",
+                     "extractor_details": {
+                        "cycle_time": 14400,
+                        "head_radius": 0.05000000074505806,
+                        "heads": [
                            {
-                              "head_id":0,
-                              "latitude":1.0986779928207397,
-                              "longitude":1.4244794845581055
+                              "head_id": 0,
+                              "latitude": 1.0986779928207397,
+                              "longitude": 1.4244794845581055
                            },
                            {
-                              "head_id":1,
-                              "latitude":1.1128675937652588,
-                              "longitude":1.3068562746047974
+                              "head_id": 1,
+                              "latitude": 1.1128675937652588,
+                              "longitude": 1.3068562746047974
                            }
                         ],
-                        "product_type_id":2268,
-                        "qty_per_cycle":6541
+                        "product_type_id": 2268,
+                        "qty_per_cycle": 6541
                      },
-                     "install_time":"2024-08-12T17:17:02Z",
-                     "last_cycle_start":"2024-08-12T17:17:02Z",
-                     "latitude":0.9115607738494873,
-                     "longitude":1.1501415967941284,
-                     "pin_id":1046238237375,
-                     "type_id":3060
+                     "install_time": "2024-08-12T17:17:02Z",
+                     "last_cycle_start": "2024-08-12T17:17:02Z",
+                     "latitude": 0.9115607738494873,
+                     "longitude": 1.1501415967941284,
+                     "pin_id": 1046238237375,
+                     "type_id": 3060
                   }
                ],
-               "routes":[
+               "routes": [
                   {
-                     "content_type_id":9832,
-                     "destination_pin_id":1046238237382,
-                     "quantity":5,
-                     "route_id":1381898852,
-                     "source_pin_id":1046238237396,
-                     "waypoints":[
-
-                     ]
+                     "content_type_id": 9832,
+                     "destination_pin_id": 1046238237382,
+                     "quantity": 5,
+                     "route_id": 1381898852,
+                     "source_pin_id": 1046238237396,
+                     "waypoints": []
                   },
                   {
-                     "content_type_id":2309,
-                     "destination_pin_id":1046238237392,
-                     "quantity":3000,
-                     "route_id":1381898867,
-                     "source_pin_id":1046238237381,
-                     "waypoints":[
+                     "content_type_id": 2309,
+                     "destination_pin_id": 1046238237392,
+                     "quantity": 3000,
+                     "route_id": 1381898867,
+                     "source_pin_id": 1046238237381,
+                     "waypoints": [
                         1046238237388
                      ]
                   }

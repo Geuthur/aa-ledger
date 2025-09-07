@@ -6,6 +6,7 @@ Character Audit Model
 from collections.abc import Callable
 
 # Third Party
+from aiopenapi3.errors import ContentTypeError
 from bravado.exception import HTTPInternalServerError
 
 # Django
@@ -26,7 +27,10 @@ from eveuniverse.models import EveMarketPrice, EveSolarSystem, EveType
 
 # AA Ledger
 from ledger import __title__
-from ledger.app_settings import LEDGER_CACHE_KEY, LEDGER_USE_COMPRESSED
+from ledger.app_settings import (
+    LEDGER_CACHE_KEY,
+    LEDGER_USE_COMPRESSED,
+)
 from ledger.errors import HTTPGatewayTimeoutError, NotModifiedError, TokenDoesNotExist
 from ledger.managers.character_audit_manager import (
     CharacterAuditManager,
@@ -34,6 +38,7 @@ from ledger.managers.character_audit_manager import (
 from ledger.managers.character_journal_manager import CharWalletManager
 from ledger.managers.character_mining_manager import CharacterMiningLedgerEntryManager
 from ledger.models.general import (
+    AuditBase,
     EveEntity,
     UpdateSectionResult,
     UpdateStatus,
@@ -43,7 +48,8 @@ from ledger.models.general import (
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
-class CharacterAudit(models.Model):
+class CharacterAudit(AuditBase):
+    """A model to store character information."""
 
     class UpdateSection(models.TextChoices):
         WALLET_JOURNAL = "wallet_journal", _("Wallet Journal")
@@ -275,6 +281,15 @@ class CharacterAudit(models.Model):
             logger.debug(
                 "%s: Update has a gateway timeout error, section: %s: %s",
                 self,
+                section.label,
+                exc,
+            )
+            return UpdateSectionResult(is_changed=False, is_updated=False)
+        except (OSError, ContentTypeError) as exc:
+            logger.info(
+                "%s Update has a %s error, section: %s: %s",
+                self,
+                type(exc).__name__,
                 section.label,
                 exc,
             )
