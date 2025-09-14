@@ -182,6 +182,10 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
         )
         mining_items, response = mining_obj.results(return_response=True)
 
+        if mining_items is None:
+            logger.debug(f"ESI returned no mining items for {character}")
+            return
+
         # Set new etag in cache
         character.set_cache_key(
             section=character.UpdateSection.MINING_LEDGER,

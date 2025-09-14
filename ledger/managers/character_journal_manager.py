@@ -358,9 +358,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             force_refresh=force_refresh,
         )
 
-    def _fetch_esi_data(
-        self, character: "CharacterAudit", force_refresh: bool = False
-    ) -> None:
+    def _fetch_esi_data(self, character: "CharacterAudit", force_refresh: bool) -> None:
         """Fetch wallet journal entries from ESI data."""
         req_scopes = ["esi-wallet.read_character_wallet.v1"]
         token = character.get_token(scopes=req_scopes)
@@ -378,6 +376,10 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             **openapi_kwargs
         )
         journal_items, response = journal_items_ob.results(return_response=True)
+
+        if journal_items is None:
+            logger.debug(f"ESI returned no journal items for {character}")
+            return
 
         # Set new etag in cache
         character.set_cache_key(

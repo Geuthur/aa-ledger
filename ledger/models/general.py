@@ -167,11 +167,9 @@ class AuditBase(models.Model):
 
     def generate_openapi3_request(self, section, force_refresh: bool, **kwargs) -> dict:
         """Generate kwargs for an OpenAPI3 request based on the section."""
-        if force_refresh is False:
-            pass
         etag = cache.get(self.build_cache_key(section, **kwargs))
         logger.debug(f"Old ETag for {self} Section: {section}: {etag}")
-        if etag:
+        if etag and force_refresh is False:
             kwargs["If-None-Match"] = etag
         return kwargs
 
