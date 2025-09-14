@@ -137,6 +137,10 @@ class PlanetaryManagerBase(models.Manager):
         )
         planets_items, response = planets_obj.results(return_response=True)
 
+        if planets_items is None:
+            logger.debug(f"ESI returned no planets for {character}")
+            return
+
         # Set new etag in cache
         character.set_cache_key(
             section=character.UpdateSection.PLANETS,
@@ -424,6 +428,12 @@ class PlanetaryDetailsManagerBase(models.Manager):
             planets_details_items, response = planets_details_obj.results(
                 return_response=True
             )
+
+            if planets_details_items is None:
+                logger.debug(
+                    f"ESI returned no planet details for {character} Planet: {planet_id}"
+                )
+                continue
 
             # Set new etag in cache
             character.set_cache_key(

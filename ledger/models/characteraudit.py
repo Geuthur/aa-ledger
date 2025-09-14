@@ -20,6 +20,7 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth.eveonline.models import EveCharacter, Token
 from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
+from esi.exceptions import HTTPNotModified
 
 # Alliance Auth (External Libs)
 from app_utils.logging import LoggerAddTag
@@ -31,7 +32,7 @@ from ledger.app_settings import (
     LEDGER_CACHE_KEY,
     LEDGER_USE_COMPRESSED,
 )
-from ledger.errors import HTTPGatewayTimeoutError, NotModifiedError, TokenDoesNotExist
+from ledger.errors import HTTPGatewayTimeoutError, TokenDoesNotExist
 from ledger.managers.character_audit_manager import (
     CharacterAuditManager,
 )
@@ -274,8 +275,8 @@ class CharacterAudit(AuditBase):
         except HTTPInternalServerError as exc:
             logger.debug("%s: Update has an HTTP internal server error: %s", self, exc)
             return UpdateSectionResult(is_changed=False, is_updated=False)
-        except NotModifiedError:
-            logger.debug("%s: Update has not changed, section: %s", self, section.label)
+        except HTTPNotModified as exc:
+            logger.debug("%s: Update has not changed, section: %s", self, exc)
             return UpdateSectionResult(is_changed=False, is_updated=False)
         except HTTPGatewayTimeoutError as exc:
             logger.debug(

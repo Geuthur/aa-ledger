@@ -18,6 +18,7 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
+from esi.exceptions import HTTPNotModified
 from esi.models import Token
 
 # Alliance Auth (External Libs)
@@ -25,7 +26,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.errors import HTTPGatewayTimeoutError, NotModifiedError
+from ledger.errors import HTTPGatewayTimeoutError
 from ledger.managers.corporation_audit_manager import CorporationAuditManager
 from ledger.managers.corporation_journal_manager import (
     CorporationDivisionManager,
@@ -146,8 +147,8 @@ class CorporationAudit(AuditBase):
         except HTTPInternalServerError as exc:
             logger.debug("%s: Update has an HTTP internal server error: %s", self, exc)
             return UpdateSectionResult(is_changed=False, is_updated=False)
-        except NotModifiedError:
-            logger.debug("%s: Update has not changed, section: %s", self, section.label)
+        except HTTPNotModified as exc:
+            logger.debug("%s: Update has not changed, section: %s", self, exc)
             return UpdateSectionResult(is_changed=False, is_updated=False)
         except HTTPGatewayTimeoutError as exc:
             logger.debug(

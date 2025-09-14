@@ -237,6 +237,12 @@ class CorporationWalletManagerBase(models.Manager):
             )
             journal_items, response = journal_items_ob.results(return_response=True)
 
+            if journal_items is None:
+                logger.debug(
+                    f"ESI returned no journal items for {corporation} Division: {division.division_id}"
+                )
+                continue
+
             # Set new etag in cache
             corporation.set_cache_key(
                 section=corporation.UpdateSection.WALLET_JOURNAL,
@@ -370,6 +376,10 @@ class CorporationDivisionManagerBase(models.Manager):
         )
         division_items, response = division_obj.results(return_response=True)
 
+        if division_items is None:
+            logger.debug(f"ESI returned no division items for {corporation}")
+            return
+
         # Set new etag in cache
         corporation.set_cache_key(
             section=corporation.UpdateSection.WALLET_DIVISION_NAMES,
@@ -410,6 +420,10 @@ class CorporationDivisionManagerBase(models.Manager):
             **openapi_kwargs
         )
         division_items, response = divisions_items_obj.results(return_response=True)
+
+        if division_items is None:
+            logger.debug(f"ESI returned no division items for {corporation}")
+            return
 
         corporation.set_cache_key(
             section=corporation.UpdateSection.WALLET_DIVISION_NAMES,

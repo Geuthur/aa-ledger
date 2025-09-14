@@ -1,7 +1,6 @@
 # Standard Library
 import json
 from pathlib import Path
-from types import SimpleNamespace
 
 # Alliance Auth (External Libs)
 from app_utils.esi_testing import EsiClientStub, EsiClientStubOpenApi, EsiEndpoint
