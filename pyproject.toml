@@ -35,7 +35,7 @@ dynamic = [
 dependencies = [
     "allianceauth>=4.8,<5",
     "allianceauth-app-utils @ git+https://gitlab.com/Geuthur/allianceauth-app-utils.git@openapi",
-    "django-esi @ git+https://gitlab.com/Geuthur/django-esi.git@fix-tag-issue",
+    "django-esi>=8.0.0a3",
     "django-eveuniverse>=1.5.7",
     "django-ninja",
 ]
