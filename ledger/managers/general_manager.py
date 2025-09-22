@@ -64,7 +64,7 @@ class EveEntityManager(models.Manager):
 
     def update_or_create_esi(self, *, eve_id: int) -> tuple[Any, bool]:
         """updates or creates entity object with data fetched from ESI"""
-        response = esi.client.Universe.PostUniverseIds(body=[eve_id]).results()
+        response = esi.client.Universe.PostUniverseNames(body=[eve_id]).results()
         if len(response) != 1:
             raise ObjectNotFound(eve_id, "unknown_type")
         entity_data = response[0]
