@@ -124,33 +124,16 @@ class PlanetaryManagerBase(models.Manager):
         req_scopes = ["esi-planets.manage_planets.v1"]
         token = character.get_token(scopes=req_scopes)
 
-        # Generate kwargs for OpenAPI request
-        openapi_kwargs = character.generate_openapi3_request(
-            section=character.UpdateSection.PLANETS,
-            force_refresh=force_refresh,
+        # Make the ESI request
+        operation = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanets(
             character_id=character.eve_character.character_id,
             token=token,
         )
 
-        planets_obj = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanets(
-            **openapi_kwargs
+        planets_items, response = operation.results(
+            return_response=True, force_refresh=force_refresh
         )
-        planets_items, response = planets_obj.results(return_response=True)
-
-        if planets_items is None:
-            logger.debug(f"ESI returned no planets for {character}")
-            return
-
-        # Set new etag in cache
-        character.set_cache_key(
-            section=character.UpdateSection.PLANETS,
-            etag=response.headers.get("ETag"),
-            character_id=character.eve_character.character_id,
-            token=token,
-        )
-        logger.debug(
-            f"New ETag set for {character} Section: {character.UpdateSection.PLANETS}, ETag: {response.headers.get('ETag')}"
-        )
+        logger.debug("ESI response Status: %s", response.status_code)
 
         self._update_or_create_objs(character=character, objs=planets_items)
 
@@ -412,40 +395,17 @@ class PlanetaryDetailsManagerBase(models.Manager):
         )
 
         for planet_id in planets_ids:
-            # Generate kwargs for OpenAPI request
-            openapi_kwargs = character.generate_openapi3_request(
-                section=character.UpdateSection.PLANETS_DETAILS,
-                force_refresh=force_refresh,
+            # Make the ESI request
+            operation = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanetsPlanetId(
                 character_id=character.eve_character.character_id,
                 planet_id=planet_id,
                 token=token,
             )
 
-            # Make the ESI request NOTE: No ETag support for this endpoint
-            planets_details_obj = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanetsPlanetId(
-                **openapi_kwargs
+            planets_details_items, response = operation.results(
+                return_response=True, force_refresh=force_refresh
             )
-            planets_details_items, response = planets_details_obj.results(
-                return_response=True
-            )
-
-            if planets_details_items is None:
-                logger.debug(
-                    f"ESI returned no planet details for {character} Planet: {planet_id}"
-                )
-                continue
-
-            # Set new etag in cache
-            character.set_cache_key(
-                section=character.UpdateSection.PLANETS_DETAILS,
-                etag=response.headers.get("ETag"),
-                character_id=character.eve_character.character_id,
-                planet_id=planet_id,
-                token=token,
-            )
-            logger.debug(
-                f"New ETag set for {character} Section: {character.UpdateSection.PLANETS_DETAILS}, ETag: {response.headers.get('ETag')}"
-            )
+            logger.debug("ESI response Status: %s", response.status_code)
 
             self._update_or_create_objs(
                 character=character,

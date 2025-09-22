@@ -363,34 +363,16 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         req_scopes = ["esi-wallet.read_character_wallet.v1"]
         token = character.get_token(scopes=req_scopes)
 
-        # Generate kwargs for OpenAPI request
-        openapi_kwargs = character.generate_openapi3_request(
-            section=character.UpdateSection.WALLET_JOURNAL,
+        operation = esi.client.Wallet.GetCharactersCharacterIdWalletJournal(
+            character_id=character.eve_character.character_id,
+            token=token,
+        )
+
+        journal_items, response = operation.results(
+            return_response=True,
             force_refresh=force_refresh,
-            character_id=character.eve_character.character_id,
-            token=token,
         )
-
-        # Make the ESI request
-        journal_items_ob = esi.client.Wallet.GetCharactersCharacterIdWalletJournal(
-            **openapi_kwargs
-        )
-        journal_items, response = journal_items_ob.results(return_response=True)
-
-        if journal_items is None:
-            logger.debug(f"ESI returned no journal items for {character}")
-            return
-
-        # Set new etag in cache
-        character.set_cache_key(
-            section=character.UpdateSection.WALLET_JOURNAL,
-            etag=response.headers.get("ETag"),
-            character_id=character.eve_character.character_id,
-            token=token,
-        )
-        logger.debug(
-            f"New ETag set for {character} Section: {character.UpdateSection.WALLET_JOURNAL}, ETag: {response.headers.get('ETag')}"
-        )
+        logger.debug("ESI response Status: %s", response.status_code)
 
         self._update_or_create_objs(character=character, objs=journal_items)
 

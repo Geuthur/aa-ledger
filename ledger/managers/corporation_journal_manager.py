@@ -220,41 +220,19 @@ class CorporationWalletManagerBase(models.Manager):
         divisions = CorporationWalletDivision.objects.filter(corporation=corporation)
 
         for division in divisions:
-            # Generate kwargs for OpenAPI request
-            openapi_kwargs = corporation.generate_openapi3_request(
-                section=corporation.UpdateSection.WALLET_JOURNAL,
-                force_refresh=force_refresh,
-                corporation_id=corporation.corporation.corporation_id,
-                division=division.division_id,
-                token=token,
-            )
-
             # Make the ESI request
             journal_items_ob = (
                 esi.client.Wallet.GetCorporationsCorporationIdWalletsDivisionJournal(
-                    **openapi_kwargs
+                    corporation_id=corporation.corporation.corporation_id,
+                    division=division.division_id,
+                    token=token,
                 )
             )
-            journal_items, response = journal_items_ob.results(return_response=True)
-
-            if journal_items is None:
-                logger.debug(
-                    f"ESI returned no journal items for {corporation} Division: {division.division_id}"
-                )
-                continue
-
-            # Set new etag in cache
-            corporation.set_cache_key(
-                section=corporation.UpdateSection.WALLET_JOURNAL,
-                etag=response.headers.get("ETag"),
-                corporation_id=corporation.corporation.corporation_id,
-                division=division.division_id,
-                token=token,
-            )
-            logger.debug(
-                f"New ETag set for {corporation} Section: {corporation.UpdateSection.WALLET_JOURNAL}, ETag: {response.headers.get('ETag')}"
+            journal_items, response = journal_items_ob.results(
+                return_response=True, force_refresh=force_refresh
             )
 
+            logger.debug("ESI response Status: %s", response.status_code)
             self._update_or_create_objs(division=division, objs=journal_items)
 
     @transaction.atomic()
@@ -407,33 +385,16 @@ class CorporationDivisionManagerBase(models.Manager):
         req_roles = ["CEO", "Director", "Accountant", "Junior_Accountant"]
         token = corporation.get_token(scopes=req_scopes, req_roles=req_roles)
 
-        # Generate kwargs for OpenAPI request
-        openapi_kwargs = corporation.generate_openapi3_request(
-            section=corporation.UpdateSection.WALLET_DIVISION_NAMES,
-            force_refresh=force_refresh,
-            corporation_id=corporation.corporation.corporation_id,
-            token=token,
-        )
-
         # Make the ESI request
         divisions_items_obj = esi.client.Wallet.GetCorporationsCorporationIdWallets(
-            **openapi_kwargs
-        )
-        division_items, response = divisions_items_obj.results(return_response=True)
-
-        if division_items is None:
-            logger.debug(f"ESI returned no division items for {corporation}")
-            return
-
-        corporation.set_cache_key(
-            section=corporation.UpdateSection.WALLET_DIVISION_NAMES,
-            etag=response.headers.get("ETag"),
             corporation_id=corporation.corporation.corporation_id,
             token=token,
         )
-        logger.debug(
-            f"New ETag set for {corporation} Section: {corporation.UpdateSection.WALLET_DIVISION_NAMES}, ETag: {response.headers.get('ETag')}"
+        division_items, response = divisions_items_obj.results(
+            return_response=True, force_refresh=force_refresh
         )
+
+        logger.debug("ESI response Status: %s", response.status_code)
 
         self._update_or_create_objs(corporation=corporation, objs=division_items)
 

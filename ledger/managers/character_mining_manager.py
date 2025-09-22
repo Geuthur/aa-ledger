@@ -168,32 +168,16 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
         req_scopes = ["esi-industry.read_character_mining.v1"]
         token = character.get_token(scopes=req_scopes)
 
-        # Generate kwargs for OpenAPI request
-        openapi_kwargs = character.generate_openapi3_request(
-            section=character.UpdateSection.MINING_LEDGER,
-            force_refresh=force_refresh,
-            character_id=character.eve_character.character_id,
-            token=token,
-        )
-
         # Make the ESI request
-        mining_obj = esi.client.Industry.GetCharactersCharacterIdMining(
-            **openapi_kwargs
-        )
-        mining_items, response = mining_obj.results(return_response=True)
-
-        if mining_items is None:
-            logger.debug(f"ESI returned no mining items for {character}")
-            return
-
-        # Set new etag in cache
-        character.set_cache_key(
-            section=character.UpdateSection.MINING_LEDGER,
-            etag=response.headers.get("ETag"),
+        operation = esi.client.Industry.GetCharactersCharacterIdMining(
             character_id=character.eve_character.character_id,
             token=token,
         )
-        logger.debug(f"New ETag set for {character}: {response.headers.get('ETag')}")
+
+        mining_items, response = operation.results(
+            return_response=True, force_refresh=force_refresh
+        )
+        logger.debug("ESI response Status: %s", response.status_code)
 
         # Process and update or create mining ledger entries
         self._update_or_create_objs(character, mining_items)
