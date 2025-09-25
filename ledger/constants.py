@@ -139,6 +139,11 @@ P3_PRODUCTS = [
 P4_PRODUCTS = [2867, 2868, 2869, 2870, 2871, 2872, 2875, 2876]
 P5_PRODUCTS = []
 
+NPC_ENTITIES = [
+    1000125,  # Concord Bounties (Bounty Prizes, ESS
+    1000132,  # Secure Commerce Commission (Market Fees)
+    1000413,  # Air Laboratories (Daily Login Rewards, etc.)
+]
 
 BOUNTY_PRIZES = ["bounty_prizes"]
 ESS_TRANSFER = ["ess_escrow_transfer"]

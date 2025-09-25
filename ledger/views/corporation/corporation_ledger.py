@@ -43,20 +43,26 @@ def corporation_ledger_index(request):
     )
 
 
+# pylint: disable=too-many-positional-arguments
 @login_required
 @permission_required("ledger.advanced_access")
 def corporation_ledger(
-    request: WSGIRequest, corporation_id, year=None, month=None, day=None
+    request: WSGIRequest,
+    corporation_id: int,
+    division_id: int = None,
+    year: int = None,
+    month: int = None,
+    day: int = None,
 ):
     """
     Corporation Ledger
     """
-
     perms, corporation = get_corporation(request, corporation_id)
 
     context = {
         "title": "Corporation Ledger",
         "corporation_id": corporation_id,
+        "perms": perms,
     }
 
     # pylint: disable=duplicate-code
@@ -75,7 +81,12 @@ def corporation_ledger(
         )
 
     corporation_data = CorporationData(
-        request=request, corporation=corporation, year=year, month=month, day=day
+        request=request,
+        corporation=corporation,
+        division_id=division_id,
+        year=year,
+        month=month,
+        day=day,
     )
 
     # Create the Corporation ledger data
@@ -91,11 +102,12 @@ def corporation_ledger(
 @permission_required("ledger.advanced_access")
 def corporation_details(
     request: WSGIRequest,
-    corporation_id,
-    entity_id,
-    year=None,
-    month=None,
-    day=None,
+    corporation_id: int,
+    entity_id: int,
+    division_id: int = None,
+    year: int = None,
+    month: int = None,
+    day: int = None,
 ):
     """
     Corporation Details
@@ -131,7 +143,12 @@ def corporation_details(
         )
 
     corporation_data = CorporationData(
-        request=request, corporation=corporation, year=year, month=month, day=day
+        request=request,
+        corporation=corporation,
+        division_id=division_id,
+        year=year,
+        month=month,
+        day=day,
     )
 
     # Create the Entity for the ledger
