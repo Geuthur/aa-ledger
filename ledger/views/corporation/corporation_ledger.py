@@ -62,7 +62,6 @@ def corporation_ledger(
     context = {
         "title": "Corporation Ledger",
         "corporation_id": corporation_id,
-        "perms": perms,
     }
 
     # pylint: disable=duplicate-code
