@@ -62,40 +62,53 @@ class AllianceData(LedgerCore):
 
     def setup_ledger(self, entity: LedgerEntity = None):
         """Setup the Ledger Data for the Corporation."""
-        if entity is not None:
-            if (
-                self.request.GET.get("all", False)
-                and entity.entity_id == self.alliance.alliance_id
-            ):
-                self.journal = CorporationWalletJournalEntry.objects.filter(
-                    self.filter_date,
-                    division__corporation__corporation__alliance__alliance_id=self.alliance.alliance_id,
-                )
-            else:
-                self.journal = CorporationWalletJournalEntry.objects.filter(
-                    self.filter_date,
-                    division__corporation__corporation__corporation_id=entity.entity_id,
-                )
+        alliance_id = self.alliance.alliance_id
 
-            self.entities = self.get_all_entities(self.journal)
+        # Base queryset filtered by date and alliance
+        base_qs = CorporationWalletJournalEntry.objects.filter(
+            self.filter_date,
+            division__corporation__corporation__alliance__alliance_id=alliance_id,
+        )
 
-            self.journal = self.journal.filter(
-                Q(first_party_id__in=self.entities)
-                | Q(second_party_id__in=self.entities)
-            ).exclude(
+        # No entity specified: show all entries for the alliance (preserve existing exclusion)
+        if entity is None:
+            self.journal = base_qs.exclude(
                 Q(ref_type="corporation_account_withdrawal")
                 & Q(first_party_id=F("second_party_id"))
             )
-        else:
-            self.journal = CorporationWalletJournalEntry.objects.filter(
-                self.filter_date,
-                division__corporation__corporation__alliance__alliance_id=self.alliance.alliance_id,
-            ).exclude(
+            # Prepare auxiliary data used by the view
+            self.entities = self.get_all_entities(self.journal)
+            return
+
+        # If the entity is the alliance itself and "all" is set, show all alliance entries
+        if self.request.GET.get("all", False) and entity.entity_id == alliance_id:
+            self.journal = base_qs.exclude(
                 Q(ref_type="corporation_account_withdrawal")
                 & Q(first_party_id=F("second_party_id"))
             )
-
             self.entities = self.get_all_entities(self.journal)
+            return
+
+        # Regular entity filtering: include any rows where the entity is a first or second party
+        entity_ids = entity.get_alts_ids_or_self()
+        qs = base_qs.filter(
+            Q(first_party_id__in=entity_ids) | Q(second_party_id__in=entity_ids)
+        )
+        qs = qs.exclude(
+            Q(ref_type="corporation_account_withdrawal")
+            & Q(first_party_id=F("second_party_id"))
+        )
+
+        # If entity represents a corporation or alliance, exclude auth account character IDs
+        # that are not part of the current entity to avoid double counting
+        if entity.type in ["alliance", "corporation"]:
+            exclude_ids = self.auth_char_ids - set(entity_ids)
+            qs = qs.exclude(
+                Q(first_party_id__in=exclude_ids) | Q(second_party_id__in=exclude_ids)
+            )
+
+        self.journal = qs
+        self.entities = self.get_all_entities(self.journal)
 
     def get_all_entities(
         self, journal: QuerySet[CorporationWalletJournalEntry]
@@ -199,7 +212,10 @@ class AllianceData(LedgerCore):
         # Build up the journal Cache
         ledger_hash = self._get_ledger_journal_hash(self.journal.values_list("pk"))
         ledger_header = self._get_ledger_header(
-            self.alliance.alliance_id, self.year, self.month, self.day
+            ledger_args=f"{self.alliance.alliance_id}",
+            year=self.year,
+            month=self.month,
+            day=self.day,
         )
         cache_header = cache.get(
             ledger_header,
@@ -266,7 +282,10 @@ class AllianceData(LedgerCore):
         )
         cache.set(
             key=self._get_ledger_header(
-                self.alliance.alliance_id, self.year, self.month, self.day
+                ledger_args=f"{self.alliance.alliance_id}",
+                year=self.year,
+                month=self.month,
+                day=self.day,
             ),
             value=ledger_hash,
             timeout=None,  # Cache forever until the journal changes

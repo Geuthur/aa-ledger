@@ -281,10 +281,10 @@ class LedgerCore:
         return md5(header_key.encode()).hexdigest()
 
     def _get_ledger_header(
-        self, entity_id: int, year: int, month: int, day: int
+        self, ledger_args: str, year: int, month: int, day: int
     ) -> str:
         """Generate a header string for the ledger."""
-        return f"{entity_id}_{year}_{month}_{day}"
+        return f"{ledger_args}_{year}_{month}_{day}"
 
     def _build_ledger_cache_key(self, header_key: str) -> str:
         """Build a cache key for the ledger."""
@@ -339,7 +339,7 @@ class LedgerCore:
         """
         if self.year and self.month and self.day:
             return reverse(
-                f"ledger:{viewname}_year_month_day",
+                f"ledger:{viewname}",
                 kwargs={
                     **kwargs,
                     "year": self.year,
@@ -349,7 +349,7 @@ class LedgerCore:
             )
         if self.year and self.month:
             return reverse(
-                f"ledger:{viewname}_year_month",
+                f"ledger:{viewname}",
                 kwargs={
                     **kwargs,
                     "year": self.year,
@@ -358,11 +358,11 @@ class LedgerCore:
             )
         if self.year:
             return reverse(
-                f"ledger:{viewname}_year",
+                f"ledger:{viewname}",
                 kwargs={**kwargs, "year": self.year},
             )
         return reverse(
-            f"ledger:{viewname}_year_month",
+            f"ledger:{viewname}",
             kwargs={
                 **kwargs,
                 "year": timezone.now().year,

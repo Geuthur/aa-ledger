@@ -20,20 +20,16 @@ from app_utils.logging import LoggerAddTag
 # AA Ledger
 from ledger import __title__
 from ledger.app_settings import LEDGER_CACHE_ENABLED, LEDGER_CACHE_STALE
+from ledger.constants import NPC_ENTITIES
 from ledger.helpers.core import LedgerCore, LedgerEntity
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.corporationaudit import (
     CorporationAudit,
+    CorporationWalletDivision,
     CorporationWalletJournalEntry,
 )
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
-
-NPC_ENTITIES = [
-    1000125,  # Concord Bounties (Bounty Prizes, ESS
-    1000132,  # Secure Commerce Commission (Market Fees)
-    1000413,  # Air Laboratories (Daily Login Rewards, etc.)
-]
 
 
 class CorporationData(LedgerCore):
@@ -44,87 +40,95 @@ class CorporationData(LedgerCore):
         self,
         request: WSGIRequest,
         corporation: CorporationAudit,
-        year=None,
-        month=None,
-        day=None,
+        division_id: int = None,
+        year: int = None,
+        month: int = None,
+        day: int = None,
     ):
         LedgerCore.__init__(self, year, month, day)
         self.request = request
         self.corporation = corporation
+        self.division_id = division_id
         self.auth_char_ids = self.auth_character_ids
 
     def setup_ledger(self, entity: LedgerEntity = None):
         """Setup the Ledger Data for the Corporation."""
-        if entity is not None:
-            if (
-                self.request.GET.get("all", False)
-                and entity.entity_id == self.corporation.corporation.corporation_id
-            ):
-                self.journal = CorporationWalletJournalEntry.objects.filter(
-                    self.filter_date,
-                    division__corporation=self.corporation,
-                ).exclude(  # Filter by date and division
-                    first_party_id=self.corporation.corporation.corporation_id,
-                    second_party_id=self.corporation.corporation.corporation_id,
-                )  # exclude Transaction between the corporation itself
-            else:
-                character_ids = entity.get_alts_ids_or_self()
-                self.journal = (
-                    CorporationWalletJournalEntry.objects.filter(
-                        self.filter_date,
-                        division__corporation=self.corporation,
-                    )  # Filter by date and division
-                    .filter(
-                        Q(first_party_id__in=character_ids)
-                        | Q(second_party_id__in=character_ids)
-                    )  # Filter only needed Character IDs
-                    .exclude(
-                        first_party_id=self.corporation.corporation.corporation_id,
-                        second_party_id=self.corporation.corporation.corporation_id,
-                    )  # exclude Transaction between the corporation itself
-                )
+        corporation_id = self.corporation.corporation.corporation_id
 
-                if entity.entity_id == self.corporation.corporation.corporation_id:
-                    self.journal = self.journal.filter(
-                        Q(first_party_id__in=NPC_ENTITIES)
-                        | Q(second_party_id__in=NPC_ENTITIES)
-                    )
+        # Base queryset filtered by date and corporation division
+        base_qs = self._base_journal_queryset()
 
-                # If the entity is a corporation or alliance, we need to exclude the accounts Character IDs
-                # from the journal to prevent double counting
-                if entity.type in ["alliance", "corporation"]:
-                    exclude_ids = self.auth_char_ids - set(character_ids)
-                    self.journal = self.journal.exclude(
-                        Q(first_party_id__in=exclude_ids)
-                        | Q(second_party_id__in=exclude_ids)
-                    )
-            # Get All Entities from the Journal
-            self.entities = set(
-                self.journal.values_list("second_party_id", flat=True)
-            ) | set(self.journal.values_list("first_party_id", flat=True))
-        else:
-            self.journal = CorporationWalletJournalEntry.objects.filter(
-                self.filter_date, division__corporation=self.corporation
-            ).exclude(  # Filter by date and division
-                first_party_id=self.corporation.corporation.corporation_id,
-                second_party_id=self.corporation.corporation.corporation_id,
-            )  # exclude Transaction between the corporation itself
+        if entity is None:
+            # No entity specified: show all entries for the corporation (except self-transfers)
+            self.journal = base_qs.exclude(
+                first_party_id=corporation_id, second_party_id=corporation_id
+            )
+            # Prepare auxiliary data used by the view
+            self.existing_years = self._compute_existing_years()
+            self.entities = self._compute_entities()
+            return
 
-            # Evaluate the existing years for the view
-            self.existing_years = (
-                CorporationWalletJournalEntry.objects.filter(
-                    division__corporation=self.corporation
-                )
-                .exclude(date__year__isnull=True)
-                .values_list("date__year", flat=True)
-                .order_by("-date__year")
-                .distinct()
+        # If the entity is the corporation itself and "all" is set, show all entries
+        if self.request.GET.get("all", False) and entity.entity_id == corporation_id:
+            self.journal = base_qs.exclude(
+                first_party_id=corporation_id, second_party_id=corporation_id
+            )
+            self.entities = self._compute_entities()
+            return
+
+        # Regular entity filtering: include any rows where the entity is a first or second party
+        character_ids = entity.get_alts_ids_or_self()
+        qs = base_qs.filter(
+            Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
+        )
+        qs = qs.exclude(first_party_id=corporation_id, second_party_id=corporation_id)
+
+        # If the entity is the corporation itself, include NPC transactions too
+        if entity.entity_id == corporation_id:
+            qs = qs.filter(
+                Q(first_party_id__in=NPC_ENTITIES) | Q(second_party_id__in=NPC_ENTITIES)
             )
 
-            # Get All Entities from the Journal
-            self.entities = set(
-                self.journal.values_list("second_party_id", flat=True)
-            ) | set(self.journal.values_list("first_party_id", flat=True))
+        # If entity represents a corporation or alliance, exclude auth account character IDs
+        # that are not part of the current entity to avoid double counting
+        if entity.type in ["alliance", "corporation"]:
+            exclude_ids = self.auth_char_ids - set(character_ids)
+            qs = qs.exclude(
+                Q(first_party_id__in=exclude_ids) | Q(second_party_id__in=exclude_ids)
+            )
+
+        self.journal = qs
+        self.entities = self._compute_entities()
+
+    def _base_journal_queryset(self):
+        """Return the base queryset filtered by the current date range and corporation division."""
+        if self.division_id is not None:
+            return CorporationWalletJournalEntry.objects.filter(
+                self.filter_date,
+                division__corporation=self.corporation,
+                division=self.division_id,
+            )
+        return CorporationWalletJournalEntry.objects.filter(
+            self.filter_date, division__corporation=self.corporation
+        )
+
+    def _compute_entities(self):
+        """Return a set of all entity IDs (first and second parties) present in the current journal."""
+        return set(self.journal.values_list("second_party_id", flat=True)) | set(
+            self.journal.values_list("first_party_id", flat=True)
+        )
+
+    def _compute_existing_years(self):
+        """Return the available years for journal entries for this corporation."""
+        return (
+            CorporationWalletJournalEntry.objects.filter(
+                division__corporation=self.corporation
+            )
+            .exclude(date__year__isnull=True)
+            .values_list("date__year", flat=True)
+            .order_by("-date__year")
+            .distinct()
+        )
 
     def create_entity_data(
         self,
@@ -193,7 +197,12 @@ class CorporationData(LedgerCore):
         return char_data
 
     def generate_ledger_data(self) -> dict:
-        """Generate the ledger data for the corporation."""
+        """
+        Generate the ledger data for the corporation.
+
+        This method processes the journal entries, builds the ledger data,
+        and prepares the context for rendering the corporation ledger view.
+        """
         ledger = False
         finished_entities = False
 
@@ -227,10 +236,10 @@ class CorporationData(LedgerCore):
         # Get the journal hash and cache header
         ledger_hash = self._get_ledger_journal_hash(self.journal.values_list("pk"))
         ledger_header = self._get_ledger_header(
-            self.corporation.corporation.corporation_id,
-            self.year,
-            self.month,
-            self.day,
+            ledger_args=f"{self.corporation.corporation.corporation_id}_{self.division_id}",
+            year=self.year,
+            month=self.month,
+            day=self.day,
         )
         cache_header = cache.get(
             ledger_header,
@@ -255,10 +264,16 @@ class CorporationData(LedgerCore):
             for row in journal:
                 self.entries.setdefault(row["pk"], []).append(row)
 
-            ledger, finished_entities = self._process_accounts()
+            # Process Auth Accounts first
+            ledger, finished_entities = self._process_auth_accounts()
+            # Process remaining entities
             self._process_remaining_entities(ledger, finished_entities)
-            self._add_corporation_entity(ledger)
-
+            # Process corporation entity last to ensure it's always included
+            self._handle_entity(
+                ledger=ledger,
+                entity_id=self.corporation.corporation.corporation_id,
+                corporation_obj=self.corporation.corporation,
+            )
         # Finalize the billboard for the ledger.
         self.create_rattingbar(list(finished_entities))
         self.create_chord(ledger)
@@ -274,17 +289,72 @@ class CorporationData(LedgerCore):
         )
         cache.set(
             key=self._get_ledger_header(
-                self.corporation.corporation.corporation_id,
-                self.year,
-                self.month,
-                self.day,
+                ledger_args=f"{self.corporation.corporation.corporation_id}_{self.division_id}",
+                year=self.year,
+                month=self.month,
+                day=self.day,
             ),
             value=ledger_hash,
             timeout=None,  # Cache forever until the journal changes
         )
         return context
 
-    def _process_accounts(self):
+    def _build_view_data(self, entity_id: int):
+        details_kwargs = {
+            "viewname": "corporation_details",
+            "corporation_id": self.corporation.corporation.corporation_id,
+            "entity_id": entity_id,
+        }
+        if self.division_id is not None:
+            details_kwargs["division_id"] = self.division_id
+        return details_kwargs
+
+    def _build_view_url(self, entity_id: int):
+        """Return the full URL for a corporation view for the given entity id.
+
+        This wraps create_url(**self._build_view_data(...)) so callers can
+        request the URL in a single, readable call without losing ordering.
+        """
+        return self.create_url(**self._build_view_data(entity_id=entity_id))
+
+    # pylint: disable=too-many-arguments
+    def _handle_entity(
+        self,
+        ledger: list,
+        entity_id: int,
+        character_obj=None,
+        corporation_obj=None,
+        alts=None,
+        add_finished: bool = True,
+        finished_ids=None,
+    ) -> set:
+        """Create entity object, add to ledger if it has data and return IDs to mark finished.
+
+        - ledger: list to append to
+        - entity_id: numeric id
+        - character_obj / corporation_obj: optional objects to attach to LedgerEntity
+        - alts: optional alts queryset passed to create_entity_data
+        - add_finished: whether to return ids that should be added to finished_entities
+        - finished_ids: explicit IDs (set or iterable) to mark finished (used for accounts)
+        """
+        details_url = self._build_view_url(entity_id)
+        entity_obj = LedgerEntity(
+            entity_id,
+            character_obj=character_obj,
+            corporation_obj=corporation_obj,
+            details_url=details_url,
+        )
+        char_data = self.create_entity_data(entity=entity_obj, alts=alts)
+        if char_data is None:
+            return set()
+        ledger.append(char_data)
+        if not add_finished:
+            return set()
+        if finished_ids is not None:
+            return set(finished_ids)
+        return {entity_id}
+
+    def _process_auth_accounts(self):
         """Process Auth Account information for the ledger."""
         ledger = []
         finished_entities = set()
@@ -296,27 +366,18 @@ class CorporationData(LedgerCore):
             alts = alts.filter(character__character_id__in=existing_alts)
             if not existing_alts:
                 continue
-            details_url = self.create_url(
-                viewname="corporation_details",
-                corporation_id=self.corporation.corporation.corporation_id,
-                entity_id=account.main_character.character_id,
+            finished_entities.update(
+                self._handle_entity(
+                    ledger,
+                    account.main_character.character_id,
+                    character_obj=account.main_character,
+                    alts=alts,
+                    finished_ids=existing_alts,
+                )
             )
-            entity_obj = LedgerEntity(
-                account.main_character.character_id,
-                character_obj=account.main_character,
-                details_url=details_url,
-            )
-            char_data = self.create_entity_data(
-                entity=entity_obj,
-                alts=alts,
-            )
-            if char_data is None:
-                continue
-            ledger.append(char_data)
-            finished_entities.update(existing_alts)
         return ledger, finished_entities
 
-    def _process_remaining_entities(self, ledger, finished_entities):
+    def _process_remaining_entities(self, ledger, finished_entities: set):
         """Process remaining entities for the ledger."""
         remaining_entities = self.entities - finished_entities
         if not remaining_entities:
@@ -326,55 +387,28 @@ class CorporationData(LedgerCore):
                 continue
             if entity_id == self.corporation.corporation.corporation_id:
                 continue
-            details_url = self.create_url(
-                viewname="corporation_details",
-                corporation_id=self.corporation.corporation.corporation_id,
-                entity_id=entity_id,
-            )
-            entity_obj = LedgerEntity(
-                entity_id,
-                details_url=details_url,
-            )
-            entity_data = self.create_entity_data(
-                entity=entity_obj,
-            )
-            if entity_data is None:
-                continue
-            ledger.append(entity_data)
-            finished_entities.add(entity_id)
-
-    def _add_corporation_entity(self, ledger):
-        """Add the corporation entity to the ledger."""
-        corporation_entity = LedgerEntity(
-            self.corporation.corporation.corporation_id,
-            corporation_obj=self.corporation.corporation,
-            details_url=self.create_url(
-                viewname="corporation_details",
-                corporation_id=self.corporation.corporation.corporation_id,
-                entity_id=self.corporation.corporation.corporation_id,
-            ),
-        )
-        corporation_data = self.create_entity_data(
-            entity=corporation_entity,
-        )
-        if corporation_data is not None:
-            ledger.append(corporation_data)
+            finished_entities.update(self._handle_entity(ledger, entity_id))
 
     def _build_context(self, ledger):
         """Build the context for the ledger view."""
-        return {
+        view = self._build_view_data(
+            entity_id=self.corporation.corporation.corporation_id
+        )
+
+        context = {
             "title": f"Corporation Ledger - {self.corporation.corporation.corporation_name}",
             "corporation_id": self.corporation.corporation.corporation_id,
+            "division_id": self.division_id,
             "billboard": json.dumps(self.billboard.dict.asdict()),
             "ledger": ledger,
+            "divisions": CorporationWalletDivision.objects.filter(
+                corporation=self.corporation
+            ).order_by("division_id"),
             "years": list(self.existing_years),
             "totals": self._calculate_totals(ledger),
-            "view": self.create_view_data(
-                viewname="corporation_details",
-                corporation_id=self.corporation.corporation.corporation_id,
-                entity_id=self.corporation.corporation.corporation_id,
-            ),
+            "view": self.create_view_data(**view),
         }
+        return context
 
     def create_rattingbar(self, entities_ids: list = None):
         """Create the ratting bar for the view."""
