@@ -14,7 +14,7 @@
 {% block ledger_block %}
     <div class="card-body bg-primary rounded-top d-flex align-items-center">
         <h3 class="me-3">{% translate "Corporation Ledger" %}</h3>
-        {% if perms %}
+        {% if years %}
             <div class="dropdown px-2">
                 <button id="divisionDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     {% trans "Division" %}
@@ -42,8 +42,6 @@
                 {% endfor %}
                 </ul>
             </div>
-        {% endif %}
-        {% if years %}
             <div class="dropdown px-2">
                 <button id="yearDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     {% trans "Year" %}
