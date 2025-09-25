@@ -216,7 +216,7 @@ class TestViewCharacterLedgerAccess(TestCase):
         # given
         request = self.factory.get(
             reverse(
-                "ledger:character_details_year",
+                "ledger:character_details",
                 args=[self.character_ownership.character.character_id, 2025],
             )
         )
@@ -237,7 +237,7 @@ class TestViewCharacterLedgerAccess(TestCase):
         # given
         request = self.factory.get(
             reverse(
-                "ledger:character_details_year",
+                "ledger:character_details",
                 args=[self.character_ownership.character.character_id, 2025],
             )
         )
@@ -413,7 +413,7 @@ class TestViewCorporationLedgerAccess(TestCase):
         # given
         request = self.factory.get(
             reverse(
-                "ledger:corporation_details_year",
+                "ledger:corporation_details",
                 args=[self.character_ownership.character.corporation_id, 2025, 1001],
             )
         )
@@ -434,7 +434,7 @@ class TestViewCorporationLedgerAccess(TestCase):
         # given
         request = self.factory.get(
             reverse(
-                "ledger:corporation_details_year",
+                "ledger:corporation_details",
                 args=[2001, 2025, 1001],
             )
         )
@@ -453,7 +453,7 @@ class TestViewCorporationLedgerAccess(TestCase):
         # given
         request = self.factory.get(
             reverse(
-                "ledger:corporation_details_year",
+                "ledger:corporation_details",
                 args=[9999, 2025, 9999],
             )
         )
@@ -664,7 +664,7 @@ class TestViewAllianceLedgerAccess(TestCase):
         # given
         request = self.factory.get(
             reverse(
-                "ledger:alliance_details_year",
+                "ledger:alliance_details",
                 args=[self.character_ownership.character.alliance_id, 2025, 1001],
             )
         )
@@ -685,7 +685,7 @@ class TestViewAllianceLedgerAccess(TestCase):
         # given
         request = self.factory.get(
             reverse(
-                "ledger:alliance_details_year",
+                "ledger:alliance_details",
                 args=[3001, 2025, 2001],
             )
         )
@@ -704,7 +704,7 @@ class TestViewAllianceLedgerAccess(TestCase):
         # given
         request = self.factory.get(
             reverse(
-                "ledger:alliance_details_year",
+                "ledger:alliance_details",
                 args=[9999, 2025, 9999],
             )
         )
