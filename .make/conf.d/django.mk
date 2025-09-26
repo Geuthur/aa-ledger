@@ -42,15 +42,15 @@ translations: check-python-venv
 		--ignore 'testauth/*' \
 		--ignore 'runtests.py'
 	@current_app_version=$$(pip show $(appname) | grep 'Version: ' | awk '{print $$NF}'); \
-	sed -i "/\"Project-Id-Version: /c\\\"Project-Id-Version: $(appname_verbose) $$current_app_version\\n\"" $(translation_template); \
-	sed -i "/\"Report-Msgid-Bugs-To: /c\\\"Report-Msgid-Bugs-To: $(git_repository_issues)\\n\"" $(translation_template); \
+	sed -i "/\"Project-Id-Version: /c\\\"Project-Id-Version: $(appname_verbose) $$current_app_version\\\n\"" $(translation_template); \
+	sed -i "/\"Report-Msgid-Bugs-To: /c\\\"Report-Msgid-Bugs-To: $(git_repository_issues)\\\n\"" $(translation_template); \
 	subdircount=$$(find $(translation_directory) -mindepth 1 -maxdepth 1 -type d | wc -l); \
 	if [ $$subdircount -gt 1 ]; then \
 		for path in $(translation_directory)/*/; do \
 			[ -d "$$path/LC_MESSAGES" ] || continue; \
 			if [ -f "$$path/$(translation_file_relative_path)" ]; then \
-				sed -i "/\"Project-Id-Version: /c\\\"Project-Id-Version: $(appname_verbose) $$current_app_version\\n\"" $$path/$(translation_file_relative_path); \
-				sed -i "/\"Report-Msgid-Bugs-To: /c\\\"Report-Msgid-Bugs-To: $(git_repository_issues)\\n\"" $$path/$(translation_file_relative_path); \
+				sed -i "/\"Project-Id-Version: /c\\\"Project-Id-Version: $(appname_verbose) $$current_app_version\\\n\"" $$path/$(translation_file_relative_path); \
+				sed -i "/\"Report-Msgid-Bugs-To: /c\\\"Report-Msgid-Bugs-To: $(git_repository_issues)\\\n\"" $$path/$(translation_file_relative_path); \
 			fi; \
 		done; \
 	fi;
