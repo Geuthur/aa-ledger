@@ -3,11 +3,12 @@
 # Standard Library
 import json
 from decimal import Decimal
+from typing import Any
 
 # Django
 from django.core.cache import cache
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import DecimalField, Q, Sum
+from django.db.models import DecimalField, Q, QuerySet, Sum
 from django.utils.translation import gettext as _
 
 # Alliance Auth
@@ -38,9 +39,9 @@ class CorporationData(LedgerCore):
     # pylint: disable=too-many-positional-arguments
     def __init__(
         self,
-        request: WSGIRequest,
         corporation: CorporationAudit,
         division_id: int = None,
+        request: WSGIRequest = None,
         year: int = None,
         month: int = None,
         day: int = None,
@@ -69,7 +70,11 @@ class CorporationData(LedgerCore):
             return
 
         # If the entity is the corporation itself and "all" is set, show all entries
-        if self.request.GET.get("all", False) and entity.entity_id == corporation_id:
+        if (
+            self.request is not None
+            and self.request.GET.get("all", False)
+            and entity.entity_id == corporation_id
+        ):
             self.journal = base_qs.exclude(
                 first_party_id=corporation_id, second_party_id=corporation_id
             )
@@ -128,6 +133,34 @@ class CorporationData(LedgerCore):
             .values_list("date__year", flat=True)
             .order_by("-date__year")
             .distinct()
+        )
+
+    # pylint: disable=duplicate-code
+    def _compute_journal_values(self) -> QuerySet[dict[str, Any]]:
+        """Return the journal values for the current journal."""
+        return self.journal.values(
+            "first_party_id", "second_party_id", "pk", "ref_type"
+        ).annotate(
+            bounty=Sum(
+                "amount",
+                filter=Q(ref_type__in=RefTypeManager.BOUNTY_PRIZES),
+                output_field=DecimalField(),
+            ),
+            ess=Sum(
+                "amount",
+                filter=Q(ref_type__in=RefTypeManager.ESS_TRANSFER),
+                output_field=DecimalField(),
+            ),
+            costs=Sum(
+                "amount",
+                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0),
+                output_field=DecimalField(),
+            ),
+            miscellaneous=Sum(
+                "amount",
+                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0),
+                output_field=DecimalField(),
+            ),
         )
 
     def create_entity_data(
@@ -206,35 +239,13 @@ class CorporationData(LedgerCore):
         ledger = False
         finished_entities = False
 
+        # Prepare Queryset and auxiliary data
         self.setup_ledger()
-
-        journal = self.journal.values(
-            "first_party_id", "second_party_id", "pk", "ref_type"
-        ).annotate(
-            bounty=Sum(
-                "amount",
-                filter=Q(ref_type__in=RefTypeManager.BOUNTY_PRIZES),
-                output_field=DecimalField(),
-            ),
-            ess=Sum(
-                "amount",
-                filter=Q(ref_type__in=RefTypeManager.ESS_TRANSFER),
-                output_field=DecimalField(),
-            ),
-            costs=Sum(
-                "amount",
-                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0),
-                output_field=DecimalField(),
-            ),
-            miscellaneous=Sum(
-                "amount",
-                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0),
-                output_field=DecimalField(),
-            ),
-        )
+        # Compute journal values
+        journal = self._compute_journal_values()
 
         # Get the journal hash and cache header
-        ledger_hash = self._get_ledger_journal_hash(self.journal.values_list("pk"))
+        ledger_hash = self._get_ledger_journal_hash(journal.values_list("pk"))
         ledger_header = self._get_ledger_header(
             ledger_args=f"{self.corporation.corporation.corporation_id}_{self.division_id}",
             year=self.year,
@@ -299,6 +310,28 @@ class CorporationData(LedgerCore):
         )
         return context
 
+    def generate_data_export(self) -> dict:
+        """Generate the data export for the corporation."""
+        self.setup_ledger()
+        journal = self._compute_journal_values()
+
+        # Build the entries from the journal
+        self.entries = {}
+        for row in journal:
+            self.entries.setdefault(row["pk"], []).append(row)
+
+        # Process Auth Accounts first
+        ledger, finished_entities = self._process_auth_accounts()
+        # Process remaining entities
+        self._process_remaining_entities(ledger, finished_entities)
+        # Process corporation entity last to ensure it's always included
+        self._handle_entity(
+            ledger=ledger,
+            entity_id=self.corporation.corporation.corporation_id,
+            corporation_obj=self.corporation.corporation,
+        )
+        return ledger
+
     def _build_view_data(self, entity_id: int):
         details_kwargs = {
             "viewname": "corporation_details",
@@ -344,14 +377,22 @@ class CorporationData(LedgerCore):
             corporation_obj=corporation_obj,
             details_url=details_url,
         )
+
+        # Create the character data for the ledger
         char_data = self.create_entity_data(entity=entity_obj, alts=alts)
+
+        # Only add to ledger if there is data
         if char_data is None:
             return set()
+
         ledger.append(char_data)
+
         if not add_finished:
             return set()
+
         if finished_ids is not None:
             return set(finished_ids)
+
         return {entity_id}
 
     def _process_auth_accounts(self):

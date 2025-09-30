@@ -7,7 +7,7 @@ from http import HTTPStatus
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import JsonResponse
+from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
@@ -20,11 +20,12 @@ from allianceauth.services.hooks import get_extension_logger
 from app_utils.logging import LoggerAddTag
 
 # AA Ledger
-from ledger import __title__
+from ledger import __title__, forms, tasks
 from ledger.api.helpers import (
     get_corporation,
     get_manage_corporation,
 )
+from ledger.helpers import data_exporter
 from ledger.helpers.core import add_info_to_context
 from ledger.helpers.corporation import CorporationData, LedgerEntity
 from ledger.models.corporationaudit import CorporationAudit
@@ -41,6 +42,159 @@ def corporation_ledger_index(request):
     return redirect(
         "ledger:corporation_ledger", request.user.profile.main_character.corporation_id
     )
+
+
+@login_required
+@permission_required("ledger.basic_access")
+def corporation_data_export(request, corporation_id: int):
+    """Data Export View"""
+    perms = get_corporation(request, corporation_id)[0]
+    files = data_exporter._compile_export_files_list(request_entity_id=corporation_id)
+    context = {
+        "title": "Data Export",
+        "corporation_id": corporation_id,
+        "files": files,
+        "last_updated_at": None,
+        "forms": {
+            "generate_data_export": forms.GenerateDataExportForm(
+                corporation_id=corporation_id
+            ),
+        },
+    }
+
+    if perms is False:
+        msg = _("Permission Denied")
+        messages.error(request, msg)
+        return render(request, "ledger/data-export.html", context=context)
+
+    if perms is None:
+        msg = _("Corporation not found")
+        messages.info(request, msg)
+        return render(request, "ledger/data-export.html", context=context)
+
+    context = add_info_to_context(request, context)
+    return render(request, "ledger/data-export.html", context)
+
+
+@login_required
+@permission_required("ledger.manage_access")
+# pylint: disable=unused-argument
+def corporation_download_export_file(
+    request,
+    hash_code: str,
+) -> FileResponse:
+    """Render file view for downloading an export file."""
+    entity_id, division_id, year, month = data_exporter.LedgerCSVExporter.decoder(
+        hash_code
+    )
+    exporter = data_exporter.LedgerCSVExporter.create_exporter(
+        "corporation", entity_id, division_id=division_id, year=year, month=month
+    )
+    destination = data_exporter.default_destination()
+    zip_file = destination / exporter.output_basename.with_suffix(".zip")
+    if not zip_file.exists():
+        raise Http404(f"Could not find export file for corporation {entity_id}")
+    logger.info("Returning file %s for download of topic %s", zip_file, "corporation")
+    return FileResponse(zip_file.open("rb"))
+
+
+@login_required
+@permission_required("ledger.manage_access")
+@require_POST
+def corporation_data_export_generate(request, corporation_id: int):
+    """Handle POST form to generate a data export for a corporation."""
+    perms = get_corporation(request, corporation_id)[0]
+    if perms is False:
+        msg = _("Permission Denied")
+        messages.error(request, msg)
+        return redirect("ledger:corporation_data_export", corporation_id=corporation_id)
+
+    if perms is None:
+        msg = _("Corporation not found")
+        messages.info(request, msg)
+        return redirect("ledger:corporation_data_export", corporation_id=corporation_id)
+
+    form = forms.GenerateDataExportForm(
+        request.POST,
+        corporation_id=corporation_id,
+    )
+
+    if not form.is_valid():
+        msg = _("Invalid form submission.")
+        messages.error(request, msg)
+        return redirect("ledger:corporation_data_export", corporation_id=corporation_id)
+
+    # Read optional form values
+    year_val = form.cleaned_data.get("year")
+    month_val = form.cleaned_data.get("month") or None
+
+    division_obj = form.cleaned_data.get("division")
+    division_val = division_obj.division_id if division_obj is not None else None
+
+    logger.debug("Generating data export for year=%s, month=%s", year_val, month_val)
+    tasks.export_data_ledger.apply_async(
+        kwargs={
+            "user_pk": request.user.pk,
+            "ledger_type": "corporation",
+            "entity_id": corporation_id,
+            "division_id": division_val,
+            "year": year_val,
+            "month": month_val,
+        },
+        priority=7,
+    )
+    msg = _(
+        f"Data export for {corporation_id} has been started. This can take a couple of minutes. You will get a notification once it is completed."
+    )
+    messages.info(request, msg)
+    return redirect("ledger:corporation_data_export", corporation_id=corporation_id)
+
+
+@login_required
+@permission_required("ledger.manage_access")
+def corporation_data_export_run_update(
+    request,
+    hash_code: str,
+):
+    """Render view for running data export update."""
+    entity_id, division_id, year, month = data_exporter.LedgerCSVExporter.decoder(
+        hash_code
+    )
+
+    logger.debug(
+        "Running data export update for entity_id=%s, division_id=%s, year=%s, month=%s",
+        entity_id,
+        division_id,
+        year,
+        month,
+    )
+    perms = get_corporation(request, entity_id)[0]
+    if perms is False:
+        msg = _("Permission Denied")
+        messages.error(request, msg)
+        return redirect("ledger:corporation_data_export", corporation_id=entity_id)
+
+    if perms is None:
+        msg = _("Corporation not found")
+        messages.info(request, msg)
+        return redirect("ledger:corporation_data_export", corporation_id=entity_id)
+
+    tasks.export_data_ledger.apply_async(
+        kwargs={
+            "user_pk": request.user.pk,
+            "ledger_type": "corporation",
+            "entity_id": entity_id,
+            "division_id": division_id,
+            "year": year,
+            "month": month,
+        },
+        priority=7,
+    )
+    msg = _(
+        f"Data export for {entity_id} has been started. This can take a couple of minutes. You will get a notification once it is completed."
+    )
+    messages.info(request, msg)
+    return redirect("ledger:corporation_data_export", corporation_id=entity_id)
 
 
 # pylint: disable=too-many-positional-arguments
