@@ -16,6 +16,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
+from ledger.api.api_helper.billboard_helper import BillboardSystem
 from ledger.helpers.core import LedgerCore
 from ledger.models.characteraudit import (
     CharacterAudit,
@@ -42,6 +43,7 @@ class CharacterData(LedgerCore):
         self.request = request
         self.character = character
         self.alts_ids = self.get_alt_ids
+        self.billboard = BillboardSystem()
 
     @property
     def get_alt_ids(self):
@@ -257,4 +259,7 @@ class CharacterData(LedgerCore):
         rattingbar_mining = rattingbar_mining_timeline.annotate_mining(with_period=True)
         self.billboard.create_or_update_results(rattingbar, is_old_ess=is_old_ess)
         self.billboard.add_category(rattingbar_mining, category="mining")
-        self._build_xy_chart(title=_("Ratting Bar"))
+        series, categories = self.billboard.generate_xy_series()
+        self.billboard.create_xy_chart(
+            title=_("Ratting Bar"), categories=categories, series=series
+        )

@@ -27,7 +27,6 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.api.api_helper.billboard_helper import BillboardSystem
 from ledger.app_settings import LEDGER_CACHE_KEY
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.general import EveEntity
@@ -184,18 +183,10 @@ class LedgerCore:
     """Core View Helper for Ledger."""
 
     def __init__(self, year=None, month=None, day=None):
-        self.date_info = {"year": year, "month": month, "day": day}
         self.ledger_type = "ledger"
-
-        # If all are None, default to 'month' view
-        if year is None and month is None and day is None:
-            self.view = "month"
-        else:
-            self.view = "day" if day else "month" if month else "year"
-
         self.journal = None
         self.mining = None
-        self.billboard = BillboardSystem(self.view)
+        self.date_info = {"year": year, "month": month, "day": day}
 
     @property
     def year(self):
@@ -551,15 +542,3 @@ class LedgerCore:
                 amounts[key]["average_day_tick"] = total / avg / 20
                 amounts[key]["average_hour_tick"] = total / avg / 24 / 20
         return amounts
-
-    def _build_xy_chart(self, title: str):
-        """Build the XY chart for the billboard."""
-        if not self.billboard.results:
-            return
-
-        xy_data, categories = self.billboard.generate_xy_series()
-        self.billboard.create_xy_chart(
-            title=title,
-            categories=categories,
-            series=xy_data,
-        )

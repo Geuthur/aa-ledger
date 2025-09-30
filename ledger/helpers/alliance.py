@@ -20,6 +20,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
+from ledger.api.api_helper.billboard_helper import BillboardSystem
 from ledger.app_settings import LEDGER_CACHE_ENABLED, LEDGER_CACHE_STALE
 from ledger.helpers.core import LedgerCore, LedgerEntity
 from ledger.helpers.ref_type import RefTypeManager
@@ -60,6 +61,7 @@ class AllianceData(LedgerCore):
             .distinct()
         )
         self.auth_char_ids = self.auth_character_ids
+        self.billboard = BillboardSystem()
 
     def setup_ledger(self, entity: LedgerEntity = None):
         """Setup the Ledger Data for the Corporation."""
@@ -368,7 +370,10 @@ class AllianceData(LedgerCore):
             .annotate_miscellaneous()
         )
         self.billboard.create_or_update_results(rattingbar)
-        self._build_xy_chart(title=_("Ratting Bar"))
+        series, categories = self.billboard.generate_xy_series()
+        self.billboard.create_xy_chart(
+            title=_("Ratting Bar"), categories=categories, series=series
+        )
 
     def create_chord(self, ledger_data: list[dict]):
         """Create the chord chart for the view."""
