@@ -3,6 +3,7 @@
 # Standard Library
 import json
 from decimal import Decimal
+from typing import Any
 
 # Django
 from django.core.cache import cache
@@ -36,8 +37,8 @@ class AllianceData(LedgerCore):
     # pylint: disable=too-many-positional-arguments
     def __init__(
         self,
-        request: WSGIRequest,
         alliance: EveAllianceInfo,
+        request: WSGIRequest = None,
         year=None,
         month=None,
         day=None,
@@ -81,7 +82,11 @@ class AllianceData(LedgerCore):
             return
 
         # If the entity is the alliance itself and "all" is set, show all alliance entries
-        if self.request.GET.get("all", False) and entity.entity_id == alliance_id:
+        if (
+            self.request is not None
+            and self.request.GET.get("all", False)
+            and entity.entity_id == alliance_id
+        ):
             self.journal = base_qs.exclude(
                 Q(ref_type="corporation_account_withdrawal")
                 & Q(first_party_id=F("second_party_id"))
@@ -109,6 +114,37 @@ class AllianceData(LedgerCore):
 
         self.journal = qs
         self.entities = self.get_all_entities(self.journal)
+
+    def _compute_journal_values(self) -> QuerySet[dict[str, Any]]:
+        """Return the journal values for the current journal."""
+        return self.journal.values(
+            "first_party_id",
+            "second_party_id",
+            "pk",
+            "ref_type",
+            "division__corporation__corporation__corporation_id",
+        ).annotate(
+            bounty=Sum(
+                "amount",
+                filter=Q(ref_type__in=RefTypeManager.BOUNTY_PRIZES),
+                output_field=DecimalField(),
+            ),
+            ess=Sum(
+                "amount",
+                filter=Q(ref_type__in=RefTypeManager.ESS_TRANSFER),
+                output_field=DecimalField(),
+            ),
+            costs=Sum(
+                "amount",
+                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0),
+                output_field=DecimalField(),
+            ),
+            miscellaneous=Sum(
+                "amount",
+                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0),
+                output_field=DecimalField(),
+            ),
+        )
 
     def get_all_entities(
         self, journal: QuerySet[CorporationWalletJournalEntry]
@@ -178,39 +214,13 @@ class AllianceData(LedgerCore):
         ledger = False
         finished_entities = False
 
+        # Prepare the ledger
         self.setup_ledger()
-
-        journal = self.journal.values(
-            "first_party_id",
-            "second_party_id",
-            "pk",
-            "ref_type",
-            "division__corporation__corporation__corporation_id",
-        ).annotate(
-            bounty=Sum(
-                "amount",
-                filter=Q(ref_type__in=RefTypeManager.BOUNTY_PRIZES),
-                output_field=DecimalField(),
-            ),
-            ess=Sum(
-                "amount",
-                filter=Q(ref_type__in=RefTypeManager.ESS_TRANSFER),
-                output_field=DecimalField(),
-            ),
-            costs=Sum(
-                "amount",
-                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0),
-                output_field=DecimalField(),
-            ),
-            miscellaneous=Sum(
-                "amount",
-                filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0),
-                output_field=DecimalField(),
-            ),
-        )
+        # Compute journal values
+        journal = self._compute_journal_values()
 
         # Build up the journal Cache
-        ledger_hash = self._get_ledger_journal_hash(self.journal.values_list("pk"))
+        ledger_hash = self._get_ledger_journal_hash(journal.values_list("pk"))
         ledger_header = self._get_ledger_header(
             ledger_args=f"{self.alliance.alliance_id}",
             year=self.year,
@@ -291,6 +301,44 @@ class AllianceData(LedgerCore):
             timeout=None,  # Cache forever until the journal changes
         )
         return context
+
+    def generate_data_export(self) -> dict:
+        """Generate the data export for the corporation."""
+        self.setup_ledger()
+        journal = self._compute_journal_values()
+
+        ledger = []
+
+        # Build the entries from the journal
+        self.entries = {}
+        for row in journal:
+            self.entries.setdefault(row["pk"], []).append(row)
+
+        # Build Data for each corporation
+        for corporation_id in self.corporations:
+            # Create Details URL for the entity
+            details_url = self.create_url(
+                viewname="alliance_details",
+                alliance_id=self.alliance.alliance_id,
+                entity_id=corporation_id,
+            )
+
+            # Create the LedgerEntity object for the entity
+            entity_obj = LedgerEntity(
+                entity_id=corporation_id,
+                details_url=details_url,
+            )
+
+            #
+            corp_data = self.create_entity_data(
+                entity=entity_obj,
+            )
+
+            if corp_data is None:
+                continue
+
+            ledger.append(corp_data)
+        return ledger
 
     def _build_context(self, ledger):
         """Build the context for the ledger view."""
