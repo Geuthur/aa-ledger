@@ -33,14 +33,11 @@ def alliance_ledger_index(request):
     """Alliance Ledger Index View"""
     context = {}
     context = add_info_to_context(request, context)
-    try:
-        alliance_id = request.user.profile.main_character.alliance_id
-        if alliance_id is None:
-            raise AttributeError
-    except AttributeError:
-        messages.error(request, "You do not have an alliance.")
-        return redirect("ledger:index")
-    return redirect("ledger:alliance_ledger", alliance_id)
+    alliance_id = request.user.profile.main_character.alliance_id
+    if not alliance_id:
+        alliance_id = 0
+
+    return redirect("ledger:alliance_ledger", alliance_id=alliance_id)
 
 
 @login_required
