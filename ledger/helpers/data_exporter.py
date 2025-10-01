@@ -377,7 +377,6 @@ class CorporationExporter(LedgerCSVExporter):
                 division_id=report_division_id,
                 year=report_year,
                 month=report_month,
-                request=None,
             )
             return ledger_data.generate_data_export()
         except CorporationAudit.DoesNotExist as exc:

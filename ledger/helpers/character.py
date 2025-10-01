@@ -1,11 +1,11 @@
 """PvE Views"""
 
 # Standard Library
-import json
 from decimal import Decimal
 
 # Django
 from django.core.handlers.wsgi import WSGIRequest
+from django.db.models import QuerySet
 from django.utils.translation import gettext as _
 
 # Alliance Auth
@@ -38,12 +38,19 @@ class CharacterData(LedgerCore):
         year=None,
         month=None,
         day=None,
+        section=None,
     ):
-        LedgerCore.__init__(self, year, month, day)
+        super().__init__(year, month, day)
         self.request = request
         self.character = character
         self.alts_ids = self.get_alt_ids
+        self.characters = CharacterAudit.objects.filter(
+            eve_character__character_id__in=self.alts_ids
+        ).select_related("eve_character")
+        self.section = section
         self.billboard = BillboardSystem()
+        self.queryset = character.ledger_character_journal.filter(self.filter_date)
+        self.mining = character.ledger_character_mining.filter(self.filter_date)
 
     @property
     def get_alt_ids(self):
@@ -64,60 +71,45 @@ class CharacterData(LedgerCore):
             return True
         return True
 
-    def setup_ledger(self, character: CharacterAudit):
-        """Setup the Ledger Data for the Character."""
-
-        # Show Card Template for Character Ledger
-        if self.request.GET.get("single", False):
-            self.ledger_type = "single"
-
-        # Get All Journal Entries for the Character and its Alts for Details View
-        if self.request.GET.get("all", False):
-            self.journal = CharacterWalletJournalEntry.objects.filter(
+    def filter_character_journal(
+        self, character: CharacterAudit
+    ) -> tuple[QuerySet[CharacterWalletJournalEntry], QuerySet[CharacterMiningLedger]]:
+        """Filter the journal entries for the character and its alts."""
+        if self.section == "summary":
+            journal = CharacterWalletJournalEntry.objects.filter(
                 self.filter_date,
                 character__eve_character__character_id__in=self.alts_ids,
             )
-            self.mining = CharacterMiningLedger.objects.filter(
+            mining = CharacterMiningLedger.objects.filter(
                 self.filter_date,
                 character__eve_character__character_id__in=self.alts_ids,
             )
-        else:
-            # Get Journal Entries for the Character and its Alts
-            self.journal = character.ledger_character_journal.filter(self.filter_date)
-            self.mining = character.ledger_character_mining.filter(self.filter_date)
+            return journal, mining
+        # Get Journal Entries for the Character
+        journal = character.ledger_character_journal.filter(self.filter_date)
+        mining = character.ledger_character_mining.filter(self.filter_date)
+        return journal, mining
 
     def generate_ledger_data(self) -> dict:
         """Generate the ledger data for the character and its alts."""
         # Only show the character if 'single' is set in the request
-        if self.request.GET.get("single", False):
+        if self.section == "single":
+            self.ledger_type = "single"
             characters = CharacterAudit.objects.filter(
-                eve_character__character_id=self.character.eve_character.character_id
-            )
-            character = characters.first()
-            character_data = self._create_character_data(character=character)
+                eve_character=self.character.eve_character
+            ).select_related("eve_character")
+            character_data = self._create_character_data(character=self.character)
             ledger = character_data
         else:
             ledger = []
-            characters = CharacterAudit.objects.filter(
-                eve_character__character_id__in=self.alts_ids
-            ).select_related("eve_character")
-            for character in characters:
+            characters = self.characters
+            for character in self.characters:
                 character_data = self._create_character_data(character=character)
                 if character_data:
                     ledger.append(character_data)
 
-        # Generate the totals for the ledger
-        totals = self._calculate_totals(ledger)
-
-        # Evaluate the existing years for the view
-        existing_years = (
-            CharacterWalletJournalEntry.objects.filter(character__in=characters)
-            .exclude(date__year__isnull=True)
-            .values_list("date__year", flat=True)
-            .order_by("-date__year")
-            .distinct()
-        )
-
+        # Billboard
+        self.billboard.change_view(self.get_view_mode())
         # Create the ratting bar for the view
         self.create_rattingbar(
             is_old_ess=self.is_old_ess,
@@ -125,42 +117,29 @@ class CharacterData(LedgerCore):
                 "eve_character__character_id", flat=True
             ),
         )
-
-        context = {
-            "title": f"Character Ledger - {self.character.eve_character.character_name}",
-            "character_id": self.character.eve_character.character_id,
-            "billboard": json.dumps(self.billboard.dict.asdict()),
-            "ledger": ledger,
-            "years": list(existing_years),
-            "totals": totals,
-            "view": self.create_view_data(
-                viewname="character_details",
-                character_id=self.character.eve_character.character_id,
-            ),
-            "is_old_ess": self.is_old_ess,
-        }
-        return context
+        return ledger
 
     def _create_character_data(
         self,
         character: CharacterAudit,
     ):
         """Create a dictionary with character data and update billboard/ledger."""
-        self.setup_ledger(character)
+        journal, mining = self.filter_character_journal(character)
 
         # If no journal or mining data exists, return None
-        if not self.journal.exists() and not self.mining.exists():
+        if not journal.exists() and not mining.exists():
             return None
 
-        bounty = self.journal.aggregate_bounty()
+        bounty = journal.aggregate_bounty()
         ess = (
-            self.journal.aggregate_bounty() * Decimal(0.667)
+            journal.aggregate_bounty() * Decimal(0.667)
             if self.is_old_ess
-            else self.journal.aggregate_ess()
+            else journal.aggregate_ess()
         )
-        mining_val = self.mining.aggregate_mining()
-        costs = self.journal.aggregate_costs(second_party=self.alts_ids)
-        miscellaneous = self.journal.aggregate_miscellaneous(first_party=self.alts_ids)
+        mining_val = mining.aggregate_mining()
+        costs = journal.aggregate_costs(second_party=self.alts_ids)
+        miscellaneous = journal.aggregate_miscellaneous(first_party=self.alts_ids)
+
         total = sum(
             [
                 bounty,
@@ -197,13 +176,15 @@ class CharacterData(LedgerCore):
             "single_url": self.create_url(
                 viewname="character_ledger",
                 character_id=character.eve_character.character_id,
+                section="single",
             ),
             "details_url": self.create_url(
                 viewname="character_details",
                 character_id=character.eve_character.character_id,
+                section="single",
             ),
         }
-
+        self.billboard.change_view(self.get_view_mode())
         # Create the chord data for the billboard
         self.billboard.chord_add_data(
             chord_from=character.eve_character.character_name,

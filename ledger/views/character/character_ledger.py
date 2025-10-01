@@ -1,6 +1,7 @@
 """PvE Views"""
 
 # Standard Library
+import json
 from http import HTTPStatus
 
 # Django
@@ -24,17 +25,21 @@ from ledger import __title__
 from ledger.api.helpers import get_character_or_none
 from ledger.helpers.character import CharacterData
 from ledger.helpers.core import add_info_to_context
-from ledger.models.characteraudit import (
-    CharacterAudit,
-)
+from ledger.models.characteraudit import CharacterAudit, CharacterWalletJournalEntry
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @login_required
 @permission_required("ledger.basic_access")
+# pylint: disable=too-many-positional-arguments
 def character_ledger(
-    request: WSGIRequest, character_id: int, year=None, month=None, day=None
+    request: WSGIRequest,
+    character_id: int,
+    year=None,
+    month=None,
+    day=None,
+    section=None,
 ):
     """
     Character Ledger
@@ -54,11 +59,37 @@ def character_ledger(
         )
 
     character_data = CharacterData(
-        request=request, character=character, year=year, month=month, day=day
+        request=request,
+        character=character,
+        year=year,
+        month=month,
+        day=day,
+        section=section,
     )
 
     # Create the ledger data
-    context = character_data.generate_ledger_data()
+    ledger = character_data.generate_ledger_data()
+
+    context = {
+        "title": f"Character Ledger - {character.eve_character.character_name}",
+        "character_id": character_id,
+        "billboard": json.dumps(character_data.billboard.dict.asdict()),
+        "ledger": ledger,
+        "years": CharacterWalletJournalEntry.objects.filter(
+            character__in=character_data.characters
+        )
+        .exclude(date__year__isnull=True)
+        .values_list("date__year", flat=True)
+        .order_by("-date__year")
+        .distinct(),
+        "totals": character_data.calculate_totals(ledger),
+        "view": character_data.create_view_data(
+            viewname="character_details",
+            character_id=character_id,
+            section="summary",
+        ),
+        "is_old_ess": character_data.is_old_ess,
+    }
     # Add additional information to the context
     context = add_info_to_context(request, context)
 
@@ -67,7 +98,10 @@ def character_ledger(
 
 @login_required
 @permission_required("ledger.basic_access")
-def character_details(request, character_id, year=None, month=None, day=None):
+# pylint: disable=too-many-positional-arguments
+def character_details(
+    request, character_id, year=None, month=None, day=None, section=None
+):
     """
     Character Details
     """
@@ -96,9 +130,10 @@ def character_details(request, character_id, year=None, month=None, day=None):
             },
         )
 
-    character_data = CharacterData(request, character, year, month, day)
+    character_data = CharacterData(request, character, year, month, day, section)
 
-    amounts = character_data._create_character_details()
+    journal, mining = character_data.filter_character_journal(character)
+    amounts = character_data._create_character_details(journal, mining)
     details = character_data._add_average_details(request, amounts, day)
 
     context = {

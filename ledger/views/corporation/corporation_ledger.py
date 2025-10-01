@@ -1,6 +1,7 @@
 """PvE Views"""
 
 # Standard Library
+import json
 from http import HTTPStatus
 
 # Django
@@ -28,7 +29,11 @@ from ledger.api.helpers import (
 from ledger.helpers import data_exporter
 from ledger.helpers.core import add_info_to_context
 from ledger.helpers.corporation import CorporationData, LedgerEntity
-from ledger.models.corporationaudit import CorporationAudit
+from ledger.models.corporationaudit import (
+    CorporationAudit,
+    CorporationWalletDivision,
+    CorporationWalletJournalEntry,
+)
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -234,23 +239,46 @@ def corporation_ledger(
         )
 
     corporation_data = CorporationData(
-        request=request,
         corporation=corporation,
         division_id=division_id,
         year=year,
         month=month,
         day=day,
     )
-
     # Create the Corporation ledger data
-    context = corporation_data.generate_ledger_data()
+    ledger = corporation_data.generate_ledger_data()
+
+    context = {
+        "title": f"Corporation Ledger - {corporation.corporation.corporation_name}",
+        "corporation_id": corporation_id,
+        "division_id": division_id,
+        "billboard": json.dumps(corporation_data.billboard.dict.asdict()),
+        "ledger": ledger,
+        "divisions": CorporationWalletDivision.objects.filter(
+            corporation=corporation
+        ).order_by("division_id"),
+        "years": CorporationWalletJournalEntry.objects.filter(
+            division__corporation=corporation
+        )
+        .values_list("date__year", flat=True)
+        .distinct()
+        .order_by("-date__year"),
+        "totals": corporation_data.calculate_totals(ledger),
+        "view": corporation_data.create_view_data(
+            viewname="corporation_details",
+            corporation_id=corporation_id,
+            entity_id=corporation_id,
+            division_id=division_id,
+            section="summary",
+        ),
+    }
     # Add additional information to the context
     context = add_info_to_context(request, context)
 
     return render(request, "ledger/corpledger/corporation_ledger.html", context=context)
 
 
-# pylint: disable=too-many-positional-arguments
+# pylint: disable=too-many-positional-arguments, too-many-arguments
 @login_required
 @permission_required("ledger.advanced_access")
 def corporation_details(
@@ -261,6 +289,7 @@ def corporation_details(
     year: int = None,
     month: int = None,
     day: int = None,
+    section: str = None,
 ):
     """
     Corporation Details
@@ -296,12 +325,12 @@ def corporation_details(
         )
 
     corporation_data = CorporationData(
-        request=request,
         corporation=corporation,
         division_id=division_id,
         year=year,
         month=month,
         day=day,
+        section=section,
     )
 
     # Create the Entity for the ledger
@@ -309,7 +338,10 @@ def corporation_details(
         entity_id=entity_id,
     )
 
-    amounts = corporation_data._create_corporation_details(entity=entity)
+    journal = corporation_data.filter_entity_journal(entity=entity)
+    amounts = corporation_data._create_corporation_details(
+        journal=journal, entity=entity
+    )
     details = corporation_data._add_average_details(request, amounts, day)
 
     context = {
