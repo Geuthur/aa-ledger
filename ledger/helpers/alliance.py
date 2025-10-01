@@ -288,11 +288,11 @@ class AllianceData(LedgerCore):
         # Generate the XY series for the ratting bar
         self.billboard.create_or_update_results(rattingbar)
         series, categories = self.billboard.generate_xy_series()
-
-        # Create the ratting bar chart
-        self.billboard.create_xy_chart(
-            title=_("Ratting Bar"), categories=categories, series=series
-        )
+        if series and categories:
+            # Create the ratting bar chart
+            self.billboard.create_xy_chart(
+                title=_("Ratting Bar"), categories=categories, series=series
+            )
 
     def create_chord(self, ledger_data: list[dict]):
         """Create the chord chart for the view."""

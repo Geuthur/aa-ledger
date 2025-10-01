@@ -219,6 +219,7 @@ class CharacterData(LedgerCore):
         if not character_ids:
             return
 
+        # Create the timeline for the ratting bar
         rattingbar_timeline = self.billboard.create_timeline(
             CharacterWalletJournalEntry.objects.filter(
                 self.filter_date,
@@ -231,16 +232,20 @@ class CharacterData(LedgerCore):
                 character__eve_character__character_id__in=character_ids,
             )
         )
-
+        # Annotate the timeline with the relevant data
         rattingbar = (
             rattingbar_timeline.annotate_bounty_income()
             .annotate_ess_income()
             .annotate_miscellaneous_with_exclude(exclude=self.alts_ids)
         )
         rattingbar_mining = rattingbar_mining_timeline.annotate_mining(with_period=True)
+
+        # Generate the XY series for the ratting bar
         self.billboard.create_or_update_results(rattingbar, is_old_ess=is_old_ess)
         self.billboard.add_category(rattingbar_mining, category="mining")
         series, categories = self.billboard.generate_xy_series()
-        self.billboard.create_xy_chart(
-            title=_("Ratting Bar"), categories=categories, series=series
-        )
+        if series and categories:
+            # Create the ratting bar chart
+            self.billboard.create_xy_chart(
+                title=_("Ratting Bar"), categories=categories, series=series
+            )
