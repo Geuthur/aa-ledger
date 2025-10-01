@@ -19,25 +19,27 @@
             <div class="card-header text-center bg-primary">
                 {% translate "Data Export" %}
             </div>
-            <div class="card-body">
-                <form method="post" action="{% url 'ledger:corporation_data_export_generate' corporation_id=corporation_id %}" class="mb-3">
-                    {% csrf_token %}
-                        <div class="d-flex flex-wrap align-items-center gap-2">
-                            <div class="mb-2 me-2">
-                                {{ forms.generate_data_export.year }}
+            {% if forms %}
+                <div class="card-body">
+                    <form method="post" action="{% url 'ledger:corporation_data_export_generate' corporation_id=corporation_id %}" class="mb-3">
+                        {% csrf_token %}
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <div class="mb-2 me-2">
+                                    {{ forms.generate_data_export.year }}
+                                </div>
+                                <div class="mb-2 me-2">
+                                    {{ forms.generate_data_export.month }}
+                                </div>
+                                <div class="mb-2 me-2">
+                                    {{ forms.generate_data_export.division }}
+                                </div>
+                                <div class="mb-2">
+                                    <button type="submit" class="btn btn-primary">{% translate "Generate" %}</button>
+                                </div>
                             </div>
-                            <div class="mb-2 me-2">
-                                {{ forms.generate_data_export.month }}
-                            </div>
-                            <div class="mb-2 me-2">
-                                {{ forms.generate_data_export.division }}
-                            </div>
-                            <div class="mb-2">
-                                <button type="submit" class="btn btn-primary">{% translate "Generate" %}</button>
-                            </div>
-                        </div>
-                </form>
-            </div>
+                    </form>
+                </div>
+            {% endif %}
             <div class="card-body">
                 <table class="table table-dark table-striped table-hover w-100" id="ratting">
                     <thead>
