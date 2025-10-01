@@ -23,6 +23,7 @@ from ledger.helpers.core import LedgerCore, LedgerEntity
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.corporationaudit import (
     CorporationAudit,
+    CorporationWalletDivision,
     CorporationWalletJournalEntry,
 )
 
@@ -52,6 +53,30 @@ class CorporationData(LedgerCore):
         self.queryset = (
             self._get_journal_queryset()
         )  # Prepare Queryset and auxiliary data
+
+    @property
+    def has_data(self) -> bool:
+        """Return True if there is data for the corporation in the selected date range."""
+        return self.queryset.exists()
+
+    @property
+    def activity_years(self) -> list[int]:
+        """Return a list of years with data for the corporation."""
+        return (
+            CorporationWalletJournalEntry.objects.filter(
+                division__corporation=self.corporation
+            )
+            .values_list("date__year", flat=True)
+            .distinct()
+            .order_by("-date__year")
+        )
+
+    @property
+    def divisions(self) -> QuerySet:
+        """Return a list of divisions for the corporation."""
+        return CorporationWalletDivision.objects.filter(
+            corporation=self.corporation
+        ).order_by("division_id")
 
     def _get_journal_queryset(self) -> QuerySet[CorporationWalletJournalEntry]:
         """Return the base queryset filtered by the current date range and corporation division."""
