@@ -31,8 +31,6 @@ from ledger.helpers.core import add_info_to_context
 from ledger.helpers.corporation import CorporationData, LedgerEntity
 from ledger.models.corporationaudit import (
     CorporationAudit,
-    CorporationWalletDivision,
-    CorporationWalletJournalEntry,
 )
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -54,17 +52,17 @@ def corporation_ledger_index(request):
 def corporation_data_export(request, corporation_id: int):
     """Data Export View"""
     perms = get_corporation(request, corporation_id)[0]
-    files = data_exporter._compile_export_files_list(request_entity_id=corporation_id)
+
+    corporation_exporter = data_exporter.LedgerCSVExporter.create_exporter(
+        "corporation", corporation_id
+    )
+    files = corporation_exporter.gather_export_files()
+
     context = {
         "title": "Data Export",
         "corporation_id": corporation_id,
         "files": files,
-        "last_updated_at": None,
-        "forms": {
-            "generate_data_export": forms.GenerateDataExportForm(
-                corporation_id=corporation_id
-            ),
-        },
+        "is_exportable": corporation_exporter.has_data,
     }
 
     if perms is False:
@@ -76,6 +74,16 @@ def corporation_data_export(request, corporation_id: int):
         msg = _("Corporation not found")
         messages.info(request, msg)
         return render(request, "ledger/data-export.html", context=context)
+
+    context.update(
+        {
+            "forms": {
+                "generate_data_export": forms.GenerateDataExportForm(
+                    corporation_id=corporation_id
+                ),
+            },
+        }
+    )
 
     context = add_info_to_context(request, context)
     return render(request, "ledger/data-export.html", context)
@@ -221,6 +229,7 @@ def corporation_ledger(
     context = {
         "title": "Corporation Ledger",
         "corporation_id": corporation_id,
+        "disabled": True,
     }
 
     # pylint: disable=duplicate-code
@@ -254,15 +263,8 @@ def corporation_ledger(
         "division_id": division_id,
         "billboard": json.dumps(corporation_data.billboard.dict.asdict()),
         "ledger": ledger,
-        "divisions": CorporationWalletDivision.objects.filter(
-            corporation=corporation
-        ).order_by("division_id"),
-        "years": CorporationWalletJournalEntry.objects.filter(
-            division__corporation=corporation
-        )
-        .values_list("date__year", flat=True)
-        .distinct()
-        .order_by("-date__year"),
+        "divisions": corporation_data.divisions,
+        "years": corporation_data.activity_years,
         "totals": corporation_data.calculate_totals(ledger),
         "view": corporation_data.create_view_data(
             viewname="corporation_details",
@@ -384,22 +386,29 @@ def corporation_administration(request, corporation_id):
         msg = _("Permission Denied")
         messages.error(request, msg)
         return redirect("ledger:corporation_ledger_index")
+
     if perm is None:
         msg = _("Corporation not found")
         messages.info(request, msg)
         return redirect("ledger:corporation_ledger_index")
+
     # TODO Get Missing Characters from esi-corporations.read_corporation_membership.v1 ?
     corp_characters = CharacterOwnership.objects.filter(
         character__corporation_id=corporation.corporation.corporation_id
     ).order_by("character__character_name")
+    corporation_dataexporter = data_exporter.LedgerCSVExporter.create_exporter(
+        "corporation", corporation_id
+    )
 
     context = {
         "corporation_id": corporation_id,
         "title": "Corporation Administration",
         "corporation": corporation,
         "characters": corp_characters,
+        "is_exportable": corporation_dataexporter.has_data,
     }
     context = add_info_to_context(request, context)
+
     return render(
         request,
         "ledger/corpledger/admin/corporation_administration.html",
