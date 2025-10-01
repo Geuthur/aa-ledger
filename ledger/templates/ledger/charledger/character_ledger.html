@@ -24,7 +24,7 @@
                 <ul class="dropdown-menu" id="yearDropdown">
                     {% for year in years %}
                         <li>
-                            <a class="dropdown-item {% if view.date.year|default:'null' == year %}active{% endif %}" href="{% url 'ledger:character_ledger' character_id=character_id year=year %}{% if view.type == 'single' %}?single=True{% endif %}">{{ year }}</a>
+                            <a class="dropdown-item {% if view.date.year|default:'null' == year %}active{% endif %}" href="{% url 'ledger:character_ledger' character_id=character_id year=year section=view.type|default:'summary' %}">{{ year }}</a>
                         </li>
                     {% endfor %}
                 </ul>
@@ -36,7 +36,7 @@
                 <ul class="dropdown-menu" id="monthDropdown">
                     {% for m in 12|range_filter %}
                         <li>
-                            <a class="dropdown-item {% if view.date.month|default:'null' == m %}active{% endif %}" href="{% url 'ledger:character_ledger' character_id=character_id year=view.date.year|default:view.date.current.year month=m %}{% if view.type == 'single' %}?single=True{% endif %}">
+                            <a class="dropdown-item {% if view.date.month|default:'null' == m %}active{% endif %}" href="{% url 'ledger:character_ledger' character_id=character_id year=view.date.year|default:view.date.current.year month=m section=view.type|default:'summary' %}">
                                 {{ m|month_name }}
                             </a>
                         </li>
@@ -51,7 +51,7 @@
                     {% month_days view.date as month_days %}
                     {% for day in month_days %}
                         <li>
-                            <a class="dropdown-item {% if view.date.day|default:'null' == day %}active{% endif %}" href="{% url 'ledger:character_ledger' character_id=character_id year=view.date.year|default:view.date.current.year month=view.date.month|default:view.date.current.month day=day %}{% if view.type == 'single' %}?single=True{% endif %}">
+                            <a class="dropdown-item {% if view.date.day|default:'null' == day %}active{% endif %}" href="{% url 'ledger:character_ledger' character_id=character_id year=view.date.year|default:view.date.current.year month=view.date.month|default:view.date.current.month day=day section=view.type|default:'summary' %}">
                                 {{ day }}
                             </a>
                         </li>

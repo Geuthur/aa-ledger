@@ -1,5 +1,8 @@
 """PvE Views"""
 
+# Standard Library
+import json
+
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -19,6 +22,7 @@ from ledger import __title__
 from ledger.api.helpers import get_all_corporations_from_alliance, get_alliance
 from ledger.helpers.alliance import AllianceData
 from ledger.helpers.core import LedgerEntity, add_info_to_context
+from ledger.models.corporationaudit import CorporationWalletJournalEntry
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -72,7 +76,27 @@ def alliance_ledger(request, alliance_id, year=None, month=None, day=None):
     )
 
     # Create the Alliance ledger data
-    context = alliance_data.generate_ledger_data()
+    ledger = alliance_data.generate_ledger_data()
+
+    context = {
+        "title": f"Alliance Ledger - {alliance.alliance_name}",
+        "alliance_id": alliance_id,
+        "billboard": json.dumps(alliance_data.billboard.dict.asdict()),
+        "ledger": ledger,
+        "years": CorporationWalletJournalEntry.objects.filter(
+            division__corporation__corporation__corporation_id__in=alliance_data.corporations
+        )
+        .values_list("date__year", flat=True)
+        .distinct()
+        .order_by("-date__year"),
+        "totals": alliance_data.calculate_totals(ledger),
+        "view": alliance_data.create_view_data(
+            viewname="alliance_details",
+            alliance_id=alliance_id,
+            entity_id=alliance_id,
+            section="summary",
+        ),
+    }
     # Add additional information to the context
     context = add_info_to_context(request, context)
 
@@ -89,9 +113,10 @@ def alliance_details(
     year=None,
     month=None,
     day=None,
+    section=None,
 ):
     """
-    Corporation Details
+    Alliance Details
     """
     perms, alliance = get_alliance(request, alliance_id=alliance_id)
 
@@ -119,7 +144,12 @@ def alliance_details(
         )
 
     alliance_data = AllianceData(
-        request=request, alliance=alliance, year=year, month=month, day=day
+        request=request,
+        alliance=alliance,
+        year=year,
+        month=month,
+        day=day,
+        section=section,
     )
 
     # Create the Entity for the ledger
@@ -128,7 +158,8 @@ def alliance_details(
         alliance_obj=alliance if entity_id == alliance.alliance_id else None,
     )
 
-    amounts = alliance_data._create_corporation_details(entity=entity)
+    journal = alliance_data.filter_entity_journal(entity=entity)
+    amounts = alliance_data._create_corporation_details(journal=journal, entity=entity)
     details = alliance_data._add_average_details(request, amounts, day)
 
     context = {

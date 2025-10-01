@@ -1,12 +1,10 @@
 """PvE Views"""
 
 # Standard Library
-import json
 from decimal import Decimal
 from typing import Any
 
 # Django
-from django.core.cache import cache
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import DecimalField, F, Q, QuerySet, Sum
 from django.utils.translation import gettext as _
@@ -20,7 +18,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.app_settings import LEDGER_CACHE_ENABLED, LEDGER_CACHE_STALE
+from ledger.api.api_helper.billboard_helper import BillboardSystem
 from ledger.helpers.core import LedgerCore, LedgerEntity
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.corporationaudit import (
@@ -42,82 +40,45 @@ class AllianceData(LedgerCore):
         year=None,
         month=None,
         day=None,
+        section=None,
     ):
-        LedgerCore.__init__(self, year, month, day)
+        super().__init__(year, month, day)
         self.request = request
         self.alliance = alliance
+        self.entity_id = self.alliance.alliance_id
+        self.section = section
         self.corporations = CorporationAudit.objects.filter(
             corporation__alliance__alliance_id=self.alliance.alliance_id
         ).values_list("corporation__corporation_id", flat=True)
-        # Evaluate the existing years for the view
-        self.existing_years = (
-            CorporationWalletJournalEntry.objects.filter(
-                division__corporation__corporation__alliance__alliance_id=self.alliance.alliance_id
-            )
-            .exclude(date__year__isnull=True)
-            .values_list("date__year", flat=True)
-            .order_by("-date__year")
-            .distinct()
-        )
         self.auth_char_ids = self.auth_character_ids
+        self.billboard = BillboardSystem()
+        self.queryset = (
+            self._get_journal_queryset()
+        )  # Base queryset filtered by date and alliance
 
-    def setup_ledger(self, entity: LedgerEntity = None):
-        """Setup the Ledger Data for the Corporation."""
-        alliance_id = self.alliance.alliance_id
-
-        # Base queryset filtered by date and alliance
-        base_qs = CorporationWalletJournalEntry.objects.filter(
+    def _get_journal_queryset(self) -> QuerySet[CorporationWalletJournalEntry]:
+        """Return the base queryset filtered by the current date range and corporation division."""
+        return CorporationWalletJournalEntry.objects.filter(
             self.filter_date,
-            division__corporation__corporation__alliance__alliance_id=alliance_id,
-        )
-
-        # No entity specified: show all entries for the alliance (preserve existing exclusion)
-        if entity is None:
-            self.journal = base_qs.exclude(
-                Q(ref_type="corporation_account_withdrawal")
-                & Q(first_party_id=F("second_party_id"))
-            )
-            # Prepare auxiliary data used by the view
-            self.entities = self.get_all_entities(self.journal)
-            return
-
-        # If the entity is the alliance itself and "all" is set, show all alliance entries
-        if (
-            self.request is not None
-            and self.request.GET.get("all", False)
-            and entity.entity_id == alliance_id
-        ):
-            self.journal = base_qs.exclude(
-                Q(ref_type="corporation_account_withdrawal")
-                & Q(first_party_id=F("second_party_id"))
-            )
-            self.entities = self.get_all_entities(self.journal)
-            return
-
-        # Regular entity filtering: include any rows where the entity is a first or second party
-        entity_ids = entity.get_alts_ids_or_self()
-        qs = base_qs.filter(
-            Q(first_party_id__in=entity_ids) | Q(second_party_id__in=entity_ids)
-        )
-        qs = qs.exclude(
+            division__corporation__corporation__alliance__alliance_id=self.alliance.alliance_id,
+        ).exclude(
             Q(ref_type="corporation_account_withdrawal")
             & Q(first_party_id=F("second_party_id"))
         )
 
-        # If entity represents a corporation or alliance, exclude auth account character IDs
-        # that are not part of the current entity to avoid double counting
-        if entity.type in ["alliance", "corporation"]:
-            exclude_ids = self.auth_char_ids - set(entity_ids)
-            qs = qs.exclude(
-                Q(first_party_id__in=exclude_ids) | Q(second_party_id__in=exclude_ids)
-            )
+    def _compute_entities(
+        self, journal: QuerySet[CorporationWalletJournalEntry]
+    ) -> set:
+        """Return a set of all entity IDs (first and second parties) present in the current journal."""
+        return set(journal.values_list("second_party_id", flat=True)) | set(
+            journal.values_list("first_party_id", flat=True)
+        )
 
-        self.journal = qs
-        self.entities = self.get_all_entities(self.journal)
-
-    def _compute_journal_values(self) -> QuerySet[dict[str, Any]]:
+    def _compute_journal_values(
+        self, journal: QuerySet[CorporationWalletJournalEntry]
+    ) -> QuerySet[dict[str, Any]]:
         """Return the journal values for the current journal."""
-        return self.journal.values(
+        return journal.values(
             "first_party_id",
             "second_party_id",
             "pk",
@@ -145,15 +106,6 @@ class AllianceData(LedgerCore):
                 output_field=DecimalField(),
             ),
         )
-
-    def get_all_entities(
-        self, journal: QuerySet[CorporationWalletJournalEntry]
-    ) -> list[int]:
-        """Get all entities in the alliance."""
-        entities_ids = set(journal.values_list("second_party_id", flat=True)) | set(
-            journal.values_list("first_party_id", flat=True)
-        )
-        return list(entities_ids)
 
     # pylint: disable=duplicate-code
     def create_entity_data(
@@ -211,37 +163,19 @@ class AllianceData(LedgerCore):
     # pylint: disable=duplicate-code
     def generate_ledger_data(self) -> dict:
         """Generate the ledger data for the alliance."""
-        ledger = False
-        finished_entities = False
-
-        # Prepare the ledger
-        self.setup_ledger()
+        # Compute all entities in the journal
+        self.entities = self._compute_entities(self.queryset)
         # Compute journal values
-        journal = self._compute_journal_values()
+        journal = self._compute_journal_values(self.queryset)
 
-        # Build up the journal Cache
-        ledger_hash = self._get_ledger_journal_hash(journal.values_list("pk"))
-        ledger_header = self._get_ledger_header(
-            ledger_args=f"{self.alliance.alliance_id}",
-            year=self.year,
-            month=self.month,
-            day=self.day,
-        )
-        cache_header = cache.get(
-            ledger_header,
-        )
-        logger.debug(
-            f"Ledger Header: {ledger_header}, Cache Header: {cache_header}, Journal Hash: {ledger_hash}"
-        )
+        # Caching
+        ledger_hash = self.get_ledger_journal_hash(journal.values_list("pk"))
+        cache_key = f"{self.entity_id}"
 
-        # Check if the journal is up to date
-        journal_up_to_date = cache_header == ledger_hash
-        ledger_key = self._build_ledger_cache_key(ledger_header)
-
-        # Check if we have newest cached version of the ledger
-        if journal_up_to_date and LEDGER_CACHE_ENABLED:
-            ledger = cache.get(f"{ledger_key}-data", False)
-            finished_entities = cache.get(f"{ledger_key}-finished_entities", False)
+        # Get Cached Data if available
+        ledger, finished_entities = self.get_cache_ledger(
+            ledger_hash=ledger_hash, cache_key=cache_key
+        )
 
         if finished_entities is False or ledger is False:
             ledger = []
@@ -256,9 +190,10 @@ class AllianceData(LedgerCore):
             for corporation_id in self.corporations:
                 # Create Details URL for the entity
                 details_url = self.create_url(
-                    viewname="alliance_details",
-                    alliance_id=self.alliance.alliance_id,
+                    viewname="corporation_details",
+                    corporation_id=corporation_id,
                     entity_id=corporation_id,
+                    section="summary",
                 )
 
                 # Create the LedgerEntity object for the entity
@@ -277,35 +212,26 @@ class AllianceData(LedgerCore):
                 ledger.append(corp_data)
                 finished_entities.add(corporation_id)
 
+            # Create Cache
+            self.set_cache_ledger(
+                ledger_hash=ledger_hash,
+                cache_key=cache_key,
+                ledger=ledger,
+                finished_entities=finished_entities,
+            )
+
         # Create the billboard data
-        self.create_rattingbar(list(finished_entities))
+        self.billboard.change_view(self.get_view_mode())
+        self.create_rattingbar(journal=journal, entities_ids=list(finished_entities))
         self.create_chord(ledger)
-
-        # Build the context for the ledger view
-        context = self._build_context(ledger=ledger)
-
-        cache.set(key=f"{ledger_key}-data", value=ledger, timeout=LEDGER_CACHE_STALE)
-        cache.set(
-            key=f"{ledger_key}-finished_entities",
-            value=finished_entities,
-            timeout=LEDGER_CACHE_STALE,
-        )
-        cache.set(
-            key=self._get_ledger_header(
-                ledger_args=f"{self.alliance.alliance_id}",
-                year=self.year,
-                month=self.month,
-                day=self.day,
-            ),
-            value=ledger_hash,
-            timeout=None,  # Cache forever until the journal changes
-        )
-        return context
+        return ledger
 
     def generate_data_export(self) -> dict:
         """Generate the data export for the corporation."""
-        self.setup_ledger()
-        journal = self._compute_journal_values()
+        # Compute all entities in the journal
+        self.entities = self._compute_entities(self.queryset)
+        # Compute journal values
+        journal = self._compute_journal_values(self.queryset)
 
         ledger = []
 
@@ -340,35 +266,33 @@ class AllianceData(LedgerCore):
             ledger.append(corp_data)
         return ledger
 
-    def _build_context(self, ledger):
-        """Build the context for the ledger view."""
-        return {
-            "title": f"Alliance Ledger - {self.alliance.alliance_name}",
-            "alliance_id": self.alliance.alliance_id,
-            "billboard": json.dumps(self.billboard.dict.asdict()),
-            "ledger": ledger,
-            "years": list(self.existing_years),
-            "totals": self._calculate_totals(ledger),
-            "view": self.create_view_data(
-                viewname="alliance_details",
-                alliance_id=self.alliance.alliance_id,
-                entity_id=self.alliance.alliance_id,
-            ),
-        }
-
-    def create_rattingbar(self, entities_ids: list = None):
+    def create_rattingbar(
+        self,
+        journal: QuerySet[CorporationWalletJournalEntry],
+        entities_ids: list = None,
+    ):
         """Create the ratting bar for the view."""
         if not entities_ids:
             return
 
-        rattingbar_timeline = self.billboard.create_timeline(self.journal)
+        # Create the timeline for the ratting bar
+        rattingbar_timeline = self.billboard.create_timeline(journal)
+
+        # Annotate the timeline with the relevant data
         rattingbar = (
             rattingbar_timeline.annotate_bounty_income()
             .annotate_ess_income()
             .annotate_miscellaneous()
         )
+
+        # Generate the XY series for the ratting bar
         self.billboard.create_or_update_results(rattingbar)
-        self._build_xy_chart(title=_("Ratting Bar"))
+        series, categories = self.billboard.generate_xy_series()
+        if series and categories:
+            # Create the ratting bar chart
+            self.billboard.create_xy_chart(
+                title=_("Ratting Bar"), categories=categories, series=series
+            )
 
     def create_chord(self, ledger_data: list[dict]):
         """Create the chord chart for the view."""
