@@ -52,6 +52,7 @@ def character_ledger(
         context = {
             "error": msg,
             "character_id": character_id,
+            "disabled": True,
         }
         context = add_info_to_context(request, context)
         return render(

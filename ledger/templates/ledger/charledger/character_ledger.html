@@ -60,7 +60,7 @@
             </div>
         {% endif %}
         <div class="ms-auto">
-            <a href="{% url 'ledger:character_administration' character_id=character_id %}" class="administration"><button class="btn btn-secondary me-2 administration">{% translate 'Administration' %}{% if issues %} <span class="badge bg-warning">{{ issues }}</span>{% endif %}</button></a>
+            <a class="btn btn-secondary me-2 administration {% if disabled %}disabled{% endif %}" href="{% url 'ledger:character_administration' character_id=character_id %}" class="administration">{% translate 'Administration' %}{% if issues %} <span class="badge bg-warning">{{ issues }}</span>{% endif %}</a>
             <a href="{% url 'ledger:character_overview' %}" class="overview"><button class="btn btn-secondary overview">{% translate 'Account Overview' %}</button></a>
         </div>
     </div>

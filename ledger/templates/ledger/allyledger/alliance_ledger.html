@@ -58,7 +58,7 @@
             </div>
         {% endif %}
         <div class="ms-auto">
-            <a href="{% url 'ledger:alliance_administration' alliance_id=alliance_id %}"><button class="btn btn-secondary me-2 administration">{% translate 'Administration' %}</button></a>
+            <a class="btn btn-secondary me-2 administration {% if disabled %}disabled{% endif %}" href="{% url 'ledger:alliance_administration' alliance_id=alliance_id %}">{% translate 'Administration' %}</a>
             <a href="{% url 'ledger:alliance_overview' %}"><button class="btn btn-secondary overview">{% translate 'Alliance Overview' %}</button></a>
         </div>
     </div>

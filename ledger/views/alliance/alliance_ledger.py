@@ -54,6 +54,7 @@ def alliance_ledger(request, alliance_id, year=None, month=None, day=None):
     context = {
         "title": "Alliance Ledger",
         "alliance_id": alliance_id,
+        "disabled": True,
     }
 
     # pylint: disable=duplicate-code
