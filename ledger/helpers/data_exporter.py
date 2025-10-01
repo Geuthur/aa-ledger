@@ -22,7 +22,10 @@ from app_utils.logging import LoggerAddTag
 from ledger import __title__
 from ledger.helpers.alliance import AllianceData
 from ledger.helpers.corporation import CorporationData
-from ledger.models.corporationaudit import CorporationAudit
+from ledger.models.corporationaudit import (
+    CorporationAudit,
+    CorporationWalletJournalEntry,
+)
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -47,77 +50,6 @@ def file_to_zip(source_file: Path, destination: Path) -> Path:
         my_zip.write(filename=source_file, arcname=source_file.name)
     logger.info("Created export file: %s", zip_file)
     return zip_file
-
-
-def _compile_export_files_list(request_entity_id: int) -> list[dict]:
-    """Compile a list of export files with metadata."""
-    gathered = _gather_export_files(request_entity_id)
-    return gathered
-
-
-def _gather_export_files(request_entity_id: int) -> list[dict]:
-    """Gather export files in the destination folder and parse metadata from filenames.
-    Expected filename format (without suffix):
-        <app_label>_<topic>_<export_key_hex>
-
-    The export_key_hex is a hex encoding of the UTF-8 string
-        "<entity_id>:<division_id>:<year>:<month>"
-    Only files matching this new format are considered.
-    """
-    destination_folder = default_destination()
-    results: list[dict] = []
-
-    # If destination folder doesn't exist, return empty
-    if not destination_folder.exists():
-        return results
-
-    existing_files = list(
-        destination_folder.glob(f"{str(CorporationAudit._meta.app_label)}_*.zip")
-    )
-
-    if not existing_files:
-        return results
-
-    for file in existing_files:
-        name = file.with_suffix("").name
-        parts = name.split("_")
-        topic = parts[1] if len(parts) > 1 else ""
-
-        # Only attempt to parse the export hex key (third segment).
-        if len(parts) <= 2:
-            continue
-
-        key = parts[2]
-        entity_id, division_id, year, month = LedgerCSVExporter.decoder(key)
-
-        # Only include files matching the requested entity_id
-        if entity_id is None or entity_id != request_entity_id:
-            continue
-
-        try:
-            last_updated = timezone.datetime.fromtimestamp(
-                file.stat().st_mtime, tz=timezone.utc
-            )
-        # pylint: disable=broad-except
-        except Exception:
-            logger.debug("Could not get last modified time for file %s", file)
-            last_updated = None
-
-        results.append(
-            {
-                "topic": topic,
-                "entity_id": entity_id,
-                "division_id": (
-                    division_id if division_id is not None else "All Divisions"
-                ),
-                "year": year,
-                "month": month if month is not None else "All Months",
-                "last_updated": last_updated,
-                "hash": key,
-            }
-        )
-
-    return results
 
 
 def default_destination() -> Path:
@@ -215,9 +147,11 @@ class LedgerCSVExporter(ABC):
         """Generate data export."""
         raise NotImplementedError()
 
+    @property
+    @abstractmethod
     def has_data(self) -> bool:
         """Check if there is data to export."""
-        return bool(self.create_data_export())
+        raise NotImplementedError()
 
     def output_path(self, destination: str) -> Path:
         """Return output path for this export."""
@@ -282,7 +216,7 @@ class LedgerCSVExporter(ABC):
             "total",
         ]
 
-        if self.has_data() is False:
+        if self.has_data is False:
             raise ValueError("No data to export")
 
         with output_file.open("w", newline="", encoding="utf-8") as csv_file:
@@ -331,6 +265,86 @@ class LedgerCSVExporter(ABC):
 
         raise ValueError("Invalid ledger_type")
 
+    def gather_export_files(self) -> list[dict]:
+        """Gather export files in the destination folder and parse metadata from filenames.
+        Expected filename format (without suffix):
+            <app_label>_<topic>_<export_key_hex>
+
+        The export_key_hex is a hex encoding of the UTF-8 string
+            "<entity_id>:<division_id>:<year>:<month>"
+        Only files matching this new format are considered.
+
+        This is an instance method and will filter files for the exporter instance
+        by using the instance's corporation_id or alliance_id attribute.
+        """
+        # Determine the entity id for this exporter instance. Exporter subclasses
+        instance_entity_id = getattr(self, "corporation_id", None) or getattr(
+            self, "alliance_id", None
+        )
+        if instance_entity_id is None:
+            raise ValueError(
+                "Exporter instance must have 'corporation_id' or 'alliance_id' to gather files"
+            )
+
+        destination_folder = default_destination()
+        results: list[dict] = []
+
+        # If destination folder doesn't exist, return empty
+        if not destination_folder.exists():
+            return results
+
+        existing_files = list(
+            destination_folder.glob(f"{str(CorporationAudit._meta.app_label)}_*.zip")
+        )
+
+        if not existing_files:
+            return results
+
+        for file in existing_files:
+            name = file.with_suffix("").name
+            parts = name.split("_")
+            topic = parts[1] if len(parts) > 1 else ""
+
+            # Only attempt to parse the export hex key (third segment).
+            if len(parts) <= 2:
+                continue
+
+            key = parts[2]
+            entity_id, division_id, year, month = LedgerCSVExporter.decoder(key)
+
+            # Only include files matching the requested entity id and topic
+            if entity_id is None or entity_id != instance_entity_id:
+                continue
+
+            # Also filter by exporter topic so we don't mix corporation/alliance exports
+            if topic != getattr(self, "topic", ""):
+                continue
+
+            try:
+                last_updated = timezone.datetime.fromtimestamp(
+                    file.stat().st_mtime, tz=timezone.utc
+                )
+            # pylint: disable=broad-except
+            except Exception:
+                logger.debug("Could not get last modified time for file %s", file)
+                last_updated = None
+
+            results.append(
+                {
+                    "topic": topic,
+                    "entity_id": entity_id,
+                    "division_id": (
+                        division_id if division_id is not None else "All Divisions"
+                    ),
+                    "year": year,
+                    "month": month if month is not None else "All Months",
+                    "last_updated": last_updated,
+                    "hash": key,
+                }
+            )
+
+        return results
+
 
 class CorporationExporter(LedgerCSVExporter):
     """CSV Exporter for Corporation Ledger Data."""
@@ -349,6 +363,13 @@ class CorporationExporter(LedgerCSVExporter):
         self.division_id = division_id
         self.year = year
         self.month = month
+
+    @property
+    def has_data(self) -> bool:
+        """Check if there is data to export."""
+        return CorporationWalletJournalEntry.objects.filter(
+            division__corporation__corporation__corporation_id=self.corporation_id
+        ).exists()
 
     def create_data_export(
         self,
@@ -393,6 +414,20 @@ class AllianceExporter(LedgerCSVExporter):
         self.alliance_id = entity_id
         self.year = year
         self.month = month
+
+    @property
+    def has_data(self) -> bool:
+        """Check if there is data to export."""
+        corporations = CorporationAudit.objects.filter(
+            corporation__alliance__alliance_id=self.alliance_id
+        ).values_list("corporation__corporation_id", flat=True)
+
+        if not corporations:
+            return False
+
+        return CorporationWalletJournalEntry.objects.filter(
+            division__corporation__corporation__corporation_id__in=corporations
+        ).exists()
 
     def create_data_export(
         self, alliance_id: int = None, year: int = None, month: int = None
