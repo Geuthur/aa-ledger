@@ -264,7 +264,7 @@ class CorporationAudit(AuditBase):
             try:
                 roles = esi.client.Character.GetCharactersCharacterIdRoles(
                     character_id=token.character_id, token=token
-                ).result()
+                ).result(force_refresh=True)
 
                 has_roles = False
                 for role in roles.roles:

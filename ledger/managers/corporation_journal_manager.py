@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
+from esi.exceptions import HTTPNotModified
 
 # Alliance Auth (External Libs)
 from app_utils.logging import LoggerAddTag
@@ -228,9 +229,19 @@ class CorporationWalletManagerBase(models.Manager):
                     token=token,
                 )
             )
-            journal_items, response = operation.results(
-                return_response=True, force_refresh=force_refresh
-            )
+
+            try:
+                journal_items, response = operation.results(
+                    return_response=True, force_refresh=force_refresh
+                )
+            except HTTPNotModified as exc:
+                logger.debug(
+                    "Update has not changed for %s %s - %s",
+                    corporation,
+                    division,
+                    exc.status_code,
+                )
+                continue
 
             logger.debug("ESI response Status: %s", response.status_code)
             self._update_or_create_objs(division=division, objs=journal_items)

@@ -7,6 +7,7 @@ from django.utils import timezone
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
+from esi.exceptions import HTTPNotModified
 
 # Alliance Auth (External Libs)
 from app_utils.logging import LoggerAddTag
@@ -402,10 +403,19 @@ class PlanetaryDetailsManagerBase(models.Manager):
                 token=token,
             )
 
-            planets_details_items, response = operation.results(
-                return_response=True, force_refresh=force_refresh
-            )
-            logger.debug("ESI response Status: %s", response.status_code)
+            try:
+                planets_details_items, response = operation.results(
+                    return_response=True, force_refresh=force_refresh
+                )
+                logger.debug("ESI response Status: %s", response.status_code)
+            except HTTPNotModified as exc:
+                logger.debug(
+                    "Update has not changed for %s %s - %s",
+                    character,
+                    planet_id,
+                    exc.status_code,
+                )
+                continue
 
             self._update_or_create_objs(
                 character=character,
