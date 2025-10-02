@@ -150,7 +150,7 @@ class CharacterData(LedgerCore):
         )
 
         # If total is 0, we do not need to create a character data entry
-        if int(total) == 0:
+        if int(total) + int(mining_val) == 0:
             return None
 
         update_states = {}
@@ -236,7 +236,7 @@ class CharacterData(LedgerCore):
         rattingbar = (
             rattingbar_timeline.annotate_bounty_income()
             .annotate_ess_income()
-            .annotate_miscellaneous_with_exclude(exclude=self.alts_ids)
+            .annotate_miscellaneous_exclude_donations(exclude=self.alts_ids)
         )
         rattingbar_mining = rattingbar_mining_timeline.annotate_mining(with_period=True)
 

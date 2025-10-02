@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 # Django
 from django.db import models, transaction
-from django.db.models import DecimalField, F, Q, Sum, Value
+from django.db.models import DecimalField, Q, Sum, Value
 from django.db.models.functions import Coalesce
 
 # Alliance Auth
@@ -196,26 +196,38 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
             )
         )
 
-    def annotate_miscellaneous_with_exclude(self, exclude=None) -> models.QuerySet:
-        """Annotate all income together"""
-        qs = (
-            self.annotate_donation_income(exclude=exclude)
-            .annotate_mission_income()
-            .annotate_milestone_income()
-            .annotate_insurance_income()
-            .annotate_market_income()
-            .annotate_contract_income()
-            .annotate_incursion_income()
-        )
-        return qs.annotate(
+    def annotate_miscellaneous_exclude_donations(self, exclude=None) -> models.QuerySet:
+        """Allow excluding donations by first_party_id from the miscellaneous sum."""
+        if exclude is None:
+            exclude = []
+
+        # Normalize single int to list for compatibility with Q lookups
+        if isinstance(exclude, int):
+            exclude = [exclude]
+
+        # Ensure we have a mutable list (remove may not exist on other iterables)
+        all_types = RefTypeManager.all_ref_types()
+        donation_types = RefTypeManager.DONATION
+
+        try:
+            all_types.remove("player_donation")
+        except ValueError:
+            pass
+
+        # Base filter: all reference types and only positive amounts (income)
+        filter_q = Q(ref_type__in=all_types, amount__gt=0)
+
+        if exclude:
+            filter_q = filter_q & ~(
+                Q(ref_type__in=donation_types) & Q(first_party_id__in=exclude)
+            )
+
+        return self.annotate(
             miscellaneous=Coalesce(
-                F("mission_income")
-                + F("incursion_income")
-                + F("insurance_income")
-                + F("market_income")
-                + F("contract_income")
-                + F("donation_income")
-                + F("milestone_income"),
+                Sum(
+                    "amount",
+                    filter=filter_q,
+                ),
                 Value(0),
                 output_field=DecimalField(),
             )
