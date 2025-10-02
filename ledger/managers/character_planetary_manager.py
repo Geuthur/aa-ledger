@@ -394,6 +394,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
         planets_ids = CharacterPlanet.objects.filter(character=character).values_list(
             "planet_id", flat=True
         )
+        is_updated = False
 
         for planet_id in planets_ids:
             # Make the ESI request
@@ -407,14 +408,9 @@ class PlanetaryDetailsManagerBase(models.Manager):
                 planets_details_items, response = operation.results(
                     return_response=True, force_refresh=force_refresh
                 )
+                is_updated = True
                 logger.debug("ESI response Status: %s", response.status_code)
-            except HTTPNotModified as exc:
-                logger.debug(
-                    "Update has not changed for %s %s - %s",
-                    character,
-                    planet_id,
-                    exc.status_code,
-                )
+            except HTTPNotModified:
                 continue
 
             self._update_or_create_objs(
@@ -422,6 +418,9 @@ class PlanetaryDetailsManagerBase(models.Manager):
                 objs=planets_details_items,
                 planet_id=planet_id,
             )
+        # Raise if no update happened at all
+        if not is_updated:
+            raise HTTPNotModified()
 
     @transaction.atomic()
     def _update_or_create_objs(
