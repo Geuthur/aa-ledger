@@ -162,15 +162,15 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
         )
 
     def _fetch_esi_data(
-        self, character: "CharacterAudit", force_refresh: bool = False
+        self, audit: "CharacterAudit", force_refresh: bool = False
     ) -> None:
         """Fetch mining ledger entries from ESI data."""
         req_scopes = ["esi-industry.read_character_mining.v1"]
-        token = character.get_token(scopes=req_scopes)
+        token = audit.get_token(scopes=req_scopes)
 
         # Make the ESI request
         operation = esi.client.Industry.GetCharactersCharacterIdMining(
-            character_id=character.eve_character.character_id,
+            character_id=audit.eve_character.character_id,
             token=token,
         )
 
@@ -180,7 +180,7 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
         logger.debug("ESI response Status: %s", response.status_code)
 
         # Process and update or create mining ledger entries
-        self._update_or_create_objs(character, mining_items)
+        self._update_or_create_objs(audit, mining_items)
 
     @transaction.atomic()
     def _update_or_create_objs(

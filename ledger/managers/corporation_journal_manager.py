@@ -203,7 +203,7 @@ class CorporationWalletManagerBase(models.Manager):
         )
 
     def _fetch_esi_data(
-        self, corporation: "CorporationAudit", force_refresh: bool = False
+        self, audit: "CorporationAudit", force_refresh: bool = False
     ) -> None:
         """Fetch wallet journal entries from ESI data."""
         # AA Ledger
@@ -216,16 +216,16 @@ class CorporationWalletManagerBase(models.Manager):
         ]
         req_roles = ["CEO", "Director", "Accountant", "Junior_Accountant"]
 
-        token = corporation.get_token(scopes=req_scopes, req_roles=req_roles)
+        token = audit.get_token(scopes=req_scopes, req_roles=req_roles)
 
-        divisions = CorporationWalletDivision.objects.filter(corporation=corporation)
+        divisions = CorporationWalletDivision.objects.filter(corporation=audit)
         is_updated = False
 
         for division in divisions:
             # Make the ESI request
             operation = (
                 esi.client.Wallet.GetCorporationsCorporationIdWalletsDivisionJournal(
-                    corporation_id=corporation.corporation.corporation_id,
+                    corporation_id=audit.corporation.corporation_id,
                     division=division.division_id,
                     token=token,
                 )
@@ -329,6 +329,31 @@ class CorporationDivisionManagerBase(models.Manager):
             force_refresh=force_refresh,
         )
 
+    def _fetch_esi_data(
+        self, audit: "CorporationAudit", force_refresh: bool = False
+    ) -> None:
+        """Fetch division entries from ESI data."""
+        req_scopes = [
+            "esi-wallet.read_corporation_wallets.v1",
+            "esi-characters.read_corporation_roles.v1",
+            "esi-corporations.read_divisions.v1",
+        ]
+        req_roles = ["CEO", "Director", "Accountant", "Junior_Accountant"]
+        token = audit.get_token(scopes=req_scopes, req_roles=req_roles)
+
+        # Make the ESI request
+        operation = esi.client.Wallet.GetCorporationsCorporationIdWallets(
+            corporation_id=audit.corporation.corporation_id,
+            token=token,
+        )
+        division_items, response = operation.results(
+            return_response=True, force_refresh=force_refresh
+        )
+
+        logger.debug("ESI response Status: %s", response.status_code)
+
+        self._update_or_create_objs(corporation=audit, objs=division_items)
+
     @log_timing(logger)
     def update_or_create_esi_names(
         self, corporation: "CorporationAudit", force_refresh: bool = False
@@ -341,18 +366,18 @@ class CorporationDivisionManagerBase(models.Manager):
         )
 
     def _fetch_esi_data_names(
-        self, corporation: "CorporationAudit", force_refresh: bool = False
+        self, audit: "CorporationAudit", force_refresh: bool = False
     ) -> None:
         """Fetch division entries from ESI data."""
         req_scopes = [
             "esi-corporations.read_divisions.v1",
         ]
         req_roles = ["CEO", "Director"]
-        token = corporation.get_token(scopes=req_scopes, req_roles=req_roles)
+        token = audit.get_token(scopes=req_scopes, req_roles=req_roles)
 
         # Make the ESI request
         operation = esi.client.Corporation.GetCorporationsCorporationIdDivisions(
-            corporation_id=corporation.corporation.corporation_id,
+            corporation_id=audit.corporation.corporation_id,
             token=token,
         )
         division_items, response = operation.results(
@@ -361,34 +386,7 @@ class CorporationDivisionManagerBase(models.Manager):
 
         logger.debug("ESI response Status: %s", response.status_code)
 
-        self._update_or_create_objs_division(
-            corporation=corporation, objs=division_items
-        )
-
-    def _fetch_esi_data(
-        self, corporation: "CorporationAudit", force_refresh: bool = False
-    ) -> None:
-        """Fetch division entries from ESI data."""
-        req_scopes = [
-            "esi-wallet.read_corporation_wallets.v1",
-            "esi-characters.read_corporation_roles.v1",
-            "esi-corporations.read_divisions.v1",
-        ]
-        req_roles = ["CEO", "Director", "Accountant", "Junior_Accountant"]
-        token = corporation.get_token(scopes=req_scopes, req_roles=req_roles)
-
-        # Make the ESI request
-        operation = esi.client.Wallet.GetCorporationsCorporationIdWallets(
-            corporation_id=corporation.corporation.corporation_id,
-            token=token,
-        )
-        division_items, response = operation.results(
-            return_response=True, force_refresh=force_refresh
-        )
-
-        logger.debug("ESI response Status: %s", response.status_code)
-
-        self._update_or_create_objs(corporation=corporation, objs=division_items)
+        self._update_or_create_objs_division(corporation=audit, objs=division_items)
 
     @transaction.atomic()
     def _update_or_create_objs_division(

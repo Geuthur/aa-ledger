@@ -2,25 +2,14 @@
 Character Audit Model
 """
 
-# Standard Library
-from collections.abc import Callable
-
-# Third Party
-from aiopenapi3.errors import ContentTypeError
-from bravado.exception import HTTPInternalServerError
-
 # Django
 from django.core.cache import cache
 from django.db import models
-from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter, Token
 from allianceauth.services.hooks import get_extension_logger
-from esi.errors import TokenError
-from esi.exceptions import HTTPNotModified
 
 # Alliance Auth (External Libs)
 from app_utils.logging import LoggerAddTag
@@ -32,7 +21,7 @@ from ledger.app_settings import (
     LEDGER_CACHE_KEY,
     LEDGER_USE_COMPRESSED,
 )
-from ledger.errors import HTTPGatewayTimeoutError, TokenDoesNotExist
+from ledger.errors import TokenDoesNotExist
 from ledger.managers.character_audit_manager import (
     CharacterAuditManager,
 )
@@ -43,7 +32,6 @@ from ledger.models.general import (
     EveEntity,
     UpdateSectionResult,
     UpdateStatus,
-    _NeedsUpdate,
 )
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -67,55 +55,6 @@ class CharacterAudit(AuditBase):
         def method_name(self) -> str:
             """Return method name for this section."""
             return f"update_{self.value}"
-
-    class UpdateStatus(models.TextChoices):
-        DISABLED = "disabled", _("disabled")
-        TOKEN_ERROR = "token_error", _("token error")
-        ERROR = "error", _("error")
-        OK = "ok", _("ok")
-        INCOMPLETE = "incomplete", _("incomplete")
-        IN_PROGRESS = "in_progress", _("in progress")
-
-        def bootstrap_icon(self) -> str:
-            """Return bootstrap corresponding icon class."""
-            update_map = {
-                status: mark_safe(
-                    f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>"
-                )
-                for status in [
-                    self.DISABLED,
-                    self.TOKEN_ERROR,
-                    self.ERROR,
-                    self.INCOMPLETE,
-                    self.IN_PROGRESS,
-                    self.OK,
-                ]
-            }
-            return update_map.get(self, "")
-
-        def bootstrap_text_style_class(self) -> str:
-            """Return bootstrap corresponding bootstrap text style class."""
-            update_map = {
-                self.DISABLED: "text-muted",
-                self.TOKEN_ERROR: "text-warning",
-                self.INCOMPLETE: "text-warning",
-                self.IN_PROGRESS: "text-info",
-                self.ERROR: "text-danger",
-                self.OK: "text-success",
-            }
-            return update_map.get(self, "")
-
-        def description(self) -> str:
-            """Return description for an enum object."""
-            update_map = {
-                self.DISABLED: _("Update is disabled"),
-                self.TOKEN_ERROR: _("One section has a token error during update"),
-                self.INCOMPLETE: _("One or more sections have not been updated"),
-                self.IN_PROGRESS: _("Update is in progress"),
-                self.ERROR: _("An error occurred during update"),
-                self.OK: _("Updates completed successfully"),
-            }
-            return update_map.get(self, "")
 
     id = models.AutoField(primary_key=True)
 
@@ -189,6 +128,10 @@ class CharacterAudit(AuditBase):
         """Get the wallet journal for this character."""
         return self.ledger_character_journal
 
+    @property
+    def update_status(self):
+        return self.ledger_update_status
+
     def get_token(self, scopes=None) -> Token:
         """Get the token for this character."""
         token = (
@@ -222,140 +165,6 @@ class CharacterAudit(AuditBase):
         return self.ledger_character_planet_details.update_or_create_esi(
             self, force_refresh=force_refresh
         )
-
-    def calc_update_needed(self) -> _NeedsUpdate:
-        """Calculate if an update is needed."""
-        sections_needs_update = {
-            section: True for section in self.UpdateSection.get_sections()
-        }
-        existing_sections: models.QuerySet[CharacterUpdateStatus] = (
-            self.ledger_update_status.all()
-        )
-        needs_update = {
-            obj.section: obj.need_update()
-            for obj in existing_sections
-            if obj.section in sections_needs_update
-        }
-        sections_needs_update.update(needs_update)
-        return _NeedsUpdate(section_map=sections_needs_update)
-
-    def reset_update_status(self, section: UpdateSection) -> "CharacterUpdateStatus":
-        """Reset the status of a given update section and return it."""
-        update_status_obj: CharacterUpdateStatus = (
-            self.ledger_update_status.get_or_create(
-                section=section,
-            )[0]
-        )
-        update_status_obj.reset()
-        return update_status_obj
-
-    def reset_has_token_error(self) -> None:
-        """Reset the has_token_error flag for this character."""
-        update_status = self.get_status
-        if update_status == self.UpdateStatus.TOKEN_ERROR:
-            self.ledger_update_status.filter(
-                has_token_error=True,
-            ).update(
-                has_token_error=False,
-            )
-            return True
-        return False
-
-    def update_section_if_changed(
-        self,
-        section: UpdateSection,
-        fetch_func: Callable,
-        force_refresh: bool = False,
-    ):
-        """Update the status of a specific section if it has changed."""
-        section = self.UpdateSection(section)
-        try:
-            data = fetch_func(character=self, force_refresh=force_refresh)
-            logger.debug("%s: Update has changed, section: %s", self, section.label)
-        except HTTPInternalServerError as exc:
-            logger.debug("%s: Update has an HTTP internal server error: %s", self, exc)
-            return UpdateSectionResult(is_changed=False, is_updated=False)
-        except HTTPNotModified as exc:
-            logger.debug("%s: Update has not changed, section: %s", self, exc)
-            return UpdateSectionResult(is_changed=False, is_updated=False)
-        except HTTPGatewayTimeoutError as exc:
-            logger.debug(
-                "%s: Update has a gateway timeout error, section: %s: %s",
-                self,
-                section.label,
-                exc,
-            )
-            return UpdateSectionResult(is_changed=False, is_updated=False)
-        except (OSError, ContentTypeError) as exc:
-            logger.info(
-                "%s Update has a %s error, section: %s: %s",
-                self,
-                type(exc).__name__,
-                section.label,
-                exc,
-            )
-            return UpdateSectionResult(is_changed=False, is_updated=False)
-        return UpdateSectionResult(
-            is_changed=True,
-            is_updated=True,
-            data=data,
-        )
-
-    def update_section_log(
-        self,
-        section: UpdateSection,
-        is_success: bool,
-        is_updated: bool = False,
-        error_message: str = None,
-    ) -> None:
-        """Update the status of a specific section."""
-        error_message = error_message if error_message else ""
-
-        defaults = {
-            "is_success": is_success,
-            "error_message": error_message,
-            "has_token_error": False,
-            "last_run_finished_at": timezone.now(),
-        }
-        obj: CharacterUpdateStatus = self.ledger_update_status.update_or_create(
-            section=section,
-            defaults=defaults,
-        )[0]
-        if is_updated:
-            obj.last_update_at = obj.last_run_at
-            obj.last_update_finished_at = timezone.now()
-            obj.save()
-        status = "successfully" if is_success else "with errors"
-        logger.info("%s: %s Update run completed %s", self, section.label, status)
-
-    def perform_update_status(
-        self, section: UpdateSection, method: Callable, *args, **kwargs
-    ) -> UpdateSectionResult:
-        """Perform update status."""
-        try:
-            result = method(*args, **kwargs)
-        except Exception as exc:
-            # TODO ADD DISCORD NOTIFICATION?
-            error_message = f"{type(exc).__name__}: {str(exc)}"
-            is_token_error = isinstance(exc, (TokenError))
-            logger.error(
-                "%s: %s: Error during update status: %s",
-                self,
-                section.label,
-                error_message,
-                exc_info=not is_token_error,  # do not log token errors
-            )
-            self.ledger_update_status.update_or_create(
-                section=section,
-                defaults={
-                    "is_success": False,
-                    "error_message": error_message,
-                    "has_token_error": is_token_error,
-                    "last_update_at": timezone.now(),
-                },
-            )
-            raise exc
-        return result
 
 
 class WalletJournalEntry(models.Model):
@@ -462,7 +271,6 @@ class CharacterMiningLedger(models.Model):
 
     @staticmethod
     def create_primary_key(character_id, mining_record):
-        print("DEBUG mining_record:", mining_record, type(mining_record.date))
         return f"{mining_record.date.strftime('%Y%m%d')}-{mining_record.type_id}-{character_id}-{mining_record.solar_system_id}"
 
     @staticmethod

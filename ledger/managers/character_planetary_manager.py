@@ -119,15 +119,15 @@ class PlanetaryManagerBase(models.Manager):
         )
 
     def _fetch_esi_data(
-        self, character: "CharacterAudit", force_refresh: bool = False
+        self, audit: "CharacterAudit", force_refresh: bool = False
     ) -> None:
         """Fetch planetary entries from ESI data."""
         req_scopes = ["esi-planets.manage_planets.v1"]
-        token = character.get_token(scopes=req_scopes)
+        token = audit.get_token(scopes=req_scopes)
 
         # Make the ESI request
         operation = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanets(
-            character_id=character.eve_character.character_id,
+            character_id=audit.eve_character.character_id,
             token=token,
         )
 
@@ -136,7 +136,7 @@ class PlanetaryManagerBase(models.Manager):
         )
         logger.debug("ESI response Status: %s", response.status_code)
 
-        self._update_or_create_objs(character=character, objs=planets_items)
+        self._update_or_create_objs(character=audit, objs=planets_items)
 
     @transaction.atomic()
     def _update_or_create_objs(
@@ -380,7 +380,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
         )
 
     def _fetch_esi_data(
-        self, character: "CharacterAudit", force_refresh: bool = False
+        self, audit: "CharacterAudit", force_refresh: bool = False
     ) -> None:
         """Fetch planets details entries from ESI data."""
         # pylint: disable=import-outside-toplevel
@@ -389,9 +389,9 @@ class PlanetaryDetailsManagerBase(models.Manager):
 
         req_scopes = ["esi-planets.manage_planets.v1"]
 
-        token = character.get_token(scopes=req_scopes)
+        token = audit.get_token(scopes=req_scopes)
 
-        planets_ids = CharacterPlanet.objects.filter(character=character).values_list(
+        planets_ids = CharacterPlanet.objects.filter(character=audit).values_list(
             "planet_id", flat=True
         )
         is_updated = False
@@ -399,7 +399,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
         for planet_id in planets_ids:
             # Make the ESI request
             operation = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanetsPlanetId(
-                character_id=character.eve_character.character_id,
+                character_id=audit.eve_character.character_id,
                 planet_id=planet_id,
                 token=token,
             )
@@ -414,7 +414,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
                 continue
 
             self._update_or_create_objs(
-                character=character,
+                character=audit,
                 objs=planets_details_items,
                 planet_id=planet_id,
             )

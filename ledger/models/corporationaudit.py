@@ -2,23 +2,14 @@
 Corporation Audit Model
 """
 
-# Standard Library
-from collections.abc import Callable
-
-# Third Party
-from aiopenapi3.errors import ContentTypeError
-from bravado.exception import HTTPInternalServerError
-
 # Django
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
-from esi.exceptions import HTTPNotModified
 from esi.models import Token
 
 # Alliance Auth (External Libs)
@@ -26,7 +17,6 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.errors import HTTPGatewayTimeoutError
 from ledger.managers.corporation_audit_manager import CorporationAuditManager
 from ledger.managers.corporation_journal_manager import (
     CorporationDivisionManager,
@@ -35,9 +25,7 @@ from ledger.managers.corporation_journal_manager import (
 from ledger.models.characteraudit import WalletJournalEntry
 from ledger.models.general import (
     AuditBase,
-    UpdateSectionResult,
     UpdateStatus,
-    _NeedsUpdate,
 )
 from ledger.providers import esi
 
@@ -80,157 +68,12 @@ class CorporationAudit(AuditBase):
         except AttributeError:
             return f"{self.corporation} ({self.id})"
 
-    def update_wallet_division_names(self, force_refresh: bool) -> None:
-        return self.ledger_corporation_division.update_or_create_esi_names(
-            self, force_refresh=force_refresh
+    class Meta:
+        default_permissions = ()
+        permissions = (
+            ("corp_audit_manager", "Has Access to own Corporations."),
+            ("corp_audit_admin_manager", "Has access to all Corporations."),
         )
-
-    def update_wallet_division(self, force_refresh: bool) -> None:
-        return self.ledger_corporation_division.update_or_create_esi(
-            self, force_refresh=force_refresh
-        )
-
-    def update_wallet_journal(self, force_refresh: bool) -> None:
-        return CorporationWalletJournalEntry.objects.update_or_create_esi(
-            self, force_refresh=force_refresh
-        )
-
-    # pylint: disable=duplicate-code
-    def calc_update_needed(self) -> _NeedsUpdate:
-        """Calculate if an update is needed."""
-        sections_needs_update = {
-            section: True for section in self.UpdateSection.get_sections()
-        }
-        existing_sections: models.QuerySet[CorporationUpdateStatus] = (
-            self.ledger_corporation_update_status.all()
-        )
-        needs_update = {
-            obj.section: obj.need_update()
-            for obj in existing_sections
-            if obj.section in sections_needs_update
-        }
-        sections_needs_update.update(needs_update)
-        return _NeedsUpdate(section_map=sections_needs_update)
-
-    # pylint: disable=duplicate-code
-    def reset_update_status(self, section: UpdateSection) -> "CorporationUpdateStatus":
-        """Reset the status of a given update section and return it."""
-        update_status_obj: CorporationUpdateStatus = (
-            self.ledger_corporation_update_status.get_or_create(
-                section=section,
-            )[0]
-        )
-        update_status_obj.reset()
-        return update_status_obj
-
-    # pylint: disable=duplicate-code
-    def reset_has_token_error(self) -> None:
-        """Reset the has_token_error flag for this corporation."""
-        self.ledger_corporation_update_status.filter(
-            has_token_error=True,
-        ).update(
-            has_token_error=False,
-        )
-
-    # pylint: disable=duplicate-code
-    def update_section_if_changed(
-        self,
-        section: UpdateSection,
-        fetch_func: Callable,
-        force_refresh: bool = False,
-    ):
-        """Update the status of a specific section if it has changed."""
-        section = self.UpdateSection(section)
-        try:
-            data = fetch_func(corporation=self, force_refresh=force_refresh)
-            logger.debug("%s: Update has changed, section: %s", self, section.label)
-        except HTTPInternalServerError as exc:
-            logger.debug("%s: Update has an HTTP internal server error: %s", self, exc)
-            return UpdateSectionResult(is_changed=False, is_updated=False)
-        except HTTPNotModified as exc:
-            logger.debug("%s: Update has not changed, section: %s", self, exc)
-            return UpdateSectionResult(is_changed=False, is_updated=False)
-        except HTTPGatewayTimeoutError as exc:
-            logger.debug(
-                "%s: Update has a gateway timeout error, section: %s: %s",
-                self,
-                section.label,
-                exc,
-            )
-            return UpdateSectionResult(is_changed=False, is_updated=False)
-        except (OSError, ContentTypeError) as exc:
-            logger.info(
-                "%s Update has a %s error, section: %s: %s",
-                self,
-                type(exc).__name__,
-                section.label,
-                exc,
-            )
-            return UpdateSectionResult(is_changed=False, is_updated=False)
-        return UpdateSectionResult(
-            is_changed=True,
-            is_updated=True,
-            data=data,
-        )
-
-    # pylint: disable=duplicate-code
-    def update_section_log(
-        self,
-        section: UpdateSection,
-        is_success: bool,
-        is_updated: bool = False,
-        error_message: str = None,
-    ) -> None:
-        """Update the status of a specific section."""
-        error_message = error_message if error_message else ""
-        defaults = {
-            "is_success": is_success,
-            "error_message": error_message,
-            "has_token_error": False,
-            "last_run_finished_at": timezone.now(),
-        }
-        obj: CorporationUpdateStatus = (
-            self.ledger_corporation_update_status.update_or_create(
-                section=section,
-                defaults=defaults,
-            )[0]
-        )
-        if is_updated:
-            obj.last_update_at = obj.last_run_at
-            obj.last_update_finished_at = timezone.now()
-            obj.save()
-        status = "successfully" if is_success else "with errors"
-        logger.info("%s: %s Update run completed %s", self, section.label, status)
-
-    # pylint: disable=duplicate-code
-    def perform_update_status(
-        self, section: UpdateSection, method: Callable, *args, **kwargs
-    ) -> UpdateSectionResult:
-        """Perform update status."""
-        try:
-            result = method(*args, **kwargs)
-        except Exception as exc:
-            # TODO ADD DISCORD NOTIFICATION?
-            error_message = f"{type(exc).__name__}: {str(exc)}"
-            is_token_error = isinstance(exc, (TokenError))
-            logger.error(
-                "%s: %s: Error during update status: %s",
-                self,
-                section.label,
-                error_message,
-                exc_info=not is_token_error,  # do not log token errors
-            )
-            self.ledger_corporation_update_status.update_or_create(
-                section=section,
-                defaults={
-                    "is_success": False,
-                    "error_message": error_message,
-                    "has_token_error": is_token_error,
-                    "last_update_at": timezone.now(),
-                },
-            )
-            raise exc
-        return result
 
     @classmethod
     def get_esi_scopes(cls) -> list[str]:
@@ -248,6 +91,20 @@ class CorporationAudit(AuditBase):
             "esi-industry.read_corporation_jobs.v1",
             "esi-corporations.read_divisions.v1",
         ]
+
+    @property
+    def get_status(self) -> UpdateStatus:
+        """Get the status of this corporation."""
+        if self.active is False:
+            return self.UpdateStatus.DISABLED
+
+        qs = CorporationAudit.objects.filter(pk=self.pk).annotate_total_update_status()
+        total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
+        return self.UpdateStatus(total_update_status)
+
+    @property
+    def update_status(self):
+        return self.ledger_corporation_update_status
 
     def get_token(self, scopes, req_roles) -> Token:
         """Get the token for this corporation."""
@@ -281,11 +138,19 @@ class CorporationAudit(AuditBase):
                 )
         return False
 
-    class Meta:
-        default_permissions = ()
-        permissions = (
-            ("corp_audit_manager", "Has Access to own Corporations."),
-            ("corp_audit_admin_manager", "Has access to all Corporations."),
+    def update_wallet_division_names(self, force_refresh: bool) -> None:
+        return self.ledger_corporation_division.update_or_create_esi_names(
+            self, force_refresh=force_refresh
+        )
+
+    def update_wallet_division(self, force_refresh: bool) -> None:
+        return self.ledger_corporation_division.update_or_create_esi(
+            self, force_refresh=force_refresh
+        )
+
+    def update_wallet_journal(self, force_refresh: bool) -> None:
+        return CorporationWalletJournalEntry.objects.update_or_create_esi(
+            self, force_refresh=force_refresh
         )
 
 

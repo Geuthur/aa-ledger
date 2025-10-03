@@ -370,13 +370,13 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             force_refresh=force_refresh,
         )
 
-    def _fetch_esi_data(self, character: "CharacterAudit", force_refresh: bool) -> None:
+    def _fetch_esi_data(self, audit: "CharacterAudit", force_refresh: bool) -> None:
         """Fetch wallet journal entries from ESI data."""
         req_scopes = ["esi-wallet.read_character_wallet.v1"]
-        token = character.get_token(scopes=req_scopes)
+        token = audit.get_token(scopes=req_scopes)
 
         operation = esi.client.Wallet.GetCharactersCharacterIdWalletJournal(
-            character_id=character.eve_character.character_id,
+            character_id=audit.eve_character.character_id,
             token=token,
         )
 
@@ -386,7 +386,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         )
         logger.debug("ESI response Status: %s", response.status_code)
 
-        self._update_or_create_objs(character=character, objs=journal_items)
+        self._update_or_create_objs(character=audit, objs=journal_items)
 
     @transaction.atomic()
     def _update_or_create_objs(
