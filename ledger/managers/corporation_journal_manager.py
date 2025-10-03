@@ -243,7 +243,7 @@ class CorporationWalletManagerBase(models.Manager):
             self._update_or_create_objs(division=division, objs=journal_items)
         # Raise if no update happened at all
         if not is_updated:
-            raise HTTPNotModified()
+            raise HTTPNotModified(304, {"msg": "Wallet Journal has Not Modified"})
 
     @transaction.atomic()
     def _update_or_create_objs(

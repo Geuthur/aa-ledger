@@ -420,7 +420,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
             )
         # Raise if no update happened at all
         if not is_updated:
-            raise HTTPNotModified()
+            raise HTTPNotModified(304, {"msg": "Planets Details has Not Modified"})
 
     @transaction.atomic()
     def _update_or_create_objs(
