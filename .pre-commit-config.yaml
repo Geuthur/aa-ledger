@@ -116,7 +116,7 @@ repos:
         description: Ensure that files end with a newline.
 
   - repo: https://github.com/eslint/eslint
-    rev: v9.34.0
+    rev: v9.37.0
     hooks:
       - id: eslint
         name: ESLint
@@ -124,7 +124,7 @@ repos:
         args: [--fix, --color, --max-warnings, '0']
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
-    rev: v16.23.1
+    rev: v16.25.0
     hooks:
       - id: stylelint
         name: Stylelint
@@ -171,7 +171,7 @@ repos:
         description: Check for compliance with the definitions in the EditorConfig file.
 
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.27.0
+    rev: 1.29.0
     hooks:
       - id: django-upgrade
         name: Django upgrade
@@ -203,7 +203,7 @@ repos:
         description: Check for extraneous `# noqa` comments.
 
   - repo: https://github.com/PyCQA/isort
-    rev: 6.0.1
+    rev: 6.1.0
     hooks:
       - id: isort
         name: Isort
@@ -216,8 +216,8 @@ repos:
         name: Black disable checker
         description: Check for black disable comments.
 
-  - repo: https://github.com/psf/black
-    rev: 25.1.0
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 25.9.0
     hooks:
       - id: black
         name: Black
@@ -226,7 +226,7 @@ repos:
           - --target-version=py310  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/asottile/blacken-docs
-    rev: 1.19.1
+    rev: 1.20.0
     hooks:
       - id: blacken-docs
         name: Blacken docs
@@ -256,7 +256,7 @@ repos:
         description: Format the tox.ini file.
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.6.0
+    rev: v2.7.0
     hooks:
       - id: pyproject-fmt
         name: pyproject.toml formatter
@@ -274,7 +274,7 @@ repos:
         description: Validate the pyproject.toml file.
 
   - repo: https://github.com/pylint-dev/pylint
-    rev: v3.3.8
+    rev: v3.3.9
     hooks:
       - id: pylint
         name: Pylint
@@ -283,7 +283,7 @@ repos:
           - --py-version=3.10  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.33.3
+    rev: 0.34.0
     hooks:
       - id: check-github-actions
         name: Check GitHub Actions
