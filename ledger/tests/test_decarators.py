@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 from django.test import TestCase
 
 # AA Ledger
-from ledger.decorators import when_esi_is_available
+from ledger.decorators import _wait_for_lock_or_cache, when_esi_is_available
 
 DECORATOR_PATH = "ledger.decorators."
 
@@ -73,6 +73,46 @@ class TestDecorators(TestCase):
         result = trigger_esi_deco()
         # then
         self.assertEqual(result, "Testing Mode.")
+
+    @patch(DECORATOR_PATH + "fetch_esi_status")
+    @patch(DECORATOR_PATH + "get_redis_client")
+    @patch(DECORATOR_PATH + "IS_TESTING", new=False)
+    def test_wait_for_lock_or_cache_when_cache_available(
+        self, mock_get_redis_client, mock_fetch_esi_status
+    ):
+        # given
+        # make the redis client behave as if cache is set
+        redis_client = MagicMock()
+        redis_client.get.return_value = "1"
+        mock_get_redis_client.return_value = redis_client
+
+        result, cache_available = _wait_for_lock_or_cache(
+            redis_client, "esi_status_is_up", "esi_status_lock", "token", 5
+        )
+        # then
+        self.assertFalse(result)
+        self.assertTrue(cache_available)
+
+    @patch(DECORATOR_PATH + "fetch_esi_status")
+    @patch(DECORATOR_PATH + "get_redis_client")
+    @patch(DECORATOR_PATH + "IS_TESTING", new=False)
+    def test_wait_for_lock_or_cache_when_lock_acquired(
+        self, mock_get_redis_client, mock_fetch_esi_status
+    ):
+        # given
+        # make the redis client behave as if no cache is set and we can acquire the lock
+        redis_client = MagicMock()
+        redis_client.get.return_value = None
+        redis_client.set.return_value = True
+        redis_client.setex.return_value = None
+        mock_get_redis_client.return_value = redis_client
+
+        result, cache_available = _wait_for_lock_or_cache(
+            redis_client, "esi_status_is_up", "esi_status_lock", "token", 5
+        )
+        # then
+        self.assertTrue(result)
+        self.assertFalse(cache_available)
 
     @patch(DECORATOR_PATH + "fetch_esi_status")
     @patch(DECORATOR_PATH + "get_redis_client")
