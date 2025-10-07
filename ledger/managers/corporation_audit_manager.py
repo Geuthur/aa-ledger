@@ -107,34 +107,34 @@ class CorporationAuditQuerySet(models.QuerySet):
         qs = (
             self.annotate(
                 num_sections_total=Count(
-                    "ledger_update_status",
-                    filter=Q(ledger_update_status__section__in=sections),
+                    "ledger_corporation_update_status",
+                    filter=Q(ledger_corporation_update_status__section__in=sections),
                 )
             )
             .annotate(
                 num_sections_ok=Count(
-                    "ledger_update_status",
+                    "ledger_corporation_update_status",
                     filter=Q(
-                        ledger_update_status__section__in=sections,
-                        ledger_update_status__is_success=True,
+                        ledger_corporation_update_status__section__in=sections,
+                        ledger_corporation_update_status__is_success=True,
                     ),
                 )
             )
             .annotate(
                 num_sections_failed=Count(
-                    "ledger_update_status",
+                    "ledger_corporation_update_status",
                     filter=Q(
-                        ledger_update_status__section__in=sections,
-                        ledger_update_status__is_success=False,
+                        ledger_corporation_update_status__section__in=sections,
+                        ledger_corporation_update_status__is_success=False,
                     ),
                 )
             )
             .annotate(
                 num_sections_token_error=Count(
-                    "ledger_update_status",
+                    "ledger_corporation_update_status",
                     filter=Q(
-                        ledger_update_status__section__in=sections,
-                        ledger_update_status__has_token_error=True,
+                        ledger_corporation_update_status__section__in=sections,
+                        ledger_corporation_update_status__has_token_error=True,
                     ),
                 )
             )
