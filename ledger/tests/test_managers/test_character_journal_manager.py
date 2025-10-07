@@ -213,9 +213,10 @@ class TestCharacterJournalManagerAnnotations(TestCase):
             )
             self.assertEqual(obj.miscellaneous, 1000.00)
 
-    def test_annotate_miscellaneous_with_exclude(self):
+    def test_annotate_miscellaneous_exclude_donations(self):
+        """Test including donations in miscellaneous annotation."""
         qs = (
-            self.audit.ledger_character_journal.all().annotate_miscellaneous_with_exclude()
+            self.audit.ledger_character_journal.all().annotate_miscellaneous_exclude_donations()
         )
         for obj in qs:
             self.assertTrue(
@@ -223,6 +224,18 @@ class TestCharacterJournalManagerAnnotations(TestCase):
                 "Miscellaneous with exclude annotation should be present",
             )
             self.assertEqual(obj.miscellaneous, 1000.00)
+
+    def test_annotate_miscellaneous_exclude_donations_with_exclude(self):
+        """Test excluding donations from miscellaneous annotation."""
+        qs = self.audit.ledger_character_journal.all().annotate_miscellaneous_exclude_donations(
+            exclude=1001
+        )
+        for obj in qs:
+            self.assertTrue(
+                hasattr(obj, "miscellaneous"),
+                "Miscellaneous with exclude annotation should be present",
+            )
+            self.assertEqual(obj.miscellaneous, 0)
 
     def test_annotate_contract_cost(self):
         qs = self.audit.ledger_character_journal.all().annotate_contract_cost()
