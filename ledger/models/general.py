@@ -403,7 +403,7 @@ class UpdateStatus(models.Model):
         if needs_update and self.has_token_error:
             logger.info(
                 "%s: Ignoring update because of token error, section: %s",
-                self.corporation,
+                self,
                 self.section,
             )
             needs_update = False
