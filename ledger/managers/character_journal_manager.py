@@ -198,9 +198,6 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
 
     def annotate_miscellaneous_exclude_donations(self, exclude=None) -> models.QuerySet:
         """Allow excluding donations by first_party_id from the miscellaneous sum."""
-        if exclude is None:
-            exclude = []
-
         # Normalize single int to list for compatibility with Q lookups
         if isinstance(exclude, int):
             exclude = [exclude]
@@ -209,10 +206,11 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
         all_types = RefTypeManager.all_ref_types()
         donation_types = RefTypeManager.DONATION
 
-        try:
-            all_types.remove("player_donation")
-        except ValueError:
-            pass
+        if exclude is not None:
+            try:
+                all_types.remove("player_donation")
+            except ValueError:
+                pass
 
         # Base filter: all reference types and only positive amounts (income)
         filter_q = Q(ref_type__in=all_types, amount__gt=0)
