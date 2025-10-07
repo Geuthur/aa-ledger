@@ -69,8 +69,8 @@ prepare-release:
 			git restore $(translation_directory)/django.pot; \
 		else \
 			echo "$(TEXT_BOLD)Release$(TEXT_BOLD_END) version detected."; \
-			sed -i "/\"Project-Id-Version: /c\\\"Project-Id-Version: $(appname_verbose) $$new_version\\n\"" $(translation_template); \
-			sed -i "/\"Report-Msgid-Bugs-To: /c\\\"Report-Msgid-Bugs-To: $(git_repository_issues)\\n\"" $(translation_template); \
+			sed -i "/\"Project-Id-Version: /c\\\"Project-Id-Version: $(appname_verbose) $$new_version\\\n\"" $(translation_template); \
+			sed -i "/\"Report-Msgid-Bugs-To: /c\\\"Report-Msgid-Bugs-To: $(git_repository_issues)\\\n\"" $(translation_template); \
 		fi; \
 	else \
 		echo "$(TEXT_COLOR_RED)$$new_version not found in CHANGELOG.md!$(TEXT_COLOR_RED_END)\n$(TEXT_COLOR_YELLOW)Please ensure to update it with your changes.$(TEXT_COLOR_YELLOW_END)"; \
