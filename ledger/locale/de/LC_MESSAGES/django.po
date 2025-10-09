@@ -3,20 +3,22 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-08-28 11:24+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2025-10-09 13:35+0000\n"
+"Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
+"war.de>\n"
+"Language-Team: German <https://weblate.voices-of-war.de/projects/"
+"allianceauth/aa-ledger/de/>\n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.13.3\n"
 
 #: admin.py:134 admin.py:278
 msgid "last update run"
@@ -35,7 +37,7 @@ msgstr ""
 
 #: admin.py:290
 msgid "Force update selected characters"
-msgstr "Update erzwingen für ausgewählte Characters"
+msgstr "Aktualisierung erzwingen für ausgewählte Charaktere"
 
 #: admin.py:301
 #, python-brace-format
@@ -96,7 +98,7 @@ msgstr "Bitte registriere betroffene Charaktere erneut"
 #: views/corporation/corporation_ledger.py:182
 #: views/corporation/corporation_ledger.py:218
 msgid "Permission Denied"
-msgstr "Berechtigung Verweigert"
+msgstr "Zugriff verweigert"
 
 #: api/ledger/planetary.py:165
 msgid "Factory Information"
@@ -166,7 +168,7 @@ msgstr "Strukturen Miete"
 
 #: managers/corporation_journal_manager.py:382
 msgid "Master Wallet"
-msgstr "Hauptkonto"
+msgstr "Haupt Konto"
 
 #: models/characteraudit.py:49 models/corporationaudit.py:45
 #: templates/ledger/partials/view/card.html:44
@@ -191,11 +193,11 @@ msgstr "deaktiviert"
 
 #: models/characteraudit.py:66
 msgid "token error"
-msgstr "token fehler"
+msgstr "token Fehler"
 
 #: models/characteraudit.py:67
 msgid "error"
-msgstr "fehler"
+msgstr "Fehler"
 
 #: models/characteraudit.py:68
 msgid "ok"
@@ -219,15 +221,15 @@ msgstr "Eine Sektion hat einen token error während des update"
 
 #: models/characteraudit.py:106
 msgid "One or more sections have not been updated"
-msgstr "Eine oder mehr Sektionen wurden nicht geupdated"
+msgstr "Eine oder mehr Sektionen wurden nicht aktualisiert"
 
 #: models/characteraudit.py:107
 msgid "Update is in progress"
-msgstr "Update ist in Arbeit"
+msgstr "Aktualisierung ist in Arbeit"
 
 #: models/characteraudit.py:108
 msgid "An error occurred during update"
-msgstr "Ein fehler tratt während des Update auf"
+msgstr "Ein Fehler trat während des Update auf"
 
 #: models/characteraudit.py:109
 msgid "Updates completed successfully"
@@ -282,7 +284,7 @@ msgstr "Verwaltung"
 
 #: templates/ledger/admin.html:23
 msgid "Mark all tasks as Force Refresh"
-msgstr "Erzwinge Update für alle makierten Tasks"
+msgstr "Erzwinge Aktualisierung für alle markierten Tasks"
 
 #: templates/ledger/admin.html:28
 msgid "Clear all cached ETags"
@@ -290,11 +292,11 @@ msgstr "Alle zwischengespeicherten ETags löschen"
 
 #: templates/ledger/admin.html:32
 msgid "Update Character Updates"
-msgstr "Update Charakter Updates"
+msgstr "Aktualisiere Charakter Updates"
 
 #: templates/ledger/admin.html:36
 msgid "Update Corp Updates"
-msgstr "Update Corp Updates"
+msgstr "Aktualisiere Corp Updates"
 
 #: templates/ledger/admin.html:38
 msgid "Submit"
@@ -302,7 +304,7 @@ msgstr "Senden"
 
 #: templates/ledger/allyledger/admin/alliance_administration.html:33
 msgid "Corporations"
-msgstr "Corporations"
+msgstr "Corporationen"
 
 #: templates/ledger/allyledger/admin/alliance_overview.html:16
 #: templates/ledger/allyledger/alliance_ledger.html:62
@@ -416,16 +418,16 @@ msgstr "Schalte Notifikation um"
 
 #: templates/ledger/bundles/planetary-bundles.html:33
 msgid "Notification Activated"
-msgstr "Notification Aktiviert"
+msgstr "Benachrichtigung aktiviert"
 
 #: templates/ledger/bundles/planetary-bundles.html:34
 msgid "Notification Deactivated"
-msgstr "Notification Deaktiviert"
+msgstr "Benachrichtigung deaktiviert"
 
 #: templates/ledger/charledger/admin/character_administration.html:26
 #: templates/ledger/partials/administration/corporation_characters.html:8
 msgid "Characters"
-msgstr "Charaktars"
+msgstr "Charaktere"
 
 #: templates/ledger/charledger/admin/character_overview.html:16
 #: templates/ledger/charledger/character_ledger.html:64
@@ -468,7 +470,7 @@ msgstr "Alarm umschalten"
 
 #: templates/ledger/charledger/planetary/planetary_ledger.html:36
 msgid "Are you sure to Turn On/Off all Notifications?"
-msgstr "Sind Sie sicher, dass Sie die Benachrichtigungen umschalten wollen"
+msgstr "Sind Sie sicher, dass Sie die Benachrichtigungen umschalten wollen?"
 
 #: templates/ledger/charledger/planetary/planetary_ledger.html:40
 msgid "Turn All On/Off"
@@ -487,11 +489,11 @@ msgstr "Corporation"
 #: templates/ledger/corpledger/corporation_ledger.html:16
 #: templates/ledger/partials/menu/navigation.html:21
 msgid "Corporation Ledger"
-msgstr "Corporation Ledger"
+msgstr ""
 
 #: templates/ledger/error.html:9
 msgid "Ledger - Error"
-msgstr "Ledger - Error"
+msgstr ""
 
 #: templates/ledger/error.html:15
 msgid "Index"
@@ -509,7 +511,7 @@ msgstr "Zeige Allianz Ledger"
 
 #: templates/ledger/partials/administration/alliance_corporations.html:5
 msgid "No Corporations found."
-msgstr "Keine Corporations gefunden."
+msgstr "Keine Corporationen gefunden."
 
 #: templates/ledger/partials/administration/alliance_corporations.html:29
 #: templates/ledger/partials/administration/corporation.html:30
@@ -524,7 +526,7 @@ msgstr "Corporation ist nicht im Ledger registriert."
 #: templates/ledger/partials/administration/corporation_characters.html:4
 #: templates/ledger/partials/administration/corporation_characters.html:12
 msgid "No Characters found."
-msgstr "Keine Charactars gefunden."
+msgstr "Keine Charaktere gefunden."
 
 #: templates/ledger/partials/administration/character.html:28
 msgid "View Character Ledger"
@@ -532,7 +534,7 @@ msgstr "Zeige Charakter Ledger"
 
 #: templates/ledger/partials/administration/character.html:35
 msgid "Delete Character"
-msgstr "Lösche Character"
+msgstr "Lösche Charakter"
 
 #: templates/ledger/partials/administration/character.html:36
 msgid "Are you sure to Delete this Character?"
@@ -540,11 +542,11 @@ msgstr "Bist du sicher den Character zu löschen?"
 
 #: templates/ledger/partials/administration/character.html:61
 msgid "Character is not registered in Ledger."
-msgstr "Character ist nicht im Ledger registriert"
+msgstr "Character ist nicht im Ledger registriert."
 
 #: templates/ledger/partials/administration/corporation.html:5
 msgid "No Corporation found."
-msgstr "Keine Corporation gefunden."
+msgstr "Keine Corporationen gefunden."
 
 #: templates/ledger/partials/administration/corporation.html:37
 msgid "Delete Corporation"
@@ -552,7 +554,7 @@ msgstr "Corporation Löschen"
 
 #: templates/ledger/partials/administration/corporation.html:38
 msgid "Are you sure to Delete this Corporation?"
-msgstr "Möchten Sie den Character wirklich löschen"
+msgstr "Möchten Sie den Character wirklich löschen?"
 
 #: templates/ledger/partials/administration/dashboard.html:4
 msgid "Dashboard"
@@ -564,45 +566,45 @@ msgstr ""
 
 #: templates/ledger/partials/administration/dashboard.html:30
 msgid "Characters with Issues:"
-msgstr "Charactars mit Problemen:"
+msgstr "Charaktere mit Problemen:"
 
 #: templates/ledger/partials/administration/dashboard.html:40
 msgid "Information:"
-msgstr "Information:"
+msgstr ""
 
 #: templates/ledger/partials/administration/dashboard.html:64
 msgid "Auth Characters:"
-msgstr "Auth Characters:"
+msgstr "Auth Charaktere:"
 
 #: templates/ledger/partials/administration/dashboard.html:68
 #: templates/ledger/partials/administration/dashboard.html:90
 msgid "Active Characters:"
-msgstr "Aktive Characters:"
+msgstr "Aktive Charaktere:"
 
 #: templates/ledger/partials/administration/dashboard.html:72
 msgid "Inactive Characters:"
-msgstr "Inaktive Characters:"
+msgstr "Inaktive Charaktere:"
 
 #: templates/ledger/partials/administration/dashboard.html:76
 #: templates/ledger/partials/administration/dashboard.html:94
 msgid "Missing Characters:"
-msgstr "Fehlende Characters:"
+msgstr "Fehlende Charaktere:"
 
 #: templates/ledger/partials/administration/dashboard.html:86
 msgid "Corporation Characters:"
-msgstr "Corporation Characters:"
+msgstr "Corporation Charaktere:"
 
 #: templates/ledger/partials/administration/dashboard.html:104
 msgid "Auth Corporations:"
-msgstr "Auth Corporations:"
+msgstr "Auth Corporationen:"
 
 #: templates/ledger/partials/administration/dashboard.html:108
 msgid "Active Corporations:"
-msgstr "Aktive Corporations:"
+msgstr "Aktive Corporationen:"
 
 #: templates/ledger/partials/administration/dashboard.html:112
 msgid "Missing Corporations:"
-msgstr "Fehlende Corporations:"
+msgstr "Fehlende Corporationen:"
 
 #: templates/ledger/partials/information/daily.html:14
 #: templates/ledger/partials/information/daily.html:31
@@ -681,7 +683,7 @@ msgstr ""
 
 #: templates/ledger/partials/information/view_character_content.html:34
 msgid "No ratting data found..."
-msgstr "Keine Bounty daten gefunden..."
+msgstr "Keine Ratting daten gefunden..."
 
 #: templates/ledger/partials/menu/administration.html:6
 msgid "Add Character"
@@ -707,7 +709,7 @@ msgstr "Abbrechen"
 #: templates/ledger/partials/modal/confirm.html:30
 #: templates/ledger/partials/modal/switchalarm_confirm.html:34
 msgid "Confirm"
-msgstr "Bestätige"
+msgstr "Bestätigen"
 
 #: templates/ledger/partials/modal/modal.html:24
 msgid "Close"
@@ -803,7 +805,7 @@ msgstr "ESS Betrag"
 
 #: templates/ledger/partials/table/char-ledger.html:11
 msgid "Estimated Only"
-msgstr "Nur Schätzung."
+msgstr "Nur Schätzung"
 
 #: templates/ledger/partials/table/char-ledger.html:14
 msgid "Mining Amount"
@@ -878,11 +880,11 @@ msgstr ""
 #: templates/ledger/partials/view/card.html:150
 #: templates/ledger/partials/view/card.html:151
 msgid "Planetary Interaction"
-msgstr "Planetary Interaction"
+msgstr ""
 
 #: templates/ledger/permission.html:2
 msgid "You don't have Permission to view this Page"
-msgstr "Du hast keine berechtigung diese Seite zu sehen"
+msgstr "Du hast keine Berechtigung diese Seite zu sehen"
 
 #: views/alliance/add_ally.py:36
 #, python-brace-format
@@ -922,7 +924,7 @@ msgstr "Alle Alarme wurden erfolgreich gewechselt"
 
 #: views/character/planetary.py:135
 msgid "Planet/s not found"
-msgstr "Planet/s nicht gefunden"
+msgstr "Planet/en nicht gefunden"
 
 #: views/corporation/corporation_ledger.py:231
 #, python-brace-format
@@ -931,7 +933,7 @@ msgstr "{audit.corporation.corporation_name} erfolgreich gelöscht"
 
 #: views/index.py:43
 msgid "You do not have permission to access this page."
-msgstr "Du hast keine berechtigung diese Seite zu sehen"
+msgstr "Du hast keine Berechtigung diese Seite zu sehen"
 
 #: views/index.py:51
 msgid "Queued Clear All ETags"
@@ -939,11 +941,11 @@ msgstr "Alle zwischengespeicherten ETags löschen - in Warteschlange eingereiht"
 
 #: views/index.py:54
 msgid "Queued Update All Characters"
-msgstr "Udate alle Characters - in Warteschlange eingereiht"
+msgstr "Aktualisiere alle Charaktere wurde in Warteschlange eingereiht"
 
 #: views/index.py:59
 msgid "Queued Update All Corporations"
-msgstr "Update alle Corporations - in Warteschlange eingereiht"
+msgstr "Aktualisiere alle Corporationen wurde in Warteschlange eingereiht"
 
 #~ msgid "ESS Payout"
 #~ msgstr "ESS Auszahlung"
