@@ -26,7 +26,6 @@ from eveuniverse.models import EveSolarSystem, EveType
 from ledger import __title__
 from ledger.app_settings import LEDGER_PRICE_PERCENTAGE
 from ledger.decorators import log_timing
-from ledger.helpers.etag import etag_results
 from ledger.providers import esi
 
 if TYPE_CHECKING:
@@ -37,6 +36,15 @@ if TYPE_CHECKING:
     from ledger.models.general import UpdateSectionResult
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+
+
+class MiningLedgerContext:
+    """Context for Character mining ledger ESI operations."""
+
+    date: timezone.datetime
+    quantity: int
+    solar_system_id: int
+    type_id: int
 
 
 def require_valid_price_percentage(func):
@@ -154,20 +162,30 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
         )
 
     def _fetch_esi_data(
-        self, character: "CharacterAudit", force_refresh: bool = False
+        self, audit: "CharacterAudit", force_refresh: bool = False
     ) -> None:
         """Fetch mining ledger entries from ESI data."""
         req_scopes = ["esi-industry.read_character_mining.v1"]
+        token = audit.get_token(scopes=req_scopes)
 
-        token = character.get_token(scopes=req_scopes)
-        mining_obj = esi.client.Industry.get_characters_character_id_mining(
-            character_id=character.eve_character.character_id
+        # Make the ESI request
+        operation = esi.client.Industry.GetCharactersCharacterIdMining(
+            character_id=audit.eve_character.character_id,
+            token=token,
         )
-        mining_items = etag_results(mining_obj, token, force_refresh=force_refresh)
-        self._update_or_create_objs(character, mining_items)
+
+        mining_items, response = operation.results(
+            return_response=True, force_refresh=force_refresh
+        )
+        logger.debug("ESI response Status: %s", response.status_code)
+
+        # Process and update or create mining ledger entries
+        self._update_or_create_objs(audit, mining_items)
 
     @transaction.atomic()
-    def _update_or_create_objs(self, character: "CharacterAudit", objs: list) -> None:
+    def _update_or_create_objs(
+        self, character: "CharacterAudit", objs: list[MiningLedgerContext]
+    ) -> None:
         """Update or Create mining ledger entries from objs data."""
         existings_pks = set(
             self.filter(
@@ -181,16 +199,16 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
         old_events = []
 
         for entry in objs:
-            type_ids.add(entry.get("type_id"))
-            system_ids.add(entry.get("solar_system_id"))
+            type_ids.add(entry.type_id)
+            system_ids.add(entry.solar_system_id)
             pk = self.model.create_primary_key(character.pk, entry)
             _e = self.model(
                 character=character,
                 id=pk,
-                date=entry.get("date"),
-                type_id=entry.get("type_id"),
-                system_id=entry.get("solar_system_id"),
-                quantity=entry.get("quantity"),
+                date=entry.date,
+                type_id=entry.type_id,
+                system_id=entry.solar_system_id,
+                quantity=entry.quantity,
             )
             if pk in existings_pks:
                 old_events.append(_e)

@@ -1,0 +1,78 @@
+{% extends "ledger/base.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load bootstrap %}
+
+{% block page_template_title %}
+    {{ title }}
+{% endblock page_template_title %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block ledger_block %}
+    <div class="card-body">
+        <div class="card bg-secondary">
+            <div class="card-header text-center bg-primary">
+                {% translate "Data Export" %}
+            </div>
+            {% if forms %}
+                <div class="card-body">
+                    <form method="post" action="{% url 'ledger:corporation_data_export_generate' corporation_id=corporation_id %}" class="mb-3">
+                        {% csrf_token %}
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <div class="mb-2 me-2">
+                                    {{ forms.generate_data_export.year }}
+                                </div>
+                                <div class="mb-2 me-2">
+                                    {{ forms.generate_data_export.month }}
+                                </div>
+                                <div class="mb-2 me-2">
+                                    {{ forms.generate_data_export.division }}
+                                </div>
+                                <div class="mb-2">
+                                    <button type="submit" class="btn btn-primary">{% translate "Generate" %}</button>
+                                </div>
+                            </div>
+                    </form>
+                </div>
+            {% endif %}
+            <div class="card-body">
+                <table class="table table-dark table-striped table-hover w-100" id="ratting">
+                    <thead>
+                        <th class="col-name w-auto">{% trans "Name" %}</th>
+                        <th class="col-division w-auto">{% trans "Division" %}</th>
+                        <th class="col-rows w-auto">{% trans "Year" %}</th>
+                        <th class="col-month w-auto">{% trans "Month" %}</th>
+                        <th class="col-age w-auto">{% trans "Last Generation" %}</th>
+                        <th class="col-hash w-auto">{% trans "Hash" %}</th>
+                        <th class="col-action w-auto"></th>
+                    </thead>
+                    <tbody>
+                        {% for file in files %}
+                            <tr>
+                                <td class="col-name">{{ file.topic }}</td>
+                                <td class="col-division">{{ file.division_id }}</td>
+                                <td class="col-rows">{{ file.year }}</td>
+                                <td class="col-month">{{ file.month }}</td>
+                                <td class="col-age">{{ file.last_updated|timesince }}</td>
+                                <td class="col-hash"><code>{{ file.hash }}</code></td>
+                                <td class="col-action">
+                                    <a class="btn btn-primary" href="{% url 'ledger:corporation_download_export_file' hash_code=file.hash %}">{% translate "Download" %}</a>
+                                    <a class="btn btn-primary" href="{% url 'ledger:corporation_data_export_run_update' hash_code=file.hash %}">{% translate "Update now" %}</a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">{% translate "No export files found." %}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock ledger_block %}

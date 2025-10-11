@@ -4,10 +4,6 @@
 from esi.errors import TokenError
 
 
-class NotModifiedError(Exception):
-    pass
-
-
 class HTTPGatewayTimeoutError(Exception):
     pass
 

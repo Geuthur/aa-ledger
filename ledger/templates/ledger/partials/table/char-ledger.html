@@ -31,7 +31,7 @@
                 <td class="col-total-costs nowrap text-danger" id="amount_costs_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.costs|default:0 }}">{{ character_data.ledger.costs|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
                 <td class="col-total-total nowrap {% if character_data.ledger.total < 0 %}text-danger {% else %}text-success{% endif %}" style="border-left: 2px solid #888;" id="amount_total_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.total|default:0 }}">{{ character_data.ledger.total|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
                 <td class="col-total-action">
-                    <a href="{{ character_data.single_url }}?single=True"
+                    <a href="{{ character_data.single_url }}"
                         class="btn btn-primary btn-sm"
                         data-tooltip-toggle="ledger-tooltip"
                         title="{% trans 'View Character' %}">
@@ -74,7 +74,7 @@
                     class="btn btn-primary btn-sm btn-square"
                     data-bs-toggle="modal"
                     data-bs-target="#modalViewCharacterContainer"
-                    data-ajax_url="{{ view.details_url }}?all=True"
+                    data-ajax_url="{{ view.details_url }}"
                     title="{% trans 'View Details' %}"
                     data-tooltip-toggle="ledger-tooltip" data-bs-placement="right">
                     <span class="fas fa-info"></span>

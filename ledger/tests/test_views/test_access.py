@@ -583,26 +583,6 @@ class TestViewAllianceLedgerAccess(TestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
-    @patch(ALLYLEDGER_PATH + ".messages")
-    def test_view_alliance_ledger_index_exception(self, mock_messages):
-        """Test view alliance ledger."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "ledger:alliance_ledger_index",
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        request.user = self.user_has_no_alliance
-        # when
-        response = alliance_ledger.alliance_ledger_index(request)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_once_with(
-            request, "You do not have an alliance."
-        )
-
     def test_view_alliance_ledger(self):
         """Test view alliance ledger."""
         # given

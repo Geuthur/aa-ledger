@@ -101,7 +101,7 @@
             </div>
         {% endif %}
         <div class="ms-auto">
-            <a href="{% url 'ledger:corporation_administration' corporation_id=corporation_id %}"><button class="btn btn-secondary me-2 administration">{% translate 'Administration' %}</button></a>
+            <a class="btn btn-secondary me-2 administration {% if disabled %}disabled{% endif %}" href="{% url 'ledger:corporation_administration' corporation_id=corporation_id %}">{% translate 'Administration' %}</a>
             <a href="{% url 'ledger:corporation_overview' %}"><button class="btn btn-secondary overview">{% translate 'Corporation Overview' %}</button></a>
         </div>
     </div>
