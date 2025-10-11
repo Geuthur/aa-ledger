@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-08-28 11:24+0200\n"
-"PO-Revision-Date: 2025-10-09 13:35+0000\n"
+"PO-Revision-Date: 2025-10-11 07:17+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
 "war.de>\n"
 "Language-Team: German <https://weblate.voices-of-war.de/projects/"
@@ -129,7 +129,7 @@ msgid "Planets"
 msgstr "Planeten"
 
 msgid "Planets Details"
-msgstr ""
+msgstr "Planeten Details"
 
 msgid "disabled"
 msgstr "deaktiviert"
@@ -153,7 +153,7 @@ msgid "Update is disabled"
 msgstr "Update ist deaktiviert"
 
 msgid "One section has a token error during update"
-msgstr "Eine Sektion hat einen token error während des update"
+msgstr "Eine Sektion hat einen token Fehler während des update"
 
 msgid "One or more sections have not been updated"
 msgstr "Eine oder mehr Sektionen wurden nicht aktualisiert"
@@ -334,10 +334,10 @@ msgid "Corporation"
 msgstr "Corporation"
 
 msgid "Corporation Ledger"
-msgstr ""
+msgstr "Corporation Ledger"
 
 msgid "Ledger - Error"
-msgstr ""
+msgstr "Ledger - Fehler"
 
 msgid "Index"
 msgstr ""
@@ -417,12 +417,6 @@ msgstr "Aktive Corporationen:"
 msgid "Missing Corporations:"
 msgstr "Fehlende Corporationen:"
 
-#: templates/ledger/partials/information/daily.html:14
-#: templates/ledger/partials/information/daily.html:31
-#: templates/ledger/partials/information/daily.html:44
-#: templates/ledger/partials/information/hourly.html:14
-#: templates/ledger/partials/information/hourly.html:31
-#: templates/ledger/partials/information/hourly.html:44
 msgid "Avg."
 msgstr "Durchschn."
 
@@ -457,7 +451,7 @@ msgid "Summary Hour"
 msgstr "Zusammenfassung Stunde"
 
 msgid "Included Categories"
-msgstr ""
+msgstr "Inkludierte Kategorien"
 
 msgid "Cost"
 msgstr "Kosten"
@@ -469,7 +463,7 @@ msgid "Hourly"
 msgstr "Stündlich"
 
 msgid "Error"
-msgstr ""
+msgstr "Fehler"
 
 msgid "No ratting data found..."
 msgstr "Keine Ratting daten gefunden..."
@@ -609,7 +603,7 @@ msgid "Misc"
 msgstr ""
 
 msgid "Planetary Interaction"
-msgstr ""
+msgstr "Planetary Interaction"
 
 msgid "You don't have Permission to view this Page"
 msgstr "Du hast keine Berechtigung diese Seite zu sehen"
@@ -647,7 +641,7 @@ msgid "{audit.corporation.corporation_name} successfully deleted"
 msgstr "{audit.corporation.corporation_name} erfolgreich gelöscht"
 
 msgid "You do not have permission to access this page."
-msgstr "Du hast keine Berechtigung diese Seite zu sehen"
+msgstr "Du hast keine Berechtigung diese Seite zu sehen."
 
 msgid "Queued Clear All ETags"
 msgstr "Alle zwischengespeicherten ETags löschen - in Warteschlange eingereiht"
