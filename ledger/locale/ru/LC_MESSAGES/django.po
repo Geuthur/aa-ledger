@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-28 11:24+0200\n"
+"Project-Id-Version: AA Ledger \n"
+"Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-ledger/issues\n"
+"POT-Creation-Date: 2025-10-14 13:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,631 +20,956 @@ msgstr ""
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
 
+#: ledger/admin.py:134 ledger/admin.py:278
 msgid "last update run"
 msgstr ""
 
+#: ledger/admin.py:146
 msgid "Force update selected corporations"
 msgstr ""
 
+#: ledger/admin.py:159
 #, python-brace-format
 msgid ""
 "Started force update for {count} corporation(s). Updates will run in the "
 "background."
 msgstr ""
 
+#: ledger/admin.py:290
 msgid "Force update selected characters"
 msgstr ""
 
+#: ledger/admin.py:301
 #, python-brace-format
 msgid ""
 "Started force update for {count} character(s). Updates will run in the "
 "background."
 msgstr ""
 
+#: ledger/api/api_helper/billboard_helper.py:51 ledger/helpers/character.py:208
+#: ledger/helpers/core.py:493 ledger/helpers/core.py:517
+#: ledger/templates/ledger/partials/view/card.html:90
 msgid "Bounty"
 msgstr ""
 
+#: ledger/api/api_helper/billboard_helper.py:52 ledger/helpers/character.py:213
 msgid "ESS"
 msgstr ""
 
+#: ledger/api/api_helper/billboard_helper.py:53 ledger/helpers/character.py:218
+#: ledger/helpers/core.py:519
+#: ledger/templates/ledger/partials/view/card.html:109
 msgid "Mining"
 msgstr ""
 
+#: ledger/api/api_helper/billboard_helper.py:54 ledger/helpers/character.py:223
 msgid "Miscellaneous"
 msgstr ""
 
+#: ledger/api/api_helper/billboard_helper.py:55 ledger/helpers/character.py:228
+#: ledger/templates/ledger/partials/table/char-ledger.html:16
+#: ledger/templates/ledger/partials/table/corp-ledger.html:12
+#: ledger/templates/ledger/partials/view/card.html:127
 msgid "Costs"
 msgstr ""
 
+#: ledger/api/api_helper/billboard_helper.py:56
+#: ledger/managers/corporation_journal_manager.py:384
+#: ledger/managers/corporation_journal_manager.py:408
 msgid "Unknown"
 msgstr ""
 
+#: ledger/api/api_helper/planetary_helper.py:44
 msgid "No facility"
 msgstr ""
 
+#: ledger/api/ledger/admin.py:202
 msgid "Please re-register characters with issues"
 msgstr ""
 
+#: ledger/api/ledger/planetary.py:47 ledger/api/ledger/planetary.py:89
+#: ledger/api/ledger/planetary.py:153 ledger/api/ledger/planetary.py:199
+#: ledger/views/alliance/alliance_ledger.py:57
+#: ledger/views/alliance/alliance_ledger.py:100
+#: ledger/views/alliance/alliance_ledger.py:173
+#: ledger/views/character/character_ledger.py:45
+#: ledger/views/character/character_ledger.py:78
+#: ledger/views/character/character_ledger.py:147
+#: ledger/views/character/character_ledger.py:187
+#: ledger/views/character/planetary.py:101
+#: ledger/views/corporation/corporation_ledger.py:69
+#: ledger/views/corporation/corporation_ledger.py:123
+#: ledger/views/corporation/corporation_ledger.py:198
+#: ledger/views/corporation/corporation_ledger.py:234
 msgid "Permission Denied"
 msgstr ""
 
+#: ledger/api/ledger/planetary.py:165
 msgid "Factory Information"
 msgstr ""
 
+#: ledger/api/ledger/planetary.py:176 ledger/api/ledger/planetary.py:218
 msgid "Planet not Found"
 msgstr ""
 
+#: ledger/api/ledger/planetary.py:208
 msgid "Extractor Information"
 msgstr ""
 
+#: ledger/helpers/alliance.py:323 ledger/helpers/character.py:260
+#: ledger/helpers/corporation.py:425
 msgid "Ratting Bar"
 msgstr ""
 
+#: ledger/helpers/alliance.py:335 ledger/helpers/corporation.py:437
 msgid "Bounty (Wallet)"
 msgstr ""
 
+#: ledger/helpers/alliance.py:340 ledger/helpers/corporation.py:442
 msgid "ESS (Wallet)"
 msgstr ""
 
+#: ledger/helpers/alliance.py:345 ledger/helpers/corporation.py:447
 msgid "Costs (Wallet)"
 msgstr ""
 
+#: ledger/helpers/alliance.py:350 ledger/helpers/corporation.py:452
 msgid "Miscellaneous (Wallet)"
 msgstr ""
 
+#: ledger/helpers/core.py:178
+#: ledger/templates/ledger/partials/table/char-ledger.html:45
+#: ledger/templates/ledger/partials/table/char-ledger.html:78
+#: ledger/templates/ledger/partials/table/corp-ledger.html:58
 msgid "View Details"
 msgstr ""
 
+#: ledger/helpers/core.py:494 ledger/helpers/core.py:518
 msgid "Encounter Surveillance System"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:196
 msgid "Corporation Contract"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:197
 msgid "Corporation Withdrawal"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:198
 msgid "Mission Reward"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:199
 msgid "Market"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:200
 msgid "Daily Goal Reward"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:201
 msgid "Structure Rental"
 msgstr ""
 
+#: ledger/managers/corporation_journal_manager.py:382
 msgid "Master Wallet"
 msgstr ""
 
+#: ledger/models/characteraudit.py:49 ledger/models/corporationaudit.py:45
+#: ledger/templates/ledger/partials/view/card.html:44
 msgid "Wallet Journal"
 msgstr ""
 
+#: ledger/models/characteraudit.py:50
+#: ledger/templates/ledger/partials/view/card.html:51
 msgid "Mining Ledger"
 msgstr ""
 
+#: ledger/models/characteraudit.py:51
+#: ledger/templates/ledger/partials/view/card.html:59
 msgid "Planets"
 msgstr ""
 
+#: ledger/models/characteraudit.py:52
 msgid "Planets Details"
 msgstr ""
 
+#: ledger/models/characteraudit.py:65
 msgid "disabled"
 msgstr ""
 
+#: ledger/models/characteraudit.py:66
 msgid "token error"
 msgstr ""
 
+#: ledger/models/characteraudit.py:67
 msgid "error"
 msgstr ""
 
+#: ledger/models/characteraudit.py:68
 msgid "ok"
 msgstr ""
 
+#: ledger/models/characteraudit.py:69
 msgid "incomplete"
 msgstr ""
 
+#: ledger/models/characteraudit.py:70
 msgid "in progress"
 msgstr ""
 
+#: ledger/models/characteraudit.py:104
 msgid "Update is disabled"
 msgstr ""
 
+#: ledger/models/characteraudit.py:105
 msgid "One section has a token error during update"
 msgstr ""
 
+#: ledger/models/characteraudit.py:106
 msgid "One or more sections have not been updated"
 msgstr ""
 
+#: ledger/models/characteraudit.py:107
 msgid "Update is in progress"
 msgstr ""
 
+#: ledger/models/characteraudit.py:108
 msgid "An error occurred during update"
 msgstr ""
 
+#: ledger/models/characteraudit.py:109
 msgid "Updates completed successfully"
 msgstr ""
 
+#: ledger/models/corporationaudit.py:43
 msgid "Divisions Names"
 msgstr ""
 
+#: ledger/models/corporationaudit.py:44
 msgid "Divisions"
 msgstr ""
 
+#: ledger/models/general.py:64
 msgid "id"
 msgstr ""
 
+#: ledger/models/general.py:67
 msgid "category"
 msgstr ""
 
+#: ledger/models/general.py:69
 msgid "name"
 msgstr ""
 
+#: ledger/models/planetary.py:46
 msgid "Upgrade level of the planet"
 msgstr ""
 
+#: ledger/models/planetary.py:50
 msgid "Number of pins on the planet"
 msgstr ""
 
+#: ledger/tasks.py:83
 #, python-format
 msgid "%(charname)s on %(planetname)s"
 msgstr ""
 
+#: ledger/tasks.py:98
 msgid "Planetary Extractor Heads Expired"
 msgstr ""
 
+#: ledger/templates/ledger/admin.html:17
+#: ledger/templates/ledger/allyledger/admin/alliance_administration.html:17
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:61
+#: ledger/templates/ledger/charledger/admin/character_administration.html:17
+#: ledger/templates/ledger/charledger/character_ledger.html:63
+#: ledger/templates/ledger/corpledger/admin/corporation_administration.html:17
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:104
 msgid "Administration"
 msgstr ""
 
+#: ledger/templates/ledger/admin.html:23
 msgid "Mark all tasks as Force Refresh"
 msgstr ""
 
+#: ledger/templates/ledger/admin.html:28
 msgid "Clear all cached ETags"
 msgstr ""
 
+#: ledger/templates/ledger/admin.html:32
 msgid "Update Character Updates"
 msgstr ""
 
+#: ledger/templates/ledger/admin.html:36
 msgid "Update Corp Updates"
 msgstr ""
 
+#: ledger/templates/ledger/admin.html:38
 msgid "Submit"
 msgstr ""
 
+#: ledger/templates/ledger/allyledger/admin/alliance_administration.html:33
 msgid "Corporations"
 msgstr ""
 
+#: ledger/templates/ledger/allyledger/admin/alliance_overview.html:16
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:62
 msgid "Alliance Overview"
 msgstr ""
 
+#: ledger/templates/ledger/allyledger/admin/alliance_overview.html:25
+#: ledger/templates/ledger/partials/administration/alliance.html:9
 msgid "Alliance"
 msgstr ""
 
+#: ledger/templates/ledger/allyledger/admin/alliance_overview.html:26
+#: ledger/templates/ledger/charledger/admin/character_overview.html:27
+#: ledger/templates/ledger/charledger/planetary/admin/planetary_overview.html:26
+#: ledger/templates/ledger/corpledger/admin/corporation_overview.html:26
+#: ledger/templates/ledger/partials/table/planetary.html:13
 msgid "Actions"
 msgstr ""
 
+#: ledger/templates/ledger/allyledger/admin/alliance_overview.html:76
+#: ledger/templates/ledger/charledger/admin/character_overview.html:74
+#: ledger/templates/ledger/charledger/planetary/admin/planetary_overview.html:80
+#: ledger/templates/ledger/corpledger/admin/corporation_overview.html:76
 msgid "Show"
 msgstr ""
 
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:16
+#: ledger/templates/ledger/partials/menu/navigation.html:25
 msgid "Alliance Ledger"
 msgstr ""
 
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:20
+#: ledger/templates/ledger/charledger/character_ledger.html:22
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:47
 msgid "Year"
 msgstr ""
 
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:32
+#: ledger/templates/ledger/bundles/ledger-bundles.html:21
+#: ledger/templates/ledger/charledger/character_ledger.html:34
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:63
 msgid "Month"
 msgstr ""
 
+#: ledger/templates/ledger/allyledger/alliance_ledger.html:46
+#: ledger/templates/ledger/bundles/ledger-bundles.html:20
+#: ledger/templates/ledger/charledger/character_ledger.html:48
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:83
 msgid "Day"
 msgstr ""
 
+#: ledger/templates/ledger/base.html:10
 msgid "Ledger"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/ledger-bundles.html:16
+#: ledger/templatetags/ledger.py:30
 msgid "January"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/ledger-bundles.html:16
+#: ledger/templatetags/ledger.py:31
 msgid "February"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/ledger-bundles.html:16
+#: ledger/templatetags/ledger.py:32
 msgid "March"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/ledger-bundles.html:16
+#: ledger/templatetags/ledger.py:33
 msgid "April"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/ledger-bundles.html:17
+#: ledger/templatetags/ledger.py:34
 msgid "May"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/ledger-bundles.html:17
+#: ledger/templatetags/ledger.py:35
 msgid "June"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/ledger-bundles.html:17
+#: ledger/templatetags/ledger.py:36
 msgid "July"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/ledger-bundles.html:17
+#: ledger/templatetags/ledger.py:37
 msgid "August"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/ledger-bundles.html:18
+#: ledger/templatetags/ledger.py:38
 msgid "September"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/ledger-bundles.html:18
+#: ledger/templatetags/ledger.py:39
 msgid "October"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/ledger-bundles.html:18
+#: ledger/templatetags/ledger.py:40
 msgid "November"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/ledger-bundles.html:18
+#: ledger/templatetags/ledger.py:41
 msgid "December"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/planetary-bundles.html:31
 msgid "Are you sure to Switch Notification"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/planetary-bundles.html:32
 msgid "Switch Notification"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/planetary-bundles.html:33
 msgid "Notification Activated"
 msgstr ""
 
+#: ledger/templates/ledger/bundles/planetary-bundles.html:34
 msgid "Notification Deactivated"
 msgstr ""
 
+#: ledger/templates/ledger/charledger/admin/character_administration.html:26
+#: ledger/templates/ledger/partials/administration/corporation_characters.html:8
 msgid "Characters"
 msgstr ""
 
+#: ledger/templates/ledger/charledger/admin/character_overview.html:16
+#: ledger/templates/ledger/charledger/character_ledger.html:64
 msgid "Account Overview"
 msgstr ""
 
+#: ledger/templates/ledger/charledger/character_ledger.html:18
+#: ledger/templates/ledger/partials/menu/navigation.html:6
 msgid "Character Ledger"
 msgstr ""
 
+#: ledger/templates/ledger/charledger/planetary/admin/planetary_overview.html:16
+#: ledger/templates/ledger/charledger/planetary/planetary_ledger.html:20
 msgid "Planetary Overview"
 msgstr ""
 
+#: ledger/templates/ledger/charledger/planetary/admin/planetary_overview.html:105
 msgid "No Permission"
 msgstr ""
 
+#: ledger/templates/ledger/charledger/planetary/planetary_ledger.html:17
 msgid "Planetary Details"
 msgstr ""
 
+#: ledger/templates/ledger/charledger/planetary/planetary_ledger.html:27
 msgid "Notification"
 msgstr ""
 
+#: ledger/templates/ledger/charledger/planetary/planetary_ledger.html:27
 msgid "ON"
 msgstr ""
 
+#: ledger/templates/ledger/charledger/planetary/planetary_ledger.html:27
 msgid "OFF"
 msgstr ""
 
+#: ledger/templates/ledger/charledger/planetary/planetary_ledger.html:35
 msgid "Toggle Alarm"
 msgstr ""
 
+#: ledger/templates/ledger/charledger/planetary/planetary_ledger.html:36
 msgid "Are you sure to Turn On/Off all Notifications?"
 msgstr ""
 
+#: ledger/templates/ledger/charledger/planetary/planetary_ledger.html:40
 msgid "Turn All On/Off"
 msgstr ""
 
+#: ledger/templates/ledger/corpledger/admin/corporation_overview.html:16
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:105
 msgid "Corporation Overview"
 msgstr ""
 
+#: ledger/templates/ledger/corpledger/admin/corporation_overview.html:25
+#: ledger/templates/ledger/partials/administration/corporation.html:9
 msgid "Corporation"
 msgstr ""
 
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:16
+#: ledger/templates/ledger/partials/menu/navigation.html:21
 msgid "Corporation Ledger"
 msgstr ""
 
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:20
+msgid "Division"
+msgstr ""
+
+#: ledger/templates/ledger/corpledger/corporation_ledger.html:24
+msgid "All Divisions"
+msgstr ""
+
+#: ledger/templates/ledger/error.html:9
 msgid "Ledger - Error"
 msgstr ""
 
+#: ledger/templates/ledger/error.html:15
 msgid "Index"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/alliance.html:5
+#: ledger/views/alliance/alliance_ledger.py:64
+#: ledger/views/alliance/alliance_ledger.py:111
+#: ledger/views/alliance/alliance_ledger.py:177
 msgid "Alliance not found."
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/alliance.html:30
 msgid "View Alliance Ledger"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/alliance_corporations.html:5
 msgid "No Corporations found."
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/alliance_corporations.html:29
+#: ledger/templates/ledger/partials/administration/corporation.html:30
 msgid "View Corporation Ledger"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/alliance_corporations.html:52
 msgid "Corporation is not registered in Ledger."
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/character.html:4
+#: ledger/templates/ledger/partials/administration/corporation_characters.html:4
+#: ledger/templates/ledger/partials/administration/corporation_characters.html:12
 msgid "No Characters found."
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/character.html:28
 msgid "View Character Ledger"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/character.html:35
 msgid "Delete Character"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/character.html:36
 msgid "Are you sure to Delete this Character?"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/character.html:61
 msgid "Character is not registered in Ledger."
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/corporation.html:5
 msgid "No Corporation found."
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/corporation.html:37
 msgid "Delete Corporation"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/corporation.html:38
 msgid "Are you sure to Delete this Corporation?"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/dashboard.html:4
 msgid "Dashboard"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/dashboard.html:23
 msgid "Status:"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/dashboard.html:30
 msgid "Characters with Issues:"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/dashboard.html:40
 msgid "Information:"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/dashboard.html:64
 msgid "Auth Characters:"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/dashboard.html:68
+#: ledger/templates/ledger/partials/administration/dashboard.html:90
 msgid "Active Characters:"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/dashboard.html:72
 msgid "Inactive Characters:"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/dashboard.html:76
+#: ledger/templates/ledger/partials/administration/dashboard.html:94
 msgid "Missing Characters:"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/dashboard.html:86
 msgid "Corporation Characters:"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/dashboard.html:104
 msgid "Auth Corporations:"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/dashboard.html:108
 msgid "Active Corporations:"
 msgstr ""
 
+#: ledger/templates/ledger/partials/administration/dashboard.html:112
 msgid "Missing Corporations:"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/daily.html:14
+#: ledger/templates/ledger/partials/information/daily.html:31
+#: ledger/templates/ledger/partials/information/daily.html:44
+#: ledger/templates/ledger/partials/information/hourly.html:14
+#: ledger/templates/ledger/partials/information/hourly.html:31
+#: ledger/templates/ledger/partials/information/hourly.html:44
 msgid "Avg."
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/daily.html:14
 msgid "per Day"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/daily.html:31
 msgid "Cost per Day"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/daily.html:44
 msgid "Summary Day"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/day.html:11
 msgid "Current Day -"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/day.html:28
 msgid "Current Day Cost -"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/day.html:41
 msgid "Current Day"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/day.html:41
+#: ledger/templates/ledger/partials/information/summary.html:70
+#: ledger/templates/ledger/partials/information/view_character_content.html:13
+#: ledger/templates/ledger/partials/table/char-ledger.html:56
+#: ledger/templates/ledger/partials/table/corp-ledger.html:45
+#: ledger/templates/ledger/partials/view/card.html:136
 msgid "Summary"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/hourly.html:14
 msgid "per Hour"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/hourly.html:31
 msgid "Cost per Hour"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/hourly.html:44
 msgid "Summary Hour"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/summary.html:20
+#: ledger/templates/ledger/partials/information/summary.html:54
 msgid "Included Categories"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/summary.html:29
+#: ledger/templates/ledger/partials/table/char-ledger.html:64
+msgid "This amount is displayed for information only"
+msgstr ""
+
+#: ledger/templates/ledger/partials/information/summary.html:48
 msgid "Cost"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/view_character_content.html:16
 msgid "Daily"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/view_character_content.html:19
 msgid "Hourly"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/view_character_content.html:30
 msgid "Error"
 msgstr ""
 
+#: ledger/templates/ledger/partials/information/view_character_content.html:34
 msgid "No ratting data found..."
 msgstr ""
 
+#: ledger/templates/ledger/partials/menu/administration.html:6
 msgid "Add Character"
 msgstr ""
 
+#: ledger/templates/ledger/partials/menu/administration.html:13
 msgid "Add Corporation"
 msgstr ""
 
+#: ledger/templates/ledger/partials/menu/administration.html:19
 msgid "Add Alliance"
 msgstr ""
 
+#: ledger/templates/ledger/partials/menu/navigation.html:12
 msgid "Planetary Ledger"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/confirm.html:26
+#: ledger/templates/ledger/partials/modal/switchalarm_confirm.html:30
 msgid "Cancel"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/confirm.html:30
+#: ledger/templates/ledger/partials/modal/switchalarm_confirm.html:34
 msgid "Confirm"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/modal.html:24
 msgid "Close"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_extractor.html:15
 msgid "Extractors"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_extractor.html:20
+#: ledger/templates/ledger/partials/modal/view_factory.html:21
 msgid "Product"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_extractor.html:21
 msgid "Install Time"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_extractor.html:22
 msgid "Expiry Time"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_extractor.html:23
+#: ledger/templates/ledger/partials/table/planetary.html:9
 msgid "Progress"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_extractor.html:44
+#: ledger/templates/ledger/partials/modal/view_factory.html:86
 msgid "No data found..."
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_extractor.html:47
+#: ledger/templates/ledger/partials/modal/view_factory.html:90
 msgid ""
 "Note: Planetary information is only recalculated when the colony is viewed "
 "through the client. Information will not update until this criteria is met."
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_factory.html:16
 msgid "Storage"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_factory.html:23
 msgid "Product Name"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_factory.html:24
 msgid "Amount"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_factory.html:45
+#: ledger/templates/ledger/partials/modal/view_factory.html:51
 msgid "Facility"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_factory.html:52
 msgid "Input"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_factory.html:53
 msgid "Output"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_factory.html:54
 msgid "Active"
 msgstr ""
 
+#: ledger/templates/ledger/partials/modal/view_factory.html:73
 msgid "No output"
 msgstr ""
 
+#: ledger/templates/ledger/partials/table/char-ledger.html:7
+#: ledger/templates/ledger/partials/table/corp-ledger.html:7
+#: ledger/templates/ledger/partials/table/planetary.html:5
+#: ledger/templates/ledger/partials/view/card.html:37
 msgid "Character"
 msgstr ""
 
+#: ledger/templates/ledger/partials/table/char-ledger.html:8
+#: ledger/templates/ledger/partials/table/corp-ledger.html:8
 msgid "Bounty Amount"
 msgstr ""
 
+#: ledger/templates/ledger/partials/table/char-ledger.html:9
+#: ledger/templates/ledger/partials/table/corp-ledger.html:9
+#: ledger/templates/ledger/partials/view/card.html:99
 msgid "ESS Amount"
 msgstr ""
 
+#: ledger/templates/ledger/partials/table/char-ledger.html:11
 msgid "Estimated Only"
 msgstr ""
 
+#: ledger/templates/ledger/partials/table/char-ledger.html:14
 msgid "Mining Amount"
 msgstr ""
 
+#: ledger/templates/ledger/partials/table/char-ledger.html:15
+#: ledger/templates/ledger/partials/table/corp-ledger.html:11
 msgid "Misc. Amount"
 msgstr ""
 
+#: ledger/templates/ledger/partials/table/char-ledger.html:17
+#: ledger/templates/ledger/partials/table/corp-ledger.html:13
 msgid "Total"
 msgstr ""
 
+#: ledger/templates/ledger/partials/table/char-ledger.html:37
 msgid "View Character"
 msgstr ""
 
-msgid "This amount is displayed for information only"
-msgstr ""
-
+#: ledger/templates/ledger/partials/table/planetary.html:6
 msgid "Planet"
 msgstr ""
 
+#: ledger/templates/ledger/partials/table/planetary.html:7
 msgid "Upgrade Level"
 msgstr ""
 
+#: ledger/templates/ledger/partials/table/planetary.html:8
 msgid "Products"
 msgstr ""
 
+#: ledger/templates/ledger/partials/table/planetary.html:10
 msgid "Extractor"
 msgstr ""
 
+#: ledger/templates/ledger/partials/table/planetary.html:11
 msgid "Status"
 msgstr ""
 
+#: ledger/templates/ledger/partials/table/planetary.html:12
 msgid "Last Updated"
 msgstr ""
 
+#: ledger/templates/ledger/partials/thirdparty/billboard.html:7
 msgid "Diagram"
 msgstr ""
 
+#: ledger/templates/ledger/partials/thirdparty/billboard.html:15
 msgid "Chord"
 msgstr ""
 
+#: ledger/templates/ledger/partials/view/card.html:26
 msgid "Overview"
 msgstr ""
 
+#: ledger/templates/ledger/partials/view/card.html:66
 msgid "Detailed Sheet"
 msgstr ""
 
+#: ledger/templates/ledger/partials/view/card.html:104
 msgid "Estimated"
 msgstr ""
 
+#: ledger/templates/ledger/partials/view/card.html:118
 msgid "Misc"
 msgstr ""
 
+#: ledger/templates/ledger/partials/view/card.html:150
+#: ledger/templates/ledger/partials/view/card.html:151
 msgid "Planetary Interaction"
 msgstr ""
 
+#: ledger/templates/ledger/permission.html:2
 msgid "You don't have Permission to view this Page"
 msgstr ""
 
+#: ledger/views/alliance/add_ally.py:36
 #, python-brace-format
 msgid "{alliance_name} is already in the Ledger System"
 msgstr ""
 
+#: ledger/views/alliance/add_ally.py:62
 #, python-brace-format
 msgid "{alliance_name} successfully added to Ledger"
 msgstr ""
 
+#: ledger/views/alliance/add_ally.py:67
 #, python-brace-format
 msgid "Failed to fetch Alliance data for {alliance_name}"
 msgstr ""
 
+#: ledger/views/character/character_ledger.py:89
+#: ledger/views/corporation/corporation_ledger.py:76
+#: ledger/views/corporation/corporation_ledger.py:134
+#: ledger/views/corporation/corporation_ledger.py:202
+#: ledger/views/corporation/corporation_ledger.py:239
 msgid "Corporation not found"
 msgstr ""
 
+#: ledger/views/character/character_ledger.py:195
 msgid "Character not found"
 msgstr ""
 
+#: ledger/views/character/character_ledger.py:202
 #, python-brace-format
 msgid "{audit.eve_character.character_name} successfully deleted"
 msgstr ""
 
+#: ledger/views/character/planetary.py:130
 msgid "All alarms successfully switched"
 msgstr ""
 
+#: ledger/views/character/planetary.py:135
 msgid "Planet/s not found"
 msgstr ""
 
+#: ledger/views/corporation/corporation_ledger.py:247
 #, python-brace-format
 msgid "{audit.corporation.corporation_name} successfully deleted"
 msgstr ""
 
+#: ledger/views/index.py:43
 msgid "You do not have permission to access this page."
 msgstr ""
 
+#: ledger/views/index.py:51
 msgid "Queued Clear All ETags"
 msgstr ""
 
+#: ledger/views/index.py:54
 msgid "Queued Update All Characters"
 msgstr ""
 
+#: ledger/views/index.py:59
 msgid "Queued Update All Corporations"
 msgstr ""
