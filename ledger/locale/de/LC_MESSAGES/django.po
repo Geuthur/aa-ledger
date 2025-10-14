@@ -2,28 +2,16 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-<<<<<<< HEAD
-#
-=======
 # 
->>>>>>> 521f9a3 (Translated using Weblate (German))
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-08-28 11:24+0200\n"
-<<<<<<< HEAD
-"PO-Revision-Date: 2025-10-14 11:00+0000\n"
-"Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
-"war.de>\n"
-"Language-Team: German <https://weblate.voices-of-war.de/projects/"
-"allianceauth/aa-ledger/de/>\n"
-=======
 "PO-Revision-Date: 2025-10-09 12:26+0000\n"
 "Last-Translator: Weblate Admin <devgeuthur@gmail.com>\n"
 "Language-Team: German <https://weblate.voices-of-war.de/projects/aa-ledger/"
 "aa-ledger/de/>\n"
->>>>>>> 521f9a3 (Translated using Weblate (German))
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
