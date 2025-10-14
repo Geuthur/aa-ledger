@@ -345,15 +345,9 @@ msgstr ""
 msgid "Corporation Ledger"
 msgstr ""
 
-#: ledger/templates/ledger/corpledger/corporation_ledger.html:20
-#, fuzzy
-#| msgid "Divisions"
 msgid "Division"
 msgstr "Abteilung"
 
-#: ledger/templates/ledger/corpledger/corporation_ledger.html:24
-#, fuzzy
-#| msgid "Divisions"
 msgid "All Divisions"
 msgstr "Alle Abteilungen"
 
