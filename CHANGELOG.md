@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.9.9.2] - 2025-10-14
+
+### Changed
+
+- Optimized `ESI STATUS`
+
+### Fixed
+
+- Translation Issues
+
 ## [0.9.9.1] - 2025-10-06
 
 ### Added
