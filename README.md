@@ -6,8 +6,9 @@
 ![Django](https://img.shields.io/pypi/frameworkversions/django/aa-ledger.svg?label=django)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Geuthur/aa-ledger/master.svg)](https://results.pre-commit.ci/latest/github/Geuthur/aa-ledger/master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Tests](https://github.com/Geuthur/aa-ledger/actions/workflows/autotester.yml/badge.svg)](https://github.com/Geuthur/aa-ledger/actions/workflows/autotester.yml)
+[![Checks](https://github.com/Geuthur/aa-ledger/actions/workflows/autotester.yml/badge.svg)](https://github.com/Geuthur/aa-ledger/actions/workflows/autotester.yml)
 [![codecov](https://codecov.io/gh/Geuthur/aa-ledger/graph/badge.svg?token=5CWREOQKGZ)](https://codecov.io/gh/Geuthur/aa-ledger)
+[![Translation status](https://weblate.voices-of-war.de/widget/allianceauth/aa-ledger/svg-badge.svg)](https://weblate.voices-of-war.de/engage/allianceauth/)
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W810Q5J4)
 
@@ -27,6 +28,7 @@ ______________________________________________________________________
     - [Step 5 - Setting up Permissions](#step5)
     - [Step 6 - (Optional) Settings](#step6)
   - [Highlights](#highlights)
+  - [Translations](#translations)
 
 ## Features<a name="features"></a>
 
@@ -175,6 +177,12 @@ Advanced Settings: Stale Status for Each Section
 ![Planetary Ledger](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview4.png "Planetary Ledger")
 ![Factory Modal](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview5.png "Factory Modal")
 ![Extractor Modal](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview6.png "Extractor Modal")
+
+## Translations<a name="translations"></a>
+
+[![Translations](https://weblate.voices-of-war.de/widget/allianceauth/aa-memberaudit-dashboard/multi-auto.svg)](https://weblate.voices-of-war.de/engage/allianceauth/)
+
+Help us translate this app into your language or improve existing translations. Join our team!"
 
 > [!NOTE]
 > Contributing
