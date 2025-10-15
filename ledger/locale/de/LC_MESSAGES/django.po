@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: AA Ledger\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-ledger/issues\n"
 "POT-Creation-Date: 2025-10-14 14:18+0200\n"
-"PO-Revision-Date: 2025-10-14 12:38+0000\n"
+"PO-Revision-Date: 2025-10-15 06:07+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
 "war.de>\n"
 "Language-Team: German <https://weblate.voices-of-war.de/projects/"
@@ -228,7 +228,7 @@ msgid "Actions"
 msgstr "Aktionen"
 
 msgid "Show"
-msgstr "Anzeigen"
+msgstr "Zeige"
 
 msgid "Alliance Ledger"
 msgstr "Allianz Ledger"
@@ -483,10 +483,10 @@ msgid "Add Character"
 msgstr "Charakter Hinzufügen"
 
 msgid "Add Corporation"
-msgstr "Corporation Hinzufügen"
+msgstr "Corporation hinzufügen"
 
 msgid "Add Alliance"
-msgstr "Allianz Hinzufügen"
+msgstr "Allianz hinzufügen"
 
 msgid "Planetary Ledger"
 msgstr ""
@@ -626,7 +626,7 @@ msgstr "{alliance_name} erfolgreich zum Ledger hinzugefügt"
 
 #, python-brace-format
 msgid "Failed to fetch Alliance data for {alliance_name}"
-msgstr "Allianzdaten für {alliance_name} konnten nicht abgerufen werden"
+msgstr "Fehler beim Abrufen der Allianz-Daten für {alliance_name}"
 
 msgid "Corporation not found"
 msgstr "Corporation wurde nicht gefunden"
