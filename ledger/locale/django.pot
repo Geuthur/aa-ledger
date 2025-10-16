@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Ledger 0.9.9.2\n"
+"Project-Id-Version: AA Ledger \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-ledger/issues\n"
-"POT-Creation-Date: 2025-10-14 14:18+0200\n"
+"POT-Creation-Date: 2025-10-16 07:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -249,15 +249,15 @@ msgid "Divisions"
 msgstr ""
 
 #: ledger/models/general.py:64
-msgid "id"
+msgid "ID"
 msgstr ""
 
 #: ledger/models/general.py:67
-msgid "category"
+msgid "Category"
 msgstr ""
 
 #: ledger/models/general.py:69
-msgid "name"
+msgid "Name"
 msgstr ""
 
 #: ledger/models/planetary.py:46
