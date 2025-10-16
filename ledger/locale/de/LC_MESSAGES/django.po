@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Ledger\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-ledger/issues\n"
-"POT-Creation-Date: 2025-10-14 14:18+0200\n"
-"PO-Revision-Date: 2025-10-15 11:22+0000\n"
+"POT-Creation-Date: 2025-10-16 07:16+0200\n"
+"PO-Revision-Date: 2025-10-16 05:25+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
 "war.de>\n"
 "Language-Team: German <https://weblate.voices-of-war.de/projects/"
@@ -175,13 +175,13 @@ msgstr "Abteilungen Namen"
 msgid "Divisions"
 msgstr "Abteilungen"
 
-msgid "id"
-msgstr "ID"
+msgid "ID"
+msgstr ""
 
-msgid "category"
-msgstr "Kategorie"
+msgid "Category"
+msgstr ""
 
-msgid "name"
+msgid "Name"
 msgstr "Name"
 
 msgid "Upgrade level of the planet"
@@ -587,7 +587,7 @@ msgid "Extractor"
 msgstr "Extraktor"
 
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 msgid "Last Updated"
 msgstr "Letztes Update"
@@ -659,6 +659,15 @@ msgstr "Aktualisiere alle Charaktere wurde in Warteschlange eingereiht"
 
 msgid "Queued Update All Corporations"
 msgstr "Aktualisiere alle Corporationen wurde in Warteschlange eingereiht"
+
+#~ msgid "id"
+#~ msgstr "ID"
+
+#~ msgid "category"
+#~ msgstr "Kategorie"
+
+#~ msgid "name"
+#~ msgstr "Name"
 
 #~ msgid "ESS Payout"
 #~ msgstr "ESS Auszahlung"
