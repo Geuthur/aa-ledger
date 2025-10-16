@@ -61,12 +61,12 @@ class EveEntity(models.Model):
     )
 
     eve_id = models.IntegerField(
-        primary_key=True, validators=[MinValueValidator(0)], verbose_name=_("id")
+        primary_key=True, validators=[MinValueValidator(0)], verbose_name=_("ID")
     )
     category = models.CharField(
-        max_length=32, choices=CATEGORY_CHOICES, verbose_name=_("category")
+        max_length=32, choices=CATEGORY_CHOICES, verbose_name=_("Category")
     )
-    name = models.CharField(max_length=254, verbose_name=_("name"))
+    name = models.CharField(max_length=254, verbose_name=_("Name"))
 
     # optionals for character/corp
     corporation = models.ForeignKey(
