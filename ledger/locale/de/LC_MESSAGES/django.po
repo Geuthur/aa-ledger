@@ -5,12 +5,11 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-28 11:24+0200\n"
-"PO-Revision-Date: 2025-10-11 07:17+0000\n"
-"Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
-"war.de>\n"
+"Project-Id-Version: AA Ledger\n"
+"Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-ledger/issues\n"
+"POT-Creation-Date: 2025-10-16 07:16+0200\n"
+"PO-Revision-Date: 2025-10-17 06:28+0000\n"
+"Last-Translator: Peter Pfeufer <info@ppfeufer.de>\n"
 "Language-Team: German <https://weblate.voices-of-war.de/projects/"
 "allianceauth/aa-ledger/de/>\n"
 "Language: de\n"
@@ -31,6 +30,8 @@ msgid ""
 "Started force update for {count} corporation(s). Updates will run in the "
 "background."
 msgstr ""
+"Erzwinge Aktualisierung für {count} Charakter(e). Die Aktualisierung erfolgt "
+"im Hintergrund."
 
 msgid "Force update selected characters"
 msgstr "Aktualisierung erzwingen für ausgewählte Charaktere"
@@ -78,7 +79,7 @@ msgid "Extractor Information"
 msgstr "Extraktor Information"
 
 msgid "Ratting Bar"
-msgstr ""
+msgstr "Ratting Fortschritt"
 
 msgid "Bounty (Wallet)"
 msgstr "Kopfgeld (Konto)"
@@ -123,7 +124,7 @@ msgid "Wallet Journal"
 msgstr "Transaktionsjournal"
 
 msgid "Mining Ledger"
-msgstr "Mining Ledger"
+msgstr ""
 
 msgid "Planets"
 msgstr "Planeten"
@@ -173,13 +174,13 @@ msgstr "Abteilungen Namen"
 msgid "Divisions"
 msgstr "Abteilungen"
 
-msgid "id"
-msgstr "ID"
+msgid "ID"
+msgstr ""
 
-msgid "category"
-msgstr "Kategorie"
+msgid "Category"
+msgstr ""
 
-msgid "name"
+msgid "Name"
 msgstr "Name"
 
 msgid "Upgrade level of the planet"
@@ -226,7 +227,7 @@ msgid "Actions"
 msgstr "Aktionen"
 
 msgid "Show"
-msgstr "Anzeigen"
+msgstr "Zeige"
 
 msgid "Alliance Ledger"
 msgstr "Allianz Ledger"
@@ -241,7 +242,7 @@ msgid "Day"
 msgstr "Tag"
 
 msgid "Ledger"
-msgstr "Ledger"
+msgstr ""
 
 msgid "January"
 msgstr "Januar"
@@ -331,10 +332,16 @@ msgid "Corporation Overview"
 msgstr "Corporation Übersicht"
 
 msgid "Corporation"
-msgstr "Corporation"
+msgstr ""
 
 msgid "Corporation Ledger"
-msgstr "Corporation Ledger"
+msgstr ""
+
+msgid "Division"
+msgstr "Abteilung"
+
+msgid "All Divisions"
+msgstr "Alle Abteilungen"
 
 msgid "Ledger - Error"
 msgstr "Ledger - Fehler"
@@ -453,6 +460,9 @@ msgstr "Zusammenfassung Stunde"
 msgid "Included Categories"
 msgstr "Inkludierte Kategorien"
 
+msgid "This amount is displayed for information only"
+msgstr "Dieser Betrag dient nur als Information"
+
 msgid "Cost"
 msgstr "Kosten"
 
@@ -469,13 +479,13 @@ msgid "No ratting data found..."
 msgstr "Keine Ratting daten gefunden..."
 
 msgid "Add Character"
-msgstr "Charakter Hinzufügen"
+msgstr "Charakter hinzufügen"
 
 msgid "Add Corporation"
-msgstr "Corporation Hinzufügen"
+msgstr "Corporation hinzufügen"
 
 msgid "Add Alliance"
-msgstr "Allianz Hinzufügen"
+msgstr "Allianz hinzufügen"
 
 msgid "Planetary Ledger"
 msgstr ""
@@ -505,7 +515,7 @@ msgid "Progress"
 msgstr "Fortschritt"
 
 msgid "No data found..."
-msgstr "Keine daten gefunden..."
+msgstr "Keine Daten gefunden..."
 
 msgid ""
 "Note: Planetary information is only recalculated when the colony is viewed "
@@ -563,9 +573,6 @@ msgstr "Gesamt"
 msgid "View Character"
 msgstr "Zeige Charakter"
 
-msgid "This amount is displayed for information only"
-msgstr "Dieser Betrag dient nur als Information"
-
 msgid "Planet"
 msgstr ""
 
@@ -579,7 +586,7 @@ msgid "Extractor"
 msgstr "Extraktor"
 
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 msgid "Last Updated"
 msgstr "Letztes Update"
@@ -603,7 +610,7 @@ msgid "Misc"
 msgstr ""
 
 msgid "Planetary Interaction"
-msgstr "Planetary Interaction"
+msgstr "Planetarische Interaktion"
 
 msgid "You don't have Permission to view this Page"
 msgstr "Du hast keine Berechtigung diese Seite zu sehen"
@@ -618,7 +625,7 @@ msgstr "{alliance_name} erfolgreich zum Ledger hinzugefügt"
 
 #, python-brace-format
 msgid "Failed to fetch Alliance data for {alliance_name}"
-msgstr "Allianzdaten für {alliance_name} konnten nicht abgerufen werden"
+msgstr "Fehler beim Abrufen der Allianz-Daten für {alliance_name}"
 
 msgid "Corporation not found"
 msgstr "Corporation wurde nicht gefunden"
@@ -651,6 +658,15 @@ msgstr "Aktualisiere alle Charaktere wurde in Warteschlange eingereiht"
 
 msgid "Queued Update All Corporations"
 msgstr "Aktualisiere alle Corporationen wurde in Warteschlange eingereiht"
+
+#~ msgid "id"
+#~ msgstr "ID"
+
+#~ msgid "category"
+#~ msgstr "Kategorie"
+
+#~ msgid "name"
+#~ msgstr "Name"
 
 #~ msgid "ESS Payout"
 #~ msgstr "ESS Auszahlung"

@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.9.9.3] - 2025-10-21
+
+### Changed
+
+- Update Contributing
+- Update Makefile System
+- Update README
+
+## [0.9.9.2] - 2025-10-14
+
+### Changed
+
+- Optimized `ESI STATUS`
+
+### Fixed
+
+- Translation Issues
+
 ## [0.9.9.1] - 2025-10-06
 
 ### Added

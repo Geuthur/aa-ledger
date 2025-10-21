@@ -1,75 +1,143 @@
 # Contributing to This Project
 
-Thank you for considering contributing to our project! Here are some guidelines to help you get started.
+There are many ways to Contribute to this Project:
 
-## Getting Started
+- Reporting bugs
+- Translating the app
+- Suggestions
+- Optimize Code
 
-1. **Fork the repository**: Click the "Fork" button at the top right of the repository page.
+and many more feel free to make a pull request.
 
-1. **Clone your fork**: Clone your forked repository to your local machine.
+- [Test Utilities](#test-utilities)
+- [Branching and Pull Requests](#branching-and-pull-requests)
+- [Translation](#translation)
+- [Development](#development)
+  - [Licence Agreements](#licence)
+  - [Code of Conduct](#code-of-conduct)
+  - [Enviroment](#enviroment)
+  - [Makefile System](#makefile-system)
+    - [General Commands](#general-commands)
+    - [Migration Handling](#migration-handling)
+    - [Translation Handling](#translation-handling)
+    - [Git Handling](#git-handling)
+    - [Pre-Commit](#pre-commit)
+    - [Redis](#redis)
+    - [Tests](#tests)
 
-   ```sh
-   git clone https://github.com/geuthur/aa-ledger.git
-   ```
+#### Test Utilities<a name="test-utilities"></a>
 
-1. **Set up the upstream remote**: Add the original repository as a remote to keep your fork up to date.
+Please add new unit tests or update existing ones to cover any changes you make. Pull
+requests that decrease overall test coverage may be rejected.
 
-   ```sh
-   git remote add upstream https://github.com/geuthur/aa-ledger.git
-   ```
+The project uses the Python [Python Unittest] framework together with Django's `TestCase` for
+all tests. We also make use of the following third-party testing tools:
 
-1. **Set up Alliance Auth Development Environment**
+- django-webtest / [WebTest] — for testing the web user interface
+- [requests-mock] — for mocking external HTTP calls made with the `requests` library
+- [tox] — for running the test suite across environments
+- [coverage] — for measuring test coverage
 
-   To develop and test your change, you need a development environment from Alliance Auth on your local machine.
-   Ensure you can use pre-commit checks and tox tests on your local machine.
+### Branching and Pull Requests<a name="branching-and-pull-requests"></a>
 
-   AA Guide to create a WSL [AA Dev Env](https://allianceauth.readthedocs.io/en/latest/development/dev_setup/aa-dev-setup-wsl-vsc-v2.html#)
+To submit code changes, fork the repository and create your branches from `master`.
+We recommend using a separate branch for each feature or change. Keep your fork's
+`master` branch up to date with the main repository to reduce merge conflicts.
 
-## Pre-commit Hooks
+If you're planning a new feature, open an Issue (type: Feature Request) first to
+discuss and confirm that the idea fits the project.
 
-We use pre-commit hooks to ensure code quality and consistency. Please make sure you have pre-commit installed and set up.
+You can open a merge request early to indicate you're working on something. If a
+merge request is not ready for review, mark it as DRAFT. Remove the DRAFT status
+when the request is ready for review.
 
-1. **Install pre-commit**: If you don't have pre-commit installed, you can install it using pip.
+## Translation<a name="translation"></a>
 
-   ```sh
-   pip install pre-commit
-   ```
+This app supports full translation, with all translations managed on my [Weblate] instance. If you would like to contribute or improve an existing translation, please feel free to register and get started.
 
-1. **Install the hooks**: Run the following command to install the pre-commit hooks.
+## Development<a name="development"></a>
 
-   ```sh
-   pre-commit install
-   ```
+### Licence<a name="licence"></a>
 
-1. **Use Pre Commit**
+This project is licensed under the GNU General Public License v3.0 (GPLv3). See the
+[LICENSE](LICENSE) file for the full terms and conditions.
 
-   Check all files
+By contributing code to this project, you agree to license your contributions under
+the same GPLv3 license that covers the project. In other words, your submitted
+code will be made available under GPLv3 as part of the project.
 
-   ```sh
-   pre-commit run --all-files
-   ```
+### Code of Conduct<a name="code-of-conduct"></a>
 
-   If you want only one of the hooks like `eslint`
+The project's contributor behaviour is governed by a Code of Conduct. Please read the
+[CODE_OF_CONDUCT](CODE_OF_CONDUCT.md) file for the full policy and expectations.
 
-   ```sh
-   pre-commit run eslint
-   ```
+By contributing to this project you agree to abide by the Code of Conduct. If you observe
+behaviour that violates the Code of Conduct, please follow the reporting instructions
+contained in `CODE_OF_CONDUCT.md` so the project maintainers can address the issue.
 
-## Branching und Contributing via Pull Requests
+### Enviroment<a name="enviroment"></a>
 
-Before creating a pull request, make sure that you have forked the repository and are working on your fork. This ensures that your changes are isolated and do not affect the original repository until they are reviewed and merged.
+To develop and test your changes you should set up a local development environment. There
+are several ways to do this, but please make sure you can run the project's pre-commit
+hooks and execute the test suite locally using tox before submitting changes.
 
-The `master` branch should always be kept up to date to avoid conflicts. This means that all changes integrated into the `master` branch should be thoroughly reviewed and tested before being merged. Regular updates and synchronizations with the `master` branch help to identify and resolve potential conflicts early.
+If you are using Windows or Linux, please follow the [AA Dev Enviroment Guide]
+for step-by-step instructions.
 
-Before creating a new feature, an issue should always be opened first. This serves to start a discussion about the planned feature and ensure that all team members are informed about the planned changes. Through discussion, potential problems and improvements can be identified and considered early. This promotes a collaborative working approach and contributes to the quality and consistency of the project.
+### Makefile System<a name="makefile-system"></a>
 
-## Tests
+The project uses a `Makefile` to simplify common tasks. Run `make` in the project root to list all available targets.
 
-We use several testing tools and frameworks to ensure the quality and reliability of our codebase. Below is a list of the main tools we use:
+Some Make targets that run Django management commands rely on `manage.py`.
+To make those targets work, the Makefile needs to know the absolute path to your auth directory.
+You can do so by providing a `.make/myauth-path` file in the project root with the following content:
 
-- [django-webtest](https://github.com/django-webtest/django-webtest)
-- [request-mock](https://requests-mock.readthedocs.io/en/latest/)
-- [tox](https://tox.wiki/en/latest/index.html)
-- [coverage](https://coverage.readthedocs.io/en/latest/#)
+```makefile
+/absolute/path/to/myauth
+```
 
-We also use Django's built-in [`TestCase`](https://docs.djangoproject.com/en/5.1/topics/testing/overview/)class to write unit tests for our Django applications. The `TestCase` class provides a framework for writing and running tests, including setup and teardown methods to prepare the test environment and clean up afterward.
+#### General Commands<a name="general-commands"></a>
+
+- `make help` - Show all available make targets
+- `make graph-models` - Create a graph of all models
+
+#### Migration Handling<a name="migration-handling"></a>
+
+- `make migrate` - Apply migrations
+- `make migrations` - Create new migrations for changed models
+
+#### Translation Handling<a name="translation-handling"></a>
+
+- `make pot` - Create or update the translation template file
+
+#### Git Handling<a name="git-handling"></a>
+
+- `make git-prune` - Prune all unreachable objects from the local repository
+- `make git-reset-soft` - Resetting HEAD to the previous commit (soft)
+- `make git-force-push` - Forcing push to the remote repository without checks
+- `make git-clean-untracked` - Cleaning untracked files and directories from the working tree
+- `make git-garbage-collection` - Cleanup unnecessary files and optimize the local repository
+- `make git-housekeeping` - Run all git housekeeping commands
+
+#### Pre-Commit<a name="pre-commit"></a>
+
+- `make pre-commit-install` - Install pre-commit hooks
+- `make pre-commit-uninstall` - Uninstall pre-commit hooks
+- `make pre-commit-update` - Update pre-commit hooks
+- `make pre-commit-checks` - Run all pre-commit checks
+
+#### Redis<a name="redis"></a>
+
+- `make redis-flushall` - Flush all data from the Redis database
+- `make redis-status` - Check the Redis server status
+
+#### Tests<a name="tests"></a>
+
+- `make build-test` - Build the package
+- `make coverage` - Run the test suite with coverage
+
+<!-- Links -->
+
+[aa dev enviroment guide]: https://allianceauth.readthedocs.io/en/latest/development/dev_setup/aa-dev-setup-wsl-vsc-v2.html "AA Dev Enviroment Guide"
+[python unittest]: https://docs.python.org/3/library/unittest.html "Python Unittest"
+[weblate]: https://weblate.voices-of-war.de/ "Weblate"
