@@ -188,4 +188,4 @@ Help us translate this app into your language or improve existing translations. 
 ## Contributing <a name="contributing"></a>
 
 You want to improve the project?
-Please ensure you read the [contribution guidelines](https://github.com/Geuthur/aa-taxsystem/blob/master/CONTRIBUTING.md)
+Please ensure you read the [contribution guidelines](https://github.com/Geuthur/aa-ledger/blob/master/CONTRIBUTING.md)
