@@ -12,3 +12,5 @@ node_modules/
 .pypirc
 /coverage.xml
 testing/
+
+.make/myauth-path
