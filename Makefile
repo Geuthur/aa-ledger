@@ -1,5 +1,12 @@
 # Makefile for AA Ledger
 
+# Specify the shell to be used for executing the commands in this Makefile.
+# In this case, it is set to /bin/bash.
+SHELL := /bin/bash
+
+# Resolve the AllianceAuth Django project path.
+myauth_path = $(shell path=$$(cat .make/myauth-path 2>/dev/null | grep . || echo "../myauth"); echo "$${path%/}")
+
 # Variables
 appname = aa-ledger
 appname_verbose = AA Ledger
@@ -42,10 +49,10 @@ confirm:
 	fi
 
 # Graph models
-.PHONY: graph_models
-graph_models:
+.PHONY: graph-models
+graph-models:
 	@echo "Creating a graph of the models …"
-	@python ../auth/manage.py \
+	@python $(myauth_path)/manage.py \
 		graph_models \
 		$(package) \
 		--arrow-shape normal \
@@ -54,13 +61,11 @@ graph_models:
 # Prepare a new release
 # Generate Graph of the models, translation files and update the version in the package
 .PHONY: prepare-release
-prepare-release:
+prepare-release: pot graph-models
 	@echo ""
 	@echo "Preparing a release …"
 	@read -p "New Version Number: " new_version; \
 	if grep -qE "^## \[$$new_version\]" CHANGELOG.md; then \
-		$(MAKE) pot; \
-		$(MAKE) graph_models; \
 		sed -i "/__version__ = /c\__version__ = \"$$new_version\"" $(package)/__init__.py; \
 		echo "Updated version in $(TEXT_BOLD)$(package)/__init__.py$(TEXT_BOLD_END)"; \
 		echo "$$new_version" | grep -q -E 'alpha|beta'; \
@@ -88,8 +93,8 @@ help::
 	@echo ""
 	@echo "$(TEXT_BOLD)Commands:$(TEXT_BOLD_END)"
 	@echo "  $(TEXT_UNDERLINE)General:$(TEXT_UNDERLINE_END)"
-	@echo "    graph_models                Create a graph of the models"
 	@echo "    help                        Show this help message"
+	@echo "    graph-models                Create a graph of the models"
 	@echo "    prepare-release             Prepare a release and update the version."
 	@echo ""
 
