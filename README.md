@@ -29,6 +29,7 @@ ______________________________________________________________________
     - [Step 6 - (Optional) Settings](#step6)
   - [Highlights](#highlights)
   - [Translations](#translations)
+  - [Contributing](#contributing)
 
 ## Features<a name="features"></a>
 
@@ -180,12 +181,11 @@ Advanced Settings: Stale Status for Each Section
 
 ## Translations<a name="translations"></a>
 
-[![Translations](https://weblate.voices-of-war.de/widget/allianceauth/aa-memberaudit-dashboard/multi-auto.svg)](https://weblate.voices-of-war.de/engage/allianceauth/)
+[![Translations](https://weblate.voices-of-war.de/widget/allianceauth/aa-ledger/multi-auto.svg)](https://weblate.voices-of-war.de/engage/allianceauth/)
 
 Help us translate this app into your language or improve existing translations. Join our team!"
 
-> [!NOTE]
-> Contributing
-> You want to improve the project?
-> Just Make a [Pull Request](https://github.com/Geuthur/aa-ledger/pulls) with the Guidelines.
-> We Using pre-commit
+## Contributing <a name="contributing"></a>
+
+You want to improve the project?
+Please ensure you read the [contribution guidelines](https://github.com/Geuthur/aa-taxsystem/blob/master/CONTRIBUTING.md)
