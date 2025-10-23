@@ -1,6 +1,6 @@
 # Standard Library
 from sys import audit
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 # Django
 from django.test import override_settings
@@ -54,6 +54,7 @@ class TestPlanetaryManager(NoSocketsTestCase):
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
+@patch(MODULE_PATH + ".EveType.objects.get_or_create_esi")
 @patch(MODULE_PATH + ".esi")
 class TestPlanetaryDetailsManager(NoSocketsTestCase):
     @classmethod
@@ -67,9 +68,10 @@ class TestPlanetaryDetailsManager(NoSocketsTestCase):
             characteraudit=cls.audit, planet_id=4001, upgrade_level=5, num_pins=5
         )
 
-    def test_update_planets_details(self, mock_esi):
+    def test_update_planets_details(self, mock_esi, mock_get_or_create_esi):
         # given
         mock_esi.client = esi_client_stub_openapi
+        mock_get_or_create_esi.return_value = (Mock(), True)
 
         self.audit.update_planets_details(force_refresh=False)
 
