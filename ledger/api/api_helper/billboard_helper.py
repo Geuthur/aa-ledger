@@ -244,7 +244,7 @@ class BillboardSystem:
 
     def generate_xy_series(self):
         """Create the ratting bar amounts and categories for the billboard"""
-        formatted_series = []
+        series = []
         category_set = set()
 
         for date, values in self.results.items():
@@ -253,7 +253,7 @@ class BillboardSystem:
             if not filtered_values:
                 continue  # Skip if all categories are 0
 
-            formatted_series.append(
+            series.append(
                 {
                     "date": self._get_formatted_date(date, self.view),
                     **{k: int(v) for k, v in filtered_values.items()},
@@ -270,9 +270,13 @@ class BillboardSystem:
                 label = cat
             categories.append({"name": cat, "label": str(label)})
 
-        if not formatted_series:
+        if not series:
             return [], []
-        return formatted_series, categories
+
+        # Sort Series by Date
+        series.sort(key=lambda x: x["date"])
+
+        return series, categories
 
     def create_xy_chart(self, title, categories, series):
         """Create the XY chart for the billboard"""
