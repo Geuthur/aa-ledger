@@ -27,8 +27,8 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.api.api_helper.billboard_helper import BillboardSystem
 from ledger.app_settings import LEDGER_CACHE_KEY
+from ledger.helpers.billboard import BillboardSystem
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.general import EveEntity
 
