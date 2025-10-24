@@ -17,8 +17,8 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.api.api_helper.billboard_helper import BillboardSystem
 from ledger.constants import NPC_ENTITIES
+from ledger.helpers.billboard import BillboardSystem
 from ledger.helpers.core import LedgerCore, LedgerEntity
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.corporationaudit import (
