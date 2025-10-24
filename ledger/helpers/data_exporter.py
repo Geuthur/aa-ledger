@@ -70,12 +70,12 @@ def export_ledger_to_archive(
         with tempfile.TemporaryDirectory() as temp_dirname:
             csv_file = exporter.write_to_file(temp_dirname)
             destination = default_destination()
-            file_to_zip(csv_file, destination)
+            zip_file_path = file_to_zip(csv_file, destination)
     except ValueError as ve:
         logger.debug("Error exporting ledger to archive: %s", ve)
         return f"{ve}"
     gc.collect()
-    return None
+    return str(zip_file_path)
 
 
 class LedgerCSVExporter(ABC):
