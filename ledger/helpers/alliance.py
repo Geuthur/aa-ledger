@@ -242,20 +242,12 @@ class AllianceData(LedgerCore):
 
         # Build Data for each corporation
         for corporation_id in self.corporations:
-            # Create Details URL for the entity
-            details_url = self.create_url(
-                viewname="alliance_details",
-                alliance_id=self.alliance.alliance_id,
-                entity_id=corporation_id,
-            )
-
             # Create the LedgerEntity object for the entity
             entity_obj = LedgerEntity(
                 entity_id=corporation_id,
-                details_url=details_url,
             )
 
-            #
+            # Create Ledger Data for the entity
             corp_data = self.create_entity_data(
                 entity=entity_obj,
             )
