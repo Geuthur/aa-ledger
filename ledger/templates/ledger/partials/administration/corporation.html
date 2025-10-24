@@ -23,12 +23,20 @@
                 </div>
                 <!-- Corporation Actions -->
                 <div class="card-footer text-center">
-                    <a class="btn btn-success btn-sm"
+                    <a class="btn btn-success btn-sm me-2"
                         href="{% url 'ledger:corporation_ledger' corporation_id=corporation.corporation.corporation_id %}?single=True"
                         role="button"
                         data-tooltip-toggle="ledger-tooltip"
                         title="{% translate 'View Corporation Ledger' %}">
                         <i class="fas fa-sign-in-alt"></i>
+                    </a>
+
+                    <a class="btn btn-primary btn-sm me-2"
+                        href="{% url 'ledger:corporation_data_export' corporation_id=corporation.corporation.corporation_id %}"
+                        role="button"
+                        data-tooltip-toggle="ledger-tooltip"
+                        title="{% translate 'Corporation Data Export' %}">
+                        <i class="fas fa-file-export"></i>
                     </a>
 
                     <button type="button" class="btn btn-danger btn-sm btn-square me-2"
@@ -38,6 +46,7 @@
                         data-text="{% translate 'Are you sure to Delete this Corporation?' %}"
                         data-bs-target="#ledger-delete-confirm"
                         data-action="{% url 'ledger:delete_corp' corporation_id=corporation.corporation.corporation_id %}"
+                        title="{% translate 'Delete Corporation' %}"
                         >
                         <span class="fas fa-trash"></span>
                     </button>

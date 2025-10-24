@@ -71,7 +71,7 @@ class BillboardSystem:
 
     def __init__(
         self,
-        view,
+        view: str = "month",
     ):
         self.view = view
         self.dict = self.BillboardDict()
@@ -94,6 +94,12 @@ class BillboardSystem:
                 categories=[],
                 series=[],
             )
+
+    def change_view(self, view: str):
+        """Change the view of the billboard"""
+        if view not in ["day", "month", "year"]:
+            raise ValueError("Invalid view type. Use 'day', 'month', or 'year'.")
+        self.view = view
 
     def chord_add_char_data_from_dict(self, data: dict):
         """Add character data to chord from dict"""
