@@ -182,6 +182,7 @@ class TestCorporationLedgerView(TestCase):
 
             self.assertTrue(output_file.exists())
             self.assertEqual(output_file.suffix, ".zip")
+            output_file.unlink(missing_ok=True)  # Clean up the created file
 
     def test_export_ledger_to_archive_alliance(self):
         """Test should export alliance ledger to archive."""
@@ -203,3 +204,4 @@ class TestCorporationLedgerView(TestCase):
 
             self.assertTrue(output_file.exists())
             self.assertEqual(output_file.suffix, ".zip")
+            output_file.unlink(missing_ok=True)  # Clean up the created file
