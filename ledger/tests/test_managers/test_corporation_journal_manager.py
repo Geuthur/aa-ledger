@@ -10,7 +10,7 @@ from app_utils.testing import NoSocketsTestCase
 
 # AA Ledger
 from ledger.models.general import EveEntity
-from ledger.tests.testdata.esi_stub import esi_client_stub
+from ledger.tests.testdata.esi_stub import esi_client_stub_openapi
 from ledger.tests.testdata.generate_corporationaudit import (
     create_corporationaudit_from_user,
     create_user_from_evecharacter,
@@ -28,7 +28,6 @@ MODULE_PATH = "ledger.managers.corporation_journal_manager"
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 @patch(MODULE_PATH + ".esi")
-@patch(MODULE_PATH + ".etag_results")
 @patch("ledger.models.general.EveEntity")
 class TestCharacterJournalManager(NoSocketsTestCase):
     @classmethod
@@ -74,10 +73,9 @@ class TestCharacterJournalManager(NoSocketsTestCase):
         cls.token = cls.character_ownership.user.token_set.first()
         cls.audit.get_token = MagicMock(return_value=cls.token)
 
-    def test_update_wallet_journal(self, mock_eveentity, mock_etag, mock_esi):
+    def test_update_wallet_journal(self, mock_eveentity, mock_esi):
         # given
-        mock_esi.client = esi_client_stub
-        mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()[0]
+        mock_esi.client = esi_client_stub_openapi
 
         mock_eveentity.objects.create_bulk_from_esi.return_value = True
 

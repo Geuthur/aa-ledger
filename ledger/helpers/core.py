@@ -5,8 +5,10 @@ Core View Helper
 # Standard Library
 from decimal import Decimal
 from hashlib import md5
+from typing import TYPE_CHECKING, Any
 
 # Django
+from django.core.cache import cache
 from django.db.models import Q, QuerySet, Sum
 from django.urls import reverse
 from django.utils import timezone
@@ -27,12 +29,26 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.app_settings import LEDGER_CACHE_KEY
-from ledger.helpers.billboard import BillboardSystem
+from ledger.app_settings import (
+    LEDGER_CACHE_ENABLED,
+    LEDGER_CACHE_KEY,
+    LEDGER_CACHE_STALE,
+)
+from ledger.constants import NPC_ENTITIES
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.general import EveEntity
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+
+if TYPE_CHECKING:
+    # AA Ledger
+    from ledger.models.characteraudit import (
+        CharacterMiningLedger,
+        CharacterWalletJournalEntry,
+    )
+
+    # pylint: disable=import-outside-toplevel
+    from ledger.models.corporationaudit import CorporationWalletJournalEntry
 
 
 def add_info_to_context(request, context: dict) -> dict:
@@ -184,18 +200,13 @@ class LedgerCore:
     """Core View Helper for Ledger."""
 
     def __init__(self, year=None, month=None, day=None):
-        self.date_info = {"year": year, "month": month, "day": day}
-        self.ledger_type = "ledger"
-
-        # If all are None, default to 'month' view
-        if year is None and month is None and day is None:
-            self.view = "month"
-        else:
-            self.view = "day" if day else "month" if month else "year"
-
-        self.journal = None
-        self.mining = None
-        self.billboard = BillboardSystem(self.view)
+        self.ledger_type: str = "ledger"
+        self.queryset: QuerySet = None
+        self.entity_id: int = None
+        self.section: str = "single"
+        self.mining: QuerySet = None
+        self.auth_char_ids: set = set()
+        self.date_info: dict = {"year": year, "month": month, "day": day}
 
     @property
     def year(self):
@@ -244,7 +255,7 @@ class LedgerCore:
             return f"{self.year:04d}-{self.month:02d}"
         if self.year:
             return f"{self.year:04d}"
-        return "Character Ledger Details"
+        return "Ledger Details"
 
     @property
     def auth_accounts(self):
@@ -272,25 +283,130 @@ class LedgerCore:
             )
         return account_character_ids
 
-    def _get_ledger_journal_hash(self, journal: list[str]) -> str:
+    def filter_entity_journal(self, entity: LedgerEntity = None):
+        """Apply additional filters to the journal based on the entity."""
+        if self.section == "summary":
+            return self.queryset
+
+        # Get all character IDs associated with the entity (including alts)
+        character_ids = entity.get_alts_ids_or_self()
+
+        # Filter journal to include only entries where the entity is a first or second party
+        # Exclude entries where both parties are the corporation itself
+        journal = self.queryset.filter(
+            Q(first_party_id__in=character_ids) | Q(second_party_id__in=character_ids)
+        )
+
+        # If the entity is the corporation itself, include NPC transactions too
+        if entity.entity_id == self.entity_id:
+            journal = journal.filter(
+                Q(first_party_id__in=NPC_ENTITIES) | Q(second_party_id__in=NPC_ENTITIES)
+            )
+
+        # If entity represents a corporation or alliance, exclude auth account character IDs
+        # that are not part of the current entity to avoid double counting
+        if entity.type in ["alliance", "corporation"]:
+            exclude_ids = self.auth_char_ids - set(character_ids)
+            journal = journal.exclude(
+                Q(first_party_id__in=exclude_ids) | Q(second_party_id__in=exclude_ids)
+            )
+        return journal
+
+    def get_view_mode(self) -> str:
+        """Determine the current view mode based on year, month, and day."""
+        if self.day:
+            return "day"
+        if self.month:
+            return "month"
+        if self.year:
+            return "year"
+        return "month"
+
+    def get_ledger_journal_hash(self, journal: list[str]) -> str:
         """Generate a hash for the ledger journal."""
         return md5(",".join(str(x) for x in sorted(journal)).encode()).hexdigest()
 
-    def _get_ledger_hash(self, header_key: str) -> str:
+    def get_ledger_hash(self, header_key: str) -> str:
         """Generate a hash for the ledger journal."""
         return md5(header_key.encode()).hexdigest()
 
-    def _get_ledger_header(
+    def get_ledger_header(
         self, ledger_args: str, year: int, month: int, day: int
     ) -> str:
         """Generate a header string for the ledger."""
         return f"{ledger_args}_{year}_{month}_{day}"
 
-    def _build_ledger_cache_key(self, header_key: str) -> str:
+    def build_ledger_cache_key(self, header_key: str) -> str:
         """Build a cache key for the ledger."""
-        return f"{LEDGER_CACHE_KEY}-{self._get_ledger_hash(header_key)}"
+        return f"{LEDGER_CACHE_KEY}-{self.get_ledger_hash(header_key)}"
 
-    def _calculate_totals(self, ledger) -> dict:
+    def get_cache_ledger(
+        self, ledger_hash: str, cache_key: str
+    ) -> tuple[Any, Any] | tuple[False, False]:
+        """Get the ledger cache.
+
+        Args:
+            ledger_hash (str): The hash of the current ledger journal.
+            cache_key (str): The base cache key for the ledger.
+        Returns:
+            tuple: A tuple containing the cached ledger and finished entities, or (False, False) if not found or outdated.
+        """
+        # Get the journal hash and cache header
+        ledger_header = self.get_ledger_header(
+            ledger_args=cache_key,
+            year=self.year,
+            month=self.month,
+            day=self.day,
+        )
+        cache_header = cache.get(
+            ledger_header,
+            False,
+        )
+        logger.debug(
+            f"Ledger Header: {ledger_header}, Cache Header: {cache_header}, Journal Hash: {ledger_hash}"
+        )
+
+        # Check if the journal is up to date
+        journal_up_to_date = cache_header == ledger_hash
+        ledger_key = self.build_ledger_cache_key(ledger_header)
+
+        # Check if we have newest cached version of the ledger
+        if journal_up_to_date and LEDGER_CACHE_ENABLED:
+            ledger = cache.get(f"{ledger_key}-data", False)
+            finished_entities = cache.get(f"{ledger_key}-finished_entities", False)
+            return ledger, finished_entities
+        return False, False
+
+    def set_cache_ledger(
+        self, ledger_hash: str, cache_key: str, ledger: list, finished_entities: set
+    ):
+        """Set the ledger cache."""
+        ledger_header = self.get_ledger_header(
+            ledger_args=cache_key,
+            year=self.year,
+            month=self.month,
+            day=self.day,
+        )
+        ledger_key = self.build_ledger_cache_key(ledger_header)
+
+        cache.set(key=f"{ledger_key}-data", value=ledger, timeout=LEDGER_CACHE_STALE)
+        cache.set(
+            key=f"{ledger_key}-finished_entities",
+            value=finished_entities,
+            timeout=LEDGER_CACHE_STALE,
+        )
+        cache.set(
+            key=self.get_ledger_header(
+                ledger_args=cache_key,
+                year=self.year,
+                month=self.month,
+                day=self.day,
+            ),
+            value=ledger_hash,
+            timeout=None,  # Cache forever until the journal changes
+        )
+
+    def calculate_totals(self, ledger) -> dict:
         """
         Calculate the total amounts for each category in the ledger.
 
@@ -337,37 +453,22 @@ class LedgerCore:
         Returns:
             A URL string for the specified view.
         """
-        if self.year and self.month and self.day:
-            return reverse(
-                f"ledger:{viewname}",
-                kwargs={
-                    **kwargs,
-                    "year": self.year,
-                    "month": self.month,
-                    "day": self.day,
-                },
-            )
-        if self.year and self.month:
-            return reverse(
-                f"ledger:{viewname}",
-                kwargs={
-                    **kwargs,
-                    "year": self.year,
-                    "month": self.month,
-                },
-            )
-        if self.year:
-            return reverse(
-                f"ledger:{viewname}",
-                kwargs={**kwargs, "year": self.year},
-            )
+
+        # Remove division_id if None to avoid issues with URL reversing
+        # pylint: disable=no-member
+        if hasattr(self, "division_id") and self.division_id is not None:
+            kwargs["division_id"] = self.division_id
+
+        if self.year is not None:
+            kwargs["year"] = self.year
+        if self.month is not None:
+            kwargs["month"] = self.month
+        if self.day is not None:
+            kwargs["day"] = self.day
+
         return reverse(
             f"ledger:{viewname}",
-            kwargs={
-                **kwargs,
-                "year": timezone.now().year,
-                "month": timezone.now().month,
-            },
+            kwargs={**kwargs},
         )
 
     def create_view_data(self, viewname: str, **kwargs) -> dict:
@@ -379,7 +480,10 @@ class LedgerCore:
         Returns:
             dict: A dictionary containing the type, date, and details URL.
         """
-        return {
+        if kwargs.get("division_id") is None:
+            kwargs.pop("division_id", None)
+
+        view_dict = {
             "type": self.ledger_type,
             "date": {
                 "current": {
@@ -397,11 +501,15 @@ class LedgerCore:
             ),
         }
 
-    # pylint: disable=too-many-locals
+        return view_dict
+
+    # pylint: disable=too-many-locals, too-many-positional-arguments
     def _generate_amounts(
         self,
+        journal: QuerySet,
         income_types: list,
         entity: LedgerEntity,
+        mining: QuerySet = None,
         is_old_ess: bool = False,
         char_ids: list = None,
     ) -> dict:
@@ -412,7 +520,7 @@ class LedgerCore:
 
         # Bounty Income
         if not entity.entity_id == 1000125:  # Remove Concord Bountys
-            bounty_income = self.journal.aggregate_bounty()
+            bounty_income = journal.aggregate_bounty()
             if bounty_income > 0:
                 amounts["bounty_income"] = {
                     "total_amount": bounty_income,
@@ -421,7 +529,7 @@ class LedgerCore:
 
         if isinstance(entity.entity, EveCharacter):
             # Mining Income
-            mining_income = self.mining.aggregate_mining()
+            mining_income = mining.aggregate_mining()
             if mining_income > 0:
                 amounts["mining_income"] = {
                     "total_amount": mining_income,
@@ -432,7 +540,7 @@ class LedgerCore:
         ess_income = (
             bounty_income * Decimal(0.667)
             if is_old_ess and bounty_income
-            else self.journal.aggregate_ess()
+            else journal.aggregate_ess()
         )
         if ess_income > 0:
             amounts["ess_income"] = {
@@ -448,7 +556,7 @@ class LedgerCore:
                 kwargs = RefTypeManager.special_cases_details(
                     value, entity, kwargs, journal_type=entity.type, char_ids=char_ids
                 )
-                agg = self.journal.aggregate_ref_type(**kwargs)
+                agg = journal.aggregate_ref_type(**kwargs)
                 if (income_flag and agg > 0) or (not income_flag and agg < 0):
                     amounts[f"{ref_type_name}_{kind}"] = {
                         "total_amount": agg,
@@ -484,29 +592,31 @@ class LedgerCore:
         amounts["cost_types"] = cost_types
         return amounts
 
-    def _create_corporation_details(self, entity: LedgerEntity) -> dict:
+    def _create_corporation_details(
+        self, journal: QuerySet["CorporationWalletJournalEntry"], entity: LedgerEntity
+    ) -> dict:
         """Create the corporation amounts for the Information View."""
-        # NOTE (can only used if setup_ledger is defined in the subclass)
-        self.setup_ledger(entity=entity)  # pylint: disable=no-member
-
         income_types = [
             ("bounty_income", _("Bounty")),
             ("ess_income", _("Encounter Surveillance System")),
         ]
-        amounts = self._generate_amounts(income_types=income_types, entity=entity)
+        amounts = self._generate_amounts(
+            journal=journal, income_types=income_types, entity=entity
+        )
         return amounts
 
     # pylint: disable=no-member
-    def _create_character_details(self) -> dict:
+    def _create_character_details(
+        self,
+        journal: QuerySet["CharacterWalletJournalEntry"],
+        mining: QuerySet["CharacterMiningLedger"],
+    ) -> dict:
         """
         Create the character amounts for the Information View.
         Only work with CharacterData Class
         """
         if not self.character:
             raise ValueError("No Character Data found.")
-
-        # NOTE (can only used if setup_ledger is defined in the subclass)
-        self.setup_ledger(self.character)
 
         entity = LedgerEntity(
             entity_id=self.character.eve_character.character_id,
@@ -519,8 +629,10 @@ class LedgerCore:
             ("mining_income", _("Mining")),
         ]
         amounts = self._generate_amounts(
+            journal=journal,
             income_types=income_types,
             entity=entity,
+            mining=mining,
             is_old_ess=self.is_old_ess,
             char_ids=self.alts_ids,
         )
@@ -551,15 +663,3 @@ class LedgerCore:
                 amounts[key]["average_day_tick"] = total / avg / 20
                 amounts[key]["average_hour_tick"] = total / avg / 24 / 20
         return amounts
-
-    def _build_xy_chart(self, title: str):
-        """Build the XY chart for the billboard."""
-        if not self.billboard.results:
-            return
-
-        xy_data, categories = self.billboard.generate_xy_series()
-        self.billboard.create_xy_chart(
-            title=title,
-            categories=categories,
-            series=xy_data,
-        )
