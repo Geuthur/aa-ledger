@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 # Django
 from django.db import models, transaction
-from django.db.models import DecimalField, F, Q, Sum, Value
+from django.db.models import DecimalField, Q, Sum, Value
 from django.db.models.functions import Coalesce
 
 # Alliance Auth
@@ -16,9 +16,6 @@ from app_utils.logging import LoggerAddTag
 # AA Ledger
 from ledger import __title__
 from ledger.decorators import log_timing
-from ledger.helpers.etag import (
-    etag_results,
-)
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.providers import esi
 
@@ -30,6 +27,24 @@ if TYPE_CHECKING:
     from ledger.models.general import UpdateSectionResult
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+
+
+class CharacterJournalContext:
+    """Context for character wallet journal ESI operations."""
+
+    amount: float
+    balance: float
+    context_id: int
+    context_id_type: str
+    date: str
+    description: str
+    first_party_id: int
+    id: int
+    reason: str
+    ref_type: str
+    second_party_id: int
+    tax: float
+    tax_receiver_id: int
 
 
 class CharWalletIncomeFilter(models.QuerySet):
@@ -181,26 +196,36 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
             )
         )
 
-    def annotate_miscellaneous_with_exclude(self, exclude=None) -> models.QuerySet:
-        """Annotate all income together"""
-        qs = (
-            self.annotate_donation_income(exclude=exclude)
-            .annotate_mission_income()
-            .annotate_milestone_income()
-            .annotate_insurance_income()
-            .annotate_market_income()
-            .annotate_contract_income()
-            .annotate_incursion_income()
-        )
-        return qs.annotate(
+    def annotate_miscellaneous_exclude_donations(self, exclude=None) -> models.QuerySet:
+        """Allow excluding donations by first_party_id from the miscellaneous sum."""
+        # Normalize single int to list for compatibility with Q lookups
+        if isinstance(exclude, int):
+            exclude = [exclude]
+
+        # Ensure we have a mutable list (remove may not exist on other iterables)
+        all_types = RefTypeManager.all_ref_types()
+        donation_types = RefTypeManager.DONATION
+
+        if exclude is not None:
+            try:
+                all_types.remove("player_donation")
+            except ValueError:
+                pass
+
+        # Base filter: all reference types and only positive amounts (income)
+        filter_q = Q(ref_type__in=all_types, amount__gt=0)
+
+        if exclude:
+            filter_q = filter_q & ~(
+                Q(ref_type__in=donation_types) & Q(first_party_id__in=exclude)
+            )
+
+        return self.annotate(
             miscellaneous=Coalesce(
-                F("mission_income")
-                + F("incursion_income")
-                + F("insurance_income")
-                + F("market_income")
-                + F("contract_income")
-                + F("donation_income")
-                + F("milestone_income"),
+                Sum(
+                    "amount",
+                    filter=filter_q,
+                ),
                 Value(0),
                 output_field=DecimalField(),
             )
@@ -343,23 +368,28 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             force_refresh=force_refresh,
         )
 
-    def _fetch_esi_data(
-        self, character: "CharacterAudit", force_refresh: bool = False
-    ) -> None:
+    def _fetch_esi_data(self, audit: "CharacterAudit", force_refresh: bool) -> None:
         """Fetch wallet journal entries from ESI data."""
         req_scopes = ["esi-wallet.read_character_wallet.v1"]
+        token = audit.get_token(scopes=req_scopes)
 
-        token = character.get_token(scopes=req_scopes)
-        journal_items_ob = esi.client.Wallet.get_characters_character_id_wallet_journal(
-            character_id=character.eve_character.character_id
+        operation = esi.client.Wallet.GetCharactersCharacterIdWalletJournal(
+            character_id=audit.eve_character.character_id,
+            token=token,
         )
-        journal_items = etag_results(
-            journal_items_ob, token, force_refresh=force_refresh
+
+        journal_items, response = operation.results(
+            return_response=True,
+            force_refresh=force_refresh,
         )
-        self._update_or_create_objs(character, journal_items)
+        logger.debug("ESI response Status: %s", response.status_code)
+
+        self._update_or_create_objs(character=audit, objs=journal_items)
 
     @transaction.atomic()
-    def _update_or_create_objs(self, character: "CharacterAudit", objs: list) -> None:
+    def _update_or_create_objs(
+        self, character: "CharacterAudit", objs: list[CharacterJournalContext]
+    ) -> None:
         """Update or Create wallet journal entries from objs data."""
         # pylint: disable=import-outside-toplevel
         # AA Ledger
@@ -367,7 +397,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
 
         _current_journal = self.filter(character=character).values_list(
             "entry_id", flat=True
-        )  # TODO add time filter
+        )
         _current_eve_ids = list(
             EveEntity.objects.all().values_list("eve_id", flat=True)
         )
@@ -376,30 +406,29 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
 
         items = []
         for item in objs:
-            if item.get("id") not in _current_journal:
-                if item.get("second_party_id") not in _current_eve_ids:
-                    _new_names.append(item.get("second_party_id"))
-                    _current_eve_ids.append(item.get("second_party_id"))
-                if item.get("first_party_id") not in _current_eve_ids:
-                    _new_names.append(item.get("first_party_id"))
-                    _current_eve_ids.append(item.get("first_party_id"))
+            if item.id not in _current_journal:
+                if item.second_party_id not in _current_eve_ids:
+                    _new_names.append(item.second_party_id)
+                    _current_eve_ids.append(item.second_party_id)
+                if item.first_party_id not in _current_eve_ids:
+                    _new_names.append(item.first_party_id)
+                    _current_eve_ids.append(item.first_party_id)
 
-                # pylint: disable=duplicate-code
                 asset_item = self.model(
                     character=character,
-                    amount=item.get("amount"),
-                    balance=item.get("balance"),
-                    context_id=item.get("context_id"),
-                    context_id_type=item.get("context_id_type"),
-                    date=item.get("date"),
-                    description=item.get("description"),
-                    first_party_id=item.get("first_party_id"),
-                    entry_id=item.get("id"),
-                    reason=item.get("reason"),
-                    ref_type=item.get("ref_type"),
-                    second_party_id=item.get("second_party_id"),
-                    tax=item.get("tax"),
-                    tax_receiver_id=item.get("tax_receiver_id"),
+                    amount=item.amount,
+                    balance=item.balance,
+                    context_id=item.context_id,
+                    context_id_type=item.context_id_type,
+                    date=item.date,
+                    description=item.description,
+                    first_party_id=item.first_party_id,
+                    entry_id=item.id,
+                    reason=item.reason,
+                    ref_type=item.ref_type,
+                    second_party_id=item.second_party_id,
+                    tax=item.tax,
+                    tax_receiver_id=item.tax_receiver_id,
                 )
                 items.append(asset_item)
 

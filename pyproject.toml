@@ -34,8 +34,8 @@ dynamic = [
 ]
 dependencies = [
     "allianceauth>=4.8,<5",
-    "allianceauth-app-utils>=1.26",
-    "django-esi>=7.0.1",
+    "allianceauth-app-utils @ git+https://gitlab.com/Geuthur/allianceauth-app-utils.git@openapi",
+    "django-esi>=8a4",
     "django-eveuniverse>=1.5.7",
     "django-ninja",
 ]
@@ -60,3 +60,6 @@ include = [
 
 [tool.hatch.version]
 path = "ledger/__init__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true

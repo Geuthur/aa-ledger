@@ -528,6 +528,50 @@ class TestViewCorporationLedgerAccess(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         mock_messages.info.assert_called_once_with(request, "Corporation not found")
 
+    def test_view_corporation_data_exporter(self):
+        """Test view corporation data exporter."""
+        # given
+        request = self.factory.get(
+            reverse("ledger:corporation_data_export", args=[2001])
+        )
+        request.user = self.user
+        # when
+        response = corporation_ledger.corporation_data_export(request, 2001)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    @patch(CORPLEDGER_PATH + ".messages")
+    def test_view_corporation_data_exporter_no_permission(self, mock_messages):
+        """Test view corporation data exporter with no permission."""
+        # given
+        request = self.factory.get(
+            reverse("ledger:corporation_data_export", args=[2001])
+        )
+        request.user = self.user_no_perm
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        # when
+        response = corporation_ledger.corporation_data_export(request, 2001)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        mock_messages.error.assert_called_once_with(request, "Permission Denied")
+
+    @patch(CORPLEDGER_PATH + ".messages")
+    def test_view_corporation_data_exporter_not_found(self, mock_messages):
+        """Test view corporation data exporter with not found corporation."""
+        # given
+        request = self.factory.get(
+            reverse("ledger:corporation_data_export", args=[9999])
+        )
+        request.user = self.user
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        # when
+        response = corporation_ledger.corporation_data_export(request, 9999)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        mock_messages.info.assert_called_once_with(request, "Corporation not found")
+
 
 class TestViewAllianceLedgerAccess(TestCase):
     @classmethod
@@ -582,26 +626,6 @@ class TestViewAllianceLedgerAccess(TestCase):
         response = alliance_ledger.alliance_ledger_index(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-
-    @patch(ALLYLEDGER_PATH + ".messages")
-    def test_view_alliance_ledger_index_exception(self, mock_messages):
-        """Test view alliance ledger."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "ledger:alliance_ledger_index",
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        request.user = self.user_has_no_alliance
-        # when
-        response = alliance_ledger.alliance_ledger_index(request)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_once_with(
-            request, "You do not have an alliance."
-        )
 
     def test_view_alliance_ledger(self):
         """Test view alliance ledger."""

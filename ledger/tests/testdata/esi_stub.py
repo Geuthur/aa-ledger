@@ -3,7 +3,25 @@ import json
 from pathlib import Path
 
 # Alliance Auth (External Libs)
-from app_utils.esi_testing import EsiClientStub, EsiEndpoint
+from app_utils.esi_testing import EsiClientStub, EsiClientStubOpenApi, EsiEndpoint
+
+
+class CharacterJournalContext:
+    """Context for character wallet journal ESI operations."""
+
+    amount: float
+    balance: float
+    context_id: int
+    context_id_type: str
+    date: str
+    description: str
+    first_party_id: int
+    id: int
+    reason: str
+    ref_type: str
+    second_party_id: int
+    tax: float
+    tax_receiver_id: int
 
 
 def load_test_data():
@@ -17,65 +35,80 @@ _esi_data = load_test_data()
 _endpoints = [
     EsiEndpoint(
         "Character",
-        "get_characters_character_id_roles",
+        "GetCharactersCharacterIdRoles",
         "character_id",
         needs_token=False,
     ),
     EsiEndpoint(
         "Wallet",
-        "get_characters_character_id_wallet_journal",
+        "GetCharactersCharacterIdWalletJournal",
         "character_id",
         needs_token=False,
+        return_response=True,
     ),
     EsiEndpoint(
         "Wallet",
-        "get_characters_character_id_wallet",
+        "GetCharactersCharacterIdWallet",
         "character_id",
         needs_token=False,
+        return_response=True,
     ),
     EsiEndpoint(
         "Corporation",
-        "get_corporations_corporation_id_divisions",
+        "GetCorporationsCorporationIdDivisions",
         "corporation_id",
         needs_token=False,
+        return_response=True,
     ),
     EsiEndpoint(
         "Wallet",
-        "get_corporations_corporation_id_wallets",
+        "GetCorporationsCorporationIdWallets",
         "corporation_id",
         needs_token=False,
+        return_response=True,
     ),
     EsiEndpoint(
         "Wallet",
-        "get_corporations_corporation_id_wallets_division_journal",
+        "GetCorporationsCorporationIdWalletsDivisionJournal",
         "corporation_id",
         needs_token=False,
+        return_response=True,
     ),
     EsiEndpoint(
         "Industry",
-        "get_characters_character_id_mining",
+        "GetCharactersCharacterIdMining",
         "character_id",
         needs_token=False,
+        return_response=True,
     ),
     EsiEndpoint(
         "Planetary_Interaction",
-        "get_characters_character_id_planets",
+        "GetCharactersCharacterIdPlanets",
         "character_id",
         needs_token=False,
+        return_response=True,
     ),
     EsiEndpoint(
         "Planetary_Interaction",
-        "get_characters_character_id_planets_planet_id",
+        "GetCharactersCharacterIdPlanetsPlanetId",
         ("character_id", "planet_id"),
+        needs_token=False,
+        return_response=True,
+    ),
+    EsiEndpoint(
+        "Universe",
+        "PostUniverseNames",
+        "body",
         needs_token=False,
     ),
     EsiEndpoint(
         "Universe",
-        "post_universe_names",
-        "ids",
+        "PostUniverseIds",
+        "body",
         needs_token=False,
     ),
 ]
 
 esi_client_stub = EsiClientStub(_esi_data, endpoints=_endpoints)
+esi_client_stub_openapi = EsiClientStubOpenApi(_esi_data, endpoints=_endpoints)
 esi_client_error_stub = EsiClientStub(_esi_data, endpoints=_endpoints, http_error=502)

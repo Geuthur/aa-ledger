@@ -43,7 +43,7 @@ class EveEntityManager(models.Manager):
                 eve_ids[i : i + chunk_size] for i in range(0, len(eve_ids), chunk_size)
             ]
             for chunk in id_chunks:
-                response = esi.client.Universe.post_universe_names(ids=chunk).results()
+                response = esi.client.Universe.PostUniverseNames(body=chunk).results()
                 new_names = []
                 logger.debug(
                     "Eve Entity Manager EveName: count in %s count out %s",
@@ -53,9 +53,9 @@ class EveEntityManager(models.Manager):
                 for entity in response:
                     new_names.append(
                         EveEntity(
-                            eve_id=entity["id"],
-                            name=entity["name"],
-                            category=entity["category"],
+                            eve_id=entity.id,
+                            name=entity.name,
+                            category=entity.category,
                         )
                     )
                 EveEntity.objects.bulk_create(new_names, ignore_conflicts=True)
@@ -64,14 +64,14 @@ class EveEntityManager(models.Manager):
 
     def update_or_create_esi(self, *, eve_id: int) -> tuple[Any, bool]:
         """updates or creates entity object with data fetched from ESI"""
-        response = esi.client.Universe.post_universe_names(ids=[eve_id]).results()
+        response = esi.client.Universe.PostUniverseNames(body=[eve_id]).results()
         if len(response) != 1:
             raise ObjectNotFound(eve_id, "unknown_type")
         entity_data = response[0]
         return self.update_or_create(
-            eve_id=entity_data["id"],
+            eve_id=entity_data.id,
             defaults={
-                "name": entity_data["name"],
-                "category": entity_data["category"],
+                "name": entity_data.name,
+                "category": entity_data.category,
             },
         )
