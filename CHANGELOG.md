@@ -1,5 +1,54 @@
 # Changelog
 
+## [In Development] - Unreleased
+
+<!--
+Section Order:
+
+### Added
+### Fixed
+### Changed
+### Removed
+-->
+
+## [1.0.0-beta.1] - 2025-11-03
+
+> [!CAUTION]
+>
+> This is a BETA version, not intended for production use!
+> Please test it in a test environment first and [report any issues].
+
+### Added
+
+- Data Exporter (CSV compatible) can be called via Administration in each Corporation
+- Change View for Billboard
+- `Section` Arg for Ledger Details
+- Ledger Class Standard queryset
+
+### Changed
+
+- Switch to OPENAPI3 ESI Client
+- Refactored Ledger Class
+- Use new ETag System from `django-esi`
+- Information Modal has now 2 Sections (Single, Summary)
+- Billboard Class has now a Standard View (month)
+- Optimize Initalization for Ledger
+- Optimize Cache Handling for Corporation/Alliance Ledger
+- Optimize `create_url` function
+- moved Information Modal function to `core` Class
+
+### Fixed
+
+- XY Bar not sorted by date, should now resolved
+- Alliance Ledger Information Modal not shown correct values on Single Section
+
+### Removed
+
+- `setup_ledger` function
+- unnecessary complicated codes for url creation
+- `_build_context` function
+- `Request` Arg from Ledger Class
+
 ## [0.9.9.3] - 2025-10-21
 
 ### Changed
@@ -1134,3 +1183,7 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 
 - Corporation Ledger JS not working correctly on Years Tab
 - Fixed Permissions aren't create on migrate
+
+[1.0.0-beta.1]: https://github.com/Geuthur/aa-ledger/compare/v0.9.9.3...1.0.0beta-1 "1.0.0-beta.1"
+[in development]: https://github.com/Geuthur/aa-ledger/compare/v0.9.9.3...HEAD "In Development"
+[report any issues]: https://github.com/Geuthur/aa-ledger/issues "report any issues"
