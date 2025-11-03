@@ -3,7 +3,10 @@ import json
 from pathlib import Path
 
 # Alliance Auth (External Libs)
-from app_utils.esi_testing import EsiClientStub, EsiClientStubOpenApi, EsiEndpoint
+from app_utils.esi_testing import EsiClientStub
+
+# AA Ledger
+from ledger.tests.testdata.esi_stub_migration import EsiClientStubOpenApi, EsiEndpoint
 
 
 class CharacterJournalContext:
