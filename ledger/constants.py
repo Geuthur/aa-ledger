@@ -186,7 +186,6 @@ PRODUCTION = [
     "reaction",
 ]
 SKILL = ["skill_purchase"]
-INSURANCE = ["insurance"]
 PLANETARY = [
     "planetary_export_tax",
     "planetary_import_tax",
