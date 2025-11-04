@@ -15,7 +15,7 @@ from ledger.views.corporation.add_corp import add_corp
 # AA Example App
 from ledger.views.index import admin, index
 
-app_name: str = "ledger"
+app_name: str = "ledger"  # pylint: disable=invalid-name
 
 urlpatterns = [
     path("", index, name="index"),
