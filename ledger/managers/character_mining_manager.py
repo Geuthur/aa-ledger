@@ -29,6 +29,9 @@ from ledger.decorators import log_timing
 from ledger.providers import esi
 
 if TYPE_CHECKING:
+    # Alliance Auth
+    from esi.stubs import CharactersCharacterIdMiningGetItem
+
     # AA Ledger
     from ledger.models.characteraudit import (
         CharacterAudit,
@@ -36,15 +39,6 @@ if TYPE_CHECKING:
     from ledger.models.general import UpdateSectionResult
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
-
-
-class MiningLedgerContext:
-    """Context for Character mining ledger ESI operations."""
-
-    date: timezone.datetime
-    quantity: int
-    solar_system_id: int
-    type_id: int
 
 
 def require_valid_price_percentage(func):
@@ -174,17 +168,16 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
             token=token,
         )
 
-        mining_items, response = operation.results(
-            return_response=True, force_refresh=force_refresh
-        )
-        logger.debug("ESI response Status: %s", response.status_code)
+        mining_items = operation.results(force_refresh=force_refresh)
 
         # Process and update or create mining ledger entries
         self._update_or_create_objs(audit, mining_items)
 
     @transaction.atomic()
     def _update_or_create_objs(
-        self, character: "CharacterAudit", objs: list[MiningLedgerContext]
+        self,
+        character: "CharacterAudit",
+        objs: list["CharactersCharacterIdMiningGetItem"],
     ) -> None:
         """Update or Create mining ledger entries from objs data."""
         existings_pks = set(
