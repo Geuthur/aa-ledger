@@ -1228,7 +1228,8 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 - Corporation Ledger JS not working correctly on Years Tab
 - Fixed Permissions aren't create on migrate
 
+[1.0.0]: https://github.com/Geuthur/aa-ledger/compare/v0.9.9.3...v1.0.0 "1.0.0"
 [1.0.0-beta.1]: https://github.com/Geuthur/aa-ledger/compare/v0.9.9.3...v1.0.0-beta.1 "1.0.0-beta.1"
 [1.0.0-beta.2]: https://github.com/Geuthur/aa-ledger/compare/v1.0.0-beta-1...v1.0.0-beta.2 "1.0.0-beta.2"
-[in development]: https://github.com/Geuthur/aa-ledger/compare/v0.9.9.3...HEAD "In Development"
+[in development]: https://github.com/Geuthur/aa-ledger/compare/v1.0.0...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-ledger/issues "report any issues"
