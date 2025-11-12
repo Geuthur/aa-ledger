@@ -324,7 +324,7 @@ class AuditBase(models.Model):
     ) -> None:
         """Update the status of a specific section."""
         error_message = result.error_message if result.error_message else ""
-        is_success = result.is_updated and not result.has_token_error
+        is_success = not result.has_token_error
         defaults = {
             "is_success": is_success,
             "error_message": error_message,
