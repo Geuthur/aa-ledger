@@ -269,7 +269,7 @@ def _update_character_section(character_pk: int, section: str, force_refresh: bo
     else:
         kwargs = {}
     result = character.perform_update_status(section, method, **kwargs)
-    character.update_section_log(section, is_success=True, is_updated=result.is_updated)
+    character.update_section_log(section, result)
 
 
 # Corporation Audit - Tasks
@@ -420,9 +420,7 @@ def _update_corporation_section(corporation_pk: int, section: str, force_refresh
         kwargs = {}
 
     result = corporation.perform_update_status(section, method, **kwargs)
-    corporation.update_section_log(
-        section, is_success=True, is_updated=result.is_updated
-    )
+    corporation.update_section_log(section, result)
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
