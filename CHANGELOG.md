@@ -11,6 +11,44 @@ Section Order:
 ### Removed
 -->
 
+## [1.0.0] - 2025-11-12
+
+### Added
+
+- Data Exporter (CSV compatible) can be called via Administration in each Corporation
+- Change View for Billboard
+- `Section` Arg for Ledger Details
+- Ledger Class Standard queryset
+- HTTPClientError Handler for Sections
+
+### Changed
+
+- Dependency `django-eveuniverse` set to `1.6`
+- Switch to OPENAPI3 ESI Client
+  - Dependency `django-esi` set to `>=8,<9`
+  - Dependency `allianceauth-app-utils` set to `2b1`
+  - Use new ETag System from `django-esi`
+- Refactored Ledger Class
+- Information Modal has now 2 Sections (Single, Summary)
+- Billboard Class has now a Standard View (month)
+- Optimize Initalization for Ledger
+- Optimize Cache Handling for Corporation/Alliance Ledger
+- Optimize `create_url` function
+- moved Information Modal function to `core` Class
+
+### Fixed
+
+- XY Bar not sorted by date, should now resolved
+- Alliance Ledger Information Modal not shown correct values on Single Section
+
+### Removed
+
+- `setup_ledger` function
+- unnecessary complicated codes for url creation
+- `_build_context` function
+- `Request` Arg from Ledger Class
+- Own ETag System
+
 ## [1.0.0-beta.2] - 2025-11-03
 
 ### Added
