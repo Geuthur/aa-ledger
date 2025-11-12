@@ -9,8 +9,7 @@ from dataclasses import dataclass
 from typing import Any, NamedTuple
 
 # Third Party
-from aiopenapi3.errors import ContentTypeError
-from bravado.exception import HTTPInternalServerError
+from aiopenapi3.errors import ContentTypeError, HTTPClientError, HTTPServerError
 
 # Django
 from django.core.validators import MinValueValidator
@@ -34,7 +33,6 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__, app_settings
-from ledger.errors import HTTPGatewayTimeoutError
 from ledger.managers.general_manager import EveEntityManager
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -147,6 +145,8 @@ class UpdateSectionResult(NamedTuple):
 
     is_changed: bool | None
     is_updated: bool
+    has_token_error: bool = False
+    error_message: str | None = None
     data: Any = None
 
 
@@ -231,19 +231,27 @@ class AuditBase(models.Model):
         try:
             data = fetch_func(audit=self, force_refresh=force_refresh)
             logger.debug("%s: Update has changed, section: %s", self, section.label)
-        except HTTPInternalServerError as exc:
+        except HTTPServerError as exc:
             logger.debug("%s: Update has an HTTP internal server error: %s", self, exc)
             return UpdateSectionResult(is_changed=False, is_updated=False)
-        except HTTPNotModified:
-            logger.debug("%s: Update has not changed, section: %s", self, section.label)
-            return UpdateSectionResult(is_changed=False, is_updated=False)
-        except HTTPGatewayTimeoutError as exc:
-            logger.debug(
-                "%s: Update has a gateway timeout error, section: %s: %s",
+        except HTTPClientError as exc:
+            error_message = f"{type(exc).__name__}: {str(exc)}"
+            # TODO ADD DISCORD/AUTH NOTIFICATION?
+            logger.error(
+                "%s: %s: Update has Client Error: %s %s",
                 self,
                 section.label,
-                exc,
+                error_message,
+                exc.status_code,
             )
+            return UpdateSectionResult(
+                is_changed=False,
+                is_updated=False,
+                has_token_error=True,
+                error_message=error_message,
+            )
+        except HTTPNotModified:
+            logger.debug("%s: Update has not changed, section: %s", self, section.label)
             return UpdateSectionResult(is_changed=False, is_updated=False)
         except (OSError, ContentTypeError) as exc:
             logger.info(
@@ -286,7 +294,6 @@ class AuditBase(models.Model):
         try:
             result = method(*args, **kwargs)
         except Exception as exc:
-            # TODO ADD DISCORD/AUTH NOTIFICATION?
             error_message = f"{type(exc).__name__}: {str(exc)}"
             is_token_error = isinstance(exc, (TokenError))
             logger.error(
@@ -312,24 +319,23 @@ class AuditBase(models.Model):
 
     def update_section_log(
         self,
-        section,
-        is_success: bool,
-        is_updated: bool = False,
-        error_message: str = None,
+        section: models.TextChoices,
+        result: UpdateSectionResult,
     ) -> None:
         """Update the status of a specific section."""
-        error_message = error_message if error_message else ""
+        error_message = result.error_message if result.error_message else ""
+        is_success = result.is_updated and not result.has_token_error
         defaults = {
             "is_success": is_success,
             "error_message": error_message,
-            "has_token_error": False,
+            "has_token_error": result.has_token_error,
             "last_run_finished_at": timezone.now(),
         }
-        obj = self.update_status.update_or_create(
+        obj: UpdateStatus = self.update_status.update_or_create(
             section=section,
             defaults=defaults,
         )[0]
-        if is_updated:
+        if result.is_updated:
             obj.last_update_at = obj.last_run_at
             obj.last_update_finished_at = timezone.now()
             obj.save()
@@ -341,7 +347,7 @@ class AuditBase(models.Model):
         sections_needs_update = {
             section: True for section in self.UpdateSection.get_sections()
         }
-        existing_sections = self.update_status.all()
+        existing_sections: models.QuerySet[UpdateStatus] = self.update_status.all()
         needs_update = {
             obj.section: obj.need_update()
             for obj in existing_sections
