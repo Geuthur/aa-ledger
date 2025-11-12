@@ -21,73 +21,15 @@ from ledger.models.characteraudit import CharacterAudit
 from ledger.providers import esi
 
 if TYPE_CHECKING:  # pragma: no cover
+    # Alliance Auth
+    from esi.stubs import CharactersCharacterIdPlanetsGetItem as PlanetGetItem
+    from esi.stubs import CharactersCharacterIdPlanetsPlanetIdGet as PlanetDetailsItem
+
     # AA Ledger
     from ledger.models.general import UpdateSectionResult
     from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
-
-
-class CharacterPlanetContext:
-    """Context for Get colonies ESI operations."""
-
-    last_update: timezone.datetime
-    num_pins: int
-    owner_id: int
-    planet_id: int
-    planet_type: str
-    solar_system_id: int
-    upgrade_level: int
-
-
-class CharacterPlanetLayoutContext:
-    """Context for Get colony layout ESI operations."""
-
-    class LinksContext:
-        destination_pin_id: int
-        link_level: int
-        source_pin_id: int
-
-    class PinsContext:
-        class ContentsContext:
-            amount: int
-            type_id: int
-
-        class ExtractorDetailsContext:
-            head_id: int
-            installed_time: timezone.datetime
-            latitude: float
-            longitude: float
-            quantity_per_cycle: int
-            type_id: int
-            cycle_time: int
-
-        class FactoryDetailsContext:
-            schematic_id: int
-
-        contents: list[ContentsContext] | list
-        expiry_time: timezone.datetime
-        extractor_details: ExtractorDetailsContext | None
-        factory_details: FactoryDetailsContext | None
-        install_time: timezone.datetime | None
-        last_cycle_start: timezone.datetime | None
-        latitude: float
-        longitude: float
-        pin_id: int
-        schematic_id: int | None
-        type_id: int
-
-    class RoutesContext:
-        content_type_id: int
-        destination_pin_id: int
-        quantity: int
-        route_id: int
-        source_pin_id: int
-        waypoints: list
-
-    links: list[LinksContext]
-    pins: list[PinsContext]
-    routes: list[RoutesContext]
 
 
 def to_json_serializable(data):
@@ -140,7 +82,7 @@ class PlanetaryManagerBase(models.Manager):
 
     @transaction.atomic()
     def _update_or_create_objs(
-        self, character: "CharacterAudit", objs: list[CharacterPlanetContext]
+        self, character: "CharacterAudit", objs: list["PlanetGetItem"]
     ) -> None:
         """Update or Create planets entries from objs data."""
         # pylint: disable=import-outside-toplevel
@@ -215,18 +157,14 @@ class PlanetaryDetailsQuerySet(models.QuerySet):
         self,
         character: CharacterAudit,
         planet: "CharacterPlanetDetails",
-        objs: list[CharacterPlanetLayoutContext],
+        objs: list["PlanetDetailsItem"],
     ):
         """Update or Create Layout for a given Planet"""
         return self._update_or_create(character=character, planet=planet, objs=objs)
 
     def _convert_to_dict(
         self,
-        result: list[
-            CharacterPlanetLayoutContext.LinksContext
-            | CharacterPlanetLayoutContext.PinsContext
-            | CharacterPlanetLayoutContext.RoutesContext
-        ],
+        result: list,
     ) -> tuple:
         objects_list = []
         for data in result:
@@ -238,7 +176,7 @@ class PlanetaryDetailsQuerySet(models.QuerySet):
         self,
         character: "CharacterAudit",
         planet: "CharacterPlanetDetails",
-        objs: list[CharacterPlanetLayoutContext],
+        objs: list["PlanetDetailsItem"],
     ):
         """Update or Create Layout for a given Planet"""
         if not isinstance(objs, list):
@@ -405,11 +343,8 @@ class PlanetaryDetailsManagerBase(models.Manager):
             )
 
             try:
-                planets_details_items, response = operation.results(
-                    return_response=True, force_refresh=force_refresh
-                )
+                planets_details_items = operation.results(force_refresh=force_refresh)
                 is_updated = True
-                logger.debug("ESI response Status: %s", response.status_code)
             except HTTPNotModified:
                 continue
 
@@ -426,7 +361,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
     def _update_or_create_objs(
         self,
         character: "CharacterAudit",
-        objs: list[CharacterPlanetLayoutContext],
+        objs: list["PlanetDetailsItem"],
         planet_id: int,
     ) -> None:
         """Update or Create planets entries from objs data."""

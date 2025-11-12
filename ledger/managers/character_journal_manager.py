@@ -20,31 +20,17 @@ from ledger.helpers.ref_type import RefTypeManager
 from ledger.providers import esi
 
 if TYPE_CHECKING:
+    # Alliance Auth
+    from esi.stubs import CharactersCharacterIdWalletJournalGetItem
+
     # AA Ledger
     from ledger.models.characteraudit import (
         CharacterAudit,
     )
     from ledger.models.general import UpdateSectionResult
 
+
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
-
-
-class CharacterJournalContext:
-    """Context for character wallet journal ESI operations."""
-
-    amount: float
-    balance: float
-    context_id: int
-    context_id_type: str
-    date: str
-    description: str
-    first_party_id: int
-    id: int
-    reason: str
-    ref_type: str
-    second_party_id: int
-    tax: float
-    tax_receiver_id: int
 
 
 class CharWalletIncomeFilter(models.QuerySet):
@@ -378,17 +364,17 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             token=token,
         )
 
-        journal_items, response = operation.results(
-            return_response=True,
+        journal_items = operation.results(
             force_refresh=force_refresh,
         )
-        logger.debug("ESI response Status: %s", response.status_code)
 
         self._update_or_create_objs(character=audit, objs=journal_items)
 
     @transaction.atomic()
     def _update_or_create_objs(
-        self, character: "CharacterAudit", objs: list[CharacterJournalContext]
+        self,
+        character: "CharacterAudit",
+        objs: list["CharactersCharacterIdWalletJournalGetItem"],
     ) -> None:
         """Update or Create wallet journal entries from objs data."""
         # pylint: disable=import-outside-toplevel

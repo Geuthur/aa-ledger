@@ -23,6 +23,12 @@ from ledger.models.general import EveEntity
 from ledger.providers import esi
 
 if TYPE_CHECKING:
+    # Alliance Auth
+    from esi.stubs import CorporationsCorporationIdDivisionsGet as DivisionItem
+    from esi.stubs import (
+        CorporationsCorporationIdWalletsDivisionJournalGetItem as JournalItem,
+    )
+
     # AA Ledger
     from ledger.models.corporationaudit import (
         CorporationAudit,
@@ -30,43 +36,6 @@ if TYPE_CHECKING:
     )
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
-
-
-# pylint: disable=duplicate-code
-class CorporationJournalContext:
-    """Context for corporation wallet journal ESI operations."""
-
-    amount: float
-    balance: float
-    context_id: int
-    context_id_type: str
-    date: str
-    description: str
-    first_party_id: int
-    id: int
-    reason: str
-    ref_type: str
-    second_party_id: int
-    tax: float
-    tax_receiver_id: int
-
-
-class CorporationDivisionContext:
-    class WalletContext:
-        division: int
-        name: str | None
-
-    class HangerContext:
-        division: int
-        name: str | None
-
-    hanger: list[HangerContext]
-    wallet: list[WalletContext]
-
-
-class CorporationWalletContext:
-    division: int
-    balance: float
 
 
 class CorporationWalletQuerySet(models.QuerySet):
@@ -231,12 +200,10 @@ class CorporationWalletManagerBase(models.Manager):
                 )
             )
 
+            # pylint: disable=duplicate-code
             try:
-                journal_items, response = operation.results(
-                    return_response=True, force_refresh=force_refresh
-                )
+                journal_items = operation.results(force_refresh=force_refresh)
                 is_updated = True
-                logger.debug("ESI response Status: %s", response.status_code)
             except HTTPNotModified:
                 continue
 
@@ -249,7 +216,7 @@ class CorporationWalletManagerBase(models.Manager):
     def _update_or_create_objs(
         self,
         division: "CorporationWalletDivision",
-        objs: list[CorporationJournalContext],
+        objs: list["JournalItem"],
     ) -> None:
         """Update or Create wallet journal entries from objs data."""
         _new_names = []
@@ -392,7 +359,7 @@ class CorporationDivisionManagerBase(models.Manager):
     def _update_or_create_objs_division(
         self,
         corporation: "CorporationAudit",
-        objs: list[CorporationDivisionContext],
+        objs: list["DivisionItem"],
     ) -> None:
         """Update or Create division entries from objs data."""
         for division in objs:  # list (hanger, wallet)
