@@ -313,11 +313,7 @@ class CorporationDivisionManagerBase(models.Manager):
             corporation_id=audit.corporation.corporation_id,
             token=token,
         )
-        division_items, response = operation.results(
-            return_response=True, force_refresh=force_refresh
-        )
-
-        logger.debug("ESI response Status: %s", response.status_code)
+        division_items = operation.results(force_refresh=force_refresh)
 
         self._update_or_create_objs(corporation=audit, objs=division_items)
 
@@ -347,11 +343,7 @@ class CorporationDivisionManagerBase(models.Manager):
             corporation_id=audit.corporation.corporation_id,
             token=token,
         )
-        division_items, response = operation.results(
-            return_response=True, force_refresh=force_refresh
-        )
-
-        logger.debug("ESI response Status: %s", response.status_code)
+        division_items = operation.results(force_refresh=force_refresh)
 
         self._update_or_create_objs_division(corporation=audit, objs=division_items)
 

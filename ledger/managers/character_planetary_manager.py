@@ -73,10 +73,7 @@ class PlanetaryManagerBase(models.Manager):
             token=token,
         )
 
-        planets_items, response = operation.results(
-            return_response=True, force_refresh=force_refresh
-        )
-        logger.debug("ESI response Status: %s", response.status_code)
+        planets_items = operation.results(force_refresh=force_refresh)
 
         self._update_or_create_objs(character=audit, objs=planets_items)
 
