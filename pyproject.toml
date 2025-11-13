@@ -38,7 +38,7 @@ dependencies = [
     "allianceauth-app-utils>=2b1",
     "django-esi>=8,<9",
     "django-eveuniverse>=1.6",
-    "django-ninja<1.5",
+    "django-ninja",
 ]
 optional-dependencies.tests-allianceauth-latest = [
     "aa-discordnotify",
@@ -61,6 +61,3 @@ include = [
 
 [tool.hatch.version]
 path = "ledger/__init__.py"
-
-[tool.hatch.metadata]
-allow-direct-references = true
