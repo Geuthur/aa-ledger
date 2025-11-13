@@ -11,6 +11,11 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- Temporary pin `django-ninja` to `django-ninja<=1.5`
+  - https://github.com/vitalik/django-ninja/pull/1524
+
 ## [1.0.0] - 2025-11-12
 
 ### Added
