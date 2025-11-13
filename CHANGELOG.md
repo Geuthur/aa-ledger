@@ -11,6 +11,8 @@ Section Order:
 ### Removed
 -->
 
+## [1.0.1] - 2025-11-13
+
 ### Added
 
 - Temporary pin `django-ninja` to `django-ninja<=1.5`
