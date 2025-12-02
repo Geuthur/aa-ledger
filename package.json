@@ -1,9 +1,9 @@
 {
     "type": "module",
     "devDependencies": {
-        "eslint": "^9.39.0",
+        "eslint": "^9.39.1",
         "globals": "^16.5.0",
-        "stylelint": "^16.23.1",
+        "stylelint": "^16.26.1",
         "stylelint-config-standard": "^39.0.0"
     }
 }
