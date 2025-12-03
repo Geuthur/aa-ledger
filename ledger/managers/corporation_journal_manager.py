@@ -16,6 +16,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
+from ledger.app_settings import LEDGER_BULK_BATCH_SIZE
 from ledger.decorators import log_timing
 from ledger.errors import DatabaseError
 from ledger.helpers.ref_type import RefTypeManager
@@ -264,7 +265,7 @@ class CorporationWalletManagerBase(models.Manager):
         created_names = EveEntity.objects.create_bulk_from_esi(_new_names)
 
         if created_names:
-            self.bulk_create(items)
+            self.bulk_create(items, batch_size=LEDGER_BULK_BATCH_SIZE)
         else:
             raise DatabaseError("DB Fail")
 

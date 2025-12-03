@@ -13,6 +13,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
+from ledger.app_settings import LEDGER_BULK_BATCH_SIZE
 from ledger.providers import esi
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -58,7 +59,9 @@ class EveEntityManager(models.Manager):
                             category=entity.category,
                         )
                     )
-                EveEntity.objects.bulk_create(new_names, ignore_conflicts=True)
+                EveEntity.objects.bulk_create(
+                    new_names, batch_size=LEDGER_BULK_BATCH_SIZE, ignore_conflicts=True
+                )
             return True
         return True
 

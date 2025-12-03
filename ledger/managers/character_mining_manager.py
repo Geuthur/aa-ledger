@@ -24,7 +24,7 @@ from eveuniverse.models import EveSolarSystem, EveType
 
 # AA Ledger
 from ledger import __title__
-from ledger.app_settings import LEDGER_PRICE_PERCENTAGE
+from ledger.app_settings import LEDGER_BULK_BATCH_SIZE, LEDGER_PRICE_PERCENTAGE
 from ledger.decorators import log_timing
 from ledger.providers import esi
 
@@ -213,10 +213,14 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
         EveSolarSystem.objects.bulk_get_or_create_esi(ids=list(system_ids))
 
         if new_events:
-            self.bulk_create(new_events, ignore_conflicts=True)
+            self.bulk_create(
+                new_events, batch_size=LEDGER_BULK_BATCH_SIZE, ignore_conflicts=True
+            )
 
         if old_events:
-            self.bulk_update(old_events, fields=["quantity"])
+            self.bulk_update(
+                old_events, fields=["quantity"], batch_size=LEDGER_BULK_BATCH_SIZE
+            )
 
         self._update_mining_price(character)
 
@@ -238,7 +242,11 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
                 updated_entries.append(entry)
 
         if updated_entries:
-            self.bulk_update(updated_entries, fields=["price_per_unit"])
+            self.bulk_update(
+                updated_entries,
+                fields=["price_per_unit"],
+                batch_size=LEDGER_BULK_BATCH_SIZE,
+            )
 
         logger.debug(
             f"Updated prices for {len(updated_entries)}({character.character_name}) mining ledger entries."

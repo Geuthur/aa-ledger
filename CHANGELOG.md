@@ -11,6 +11,15 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- Batch Size for DJANGO bulk tasks
+
+### Fixed
+
+- User Notification in Data Exporter
+- django.db.utils.OperationalError: (1153, "Got a packet bigger than 'max_allowed_packet' bytes")
+
 ## [1.0.3] - 2025-11-16
 
 ### Changed
