@@ -11,6 +11,14 @@ Section Order:
 ### Removed
 -->
 
+## [1.0.4] - 2025-12-03
+
+### Changed
+
+- Bump actions/checkout from 5 to 6
+- Updated npm dependencies
+- pre-commit autoupdate
+
 ### Added
 
 - Batch Size for DJANGO bulk tasks
@@ -1264,5 +1272,6 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 [1.0.1]: https://github.com/Geuthur/aa-ledger/compare/v1.0.0...v1.0.1 "1.0.1"
 [1.0.2]: https://github.com/Geuthur/aa-ledger/compare/v1.0.1...v1.0.2 "1.0.2"
 [1.0.3]: https://github.com/Geuthur/aa-ledger/compare/v1.0.2...v1.0.3 "1.0.3"
-[in development]: https://github.com/Geuthur/aa-ledger/compare/v1.0.3...HEAD "In Development"
+[1.0.4]: https://github.com/Geuthur/aa-ledger/compare/v1.0.3...v1.0.4 "1.0.4"
+[in development]: https://github.com/Geuthur/aa-ledger/compare/v1.0.4...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-ledger/issues "report any issues"

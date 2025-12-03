@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Ledger 1.0.3\n"
+"Project-Id-Version: AA Ledger 1.0.4\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-ledger/issues\n"
-"POT-Creation-Date: 2025-11-16 18:48+0100\n"
+"POT-Creation-Date: 2025-12-03 07:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -201,8 +201,8 @@ msgid "Costs"
 msgstr ""
 
 #: ledger/helpers/billboard.py:56
-#: ledger/managers/corporation_journal_manager.py:362
-#: ledger/managers/corporation_journal_manager.py:386
+#: ledger/managers/corporation_journal_manager.py:363
+#: ledger/managers/corporation_journal_manager.py:387
 msgid "Unknown"
 msgstr ""
 
@@ -241,7 +241,7 @@ msgstr ""
 msgid "Structure Rental"
 msgstr ""
 
-#: ledger/managers/corporation_journal_manager.py:360
+#: ledger/managers/corporation_journal_manager.py:361
 msgid "Master Wallet"
 msgstr ""
 
@@ -358,17 +358,6 @@ msgstr ""
 msgid ""
 "Your data export for topic {ledger_type} is ready. You can download it from "
 "the Data Export page."
-msgstr ""
-
-#: ledger/tasks.py:478
-msgid "{ledger_type.capitalize()} Data Export Failed"
-msgstr ""
-
-#: ledger/tasks.py:480
-#, python-brace-format
-msgid ""
-"Your data export for topic {ledger_type} has failed with following error: "
-"{msg}"
 msgstr ""
 
 #: ledger/templates/ledger/admin.html:17
