@@ -48,3 +48,11 @@ LEDGER_PRICE_PERCENTAGE = clean_setting("LEDGER_PRICE_PERCENTAGE", 0.9)
 LEDGER_CACHE_STALE = 60 * 60 * 168  # 168 hours
 LEDGER_CACHE_KEY = "LEDGER"
 LEDGER_CACHE_ENABLED = True
+
+# Maximum Number of Objects processed per run of DJANGO Batch Method
+# Controls how many database records are inserted in a single batch operation.
+# If you encounter "Got a packet bigger than 'max_allowed_packet' bytes" errors,
+# reduce this value (e.g., to 250 or 100).
+# Can be increased for better performance if your MySQL max_allowed_packet setting
+# is configured higher (default is usually 16-64MB).
+LEDGER_BULK_BATCH_SIZE = clean_setting("LEDGER_BULK_BATCH_SIZE", 500)

@@ -15,6 +15,7 @@ from eveuniverse.models import EvePlanet, EveType
 
 # AA Ledger
 from ledger import __title__
+from ledger.app_settings import LEDGER_BULK_BATCH_SIZE
 from ledger.constants import COMMAND_CENTER, EXTRACTOR_CONTROL_UNIT, SPACEPORTS
 from ledger.decorators import log_timing
 from ledger.models.characteraudit import CharacterAudit
@@ -119,9 +120,13 @@ class PlanetaryManagerBase(models.Manager):
                 _planets_update.append(planet)
 
         if _planets_new:
-            self.bulk_create(_planets_new)
+            self.bulk_create(_planets_new, batch_size=LEDGER_BULK_BATCH_SIZE)
         if _planets_update:
-            self.bulk_update(_planets_update, fields=["upgrade_level", "num_pins"])
+            self.bulk_update(
+                _planets_update,
+                fields=["upgrade_level", "num_pins"],
+                batch_size=LEDGER_BULK_BATCH_SIZE,
+            )
 
         # Delete Planets that are no longer in the list
         obsolete_planets = set(_current_planets) - set(_planets_ids)

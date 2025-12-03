@@ -165,6 +165,7 @@ The Following Settings can be setting up in the `local.py`
 - LEDGER_TASKS_TIME_LIMIT: `7200` - Defines the time (in seconds) a task will timeout
 - LEDGER_USE_COMPRESSED: `True` - Defines if Mining Ledger use Compressed Price or Raw
 - LEDGER_PRICE_PERCENTAGE: `0.9`- Defines Mining Price multiplier
+- LEDGER_BULK_BATCH_SIZE: `500` - Maximum database batch size per operation. Reduce (e.g., 250) if encountering 'max_allowed_packet' errors, increase for better performance if MySQL is configured with higher limits
 
 Advanced Settings: Stale Status for Each Section
 

@@ -15,6 +15,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
+from ledger.app_settings import LEDGER_BULK_BATCH_SIZE
 from ledger.decorators import log_timing
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.providers import esi
@@ -421,7 +422,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         created_names = EveEntity.objects.create_bulk_from_esi(_new_names)
 
         if created_names:
-            self.bulk_create(items)
+            self.bulk_create(items, batch_size=LEDGER_BULK_BATCH_SIZE)
         else:
             raise TokenError("ESI Fail")
 
