@@ -469,21 +469,16 @@ def export_data_ledger(
         logger.debug("User with pk %s does not exist", user_pk)
         return
 
-    if not msg:
+    if msg is not None:
         title = _(f"{ledger_type.capitalize()} Data Export Ready")
         message = _(
             f"Your data export for topic {ledger_type} is ready. You can download it from the Data Export page.",
         )
-    else:
-        title = _(f"{ledger_type.capitalize()} Data Export Failed")
-        message = _(
-            f"Your data export for topic {ledger_type} has failed with following error: {msg}",
-        )
 
-    send_user_notification.delay(
-        user_id=user.pk,
-        title=title,
-        message=message,
-        embed_message=True,
-        level="info",
-    )
+        send_user_notification.delay(
+            user_id=user.pk,
+            title=title,
+            message=message,
+            embed_message=True,
+            level="info",
+        )
