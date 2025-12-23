@@ -1,43 +1,79 @@
 {% extends 'allianceauth/base-bs5.html' %}
 {% load i18n %}
 
-{% block main_css %}
-{% endblock main_css %}
-{% block extra_css %}
-{% endblock extra_css %}
-
 {% block page_title %}
     {% block page_template_title %}{% endblock page_template_title %} ⋗ {% translate "Ledger" %}
 {% endblock %}
 
 {% block header_nav_brand %}
-    <a class="nav-link text-white link-light link-underline link-underline-opacity-0" href="{% url 'ledger:index' %}">Ledger</a>
+    <a class="nav-link text-white link-light link-underline link-underline-opacity-0" href="{% url 'ledger:index' %}">{% translate "Ledger" %}</a>
 {% endblock header_nav_brand %}
 
 {% block header_nav_collapse_left %}
-
-{% include 'ledger/partials/menu/navigation.html' %}
-
+    {% include 'ledger/partials/menu/navigation.html' %}
 {% endblock header_nav_collapse_left %}
 
 {% block header_nav_collapse_right %}
-
-{% include 'ledger/partials/menu/administration.html' %}
-
+    {% include 'ledger/partials/menu/administration.html' %}
 {% endblock header_nav_collapse_right %}
 
 {% block content %}
+    {% include 'bundles/datatables-css-bs5.html' %}
+    <div class="aa-ledger">
+        <div class="aa-ledger-body">
+            {% get_datatables_language_static LANGUAGE_CODE as DT_LANG_PATH %}
+            <script type="application/javascript">
+                const aaLedgerDefaultSettings = {
+                    // Alliance Auth settings
+                    locale: '{{ LANGUAGE_CODE }}',
+                    csrfToken: '{{ csrf_token }}',
+                    // Ledger settings
+                    dataTables: {
+                        paging: true,
+                        language: {url: '{{ DT_LANG_PATH }}'},
+                        layout: {
+                            topStart: 'pageLength',
+                            topEnd: null,
+                            bottomStart: 'info',
+                            bottomEnd: 'paging'
+                        },
+                        ordering: {
+                            indicators: false,
+                            handler: false
+                        },
+                        columnControl: [
+                            {
+                                target: 0,
+                                content: [
+                                    'order',
+                                ]
+                            },
+                            {
+                                target: 1,
+                                content: [
+                                    'search'
+                                ]
+                            }
+                        ]
+                    },
+                    translations: {
+                        months: [
+                            "{% trans 'January' %}", "{% trans 'February' %}", "{% trans 'March' %}", "{% trans 'April' %}",
+                            "{% trans 'May' %}", "{% trans 'June' %}", "{% trans 'July' %}", "{% trans 'August' %}",
+                            "{% trans 'September' %}", "{% trans 'October' %}", "{% trans 'November' %}", "{% trans 'December' %}"
+                        ],
+                        dayText: "{% trans 'Day' %}",
+                        monthText: "{% trans 'Month' %}",
+                        internalServerError: "{% translate 'Internal Server Error' %}",
+                    },
+                };
+            </script>
 
-{% include 'ledger/bundles/ledger-css.html' %}
-{% include 'bundles/datatables-css-bs5.html' %}
-
-<div class="allianceauth-ledger-plugin">
-    <div class="card card-ledger">
-    {% block ledger_block %}{% endblock %}
+            {% block ledger_block %}
+                <!-- Your content goes here -->
+            {% endblock %}
+        </div>
     </div>
-    <br>
-</div>
-
 {% endblock %}
 
 {% block extra_javascript %}
