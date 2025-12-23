@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Ledger\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-ledger/issues\n"
-"POT-Creation-Date: 2025-10-16 07:16+0200\n"
-"PO-Revision-Date: 2025-10-17 06:28+0000\n"
-"Last-Translator: Peter Pfeufer <info@ppfeufer.de>\n"
-"Language-Team: German <https://weblate.voices-of-war.de/projects/"
-"allianceauth/aa-ledger/de/>\n"
+"POT-Creation-Date: 2025-12-03 07:19+0100\n"
+"PO-Revision-Date: 2025-12-23 01:38+0000\n"
+"Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.geuthur.de>\n"
+"Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
+"ledger/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.13.3\n"
+"X-Generator: Weblate 5.15.1\n"
 
 msgid "last update run"
 msgstr "Letztes Update ausgeführt"
@@ -42,24 +42,6 @@ msgid ""
 "background."
 msgstr ""
 
-msgid "Bounty"
-msgstr "Kopfgeld"
-
-msgid "ESS"
-msgstr ""
-
-msgid "Mining"
-msgstr "Bergbau"
-
-msgid "Miscellaneous"
-msgstr "Verschiedenes"
-
-msgid "Costs"
-msgstr "Kosten"
-
-msgid "Unknown"
-msgstr "Unbekannt"
-
 msgid "No facility"
 msgstr "Keine Anlage"
 
@@ -78,6 +60,48 @@ msgstr "Planet nicht gefunden"
 msgid "Extractor Information"
 msgstr "Extraktor Information"
 
+msgid "All months"
+msgstr ""
+
+msgid "January"
+msgstr "Januar"
+
+msgid "February"
+msgstr "Februar"
+
+msgid "March"
+msgstr "März"
+
+msgid "April"
+msgstr "April"
+
+msgid "May"
+msgstr "Mai"
+
+msgid "June"
+msgstr "Juni"
+
+msgid "July"
+msgstr "Juli"
+
+msgid "August"
+msgstr "August"
+
+msgid "September"
+msgstr "September"
+
+msgid "October"
+msgstr "Oktober"
+
+msgid "November"
+msgstr "November"
+
+msgid "December"
+msgstr "Dezember"
+
+msgid "All Divisions"
+msgstr "Alle Abteilungen"
+
 msgid "Ratting Bar"
 msgstr "Ratting Fortschritt"
 
@@ -92,6 +116,24 @@ msgstr "Kosten (Konto)"
 
 msgid "Miscellaneous (Wallet)"
 msgstr "Verschiedenes (Konto)"
+
+msgid "Bounty"
+msgstr "Kopfgeld"
+
+msgid "ESS"
+msgstr ""
+
+msgid "Mining"
+msgstr "Bergbau"
+
+msgid "Miscellaneous"
+msgstr "Verschiedenes"
+
+msgid "Costs"
+msgstr "Kosten"
+
+msgid "Unknown"
+msgstr "Unbekannt"
 
 msgid "View Details"
 msgstr "Zeige Details"
@@ -132,6 +174,21 @@ msgstr "Planeten"
 msgid "Planets Details"
 msgstr "Planeten Details"
 
+msgid "Divisions Names"
+msgstr "Abteilungen Namen"
+
+msgid "Divisions"
+msgstr "Abteilungen"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Category"
+msgstr "Kategorie"
+
+msgid "Name"
+msgstr "Name"
+
 msgid "disabled"
 msgstr "deaktiviert"
 
@@ -139,10 +196,10 @@ msgid "token error"
 msgstr "token Fehler"
 
 msgid "error"
-msgstr "Fehler"
+msgstr "fehler"
 
 msgid "ok"
-msgstr ""
+msgstr "Ok"
 
 msgid "incomplete"
 msgstr "unvollständig"
@@ -168,21 +225,6 @@ msgstr "Ein Fehler trat während des Update auf"
 msgid "Updates completed successfully"
 msgstr "Aktualisierungen erfolgreich abgeschlossen"
 
-msgid "Divisions Names"
-msgstr "Abteilungen Namen"
-
-msgid "Divisions"
-msgstr "Abteilungen"
-
-msgid "ID"
-msgstr ""
-
-msgid "Category"
-msgstr ""
-
-msgid "Name"
-msgstr "Name"
-
 msgid "Upgrade level of the planet"
 msgstr "Upgrade-Stufe des Planeten"
 
@@ -195,6 +237,15 @@ msgstr "%(charname)s auf %(planetname)s"
 
 msgid "Planetary Extractor Heads Expired"
 msgstr "Planetare Extraktor-Köpfe abgelaufen"
+
+msgid "{ledger_type.capitalize()} Data Export Ready"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Your data export for topic {ledger_type} is ready. You can download it from "
+"the Data Export page."
+msgstr ""
 
 msgid "Administration"
 msgstr "Verwaltung"
@@ -243,42 +294,6 @@ msgstr "Tag"
 
 msgid "Ledger"
 msgstr ""
-
-msgid "January"
-msgstr "Januar"
-
-msgid "February"
-msgstr "Februar"
-
-msgid "March"
-msgstr "März"
-
-msgid "April"
-msgstr "April"
-
-msgid "May"
-msgstr "Mai"
-
-msgid "June"
-msgstr "Juni"
-
-msgid "July"
-msgstr "Juli"
-
-msgid "August"
-msgstr "August"
-
-msgid "September"
-msgstr "September"
-
-msgid "October"
-msgstr "Oktober"
-
-msgid "November"
-msgstr "November"
-
-msgid "December"
-msgstr "Dezember"
 
 msgid "Are you sure to Switch Notification"
 msgstr "Sind Sie sicher, dass Sie die Benachrichtigung umschalten wollen"
@@ -340,14 +355,32 @@ msgstr ""
 msgid "Division"
 msgstr "Abteilung"
 
-msgid "All Divisions"
-msgstr "Alle Abteilungen"
+msgid "Data Export"
+msgstr ""
+
+msgid "Generate"
+msgstr ""
+
+msgid "Last Generation"
+msgstr ""
+
+msgid "Hash"
+msgstr ""
+
+msgid "Download"
+msgstr ""
+
+msgid "Update now"
+msgstr ""
+
+msgid "No export files found."
+msgstr ""
 
 msgid "Ledger - Error"
 msgstr "Ledger - Fehler"
 
 msgid "Index"
-msgstr ""
+msgstr "Index"
 
 msgid "Alliance not found."
 msgstr "Allianz wurde nicht gefunden."
@@ -382,6 +415,9 @@ msgstr "Character ist nicht im Ledger registriert."
 msgid "No Corporation found."
 msgstr "Keine Corporationen gefunden."
 
+msgid "Corporation Data Export"
+msgstr ""
+
 msgid "Delete Corporation"
 msgstr "Corporation Löschen"
 
@@ -389,7 +425,7 @@ msgid "Are you sure to Delete this Corporation?"
 msgstr "Möchten Sie den Character wirklich löschen?"
 
 msgid "Dashboard"
-msgstr ""
+msgstr "Dashboard"
 
 msgid "Status:"
 msgstr ""
@@ -642,6 +678,21 @@ msgstr "Alle Alarme wurden erfolgreich gewechselt"
 
 msgid "Planet/s not found"
 msgstr "Planet/en nicht gefunden"
+
+msgid "Invalid form submission."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Data export for {corporation_id} has been started. This can take a couple of "
+"minutes. You will get a notification once it is completed."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Data export for {entity_id} has been started. This can take a couple of "
+"minutes. You will get a notification once it is completed."
+msgstr ""
 
 #, python-brace-format
 msgid "{audit.corporation.corporation_name} successfully deleted"
