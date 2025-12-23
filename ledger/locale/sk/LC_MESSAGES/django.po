@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Ledger \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-ledger/issues\n"
-"POT-Creation-Date: 2025-10-16 07:16+0200\n"
+"POT-Creation-Date: 2025-12-03 07:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,24 +40,6 @@ msgid ""
 "background."
 msgstr ""
 
-msgid "Bounty"
-msgstr ""
-
-msgid "ESS"
-msgstr ""
-
-msgid "Mining"
-msgstr ""
-
-msgid "Miscellaneous"
-msgstr ""
-
-msgid "Costs"
-msgstr ""
-
-msgid "Unknown"
-msgstr ""
-
 msgid "No facility"
 msgstr ""
 
@@ -76,6 +58,48 @@ msgstr ""
 msgid "Extractor Information"
 msgstr ""
 
+msgid "All months"
+msgstr ""
+
+msgid "January"
+msgstr ""
+
+msgid "February"
+msgstr ""
+
+msgid "March"
+msgstr ""
+
+msgid "April"
+msgstr ""
+
+msgid "May"
+msgstr ""
+
+msgid "June"
+msgstr ""
+
+msgid "July"
+msgstr ""
+
+msgid "August"
+msgstr ""
+
+msgid "September"
+msgstr ""
+
+msgid "October"
+msgstr ""
+
+msgid "November"
+msgstr ""
+
+msgid "December"
+msgstr ""
+
+msgid "All Divisions"
+msgstr ""
+
 msgid "Ratting Bar"
 msgstr ""
 
@@ -89,6 +113,24 @@ msgid "Costs (Wallet)"
 msgstr ""
 
 msgid "Miscellaneous (Wallet)"
+msgstr ""
+
+msgid "Bounty"
+msgstr ""
+
+msgid "ESS"
+msgstr ""
+
+msgid "Mining"
+msgstr ""
+
+msgid "Miscellaneous"
+msgstr ""
+
+msgid "Costs"
+msgstr ""
+
+msgid "Unknown"
 msgstr ""
 
 msgid "View Details"
@@ -130,6 +172,21 @@ msgstr ""
 msgid "Planets Details"
 msgstr ""
 
+msgid "Divisions Names"
+msgstr ""
+
+msgid "Divisions"
+msgstr ""
+
+msgid "ID"
+msgstr ""
+
+msgid "Category"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
 msgid "disabled"
 msgstr ""
 
@@ -166,21 +223,6 @@ msgstr ""
 msgid "Updates completed successfully"
 msgstr ""
 
-msgid "Divisions Names"
-msgstr ""
-
-msgid "Divisions"
-msgstr ""
-
-msgid "ID"
-msgstr ""
-
-msgid "Category"
-msgstr ""
-
-msgid "Name"
-msgstr ""
-
 msgid "Upgrade level of the planet"
 msgstr ""
 
@@ -192,6 +234,15 @@ msgid "%(charname)s on %(planetname)s"
 msgstr ""
 
 msgid "Planetary Extractor Heads Expired"
+msgstr ""
+
+msgid "{ledger_type.capitalize()} Data Export Ready"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Your data export for topic {ledger_type} is ready. You can download it from "
+"the Data Export page."
 msgstr ""
 
 msgid "Administration"
@@ -240,42 +291,6 @@ msgid "Day"
 msgstr ""
 
 msgid "Ledger"
-msgstr ""
-
-msgid "January"
-msgstr ""
-
-msgid "February"
-msgstr ""
-
-msgid "March"
-msgstr ""
-
-msgid "April"
-msgstr ""
-
-msgid "May"
-msgstr ""
-
-msgid "June"
-msgstr ""
-
-msgid "July"
-msgstr ""
-
-msgid "August"
-msgstr ""
-
-msgid "September"
-msgstr ""
-
-msgid "October"
-msgstr ""
-
-msgid "November"
-msgstr ""
-
-msgid "December"
 msgstr ""
 
 msgid "Are you sure to Switch Notification"
@@ -338,7 +353,25 @@ msgstr ""
 msgid "Division"
 msgstr ""
 
-msgid "All Divisions"
+msgid "Data Export"
+msgstr ""
+
+msgid "Generate"
+msgstr ""
+
+msgid "Last Generation"
+msgstr ""
+
+msgid "Hash"
+msgstr ""
+
+msgid "Download"
+msgstr ""
+
+msgid "Update now"
+msgstr ""
+
+msgid "No export files found."
 msgstr ""
 
 msgid "Ledger - Error"
@@ -378,6 +411,9 @@ msgid "Character is not registered in Ledger."
 msgstr ""
 
 msgid "No Corporation found."
+msgstr ""
+
+msgid "Corporation Data Export"
 msgstr ""
 
 msgid "Delete Corporation"
@@ -636,6 +672,21 @@ msgid "All alarms successfully switched"
 msgstr ""
 
 msgid "Planet/s not found"
+msgstr ""
+
+msgid "Invalid form submission."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Data export for {corporation_id} has been started. This can take a couple of "
+"minutes. You will get a notification once it is completed."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Data export for {entity_id} has been started. This can take a couple of "
+"minutes. You will get a notification once it is completed."
 msgstr ""
 
 #, python-brace-format
