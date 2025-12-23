@@ -11,6 +11,10 @@ Section Order:
 ### Removed
 -->
 
+### Changed
+
+- create libs folder and save `amCharts` file local
+
 ## [1.0.4] - 2025-12-03
 
 ### Changed
