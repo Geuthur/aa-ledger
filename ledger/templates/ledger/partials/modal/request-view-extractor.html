@@ -18,6 +18,9 @@
                 <div id="table-filter-content">
                     {% include 'ledger/partials/view-character-planetary/extractor-table.html' %}
                 </div>
+                <span class="text-muted small">
+                    {% trans "Note: Planetary information is only recalculated when the colony is viewed through the client. Information will not update until this criteria is met." %}
+                </span>
             </div>
             <div class="modal-footer">
                 <button id="modal-button-cancel-request" type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
