@@ -71,7 +71,12 @@ def get_factories_info(planet_details: CharacterPlanetDetails) -> list[FactorySc
         if factory_info.get("facility_type") != "Processors":
             continue
 
-        ressource_types = get_resource_type(factory_info["ressources"])
+        # Skip if no ressources
+        ressources = factory_info.get("ressources", None) or None
+        if ressources is None:
+            continue
+
+        ressource_types = get_resource_type(ressources)
         ressource_list = []
 
         # Build Ressource List from Factories
