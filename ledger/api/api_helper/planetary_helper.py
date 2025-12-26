@@ -359,7 +359,7 @@ def generate_progressbar(percentage: float | None) -> str:
 
 
 def get_character_render_url(
-    character_id: int, size: int = 32, character_name: str = None, as_html: bool = False
+    character_id: int, size: int = 32, character_name: str = "", as_html: bool = False
 ) -> str:
     """Get the character render for a character ID."""
 
@@ -376,7 +376,7 @@ def get_character_render_url(
 
 
 def get_type_render_url(
-    type_id: int, size: int = 32, type_name: str = None, as_html: bool = False
+    type_id: int, size: int = 32, type_name: str = "", as_html: bool = False
 ) -> str:
     """Get the type render for a type ID."""
 
@@ -393,7 +393,7 @@ def get_type_render_url(
 
 
 def get_icon_render_url(
-    type_id: int, size: int = 32, type_name: str = None, as_html: bool = False
+    type_id: int, size: int = 32, type_name: str = "", as_html: bool = False
 ) -> str:
     """Get the icon render for a type ID."""
 
