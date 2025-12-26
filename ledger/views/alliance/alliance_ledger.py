@@ -58,16 +58,12 @@ def alliance_ledger(request, alliance_id, year=None, month=None, day=None):
     if perms is False:
         msg = _("Permission Denied")
         messages.error(request, msg)
-        return render(
-            request, "ledger/allyledger/alliance_ledger.html", context=context
-        )
+        return render(request, "ledger/view-alliance-ledger.html", context=context)
     # pylint: disable=duplicate-code
     if perms is None:
         msg = _("Alliance not found.")
         messages.info(request, msg)
-        return render(
-            request, "ledger/allyledger/alliance_ledger.html", context=context
-        )
+        return render(request, "ledger/view-alliance-ledger.html", context=context)
 
     alliance_data = AllianceData(
         request=request, alliance=alliance, year=year, month=month, day=day
@@ -98,7 +94,7 @@ def alliance_ledger(request, alliance_id, year=None, month=None, day=None):
     # Add additional information to the context
     context = add_info_to_context(request, context)
 
-    return render(request, "ledger/allyledger/alliance_ledger.html", context=context)
+    return render(request, "ledger/view-alliance-ledger.html", context=context)
 
 
 # pylint: disable=too-many-positional-arguments
@@ -185,9 +181,7 @@ def alliance_overview(request):
         "title": "Alliance Overview",
     }
     context = add_info_to_context(request, context)
-    return render(
-        request, "ledger/allyledger/admin/alliance_overview.html", context=context
-    )
+    return render(request, "ledger/view-alliance-overview.html", context=context)
 
 
 @login_required
@@ -229,6 +223,6 @@ def alliance_administration(request, alliance_id):
     context = add_info_to_context(request, context)
     return render(
         request,
-        "ledger/allyledger/admin/alliance_administration.html",
+        "ledger/view-alliance-administration.html",
         context=context,
     )
