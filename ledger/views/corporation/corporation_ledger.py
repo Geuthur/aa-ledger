@@ -236,16 +236,12 @@ def corporation_ledger(
     if perms is False:
         msg = _("Permission Denied")
         messages.error(request, msg)
-        return render(
-            request, "ledger/corpledger/corporation_ledger.html", context=context
-        )
+        return render(request, "ledger/view-corporation-ledger.html", context=context)
     # pylint: disable=duplicate-code
     if perms is None:
         msg = _("Corporation not found")
         messages.info(request, msg)
-        return render(
-            request, "ledger/corpledger/corporation_ledger.html", context=context
-        )
+        return render(request, "ledger/view-corporation-ledger.html", context=context)
 
     corporation_data = CorporationData(
         corporation=corporation,
@@ -277,7 +273,7 @@ def corporation_ledger(
     # Add additional information to the context
     context = add_info_to_context(request, context)
 
-    return render(request, "ledger/corpledger/corporation_ledger.html", context=context)
+    return render(request, "ledger/view-corporation-ledger.html", context=context)
 
 
 # pylint: disable=too-many-positional-arguments, too-many-arguments
@@ -369,9 +365,7 @@ def corporation_overview(request):
     """
     context = {"title": "Corporation Overview"}
     context = add_info_to_context(request, context)
-    return render(
-        request, "ledger/corpledger/admin/corporation_overview.html", context=context
-    )
+    return render(request, "ledger/view-corporation-overview.html", context=context)
 
 
 @login_required
@@ -411,7 +405,7 @@ def corporation_administration(request, corporation_id):
 
     return render(
         request,
-        "ledger/corpledger/admin/corporation_administration.html",
+        "ledger/view-corporation-administration.html",
         context=context,
     )
 
