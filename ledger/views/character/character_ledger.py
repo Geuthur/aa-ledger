@@ -55,9 +55,7 @@ def character_ledger(
             "disabled": True,
         }
         context = add_info_to_context(request, context)
-        return render(
-            request, "ledger/charledger/character_ledger.html", context=context
-        )
+        return render(request, "ledger/view-character-ledger.html", context=context)
 
     character_data = CharacterData(
         request=request,
@@ -94,7 +92,7 @@ def character_ledger(
     # Add additional information to the context
     context = add_info_to_context(request, context)
 
-    return render(request, "ledger/charledger/character_ledger.html", context=context)
+    return render(request, "ledger/view-character-ledger.html", context=context)
 
 
 @login_required
@@ -163,9 +161,7 @@ def character_overview(request):
         "title": "Character Overview",
     }
     context = add_info_to_context(request, context)
-    return render(
-        request, "ledger/charledger/admin/character_overview.html", context=context
-    )
+    return render(request, "ledger/view-character-overview.html", context=context)
 
 
 @login_required
@@ -206,7 +202,7 @@ def character_administration(request, character_id=None):
     context = add_info_to_context(request, context)
     return render(
         request,
-        "ledger/charledger/admin/character_administration.html",
+        "ledger/view-character-administration.html",
         context=context,
     )
 
