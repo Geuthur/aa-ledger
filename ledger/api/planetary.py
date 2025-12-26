@@ -129,6 +129,7 @@ class PlanetaryApiEndpoints:
                             name=details.planet.eve_planet.eve_type.name,
                             icon=get_icon_render_url(
                                 type_id=details.planet.eve_planet.eve_type.id,
+                                type_name=details.planet.eve_planet.eve_type.name,
                                 size=32,
                                 as_html=True,
                             ),
