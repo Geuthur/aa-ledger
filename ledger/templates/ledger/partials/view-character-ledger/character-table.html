@@ -1,0 +1,140 @@
+{% load i18n %}
+{% load evelinks %}
+{% load humanize %}
+<div class="card mb-3">
+    <div class="card-header bg-primary rounded-top d-flex align-items-center">
+        <h3 class="me-3">{% translate "Character Ledger" %}</h3>
+        {% if years %}
+            <div class="dropdown px-2">
+                <button id="yearDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% trans "Year" %}
+                </button>
+                <ul class="dropdown-menu" id="yearDropdown">
+                    {% for year in years %}
+                        <li>
+                            <a class="dropdown-item {% if view.date.year|default:'null' == year %}active{% endif %}" href="{% url 'ledger:character_ledger' character_id=character_id year=year section=view.type|default:'summary' %}">{{ year }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="dropdown px-2">
+                <button id="monthDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% trans "Month" %}
+                </button>
+                <ul class="dropdown-menu" id="monthDropdown">
+                    {% for m in 12|range_filter %}
+                        <li>
+                            <a class="dropdown-item {% if view.date.month|default:'null' == m %}active{% endif %}" href="{% url 'ledger:character_ledger' character_id=character_id year=view.date.year|default:view.date.current.year month=m section=view.type|default:'summary' %}">
+                                {{ m|month_name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="dropdown px-2">
+                <button id="dayDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% trans "Day" %}
+                </button>
+                <ul class="dropdown-menu" id="dayDropdown">
+                    {% month_days view.date as month_days %}
+                    {% for day in month_days %}
+                        <li>
+                            <a class="dropdown-item {% if view.date.day|default:'null' == day %}active{% endif %}" href="{% url 'ledger:character_ledger' character_id=character_id year=view.date.year|default:view.date.current.year month=view.date.month|default:view.date.current.month day=day section=view.type|default:'summary' %}">
+                                {{ day }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        <div class="ms-auto">
+            <a class="btn btn-secondary me-2 administration {% if disabled %}disabled{% endif %}" href="{% url 'ledger:character_administration' character_id=character_id %}" class="administration">{% translate 'Administration' %}{% if issues %} <span class="badge bg-warning">{{ issues }}</span>{% endif %}</a>
+            <a href="{% url 'ledger:character_overview' %}" class="overview"><button class="btn btn-secondary overview">{% translate 'Account Overview' %}</button></a>
+        </div>
+    </div>
+
+    <!-- Character Ledger Table -->
+    <div class="card-body rounded-bottom">
+        <table class="table table-hover w-100" id="ratting">
+            <thead>
+                <th class="w-auto">{% trans "Character" %}</th>
+                <th class="w-auto">{% trans "Bounty Amount" %}</th>
+                <th class="w-auto">{% trans "ESS Amount" %}
+                    {% if is_old_ess %}
+                        <i class="fa-regular fa-circle-question" title="{% trans 'Estimated Only' %}" data-bs-tooltip="aa-ledger" data-bs-placement="top"></i>
+                    {% endif %}
+                </th>
+                <th class="w-auto">{% trans "Mining Amount" %}</th>
+                <th class="w-auto">{% trans "Misc. Amount" %}</th>
+                <th class="w-auto">{% trans "Costs" %}</th>
+                <th class="w-auto" style="border-left: 2px solid #888;">{% trans "Total" %}</th>
+                <th class="w-auto"></th>
+            </thead>
+            <tbody>
+                {% for character_data in ledger %}
+                    <tr>
+                        <td class="col-main-character nowrap">
+                            <img src="{{ character_data.character.eve_character.character_id|character_portrait_url:32 }}" class="rounded-circle" alt="{{ character_data.character.eve_character.character_name }}">
+                            {{ character_data.character.eve_character.character_name }}
+                        </td>
+                        <td class="nowrap text-success" id="amount_ratting_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.bounty|default:0 }}">{{ character_data.ledger.bounty|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                        <td class="nowrap text-success" id="amount_ess_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.ess|default:0 }}">{{ character_data.ledger.ess|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                        <td class="nowrap text-info" id="amount_mining_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.mining|default:0 }}">{{ character_data.ledger.mining|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                        <td class="nowrap text-success" id="amount_misc_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.miscellaneous|default:0 }}">{{ character_data.ledger.miscellaneous|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                        <td class="nowrap text-danger" id="amount_costs_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.costs|default:0 }}">{{ character_data.ledger.costs|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                        <td class="nowrap {% if character_data.ledger.total < 0 %}text-danger {% else %}text-success{% endif %}" style="border-left: 2px solid #888;" id="amount_total_{{ character_data.character.eve_character.character_id }}" data-order="{{ character_data.ledger.total|default:0 }}">{{ character_data.ledger.total|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
+                        <td>
+                            <a href="{{ character_data.single_url }}"
+                                class="btn btn-primary btn-sm"
+                                data-bs-tooltip="aa-ledger"
+                                title="{% trans 'View Character' %}">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </a>
+                            <button
+                                class="btn btn-primary btn-sm btn-square"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalViewCharacterContainer"
+                                data-ajax_url="{{ character_data.details_url }}"
+                                title="{% trans 'View Details' %}"
+                                data-bs-tooltip="aa-ledger" data-bs-placement="right">
+                                <span class="fas fa-info"></span>
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+
+            <tfoot id="foot">
+                <tr>
+                    <th><strong>{% trans "Summary" %}</strong></th>
+                    <th class="nowrap {% if totals.bounty < 0 %}text-danger {% else %}text-success{% endif %}" id="total_bounty" data-sort="{{ totals.bounty|default:0 }}">{{ totals.bounty|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+                    <th class="nowrap {% if totals.ess < 0 %}text-danger {% else %}text-success{% endif %}" id="total_ess" data-sort="{{ totals.ess|default:0 }}">{{ totals.ess|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+                    <th class="nowrap text-info" id="total_mining" data-sort="{{ totals.mining|default:0 }}">
+                        {{ totals.mining|floatformat:0|intcomma }}
+                        <span class="text-white">ISK
+                            <i class="fa-regular fa-circle-question"
+                                data-bs-tooltip="aa-ledger" data-bs-placement="right"
+                                title="{% trans 'This amount is displayed for information only' %}"
+                            >
+                            </i>
+                        </span>
+                    </th>
+                    <th class="nowrap {% if totals.miscellaneous < 0 %}text-danger {% else %}text-success{% endif %}" id="total_misc" data-sort="{{ totals.miscellaneous|default:0 }}">{{ totals.miscellaneous|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+                    <th class="nowrap {% if totals.costs < 0 %}text-danger {% else %}text-success{% endif %}" id="total_costs" data-sort="{{ totals.costs|default:0 }}">{{ totals.costs|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+                    <th class="nowrap {% if totals.total < 0 %}text-danger {% else %}text-success{% endif %}" style="border-left: 2px solid #888;" id="total_total" data-sort="{{ totals.total|default:0 }}">{{ totals.total|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
+                    <th>
+                        <button
+                            class="btn btn-primary btn-sm btn-square"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalViewCharacterContainer"
+                            data-ajax_url="{{ view.details_url }}"
+                            title="{% trans 'View Details' %}"
+                            data-bs-tooltip="aa-ledger" data-bs-placement="right">
+                            <span class="fas fa-info"></span>
+                        </button>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

@@ -26,7 +26,7 @@ def create_character_planet(
     """Create a CharacterPlanet from CharacterAudit and planet_id."""
     params = {
         "character": characteraudit,
-        "planet": EvePlanet.objects.get(id=planet_id),
+        "eve_planet": EvePlanet.objects.get(id=planet_id),
     }
     params.update(kwargs)
     planet = CharacterPlanet(**params)

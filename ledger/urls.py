@@ -311,11 +311,6 @@ urlpatterns = [
         name="planetary_ledger",
     ),
     path(
-        "character/switch_alarm/",
-        planetary.switch_alarm,
-        name="switch_alarm",
-    ),
-    path(
         "character/view/planetary/overview/",
         planetary.planetary_overview,
         name="planetary_overview",

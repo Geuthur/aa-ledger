@@ -1,0 +1,281 @@
+{
+    "1047902437103": {
+        "facility_id": 2494,
+        "facility_name": "Gas Advanced Industry Facility",
+        "facility_type": "Processors",
+        "resources": [
+            {
+                "item_id": 2390,
+                "item_name": "Electrolytes",
+                "req_quantity": 40.0,
+                "current_quantity": 0,
+                "missing_quantity": 40.0,
+                "is_active": false
+            },
+            {
+                "item_id": 3645,
+                "item_name": "Water",
+                "req_quantity": 40.0,
+                "current_quantity": 0,
+                "missing_quantity": 40.0,
+                "is_active": false
+            }
+        ],
+        "output_product": {
+            "item_id": 9832,
+            "item_name": "Coolant",
+            "output_quantity": 5.0
+        }
+    },
+    "1047902437137": {
+        "facility_id": 2492,
+        "facility_name": "Gas Basic Industry Facility",
+        "facility_type": "Processors",
+        "resources": [
+            {
+                "item_id": 2309,
+                "item_name": "Ionic Solutions",
+                "req_quantity": 3000.0,
+                "current_quantity": 0,
+                "missing_quantity": 3000.0,
+                "is_active": false
+            }
+        ],
+        "output_product": {
+            "item_id": 2390,
+            "item_name": "Electrolytes",
+            "output_quantity": 20.0
+        }
+    },
+    "1047902437109": {
+        "facility_id": 2492,
+        "facility_name": "Gas Basic Industry Facility",
+        "facility_type": "Processors",
+        "resources": [
+            {
+                "item_id": 2268,
+                "item_name": "Aqueous Liquids",
+                "req_quantity": 3000.0,
+                "current_quantity": 0,
+                "missing_quantity": 3000.0,
+                "is_active": false
+            }
+        ],
+        "output_product": {
+            "item_id": 3645,
+            "item_name": "Water",
+            "output_quantity": 20.0
+        }
+    },
+    "1047902437112": {
+        "facility_id": 2543,
+        "facility_name": "Gas Launchpad",
+        "facility_type": "Spaceports",
+        "resources": [
+            {
+                "item_id": 2268,
+                "item_name": "Aqueous Liquids",
+                "req_quantity": 117808.0,
+                "current_quantity": 0,
+                "missing_quantity": 117808.0,
+                "is_active": false
+            },
+            {
+                "item_id": 2309,
+                "item_name": "Ionic Solutions",
+                "req_quantity": 164016.0,
+                "current_quantity": 0,
+                "missing_quantity": 164016.0,
+                "is_active": false
+            }
+        ],
+        "storage": {},
+        "output_product": {
+            "item_id": 2268,
+            "item_name": "Aqueous Liquids",
+            "output_quantity": 3000.0
+        }
+    },
+    "1047902437113": {
+        "facility_id": 3060,
+        "facility_name": "Gas Extractor Control Unit",
+        "facility_type": "Extractor Control Units",
+        "resources": [],
+        "extractor": {
+            "head_count": null,
+            "product_type_id": 2309,
+            "product_type_name": "Ionic Solutions",
+            "install_time": "2025-07-30 19:47:08+00:00",
+            "expiry_time": "2025-08-13 19:47:08+00:00",
+            "cycle_time": 14400,
+            "is_running": true,
+            "progress_percentage": 100.0
+        },
+        "output_product": {
+            "item_id": 2309,
+            "item_name": "Ionic Solutions",
+            "output_quantity": 164016.0
+        }
+    },
+    "1047902437117": {
+        "facility_id": 2492,
+        "facility_name": "Gas Basic Industry Facility",
+        "facility_type": "Processors",
+        "resources": [
+            {
+                "item_id": 2268,
+                "item_name": "Aqueous Liquids",
+                "req_quantity": 3000.0,
+                "current_quantity": 0,
+                "missing_quantity": 3000.0,
+                "is_active": false
+            }
+        ],
+        "output_product": {
+            "item_id": 3645,
+            "item_name": "Water",
+            "output_quantity": 20.0
+        }
+    },
+    "1047902437122": {
+        "facility_id": 3060,
+        "facility_name": "Gas Extractor Control Unit",
+        "facility_type": "Extractor Control Units",
+        "resources": [],
+        "extractor": {
+            "head_count": null,
+            "product_type_id": 2268,
+            "product_type_name": "Aqueous Liquids",
+            "install_time": "2025-07-30 19:47:08+00:00",
+            "expiry_time": "2025-08-13 19:47:08+00:00",
+            "cycle_time": 14400,
+            "is_running": true,
+            "progress_percentage": 100.0
+        },
+        "output_product": {
+            "item_id": 2268,
+            "item_name": "Aqueous Liquids",
+            "output_quantity": 117808.0
+        }
+    },
+    "1047902437125": {
+        "facility_id": 2494,
+        "facility_name": "Gas Advanced Industry Facility",
+        "facility_type": "Processors",
+        "resources": [
+            {
+                "item_id": 2390,
+                "item_name": "Electrolytes",
+                "req_quantity": 40.0,
+                "current_quantity": 0,
+                "missing_quantity": 40.0,
+                "is_active": false
+            },
+            {
+                "item_id": 3645,
+                "item_name": "Water",
+                "req_quantity": 40.0,
+                "current_quantity": 0,
+                "missing_quantity": 40.0,
+                "is_active": false
+            }
+        ],
+        "output_product": {
+            "item_id": 9832,
+            "item_name": "Coolant",
+            "output_quantity": 5.0
+        }
+    },
+    "1047902437127": {
+        "facility_id": 2543,
+        "facility_name": "Gas Launchpad",
+        "facility_type": "Spaceports",
+        "resources": [
+            {
+                "item_id": 3645,
+                "item_name": "Water",
+                "req_quantity": 20.0,
+                "current_quantity": 0,
+                "missing_quantity": 20.0,
+                "is_active": false
+            },
+            {
+                "item_id": 9832,
+                "item_name": "Coolant",
+                "req_quantity": 5.0,
+                "current_quantity": 5920,
+                "missing_quantity": 0,
+                "is_active": false
+            },
+            {
+                "item_id": 3645,
+                "item_name": "Water",
+                "req_quantity": 20.0,
+                "current_quantity": 0,
+                "missing_quantity": 20.0,
+                "is_active": false
+            },
+            {
+                "item_id": 9832,
+                "item_name": "Coolant",
+                "req_quantity": 5.0,
+                "current_quantity": 5920,
+                "missing_quantity": 0,
+                "is_active": false
+            },
+            {
+                "item_id": 2390,
+                "item_name": "Electrolytes",
+                "req_quantity": 20.0,
+                "current_quantity": 26260,
+                "missing_quantity": 0,
+                "is_active": false
+            },
+            {
+                "item_id": 2390,
+                "item_name": "Electrolytes",
+                "req_quantity": 20.0,
+                "current_quantity": 26260,
+                "missing_quantity": 0,
+                "is_active": false
+            }
+        ],
+        "storage": {
+            "9832": {
+                "item_id": 9832,
+                "item_name": "Coolant",
+                "amount": 5920
+            },
+            "2390": {
+                "item_id": 2390,
+                "item_name": "Electrolytes",
+                "amount": 26260
+            }
+        },
+        "output_product": {
+            "item_id": 3645,
+            "item_name": "Water",
+            "output_quantity": 40.0
+        }
+    },
+    "1047902437131": {
+        "facility_id": 2492,
+        "facility_name": "Gas Basic Industry Facility",
+        "facility_type": "Processors",
+        "resources": [
+            {
+                "item_id": 2309,
+                "item_name": "Ionic Solutions",
+                "req_quantity": 3000.0,
+                "current_quantity": 0,
+                "missing_quantity": 3000.0,
+                "is_active": false
+            }
+        ],
+        "output_product": {
+            "item_id": 2390,
+            "item_name": "Electrolytes",
+            "output_quantity": 20.0
+        }
+    }
+}

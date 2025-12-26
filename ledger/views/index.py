@@ -17,7 +17,13 @@ from ledger import __title__
 
 # Ledger
 from ledger.helpers.core import add_info_to_context
-from ledger.tasks import clear_all_etags, update_all_characters, update_all_corporations
+from ledger.models.characteraudit import CharacterAudit
+from ledger.tasks import (
+    clear_all_etags,
+    update_all_characters,
+    update_all_corporations,
+    update_char_planets_details,
+)
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -59,5 +65,14 @@ def admin(request):
             messages.info(request, _("Queued Update All Corporations"))
             update_all_corporations.apply_async(
                 kwargs={"force_refresh": force_refresh}, priority=7
+            )
+        character_id_input = request.POST.get("character_id")
+        if character_id_input:
+            character = CharacterAudit.objects.prefetch_related(
+                "ledger_update_status"
+            ).get(eve_character__character_id=character_id_input)
+            update_char_planets_details.apply_async(
+                kwargs={"character_pk": character.pk, "force_refresh": force_refresh},
+                priority=5,
             )
     return render(request, "ledger/admin.html")

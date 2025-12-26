@@ -13,7 +13,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.api import ledger
+from ledger.api import admin, planetary
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -26,5 +26,11 @@ api = NinjaAPI(
     openapi_url=settings.DEBUG and "/openapi.json" or "",
 )
 
-# Add the ledger endpoints
-ledger.setup(api)
+
+def setup(ninja_api):
+    admin.AdminApiEndpoints(ninja_api)
+    planetary.PlanetaryApiEndpoints(ninja_api)
+
+
+# Initialize API endpoints
+setup(api)

@@ -258,7 +258,7 @@ def corporation_ledger(
     ledger = corporation_data.generate_ledger_data()
 
     context = {
-        "title": f"Corporation Ledger - {corporation.corporation.corporation_name}",
+        "title": f"Corporation Ledger - {corporation.eve_corporation.corporation_name}",
         "corporation_id": corporation_id,
         "division_id": division_id,
         "billboard": json.dumps(corporation_data.billboard.dict.asdict()),
@@ -394,7 +394,7 @@ def corporation_administration(request, corporation_id):
 
     # TODO Get Missing Characters from esi-corporations.read_corporation_membership.v1 ?
     corp_characters = CharacterOwnership.objects.filter(
-        character__corporation_id=corporation.corporation.corporation_id
+        character__corporation_id=corporation.eve_corporation.corporation_id
     ).order_by("character__character_name")
     corporation_dataexporter = data_exporter.LedgerCSVExporter.create_exporter(
         "corporation", corporation_id
@@ -436,10 +436,10 @@ def corporation_delete(request, corporation_id):
             {"success": False, "message": msg}, status=HTTPStatus.NOT_FOUND, safe=False
         )
 
-    audit = CorporationAudit.objects.get(corporation__corporation_id=corporation_id)
+    audit = CorporationAudit.objects.get(eve_corporation__corporation_id=corporation_id)
     audit.delete()
 
-    msg = _(f"{audit.corporation.corporation_name} successfully deleted")
+    msg = _(f"{audit.eve_corporation.corporation_name} successfully deleted")
     return JsonResponse(
         {"success": True, "message": msg}, status=HTTPStatus.OK, safe=False
     )

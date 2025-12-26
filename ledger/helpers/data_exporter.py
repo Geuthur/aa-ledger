@@ -368,7 +368,7 @@ class CorporationExporter(LedgerCSVExporter):
     def has_data(self) -> bool:
         """Check if there is data to export."""
         return CorporationWalletJournalEntry.objects.filter(
-            division__corporation__corporation__corporation_id=self.corporation_id
+            division__corporation__eve_corporation__corporation_id=self.corporation_id
         ).exists()
 
     def create_data_export(
@@ -390,7 +390,7 @@ class CorporationExporter(LedgerCSVExporter):
 
         try:
             corporation = CorporationAudit.objects.get(
-                corporation__corporation_id=report_corporation_id
+                eve_corporation__corporation_id=report_corporation_id
             )
             # Create CorporationData inside the task
             ledger_data = CorporationData(
@@ -419,14 +419,14 @@ class AllianceExporter(LedgerCSVExporter):
     def has_data(self) -> bool:
         """Check if there is data to export."""
         corporations = CorporationAudit.objects.filter(
-            corporation__alliance__alliance_id=self.alliance_id
-        ).values_list("corporation__corporation_id", flat=True)
+            eve_corporation__alliance__alliance_id=self.alliance_id
+        ).values_list("eve_corporation__corporation_id", flat=True)
 
         if not corporations:
             return False
 
         return CorporationWalletJournalEntry.objects.filter(
-            division__corporation__corporation__corporation_id__in=corporations
+            division__corporation__eve_corporation__corporation_id__in=corporations
         ).exists()
 
     def create_data_export(

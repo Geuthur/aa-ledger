@@ -96,7 +96,7 @@ class TestCorporationLedgerView(TestCase):
 
     def test_corporation_data_export_generate(self, mock_tasks, mock_messages):
         """Test should generate corporation data export"""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         mock_tasks.export_data_ledger.apply_async = Mock()
 
         form_data = {
@@ -125,7 +125,7 @@ class TestCorporationLedgerView(TestCase):
         self, mock_tasks, mock_messages
     ):
         """Test should not generate corporation data export due to no permission"""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         mock_tasks.export_data_ledger.apply_async = Mock()
 
         form_data = {
@@ -177,7 +177,7 @@ class TestCorporationLedgerView(TestCase):
         self, mock_tasks, mock_messages
     ):
         """Test should not generate corporation data export due to invalid form"""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         mock_tasks.export_data_ledger.apply_async = Mock()
 
         form_data = {
@@ -204,7 +204,7 @@ class TestCorporationLedgerView(TestCase):
         self, mock_decoder, mock_tasks, mock_messages
     ):
         """Test should run corporation data export update task"""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         hashcode = "testhashcode"
         mock_tasks.export_data_ledger.apply_async = Mock()
         mock_decoder.return_value = (2001, 1, 2016, 1)

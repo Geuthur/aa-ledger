@@ -45,7 +45,7 @@ class CorporationData(LedgerCore):
     ):
         super().__init__(year, month, day)
         self.corporation = corporation
-        self.entity_id = corporation.corporation.corporation_id
+        self.entity_id = corporation.eve_corporation.corporation_id
         self.division_id = division_id
         self.section = section
         self.auth_char_ids = self.auth_character_ids
@@ -86,15 +86,15 @@ class CorporationData(LedgerCore):
                 division__corporation=self.corporation,
                 division=self.division_id,
             ).exclude(
-                first_party_id=self.corporation.corporation.corporation_id,
-                second_party_id=self.corporation.corporation.corporation_id,
+                first_party_id=self.corporation.eve_corporation.corporation_id,
+                second_party_id=self.corporation.eve_corporation.corporation_id,
             )
         return CorporationWalletJournalEntry.objects.filter(
             self.filter_date,
             division__corporation=self.corporation,
         ).exclude(
-            first_party_id=self.corporation.corporation.corporation_id,
-            second_party_id=self.corporation.corporation.corporation_id,
+            first_party_id=self.corporation.eve_corporation.corporation_id,
+            second_party_id=self.corporation.eve_corporation.corporation_id,
         )
 
     def _compute_entities(
@@ -215,7 +215,9 @@ class CorporationData(LedgerCore):
 
         # Caching
         ledger_hash = self.get_ledger_journal_hash(journal.values_list("pk"))
-        cache_key = f"{self.corporation.corporation.corporation_id}_{self.division_id}"
+        cache_key = (
+            f"{self.corporation.eve_corporation.corporation_id}_{self.division_id}"
+        )
 
         # Get Cached Data if available
         ledger, finished_entities = self.get_cache_ledger(
@@ -237,8 +239,8 @@ class CorporationData(LedgerCore):
             # Process corporation entity last to ensure it's always included
             self._handle_entity(
                 ledger=ledger,
-                entity_id=self.corporation.corporation.corporation_id,
-                corporation_obj=self.corporation.corporation,
+                entity_id=self.corporation.eve_corporation.corporation_id,
+                corporation_obj=self.corporation.eve_corporation,
             )
 
             # Create Cache
@@ -276,8 +278,8 @@ class CorporationData(LedgerCore):
         # Process corporation entity last to ensure it's always included
         self._handle_entity(
             ledger=ledger,
-            entity_id=self.corporation.corporation.corporation_id,
-            corporation_obj=self.corporation.corporation,
+            entity_id=self.corporation.eve_corporation.corporation_id,
+            corporation_obj=self.corporation.eve_corporation,
         )
         return ledger
 
@@ -303,7 +305,7 @@ class CorporationData(LedgerCore):
         """
         details_url = self.create_url(
             viewname="corporation_details",
-            corporation_id=self.corporation.corporation.corporation_id,
+            corporation_id=self.corporation.eve_corporation.corporation_id,
             entity_id=entity_id,
             section="single",
         )
@@ -365,7 +367,7 @@ class CorporationData(LedgerCore):
         for entity_id in remaining_entities:
             if entity_id in NPC_ENTITIES:
                 continue
-            if entity_id == self.corporation.corporation.corporation_id:
+            if entity_id == self.corporation.eve_corporation.corporation_id:
                 continue
             finished_entities.update(self._handle_entity(ledger, entity_id))
         return ledger, finished_entities

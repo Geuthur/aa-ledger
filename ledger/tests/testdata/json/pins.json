@@ -1,331 +1,234 @@
-
 [
     {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0294816493988037,
-        "longitude": 3.5296895503997803,
-        "pin_id": 1043445807014,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0173864364624023,
-        "longitude": 3.529317617416382,
-        "pin_id": 1043445807016,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.016979694366455,
-        "longitude": 3.5023915767669678,
-        "pin_id": 1043445807018,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0292091369628906,
-        "longitude": 3.502758741378784,
-        "pin_id": 1043445807020,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0659403800964355,
-        "longitude": 3.529808282852173,
-        "pin_id": 1043445807021,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0779452323913574,
-        "longitude": 3.529921770095825,
-        "pin_id": 1043445807024,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0900487899780273,
-        "longitude": 3.5301942825317383,
-        "pin_id": 1043445807027,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0776612758636475,
-        "longitude": 3.502199411392212,
-        "pin_id": 1043445807030,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [],
-        "latitude": 2.0538101196289062,
-        "longitude": 3.48930025100708,
-        "pin_id": 1043427927097,
-        "type_id": 2534,
+        "contents": [
+            {
+                "amount": 1473,
+                "type_id": 2267
+            }
+        ],
         "expiry_time": null,
         "extractor_details": null,
         "factory_details": null,
         "install_time": null,
-        "last_cycle_start": null,
-        "schematic_id": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.089902877807617,
-        "longitude": 3.5023975372314453,
-        "pin_id": 1043445807036,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0414834022521973,
-        "longitude": 3.503114700317383,
-        "pin_id": 1043445807042,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.05375075340271,
-        "longitude": 3.5299017429351807,
-        "pin_id": 1043445807044,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0416011810302734,
-        "longitude": 3.5300800800323486,
-        "pin_id": 1043445807045,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0655224323272705,
-        "longitude": 3.5023727416992188,
-        "pin_id": 1043445807046,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0543136596679688,
-        "longitude": 3.543523073196411,
-        "pin_id": 1043445807047,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.042116641998291,
-        "longitude": 3.5437657833099365,
-        "pin_id": 1043445807054,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0667059421539307,
-        "longitude": 3.543785333633423,
-        "pin_id": 1043445807058,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
+        "last_cycle_start": "2025-08-13T20:47:27+00:00",
+        "latitude": 1.8132833242416382,
+        "longitude": 0.17593103647232056,
+        "pin_id": 1047902592910,
+        "schematic_id": 126,
+        "type_id": 2473
     },
     {
         "contents": [
-            {"amount": 6228, "type_id": 3693},
-            {"amount": 6228, "type_id": 3695}
+            {
+                "amount": 38200,
+                "type_id": 2398
+            }
         ],
-        "latitude": 2.0535128116607666,
-        "longitude": 3.475654363632202,
-        "pin_id": 1043445807059,
-        "type_id": 2543,
         "expiry_time": null,
         "extractor_details": null,
         "factory_details": null,
         "install_time": null,
         "last_cycle_start": null,
-        "schematic_id": null
+        "latitude": 1.8365801572799683,
+        "longitude": 0.18231530487537384,
+        "pin_id": 1047902592918,
+        "schematic_id": null,
+        "type_id": 2544
     },
     {
-        "contents": [{"amount": 2100, "type_id": 2360}],
-        "latitude": 2.052889585494995,
-        "longitude": 3.5163748264312744,
-        "pin_id": 1043429053914,
-        "type_id": 2543,
+        "contents": [],
+        "expiry_time": "2025-10-12T15:25:09+00:00",
+        "extractor_details": {
+            "cycle_time": 14400,
+            "head_radius": 0.05000000074505806,
+            "heads": [
+                {
+                    "head_id": 0,
+                    "latitude": 1.937806248664856,
+                    "longitude": 0.404819130897522
+                },
+                {
+                    "head_id": 1,
+                    "latitude": 1.7442339658737183,
+                    "longitude": 0.48270663619041443
+                },
+                {
+                    "head_id": 2,
+                    "latitude": 1.595587134361267,
+                    "longitude": 0.27247151732444763
+                },
+                {
+                    "head_id": 5,
+                    "latitude": 1.6537271738052368,
+                    "longitude": 0.429765909910202
+                },
+                {
+                    "head_id": 6,
+                    "latitude": 1.9988820552825928,
+                    "longitude": 0.3147643506526947
+                }
+            ],
+            "product_type_id": 2267,
+            "qty_per_cycle": 7663
+        },
+        "factory_details": null,
+        "install_time": "2025-09-28T15:25:09+00:00",
+        "last_cycle_start": "2025-09-28T15:25:09+00:00",
+        "latitude": 1.8398908376693726,
+        "longitude": 0.1943310648202896,
+        "pin_id": 1047902592919,
+        "schematic_id": null,
+        "type_id": 2848
+    },
+    {
+        "contents": [
+            {
+                "amount": 40,
+                "type_id": 2398
+            }
+        ],
+        "expiry_time": null,
+        "extractor_details": null,
+        "factory_details": null,
+        "install_time": null,
+        "last_cycle_start": "2025-08-13T22:17:27+00:00",
+        "latitude": 1.8481996059417725,
+        "longitude": 0.16162016987800598,
+        "pin_id": 1047902592921,
+        "schematic_id": 73,
+        "type_id": 2474
+    },
+    {
+        "contents": [],
         "expiry_time": null,
         "extractor_details": null,
         "factory_details": null,
         "install_time": null,
         "last_cycle_start": null,
-        "schematic_id": null
+        "latitude": 0.8340716361999512,
+        "longitude": 0.39202120900154114,
+        "pin_id": 1047902578204,
+        "schematic_id": null,
+        "type_id": 2524
     },
     {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0408167839050293,
-        "longitude": 3.516561269760132,
-        "pin_id": 1043429053915,
-        "schematic_id": 106,
-        "type_id": 2494,
+        "contents": [],
         "expiry_time": null,
         "extractor_details": null,
         "factory_details": null,
-        "install_time": null
+        "install_time": null,
+        "last_cycle_start": "2025-08-13T20:17:27+00:00",
+        "latitude": 1.860101580619812,
+        "longitude": 0.1876489222049713,
+        "pin_id": 1047902592926,
+        "schematic_id": 127,
+        "type_id": 2473
     },
     {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.028752088546753,
-        "longitude": 3.516256809234619,
-        "pin_id": 1043429053916,
-        "schematic_id": 106,
-        "type_id": 2494,
+        "contents": [],
+        "expiry_time": "2025-10-12T15:25:09+00:00",
+        "extractor_details": {
+            "cycle_time": 14400,
+            "head_radius": 0.05000000074505806,
+            "heads": [
+                {
+                    "head_id": 0,
+                    "latitude": 1.8137233257293701,
+                    "longitude": 0.004692013841122389
+                },
+                {
+                    "head_id": 1,
+                    "latitude": 1.9245903491973877,
+                    "longitude": 0.17360469698905945
+                },
+                {
+                    "head_id": 5,
+                    "latitude": 1.8073947429656982,
+                    "longitude": 0.10941426455974579
+                },
+                {
+                    "head_id": 6,
+                    "latitude": 1.8995832204818726,
+                    "longitude": 0.06547639518976212
+                }
+            ],
+            "product_type_id": 2270,
+            "qty_per_cycle": 6520
+        },
+        "factory_details": null,
+        "install_time": "2025-09-28T15:25:09+00:00",
+        "last_cycle_start": "2025-09-28T15:25:09+00:00",
+        "latitude": 1.8281675577163696,
+        "longitude": 0.1911877989768982,
+        "pin_id": 1047902592933,
+        "schematic_id": null,
+        "type_id": 2848
+    },
+    {
+        "contents": [
+            {
+                "amount": 1708,
+                "type_id": 2270
+            }
+        ],
         "expiry_time": null,
         "extractor_details": null,
         "factory_details": null,
-        "install_time": null
+        "install_time": null,
+        "last_cycle_start": "2025-08-13T20:17:27+00:00",
+        "latitude": 1.8484383821487427,
+        "longitude": 0.18436580896377563,
+        "pin_id": 1047902592903,
+        "schematic_id": 127,
+        "type_id": 2473
     },
     {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0167224407196045,
-        "longitude": 3.515956401824951,
-        "pin_id": 1043429053918,
-        "schematic_id": 106,
-        "type_id": 2494,
+        "contents": [
+            {
+                "amount": 6315,
+                "type_id": 3689
+            }
+        ],
         "expiry_time": null,
         "extractor_details": null,
         "factory_details": null,
-        "install_time": null
+        "install_time": null,
+        "last_cycle_start": null,
+        "latitude": 1.8394938707351685,
+        "longitude": 0.17023132741451263,
+        "pin_id": 1047902592937,
+        "schematic_id": null,
+        "type_id": 2544
     },
     {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.065192937850952,
-        "longitude": 3.51602840423584,
-        "pin_id": 1043437196267,
-        "schematic_id": 106,
-        "type_id": 2494,
+        "contents": [
+            {
+                "amount": 40,
+                "type_id": 2398
+            }
+        ],
         "expiry_time": null,
         "extractor_details": null,
         "factory_details": null,
-        "install_time": null
+        "install_time": null,
+        "last_cycle_start": "2025-08-06T11:17:27+00:00",
+        "latitude": 1.8340009450912476,
+        "longitude": 0.15908077359199524,
+        "pin_id": 1047902592935,
+        "schematic_id": 73,
+        "type_id": 2474
     },
     {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.077465534210205,
-        "longitude": 3.5160460472106934,
-        "pin_id": 1043437196271,
-        "schematic_id": 106,
-        "type_id": 2494,
+        "contents": [],
         "expiry_time": null,
         "extractor_details": null,
         "factory_details": null,
-        "install_time": null
-    },
-    {
-        "contents": [{"amount": 10, "type_id": 3693}, {"amount": 10, "type_id": 3695}],
-        "last_cycle_start": "2024-11-05T18:54:11+00:00",
-        "latitude": 2.0897035598754883,
-        "longitude": 3.5162510871887207,
-        "pin_id": 1043437196279,
-        "schematic_id": 106,
-        "type_id": 2494,
-        "expiry_time": null,
-        "extractor_details": null,
-        "factory_details": null,
-        "install_time": null
+        "install_time": null,
+        "last_cycle_start": "2025-08-13T20:17:27+00:00",
+        "latitude": 1.8250364065170288,
+        "longitude": 0.17871876060962677,
+        "pin_id": 1047902592940,
+        "schematic_id": 126,
+        "type_id": 2473
     }
 ]

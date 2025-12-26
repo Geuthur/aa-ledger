@@ -45,7 +45,7 @@ def get_corporation(
 
     try:
         main_corp = models.CorporationAudit.objects.get(
-            corporation__corporation_id=corporation_id
+            eve_corporation__corporation_id=corporation_id
         )
     except ObjectDoesNotExist:
         return None, None
@@ -65,7 +65,7 @@ def get_manage_corporation(
 
     try:
         main_corp = models.CorporationAudit.objects.get(
-            corporation__corporation_id=corporation_id
+            eve_corporation__corporation_id=corporation_id
         )
     except ObjectDoesNotExist:
         return None, None
@@ -82,7 +82,7 @@ def get_alliance(request, alliance_id) -> tuple[bool | None, EveAllianceInfo | N
     perms = True
 
     corporations = models.CorporationAudit.objects.filter(
-        corporation__alliance__alliance_id=alliance_id
+        eve_corporation__alliance__alliance_id=alliance_id
     )
 
     if not corporations.exists():
@@ -107,7 +107,7 @@ def get_all_corporations_from_alliance(
     perms = True
 
     corporations = models.CorporationAudit.objects.filter(
-        corporation__alliance__alliance_id=alliance_id
+        eve_corporation__alliance__alliance_id=alliance_id
     )
 
     if not corporations.exists():

@@ -108,7 +108,7 @@ class TestCorporationAuditAdmin(NoSocketsTestCase):
         request.user = self.user
         expected_html = '<img src="{}" class="img-circle">'.format(
             eveimageserver._eve_entity_image_url(
-                "corporation", self.corporation_audit.corporation.corporation_id, 32
+                "corporation", self.corporation_audit.eve_corporation.corporation_id, 32
             )
         )
         self.assertEqual(

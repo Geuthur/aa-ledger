@@ -240,7 +240,7 @@ class CharacterWalletJournalEntry(WalletJournalEntry):
     objects = CharWalletManager()
 
     def __str__(self):
-        return f"Character Wallet Journal: RefType: {self.ref_type} - {self.first_party.name} -> {self.second_party.name}: {self.amount} ISK"
+        return f"Character Wallet Journal: RefType: {self.ref_type} - {self.first_party} -> {self.second_party}: {self.amount} ISK"
 
     @classmethod
     def get_visible(cls, user):

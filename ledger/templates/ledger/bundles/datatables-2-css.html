@@ -1,0 +1,12 @@
+{% load sri %}
+
+{% sri_static "taxsystem/libs/datatables/2.3.5/css/dataTables.bootstrap5.css" %}
+{% sri_static "taxsystem/libs/datatables/2.3.5/css/dataTables.bootstrap5.css" %}
+
+{% if extColumnControl == True %}
+    {% sri_static "taxsystem/libs/datatables/Extensions/ColumnControl/1.1.1/css/columnControl.bootstrap5.css" %}
+{% endif %}
+
+{% if extFixedHeader == True %}
+    {% sri_static "taxsystem/libs/datatables/Extensions/FixedHeader/4.0.4/css/fixedHeader.bootstrap5.css" %}
+{% endif %}

@@ -195,7 +195,7 @@ class CorporationWalletManagerBase(models.Manager):
             # Make the ESI request
             operation = (
                 esi.client.Wallet.GetCorporationsCorporationIdWalletsDivisionJournal(
-                    corporation_id=audit.corporation.corporation_id,
+                    corporation_id=audit.eve_corporation.corporation_id,
                     division=division.division_id,
                     token=token,
                 )
@@ -311,7 +311,7 @@ class CorporationDivisionManagerBase(models.Manager):
 
         # Make the ESI request
         operation = esi.client.Wallet.GetCorporationsCorporationIdWallets(
-            corporation_id=audit.corporation.corporation_id,
+            corporation_id=audit.eve_corporation.corporation_id,
             token=token,
         )
         division_items = operation.results(force_refresh=force_refresh)
@@ -341,7 +341,7 @@ class CorporationDivisionManagerBase(models.Manager):
 
         # Make the ESI request
         operation = esi.client.Corporation.GetCorporationsCorporationIdDivisions(
-            corporation_id=audit.corporation.corporation_id,
+            corporation_id=audit.eve_corporation.corporation_id,
             token=token,
         )
         division_items = operation.results(force_refresh=force_refresh)

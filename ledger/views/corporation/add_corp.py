@@ -39,7 +39,7 @@ def add_corp(request, token) -> HttpResponse:
     )
 
     corp = CorporationAudit.objects.update_or_create(
-        corporation=eve_corp,
+        eve_corporation=eve_corp,
         defaults={
             "corporation_name": eve_corp.corporation_name,
         },

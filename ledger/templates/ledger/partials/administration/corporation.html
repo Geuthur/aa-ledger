@@ -17,14 +17,14 @@
                 </div>
                 <!-- Corporation Logo -->
                 <div class="card-body text-center">
-                    <a href="{% url 'ledger:corporation_ledger' corporation_id=corporation.corporation.corporation_id %}?single=True">
-                        <img src="{{ corporation.corporation.logo_url_256 }}">
+                    <a href="{% url 'ledger:corporation_ledger' corporation_id=corporation.eve_corporation.corporation_id %}?single=True">
+                        <img src="{{ corporation.eve_corporation.logo_url_256 }}">
                     </a>
                 </div>
                 <!-- Corporation Actions -->
                 <div class="card-footer text-center">
                     <a class="btn btn-success btn-sm me-2"
-                        href="{% url 'ledger:corporation_ledger' corporation_id=corporation.corporation.corporation_id %}?single=True"
+                        href="{% url 'ledger:corporation_ledger' corporation_id=corporation.eve_corporation.corporation_id %}?single=True"
                         role="button"
                         data-tooltip-toggle="ledger-tooltip"
                         title="{% translate 'View Corporation Ledger' %}">
@@ -32,7 +32,7 @@
                     </a>
 
                     <a class="btn btn-primary btn-sm me-2"
-                        href="{% url 'ledger:corporation_data_export' corporation_id=corporation.corporation.corporation_id %}"
+                        href="{% url 'ledger:corporation_data_export' corporation_id=corporation.eve_corporation.corporation_id %}"
                         role="button"
                         data-tooltip-toggle="ledger-tooltip"
                         title="{% translate 'Corporation Data Export' %}">
@@ -42,10 +42,10 @@
                     <button type="button" class="btn btn-danger btn-sm btn-square me-2"
                         data-bs-toggle="modal"
                         data-tooltip-toggle="ledger-tooltip"
-                        data-title="{% translate 'Delete Corporation' %} {{ corporation.corporation.corporation_name }}"
+                        data-title="{% translate 'Delete Corporation' %} {{ corporation.eve_corporation.corporation_name }}"
                         data-text="{% translate 'Are you sure to Delete this Corporation?' %}"
                         data-bs-target="#ledger-delete-confirm"
-                        data-action="{% url 'ledger:delete_corp' corporation_id=corporation.corporation.corporation_id %}"
+                        data-action="{% url 'ledger:delete_corp' corporation_id=corporation.eve_corporation.corporation_id %}"
                         title="{% translate 'Delete Corporation' %}"
                         >
                         <span class="fas fa-trash"></span>

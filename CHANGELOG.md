@@ -11,9 +11,31 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- CSS & JS App bundle
+- DataTable V2
+
 ### Changed
 
+- Optimzed API Structure
+  - Optimized Pylance
+  - Optimized Structure
 - create libs folder and save `amCharts` file local
+- Refactor Planetary
+  - Icon Generation Backend
+  - Optimized Functions regarding to Planets
+  - renamed `planet` to `eve_planet` in `CharacterPlanet` for better clarification
+  - renamed `planet_name` to `name` in `CharacterPlanet`
+  - renamed `facilitys` to `factories` in `CharacterPlanetDetails`
+  - Optimized Pylance for Planetary Manager
+  - Optimized CSS, Template
+- Refactor CorporationOwner
+  - renamed `corporation` to `eve_corporation` for better clarification
+- Optimized CSS, JS, Template for Ledger
+  - Optimized Path Structure
+  - Optimized JS Structure
+  - Optimized CSS Structure
 
 ## [1.0.4] - 2025-12-03
 

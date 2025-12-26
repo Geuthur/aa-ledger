@@ -38,7 +38,7 @@ class CorporationAuditQuerySet(models.QuerySet):
                 corp_ids = char.character_ownership.user.character_ownerships.all().values_list(
                     "character__corporation_id", flat=True
                 )
-                queries.append(models.Q(corporation__corporation_id__in=corp_ids))
+                queries.append(models.Q(eve_corporation__corporation_id__in=corp_ids))
 
             logger.debug("%s queries for User %s.", len(queries), user)
 
@@ -76,7 +76,7 @@ class CorporationAuditQuerySet(models.QuerySet):
                 corp_ids = char.character_ownership.user.character_ownerships.all().values_list(
                     "character__corporation_id", flat=True
                 )
-                queries.append(models.Q(corporation__corporation_id__in=corp_ids))
+                queries.append(models.Q(eve_corporation__corporation_id__in=corp_ids))
 
             logger.debug("%s queries for User %s.", len(queries), user)
 

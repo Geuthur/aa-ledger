@@ -97,11 +97,14 @@ class CorporationAuditAdmin(admin.ModelAdmin):
         "_corporation__corporation_id",
     )
 
-    list_select_related = ("corporation",)
+    list_select_related = ("eve_corporation",)
 
-    ordering = ["corporation__corporation_name"]
+    ordering = ["eve_corporation__corporation_name"]
 
-    search_fields = ["corporation__corporation_name", "corporation__corporation_id"]
+    search_fields = [
+        "eve_corporation__corporation_name",
+        "eve_corporation__corporation_id",
+    ]
 
     actions = [
         "delete_objects",
@@ -121,15 +124,17 @@ class CorporationAuditAdmin(admin.ModelAdmin):
 
     @admin.display(description="")
     def _entity_pic(self, obj: CorporationAudit):
-        eve_id = obj.corporation.corporation_id
+        eve_id = obj.eve_corporation.corporation_id
         return format_html(
             '<img src="{}" class="img-circle">',
             eveimageserver._eve_entity_image_url("corporation", eve_id, 32),
         )
 
-    @admin.display(description="Corporation ID", ordering="corporation__corporation_id")
+    @admin.display(
+        description="Corporation ID", ordering="eve_corporation__corporation_id"
+    )
     def _corporation__corporation_id(self, obj: CorporationAudit):
-        return obj.corporation.corporation_id
+        return obj.eve_corporation.corporation_id
 
     @admin.display(ordering="last_update_at", description=_("last update run"))
     def _last_update_at(self, obj: CorporationAudit):

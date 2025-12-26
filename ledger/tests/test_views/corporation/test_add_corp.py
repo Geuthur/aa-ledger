@@ -63,5 +63,7 @@ class TestAddCorpView(TestCase):
         self.assertTrue(mock_tasks.update_corporation.apply_async.called)
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(
-            CorporationAudit.objects.filter(corporation__corporation_id=2001).exists()
+            CorporationAudit.objects.filter(
+                eve_corporation__corporation_id=2001
+            ).exists()
         )

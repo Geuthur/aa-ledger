@@ -82,7 +82,7 @@ def alliance_ledger(request, alliance_id, year=None, month=None, day=None):
         "billboard": json.dumps(alliance_data.billboard.dict.asdict()),
         "ledger": ledger,
         "years": CorporationWalletJournalEntry.objects.filter(
-            division__corporation__corporation__corporation_id__in=alliance_data.corporations
+            division__corporation__eve_corporation__corporation_id__in=alliance_data.corporations
         )
         .values_list("date__year", flat=True)
         .distinct()
@@ -212,7 +212,9 @@ def alliance_administration(request, alliance_id):
         alliance__alliance_id=alliance_id
     ).order_by("corporation_name")
 
-    corp_audit_ids = corporations.values_list("corporation__corporation_id", flat=True)
+    corp_audit_ids = corporations.values_list(
+        "eve_corporation__corporation_id", flat=True
+    )
     missing_corporations = all_corporations.exclude(
         corporation_id__in=corp_audit_ids
     ).order_by("corporation_name")

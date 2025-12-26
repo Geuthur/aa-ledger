@@ -7,6 +7,7 @@ from django.test import override_settings
 
 # Alliance Auth (External Libs)
 from app_utils.testing import NoSocketsTestCase
+from eveuniverse.models import EveType
 
 # AA Ledger
 from ledger.tests.testdata.esi_stub import esi_client_stub_openapi
@@ -39,16 +40,20 @@ class TestPlanetaryManager(NoSocketsTestCase):
         self.audit.update_planets(force_refresh=False)
 
         self.assertSetEqual(
-            set(self.audit.ledger_character_planet.values_list("planet_id", flat=True)),
+            set(
+                self.audit.ledger_character_planet.values_list(
+                    "eve_planet_id", flat=True
+                )
+            ),
             {4001, 4002},
         )
-        obj = self.audit.ledger_character_planet.get(planet_id=4001)
-        self.assertEqual(obj.planet_id, 4001)
+        obj = self.audit.ledger_character_planet.get(eve_planet_id=4001)
+        self.assertEqual(obj.eve_planet_id, 4001)
         self.assertEqual(obj.upgrade_level, 5)
         self.assertEqual(obj.num_pins, 5)
 
-        obj = self.audit.ledger_character_planet.get(planet_id=4002)
-        self.assertEqual(obj.planet_id, 4002)
+        obj = self.audit.ledger_character_planet.get(eve_planet_id=4002)
+        self.assertEqual(obj.eve_planet_id, 4002)
         self.assertEqual(obj.upgrade_level, 5)
         self.assertEqual(obj.num_pins, 5)
 
@@ -71,14 +76,15 @@ class TestPlanetaryDetailsManager(NoSocketsTestCase):
     def test_update_planets_details(self, mock_esi, mock_get_or_create_esi):
         # given
         mock_esi.client = esi_client_stub_openapi
-        mock_get_or_create_esi.return_value = (Mock(), True)
+        eve_type = EveType.objects.get(id=2268)
+        mock_get_or_create_esi.return_value = (eve_type, True)
 
         self.audit.update_planets_details(force_refresh=False)
 
         self.assertSetEqual(
             set(
                 self.audit.ledger_character_planet_details.values_list(
-                    "planet__planet_id", flat=True
+                    "planet__eve_planet_id", flat=True
                 )
             ),
             {4001},

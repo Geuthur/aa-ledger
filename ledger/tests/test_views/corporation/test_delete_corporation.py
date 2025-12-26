@@ -50,7 +50,7 @@ class TestDeleteCorporationView(TestCase):
         )
 
     def test_delete_corporation(self):
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
 
         request = self.factory.post(
             reverse("ledger:delete_corp", args=[corporation_id])

@@ -68,7 +68,7 @@ def _is_character_added_charaudit(character: EveCharacter):
 
 def _is_character_added_corp(character: EveCharacter):
     return CorporationAudit.objects.filter(
-        corporation__corporation_id=character.corporation_id
+        eve_corporation__corporation_id=character.corporation_id
     ).exists()
 
 
@@ -124,7 +124,7 @@ app_import = AppImport(
             is_character_added=_is_character_added_corp,
             is_character_added_annotation=Exists(
                 CorporationAudit.objects.filter(
-                    corporation__corporation_id=OuterRef("corporation_id")
+                    eve_corporation__corporation_id=OuterRef("corporation_id")
                 )
             ),
             get_users_with_perms=_users_with_perms_corp,

@@ -54,7 +54,7 @@ class CorporationAudit(AuditBase):
 
     active = models.BooleanField(default=True)
 
-    corporation = models.OneToOneField(
+    eve_corporation = models.OneToOneField(
         EveCorporationInfo,
         on_delete=models.CASCADE,
         related_name="ledger_corporationaudit",
@@ -64,9 +64,9 @@ class CorporationAudit(AuditBase):
 
     def __str__(self) -> str:
         try:
-            return f"{self.corporation.corporation_name} ({self.id})"
+            return f"{self.eve_corporation.corporation_name} ({self.id})"
         except AttributeError:
-            return f"{self.corporation} ({self.id})"
+            return f"{self.eve_corporation} ({self.id})"
 
     class Meta:
         default_permissions = ()
@@ -112,7 +112,7 @@ class CorporationAudit(AuditBase):
             scopes.append("esi-characters.read_corporation_roles.v1")
 
         char_ids = EveCharacter.objects.filter(
-            corporation_id=self.corporation.corporation_id
+            corporation_id=self.eve_corporation.corporation_id
         ).values("character_id")
 
         tokens = Token.objects.filter(character_id__in=char_ids).require_scopes(scopes)

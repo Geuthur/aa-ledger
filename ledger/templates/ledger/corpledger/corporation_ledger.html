@@ -12,118 +12,31 @@
 {% endblock page_topic %}
 
 {% block ledger_block %}
-    <div class="card-body bg-primary rounded-top d-flex align-items-center">
-        <h3 class="me-3">{% translate "Corporation Ledger" %}</h3>
-        {% if years %}
-            <div class="dropdown px-2">
-                <button id="divisionDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {% trans "Division" %}
-                </button>
-                <ul class="dropdown-menu" id="divisionDropdown">
-                    <li>
-                        <a class="dropdown-item {% if division_id|default:'null' == 'null' %}active{% endif %}" href="{% url 'ledger:corporation_ledger' corporation_id=corporation_id %}{% if view.type == 'single' %}?single=True{% endif %}">{% trans "All Divisions" %}</a>
-                    </li>
-                {% for division in divisions %}
-                    <li>
-                        {% if view.date.year %}
-                            {% if view.date.month %}
-                                {% if view.date.day %}
-                                    <a class="dropdown-item {% if division_id|default:'null' == division.division_id %}active{% endif %}" href="{% url 'ledger:corporation_ledger' corporation_id=corporation_id division_id=division.division_id year=view.date.year month=view.date.month day=view.date.day %}{% if view.type == 'single' %}?single=True{% endif %}">{{ division.name }}</a>
-                                {% else %}
-                                    <a class="dropdown-item {% if division_id|default:'null' == division.division_id %}active{% endif %}" href="{% url 'ledger:corporation_ledger' corporation_id=corporation_id division_id=division.division_id year=view.date.year month=view.date.month %}{% if view.type == 'single' %}?single=True{% endif %}">{{ division.name }}</a>
-                                {% endif %}
-                            {% else %}
-                                <a class="dropdown-item {% if division_id|default:'null' == division.division_id %}active{% endif %}" href="{% url 'ledger:corporation_ledger' corporation_id=corporation_id division_id=division.division_id year=view.date.year %}{% if view.type == 'single' %}?single=True{% endif %}">{{ division.name }}</a>
-                            {% endif %}
-                        {% else %}
-                            <a class="dropdown-item {% if division_id|default:'null' == division.division_id %}active{% endif %}" href="{% url 'ledger:corporation_ledger' corporation_id=corporation_id division_id=division.division_id %}{% if view.type == 'single' %}?single=True{% endif %}">{{ division.name }}</a>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-                </ul>
-            </div>
-            <div class="dropdown px-2">
-                <button id="yearDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {% trans "Year" %}
-                </button>
-                <ul class="dropdown-menu" id="yearDropdown">
-                    {% for year in years %}
-                        <li>
-                            {% if division_id %}
-                                <a class="dropdown-item {% if view.date.year|default:'null' == year %}active{% endif %}" href="{% url 'ledger:corporation_ledger' corporation_id=corporation_id division_id=division_id year=year %}{% if view.type == 'single' %}?single=True{% endif %}">{{ year }}</a>
-                            {% else %}
-                                <a class="dropdown-item {% if view.date.year|default:'null' == year %}active{% endif %}" href="{% url 'ledger:corporation_ledger' corporation_id=corporation_id year=year %}{% if view.type == 'single' %}?single=True{% endif %}">{{ year }}</a>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div class="dropdown px-2">
-                <button id="monthDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {% trans "Month" %}
-                </button>
-                <ul class="dropdown-menu" id="monthDropdown">
-                    {% for m in 12|range_filter %}
-                        <li>
-                            {% if division_id %}
-                                <a class="dropdown-item {% if view.date.month|default:'null' == m %}active{% endif %}" href="{% url 'ledger:corporation_ledger' corporation_id=corporation_id division_id=division_id year=view.date.year|default:view.date.current.year month=m %}{% if view.type == 'single' %}?single=True{% endif %}">
-                                    {{ m|month_name }}
-                                </a>
-                            {% else %}
-                                <a class="dropdown-item {% if view.date.month|default:'null' == m %}active{% endif %}" href="{% url 'ledger:corporation_ledger' corporation_id=corporation_id year=view.date.year|default:view.date.current.year month=m %}{% if view.type == 'single' %}?single=True{% endif %}">
-                                    {{ m|month_name }}
-                                </a>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div class="dropdown px-2">
-                <button id="dayDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {% trans "Day" %}
-                </button>
-                <ul class="dropdown-menu" id="dayDropdown">
-                    {% month_days view.date as month_days %}
-                    {% for day in month_days %}
-                        <li>
-                            {% if division_id %}
-                                <a class="dropdown-item {% if view.date.day|default:'null' == day %}active{% endif %}" href="{% url 'ledger:corporation_ledger' corporation_id=corporation_id division_id=division_id year=view.date.year|default:view.date.current.year month=view.date.month|default:view.date.current.month day=day %}{% if view.type == 'single' %}?single=True{% endif %}">
-                                    {{ day }}
-                                </a>
-                            {% else %}
-                                <a class="dropdown-item {% if view.date.day|default:'null' == day %}active{% endif %}" href="{% url 'ledger:corporation_ledger' corporation_id=corporation_id year=view.date.year|default:view.date.current.year month=view.date.month|default:view.date.current.month day=day %}{% if view.type == 'single' %}?single=True{% endif %}">
-                                    {{ day }}
-                                </a>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
-        <div class="ms-auto">
-            <a class="btn btn-secondary me-2 administration {% if disabled %}disabled{% endif %}" href="{% url 'ledger:corporation_administration' corporation_id=corporation_id %}">{% translate 'Administration' %}</a>
-            <a href="{% url 'ledger:corporation_overview' %}"><button class="btn btn-secondary overview">{% translate 'Corporation Overview' %}</button></a>
-        </div>
-    </div>
-    <div id="ledger-index" class="card-body rounded-bottom fade">
-        <div class="card-body bg-secondary table-responsive">
-            {% include 'ledger/partials/table/corp-ledger.html' with characters=characters totals=totals %}
-        </div>
+    {% include 'ledger/partials/view-corporation-ledger/corporation-table.html' with characters=characters totals=totals %}
 
-        {% include 'ledger/partials/thirdparty/billboard.html' %}
-    </div>
+    {% include 'ledger/partials/thirdparty/billboard.html' %}
+
+    <!-- Modals -->
     {% include 'ledger/partials/modal/modal.html' with name="ViewCharacter" %}
 {% endblock %}
 
 {% block extra_css %}
-    {% include 'ledger/bundles/table-css.html' %}
+    {% include 'ledger/bundles/aa-ledger-css.html' %}
 {% endblock %}
 
 {% block extra_javascript %}
     {% include 'bundles/datatables-js-bs5.html' %}
-    {% include 'ledger/bundles/ledger-bundles.html' %}
-    {% include 'ledger/bundles/corporation-ledger-bundles.html' %}
+    <script>
+        /**
+         * Override settings for aaLedger
+         */
+        const aaLedgerSettingsOverride = {
+            url: {
+            },
+            translations: {
+            }
+        };
+    </script>
+    {% include 'ledger/bundles/aa-ledger-js.html' %}
+    {% include 'ledger/bundles/view-corporation-ledger-js.html' %}
 {% endblock extra_javascript %}
-
-{% block extra_script %}
-{% endblock extra_script %}

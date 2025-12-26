@@ -16,14 +16,14 @@
                         </div>
                         <!-- Corporation Logo -->
                         <div class="card-body text-center {{ corporation.get_status_opacity }}">
-                            <a href="{% url 'ledger:corporation_ledger' corporation_id=corporation.corporation.corporation_id %}">
-                                <img src="{{ corporation.corporation.logo_url_256 }}">
+                            <a href="{% url 'ledger:corporation_ledger' corporation_id=corporation.eve_corporation.corporation_id %}">
+                                <img src="{{ corporation.eve_corporation.logo_url_256 }}">
                             </a>
                         </div>
                         <!-- Corporation Actions -->
                         <div class="card-footer">
                             <a class="btn btn-success btn-sm"
-                                href="{% url 'ledger:corporation_ledger' corporation_id=corporation.corporation.corporation_id %}"
+                                href="{% url 'ledger:corporation_ledger' corporation_id=corporation.eve_corporation.corporation_id %}"
                                 role="button"
                                 data-tooltip-toggle="ledger-tooltip"
                                 title="{% translate 'View Corporation Ledger' %}">

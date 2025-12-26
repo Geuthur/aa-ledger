@@ -60,9 +60,13 @@ def check_planetary_alarms(runs: int = 0):
     owner_ids = {}
     warnings = {}
 
-    for planet in all_planets:
-        if planet.is_expired and not planet.notification_sent and planet.notification:
-            character_id = planet.planet.character.eve_character.character_id
+    for planet_details in all_planets:
+        if (
+            planet_details.is_expired
+            and not planet_details.notification_sent
+            and planet_details.notification
+        ):
+            character_id = planet_details.planet.character.eve_character.character_id
 
             try:
                 owner = CharacterOwnership.objects.get(
@@ -82,16 +86,16 @@ def check_planetary_alarms(runs: int = 0):
                 continue
 
             msg = _("%(charname)s on %(planetname)s") % {
-                "charname": planet.planet.character.eve_character.character_name,
-                "planetname": planet.planet.planet.name,
+                "charname": planet_details.planet.character.eve_character.character_name,
+                "planetname": planet_details.planet.eve_planet.name,
             }
 
             if main_id not in warnings:
                 warnings[main_id] = []
 
             warnings[main_id].append(msg)
-            planet.notification_sent = True
-            planet.save()
+            planet_details.notification_sent = True
+            planet_details.save()
 
     if warnings:
         for main_id, messages in warnings.items():
@@ -276,7 +280,7 @@ def _update_character_section(character_pk: int, section: str, force_refresh: bo
 @shared_task(**TASK_DEFAULTS_ONCE)
 @when_esi_is_available
 def update_all_corporations(runs: int = 0, force_refresh=False):
-    corps = CorporationAudit.objects.select_related("corporation").filter(active=1)
+    corps = CorporationAudit.objects.filter(active=1)
     for corp in corps:
         update_corporation.apply_async(
             args=[corp.pk], kwargs={"force_refresh": force_refresh}
@@ -330,7 +334,7 @@ def update_corporation(
 
     logger.debug(
         "Processing Audit Updates for %s",
-        format(corporation.corporation.corporation_name),
+        format(corporation.eve_corporation.corporation_name),
     )
 
     if force_refresh:
@@ -341,7 +345,7 @@ def update_corporation(
 
     if not needs_update and not force_refresh:
         logger.info(
-            "No updates needed for %s", corporation.corporation.corporation_name
+            "No updates needed for %s", corporation.eve_corporation.corporation_name
         )
         return
 
@@ -352,7 +356,7 @@ def update_corporation(
         if not force_refresh and not needs_update.for_section(section):
             logger.debug(
                 "No updates needed for %s (%s)",
-                corporation.corporation.corporation_name,
+                corporation.eve_corporation.corporation_name,
                 section,
             )
             continue
@@ -367,7 +371,7 @@ def update_corporation(
     logger.debug(
         "Queued %s Audit Updates for %s",
         len(que),
-        corporation.corporation.corporation_name,
+        corporation.eve_corporation.corporation_name,
     )
 
 
@@ -406,7 +410,9 @@ def _update_corporation_section(corporation_pk: int, section: str, force_refresh
     section = CorporationAudit.UpdateSection(section)
     corporation = CorporationAudit.objects.get(pk=corporation_pk)
     logger.debug(
-        "Updating %s for %s", section.label, corporation.corporation.corporation_name
+        "Updating %s for %s",
+        section.label,
+        corporation.eve_corporation.corporation_name,
     )
 
     corporation.reset_update_status(section)

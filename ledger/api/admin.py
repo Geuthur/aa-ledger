@@ -29,7 +29,7 @@ from ledger.models.corporationaudit import CorporationAudit
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
-class LedgerAdminApiEndpoints:
+class AdminApiEndpoints:
     tags = ["LedgerAdmin"]
 
     # pylint: disable=too-many-statements
@@ -124,9 +124,9 @@ class LedgerAdminApiEndpoints:
             for corporation in corporations:
                 # pylint: disable=broad-exception-caught
                 try:
-                    corporation_dict[corporation.corporation.corporation_id] = {
-                        "corporation_id": corporation.corporation.corporation_id,
-                        "corporation_name": corporation.corporation.corporation_name,
+                    corporation_dict[corporation.eve_corporation.corporation_id] = {
+                        "corporation_id": corporation.eve_corporation.corporation_id,
+                        "corporation_name": corporation.eve_corporation.corporation_name,
                     }
                 except Exception:
                     continue
@@ -152,9 +152,9 @@ class LedgerAdminApiEndpoints:
             for corporation in corporations:
                 # pylint: disable=broad-exception-caught
                 try:
-                    alliance_dict[corporation.corporation.alliance.alliance_id] = {
-                        "alliance_id": corporation.corporation.alliance.alliance_id,
-                        "alliance_name": corporation.corporation.alliance.alliance_name,
+                    alliance_dict[corporation.eve_corporation.alliance.alliance_id] = {
+                        "alliance_id": corporation.eve_corporation.alliance.alliance_id,
+                        "alliance_name": corporation.eve_corporation.alliance.alliance_name,
                     }
                 except Exception:
                     continue
@@ -229,7 +229,7 @@ class LedgerAdminApiEndpoints:
                 return 403, "Corporation not found"
 
             auth_corp = EveCorporationInfo.objects.get(
-                corporation_id=corporation.corporation.corporation_id
+                corporation_id=corporation.eve_corporation.corporation_id
             )
 
             corp_characters = CharacterOwnership.objects.filter(
@@ -270,7 +270,7 @@ class LedgerAdminApiEndpoints:
                 alliance__alliance_id=alliance_id
             )
             corp_audit_ids = corporations.values_list(
-                "corporation__corporation_id", flat=True
+                "eve_corporation__corporation_id", flat=True
             )
             missing_corporations = all_corporations.exclude(
                 corporation_id__in=corp_audit_ids

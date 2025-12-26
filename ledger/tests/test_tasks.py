@@ -156,7 +156,7 @@ class TestUpdateCorporation(TestCase):
         # then
         mock_logger.info.assert_called_once_with(
             "No updates needed for %s",
-            self.audit.corporation.corporation_name,
+            self.audit.eve_corporation.corporation_name,
         )
 
     def test_update_corporation_should_update(self, mock_logger, mock_chain):
@@ -278,5 +278,5 @@ class TestCheckPlanetaryNotification(TestCase):
             CharacterPlanetDetails.objects.filter(
                 notification_sent=True,
             ).count(),
-            2,
+            3,
         )

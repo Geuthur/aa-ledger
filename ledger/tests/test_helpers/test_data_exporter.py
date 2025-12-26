@@ -167,7 +167,7 @@ class TestCorporationLedgerView(TestCase):
         with TemporaryDirectory():
             ledger_type = "corporation"
 
-            corporation_id = self.audit.corporation.corporation_id
+            corporation_id = self.audit.eve_corporation.corporation_id
             year = 2016
 
             result = data_exporter.export_ledger_to_archive(
@@ -189,7 +189,7 @@ class TestCorporationLedgerView(TestCase):
         with TemporaryDirectory():
             ledger_type = "alliance"
 
-            alliance_id = self.audit_alliance.corporation.alliance.alliance_id
+            alliance_id = self.audit_alliance.eve_corporation.alliance.alliance_id
             year = 2016
 
             result = data_exporter.export_ledger_to_archive(

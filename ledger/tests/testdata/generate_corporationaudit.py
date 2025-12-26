@@ -21,7 +21,7 @@ def create_corporationaudit(eve_character: EveCharacter, **kwargs) -> Corporatio
     """Create a LedgerAudit Corporation from EveCharacter"""
     params = {
         "corporation_name": eve_character.corporation_name,
-        "corporation": eve_character.corporation,
+        "eve_corporation": eve_character.corporation,
     }
     params.update(kwargs)
     corporation = CorporationAudit(**params)

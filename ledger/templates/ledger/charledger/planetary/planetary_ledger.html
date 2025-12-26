@@ -13,7 +13,8 @@
 {% endblock page_topic %}
 
 {% block ledger_block %}
-    <div class="card-body bg-primary rounded-top d-flex">
+<div class="card mb-3">
+    <div class="card-header bg-primary rounded-top d-flex align-items-center">
         <h3>{% translate "Planetary Details" %} </h3>
         <div class="ms-auto">
             <a class="nav-link py-0" href="{% url 'ledger:planetary_overview' %}">
@@ -21,34 +22,50 @@
             </a>
         </div>
     </div>
-    <div id="ledger-index" class="card-body rounded-bottom fade">
-        <div class="card-body bg-secondary table-responsive">
-            <span>
-                <i class="fa-solid fa-bullhorn"></i> {% trans "Notification" %} <span class="text-success">{% trans "ON" %}</span>/<span class="text-danger">{% trans "OFF" %}</span>
-            </span>
-            {% include 'ledger/partials/table/planetary.html' %}
-            <button id="turn-all-notification" type="button" class="btn btn-primary btn-sm btn-square me-2 d-none"
-                data-bs-toggle="modal"
-                data-tooltip-toggle="planetary"
-                data-character-id="0"
-                data-planet-id="0"
-                data-title="{% translate 'Toggle Alarm' %}"
-                data-text="{% translate 'Are you sure to Turn On/Off all Notifications?' %}"
-                data-bs-target="#ledger-planetary-confirm"
-                data-action="{% url 'ledger:switch_alarm' %}" aria-label="Toggle Alarm"
-                >
-                <span class="fas fa-bullhorn"></span> {% translate 'Turn All On/Off' %}
-            </button>
-        </div>
-    </div>
-{% endblock %}
 
-{% block extra_javascript %}
-    {% include 'ledger/bundles/planetary-bundles.html' %}
+    <div class="card-body table-responsive">
+        {% include 'ledger/partials/view-character-planetary/planetary-table.html' %}
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_css %}
+    {% include 'taxsystem/bundles/datatables-2-css.html' with extColumnControl=True %}
+    {% include 'ledger/bundles/aa-ledger-css.html' %}
+    {% include 'ledger/bundles/view-character-planetary-css.html' %}
 {% endblock %}
 
-{% block extra_script %}
+{% block extra_javascript %}
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const singleViewParms = urlParams.get('single');
+
+        /**
+         * Override settings for aaLedger
+         */
+        const aaLedgerSettingsOverride = {
+            characterPk: '{{ character_id }}',
+            updateInterval: '{{ update_interval }}',
+            url: {
+                Planetary: '{% url "ledger:api:get_planetarydetails" character_id=character_id planet_id=0 %}',
+            },
+            translations: {
+                confirmSwitchAlarm: '{% translate "Are you sure to Switch Notification" %}',
+                buttonSwitchAlarm: '{% translate "Switch Notification" %}',
+                notificationActivated: '{% translate "Notification Activated" %}',
+                notificationDeactivated: '{% translate "Notification Deactivated" %}',
+            }
+        };
+
+        // Construct the planetaryUrl with the 'main' parameter
+        if (singleViewParms) {
+            aaLedgerSettings.url.Planetary += '?single=' + singleViewParms;
+        }
+    </script>
+    {% include 'ledger/partials/modal/request-accept-switch-notification.html' %}
+    {% include 'ledger/partials/modal/request-view-factory.html' %}
+    {% include 'ledger/partials/modal/request-view-extractor.html' %}
+    {% include 'ledger/bundles/aa-ledger-js.html' %}
+    {% include 'ledger/bundles/datatables-2-js.html' with extColumnControl=True %}
+    {% include 'ledger/bundles/view-character-planetary-js.html' %}
 {% endblock %}

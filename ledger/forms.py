@@ -50,13 +50,13 @@ class GenerateDataExportForm(forms.Form):
 
         # Set the division queryset based on the corporation_id
         self.fields["division"].queryset = CorporationWalletDivision.objects.filter(
-            corporation__corporation__corporation_id=corporation_id
+            corporation__eve_corporation__corporation_id=corporation_id
         ).order_by("division_id")
 
         # Populate the year field with distinct years from the journal entries
         years_qs = (
             CorporationWalletJournalEntry.objects.filter(
-                division__corporation__corporation__corporation_id=corporation_id
+                division__corporation__eve_corporation__corporation_id=corporation_id
             )
             .exclude(date__year__isnull=True)
             .values_list("date__year", flat=True)

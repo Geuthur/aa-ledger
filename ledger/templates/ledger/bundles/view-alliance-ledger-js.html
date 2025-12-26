@@ -1,22 +1,50 @@
 {% load sri %}
 {% load i18n %}
 
+{% include 'bundles/datatables-js-bs5.html' %}
+{% include 'bundles/moment-js.html' with locale=True %}
+{% sri_static 'ledger/js/charts.js' %}
+{% sri_static 'ledger/js/modal/modal-system.js' %}
+
+{% sri_static 'ledger/libs/amCharts/5.14.4/js/index.js' %}
+{% sri_static 'ledger/libs/amCharts/5.14.4/js/xy.js' %}
+{% sri_static 'ledger/libs/amCharts/5.14.4/js/percent.js' %}
+{% sri_static 'ledger/libs/amCharts/5.14.4/js/flow.js' %}
+
+{% sri_static 'ledger/libs/amCharts/5.14.4/js/themes/Animated.js' %}
+{% sri_static 'ledger/libs/amCharts/5.14.4/js/themes/Dark.js' %}
+
 <script>
     // Initialize dropdowns on page load
     document.addEventListener('DOMContentLoaded', function() {
         const BillboardData = {{ billboard|default:"null"|safe }};
         initCharts(BillboardData);
 
-        const tableContainer = $('#ratting')
-        const tableRatting = tableContainer.DataTable(
-            {
-                "order": [[1, "desc"]],
-                "columnDefs": [
-                    { "orderable": false, "targets": 6 }, // Disable sorting on the last column
-                    { "type": "num", "targets": [1, 2, 3, 4, 5] }, // Numeric sorting for ISK columns
+        // Table ID
+        const corporationTable = $('#ratting')
+
+        /**
+        * DataTable for Character Ledger
+        * @type {*|jQuery}
+        */
+        const corporationDataTable = new DataTable(corporationTable, {
+                language: aaLedgerSettings.dataTables.language,
+                layout: aaLedgerSettings.dataTables.layout,
+                ordering: aaLedgerSettings.dataTables.ordering,
+                columnControl: aaLedgerSettings.dataTables.columnControl,
+                order: [[1, "desc"]],
+                columnDefs: [
                     {
-                        "targets": [1, 2, 3, 4],
-                        "render": function (data, type, row, meta) {
+                        orderable: false,
+                        targets: 6
+                    },
+                    {
+                        type: "num",
+                        targets: [1, 2, 3, 4, 5]
+                    },
+                    {
+                        targets: [1, 2, 3, 4],
+                        render: function (data, type, row, meta) {
                             // Remove ISK and thousands separator for sorting
                             if (type === 'sort' || type === 'type') {
                                 if (typeof data === 'string') {
@@ -28,8 +56,8 @@
                         }
                     },
                     {
-                        "targets": 5, // Total column
-                        "render": function (data, type, row, meta) {
+                        targets: 5, // Total column
+                        render: function (data, type, row, meta) {
                             if (type === 'sort' || type === 'type') {
                                 if (typeof data === 'string') {
                                     // Extrahiere Zahl inkl. Minuszeichen am Anfang, robust gegen Leerzeichen
@@ -47,29 +75,13 @@
                         }
                     }
                 ],
-                "orderCellsTop": true,
                 initComplete: function() {
-                    $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({ trigger: 'hover' });
-                    $('[data-bs-toggle="corp-popover"]').popover({
-                        trigger: 'hover',
-                        html: true,
-                    });
-
-                    // Show the ledger content after initialization
-                    $('#ledger-index').addClass('show');
+                    _bootstrapTooltip({selector: '#ratting'});
+                },
+                drawCallback: function () {
+                    _bootstrapTooltip({selector: '#ratting'});
                 },
             }
         );
-
-        tableRatting.on('draw', function() {
-            $('[data-tooltip-toggle="ledger-tooltip"]').tooltip({ trigger: 'hover' });
-            $('[data-bs-toggle="corp-popover"]').popover({
-                trigger: 'hover',
-                html: true,
-            });
-        });
     });
 </script>
-
-{% sri_static 'ledger/js/charts.js' %}
-{% sri_static 'ledger/js/modal/modal-system.js' %}

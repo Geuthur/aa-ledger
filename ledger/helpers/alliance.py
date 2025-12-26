@@ -48,8 +48,8 @@ class AllianceData(LedgerCore):
         self.entity_id = self.alliance.alliance_id
         self.section = section
         self.corporations = CorporationAudit.objects.filter(
-            corporation__alliance__alliance_id=self.alliance.alliance_id
-        ).values_list("corporation__corporation_id", flat=True)
+            eve_corporation__alliance__alliance_id=self.alliance.alliance_id
+        ).values_list("eve_corporation__corporation_id", flat=True)
         self.auth_char_ids = self.auth_character_ids
         self.billboard = BillboardSystem()
         self.queryset = (
@@ -60,7 +60,7 @@ class AllianceData(LedgerCore):
         """Return the base queryset filtered by the current date range and corporation division."""
         return CorporationWalletJournalEntry.objects.filter(
             self.filter_date,
-            division__corporation__corporation__alliance__alliance_id=self.alliance.alliance_id,
+            division__corporation__eve_corporation__alliance__alliance_id=self.alliance.alliance_id,
         ).exclude(
             Q(ref_type="corporation_account_withdrawal")
             & Q(first_party_id=F("second_party_id"))
@@ -83,7 +83,7 @@ class AllianceData(LedgerCore):
             "second_party_id",
             "pk",
             "ref_type",
-            "division__corporation__corporation__corporation_id",
+            "division__corporation__eve_corporation__corporation_id",
         ).annotate(
             bounty=Sum(
                 "amount",
@@ -122,7 +122,7 @@ class AllianceData(LedgerCore):
         for pk, rows in list(self.entries.items()):
             for row in rows:
                 if (
-                    row["division__corporation__corporation__corporation_id"]
+                    row["division__corporation__eve_corporation__corporation_id"]
                     == entity.entity_id
                 ):
                     if RefTypeManager.special_cases(
