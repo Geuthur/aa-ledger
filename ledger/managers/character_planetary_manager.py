@@ -208,7 +208,7 @@ class PlanetDetailsQuerySet(models.QuerySet):
                 "facility_type": (
                     item_type.eve_group.name if item_type.eve_group else "N/A"
                 ),
-                "resources": [],
+                "ressources": [],
             }
 
             # Spaceport and Storage Facility
@@ -251,8 +251,8 @@ class PlanetDetailsQuerySet(models.QuerySet):
 
     def _extractor_info(self, pin: dict, factory_dict: dict):
         """Update dict and add all Extractor Information to the given dict"""
-        # Update Extractor Information
-        extractor_details = pin.get("extractor_details", {})
+        # Update Extractor Information (ensure None is treated as empty dict)
+        extractor_details = pin.get("extractor_details") or {}
         product_type_id = extractor_details.get("product_type_id")
         product_type_name = "N/A"
 
@@ -340,7 +340,7 @@ class PlanetDetailsQuerySet(models.QuerySet):
                     "missing_quantity": missing_quantity,
                     "is_active": is_active,
                 }
-                factory_dict[destination_pin_id]["resources"].append(resource)
+                factory_dict[destination_pin_id]["ressources"].append(resource)
 
             if source_pin_id in factory_dict:
                 factory_dict[source_pin_id]["output_product"] = {

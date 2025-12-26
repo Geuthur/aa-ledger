@@ -24,12 +24,6 @@ from ledger.models.planetary import CharacterPlanetDetails
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
-class RessourceSchema(schema.Schema):
-    item_id: int
-    item_name: str
-    icon: str | None = None
-
-
 class ProductSchema(schema.Schema):
     item_id: int
     item_name: str
@@ -39,8 +33,14 @@ class ProductSchema(schema.Schema):
 
 class FactorySchema(schema.Schema):
     factory_name: str
-    resource_items: list[RessourceSchema]
-    product: ProductSchema | None = None
+    products: list[ProductSchema]
+    is_active: str
+
+
+class ProduceSchema(schema.Schema):
+    factory_name: str
+    input_products: list[ProductSchema]
+    output_product: ProductSchema | None = None
     is_active: str
 
 
@@ -58,58 +58,122 @@ def get_factories_info(planet_details: CharacterPlanetDetails) -> list[FactorySc
     Returns:
         list[FactorySchema]: A list with the factory information for the Planet.
     """
-    response_facilities_list: list[FactorySchema] = []
-    for facility_info in planet_details.factories.values():
-        factory_name = facility_info.get("facility_name") or _("No facility")
+    response_factories_list: list[FactorySchema] = []
+
+    try:
+        factories = planet_details.factories.values()
+    except AttributeError:
+        return response_factories_list
+
+    for factory_info in factories:
+        factory_name = factory_info.get("facility_name") or _("No facility")
         # Only process Processors
-        if facility_info.get("facility_type") != "Processors":
+        if factory_info.get("facility_type") != "Processors":
             continue
 
-        ressource_types = get_resource_type(facility_info["resources"])
+        ressource_types = get_resource_type(factory_info["ressources"])
         ressource_list = []
 
         # Build Ressource List from Factories
-        for ressource in ressource_types.values():
-            ressource = RessourceSchema(
-                item_id=ressource["item_id"],
-                item_name=ressource["item_name"],
-                icon=get_icon_render_url(
-                    type_id=ressource["item_id"],
-                    type_name=ressource["item_name"],
-                    as_html=True,
-                ),
-            )
-            ressource_list.append(ressource)
-
-        # Create Blank Product if None
-        product = ProductSchema(
-            item_id=0,
-            item_name="",
-            icon="",
-        )
-        # Populate Product if exists
-        if facility_info.get("output_product", None) is not None:
+        for product in ressource_types.values():
             product = ProductSchema(
-                item_id=facility_info["output_product"]["item_id"],
-                item_name=facility_info["output_product"]["item_name"],
+                item_id=product["item_id"],
+                item_name=product["item_name"],
                 icon=get_icon_render_url(
-                    type_id=facility_info["output_product"]["item_id"],
-                    type_name=facility_info["output_product"]["item_name"],
+                    type_id=product["item_id"],
+                    type_name=product["item_name"],
                     as_html=True,
                 ),
             )
+            ressource_list.append(product)
 
-        is_active = facility_info.get("is_active", False)
+        # Populate Product if exists
+        if factory_info.get("output_product", None) is not None:
+            output_product = ProductSchema(
+                item_id=factory_info["output_product"]["item_id"],
+                item_name=factory_info["output_product"]["item_name"],
+                icon=get_icon_render_url(
+                    type_id=factory_info["output_product"]["item_id"],
+                    type_name=factory_info["output_product"]["item_name"],
+                    as_html=True,
+                ),
+            )
+            ressource_list.append(output_product)
 
-        response_facilities_list.append(
+        is_active = factory_info.get("is_active", False)
+
+        response_factories_list.append(
             FactorySchema(
                 factory_name=factory_name,
-                resource_items=ressource_list,
-                product=product,
+                products=ressource_list,
                 is_active=generate_is_active_icon(is_active),
             )
         )
-    return response_facilities_list
+    return response_factories_list
+
+
+def get_factory_info(planet_details: CharacterPlanetDetails) -> list[FactorySchema]:
+    """
+    Get the factory information for a planet.
+
+    Args:
+        planet_details (CharacterPlanetDetails): The planetary details object.
+    Returns:
+        list[FactorySchema]: A list with the factory information for the Planet.
+    """
+    response_factories_list: list[FactorySchema] = []
+
+    try:
+        factories = planet_details.factories.values()
+    except AttributeError:
+        return response_factories_list
+
+    for factory_info in factories:
+        factory_name = factory_info.get("facility_name") or _("No facility")
+        # Only process Processors
+        if factory_info.get("facility_type") != "Processors":
+            continue
+
+        ressource_types = get_resource_type(factory_info["ressources"])
+        input_products_list = []
+
+        # Build Ressource List from Factories
+        for input_ressource in ressource_types.values():
+            input_ressource = ProductSchema(
+                item_id=input_ressource["item_id"],
+                item_name=input_ressource["item_name"],
+                icon=get_icon_render_url(
+                    type_id=input_ressource["item_id"],
+                    type_name=input_ressource["item_name"],
+                    as_html=True,
+                ),
+            )
+            input_products_list.append(input_ressource)
+
+        output_product = None
+        # Get Output Product if exists
+        if factory_info.get("output_product", None) is not None:
+            output_product = ProductSchema(
+                item_id=factory_info["output_product"]["item_id"],
+                item_name=factory_info["output_product"]["item_name"],
+                icon=get_icon_render_url(
+                    type_id=factory_info["output_product"]["item_id"],
+                    type_name=factory_info["output_product"]["item_name"],
+                    as_html=True,
+                ),
+            )
+
+        is_active = factory_info.get("is_active", False)
+
+        response_factories_list.append(
+            ProduceSchema(
+                factory_name=factory_name,
+                input_products=input_products_list,
+                output_product=output_product,
+                is_active=generate_is_active_icon(is_active),
+            )
+        )
+    return response_factories_list
 
 
 def get_storage_info(planet_details: CharacterPlanetDetails) -> list[StorageSchema]:
@@ -123,7 +187,12 @@ def get_storage_info(planet_details: CharacterPlanetDetails) -> list[StorageSche
     """
     response_storage_list: list[StorageSchema] = []
 
-    for factory in planet_details.factories.values():
+    try:
+        factories = planet_details.factories.values()
+    except AttributeError:
+        return response_storage_list
+
+    for factory in factories:
         factory_name = factory.get("facility_name") or _("No facility")
 
         # Storage Info
@@ -228,8 +297,13 @@ def allocate_overall_progress(planet_details: CharacterPlanetDetails) -> float |
     progress_sum = 0.0
     valid_extractors = 0
 
-    for facility in (planet_details.factories or {}).values():
-        extractor = facility.get("extractor", {})
+    try:
+        factories = planet_details.factories.values()
+    except AttributeError:
+        return None
+
+    for factory in factories:
+        extractor = factory.get("extractor", {})
 
         # Skip if no extractor present
         if not extractor:

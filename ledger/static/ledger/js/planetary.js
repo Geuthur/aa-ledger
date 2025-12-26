@@ -48,11 +48,11 @@ $(document).ready(() => {
                             ]
                         },
                         {
-                            targets: [3, 5],
+                            targets: [3],
                             width: '20%'
                         },
                         {
-                            targets: [2, 8],
+                            targets: [2, 5, 8],
                             width: '32px'
                         }
                     ],
@@ -82,7 +82,7 @@ $(document).ready(() => {
                         {
                             data: {
                                 display: (data) => {
-                                    const items = data.factories.flatMap(f => f.resource_items);
+                                    const items = data.factories.flatMap(f => f.products);
                                     const icons = Array.from(new Set(items.map(product => product.icon))).join(' ');
                                     return `${icons} ${data.actions.factory_info_button}`;
                                 },
@@ -93,13 +93,7 @@ $(document).ready(() => {
                         },
                         {
                             data: {
-                                display: (data) => {
-                                    const products = data.factories.map(f => f.product).filter(Boolean);
-                                    const icons = Array.from(new Set(products.map(p => p.icon))).join(' ');
-                                    return `${icons} ${data.actions.extractor_info_button}`;
-                                },
-                                sort: (data) => Array.from(new Set(data.factories.map(f => f.product && f.product.item_name))),
-                                filter: (data) => Array.from(new Set(data.factories.map(f => f.product && f.product.item_name)))
+                                display: (data) => data.actions.extractor_info_button,
                             }
                         },
                         {
@@ -265,17 +259,17 @@ $(document).ready(() => {
             },
             {
                 data: {
-                    display: (data) => Object.values(data.resource_items).map(ressource => ressource.icon),
-                    sort: (data) => Object.values(data.resource_items).map(ressource => ressource.item_name),
-                    filter: (data) => Object.values(data.resource_items).map(ressource => ressource.item_name)
+                    display: (data) => Object.values(data.input_products).map(product => product.icon),
+                    sort: (data) => Object.values(data.input_products).map(product => product.item_name),
+                    filter: (data) => Object.values(data.input_products).map(product => product.item_name)
                 }
             },
             {
                 data:
                 {
-                    display: (data) => data.product.icon + ' ' + data.product.item_name,
-                    sort: (data) => data.product.item_name,
-                    filter: (data) => data.product.item_name
+                    display: (data) => data.output_product ? data.output_product.icon + ' ' + data.output_product.item_name : '',
+                    sort: (data) => data.output_product ? data.output_product.item_name : '',
+                    filter: (data) => data.output_product ? data.output_product.item_name : ''
                 }
             },
             {

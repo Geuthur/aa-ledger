@@ -21,6 +21,7 @@ from ledger.api.api_helper.icons import (
 )
 from ledger.api.api_helper.planetary_helper import (
     FactorySchema,
+    ProduceSchema,
     StorageSchema,
     allocate_overall_progress,
     generate_is_active_icon,
@@ -28,6 +29,7 @@ from ledger.api.api_helper.planetary_helper import (
     generate_progressbar,
     get_character_render_url,
     get_factories_info,
+    get_factory_info,
     get_icon_render_url,
     get_storage_info,
     get_type_render_url,
@@ -48,7 +50,7 @@ logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 class FactoryDetailsResponse(schema.Schema):
     owner: OwnerSchema
     planet: PlanetSchema
-    factories: list[FactorySchema]
+    factories: list[ProduceSchema]
     storage: list[StorageSchema]
 
 
@@ -193,7 +195,7 @@ class PlanetaryApiEndpoints:
                 return 403, {"error": _("Planet not found.")}
 
             response_storage_list = get_storage_info(planet_details=planet_details)
-            response_factories_list = get_factories_info(planet_details=planet_details)
+            response_factories_list = get_factory_info(planet_details=planet_details)
 
             return FactoryDetailsResponse(
                 owner=OwnerSchema(

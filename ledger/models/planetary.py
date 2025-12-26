@@ -128,20 +128,22 @@ class CharacterPlanetDetails(models.Model):
         if not self.factories:
             return True
 
-        # Check all facilities for running extractors or active processor resources
-        for facility in self.factories.values():
-            if not isinstance(facility, dict):
-                continue
+        # Check all facilities for running extractors or active processor ressources
+        try:
+            factories = self.factories.values()
+        except AttributeError:
+            return True
 
+        for factory in factories:
             # Extractor running?
-            extractor = facility.get("extractor")
-            if isinstance(extractor, dict) and extractor.get("is_running", False):
+            extractor = factory.get("extractor", {})
+            if extractor.get("is_running", False):
                 return False
 
             # Processors: any resource with is_active True?
-            if facility.get("facility_type") == "Processors":
-                for resource in facility.get("resources", []) or []:
-                    if isinstance(resource, dict) and resource.get("is_active", False):
+            if factory.get("facility_type") == "Processors":
+                for ressource in factory.get("ressources", []) or []:
+                    if ressource.get("is_active", False):
                         return False
         return True
 
