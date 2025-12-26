@@ -12,23 +12,25 @@
 {% endblock page_topic %}
 
 {% block ledger_block %}
-    <div class="bg-primary rounded-top px-2 py-2 mb-4">
-        <h3 class="text-white">{% translate "Account Overview" %}</h3>
-    </div>
-    <div id="ledger-index" class="card-body rounded-bottom fade">
-        <div class="card-body bg-secondary table-responsive">
-            <div class="row">
-                <table class="table table-dark table-striped table-hover w-100" id="members">
-                    <br>
-                    <thead>
-                        <th class="col-portrait" style="width: 10%;"></th>
-                        <th class="col-user" style="width: 20%;">Character</th>
-                        <th class="col-group" style="width: 20%;">Corporation</th>
-                        <th class="col-actions" style="width: 10%;">{% trans "Actions" %}</th>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+    <div class="card mb-3">
+        <div class="bg-primary rounded-top px-2 py-2 mb-4">
+            <h3 class="text-white">{% translate "Account Overview" %}</h3>
+        </div>
+        <div id="ledger-index" class="card-body rounded-bottom fade">
+            <div class="card-body bg-secondary table-responsive">
+                <div class="row">
+                    <table class="table table-dark table-striped table-hover w-100" id="members">
+                        <br>
+                        <thead>
+                            <th class="col-portrait" style="width: 10%;"></th>
+                            <th class="col-user" style="width: 20%;">Character</th>
+                            <th class="col-group" style="width: 20%;">Corporation</th>
+                            <th class="col-actions" style="width: 10%;">{% trans "Actions" %}</th>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
