@@ -42,9 +42,7 @@ def planetary_ledger(request, character_id=None):
         "character_id": character_id,
     }
     context = add_info_to_context(request, context)
-    return render(
-        request, "ledger/charledger/planetary/planetary_ledger.html", context=context
-    )
+    return render(request, "ledger/view-character-planetary.html", context=context)
 
 
 @login_required
@@ -61,6 +59,6 @@ def planetary_overview(request):
 
     return render(
         request,
-        "ledger/charledger/planetary/admin/planetary_overview.html",
+        "ledger/view-character-planetary-overview.html",
         context=context,
     )
