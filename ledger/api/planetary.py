@@ -184,7 +184,7 @@ class PlanetaryApiEndpoints:
             if not perm:
                 return 403, {"error": _("Permission Denied.")}
 
-            filters = Q(planet__owner=character)
+            filters = Q(planet__character=character)
             if planet_id != 0:
                 filters &= Q(planet__id=planet_id)
 
@@ -244,7 +244,7 @@ class PlanetaryApiEndpoints:
             if not perm:
                 return 403, {"error": _("Permission Denied.")}
 
-            filters = Q(planet__owner=character)
+            filters = Q(planet__character=character)
             if not planet_id == 0:
                 filters &= Q(planet__id=planet_id)
 
@@ -332,7 +332,7 @@ class PlanetaryApiEndpoints:
             if not perm:
                 return 403, {"error": _("Permission Denied.")}
 
-            filters = Q(planet__owner=character)
+            filters = Q(planet__character=character)
             if not planet_id == 0:
                 filters &= Q(planet__id=planet_id)
 
