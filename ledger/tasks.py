@@ -135,6 +135,7 @@ def update_all_characters(runs: int = 0, force_refresh=False):
     """Update all characters"""
     # Disable characters with no owner
     CharacterOwner.objects.disable_characters_with_no_owner()
+
     characters = CharacterOwner.objects.select_related("eve_character").filter(active=1)
     for char in characters:
         update_character.apply_async(
@@ -149,6 +150,8 @@ def update_subset_characters(subset=2, min_runs=50, max_runs=500, force_refresh=
     """Update a batch of characters to prevent overload ESI"""
     # Disable characters with no owner
     CharacterOwner.objects.disable_characters_with_no_owner()
+
+    # Calculate number of characters to update
     total_characters = CharacterOwner.objects.filter(active=1).count()
     characters_count = min(max(total_characters // subset, min_runs), total_characters)
 
