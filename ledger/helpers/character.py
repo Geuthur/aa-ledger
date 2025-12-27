@@ -6,7 +6,7 @@ from decimal import Decimal
 # Django
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger

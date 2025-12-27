@@ -6,7 +6,7 @@ from typing import Any
 
 # Django
 from django.db.models import DecimalField, Q, QuerySet, Sum
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
