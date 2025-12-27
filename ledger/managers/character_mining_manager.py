@@ -35,6 +35,9 @@ if TYPE_CHECKING:
 
     # AA Ledger
     from ledger.models.characteraudit import (
+        CharacterMiningLedger as MiningLedgerContext,
+    )
+    from ledger.models.characteraudit import (
         CharacterOwner,
     )
     from ledger.models.general import UpdateSectionResult
@@ -53,7 +56,7 @@ def require_valid_price_percentage(func):
     return wrapper
 
 
-class CharacterMiningLedgerEntryQueryset(models.QuerySet):
+class CharacterMiningLedgerEntryQueryset(models.QuerySet["MiningLedgerContext"]):
     @require_valid_price_percentage
     def annotate_pricing(self) -> models.QuerySet:
         """Annotate price and total columns."""
@@ -144,7 +147,35 @@ class CharacterMiningLedgerEntryQueryset(models.QuerySet):
         )
 
 
-class CharacterMiningLedgerEntryManagerBase(models.Manager):
+class CharacterMiningLedgerEntryManager(models.Manager["MiningLedgerContext"]):
+    def get_queryset(self) -> CharacterMiningLedgerEntryQueryset:
+        return CharacterMiningLedgerEntryQueryset(self.model, using=self._db)
+
+    @require_valid_price_percentage
+    def annotate_pricing(self) -> models.QuerySet:
+        """Annotate price and total columns."""
+        return self.get_queryset().annotate_pricing()
+
+    def annotate_mining(self, with_period: bool = False) -> models.QuerySet:
+        """Annotate mining columns."""
+        return self.get_queryset().annotate_mining(with_period=with_period)
+
+    def aggregate_mining(self):
+        """Aggregate mining amounts."""
+        return self.get_queryset().aggregate_mining()
+
+    def aggregate_amounts_information_modal(
+        self, amounts: defaultdict, chars_list: list, filter_date: timezone.datetime
+    ) -> dict:
+        """Generate data template for the ledger character information view."""
+        return self.get_queryset().aggregate_amounts_information_modal(
+            amounts, chars_list, filter_date
+        )
+
+    def annotate_billboard(self, chars_list: list) -> models.QuerySet:
+        """Annotate billboard columns."""
+        return self.get_queryset().annotate_billboard(chars_list)
+
     @log_timing(logger)
     def update_or_create_esi(
         self, owner: "CharacterOwner", force_refresh: bool = False
@@ -252,8 +283,3 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
         logger.debug(
             f"Updated prices for {len(updated_entries)}({owner.character_name}) mining ledger entries."
         )
-
-
-CharacterMiningLedgerEntryManager = CharacterMiningLedgerEntryManagerBase.from_queryset(
-    CharacterMiningLedgerEntryQueryset
-)

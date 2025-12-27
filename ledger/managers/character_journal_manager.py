@@ -129,88 +129,6 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
 
 # pylint: disable=used-before-assignment
 class CharWalletQuerySet(CharWalletCostQueryFilter):
-    @log_timing(logger)
-    def update_or_create_esi(
-        self, owner: "CharacterOwner", force_refresh: bool = False
-    ) -> "UpdateSectionResult":
-        """Update or Create a wallet journal entry from ESI data."""
-        return owner.update_manager.update_section_if_changed(
-            section=CharacterUpdateSection.WALLET_JOURNAL,
-            fetch_func=self._fetch_esi_data,
-            force_refresh=force_refresh,
-        )
-
-    def _fetch_esi_data(self, owner: "CharacterOwner", force_refresh: bool) -> None:
-        """Fetch wallet journal entries from ESI data."""
-        req_scopes = ["esi-wallet.read_character_wallet.v1"]
-        token = owner.get_token(scopes=req_scopes)
-
-        operation = esi.client.Wallet.GetCharactersCharacterIdWalletJournal(
-            character_id=owner.eve_character.character_id,
-            token=token,
-        )
-
-        journal_items = operation.results(
-            force_refresh=force_refresh,
-        )
-
-        self._update_or_create_objs(character=owner, objs=journal_items)
-
-    @transaction.atomic()
-    def _update_or_create_objs(
-        self,
-        character: "CharacterOwner",
-        objs: list["CharactersCharacterIdWalletJournalGetItem"],
-    ) -> None:
-        """Update or Create wallet journal entries from objs data."""
-        # pylint: disable=import-outside-toplevel
-        # AA Ledger
-        from ledger.models.general import EveEntity
-
-        _current_journal = self.filter(character=character).values_list(
-            "entry_id", flat=True
-        )
-        _current_eve_ids = list(
-            EveEntity.objects.all().values_list("eve_id", flat=True)
-        )
-
-        _new_names = []
-
-        items = []
-        for item in objs:
-            if item.id not in _current_journal:
-                if item.second_party_id not in _current_eve_ids:
-                    _new_names.append(item.second_party_id)
-                    _current_eve_ids.append(item.second_party_id)
-                if item.first_party_id not in _current_eve_ids:
-                    _new_names.append(item.first_party_id)
-                    _current_eve_ids.append(item.first_party_id)
-
-                asset_item = self.model(
-                    character=character,
-                    amount=item.amount,
-                    balance=item.balance,
-                    context_id=item.context_id,
-                    context_id_type=item.context_id_type,
-                    date=item.date,
-                    description=item.description,
-                    first_party_id=item.first_party_id,
-                    entry_id=item.id,
-                    reason=item.reason,
-                    ref_type=item.ref_type,
-                    second_party_id=item.second_party_id,
-                    tax=item.tax,
-                    tax_receiver_id=item.tax_receiver_id,
-                )
-                items.append(asset_item)
-
-        created_names = EveEntity.objects.create_bulk_from_esi(_new_names)
-
-        if created_names:
-            self.bulk_create(items, batch_size=LEDGER_BULK_BATCH_SIZE)
-        else:
-            raise TokenError("ESI Fail")
-
     def aggregate_bounty(self) -> dict:
         """Aggregate bounty income."""
         return self.filter(ref_type__in=RefTypeManager.BOUNTY_PRIZES).aggregate(
@@ -315,8 +233,148 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         )["total"]
 
 
-class CharWalletManagerBase(models.Manager):
-    pass
+class CharWalletManager(models.Manager):
+    def get_queryset(self) -> CharWalletQuerySet:
+        return CharWalletQuerySet(self.model, using=self._db)
 
+    def annotate_bounty_income(self) -> models.QuerySet:
+        """Annotate bounty income."""
+        return self.get_queryset().annotate_bounty_income()
 
-CharWalletManager = CharWalletManagerBase.from_queryset(CharWalletQuerySet)
+    def annotate_ess_income(self) -> models.QuerySet:
+        """Annotate ess income."""
+        return self.get_queryset().annotate_ess_income()
+
+    def annotate_miscellaneous(self) -> models.QuerySet:
+        """Annotate miscellaneous income."""
+        return self.get_queryset().annotate_miscellaneous()
+
+    def annotate_miscellaneous_exclude_donations(self, exclude=None) -> models.QuerySet:
+        """Annotate miscellaneous income excluding donations by first_party_id."""
+        return self.get_queryset().annotate_miscellaneous_exclude_donations(
+            exclude=exclude
+        )
+
+    def annotate_costs(self) -> models.QuerySet:
+        """Annotate costs."""
+        return self.get_queryset().annotate_costs()
+
+    def aggregate_bounty(self) -> dict:
+        """Aggregate bounty income."""
+        return self.get_queryset().aggregate_bounty()
+
+    def aggregate_ess(self) -> dict:
+        """Aggregate ess income."""
+        return self.get_queryset().aggregate_ess()
+
+    def aggregate_costs(self, first_party=None, second_party=None) -> dict:
+        """Aggregate costs."""
+        return self.get_queryset().aggregate_costs(
+            first_party=first_party, second_party=second_party
+        )
+
+    def aggregate_miscellaneous(self, first_party=None, second_party=None) -> dict:
+        """Aggregate miscellaneous income."""
+        return self.get_queryset().aggregate_miscellaneous(
+            first_party=first_party, second_party=second_party
+        )
+
+    # pylint: disable=too-many-positional-arguments
+    def aggregate_ref_type(
+        self,
+        ref_type: list,
+        first_party=None,
+        second_party=None,
+        exclude=None,
+        income: bool = False,
+    ) -> dict:
+        """Aggregate income by ref_type."""
+        return self.get_queryset().aggregate_ref_type(
+            ref_type=ref_type,
+            first_party=first_party,
+            second_party=second_party,
+            exclude=exclude,
+            income=income,
+        )
+
+    @log_timing(logger)
+    def update_or_create_esi(
+        self, owner: "CharacterOwner", force_refresh: bool = False
+    ) -> "UpdateSectionResult":
+        """Update or Create a wallet journal entry from ESI data."""
+        return owner.update_manager.update_section_if_changed(
+            section=CharacterUpdateSection.WALLET_JOURNAL,
+            fetch_func=self._fetch_esi_data,
+            force_refresh=force_refresh,
+        )
+
+    def _fetch_esi_data(self, owner: "CharacterOwner", force_refresh: bool) -> None:
+        """Fetch wallet journal entries from ESI data."""
+        req_scopes = ["esi-wallet.read_character_wallet.v1"]
+        token = owner.get_token(scopes=req_scopes)
+
+        operation = esi.client.Wallet.GetCharactersCharacterIdWalletJournal(
+            character_id=owner.eve_character.character_id,
+            token=token,
+        )
+
+        journal_items = operation.results(
+            force_refresh=force_refresh,
+        )
+
+        self._update_or_create_objs(character=owner, objs=journal_items)
+
+    @transaction.atomic()
+    def _update_or_create_objs(
+        self,
+        character: "CharacterOwner",
+        objs: list["CharactersCharacterIdWalletJournalGetItem"],
+    ) -> None:
+        """Update or Create wallet journal entries from objs data."""
+        # pylint: disable=import-outside-toplevel
+        # AA Ledger
+        from ledger.models.general import EveEntity
+
+        _current_journal = self.filter(character=character).values_list(
+            "entry_id", flat=True
+        )
+        _current_eve_ids = list(
+            EveEntity.objects.all().values_list("eve_id", flat=True)
+        )
+
+        _new_names = []
+
+        items = []
+        for item in objs:
+            if item.id not in _current_journal:
+                if item.second_party_id not in _current_eve_ids:
+                    _new_names.append(item.second_party_id)
+                    _current_eve_ids.append(item.second_party_id)
+                if item.first_party_id not in _current_eve_ids:
+                    _new_names.append(item.first_party_id)
+                    _current_eve_ids.append(item.first_party_id)
+
+                asset_item = self.model(
+                    character=character,
+                    amount=item.amount,
+                    balance=item.balance,
+                    context_id=item.context_id,
+                    context_id_type=item.context_id_type,
+                    date=item.date,
+                    description=item.description,
+                    first_party_id=item.first_party_id,
+                    entry_id=item.id,
+                    reason=item.reason,
+                    ref_type=item.ref_type,
+                    second_party_id=item.second_party_id,
+                    tax=item.tax,
+                    tax_receiver_id=item.tax_receiver_id,
+                )
+                items.append(asset_item)
+
+        created_names = EveEntity.objects.create_bulk_from_esi(_new_names)
+
+        if created_names:
+            self.bulk_create(items, batch_size=LEDGER_BULK_BATCH_SIZE)
+        else:
+            raise TokenError("ESI Fail")

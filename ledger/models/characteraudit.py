@@ -196,7 +196,7 @@ class CharacterWalletJournalEntry(WalletJournalEntry):
         related_name="ledger_character_journal",
     )
 
-    objects = CharWalletManager()
+    objects: CharWalletManager = CharWalletManager()
 
     def __str__(self):
         return f"Character Wallet Journal: RefType: {self.ref_type} - {self.first_party} -> {self.second_party}: {self.amount} ISK"
@@ -220,6 +220,11 @@ class CharacterWalletJournalEntry(WalletJournalEntry):
 
 
 class CharacterMiningLedger(models.Model):
+    objects: CharacterMiningLedgerEntryManager = CharacterMiningLedgerEntryManager()
+
+    class Meta:
+        default_permissions = ()
+
     id = models.CharField(max_length=50, primary_key=True)
     character = models.ForeignKey(
         CharacterOwner, on_delete=models.CASCADE, related_name="ledger_character_mining"
@@ -265,11 +270,6 @@ class CharacterMiningLedger(models.Model):
         except (EveMarketPrice.DoesNotExist, EveType.DoesNotExist):
             price = None
         return price
-
-    objects = CharacterMiningLedgerEntryManager()
-
-    class Meta:
-        default_permissions = ()
 
     def __str__(self) -> str:
         return f"{self.character} {self.id}"
