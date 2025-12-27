@@ -5,7 +5,7 @@ import enum
 from typing import TYPE_CHECKING
 
 # Django
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger

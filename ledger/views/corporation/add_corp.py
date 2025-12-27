@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import gettext_lazy as trans
+from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -29,14 +29,14 @@ logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 @permission_required(["ledger.manage_access"])
 def add_corp(request, token) -> HttpResponse:
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
-    eve_corp, _ = EveCorporationInfo.objects.get_or_create(
+    eve_corp = EveCorporationInfo.objects.get_or_create(
         corporation_id=char.corporation_id,
         defaults={
             "member_count": 0,
             "corporation_ticker": char.corporation_ticker,
             "corporation_name": char.corporation_name,
         },
-    )
+    )[0]
 
     corp = CorporationOwner.objects.update_or_create(
         eve_corporation=eve_corp,
@@ -48,7 +48,7 @@ def add_corp(request, token) -> HttpResponse:
     tasks.update_corporation.apply_async(
         args=[corp.pk], kwargs={"force_refresh": True}, priority=6
     )
-    msg = trans("{corporation_name} successfully added/updated to Ledger").format(
+    msg = _("{corporation_name} successfully added/updated to Ledger").format(
         corporation_name=corp.corporation_name,
     )
     messages.info(request, msg)

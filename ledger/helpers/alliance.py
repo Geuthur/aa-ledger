@@ -7,7 +7,7 @@ from typing import Any
 # Django
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import DecimalField, F, Q, QuerySet, Sum
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo

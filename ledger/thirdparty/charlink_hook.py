@@ -4,7 +4,7 @@ from charlink.app_imports.utils import AppImport, LoginImport
 # Django
 from django.contrib.auth.models import Permission, User
 from django.db.models import Exists, OuterRef
-from django.utils.translation import gettext_lazy as trans
+from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -104,7 +104,7 @@ app_import = AppImport(
         LoginImport(
             app_label="ledger",
             unique_id="default",
-            field_label=LEDGER_APP_NAME + " - " + trans("Character") + " Login",
+            field_label=LEDGER_APP_NAME + " - " + _("Character") + " Login",
             add_character=_add_character_charaudit,
             scopes=CharacterOwner.get_esi_scopes(),
             check_permissions=lambda user: user.has_perm("ledger.basic_access"),
@@ -117,7 +117,7 @@ app_import = AppImport(
         LoginImport(
             app_label="ledger",
             unique_id="corpaudit",
-            field_label=LEDGER_APP_NAME + " - " + trans("Corporation") + " Login",
+            field_label=LEDGER_APP_NAME + " - " + _("Corporation") + " Login",
             add_character=_add_character_corp,
             scopes=CorporationOwner.get_esi_scopes(),
             check_permissions=_check_perms_corp,

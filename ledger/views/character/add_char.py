@@ -6,7 +6,7 @@ Character Audit
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect
-from django.utils.translation import gettext_lazy as trans
+from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
@@ -27,18 +27,18 @@ logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 @token_required(scopes=CharacterOwner.get_esi_scopes())
 @permission_required("ledger.basic_access")
 def add_char(request, token):
-    char, _ = CharacterOwner.objects.update_or_create(
+    char = CharacterOwner.objects.update_or_create(
         eve_character=EveCharacter.objects.get_character_by_id(token.character_id),
         defaults={
             "active": True,
             "character_name": token.character_name,
         },
-    )
+    )[0]
     tasks.update_character.apply_async(
         args=[char.pk], kwargs={"force_refresh": True}, priority=6
     )
 
-    msg = trans("{character_name} successfully added/updated to Ledger").format(
+    msg = _("{character_name} successfully added/updated to Ledger").format(
         character_name=char.eve_character.character_name,
     )
     messages.info(request, msg)
