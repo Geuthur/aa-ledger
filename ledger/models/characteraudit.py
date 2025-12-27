@@ -4,6 +4,7 @@ Character Audit Model
 
 # Django
 from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -107,6 +108,25 @@ class CharacterOwner(models.Model):
         return alts
 
     @property
+    def is_orphan(self) -> bool:
+        """
+        Return True if this character is an orphan else False.
+
+        An orphan is a character that is not owned anymore by a user.
+        """
+        return self.character_ownership is None
+
+    @property
+    def character_ownership(self) -> bool:
+        """
+        Return the character ownership object of this character.
+        """
+        try:
+            return self.eve_character.character_ownership
+        except ObjectDoesNotExist:
+            return None
+
+    @property
     def update_manager(self):
         """Return the Update Manager helper for this owner."""
         return UpdateManager(
@@ -131,6 +151,11 @@ class CharacterOwner(models.Model):
 
     def get_token(self, scopes=None) -> Token:
         """Get the token for this character."""
+        if self.is_orphan:
+            raise TokenDoesNotExist(
+                f"Character {self} is an orphan and has no token."
+            ) from None
+
         token = (
             Token.objects.filter(character_id=self.eve_character.character_id)
             .require_scopes(scopes if scopes else self.get_esi_scopes())

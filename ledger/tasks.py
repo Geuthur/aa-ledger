@@ -187,6 +187,13 @@ def update_character(
         pk=character_pk
     )
 
+    if character.is_orphan:
+        logger.info(
+            "Character %s is an orphan. Skipping update.",
+            character,
+        )
+        return False
+
     que = []
     priority = 7
 
