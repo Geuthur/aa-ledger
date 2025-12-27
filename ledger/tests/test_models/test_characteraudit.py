@@ -9,39 +9,30 @@ from ledger.models.characteraudit import (
     CharacterUpdateStatus,
 )
 from ledger.models.helpers.update_manager import UpdateStatus
-from ledger.tests.testdata.generate_characteraudit import (
-    add_characterowner_character_to_user,
+from ledger.tests import LedgerTestCase
+from ledger.tests.testdata.utils import (
+    add_owner_to_user,
     create_update_status,
-    create_user_from_evecharacter_with_access,
 )
-from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_eveentity import load_eveentity
-from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
 
 MODULE_PATH = "ledger.models.characteraudit"
 
 
-class TestCharacterWalletJournalModel(TestCase):
+class TestCharacterWalletJournalModel(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-        load_eveentity()
 
-        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
-            1001,
-        )
-        cls.owner = add_characterowner_character_to_user(
-            cls.user, cls.character_ownership.character.character_id
+        cls.owner = add_owner_to_user(
+            cls.user, cls.user_character.character.character_id
         )
         sections = CharacterUpdateSection.get_sections()
         for section in sections:
             create_update_status(
                 owner=cls.owner,
                 section=section,
-                is_success=True,
                 error_message="",
+                is_success=True,
                 has_token_error=False,
                 last_run_at=timezone.now(),
                 last_run_finished_at=timezone.now(),
@@ -62,6 +53,12 @@ class TestCharacterWalletJournalModel(TestCase):
         self.assertEqual(self.owner, excepted_str)
 
     def test_get_esi_scopes(self):
+        """
+        Test retrieval of ESI scopes for CharacterOwner.
+
+        ### Expected Result
+        - Correct list of ESI scopes is returned.
+        """
         self.assertEqual(
             self.owner.get_esi_scopes(),
             [
@@ -76,46 +73,64 @@ class TestCharacterWalletJournalModel(TestCase):
         )
 
     def test_get_status_states(self):
+        """
+        Test various states of get_status property.
+
+        ### Expected Results:
+        - OK
+        - DISABLED
+        - TOKEN_ERROR
+        - ERROR
+        - INCOMPLETE
+        """
+        # Test Data - OK
         update_status = self.update_status_wallet
         audit = self.owner
 
+        # Expected Result
         self.assertEqual(
             self.owner.get_status,
             UpdateStatus.OK,
         )
 
+        # Test Data - DISABLED
         audit.active = False
         audit.save()
 
+        # Expected Result
         self.assertEqual(
             self.owner.get_status,
             UpdateStatus.DISABLED,
         )
 
+        # Test Data - TOKEN_ERROR
         audit.active = True
         audit.save()
         update_status.is_success = False
         update_status.has_token_error = True
         update_status.save()
 
+        # Expected Result
         self.assertEqual(
             self.owner.get_status,
             UpdateStatus.TOKEN_ERROR,
         )
 
+        # Test Data - ERROR
         audit.active = True
         audit.save()
         update_status.is_success = False
         update_status.has_token_error = False
         update_status.save()
 
+        # Expected Result
         self.assertEqual(
             self.owner.get_status,
             UpdateStatus.ERROR,
         )
-
         update_status.delete()
 
+        # Test Data - INCOMPLETE
         self.assertEqual(
             self.owner.get_status,
             UpdateStatus.INCOMPLETE,

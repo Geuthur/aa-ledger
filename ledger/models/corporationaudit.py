@@ -12,9 +12,6 @@ from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 from esi.models import Token
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
 from ledger.managers.corporation_audit_manager import CorporationAuditManager
@@ -31,9 +28,9 @@ from ledger.models.helpers.update_manager import (
     UpdateManager,
     UpdateStatus,
 )
-from ledger.providers import esi
+from ledger.providers import AppLogger, esi
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CorporationOwner(models.Model):

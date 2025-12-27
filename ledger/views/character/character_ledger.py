@@ -17,17 +17,15 @@ from django.views.decorators.http import require_POST
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
 from ledger.api.helpers import get_characterowner_or_none
 from ledger.helpers.character import CharacterData
 from ledger.helpers.core import add_info_to_context
 from ledger.models.characteraudit import CharacterOwner, CharacterWalletJournalEntry
+from ledger.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 @login_required

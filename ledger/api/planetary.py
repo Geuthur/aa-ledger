@@ -9,9 +9,6 @@ from django.utils.translation import gettext_lazy as _
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
 from ledger.api.api_helper.icons import (
@@ -43,8 +40,9 @@ from ledger.api.schema import (
     ProgressBarSchema,
 )
 from ledger.models.planetary import CharacterPlanetDetails
+from ledger.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class FactoryDetailsResponse(schema.Schema):

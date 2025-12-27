@@ -19,9 +19,24 @@ Section Order:
 - AppLogger
 - Retry Manager
   - Retry on Error for CharacterOwner, CorporationOwner Tasks
+- is_orphan property
 
 ### Changed
 
+[CHANGE] remove `allianceauth_app_utils` dependency & Refactor Tests
+
+- dependency `django-eveuniverse` set to `>=1.6,<2`
+- dependency `django-ninja` set to `>=1.5,<2`
+- Refactor Test Enviroment
+  - Optimized Tests
+  - Added docstrings
+  - Added OpenAPI ESI Stub
+- Refactor Ledger Core Class
+  - Optimized Auth Characer IDs property
+  - `self.mining` has been removed as it is not required.
+  - `self.auth_char_ids` has been removed as it is used as property
+- Refactor CharacterData
+  - `self.request` has been removed as it is not required.
 - Refactor CharacterAudit
   - renamed `CharacterAudit` to `CharacterOwner`
   - moved all Update related stuff to `UpdateManager`
@@ -47,6 +62,12 @@ Section Order:
   - Optimized Path Structure
   - Optimized JS Structure
   - Optimized CSS Structure
+
+### Removed
+
+- unused constants and cleaning up the code
+- unused annoations in Manager Class
+- `allianceauth-app-utils` dependency
 
 ## [1.0.4] - 2025-12-03
 

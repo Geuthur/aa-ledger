@@ -6,34 +6,31 @@ from django.test import TestCase
 from django.utils import timezone
 
 # AA Ledger
-from ledger.tests.testdata.generate_characteraudit import (
-    create_characteraudit_from_evecharacter,
-)
-from ledger.tests.testdata.generate_planets import (
-    _planetary_data,
+from ledger.tests import LedgerTestCase
+from ledger.tests.testdata.integrations.planetary import _planetary_data
+from ledger.tests.testdata.utils import (
     create_character_planet,
     create_character_planet_details,
+    create_owner_from_user,
 )
-from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
 
 MODULE_PATH = "ledger.models.planetary"
 
 
-class TestPlanetModel(TestCase):
+class TestPlanetModel(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
 
         cls.planet_params = {
             "upgrade_level": 5,
             "num_pins": 5,
         }
 
-        cls.audit = create_characteraudit_from_evecharacter(1001)
-        cls.planetary = create_character_planet(cls.audit, 4001, **cls.planet_params)
+        cls.owner = create_owner_from_user(user=cls.user, owner_type="character")
+        cls.planetary = create_character_planet(
+            owner=cls.owner, planet_id=4001, **cls.planet_params
+        )
 
     def test_str(self):
         self.assertEqual(str(self.planetary), "Planet Data: Gneuten - Test Planet I")
@@ -44,20 +41,20 @@ class TestPlanetModel(TestCase):
         )
 
 
-class TestPlanetaryDetailsModel(TestCase):
+class TestPlanetaryDetailsModel(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
 
         cls.planet_params = {
             "upgrade_level": 5,
             "num_pins": 5,
         }
 
-        cls.audit = create_characteraudit_from_evecharacter(1001)
-        cls.planetary = create_character_planet(cls.audit, 4001, **cls.planet_params)
+        cls.owner = create_owner_from_user(user=cls.user, owner_type="character")
+        cls.planetary = create_character_planet(
+            owner=cls.owner, planet_id=4001, **cls.planet_params
+        )
         cls.planetarydetails = create_character_planet_details(
             cls.planetary, **_planetary_data
         )

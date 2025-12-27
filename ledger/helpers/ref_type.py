@@ -10,9 +10,6 @@ from django.utils.translation import gettext_lazy as _
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
 
@@ -20,7 +17,10 @@ if TYPE_CHECKING:
     # AA Ledger
     from ledger.helpers.core import LedgerEntity
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+# AA Ledger
+from ledger.providers import AppLogger
+
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 # Unified Journal Reference Type Enum - All ref types in one place

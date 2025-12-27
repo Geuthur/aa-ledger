@@ -19,7 +19,6 @@ from django.utils import timezone
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
 from eveuniverse.models import EveSolarSystem, EveType
 
 # AA Ledger
@@ -27,7 +26,7 @@ from ledger import __title__
 from ledger.app_settings import LEDGER_BULK_BATCH_SIZE, LEDGER_PRICE_PERCENTAGE
 from ledger.decorators import log_timing
 from ledger.models.helpers.update_manager import CharacterUpdateSection
-from ledger.providers import esi
+from ledger.providers import AppLogger, esi
 
 if TYPE_CHECKING:
     # Alliance Auth
@@ -42,7 +41,7 @@ if TYPE_CHECKING:
     )
     from ledger.models.general import UpdateSectionResult
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 def require_valid_price_percentage(func):

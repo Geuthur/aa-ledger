@@ -1,77 +1,32 @@
 # Standard Library
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 from zipfile import ZipFile
 
 # Django
-from django.core.cache import cache
-from django.test import RequestFactory, TestCase, override_settings
 from django.utils import timezone
-
-# Alliance Auth (External Libs)
-from app_utils.testing import NoSocketsTestCase
 
 # AA Ledger
 from ledger.helpers import data_exporter
 from ledger.models.general import EveEntity
-from ledger.tests.testdata.generate_corporationaudit import (
-    create_corporationaudit_from_user,
-    create_user_from_evecharacter,
-)
-from ledger.tests.testdata.generate_walletjournal import (
+from ledger.tests import LedgerTestCase
+from ledger.tests.testdata.utils import (
     create_division,
+    create_owner_from_user,
     create_wallet_journal_entry,
 )
-from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_eveentity import load_eveentity
-from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
 
 MODULE_PATH = "ledger.helpers.data_exporter"
 
 
-class TestCorporationLedgerView(TestCase):
+class TestCorporationDataExporter(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-        load_eveentity()
 
-        cls.factory = RequestFactory()
-        cls.user, cls.character_ownership = create_user_from_evecharacter(
-            1001,
-            permissions=[
-                "ledger.basic_access",
-                "ledger.advanced_access",
-                "ledger.manage_access",
-            ],
-        )
-
-        cls.user_alliance, cls.character_ownership_alliance = (
-            create_user_from_evecharacter(
-                1003,
-                permissions=[
-                    "ledger.basic_access",
-                    "ledger.advanced_access",
-                    "ledger.manage_access",
-                ],
-            )
-        )
-
-        cls.user_no_permissions, cls.character_ownership = (
-            create_user_from_evecharacter(
-                1002,
-                permissions=[
-                    "ledger.basic_access",
-                    "ledger.advanced_access",
-                    "ledger.manage_access",
-                ],
-            )
-        )
-        cls.audit = create_corporationaudit_from_user(cls.user)
-
-        cls.audit_alliance = create_corporationaudit_from_user(cls.user_alliance)
+        cls.audit = create_owner_from_user(cls.user, owner_type="corporation")
+        cls.audit_alliance = create_owner_from_user(cls.user2, owner_type="corporation")
 
         cls.eve_character_first_party = EveEntity.objects.get(eve_id=2001)
         cls.eve_character_second_party = EveEntity.objects.get(eve_id=1001)
@@ -88,7 +43,7 @@ class TestCorporationLedgerView(TestCase):
         )
 
         cls.journal_entry = create_wallet_journal_entry(
-            journal_type="corporation",
+            owner_type="corporation",
             division=cls.division,
             context_id=1,
             entry_id=10,
@@ -111,7 +66,7 @@ class TestCorporationLedgerView(TestCase):
         )
 
         cls.journal_entry_alliance = create_wallet_journal_entry(
-            journal_type="corporation",
+            owner_type="corporation",
             division=cls.division_alliance,
             context_id=2,
             entry_id=20,

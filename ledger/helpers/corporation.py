@@ -12,9 +12,6 @@ from django.utils.translation import gettext as _
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
 from ledger.constants import NPC_ENTITIES
@@ -26,8 +23,9 @@ from ledger.models.corporationaudit import (
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
 )
+from ledger.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CorporationData(LedgerCore):

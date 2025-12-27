@@ -24,9 +24,6 @@ from allianceauth.eveonline.models import (
 )
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
 from ledger.app_settings import (
@@ -37,8 +34,9 @@ from ledger.app_settings import (
 from ledger.constants import NPC_ENTITIES
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.general import EveEntity
+from ledger.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 if TYPE_CHECKING:
     # AA Ledger

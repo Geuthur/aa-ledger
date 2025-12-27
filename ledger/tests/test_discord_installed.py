@@ -2,7 +2,6 @@
 from django.test import TestCase, modify_settings
 
 # AA Ledger
-# AA Skillfarm
 from ledger.helpers.discord import (
     allianceauth_discordbot_installed,
     discordnotify_installed,

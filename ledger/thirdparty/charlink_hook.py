@@ -9,9 +9,6 @@ from django.utils.translation import gettext_lazy as _
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 
-# Alliance Auth (External Libs)
-from app_utils.allianceauth import users_with_permission
-
 # AA Ledger
 from ledger.app_settings import LEDGER_APP_NAME
 from ledger.models.characteraudit import CharacterOwner
@@ -73,28 +70,60 @@ def _is_character_added_corp(character: EveCharacter):
 
 
 def _users_with_perms_charaudit():
-    return users_with_permission(
-        Permission.objects.get(
-            content_type__app_label="ledger", codename="basic_access"
-        )
+    permission = Permission.objects.get(
+        content_type__app_label="ledger", codename="basic_access"
     )
+
+    users_qs = (
+        permission.user_set.all()
+        | User.objects.filter(
+            groups__in=list(permission.group_set.values_list("pk", flat=True))
+        )
+        | User.objects.select_related("profile").filter(
+            profile__state__in=list(permission.state_set.values_list("pk", flat=True))
+        )
+        | User.objects.filter(is_superuser=True)
+    )
+    return users_qs.distinct()
 
 
 def _users_with_perms_corp():
-    users = users_with_permission(
-        Permission.objects.get(
-            content_type__app_label=_corp_perms[0].split(".", maxsplit=1)[0],
-            codename=_corp_perms[0].split(".", maxsplit=1)[1],
-        )
+    permission = Permission.objects.get(
+        content_type__app_label=_corp_perms[0].split(".", maxsplit=1)[0],
+        codename=_corp_perms[0].split(".", maxsplit=1)[1],
     )
+
+    users_qs = (
+        permission.user_set.all()
+        | User.objects.filter(
+            groups__in=list(permission.group_set.values_list("pk", flat=True))
+        )
+        | User.objects.select_related("profile").filter(
+            profile__state__in=list(permission.state_set.values_list("pk", flat=True))
+        )
+        | User.objects.filter(is_superuser=True)
+    )
+    users = users_qs.distinct()
+
     for perm_str in _corp_perms[1:]:
-        users |= users_with_permission(
-            Permission.objects.get(
-                content_type__app_label=perm_str.split(".", maxsplit=1)[0],
-                codename=perm_str.split(".", maxsplit=1)[1],
-            )
+        permission = Permission.objects.get(
+            content_type__app_label=perm_str.split(".", maxsplit=1)[0],
+            codename=perm_str.split(".", maxsplit=1)[1],
         )
 
+        users_qs = (
+            permission.user_set.all()
+            | User.objects.filter(
+                groups__in=list(permission.group_set.values_list("pk", flat=True))
+            )
+            | User.objects.select_related("profile").filter(
+                profile__state__in=list(
+                    permission.state_set.values_list("pk", flat=True)
+                )
+            )
+            | User.objects.filter(is_superuser=True)
+        )
+        users |= users_qs.distinct()
     return users
 
 

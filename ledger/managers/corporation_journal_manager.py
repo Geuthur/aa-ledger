@@ -11,9 +11,6 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth.services.hooks import get_extension_logger
 from esi.exceptions import HTTPNotModified
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
 from ledger.app_settings import LEDGER_BULK_BATCH_SIZE
@@ -22,7 +19,7 @@ from ledger.errors import DatabaseError
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.general import EveEntity
 from ledger.models.helpers.update_manager import CorporationUpdateSection
-from ledger.providers import esi
+from ledger.providers import AppLogger, esi
 
 if TYPE_CHECKING:
     # Alliance Auth
@@ -38,7 +35,7 @@ if TYPE_CHECKING:
         CorporationWalletDivision,
     )
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CorporationWalletQuerySet(models.QuerySet):

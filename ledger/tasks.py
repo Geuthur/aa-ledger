@@ -17,9 +17,6 @@ from allianceauth.authentication.models import CharacterOwnership, User
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.services.tasks import QueueOnce
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__, app_settings
 from ledger.helpers import data_exporter
@@ -31,9 +28,9 @@ from ledger.models.helpers.update_manager import (
     CorporationUpdateSection,
 )
 from ledger.models.planetary import CharacterPlanetDetails
-from ledger.providers import retry_task_on_esi_error
+from ledger.providers import AppLogger, retry_task_on_esi_error
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 MAX_RETRIES_DEFAULT = 3
 

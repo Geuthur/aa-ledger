@@ -17,9 +17,6 @@ from django.views.decorators.http import require_POST
 from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__, forms, tasks
 from ledger.api.helpers import (
@@ -32,8 +29,9 @@ from ledger.helpers.corporation import CorporationData, LedgerEntity
 from ledger.models.corporationaudit import (
     CorporationOwner,
 )
+from ledger.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 @login_required

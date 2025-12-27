@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 
 # Alliance Auth (External Libs)
-from eveuniverse.models import EveMoon, EveType
 from eveuniverse.tools.testdata import load_testdata_from_dict
 
 

@@ -10,16 +10,13 @@ from django.db.models.functions import Coalesce
 from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
 from ledger.app_settings import LEDGER_BULK_BATCH_SIZE
 from ledger.decorators import log_timing
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.helpers.update_manager import CharacterUpdateSection
-from ledger.providers import esi
+from ledger.providers import AppLogger, esi
 
 if TYPE_CHECKING:
     # Alliance Auth
@@ -32,7 +29,7 @@ if TYPE_CHECKING:
     from ledger.models.general import UpdateSectionResult
 
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CharWalletIncomeFilter(models.QuerySet):

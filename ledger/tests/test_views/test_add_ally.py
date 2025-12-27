@@ -5,8 +5,7 @@ from http import HTTPStatus
 from unittest.mock import Mock, patch
 
 # Django
-from django.contrib.sessions.middleware import SessionMiddleware
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import override_settings
 from django.urls import reverse
 
 # Alliance Auth
@@ -14,33 +13,22 @@ from allianceauth.eveonline.models import EveAllianceInfo
 from allianceauth.eveonline.providers import Alliance, ObjectNotFound
 
 # AA Ledger
-from ledger.tests.testdata.generate_corporationaudit import (
-    create_user_from_evecharacter,
+from ledger.tests import LedgerTestCase
+from ledger.tests.testdata.utils import (
+    add_new_permission_to_user,
 )
-from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
-from ledger.views.alliance.add_ally import add_ally
 
 MODULE_PATH = "ledger.views.alliance.add_ally"
 
 
 @patch(MODULE_PATH + ".messages")
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
-class TestAddAllyView(TestCase):
+class TestAddAllyView(LedgerTestCase):
+    """Test Add Ally View."""
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-
-        cls.factory = RequestFactory()
-        cls.user, cls.character_ownership = create_user_from_evecharacter(
-            1001,
-            permissions=[
-                "ledger.basic_access",
-                "ledger.advanced_access",
-            ],
-        )
         cls.alliance = Alliance(
             id=3005,
             name="Test Alliance",
@@ -50,22 +38,24 @@ class TestAddAllyView(TestCase):
             faction_id=None,
         )
 
-    def _add_alliance(self, user, token):
-        request = self.factory.get(reverse("ledger:add_ally"))
-        request.user = user
-        request.token = token
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        orig_view = add_ally.__wrapped__.__wrapped__.__wrapped__
-        return orig_view(request, token)
-
     def test_add_ally_already_exist(self, mock_messages):
-        # given
-        user = self.user
-        token = user.token_set.get(character_id=1001)
-        # when
-        response = self._add_alliance(user, token)
-        # then
+        """
+        Test adding an ally that already exists in the system.
+
+        This test ensures that when an ally that already exists in the system is
+        added again, the system correctly identifies it and provides appropriate
+        feedback to the user without attempting to create a duplicate entry.
+
+        ## Results: Redirects to alliance ledger with info message.
+        """
+        # Test Data
+        self.user = add_new_permission_to_user(self.user, "ledger.advanced_access")
+        token = self.user.token_set.get(character_id=1001)
+
+        # Test Action
+        response = self._add_alliance(self.user, token)
+
+        # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertEqual(response.url, reverse("ledger:alliance_ledger", args=[3001]))
         self.assertEqual(mock_messages.info.call_count, 1)
@@ -76,7 +66,17 @@ class TestAddAllyView(TestCase):
     def test_add_ally_does_not_exist(
         self, mock_get, mock_get_or_create, mock_provider, mock_messages
     ):
-        # given
+        """
+        Test adding an ally that does not exist in the system.
+
+        This test verifies that when an ally that does not exist in the system is
+        added, the system successfully creates a new entry and provides appropriate
+        feedback to the user.
+
+        ## Results: Ally is added successfully.
+        """
+        # Test Data
+        self.user = add_new_permission_to_user(self.user, "ledger.advanced_access")
         mock_get.side_effect = EveAllianceInfo.DoesNotExist
         mock_provider.get_alliance.return_value = self.alliance
 
@@ -87,11 +87,12 @@ class TestAddAllyView(TestCase):
         mock_ally.alliance_ticker = "T.E.S.T"
         mock_ally.executor_corp_id = 2001
         mock_get_or_create.return_value = (mock_ally, True)
-        user = self.user
-        token = user.token_set.get(character_id=1001)
-        # when
-        response = self._add_alliance(user, token)
-        # then
+        token = self.user.token_set.get(character_id=1001)
+
+        # Test Action
+        response = self._add_alliance(self.user, token)
+
+        # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertEqual(response.url, reverse("ledger:alliance_ledger", args=[3005]))
         self.assertEqual(mock_messages.success.call_count, 1)
@@ -105,15 +106,25 @@ class TestAddAllyView(TestCase):
     def test_add_ally_does_not_exist_object_not_found(
         self, mock_get, mock_get_or_create, mock_provider, mock_messages
     ):
-        # given
+        """
+        Test adding an ally that does not exist and is not found by the provider.
+
+        This test ensures that when an ally that does not exist in the system is
+        attempted to be added but is not found by the external provider, the system
+
+        ## Results: Redirects to alliance ledger with warning message.
+        """
+        # Test Data
+        self.user = add_new_permission_to_user(self.user, "ledger.advanced_access")
         mock_get.side_effect = EveAllianceInfo.DoesNotExist
         mock_provider.get_alliance.side_effect = ObjectNotFound(3001, "alliance")
 
-        user = self.user
-        token = user.token_set.get(character_id=1001)
-        # when
-        response = self._add_alliance(user, token)
-        # then
+        token = self.user.token_set.get(character_id=1001)
+
+        # Test Action
+        response = self._add_alliance(self.user, token)
+
+        # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertEqual(response.url, reverse("ledger:alliance_ledger", args=[3001]))
         self.assertEqual(mock_messages.warning.call_count, 1)

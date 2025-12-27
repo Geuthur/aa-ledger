@@ -12,9 +12,6 @@ from allianceauth.authentication.models import CharacterOwnership, UserProfile
 from allianceauth.eveonline.models import EveCorporationInfo
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
 from ledger.api import schema
@@ -25,8 +22,9 @@ from ledger.api.helpers import (
 )
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
+from ledger.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class AdminApiEndpoints:

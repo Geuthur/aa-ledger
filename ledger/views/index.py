@@ -9,15 +9,13 @@ from django.utils.translation import gettext_lazy as _
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
 
 # Ledger
 from ledger.helpers.core import add_info_to_context
 from ledger.models.characteraudit import CharacterOwner
+from ledger.providers import AppLogger
 from ledger.tasks import (
     clear_all_etags,
     update_all_characters,
@@ -25,7 +23,7 @@ from ledger.tasks import (
     update_char_planets_details,
 )
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 @login_required

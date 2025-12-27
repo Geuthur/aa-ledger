@@ -9,9 +9,6 @@ from django.utils.translation import gettext as _
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
 from ledger.helpers.billboard import BillboardSystem
@@ -21,8 +18,9 @@ from ledger.models.characteraudit import (
     CharacterOwner,
     CharacterWalletJournalEntry,
 )
+from ledger.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CharacterData(LedgerCore):
