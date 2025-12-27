@@ -48,7 +48,6 @@ class CorporationData(LedgerCore):
         self.entity_id = corporation.eve_corporation.corporation_id
         self.division_id = division_id
         self.section = section
-        self.auth_char_ids = self.auth_character_ids
         self.billboard = BillboardSystem()
         self.queryset = (
             self._get_journal_queryset()
@@ -167,7 +166,7 @@ class CorporationData(LedgerCore):
             for row in rows:
                 if row["first_party_id"] in ids or row["second_party_id"] in ids:
                     if RefTypeManager.special_cases(
-                        row, ids=ids, account_char_ids=self.auth_char_ids
+                        row, ids=ids, account_char_ids=self.auth_character_ids
                     ):
                         continue
                     bounty += row.get("bounty") or Decimal(0)

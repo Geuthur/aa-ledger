@@ -4,8 +4,6 @@
 from decimal import Decimal
 
 # Django
-from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import QuerySet
 from django.utils.translation import gettext as _
 
 # Alliance Auth
@@ -33,7 +31,6 @@ class CharacterData(LedgerCore):
     # pylint: disable=too-many-positional-arguments
     def __init__(
         self,
-        request: WSGIRequest,
         character: CharacterOwner,
         year=None,
         month=None,
@@ -41,12 +38,10 @@ class CharacterData(LedgerCore):
         section=None,
     ):
         super().__init__(year, month, day)
-        self.request = request
         self.character = character
-        self.alts_ids = self.get_alt_ids
         self.characters = CharacterOwner.objects.filter(
-            eve_character__character_id__in=self.alts_ids
-        ).select_related("eve_character")
+            eve_character__character_id__in=self.get_alt_ids
+        ).prefetch_related("eve_character")
         self.section = section
         self.billboard = BillboardSystem()
         self.queryset = character.ledger_character_journal.filter(self.filter_date)
@@ -54,7 +49,10 @@ class CharacterData(LedgerCore):
 
     @property
     def get_alt_ids(self):
-        return self.character.alts.values_list("character_id", flat=True)
+        """Get the character IDs of all alts for the character owner."""
+        return self.character.character_ownership.user.character_ownerships.all().values_list(
+            "character__character_id", flat=True
+        )
 
     @property
     def is_old_ess(self):
@@ -73,16 +71,20 @@ class CharacterData(LedgerCore):
 
     def filter_character_journal(
         self, character: CharacterOwner
-    ) -> tuple[QuerySet[CharacterWalletJournalEntry], QuerySet[CharacterMiningLedger]]:
-        """Filter the journal entries for the character and its alts."""
+    ) -> tuple[CharacterWalletJournalEntry, CharacterMiningLedger]:
+        """
+        Filter the journal entries for the character and its alts.
+
+        """
         if self.section == "summary":
+            alt_ids = self.get_alt_ids
             journal = CharacterWalletJournalEntry.objects.filter(
                 self.filter_date,
-                character__eve_character__character_id__in=self.alts_ids,
+                character__eve_character__character_id__in=alt_ids,
             )
             mining = CharacterMiningLedger.objects.filter(
                 self.filter_date,
-                character__eve_character__character_id__in=self.alts_ids,
+                character__eve_character__character_id__in=alt_ids,
             )
             return journal, mining
         # Get Journal Entries for the Character
@@ -124,6 +126,7 @@ class CharacterData(LedgerCore):
         character: CharacterOwner,
     ):
         """Create a dictionary with character data and update billboard/ledger."""
+        alt_ids = self.get_alt_ids
         journal, mining = self.filter_character_journal(character)
 
         # If no journal or mining data exists, return None
@@ -137,8 +140,8 @@ class CharacterData(LedgerCore):
             else journal.aggregate_ess()
         )
         mining_val = mining.aggregate_mining()
-        costs = journal.aggregate_costs(second_party=self.alts_ids)
-        miscellaneous = journal.aggregate_miscellaneous(first_party=self.alts_ids)
+        costs = journal.aggregate_costs(second_party=alt_ids)
+        miscellaneous = journal.aggregate_miscellaneous(first_party=alt_ids)
 
         total = sum(
             [
@@ -232,11 +235,12 @@ class CharacterData(LedgerCore):
                 character__eve_character__character_id__in=character_ids,
             )
         )
+
         # Annotate the timeline with the relevant data
         rattingbar = (
             rattingbar_timeline.annotate_bounty_income()
             .annotate_ess_income()
-            .annotate_miscellaneous_exclude_donations(exclude=self.alts_ids)
+            .annotate_miscellaneous_exclude_donations(exclude=self.get_alt_ids)
         )
         rattingbar_mining = rattingbar_mining_timeline.annotate_mining(with_period=True)
 

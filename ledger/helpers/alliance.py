@@ -50,7 +50,6 @@ class AllianceData(LedgerCore):
         self.corporations = CorporationOwner.objects.filter(
             eve_corporation__alliance__alliance_id=self.alliance.alliance_id
         ).values_list("eve_corporation__corporation_id", flat=True)
-        self.auth_char_ids = self.auth_character_ids
         self.billboard = BillboardSystem()
         self.queryset = (
             self._get_journal_queryset()
@@ -126,7 +125,7 @@ class AllianceData(LedgerCore):
                     == entity.entity_id
                 ):
                     if RefTypeManager.special_cases(
-                        row, ids=[], account_char_ids=self.auth_char_ids
+                        row, ids=[], account_char_ids=self.auth_character_ids
                     ):
                         continue
                     bounty += row.get("bounty") or Decimal(0)

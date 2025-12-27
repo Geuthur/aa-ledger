@@ -204,8 +204,6 @@ class LedgerCore:
         self.queryset: QuerySet = None
         self.entity_id: int = None
         self.section: str = "single"
-        self.mining: QuerySet = None
-        self.auth_char_ids: set = set()
         self.date_info: dict = {"year": year, "month": month, "day": day}
 
     @property
@@ -260,28 +258,18 @@ class LedgerCore:
     @property
     def auth_accounts(self):
         """Get all user accounts with a main character."""
-        return (
-            UserProfile.objects.filter(
-                main_character__isnull=False,
-            )
-            .prefetch_related(
-                "user__profile__main_character",
-            )
-            .order_by(
-                "user__profile__main_character__character_name",
-            )
+        return UserProfile.objects.filter(
+            main_character__isnull=False,
+        ).order_by(
+            "user__profile__main_character__character_name",
         )
 
     @property
     def auth_character_ids(self) -> set:
-        """Get all account Character IDs from Alliance Auth."""
-        account_character_ids = set()
-        for account in self.auth_accounts:
-            alts = account.user.character_ownerships.all()
-            account_character_ids.update(
-                alts.values_list("character__character_id", flat=True)
-            )
-        return account_character_ids
+        """Get all Character IDs from Alliance Auth."""
+        return CharacterOwnership.objects.all().values_list(
+            "character__character_id", flat=True
+        )
 
     def filter_entity_journal(self, entity: LedgerEntity = None):
         """Apply additional filters to the journal based on the entity."""
@@ -306,7 +294,7 @@ class LedgerCore:
         # If entity represents a corporation or alliance, exclude auth account character IDs
         # that are not part of the current entity to avoid double counting
         if entity.type in ["alliance", "corporation"]:
-            exclude_ids = self.auth_char_ids - set(character_ids)
+            exclude_ids = self.auth_character_ids - set(character_ids)
             journal = journal.exclude(
                 Q(first_party_id__in=exclude_ids) | Q(second_party_id__in=exclude_ids)
             )
@@ -634,7 +622,7 @@ class LedgerCore:
             entity=entity,
             mining=mining,
             is_old_ess=self.is_old_ess,
-            char_ids=self.alts_ids,
+            char_ids=self.get_alt_ids,
         )
         return amounts
 

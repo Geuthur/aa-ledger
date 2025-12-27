@@ -58,7 +58,6 @@ def character_ledger(
         return render(request, "ledger/view-character-ledger.html", context=context)
 
     character_data = CharacterData(
-        request=request,
         character=character,
         year=year,
         month=month,
@@ -129,7 +128,7 @@ def character_details(
             },
         )
 
-    character_data = CharacterData(request, character, year, month, day, section)
+    character_data = CharacterData(character, year, month, day, section)
 
     journal, mining = character_data.filter_character_journal(character)
     amounts = character_data._create_character_details(journal, mining)
