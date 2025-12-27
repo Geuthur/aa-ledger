@@ -114,7 +114,7 @@ class CorporationUpdateSection(models.TextChoices):
 
 class UpdateManager:
     """Manager class to handle update operations for CharacterOwner and CorporationOwner.
-    This class provides methods to manage and track update statuses for both corporation and alliance owners.
+    This class provides methods to manage and track update statuses for both character and corporation owners.
 
     Args:
         owner (CorporationOwner | CharacterOwner): The owner model (corporation or character)
