@@ -30,7 +30,7 @@ from ledger.helpers import data_exporter
 from ledger.helpers.core import add_info_to_context
 from ledger.helpers.corporation import CorporationData, LedgerEntity
 from ledger.models.corporationaudit import (
-    CorporationAudit,
+    CorporationOwner,
 )
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -430,7 +430,7 @@ def corporation_delete(request, corporation_id):
             {"success": False, "message": msg}, status=HTTPStatus.NOT_FOUND, safe=False
         )
 
-    audit = CorporationAudit.objects.get(eve_corporation__corporation_id=corporation_id)
+    audit = CorporationOwner.objects.get(eve_corporation__corporation_id=corporation_id)
     audit.delete()
 
     msg = _(f"{audit.eve_corporation.corporation_name} successfully deleted")

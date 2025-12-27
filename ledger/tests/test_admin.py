@@ -22,10 +22,10 @@ from ledger.admin import (
     CorporationAuditAdmin,
     CorporationUpdateStatusAdminInline,
 )
-from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
-from ledger.models.corporationaudit import CorporationAudit, CorporationUpdateStatus
+from ledger.models.characteraudit import CharacterOwner, CharacterUpdateStatus
+from ledger.models.corporationaudit import CorporationOwner, CorporationUpdateStatus
 from ledger.tests.testdata.generate_characteraudit import (
-    add_characteraudit_character_to_user,
+    add_characterowner_character_to_user,
     create_update_status,
 )
 from ledger.tests.testdata.generate_corporationaudit import (
@@ -56,7 +56,7 @@ class TestCorporationAuditAdmin(NoSocketsTestCase):
             1001,
             ["ledger.basic_access"],
         )
-        cls.corporation_audit_admin = CorporationAuditAdmin(CorporationAudit, cls.site)
+        cls.corporation_audit_admin = CorporationAuditAdmin(CorporationOwner, cls.site)
         cls.corporation_audit = add_corporationaudit_corporation_to_user(
             cls.user,
             cls.character_ownership.character.character_id,
@@ -73,7 +73,7 @@ class TestCorporationAuditAdmin(NoSocketsTestCase):
         )
 
     def test_get_queryset(self):
-        qs = self.corporation_audit_admin.get_queryset(CorporationAudit.objects.all())
+        qs = self.corporation_audit_admin.get_queryset(CorporationOwner.objects.all())
         self.assertIsNotNone(qs)
 
     def test_run_update_duration(self):
@@ -98,7 +98,7 @@ class TestCorporationAuditAdmin(NoSocketsTestCase):
         message_middleware = MessageMiddleware(Mock())
         message_middleware.process_request(request)
 
-        queryset = CorporationAudit.objects.filter(pk=self.corporation_audit.pk)
+        queryset = CorporationOwner.objects.filter(pk=self.corporation_audit.pk)
         self.corporation_audit_admin.force_update(request, queryset)
         mock_update_character_delay.assert_called_once()
 
@@ -158,8 +158,8 @@ class TestCharacterAuditAdmin(NoSocketsTestCase):
             1001,
             ["ledger.basic_access"],
         )
-        cls.character_audit_admin = CharacterAuditAdmin(CharacterAudit, cls.site)
-        cls.character_audit = add_characteraudit_character_to_user(
+        cls.character_audit_admin = CharacterAuditAdmin(CharacterOwner, cls.site)
+        cls.character_audit = add_characterowner_character_to_user(
             cls.user,
             cls.character_ownership.character.character_id,
         )
@@ -174,12 +174,12 @@ class TestCharacterAuditAdmin(NoSocketsTestCase):
         )
 
     def test_get_queryset(self):
-        qs = self.character_audit_admin.get_queryset(CharacterAudit.objects.all())
+        qs = self.character_audit_admin.get_queryset(CharacterOwner.objects.all())
         self.assertIsNotNone(qs)
 
     @patch(ADMIN_PATH + ".update_character.delay")
     def test_force_update(self, mock_update_character_delay):
-        queryset = CharacterAudit.objects.filter(pk=self.character_audit.pk)
+        queryset = CharacterOwner.objects.filter(pk=self.character_audit.pk)
         request = self.factory.get("/")
 
         # Add session middleware to process the request

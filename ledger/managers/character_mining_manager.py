@@ -26,6 +26,7 @@ from eveuniverse.models import EveSolarSystem, EveType
 from ledger import __title__
 from ledger.app_settings import LEDGER_BULK_BATCH_SIZE, LEDGER_PRICE_PERCENTAGE
 from ledger.decorators import log_timing
+from ledger.models.helpers.update_manager import CharacterUpdateSection
 from ledger.providers import esi
 
 if TYPE_CHECKING:
@@ -34,7 +35,7 @@ if TYPE_CHECKING:
 
     # AA Ledger
     from ledger.models.characteraudit import (
-        CharacterAudit,
+        CharacterOwner,
     )
     from ledger.models.general import UpdateSectionResult
 
@@ -146,43 +147,43 @@ class CharacterMiningLedgerEntryQueryset(models.QuerySet):
 class CharacterMiningLedgerEntryManagerBase(models.Manager):
     @log_timing(logger)
     def update_or_create_esi(
-        self, character: "CharacterAudit", force_refresh: bool = False
+        self, owner: "CharacterOwner", force_refresh: bool = False
     ) -> "UpdateSectionResult":
         """Update or Create a mining ledger entry from ESI data."""
-        return character.update_section_if_changed(
-            section=character.UpdateSection.MINING_LEDGER,
+        return owner.update_manager.update_section_if_changed(
+            section=CharacterUpdateSection.MINING_LEDGER,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
         )
 
     def _fetch_esi_data(
-        self, audit: "CharacterAudit", force_refresh: bool = False
+        self, owner: "CharacterOwner", force_refresh: bool = False
     ) -> None:
         """Fetch mining ledger entries from ESI data."""
         req_scopes = ["esi-industry.read_character_mining.v1"]
-        token = audit.get_token(scopes=req_scopes)
+        token = owner.get_token(scopes=req_scopes)
 
         # Make the ESI request
         operation = esi.client.Industry.GetCharactersCharacterIdMining(
-            character_id=audit.eve_character.character_id,
+            character_id=owner.eve_character.character_id,
             token=token,
         )
 
         mining_items = operation.results(force_refresh=force_refresh)
 
         # Process and update or create mining ledger entries
-        self._update_or_create_objs(audit, mining_items)
+        self._update_or_create_objs(owner=owner, objs=mining_items)
 
     @transaction.atomic()
     def _update_or_create_objs(
         self,
-        character: "CharacterAudit",
+        owner: "CharacterOwner",
         objs: list["CharactersCharacterIdMiningGetItem"],
     ) -> None:
         """Update or Create mining ledger entries from objs data."""
         existings_pks = set(
             self.filter(
-                character=character,
+                character=owner,
                 date__gte=timezone.now() - timezone.timedelta(days=30),
             ).values_list("id", flat=True)
         )
@@ -194,9 +195,9 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
         for entry in objs:
             type_ids.add(entry.type_id)
             system_ids.add(entry.solar_system_id)
-            pk = self.model.create_primary_key(character.pk, entry)
+            pk = self.model.create_primary_key(owner.pk, entry)
             _e = self.model(
-                character=character,
+                character=owner,
                 id=pk,
                 date=entry.date,
                 type_id=entry.type_id,
@@ -222,14 +223,14 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
                 old_events, fields=["quantity"], batch_size=LEDGER_BULK_BATCH_SIZE
             )
 
-        self._update_mining_price(character)
+        self._update_mining_price(owner=owner)
 
-    def _update_mining_price(self, character: "CharacterAudit") -> None:
+    def _update_mining_price(self, owner: "CharacterOwner") -> None:
         """Update prices for mining ledger entries."""
         # Update EveMarketPrice on a Daily basis
         self.model.update_evemarket_price()
 
-        mining_ledger = character.mining_ledger.filter(price_per_unit__isnull=True)
+        mining_ledger = owner.mining_ledger.filter(price_per_unit__isnull=True)
         logger.debug(
             f"Checking {mining_ledger.count()} mining ledger entries for missing prices."
         )
@@ -249,7 +250,7 @@ class CharacterMiningLedgerEntryManagerBase(models.Manager):
             )
 
         logger.debug(
-            f"Updated prices for {len(updated_entries)}({character.character_name}) mining ledger entries."
+            f"Updated prices for {len(updated_entries)}({owner.character_name}) mining ledger entries."
         )
 
 

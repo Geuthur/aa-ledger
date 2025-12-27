@@ -15,9 +15,20 @@ Section Order:
 
 - CSS & JS App bundle
 - DataTable V2
+- UpdateManager
+- AppLogger
+- Retry Manager
+  - Retry on Error for CharacterOwner, CorporationOwner Tasks
 
 ### Changed
 
+- Refactor CharacterAudit
+  - renamed `CharacterAudit` to `CharacterOwner`
+  - moved all Update related stuff to `UpdateManager`
+  - added index for `Character` in `CharacterWalletJournalEntry` Model Class
+- Refactor CorporationAudit
+  - renamed `CorporationAudit` to `CorporationOwner`
+  - moved all Update related stuff to `UpdateManager`
 - Optimzed API Structure
   - Optimized Pylance
   - Optimized Structure

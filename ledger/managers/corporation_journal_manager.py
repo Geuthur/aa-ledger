@@ -21,18 +21,20 @@ from ledger.decorators import log_timing
 from ledger.errors import DatabaseError
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.general import EveEntity
+from ledger.models.helpers.update_manager import CorporationUpdateSection
 from ledger.providers import esi
 
 if TYPE_CHECKING:
     # Alliance Auth
-    from esi.stubs import CorporationsCorporationIdDivisionsGet as DivisionItem
+    from esi.stubs import CorporationsCorporationIdDivisionsGet as DivisionsContext
     from esi.stubs import (
-        CorporationsCorporationIdWalletsDivisionJournalGetItem as JournalItem,
+        CorporationsCorporationIdWalletsDivisionJournalGetItem as DivisionJournalContext,
     )
+    from esi.stubs import CorporationsCorporationIdWalletsGetItem as WalletsGetContext
 
     # AA Ledger
     from ledger.models.corporationaudit import (
-        CorporationAudit,
+        CorporationOwner,
         CorporationWalletDivision,
     )
 
@@ -160,20 +162,67 @@ class CorporationWalletQuerySet(models.QuerySet):
         )["total"]
 
 
-class CorporationWalletManagerBase(models.Manager):
+class CorporationWalletManager(models.Manager):
+    def get_queryset(self) -> CorporationWalletQuerySet:
+        return CorporationWalletQuerySet(self.model, using=self._db)
+
+    def annotate_bounty_income(
+        self,
+    ) -> CorporationWalletQuerySet:
+        return self.get_queryset().annotate_bounty_income()
+
+    def annotate_ess_income(self) -> CorporationWalletQuerySet:
+        return self.get_queryset().annotate_ess_income()
+
+    def annotate_miscellaneous(self) -> CorporationWalletQuerySet:
+        return self.get_queryset().annotate_miscellaneous()
+
+    def annotate_costs(self) -> CorporationWalletQuerySet:
+        return self.get_queryset().annotate_costs()
+
+    def aggregate_bounty(self) -> dict:
+        """Aggregate bounty income."""
+        return self.get_queryset().aggregate_bounty()
+
+    def aggregate_ess(self) -> dict:
+        """Aggregate ESS income."""
+        return self.get_queryset().aggregate_ess()
+
+    def aggregate_miscellaneous(self) -> dict:
+        """Aggregate miscellaneous income (nur positive Beträge)."""
+        return self.get_queryset().aggregate_miscellaneous()
+
+    def aggregate_costs(self) -> dict:
+        """Aggregate costs."""
+        return self.get_queryset().aggregate_costs()
+
+    # pylint: disable=too-many-positional-arguments
+    def aggregate_ref_type(
+        self,
+        ref_type: list,
+        first_party=None,
+        second_party=None,
+        exclude=None,
+        income: bool = False,
+    ) -> dict:
+        """Aggregate income by ref_type."""
+        return self.get_queryset().aggregate_ref_type(
+            ref_type, first_party, second_party, exclude, income
+        )
+
     @log_timing(logger)
     def update_or_create_esi(
-        self, corporation: "CorporationAudit", force_refresh: bool = False
+        self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Update or Create a wallet journal entry from ESI data."""
-        return corporation.update_section_if_changed(
-            section=corporation.UpdateSection.WALLET_JOURNAL,
+        return owner.update_manager.update_section_if_changed(
+            section=CorporationUpdateSection.WALLET_JOURNAL,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
         )
 
     def _fetch_esi_data(
-        self, audit: "CorporationAudit", force_refresh: bool = False
+        self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Fetch wallet journal entries from ESI data."""
         # AA Ledger
@@ -186,16 +235,16 @@ class CorporationWalletManagerBase(models.Manager):
         ]
         req_roles = ["CEO", "Director", "Accountant", "Junior_Accountant"]
 
-        token = audit.get_token(scopes=req_scopes, req_roles=req_roles)
+        token = owner.get_token(scopes=req_scopes, req_roles=req_roles)
 
-        divisions = CorporationWalletDivision.objects.filter(corporation=audit)
+        divisions = CorporationWalletDivision.objects.filter(corporation=owner)
         is_updated = False
 
         for division in divisions:
             # Make the ESI request
             operation = (
                 esi.client.Wallet.GetCorporationsCorporationIdWalletsDivisionJournal(
-                    corporation_id=audit.eve_corporation.corporation_id,
+                    corporation_id=owner.eve_corporation.corporation_id,
                     division=division.division_id,
                     token=token,
                 )
@@ -217,7 +266,7 @@ class CorporationWalletManagerBase(models.Manager):
     def _update_or_create_objs(
         self,
         division: "CorporationWalletDivision",
-        objs: list["JournalItem"],
+        objs: list["DivisionJournalContext"],
     ) -> None:
         """Update or Create wallet journal entries from objs data."""
         _new_names = []
@@ -276,29 +325,20 @@ class CorporationWalletManagerBase(models.Manager):
         )
 
 
-CorporationWalletManager = CorporationWalletManagerBase.from_queryset(
-    CorporationWalletQuerySet
-)
-
-
-class CorporationDivisionQuerySet(models.QuerySet):
-    pass
-
-
-class CorporationDivisionManagerBase(models.Manager):
+class CorporationDivisionManager(models.Manager):
     @log_timing(logger)
     def update_or_create_esi(
-        self, corporation: "CorporationAudit", force_refresh: bool = False
+        self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Update or Create a division entry from ESI data."""
-        return corporation.update_section_if_changed(
-            section=corporation.UpdateSection.WALLET_DIVISION,
+        return owner.update_manager.update_section_if_changed(
+            section=CorporationUpdateSection.WALLET_DIVISION,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
         )
 
     def _fetch_esi_data(
-        self, audit: "CorporationAudit", force_refresh: bool = False
+        self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Fetch division entries from ESI data."""
         req_scopes = [
@@ -307,52 +347,52 @@ class CorporationDivisionManagerBase(models.Manager):
             "esi-corporations.read_divisions.v1",
         ]
         req_roles = ["CEO", "Director", "Accountant", "Junior_Accountant"]
-        token = audit.get_token(scopes=req_scopes, req_roles=req_roles)
+        token = owner.get_token(scopes=req_scopes, req_roles=req_roles)
 
         # Make the ESI request
         operation = esi.client.Wallet.GetCorporationsCorporationIdWallets(
-            corporation_id=audit.eve_corporation.corporation_id,
+            corporation_id=owner.eve_corporation.corporation_id,
             token=token,
         )
         division_items = operation.results(force_refresh=force_refresh)
 
-        self._update_or_create_objs(corporation=audit, objs=division_items)
+        self._update_or_create_objs(owner=owner, objs=division_items)
 
     @log_timing(logger)
     def update_or_create_esi_names(
-        self, corporation: "CorporationAudit", force_refresh: bool = False
+        self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Update or Create a division entry from ESI data."""
-        return corporation.update_section_if_changed(
-            section=corporation.UpdateSection.WALLET_DIVISION_NAMES,
+        return owner.update_manager.update_section_if_changed(
+            section=CorporationUpdateSection.WALLET_DIVISION_NAMES,
             fetch_func=self._fetch_esi_data_names,
             force_refresh=force_refresh,
         )
 
     def _fetch_esi_data_names(
-        self, audit: "CorporationAudit", force_refresh: bool = False
+        self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Fetch division entries from ESI data."""
         req_scopes = [
             "esi-corporations.read_divisions.v1",
         ]
         req_roles = ["CEO", "Director"]
-        token = audit.get_token(scopes=req_scopes, req_roles=req_roles)
+        token = owner.get_token(scopes=req_scopes, req_roles=req_roles)
 
         # Make the ESI request
         operation = esi.client.Corporation.GetCorporationsCorporationIdDivisions(
-            corporation_id=audit.eve_corporation.corporation_id,
+            corporation_id=owner.eve_corporation.corporation_id,
             token=token,
         )
         division_items = operation.results(force_refresh=force_refresh)
 
-        self._update_or_create_objs_division(corporation=audit, objs=division_items)
+        self._update_or_create_objs_division(owner=owner, objs=division_items)
 
     @transaction.atomic()
     def _update_or_create_objs_division(
         self,
-        corporation: "CorporationAudit",
-        objs: list["DivisionItem"],
+        owner: "CorporationOwner",
+        objs: list["DivisionsContext"],
     ) -> None:
         """Update or Create division entries from objs data."""
         for division in objs:  # list (hanger, wallet)
@@ -363,7 +403,7 @@ class CorporationDivisionManagerBase(models.Manager):
                     name = getattr(wallet, "name", _("Unknown"))
 
                 obj, created = self.get_or_create(
-                    corporation=corporation,
+                    corporation=owner,
                     division_id=wallet.division,
                     defaults={"balance": 0, "name": name},
                 )
@@ -374,13 +414,13 @@ class CorporationDivisionManagerBase(models.Manager):
     @transaction.atomic()
     def _update_or_create_objs(
         self,
-        corporation: "CorporationAudit",
-        objs: list,
+        owner: "CorporationOwner",
+        objs: list["WalletsGetContext"],
     ) -> None:
         """Update or Create division entries from objs data."""
         for division in objs:
             obj, created = self.get_or_create(
-                corporation=corporation,
+                corporation=owner,
                 division_id=division.division,
                 defaults={
                     "balance": division.balance,
@@ -391,8 +431,3 @@ class CorporationDivisionManagerBase(models.Manager):
             if not created:
                 obj.balance = division.balance
                 obj.save()
-
-
-CorporationDivisionManager = CorporationDivisionManagerBase.from_queryset(
-    CorporationDivisionQuerySet
-)

@@ -22,7 +22,7 @@ from ledger.helpers.billboard import BillboardSystem
 from ledger.helpers.core import LedgerCore, LedgerEntity
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.corporationaudit import (
-    CorporationAudit,
+    CorporationOwner,
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
 )
@@ -36,7 +36,7 @@ class CorporationData(LedgerCore):
     # pylint: disable=too-many-positional-arguments
     def __init__(
         self,
-        corporation: CorporationAudit,
+        corporation: CorporationOwner,
         division_id: int = None,
         year: int = None,
         month: int = None,

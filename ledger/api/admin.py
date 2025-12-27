@@ -20,11 +20,11 @@ from ledger import __title__
 from ledger.api import schema
 from ledger.api.helpers import (
     get_all_corporations_from_alliance,
-    get_character_or_none,
+    get_characterowner_or_none,
     get_corporation,
 )
-from ledger.models.characteraudit import CharacterAudit
-from ledger.models.corporationaudit import CorporationAudit
+from ledger.models.characteraudit import CharacterOwner
+from ledger.models.corporationaudit import CorporationOwner
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -40,7 +40,7 @@ class AdminApiEndpoints:
             tags=self.tags,
         )
         def get_character_overview(request):
-            chars_visible = CharacterAudit.objects.visible_to(request.user)
+            chars_visible = CharacterOwner.objects.visible_to(request.user)
 
             if chars_visible is None:
                 return 403, "Permission Denied"
@@ -78,7 +78,7 @@ class AdminApiEndpoints:
             tags=self.tags,
         )
         def get_planetary_overview(request):
-            chars_ids = CharacterAudit.objects.visible_eve_characters(
+            chars_ids = CharacterOwner.objects.visible_eve_characters(
                 request.user
             ).values_list("character_id", flat=True)
 
@@ -114,7 +114,7 @@ class AdminApiEndpoints:
             tags=self.tags,
         )
         def get_corporation_overview(request):
-            corporations = CorporationAudit.objects.visible_to(request.user)
+            corporations = CorporationOwner.objects.visible_to(request.user)
 
             if corporations is None:
                 return 403, "Permission Denied"
@@ -142,7 +142,7 @@ class AdminApiEndpoints:
             tags=self.tags,
         )
         def get_alliance_overview(request):
-            corporations = CorporationAudit.objects.visible_to(request.user)
+            corporations = CorporationOwner.objects.visible_to(request.user)
 
             if corporations is None:
                 return 403, "Permission Denied"
@@ -169,7 +169,7 @@ class AdminApiEndpoints:
             tags=self.tags,
         )
         def get_character_dashboard(request, character_id: int):
-            perm, character = get_character_or_none(request, character_id)
+            perm, character = get_characterowner_or_none(request, character_id)
 
             if not perm:
                 return 403, "Permission Denied"
@@ -180,7 +180,7 @@ class AdminApiEndpoints:
                 "character_id", flat=True
             )
 
-            characters = CharacterAudit.objects.filter(
+            characters = CharacterOwner.objects.filter(
                 eve_character__character_id__in=linked_characters_ids
             )
 

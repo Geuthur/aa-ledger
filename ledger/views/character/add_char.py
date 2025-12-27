@@ -18,16 +18,16 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__, tasks
-from ledger.models.characteraudit import CharacterAudit
+from ledger.models.characteraudit import CharacterOwner
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @login_required
-@token_required(scopes=CharacterAudit.get_esi_scopes())
+@token_required(scopes=CharacterOwner.get_esi_scopes())
 @permission_required("ledger.basic_access")
 def add_char(request, token):
-    char, _ = CharacterAudit.objects.update_or_create(
+    char, _ = CharacterOwner.objects.update_or_create(
         eve_character=EveCharacter.objects.get_character_by_id(token.character_id),
         defaults={
             "active": True,

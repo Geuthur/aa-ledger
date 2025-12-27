@@ -1,3 +1,6 @@
+# Standard Library
+from typing import TYPE_CHECKING
+
 # Django
 from django.db import models
 from django.db.models import Case, Count, Q, Value, When
@@ -11,11 +14,16 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
+from ledger.models.helpers.update_manager import CharacterUpdateSection, UpdateStatus
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
+if TYPE_CHECKING:
+    # AA Ledger
+    from ledger.models.characteraudit import CharacterOwner as CharacterAuditContext
 
-class CharacterAuditQuerySet(models.QuerySet):
+
+class CharacterAuditQuerySet(models.QuerySet["CharacterAuditContext"]):
     # pylint: disable=duplicate-code
     def visible_to(self, user):
         # superusers get all visible
@@ -60,11 +68,7 @@ class CharacterAuditQuerySet(models.QuerySet):
 
     def annotate_total_update_status(self):
         """Get the total update status."""
-        # pylint: disable=import-outside-toplevel
-        # AA Ledger
-        from ledger.models.characteraudit import CharacterAudit
-
-        sections = CharacterAudit.UpdateSection.get_sections()
+        sections = CharacterUpdateSection.get_sections()
         num_sections_total = len(sections)
         qs = (
             self.annotate(
@@ -105,25 +109,25 @@ class CharacterAuditQuerySet(models.QuerySet):
                 total_update_status=Case(
                     When(
                         active=False,
-                        then=Value(CharacterAudit.UpdateStatus.DISABLED),
+                        then=Value(UpdateStatus.DISABLED),
                     ),
                     When(
                         num_sections_token_error=1,
-                        then=Value(CharacterAudit.UpdateStatus.TOKEN_ERROR),
+                        then=Value(UpdateStatus.TOKEN_ERROR),
                     ),
                     When(
                         num_sections_failed__gt=0,
-                        then=Value(CharacterAudit.UpdateStatus.ERROR),
+                        then=Value(UpdateStatus.ERROR),
                     ),
                     When(
                         num_sections_ok=num_sections_total,
-                        then=Value(CharacterAudit.UpdateStatus.OK),
+                        then=Value(UpdateStatus.OK),
                     ),
                     When(
                         num_sections_total__lt=num_sections_total,
-                        then=Value(CharacterAudit.UpdateStatus.INCOMPLETE),
+                        then=Value(UpdateStatus.INCOMPLETE),
                     ),
-                    default=Value(CharacterAudit.UpdateStatus.IN_PROGRESS),
+                    default=Value(UpdateStatus.IN_PROGRESS),
                 )
             )
         )
@@ -151,9 +155,18 @@ class CharacterAuditQuerySet(models.QuerySet):
         return 0
 
 
-class CharacterAuditManagerBase(models.Manager):
+class CharacterAuditManager(models.Manager["CharacterAuditContext"]):
     def get_queryset(self):
         return CharacterAuditQuerySet(self.model, using=self._db)
+
+    def annotate_total_update_status(self):
+        return self.get_queryset().annotate_total_update_status()
+
+    def annotate_total_update_status_user(self, user):
+        return self.get_queryset().annotate_total_update_status_user(user)
+
+    def disable_characters_with_no_owner(self) -> int:
+        return self.get_queryset().disable_characters_with_no_owner()
 
     @staticmethod
     def visible_eve_characters(user):
@@ -188,6 +201,3 @@ class CharacterAuditManagerBase(models.Manager):
 
     def visible_to(self, user):
         return self.get_queryset().visible_to(user)
-
-
-CharacterAuditManager = CharacterAuditManagerBase.from_queryset(CharacterAuditQuerySet)

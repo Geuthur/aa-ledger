@@ -22,10 +22,10 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
-from ledger.api.helpers import get_character_or_none
+from ledger.api.helpers import get_characterowner_or_none
 from ledger.helpers.character import CharacterData
 from ledger.helpers.core import add_info_to_context
-from ledger.models.characteraudit import CharacterAudit, CharacterWalletJournalEntry
+from ledger.models.characteraudit import CharacterOwner, CharacterWalletJournalEntry
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -44,7 +44,7 @@ def character_ledger(
     """
     Character Ledger
     """
-    perms, character = get_character_or_none(request, character_id)
+    perms, character = get_characterowner_or_none(request, character_id)
 
     if not perms:
         msg = _("Permission Denied")
@@ -104,7 +104,7 @@ def character_details(
     """
     Character Details
     """
-    perms, character = get_character_or_none(request, character_id)
+    perms, character = get_characterowner_or_none(request, character_id)
 
     # pylint: disable=duplicate-code
     if perms is False:
@@ -173,7 +173,7 @@ def character_administration(request, character_id=None):
     if character_id is None:
         character_id = request.user.profile.main_character.character_id
 
-    perms, character = get_character_or_none(request, character_id)
+    perms, character = get_characterowner_or_none(request, character_id)
 
     if not perms:
         msg = _("Permission Denied")
@@ -182,7 +182,7 @@ def character_administration(request, character_id=None):
 
     linked_characters_ids = character.alts.values_list("character_id", flat=True)
 
-    characters = CharacterAudit.objects.filter(
+    characters = CharacterOwner.objects.filter(
         eve_character__character_id__in=linked_characters_ids
     ).order_by("eve_character__character_name")
     characters_ids = characters.values_list("eve_character__character_id", flat=True)
@@ -214,7 +214,7 @@ def character_delete(request, character_id):
     """
     Character Delete
     """
-    perms = get_character_or_none(request, character_id)[0]
+    perms = get_characterowner_or_none(request, character_id)[0]
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -222,8 +222,8 @@ def character_delete(request, character_id):
         )
 
     try:
-        audit = CharacterAudit.objects.get(eve_character__character_id=character_id)
-    except CharacterAudit.DoesNotExist:
+        audit = CharacterOwner.objects.get(eve_character__character_id=character_id)
+    except CharacterOwner.DoesNotExist:
         msg = _("Character not found")
         return JsonResponse(
             {"success": False, "message": msg}, status=HTTPStatus.NOT_FOUND, safe=False

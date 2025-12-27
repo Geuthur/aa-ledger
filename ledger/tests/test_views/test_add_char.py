@@ -10,7 +10,7 @@ from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
 # AA Ledger
-from ledger.models.characteraudit import CharacterAudit
+from ledger.models.characteraudit import CharacterOwner
 from ledger.tests.testdata.generate_characteraudit import (
     create_user_from_evecharacter_with_access,
 )
@@ -57,5 +57,5 @@ class TestAddCharView(TestCase):
         self.assertTrue(mock_tasks.update_character.apply_async.called)
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(
-            CharacterAudit.objects.filter(eve_character__character_id=1001).exists()
+            CharacterOwner.objects.filter(eve_character__character_id=1001).exists()
         )

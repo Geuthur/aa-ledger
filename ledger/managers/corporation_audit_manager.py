@@ -1,8 +1,12 @@
+# Standard Library
+from typing import TYPE_CHECKING
+
 # Django
 from django.db import models
 from django.db.models import Case, Count, Q, Value, When
 
 # Alliance Auth
+from allianceauth.authentication.models import User
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -10,12 +14,19 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__
+from ledger.models.helpers.update_manager import CorporationUpdateSection, UpdateStatus
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
+if TYPE_CHECKING:
+    # AA Ledger
+    from ledger.models.corporationaudit import (
+        CorporationOwner as CorporationAuditContext,
+    )
 
-class CorporationAuditQuerySet(models.QuerySet):
-    def visible_to(self, user):
+
+class CorporationAuditQuerySet(models.QuerySet["CorporationAuditContext"]):
+    def visible_to(self, user: User):
         """Returns a queryset of all corps visible to the user."""
         if user.is_superuser:
             logger.debug(
@@ -53,7 +64,7 @@ class CorporationAuditQuerySet(models.QuerySet):
             logger.debug("User %s has no main character. Nothing visible.", user)
             return self.none()
 
-    def manage_to(self, user):
+    def manage_to(self, user: User):
         """Return all corps that the user can manage."""
         if user.is_superuser:
             logger.debug(
@@ -91,18 +102,14 @@ class CorporationAuditQuerySet(models.QuerySet):
             logger.debug("User %s has no main character. Nothing visible.", user)
             return self.none()
 
-    def annotate_total_update_status_user(self, user):
+    def annotate_total_update_status_user(self, user: User):
         """Get the total update status for the given user."""
         # TODO: implement this method if needed
         return user
 
     def annotate_total_update_status(self):
         """Get the total update status."""
-        # pylint: disable=import-outside-toplevel
-        # AA Ledger
-        from ledger.models.corporationaudit import CorporationAudit
-
-        sections = CorporationAudit.UpdateSection.get_sections()
+        sections = CorporationUpdateSection.get_sections()
         num_sections_total = len(sections)
         qs = (
             self.annotate(
@@ -143,25 +150,25 @@ class CorporationAuditQuerySet(models.QuerySet):
                 total_update_status=Case(
                     When(
                         active=False,
-                        then=Value(CorporationAudit.UpdateStatus.DISABLED),
+                        then=Value(UpdateStatus.DISABLED),
                     ),
                     When(
                         num_sections_token_error=1,
-                        then=Value(CorporationAudit.UpdateStatus.TOKEN_ERROR),
+                        then=Value(UpdateStatus.TOKEN_ERROR),
                     ),
                     When(
                         num_sections_failed__gt=0,
-                        then=Value(CorporationAudit.UpdateStatus.ERROR),
+                        then=Value(UpdateStatus.ERROR),
                     ),
                     When(
                         num_sections_ok=num_sections_total,
-                        then=Value(CorporationAudit.UpdateStatus.OK),
+                        then=Value(UpdateStatus.OK),
                     ),
                     When(
                         num_sections_total__lt=num_sections_total,
-                        then=Value(CorporationAudit.UpdateStatus.INCOMPLETE),
+                        then=Value(UpdateStatus.INCOMPLETE),
                     ),
-                    default=Value(CorporationAudit.UpdateStatus.IN_PROGRESS),
+                    default=Value(UpdateStatus.IN_PROGRESS),
                 )
             )
         )
@@ -169,14 +176,18 @@ class CorporationAuditQuerySet(models.QuerySet):
         return qs
 
 
-class CorporationAuditManagerBase(models.Manager):
+class CorporationAuditManager(models.Manager["CorporationAuditContext"]):
+    def get_queryset(self) -> CorporationAuditQuerySet:
+        return CorporationAuditQuerySet(self.model, using=self._db)
+
+    def annotate_total_update_status_user(self, user: User):
+        return self.get_queryset().annotate_total_update_status_user(user)
+
+    def annotate_total_update_status(self):
+        return self.get_queryset().annotate_total_update_status()
+
     def visible_to(self, user):
         return self.get_queryset().visible_to(user)
 
     def manage_to(self, user):
         return self.get_queryset().manage_to(user)
-
-
-CorporationAuditManager = CorporationAuditManagerBase.from_queryset(
-    CorporationAuditQuerySet
-)

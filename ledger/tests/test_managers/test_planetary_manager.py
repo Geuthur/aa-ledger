@@ -70,7 +70,7 @@ class TestPlanetaryDetailsManager(NoSocketsTestCase):
         load_eveentity()
         cls.audit = create_characteraudit_from_evecharacter(1001)
         cls.planet = create_character_planet(
-            characteraudit=cls.audit, planet_id=4001, upgrade_level=5, num_pins=5
+            characterowner=cls.audit, planet_id=4001, upgrade_level=5, num_pins=5
         )
 
     def test_update_planets_details(self, mock_esi, mock_get_or_create_esi):

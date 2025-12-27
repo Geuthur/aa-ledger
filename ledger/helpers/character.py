@@ -19,8 +19,8 @@ from ledger import __title__
 from ledger.helpers.billboard import BillboardSystem
 from ledger.helpers.core import LedgerCore
 from ledger.models.characteraudit import (
-    CharacterAudit,
     CharacterMiningLedger,
+    CharacterOwner,
     CharacterWalletJournalEntry,
 )
 
@@ -34,7 +34,7 @@ class CharacterData(LedgerCore):
     def __init__(
         self,
         request: WSGIRequest,
-        character: CharacterAudit,
+        character: CharacterOwner,
         year=None,
         month=None,
         day=None,
@@ -44,7 +44,7 @@ class CharacterData(LedgerCore):
         self.request = request
         self.character = character
         self.alts_ids = self.get_alt_ids
-        self.characters = CharacterAudit.objects.filter(
+        self.characters = CharacterOwner.objects.filter(
             eve_character__character_id__in=self.alts_ids
         ).select_related("eve_character")
         self.section = section
@@ -72,7 +72,7 @@ class CharacterData(LedgerCore):
         return True
 
     def filter_character_journal(
-        self, character: CharacterAudit
+        self, character: CharacterOwner
     ) -> tuple[QuerySet[CharacterWalletJournalEntry], QuerySet[CharacterMiningLedger]]:
         """Filter the journal entries for the character and its alts."""
         if self.section == "summary":
@@ -95,7 +95,7 @@ class CharacterData(LedgerCore):
         # Only show the character if 'single' is set in the request
         if self.section == "single":
             self.ledger_type = "single"
-            characters = CharacterAudit.objects.filter(
+            characters = CharacterOwner.objects.filter(
                 eve_character=self.character.eve_character
             ).select_related("eve_character")
             character_data = self._create_character_data(character=self.character)
@@ -121,7 +121,7 @@ class CharacterData(LedgerCore):
 
     def _create_character_data(
         self,
-        character: CharacterAudit,
+        character: CharacterOwner,
     ):
         """Create a dictionary with character data and update billboard/ledger."""
         journal, mining = self.filter_character_journal(character)

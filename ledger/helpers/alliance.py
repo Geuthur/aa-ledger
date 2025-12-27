@@ -22,7 +22,7 @@ from ledger.helpers.billboard import BillboardSystem
 from ledger.helpers.core import LedgerCore, LedgerEntity
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.corporationaudit import (
-    CorporationAudit,
+    CorporationOwner,
     CorporationWalletJournalEntry,
 )
 
@@ -47,7 +47,7 @@ class AllianceData(LedgerCore):
         self.alliance = alliance
         self.entity_id = self.alliance.alliance_id
         self.section = section
-        self.corporations = CorporationAudit.objects.filter(
+        self.corporations = CorporationOwner.objects.filter(
             eve_corporation__alliance__alliance_id=self.alliance.alliance_id
         ).values_list("eve_corporation__corporation_id", flat=True)
         self.auth_char_ids = self.auth_character_ids

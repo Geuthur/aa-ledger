@@ -19,13 +19,13 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__, tasks
-from ledger.models.corporationaudit import CorporationAudit
+from ledger.models.corporationaudit import CorporationOwner
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @login_required
-@token_required(scopes=CorporationAudit.get_esi_scopes())
+@token_required(scopes=CorporationOwner.get_esi_scopes())
 @permission_required(["ledger.manage_access"])
 def add_corp(request, token) -> HttpResponse:
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
@@ -38,7 +38,7 @@ def add_corp(request, token) -> HttpResponse:
         },
     )
 
-    corp = CorporationAudit.objects.update_or_create(
+    corp = CorporationOwner.objects.update_or_create(
         eve_corporation=eve_corp,
         defaults={
             "corporation_name": eve_corp.corporation_name,

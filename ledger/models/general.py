@@ -4,18 +4,13 @@ General Model
 
 # Standard Library
 import datetime
-from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, NamedTuple
-
-# Third Party
-from aiopenapi3.errors import ContentTypeError, HTTPClientError, HTTPServerError
 
 # Django
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -25,8 +20,6 @@ from allianceauth.eveonline.models import (
     EveCorporationInfo,
 )
 from allianceauth.services.hooks import get_extension_logger
-from esi.errors import TokenError
-from esi.exceptions import HTTPNotModified
 
 # Alliance Auth (External Libs)
 from app_utils.logging import LoggerAddTag
@@ -56,6 +49,11 @@ class General(models.Model):
 # EvE Entity Model - Store all Chars, Corps, Allys
 class EveEntity(models.Model):
     """An Eve entity like a corporation or a character"""
+
+    objects: EveEntityManager = EveEntityManager()
+
+    class Meta:
+        default_permissions = ()
 
     CATEGORY_ALLIANCE = "alliance"
     CATEGORY_CHARACTER = "character"
@@ -91,8 +89,6 @@ class EveEntity(models.Model):
         related_name="alli",
     )
     last_update = models.DateTimeField(auto_now=True)
-
-    objects = EveEntityManager()
 
     def __str__(self) -> str:
         return str(self.name)
@@ -136,9 +132,6 @@ class EveEntity(models.Model):
     def needs_update(self):
         return self.last_update + datetime.timedelta(days=7) < timezone.now()
 
-    class Meta:
-        default_permissions = ()
-
 
 class UpdateSectionResult(NamedTuple):
     """A result of an attempted section update."""
@@ -165,200 +158,12 @@ class _NeedsUpdate:
         return self.section_map.get(section, False)
 
 
-class AuditBase(models.Model):
-    """A base model for audit models."""
+class UpdateStatusBaseModel(models.Model):
+    """A Model to track the status of the last update."""
 
     class Meta:
         abstract = True
-
-    class UpdateStatus(models.TextChoices):
-        DISABLED = "disabled", _("disabled")
-        TOKEN_ERROR = "token_error", _("token error")
-        ERROR = "error", _("error")
-        OK = "ok", _("ok")
-        INCOMPLETE = "incomplete", _("incomplete")
-        IN_PROGRESS = "in_progress", _("in progress")
-
-        def bootstrap_icon(self) -> str:
-            """Return bootstrap corresponding icon class."""
-            update_map = {
-                status: mark_safe(
-                    f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='ledger-tooltip' title='{self.description()}'>⬤</span>"
-                )
-                for status in [
-                    self.DISABLED,
-                    self.TOKEN_ERROR,
-                    self.ERROR,
-                    self.INCOMPLETE,
-                    self.IN_PROGRESS,
-                    self.OK,
-                ]
-            }
-            return update_map.get(self, "")
-
-        def bootstrap_text_style_class(self) -> str:
-            """Return bootstrap corresponding bootstrap text style class."""
-            update_map = {
-                self.DISABLED: "text-muted",
-                self.TOKEN_ERROR: "text-warning",
-                self.INCOMPLETE: "text-warning",
-                self.IN_PROGRESS: "text-info",
-                self.ERROR: "text-danger",
-                self.OK: "text-success",
-            }
-            return update_map.get(self, "")
-
-        def description(self) -> str:
-            """Return description for an enum object."""
-            update_map = {
-                self.DISABLED: _("Update is disabled"),
-                self.TOKEN_ERROR: _("One section has a token error during update"),
-                self.INCOMPLETE: _("One or more sections have not been updated"),
-                self.IN_PROGRESS: _("Update is in progress"),
-                self.ERROR: _("An error occurred during update"),
-                self.OK: _("Updates completed successfully"),
-            }
-            return update_map.get(self, "")
-
-    def update_section_if_changed(
-        self,
-        section: models.TextChoices,
-        fetch_func: Callable,
-        force_refresh: bool = False,
-    ):
-        """Update the status of a specific section if it has changed."""
-        section = self.UpdateSection(section)
-        try:
-            data = fetch_func(audit=self, force_refresh=force_refresh)
-            logger.debug("%s: Update has changed, section: %s", self, section.label)
-        except HTTPServerError as exc:
-            logger.debug("%s: Update has an HTTP internal server error: %s", self, exc)
-            return UpdateSectionResult(is_changed=False, is_updated=False)
-        except HTTPClientError as exc:
-            error_message = f"{type(exc).__name__}: {str(exc)}"
-            # TODO ADD DISCORD/AUTH NOTIFICATION?
-            logger.error(
-                "%s: %s: Update has Client Error: %s %s",
-                self,
-                section.label,
-                error_message,
-                exc.status_code,
-            )
-            return UpdateSectionResult(
-                is_changed=False,
-                is_updated=False,
-                has_token_error=True,
-                error_message=error_message,
-            )
-        except HTTPNotModified:
-            logger.debug("%s: Update has not changed, section: %s", self, section.label)
-            return UpdateSectionResult(is_changed=False, is_updated=False)
-        except (OSError, ContentTypeError) as exc:
-            logger.info(
-                "%s Update has a %s error, section: %s: %s",
-                self,
-                type(exc).__name__,
-                section.label,
-                exc,
-            )
-            return UpdateSectionResult(is_changed=False, is_updated=False)
-        return UpdateSectionResult(
-            is_changed=True,
-            is_updated=True,
-            data=data,
-        )
-
-    def reset_has_token_error(self) -> None:
-        """Reset the has_token_error flag for this character."""
-        if self.get_status == self.UpdateStatus.TOKEN_ERROR:
-            self.update_status.filter(
-                has_token_error=True,
-            ).update(
-                has_token_error=False,
-            )
-            return True
-        return False
-
-    def reset_update_status(self, section):
-        """Reset the status of a given update section and return it."""
-        update_status_obj = self.update_status.get_or_create(
-            section=section,
-        )[0]
-        update_status_obj.reset()
-        return update_status_obj
-
-    def perform_update_status(
-        self, section, method: Callable, *args, **kwargs
-    ) -> UpdateSectionResult:
-        """Perform update status."""
-        try:
-            result = method(*args, **kwargs)
-        except Exception as exc:
-            error_message = f"{type(exc).__name__}: {str(exc)}"
-            is_token_error = isinstance(exc, (TokenError))
-            logger.error(
-                "%s: %s: Error during update status: %s",
-                self,
-                section.label,
-                error_message,
-                exc_info=not is_token_error,  # do not log token errors
-            )
-
-            # Update the status using the related manager name
-            self.update_status.update_or_create(
-                section=section,
-                defaults={
-                    "is_success": False,
-                    "error_message": error_message,
-                    "has_token_error": is_token_error,
-                    "last_update_at": timezone.now(),
-                },
-            )
-            raise exc
-        return result
-
-    def update_section_log(
-        self,
-        section: models.TextChoices,
-        result: UpdateSectionResult,
-    ) -> None:
-        """Update the status of a specific section."""
-        error_message = result.error_message if result.error_message else ""
-        is_success = not result.has_token_error
-        defaults = {
-            "is_success": is_success,
-            "error_message": error_message,
-            "has_token_error": result.has_token_error,
-            "last_run_finished_at": timezone.now(),
-        }
-        obj: UpdateStatus = self.update_status.update_or_create(
-            section=section,
-            defaults=defaults,
-        )[0]
-        if result.is_updated:
-            obj.last_update_at = obj.last_run_at
-            obj.last_update_finished_at = timezone.now()
-            obj.save()
-        status = "successfully" if is_success else "with errors"
-        logger.info("%s: %s Update run completed %s", self, section.label, status)
-
-    def calc_update_needed(self) -> _NeedsUpdate:
-        """Calculate if an update is needed."""
-        sections_needs_update = {
-            section: True for section in self.UpdateSection.get_sections()
-        }
-        existing_sections: models.QuerySet[UpdateStatus] = self.update_status.all()
-        needs_update = {
-            obj.section: obj.need_update()
-            for obj in existing_sections
-            if obj.section in sections_needs_update
-        }
-        sections_needs_update.update(needs_update)
-        return _NeedsUpdate(section_map=sections_needs_update)
-
-
-class UpdateStatus(models.Model):
-    """A Model to track the status of the last update."""
+        default_permissions = ()
 
     is_success = models.BooleanField(default=None, null=True, db_index=True)
     error_message = models.TextField()
@@ -388,10 +193,6 @@ class UpdateStatus(models.Model):
         db_index=True,
         help_text="Last update has been successful finished at this time",
     )
-
-    class Meta:
-        abstract = True
-        default_permissions = ()
 
     def need_update(self) -> bool:
         """Check if the update is needed."""
@@ -424,3 +225,58 @@ class UpdateStatus(models.Model):
         self.last_run_at = timezone.now()
         self.last_run_finished_at = None
         self.save()
+
+
+class WalletJournalEntry(models.Model):
+    amount = models.DecimalField(
+        max_digits=20, decimal_places=2, null=True, default=None
+    )
+    balance = models.DecimalField(
+        max_digits=20, decimal_places=2, null=True, default=None
+    )
+    context_id = models.BigIntegerField(null=True, default=None)
+
+    class ContextType(models.TextChoices):
+        STRUCTURE_ID = "structure_id"
+        STATION_ID = "station_id"
+        MARKET_TRANSACTION_ID = "market_transaction_id"
+        CHARACTER_ID = "character_id"
+        CORPORATION_ID = "corporation_id"
+        ALLIANCE_ID = "alliance_id"
+        EVE_SYSTEM = "eve_system"
+        INDUSTRY_JOB_ID = "industry_job_id"
+        CONTRACT_ID = "contract_id"
+        PLANET_ID = "planet_id"
+        SYSTEM_ID = "system_id"
+        TYPE_ID = "type_id"
+
+    context_id_type = models.CharField(
+        max_length=30, choices=ContextType.choices, null=True, default=None
+    )
+    date = models.DateTimeField()
+    description = models.CharField(max_length=500)
+    first_party = models.ForeignKey(
+        EveEntity,
+        on_delete=models.SET_DEFAULT,
+        default=None,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
+    entry_id = models.BigIntegerField()
+    reason = models.CharField(max_length=500, null=True, default=None)
+    ref_type = models.CharField(max_length=72)
+    second_party = models.ForeignKey(
+        EveEntity,
+        on_delete=models.SET_DEFAULT,
+        default=None,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
+    tax = models.DecimalField(max_digits=20, decimal_places=2, null=True, default=None)
+    tax_receiver_id = models.IntegerField(null=True, default=None)
+
+    class Meta:
+        abstract = True
+        default_permissions = ()

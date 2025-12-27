@@ -17,7 +17,7 @@ from app_utils.testing import (
 
 # AA Ledger
 from ledger.tests.testdata.generate_characteraudit import (
-    add_characteraudit_character_to_user,
+    add_characterowner_character_to_user,
     create_user_from_evecharacter_with_access,
 )
 from ledger.tests.testdata.generate_corporationaudit import (
@@ -170,7 +170,7 @@ class TestViewCharacterLedgerAccess(TestCase):
         cls.user2, cls.character_ownership2 = create_user_from_evecharacter_with_access(
             1002
         )
-        cls.audit = add_characteraudit_character_to_user(
+        cls.audit = add_characterowner_character_to_user(
             cls.user, cls.character_ownership.character.character_id
         )
 

@@ -23,7 +23,7 @@ from ledger import __title__
 from ledger.helpers.alliance import AllianceData
 from ledger.helpers.corporation import CorporationData
 from ledger.models.corporationaudit import (
-    CorporationAudit,
+    CorporationOwner,
     CorporationWalletJournalEntry,
 )
 
@@ -55,7 +55,7 @@ def file_to_zip(source_file: Path, destination: Path) -> Path:
 def default_destination() -> Path:
     """Return default destination path."""
     return (
-        Path(settings.BASE_DIR) / str(CorporationAudit._meta.app_label) / "data_exports"
+        Path(settings.BASE_DIR) / str(CorporationOwner._meta.app_label) / "data_exports"
     )
 
 
@@ -90,7 +90,7 @@ class LedgerCSVExporter(ABC):
     @property
     def output_basename(self) -> Path:
         """Return the base name for the output file."""
-        app_label = str(CorporationAudit._meta.app_label)
+        app_label = str(CorporationOwner._meta.app_label)
         # Try to discover an entity id from known attributes set by exporters
         entity_id = (
             getattr(self, "corporation_id", None)
@@ -294,7 +294,7 @@ class LedgerCSVExporter(ABC):
             return results
 
         existing_files = list(
-            destination_folder.glob(f"{str(CorporationAudit._meta.app_label)}_*.zip")
+            destination_folder.glob(f"{str(CorporationOwner._meta.app_label)}_*.zip")
         )
 
         if not existing_files:
@@ -389,7 +389,7 @@ class CorporationExporter(LedgerCSVExporter):
         report_month = month if month is not None else self.month
 
         try:
-            corporation = CorporationAudit.objects.get(
+            corporation = CorporationOwner.objects.get(
                 eve_corporation__corporation_id=report_corporation_id
             )
             # Create CorporationData inside the task
@@ -400,7 +400,7 @@ class CorporationExporter(LedgerCSVExporter):
                 month=report_month,
             )
             return ledger_data.generate_data_export()
-        except CorporationAudit.DoesNotExist as exc:
+        except CorporationOwner.DoesNotExist as exc:
             raise ValueError("Corporation not found") from exc
 
 
@@ -418,7 +418,7 @@ class AllianceExporter(LedgerCSVExporter):
     @property
     def has_data(self) -> bool:
         """Check if there is data to export."""
-        corporations = CorporationAudit.objects.filter(
+        corporations = CorporationOwner.objects.filter(
             eve_corporation__alliance__alliance_id=self.alliance_id
         ).values_list("eve_corporation__corporation_id", flat=True)
 

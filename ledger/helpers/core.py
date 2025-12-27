@@ -55,10 +55,10 @@ def add_info_to_context(request, context: dict) -> dict:
     """Add additional information to the context for the view."""
     # pylint: disable=import-outside-toplevel
     # AA Ledger
-    from ledger.models.characteraudit import CharacterAudit
+    from ledger.models.characteraudit import CharacterOwner
 
     total_issues = (
-        CharacterAudit.objects.annotate_total_update_status_user(user=request.user)
+        CharacterOwner.objects.annotate_total_update_status_user(user=request.user)
         .aggregate(total_failed=Sum("num_sections_failed"))
         .get("total_failed", 0)
     )

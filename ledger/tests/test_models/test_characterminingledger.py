@@ -12,7 +12,7 @@ from eveuniverse.models import EveMarketPrice, EveSolarSystem, EveType
 # AA Ledger
 from ledger.models.characteraudit import CharacterMiningLedger
 from ledger.tests.testdata.generate_characteraudit import (
-    add_characteraudit_character_to_user,
+    add_characterowner_character_to_user,
     create_user_from_evecharacter_with_access,
 )
 from ledger.tests.testdata.generate_miningledger import create_miningledger
@@ -34,7 +34,7 @@ class TestCharacterMiningLedgerModel(TestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
             1001,
         )
-        cls.audit = add_characteraudit_character_to_user(
+        cls.audit = add_characterowner_character_to_user(
             cls.user, cls.character_ownership.character.character_id
         )
         cls.eve_type = EveType.objects.get(id=17425)

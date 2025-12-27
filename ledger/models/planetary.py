@@ -20,7 +20,8 @@ from ledger.managers.character_planetary_manager import (
     CharacterPlanetManager,
     PlanetDetailsManager,
 )
-from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
+from ledger.models.characteraudit import CharacterOwner, CharacterUpdateStatus
+from ledger.models.helpers.update_manager import CharacterUpdateSection
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -46,7 +47,7 @@ class CharacterPlanet(models.Model):
     )
 
     character = models.ForeignKey(
-        CharacterAudit, on_delete=models.CASCADE, related_name="ledger_character_planet"
+        CharacterOwner, on_delete=models.CASCADE, related_name="ledger_character_planet"
     )
 
     upgrade_level = models.IntegerField(
@@ -65,8 +66,8 @@ class CharacterPlanet(models.Model):
         """Return the last update time of the planet."""
         try:
             last_update = CharacterUpdateStatus.objects.get(
-                character=self.character,
-                section=CharacterAudit.UpdateSection.PLANETS,
+                owner=self.character,
+                section=CharacterUpdateSection.PLANETS,
             ).last_update_at
         except CharacterUpdateStatus.DoesNotExist:
             last_update = None
@@ -100,7 +101,7 @@ class CharacterPlanetDetails(models.Model):
     )
 
     character = models.ForeignKey(
-        CharacterAudit,
+        CharacterOwner,
         on_delete=models.CASCADE,
         related_name="ledger_character_planet_details",
     )
@@ -153,7 +154,7 @@ class CharacterPlanetDetails(models.Model):
         try:
             last_update = CharacterUpdateStatus.objects.get(
                 character=self.character,
-                section=CharacterAudit.UpdateSection.PLANETS_DETAILS,
+                section=CharacterUpdateSection.PLANETS_DETAILS,
             ).last_update_at
         except CharacterUpdateStatus.DoesNotExist:
             last_update = None

@@ -10,7 +10,7 @@ from django.urls import reverse
 
 # AA Ledger
 from ledger.tests.testdata.generate_characteraudit import (
-    add_characteraudit_character_to_user,
+    add_characterowner_character_to_user,
     create_user_from_evecharacter_with_access,
 )
 
@@ -33,7 +33,7 @@ class TestDeleteCharacterView(TestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
             1001
         )
-        cls.audit = add_characteraudit_character_to_user(cls.user, 1001)
+        cls.audit = add_characterowner_character_to_user(cls.user, 1001)
         cls.no_audit_user, cls.character_ownership = (
             create_user_from_evecharacter_with_access(1002)
         )

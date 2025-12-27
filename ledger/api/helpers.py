@@ -15,14 +15,14 @@ from ledger import __title__, models
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
-def get_character_or_none(
+def get_characterowner_or_none(
     request, character_id
-) -> tuple[bool, models.CharacterAudit | None]:
+) -> tuple[bool, models.CharacterOwner | None]:
     """Get Character and check permissions"""
     perms = True
 
     try:
-        character = models.CharacterAudit.objects.get(
+        owner = models.CharacterOwner.objects.get(
             eve_character__character_id=character_id
         )
     except ObjectDoesNotExist:
@@ -31,27 +31,27 @@ def get_character_or_none(
         return None, None
 
     # check access
-    visible = models.CharacterAudit.objects.visible_eve_characters(request.user)
-    if character.eve_character not in visible:
+    visible = models.CharacterOwner.objects.visible_eve_characters(request.user)
+    if owner.eve_character not in visible:
         perms = False
-    return perms, character
+    return perms, owner
 
 
 def get_corporation(
     request, corporation_id
-) -> tuple[bool | None, models.CorporationAudit | None]:
+) -> tuple[bool | None, models.CorporationOwner | None]:
     """Return Corporation and check permissions"""
     perms = True
 
     try:
-        main_corp = models.CorporationAudit.objects.get(
+        main_corp = models.CorporationOwner.objects.get(
             eve_corporation__corporation_id=corporation_id
         )
     except ObjectDoesNotExist:
         return None, None
 
     # Check access
-    visible = models.CorporationAudit.objects.visible_to(request.user)
+    visible = models.CorporationOwner.objects.visible_to(request.user)
     if main_corp not in visible:
         perms = False
     return perms, main_corp
@@ -59,19 +59,19 @@ def get_corporation(
 
 def get_manage_corporation(
     request, corporation_id
-) -> tuple[bool | None, models.CorporationAudit | None]:
+) -> tuple[bool | None, models.CorporationOwner | None]:
     """Returns a tuple of the permissions and the corporation object if manageable"""
     perms = True
 
     try:
-        main_corp = models.CorporationAudit.objects.get(
+        main_corp = models.CorporationOwner.objects.get(
             eve_corporation__corporation_id=corporation_id
         )
     except ObjectDoesNotExist:
         return None, None
 
     # Check access
-    visible = models.CorporationAudit.objects.manage_to(request.user)
+    visible = models.CorporationOwner.objects.manage_to(request.user)
     if main_corp not in visible:
         perms = False
     return perms, main_corp
@@ -81,7 +81,7 @@ def get_alliance(request, alliance_id) -> tuple[bool | None, EveAllianceInfo | N
     """Get Alliance and check permissions for each corporation"""
     perms = True
 
-    corporations = models.CorporationAudit.objects.filter(
+    corporations = models.CorporationOwner.objects.filter(
         eve_corporation__alliance__alliance_id=alliance_id
     )
 
@@ -89,7 +89,7 @@ def get_alliance(request, alliance_id) -> tuple[bool | None, EveAllianceInfo | N
         return None, None
 
     # Check access
-    visible = models.CorporationAudit.objects.visible_to(request.user)
+    visible = models.CorporationOwner.objects.visible_to(request.user)
 
     # Check if there is an intersection between main_corp and visible
     common_corps = corporations.intersection(visible)
@@ -102,11 +102,11 @@ def get_alliance(request, alliance_id) -> tuple[bool | None, EveAllianceInfo | N
 
 def get_all_corporations_from_alliance(
     request, alliance_id
-) -> tuple[bool | None, list[models.CorporationAudit] | None]:
+) -> tuple[bool | None, list[models.CorporationOwner] | None]:
     """Get Alliance and check permissions for each corporation"""
     perms = True
 
-    corporations = models.CorporationAudit.objects.filter(
+    corporations = models.CorporationOwner.objects.filter(
         eve_corporation__alliance__alliance_id=alliance_id
     )
 
@@ -114,7 +114,7 @@ def get_all_corporations_from_alliance(
         return None, None
 
     # Check access
-    visible = models.CorporationAudit.objects.visible_to(request.user)
+    visible = models.CorporationOwner.objects.visible_to(request.user)
 
     # Check if there is an intersection between main_corp and visible
     common_corps = corporations.intersection(visible)
@@ -124,19 +124,19 @@ def get_all_corporations_from_alliance(
 
 
 def get_alts_queryset(
-    character: models.CharacterAudit,
-) -> QuerySet[list[models.CharacterAudit]]:
+    owner: models.CharacterOwner,
+) -> QuerySet[list[models.CharacterOwner]]:
     """Get all alts for a main character."""
     try:
         linked_characters = (
-            character.eve_character.character_ownership.user.character_ownerships.all()
+            owner.eve_character.character_ownership.user.character_ownerships.all()
         )
 
         linked_characters = linked_characters.values_list("character_id", flat=True)
-        return models.CharacterAudit.objects.filter(
+        return models.CharacterOwner.objects.filter(
             eve_character__id__in=linked_characters
         )
     except ObjectDoesNotExist:
-        return models.CharacterAudit.objects.filter(
-            eve_character__pk=character.eve_character.pk
+        return models.CharacterOwner.objects.filter(
+            eve_character__pk=owner.eve_character.pk
         )

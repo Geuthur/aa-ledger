@@ -11,7 +11,7 @@ from allianceauth.eveonline.models import EveCharacter
 
 # AA Ledger
 from ledger.models.corporationaudit import (
-    CorporationAudit,
+    CorporationOwner,
 )
 from ledger.models.general import EveEntity
 from ledger.tests.testdata.generate_characteraudit import create_character

@@ -34,7 +34,7 @@ from ledger.api.api_helper.planetary_helper import (
     get_storage_info,
     get_type_render_url,
 )
-from ledger.api.helpers import get_alts_queryset, get_character_or_none
+from ledger.api.helpers import get_alts_queryset, get_characterowner_or_none
 from ledger.api.schema import (
     EveTypeSchema,
     ExtractorSchema,
@@ -91,7 +91,7 @@ class PlanetaryApiEndpoints:
             request: WSGIRequest, character_id: int, planet_id: int
         ):
             singleview = request.GET.get("single", False)
-            perm, character = get_character_or_none(request, character_id)
+            perm, character = get_characterowner_or_none(request, character_id)
 
             if not perm:
                 return 403, str(_("Permission Denied"))
@@ -181,12 +181,12 @@ class PlanetaryApiEndpoints:
             Returns:
                 dict: Factory details including owner, planet info, factories, and storage.
             """
-            perm, character = get_character_or_none(request, character_id)
+            perm, character = get_characterowner_or_none(request, character_id)
 
             if not perm:
                 return 403, {"error": _("Permission Denied.")}
 
-            filters = Q(planet__character=character)
+            filters = Q(planet__owner=character)
             if planet_id != 0:
                 filters &= Q(planet__id=planet_id)
 
@@ -241,12 +241,12 @@ class PlanetaryApiEndpoints:
             Returns:
                 dict: Extractor details including owner, planet info, extractors, and last update.
             """
-            perm, character = get_character_or_none(request, character_id)
+            perm, character = get_characterowner_or_none(request, character_id)
 
             if not perm:
                 return 403, {"error": _("Permission Denied.")}
 
-            filters = Q(planet__character=character)
+            filters = Q(planet__owner=character)
             if not planet_id == 0:
                 filters &= Q(planet__id=planet_id)
 
@@ -329,12 +329,12 @@ class PlanetaryApiEndpoints:
             Returns:
                 dict: A dictionary containing the success status and message.
             """
-            perm, character = get_character_or_none(request, character_id)
+            perm, character = get_characterowner_or_none(request, character_id)
 
             if not perm:
                 return 403, {"error": _("Permission Denied.")}
 
-            filters = Q(planet__character=character)
+            filters = Q(planet__owner=character)
             if not planet_id == 0:
                 filters &= Q(planet__id=planet_id)
 

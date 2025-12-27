@@ -9,14 +9,14 @@ from app_utils.testing import (
 # AA Ledger
 from ledger.models.characteraudit import CharacterWalletJournalEntry
 from ledger.models.corporationaudit import (
-    CorporationAudit,
+    CorporationOwner,
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
 )
 
 
 def create_division(
-    corporation: CorporationAudit, **kwargs
+    corporation: CorporationOwner, **kwargs
 ) -> CorporationWalletDivision:
     """Create a CorporationWalletDivision"""
     params = {

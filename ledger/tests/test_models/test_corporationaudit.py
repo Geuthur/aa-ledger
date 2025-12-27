@@ -6,7 +6,7 @@ from django.test import TestCase
 from allianceauth.tests.auth_utils import AuthUtils
 
 # AA Ledger
-from ledger.models.corporationaudit import CorporationAudit
+from ledger.models.corporationaudit import CorporationOwner
 from ledger.tests.testdata.generate_corporationaudit import (
     create_corporationaudit_from_user,
     create_user_from_evecharacter,
@@ -32,7 +32,7 @@ class TestCorporationAuditModel(TestCase):
         cls.audit2 = create_corporationaudit_from_user(cls.user2)
 
     def test_str(self):
-        expected_str = CorporationAudit.objects.get(id=self.audit.pk)
+        expected_str = CorporationOwner.objects.get(id=self.audit.pk)
         self.assertEqual(self.audit, expected_str)
 
     def test_get_esi_scopes(self):
@@ -54,7 +54,7 @@ class TestCorporationAuditModel(TestCase):
         )
 
     def test_access_no_perms(self):
-        corporation = CorporationAudit.objects.visible_to(self.user)
+        corporation = CorporationOwner.objects.visible_to(self.user)
         self.assertNotIn(self.audit, corporation)
         self.assertNotIn(self.audit2, corporation)
 
@@ -63,6 +63,6 @@ class TestCorporationAuditModel(TestCase):
             "ledger.advanced_access", self.user
         )
         self.user.refresh_from_db()
-        corporation = CorporationAudit.objects.visible_to(self.user)
+        corporation = CorporationOwner.objects.visible_to(self.user)
         self.assertIn(self.audit, corporation)
         self.assertNotIn(self.audit2, corporation)

@@ -10,7 +10,7 @@ from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
 # AA Ledger
-from ledger.models.corporationaudit import CorporationAudit
+from ledger.models.corporationaudit import CorporationOwner
 from ledger.tests.testdata.generate_corporationaudit import (
     create_user_from_evecharacter,
 )
@@ -63,7 +63,7 @@ class TestAddCorpView(TestCase):
         self.assertTrue(mock_tasks.update_corporation.apply_async.called)
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(
-            CorporationAudit.objects.filter(
+            CorporationOwner.objects.filter(
                 eve_corporation__corporation_id=2001
             ).exists()
         )

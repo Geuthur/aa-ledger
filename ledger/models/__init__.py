@@ -1,10 +1,10 @@
 from .characteraudit import (
-    CharacterAudit,
     CharacterMiningLedger,
+    CharacterOwner,
     CharacterWalletJournalEntry,
 )
 from .corporationaudit import (
-    CorporationAudit,
+    CorporationOwner,
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
 )

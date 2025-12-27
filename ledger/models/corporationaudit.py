@@ -24,7 +24,11 @@ from ledger.managers.corporation_journal_manager import (
 )
 from ledger.models.characteraudit import WalletJournalEntry
 from ledger.models.general import (
-    AuditBase,
+    UpdateStatusBaseModel,
+)
+from ledger.models.helpers.update_manager import (
+    CorporationUpdateSection,
+    UpdateManager,
     UpdateStatus,
 )
 from ledger.providers import esi
@@ -32,23 +36,17 @@ from ledger.providers import esi
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
-class CorporationAudit(AuditBase):
+class CorporationOwner(models.Model):
     """A model to store corporation information."""
 
-    class UpdateSection(models.TextChoices):
-        WALLET_DIVISION_NAMES = "wallet_division_names", _("Divisions Names")
-        WALLET_DIVISION = "wallet_division", _("Divisions")
-        WALLET_JOURNAL = "wallet_journal", _("Wallet Journal")
+    class Meta:
+        default_permissions = ()
+        permissions = (
+            ("corp_audit_manager", "Has Access to own Corporations."),
+            ("corp_audit_admin_manager", "Has access to all Corporations."),
+        )
 
-        @classmethod
-        def get_sections(cls) -> list[str]:
-            """Return list of section values."""
-            return [choice.value for choice in cls]
-
-        @property
-        def method_name(self) -> str:
-            """Return method name for this section."""
-            return f"update_{self.value}"
+    objects: CorporationAuditManager = CorporationAuditManager()
 
     corporation_name = models.CharField(max_length=100, null=True, default=None)
 
@@ -60,20 +58,11 @@ class CorporationAudit(AuditBase):
         related_name="ledger_corporationaudit",
     )
 
-    objects = CorporationAuditManager()
-
     def __str__(self) -> str:
         try:
             return f"{self.eve_corporation.corporation_name} ({self.id})"
         except AttributeError:
             return f"{self.eve_corporation} ({self.id})"
-
-    class Meta:
-        default_permissions = ()
-        permissions = (
-            ("corp_audit_manager", "Has Access to own Corporations."),
-            ("corp_audit_admin_manager", "Has access to all Corporations."),
-        )
 
     @classmethod
     def get_esi_scopes(cls) -> list[str]:
@@ -93,14 +82,14 @@ class CorporationAudit(AuditBase):
         ]
 
     @property
-    def get_status(self) -> UpdateStatus:
+    def get_status(self) -> UpdateStatusBaseModel:
         """Get the status of this corporation."""
         if self.active is False:
-            return self.UpdateStatus.DISABLED
+            return UpdateStatus.DISABLED
 
-        qs = CorporationAudit.objects.filter(pk=self.pk).annotate_total_update_status()
+        qs = CorporationOwner.objects.filter(pk=self.pk).annotate_total_update_status()
         total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
-        return self.UpdateStatus(total_update_status)
+        return UpdateStatus(total_update_status)
 
     @property
     def update_status(self):
@@ -138,6 +127,15 @@ class CorporationAudit(AuditBase):
                 )
         return False
 
+    @property
+    def update_manager(self):
+        """Return the Update Manager helper for this corporation."""
+        return UpdateManager(
+            owner=self,
+            update_section=CorporationUpdateSection,
+            update_status=CorporationUpdateStatus,
+        )
+
     def update_wallet_division_names(self, force_refresh: bool) -> None:
         return self.ledger_corporation_division.update_or_create_esi_names(
             self, force_refresh=force_refresh
@@ -155,10 +153,13 @@ class CorporationAudit(AuditBase):
 
 
 class CorporationWalletDivision(models.Model):
-    objects = CorporationDivisionManager()
+    objects: CorporationDivisionManager = CorporationDivisionManager()
+
+    class Meta:
+        default_permissions = ()
 
     corporation = models.ForeignKey(
-        CorporationAudit,
+        CorporationOwner,
         on_delete=models.CASCADE,
         related_name="ledger_corporation_division",
     )
@@ -166,39 +167,50 @@ class CorporationWalletDivision(models.Model):
     balance = models.DecimalField(max_digits=20, decimal_places=2)
     division_id = models.IntegerField()
 
-    class Meta:
-        default_permissions = ()
-
 
 class CorporationWalletJournalEntry(WalletJournalEntry):
+
+    objects: CorporationWalletManager = CorporationWalletManager()
+
+    # pylint: disable=duplicate-code
+    class Meta:
+        indexes = (
+            models.Index(fields=["division"]),
+            models.Index(fields=["date"]),
+            models.Index(fields=["amount"]),
+            models.Index(fields=["entry_id"]),
+            models.Index(fields=["ref_type"]),
+            models.Index(fields=["first_party"]),
+            models.Index(fields=["second_party"]),
+        )
+        default_permissions = ()
+
     division = models.ForeignKey(
         CorporationWalletDivision,
         on_delete=models.CASCADE,
         related_name="ledger_corporation_journal",
     )
 
-    objects = CorporationWalletManager()
-
     def __str__(self):
         return f"Corporation Wallet Journal: RefType: {self.ref_type} - {self.first_party.name} -> {self.second_party.name}: {self.amount} ISK"
 
     @classmethod
     def get_visible(cls, user):
-        corps_vis = CorporationAudit.objects.visible_to(user)
+        corps_vis = CorporationOwner.objects.visible_to(user)
         return cls.objects.filter(division__corporation__in=corps_vis)
 
 
-class CorporationUpdateStatus(UpdateStatus):
+class CorporationUpdateStatus(UpdateStatusBaseModel):
     """A Model to track the status of the last update."""
 
-    corporation = models.ForeignKey(
-        CorporationAudit,
+    owner = models.ForeignKey(
+        CorporationOwner,
         on_delete=models.CASCADE,
         related_name="ledger_corporation_update_status",
     )
     section = models.CharField(
-        max_length=32, choices=CorporationAudit.UpdateSection.choices, db_index=True
+        max_length=32, choices=CorporationUpdateSection.choices, db_index=True
     )
 
     def __str__(self) -> str:
-        return f"{self.corporation} - {self.section} - {self.is_success}"
+        return f"{self.owner} - {self.section} - {self.is_success}"

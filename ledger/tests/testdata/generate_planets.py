@@ -8,7 +8,7 @@ from pathlib import Path
 from eveuniverse.models import EvePlanet
 
 # AA Ledger
-from ledger.models.characteraudit import CharacterAudit
+from ledger.models.characteraudit import CharacterOwner
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
 
@@ -21,11 +21,11 @@ _planetary_data = _load_planetary_data()
 
 
 def create_character_planet(
-    characteraudit: CharacterAudit, planet_id: int, **kwargs
+    characterowner: CharacterOwner, planet_id: int, **kwargs
 ) -> CharacterPlanet:
-    """Create a CharacterPlanet from CharacterAudit and planet_id."""
+    """Create a CharacterPlanet from CharacterOwner and planet_id."""
     params = {
-        "character": characteraudit,
+        "character": characterowner,
         "eve_planet": EvePlanet.objects.get(id=planet_id),
     }
     params.update(kwargs)

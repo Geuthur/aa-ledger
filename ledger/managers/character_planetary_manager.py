@@ -18,7 +18,8 @@ from eveuniverse.models import EvePlanet, EveType
 from ledger import __title__
 from ledger.app_settings import LEDGER_BULK_BATCH_SIZE
 from ledger.decorators import log_timing
-from ledger.models.characteraudit import CharacterAudit
+from ledger.models.characteraudit import CharacterOwner
+from ledger.models.helpers.update_manager import CharacterUpdateSection
 from ledger.providers import esi
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -49,42 +50,42 @@ def to_json_serializable(data):
 class CharacterPlanetManager(models.Manager["PlanetContext"]):
     @log_timing(logger)
     def update_or_create_esi(
-        self, character: CharacterAudit, force_refresh: bool = False
+        self, owner: CharacterOwner, force_refresh: bool = False
     ) -> "UpdateSectionResult":
         """Update or Create a planets entry from ESI data."""
-        return character.update_section_if_changed(
-            section=character.UpdateSection.PLANETS,
+        return owner.update_manager.update_section_if_changed(
+            section=CharacterUpdateSection.PLANETS,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
         )
 
     def _fetch_esi_data(
-        self, audit: CharacterAudit, force_refresh: bool = False
+        self, owner: CharacterOwner, force_refresh: bool = False
     ) -> None:
         """Fetch planetary entries from ESI data."""
         req_scopes = ["esi-planets.manage_planets.v1"]
-        token = audit.get_token(scopes=req_scopes)
+        token = owner.get_token(scopes=req_scopes)
 
         # Make the ESI request
         operation = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanets(
-            character_id=audit.eve_character.character_id,
+            character_id=owner.eve_character.character_id,
             token=token,
         )
 
         planets_items = operation.results(force_refresh=force_refresh)
 
-        self._update_or_create_objs(character=audit, objs=planets_items)
+        self._update_or_create_objs(owner=owner, objs=planets_items)
 
     @transaction.atomic()
     def _update_or_create_objs(
-        self, character: CharacterAudit, objs: list["PlanetGetItem"]
+        self, owner: CharacterOwner, objs: list["PlanetGetItem"]
     ) -> None:
         """Update or Create planets entries from objs data."""
         # pylint: disable=import-outside-toplevel
         # AA Ledger
         from ledger.models.planetary import CharacterPlanetDetails
 
-        _current_planets = self.filter(character=character).values_list(
+        _current_planets = self.filter(character=owner).values_list(
             "eve_planet_id", flat=True
         )
 
@@ -97,7 +98,7 @@ class CharacterPlanetManager(models.Manager["PlanetContext"]):
             _planets_ids.append(eve_planet.id)
 
             try:
-                e_planet = self.get(character=character, eve_planet=eve_planet)
+                e_planet = self.get(character=owner, eve_planet=eve_planet)
                 prim_key = e_planet.id
             except self.model.DoesNotExist:
                 prim_key = None
@@ -105,7 +106,7 @@ class CharacterPlanetManager(models.Manager["PlanetContext"]):
             planet = self.model(
                 id=prim_key,
                 name=eve_planet.name,
-                character=character,
+                character=owner,
                 eve_planet=eve_planet,
                 upgrade_level=planet.upgrade_level,
                 num_pins=planet.num_pins,
@@ -127,22 +128,22 @@ class CharacterPlanetManager(models.Manager["PlanetContext"]):
 
         # Delete Planets that are no longer in the list
         obsolete_planets = set(_current_planets) - set(_planets_ids)
-        self.filter(character=character, eve_planet_id__in=obsolete_planets).delete()
+        self.filter(character=owner, eve_planet_id__in=obsolete_planets).delete()
         # Delete Planet Details that are no longer in the list
         CharacterPlanetDetails.objects.filter(
-            planet__character=character, planet__eve_planet_id__in=obsolete_planets
+            planet__character=owner, planet__eve_planet_id__in=obsolete_planets
         ).delete()
 
 
 class PlanetDetailsQuerySet(models.QuerySet):
     def update_or_create_layout(
         self,
-        character: CharacterAudit,
+        owner: CharacterOwner,
         planet: "PlanetDetailsContext",
         objs: list["PlanetDetailsItem"],
     ):
         """Update or Create Layout for a given Planet"""
-        return self._update_or_create(character=character, planet=planet, objs=objs)
+        return self._update_or_create(owner=owner, planet=planet, objs=objs)
 
     def _convert_to_dict(
         self,
@@ -156,7 +157,7 @@ class PlanetDetailsQuerySet(models.QuerySet):
 
     def _update_or_create(
         self,
-        character: CharacterAudit,
+        owner: CharacterOwner,
         planet: "PlanetDetailsContext",
         objs: list["PlanetDetailsItem"],
     ) -> tuple["PlanetDetailsContext", bool]:
@@ -171,7 +172,7 @@ class PlanetDetailsQuerySet(models.QuerySet):
 
             planetdetails, created = self.update_or_create(
                 planet=planet,
-                character=character,
+                character=owner,
                 defaults={
                     "links": links,
                     "pins": pins,
@@ -357,17 +358,17 @@ class PlanetDetailsManager(models.Manager["PlanetDetailsContext"]):
 
     @log_timing(logger)
     def update_or_create_esi(
-        self, character: CharacterAudit, force_refresh: bool = False
+        self, owner: CharacterOwner, force_refresh: bool = False
     ) -> "UpdateSectionResult":
         """Update or Create a planets details entry from ESI data."""
-        return character.update_section_if_changed(
-            section=character.UpdateSection.PLANETS_DETAILS,
+        return owner.update_manager.update_section_if_changed(
+            section=CharacterUpdateSection.PLANETS_DETAILS,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
         )
 
     def _fetch_esi_data(
-        self, audit: CharacterAudit, force_refresh: bool = False
+        self, owner: CharacterOwner, force_refresh: bool = False
     ) -> None:
         """Fetch planets details entries from ESI data."""
         # pylint: disable=import-outside-toplevel
@@ -376,9 +377,9 @@ class PlanetDetailsManager(models.Manager["PlanetDetailsContext"]):
 
         req_scopes = ["esi-planets.manage_planets.v1"]
 
-        token = audit.get_token(scopes=req_scopes)
+        token = owner.get_token(scopes=req_scopes)
 
-        planets_ids = CharacterPlanet.objects.filter(character=audit).values_list(
+        planets_ids = CharacterPlanet.objects.filter(character=owner).values_list(
             "eve_planet_id", flat=True
         )
         is_updated = False
@@ -386,7 +387,7 @@ class PlanetDetailsManager(models.Manager["PlanetDetailsContext"]):
         for planet_id in planets_ids:
             # Make the ESI request
             operation = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanetsPlanetId(
-                character_id=audit.eve_character.character_id,
+                character_id=owner.eve_character.character_id,
                 planet_id=planet_id,
                 token=token,
             )
@@ -398,7 +399,7 @@ class PlanetDetailsManager(models.Manager["PlanetDetailsContext"]):
                 continue
 
             self._update_or_create_objs(
-                character=audit,
+                owner=owner,
                 objs=planets_details_items,
                 planet_id=planet_id,
             )
@@ -409,7 +410,7 @@ class PlanetDetailsManager(models.Manager["PlanetDetailsContext"]):
     @transaction.atomic()
     def _update_or_create_objs(
         self,
-        character: CharacterAudit,
+        owner: CharacterOwner,
         objs: list["PlanetDetailsItem"],
         planet_id: int,
     ) -> None:
@@ -420,18 +421,18 @@ class PlanetDetailsManager(models.Manager["PlanetDetailsContext"]):
 
         try:
             character_planet = CharacterPlanet.objects.get(
-                character=character, eve_planet_id=planet_id
+                character=owner, eve_planet_id=planet_id
             )
         except CharacterPlanet.DoesNotExist:
             logger.warning(
                 "Planet %s not found for character %s",
                 planet_id,
-                character.eve_character.character_name,
+                owner.eve_character.character_name,
             )
             return
 
         planet_details, created = self.get_queryset().update_or_create_layout(
-            character=character,
+            owner=owner,
             planet=character_planet,
             objs=objs,
         )

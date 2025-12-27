@@ -18,6 +18,7 @@ from ledger import __title__
 from ledger.app_settings import LEDGER_BULK_BATCH_SIZE
 from ledger.decorators import log_timing
 from ledger.helpers.ref_type import RefTypeManager
+from ledger.models.helpers.update_manager import CharacterUpdateSection
 from ledger.providers import esi
 
 if TYPE_CHECKING:
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
 
     # AA Ledger
     from ledger.models.characteraudit import (
-        CharacterAudit,
+        CharacterOwner,
     )
     from ledger.models.general import UpdateSectionResult
 
@@ -346,22 +347,22 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
 class CharWalletQuerySet(CharWalletCostQueryFilter):
     @log_timing(logger)
     def update_or_create_esi(
-        self, character: "CharacterAudit", force_refresh: bool = False
+        self, owner: "CharacterOwner", force_refresh: bool = False
     ) -> "UpdateSectionResult":
         """Update or Create a wallet journal entry from ESI data."""
-        return character.update_section_if_changed(
-            section=character.UpdateSection.WALLET_JOURNAL,
+        return owner.update_manager.update_section_if_changed(
+            section=CharacterUpdateSection.WALLET_JOURNAL,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
         )
 
-    def _fetch_esi_data(self, audit: "CharacterAudit", force_refresh: bool) -> None:
+    def _fetch_esi_data(self, owner: "CharacterOwner", force_refresh: bool) -> None:
         """Fetch wallet journal entries from ESI data."""
         req_scopes = ["esi-wallet.read_character_wallet.v1"]
-        token = audit.get_token(scopes=req_scopes)
+        token = owner.get_token(scopes=req_scopes)
 
         operation = esi.client.Wallet.GetCharactersCharacterIdWalletJournal(
-            character_id=audit.eve_character.character_id,
+            character_id=owner.eve_character.character_id,
             token=token,
         )
 
@@ -369,12 +370,12 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             force_refresh=force_refresh,
         )
 
-        self._update_or_create_objs(character=audit, objs=journal_items)
+        self._update_or_create_objs(character=owner, objs=journal_items)
 
     @transaction.atomic()
     def _update_or_create_objs(
         self,
-        character: "CharacterAudit",
+        character: "CharacterOwner",
         objs: list["CharactersCharacterIdWalletJournalGetItem"],
     ) -> None:
         """Update or Create wallet journal entries from objs data."""

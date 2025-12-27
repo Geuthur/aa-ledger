@@ -17,7 +17,7 @@ from ledger import __title__
 
 # Ledger
 from ledger.helpers.core import add_info_to_context
-from ledger.models.characteraudit import CharacterAudit
+from ledger.models.characteraudit import CharacterOwner
 from ledger.tasks import (
     clear_all_etags,
     update_all_characters,
@@ -68,7 +68,7 @@ def admin(request):
             )
         character_id_input = request.POST.get("character_id")
         if character_id_input:
-            character = CharacterAudit.objects.prefetch_related(
+            character = CharacterOwner.objects.prefetch_related(
                 "ledger_update_status"
             ).get(eve_character__character_id=character_id_input)
             update_char_planets_details.apply_async(

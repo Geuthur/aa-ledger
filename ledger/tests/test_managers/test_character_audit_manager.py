@@ -3,9 +3,10 @@ from django.test import TestCase
 from django.utils import timezone
 
 # AA Ledger
-from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
+from ledger.models.characteraudit import CharacterOwner
+from ledger.models.helpers.update_manager import CharacterUpdateSection, UpdateStatus
 from ledger.tests.testdata.generate_characteraudit import (
-    add_characteraudit_character_to_user,
+    add_characterowner_character_to_user,
     create_update_status,
     create_user_from_evecharacter_with_access,
 )
@@ -26,14 +27,14 @@ class TestCharacterAuditManager(TestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
             1001,
         )
-        cls.audit = add_characteraudit_character_to_user(cls.user, 1001)
+        cls.audit = add_characterowner_character_to_user(cls.user, 1001)
 
         cls.character_ownership.delete()
 
     def test_disable_characters_with_no_ownership_should_disable(self):
         # given
-        scetions = CharacterAudit.UpdateSection.get_sections()
-        for section in scetions:
+        sections = CharacterUpdateSection.get_sections()
+        for section in sections:
             create_update_status(
                 self.audit,
                 section=section,
@@ -47,7 +48,7 @@ class TestCharacterAuditManager(TestCase):
             )
 
         # then
-        self.assertEqual(CharacterAudit.objects.disable_characters_with_no_owner(), 1)
+        self.assertEqual(CharacterOwner.objects.disable_characters_with_no_owner(), 1)
 
 
 class TestCharacterAnnotateTotalUpdateStatus(TestCase):
@@ -63,8 +64,8 @@ class TestCharacterAnnotateTotalUpdateStatus(TestCase):
 
     def test_should_be_ok(self):
         # given
-        character = add_characteraudit_character_to_user(self.user, 1001)
-        sections = CharacterAudit.UpdateSection.get_sections()
+        character = add_characterowner_character_to_user(self.user, 1001)
+        sections = CharacterUpdateSection.get_sections()
         for section in sections:
             create_update_status(
                 character,
@@ -79,16 +80,16 @@ class TestCharacterAnnotateTotalUpdateStatus(TestCase):
             )
 
         # when
-        update_status = CharacterAudit.objects.annotate_total_update_status()
+        update_status = CharacterOwner.objects.annotate_total_update_status()
         obj = update_status.first()
 
         # then
-        self.assertEqual(obj.total_update_status, CharacterAudit.UpdateStatus.OK)
+        self.assertEqual(obj.total_update_status, UpdateStatus.OK)
 
     def test_should_be_incomplete(self):
         # given
-        character = add_characteraudit_character_to_user(self.user, 1001)
-        sections = CharacterAudit.UpdateSection.get_sections()
+        character = add_characterowner_character_to_user(self.user, 1001)
+        sections = CharacterUpdateSection.get_sections()
         for section in sections[:2]:
             create_update_status(
                 character,
@@ -103,18 +104,16 @@ class TestCharacterAnnotateTotalUpdateStatus(TestCase):
             )
 
         # when
-        update_status = CharacterAudit.objects.annotate_total_update_status()
+        update_status = CharacterOwner.objects.annotate_total_update_status()
         obj = update_status.first()
 
         # then
-        self.assertEqual(
-            obj.total_update_status, CharacterAudit.UpdateStatus.INCOMPLETE
-        )
+        self.assertEqual(obj.total_update_status, UpdateStatus.INCOMPLETE)
 
     def test_should_be_token_error(self):
         # given
-        character = add_characteraudit_character_to_user(self.user, 1001)
-        sections = CharacterAudit.UpdateSection.get_sections()
+        character = add_characterowner_character_to_user(self.user, 1001)
+        sections = CharacterUpdateSection.get_sections()
         for section in sections:
             create_update_status(
                 character,
@@ -130,7 +129,7 @@ class TestCharacterAnnotateTotalUpdateStatus(TestCase):
 
         create_update_status(
             character,
-            section=CharacterAudit.UpdateSection.WALLET_JOURNAL,
+            section=CharacterUpdateSection.WALLET_JOURNAL,
             is_success=False,
             error_message="",
             has_token_error=True,
@@ -141,18 +140,16 @@ class TestCharacterAnnotateTotalUpdateStatus(TestCase):
         )
 
         # when
-        update_status = CharacterAudit.objects.annotate_total_update_status()
+        update_status = CharacterOwner.objects.annotate_total_update_status()
         obj = update_status.first()
 
         # then
-        self.assertEqual(
-            obj.total_update_status, CharacterAudit.UpdateStatus.TOKEN_ERROR
-        )
+        self.assertEqual(obj.total_update_status, UpdateStatus.TOKEN_ERROR)
 
     def test_should_be_disabled(self):
         # given
-        character = add_characteraudit_character_to_user(self.user, 1001)
-        sections = CharacterAudit.UpdateSection.get_sections()
+        character = add_characterowner_character_to_user(self.user, 1001)
+        sections = CharacterUpdateSection.get_sections()
         for section in sections:
             create_update_status(
                 character,
@@ -170,16 +167,16 @@ class TestCharacterAnnotateTotalUpdateStatus(TestCase):
         character.save()
 
         # when
-        update_status = CharacterAudit.objects.annotate_total_update_status()
+        update_status = CharacterOwner.objects.annotate_total_update_status()
         obj = update_status.first()
 
         # then
-        self.assertEqual(obj.total_update_status, CharacterAudit.UpdateStatus.DISABLED)
+        self.assertEqual(obj.total_update_status, UpdateStatus.DISABLED)
 
     def test_should_be_error(self):
         # given
-        character = add_characteraudit_character_to_user(self.user, 1001)
-        sections = CharacterAudit.UpdateSection.get_sections()
+        character = add_characterowner_character_to_user(self.user, 1001)
+        sections = CharacterUpdateSection.get_sections()
         for section in sections:
             create_update_status(
                 character,
@@ -194,8 +191,8 @@ class TestCharacterAnnotateTotalUpdateStatus(TestCase):
             )
 
         # when
-        update_status = CharacterAudit.objects.annotate_total_update_status()
+        update_status = CharacterOwner.objects.annotate_total_update_status()
         obj = update_status.first()
 
         # then
-        self.assertEqual(obj.total_update_status, CharacterAudit.UpdateStatus.ERROR)
+        self.assertEqual(obj.total_update_status, UpdateStatus.ERROR)

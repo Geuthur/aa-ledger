@@ -5,7 +5,7 @@ import inspect
 from collections.abc import Callable
 
 # Third Party
-from celery import chain, shared_task
+from celery import Task, chain, shared_task
 
 # Django
 from django.db.models import Min
@@ -22,12 +22,16 @@ from app_utils.logging import LoggerAddTag
 
 # AA Ledger
 from ledger import __title__, app_settings
-from ledger.decorators import when_esi_is_available
 from ledger.helpers import data_exporter
 from ledger.helpers.discord import send_user_notification
-from ledger.models.characteraudit import CharacterAudit
-from ledger.models.corporationaudit import CorporationAudit
+from ledger.models.characteraudit import CharacterOwner
+from ledger.models.corporationaudit import CorporationOwner
+from ledger.models.helpers.update_manager import (
+    CharacterUpdateSection,
+    CorporationUpdateSection,
+)
 from ledger.models.planetary import CharacterPlanetDetails
+from ledger.providers import retry_task_on_esi_error
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -39,17 +43,23 @@ TASK_DEFAULTS = {
     "max_retries": MAX_RETRIES_DEFAULT,
 }
 
+# Default params for tasks that need bind=True.
+TASK_DEFAULTS_BIND = {**TASK_DEFAULTS, **{"bind": True}}
+
+# Default params for tasks that need bind=True and run once only.
+TASK_DEFAULTS_BIND_ONCE = {**TASK_DEFAULTS, **{"bind": True, "base": QueueOnce}}
+
 # Default params for tasks that need run once only.
 TASK_DEFAULTS_ONCE = {**TASK_DEFAULTS, **{"base": QueueOnce}}
 
-_update_ledger_char_params = {
-    **TASK_DEFAULTS_ONCE,
-    **{"once": {"keys": ["character_pk", "force_refresh"], "graceful": True}},
+TASK_DEFAULTS_BIND_ONCE_CHARACTER = {
+    **TASK_DEFAULTS_BIND_ONCE,
+    **{"once": {"keys": ["character_pk"], "graceful": True}},
 }
 
-_update_ledger_corp_params = {
-    **TASK_DEFAULTS_ONCE,
-    **{"once": {"keys": ["corporation_pk", "force_refresh"], "graceful": True}},
+TASK_DEFAULTS_BIND_ONCE_CORPORATION = {
+    **TASK_DEFAULTS_BIND_ONCE,
+    **{"once": {"keys": ["corporation_pk"], "graceful": True}},
 }
 
 
@@ -121,12 +131,11 @@ def check_planetary_alarms(runs: int = 0):
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
-@when_esi_is_available
 def update_all_characters(runs: int = 0, force_refresh=False):
     """Update all characters"""
     # Disable characters with no owner
-    CharacterAudit.objects.disable_characters_with_no_owner()
-    characters = CharacterAudit.objects.select_related("eve_character").filter(active=1)
+    CharacterOwner.objects.disable_characters_with_no_owner()
+    characters = CharacterOwner.objects.select_related("eve_character").filter(active=1)
     for char in characters:
         update_character.apply_async(
             args=[char.pk], kwargs={"force_refresh": force_refresh}
@@ -136,12 +145,11 @@ def update_all_characters(runs: int = 0, force_refresh=False):
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
-@when_esi_is_available
 def update_subset_characters(subset=2, min_runs=50, max_runs=500, force_refresh=False):
     """Update a batch of characters to prevent overload ESI"""
     # Disable characters with no owner
-    CharacterAudit.objects.disable_characters_with_no_owner()
-    total_characters = CharacterAudit.objects.filter(active=1).count()
+    CharacterOwner.objects.disable_characters_with_no_owner()
+    total_characters = CharacterOwner.objects.filter(active=1).count()
     characters_count = min(max(total_characters // subset, min_runs), total_characters)
 
     # Limit the number of characters to update to prevent overload ESI
@@ -149,7 +157,7 @@ def update_subset_characters(subset=2, min_runs=50, max_runs=500, force_refresh=
 
     # Annotate characters with the oldest `last_run_finished` across all update sections
     characters = (
-        CharacterAudit.objects.filter(active=1)
+        CharacterOwner.objects.filter(active=1)
         .annotate(oldest_update=Min("ledger_update_status__last_run_finished_at"))
         .order_by("oldest_update")
         .distinct()[:characters_count]
@@ -162,10 +170,20 @@ def update_subset_characters(subset=2, min_runs=50, max_runs=500, force_refresh=
     logger.debug("Queued %s Character Audit Tasks", len(characters))
 
 
-@shared_task(**TASK_DEFAULTS_ONCE)
-@when_esi_is_available
-def update_character(character_pk: int, force_refresh=False):
-    character = CharacterAudit.objects.prefetch_related("ledger_update_status").get(
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_CHARACTER)
+def update_character(
+    self: Task, character_pk: int, force_refresh=False
+) -> bool:  # pylint: disable=unused-argument
+    """Update a character owner
+
+    Args:
+        character_pk (int): Primary key of the CharacterOwner to update
+        force_refresh (bool): Whether to force a refresh of all sections
+
+    Returns:
+        True if the task was successful, False otherwise
+    """
+    character = CharacterOwner.objects.prefetch_related("ledger_update_status").get(
         pk=character_pk
     )
 
@@ -179,15 +197,15 @@ def update_character(character_pk: int, force_refresh=False):
 
     if force_refresh:
         # Reset Token Error if we are forcing a refresh
-        character.reset_has_token_error()
+        character.update_manager.reset_has_token_error()
 
-    needs_update = character.calc_update_needed()
+    needs_update = character.update_manager.calc_update_needed()
 
     if not needs_update and not force_refresh:
         logger.info("No updates needed for %s", character.eve_character.character_name)
-        return
+        return False
 
-    sections = character.UpdateSection.get_sections()
+    sections = CharacterUpdateSection.get_sections()
 
     for section in sections:
         # Skip sections that are not in the needs_update list
@@ -211,59 +229,62 @@ def update_character(character_pk: int, force_refresh=False):
         len(que),
         character.eve_character.character_name,
     )
+    return True
 
 
-@shared_task(**_update_ledger_char_params)
-@when_esi_is_available
-def update_char_wallet_journal(character_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_CHARACTER)
+def update_char_wallet_journal(self: Task, character_pk: int, force_refresh: bool):
     return _update_character_section(
-        character_pk,
-        section=CharacterAudit.UpdateSection.WALLET_JOURNAL,
+        task=self,
+        character_pk=character_pk,
+        section=CharacterUpdateSection.WALLET_JOURNAL,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**_update_ledger_char_params)
-@when_esi_is_available
-def update_char_mining_ledger(character_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_CHARACTER)
+def update_char_mining_ledger(self: Task, character_pk: int, force_refresh: bool):
     return _update_character_section(
-        character_pk,
-        section=CharacterAudit.UpdateSection.MINING_LEDGER,
+        task=self,
+        character_pk=character_pk,
+        section=CharacterUpdateSection.MINING_LEDGER,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**_update_ledger_char_params)
-@when_esi_is_available
-def update_char_planets(character_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_CHARACTER)
+def update_char_planets(self: Task, character_pk: int, force_refresh: bool):
     logger.debug("Updating Planet Data for %s", character_pk)
     return _update_character_section(
-        character_pk,
-        section=CharacterAudit.UpdateSection.PLANETS,
+        task=self,
+        character_pk=character_pk,
+        section=CharacterUpdateSection.PLANETS,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**_update_ledger_char_params)
-@when_esi_is_available
-def update_char_planets_details(character_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_CHARACTER)
+def update_char_planets_details(self: Task, character_pk: int, force_refresh: bool):
     logger.debug("Updating Planet Details for %s", character_pk)
     return _update_character_section(
-        character_pk,
-        section=CharacterAudit.UpdateSection.PLANETS_DETAILS,
+        task=self,
+        character_pk=character_pk,
+        section=CharacterUpdateSection.PLANETS_DETAILS,
         force_refresh=force_refresh,
     )
 
 
-def _update_character_section(character_pk: int, section: str, force_refresh: bool):
+def _update_character_section(
+    task: Task, character_pk: int, section: str, force_refresh: bool
+):
     """Update a specific section of the character audit."""
-    section = CharacterAudit.UpdateSection(section)
-    character = CharacterAudit.objects.get(pk=character_pk)
+    section = CharacterUpdateSection(section)
+    character = CharacterOwner.objects.get(pk=character_pk)
     logger.debug(
         "Updating %s for %s", section.label, character.eve_character.character_name
     )
 
-    character.reset_update_status(section)
+    character.update_manager.reset_update_status(section)
 
     method: Callable = getattr(character, section.method_name)
     method_signature = inspect.signature(method)
@@ -272,15 +293,18 @@ def _update_character_section(character_pk: int, section: str, force_refresh: bo
         kwargs = {"force_refresh": force_refresh}
     else:
         kwargs = {}
-    result = character.perform_update_status(section, method, **kwargs)
-    character.update_section_log(section, result)
+
+    with retry_task_on_esi_error(task):
+        result = character.update_manager.perform_update_status(
+            section, method, **kwargs
+        )
+    character.update_manager.update_section_log(section, result)
 
 
 # Corporation Audit - Tasks
 @shared_task(**TASK_DEFAULTS_ONCE)
-@when_esi_is_available
 def update_all_corporations(runs: int = 0, force_refresh=False):
-    corps = CorporationAudit.objects.filter(active=1)
+    corps = CorporationOwner.objects.filter(active=1)
     for corp in corps:
         update_corporation.apply_async(
             args=[corp.pk], kwargs={"force_refresh": force_refresh}
@@ -290,12 +314,11 @@ def update_all_corporations(runs: int = 0, force_refresh=False):
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
-@when_esi_is_available
 def update_subset_corporations(
     subset=5, min_runs=20, max_runs=200, force_refresh=False
 ):
     """Update a batch of corporations to prevent overload ESI"""
-    total_corporations = CorporationAudit.objects.filter(active=1).count()
+    total_corporations = CorporationOwner.objects.filter(active=1).count()
     corporations_count = min(
         max(total_corporations // subset, min_runs), total_corporations
     )
@@ -305,7 +328,7 @@ def update_subset_corporations(
 
     # Annotate corporations with the oldest `last_run_finished` across all update sections
     corporations = (
-        CorporationAudit.objects.filter(active=1)
+        CorporationOwner.objects.filter(active=1)
         .annotate(
             oldest_update=Min("ledger_corporation_update_status__last_run_finished_at")
         )
@@ -320,12 +343,20 @@ def update_subset_corporations(
     logger.debug("Queued %s Corporation Audit Tasks", len(corporations))
 
 
-@shared_task(**TASK_DEFAULTS_ONCE)
-@when_esi_is_available
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_CORPORATION)
 def update_corporation(
-    corporation_pk, force_refresh=False
-):  # pylint: disable=unused-argument
-    corporation = CorporationAudit.objects.prefetch_related(
+    self: Task, corporation_pk, force_refresh=False
+) -> bool:  # pylint: disable=unused-argument
+    """Update a corporation owner
+
+    Args:
+        corporation_pk (int): Primary key of the CorporationOwner to update
+        force_refresh (bool): Whether to force a refresh of all sections
+
+    Returns:
+        True if the task was successful, False otherwise
+    """
+    corporation = CorporationOwner.objects.prefetch_related(
         "ledger_corporation_update_status"
     ).get(pk=corporation_pk)
 
@@ -339,17 +370,17 @@ def update_corporation(
 
     if force_refresh:
         # Reset Token Error if we are forcing a refresh
-        corporation.reset_has_token_error()
+        corporation.update_manager.reset_has_token_error()
 
-    needs_update = corporation.calc_update_needed()
+    needs_update = corporation.update_manager.calc_update_needed()
 
     if not needs_update and not force_refresh:
         logger.info(
             "No updates needed for %s", corporation.eve_corporation.corporation_name
         )
-        return
+        return False
 
-    sections = corporation.UpdateSection.get_sections()
+    sections = CorporationUpdateSection.get_sections()
 
     for section in sections:
         # Skip sections that are not in the needs_update list
@@ -373,49 +404,54 @@ def update_corporation(
         len(que),
         corporation.eve_corporation.corporation_name,
     )
+    return True
 
 
-@shared_task(**_update_ledger_corp_params)
-@when_esi_is_available
-def update_corp_wallet_division_names(corporation_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_CORPORATION)
+def update_corp_wallet_division_names(
+    self: Task, corporation_pk: int, force_refresh: bool
+):
     return _update_corporation_section(
-        corporation_pk,
-        section=CorporationAudit.UpdateSection.WALLET_DIVISION_NAMES,
+        task=self,
+        corporation_pk=corporation_pk,
+        section=CorporationUpdateSection.WALLET_DIVISION_NAMES,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**_update_ledger_corp_params)
-@when_esi_is_available
-def update_corp_wallet_division(corporation_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_CORPORATION)
+def update_corp_wallet_division(self: Task, corporation_pk: int, force_refresh: bool):
     return _update_corporation_section(
-        corporation_pk,
-        section=CorporationAudit.UpdateSection.WALLET_DIVISION,
+        task=self,
+        corporation_pk=corporation_pk,
+        section=CorporationUpdateSection.WALLET_DIVISION,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**_update_ledger_corp_params)
-@when_esi_is_available
-def update_corp_wallet_journal(corporation_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_CORPORATION)
+def update_corp_wallet_journal(self: Task, corporation_pk: int, force_refresh: bool):
     return _update_corporation_section(
-        corporation_pk,
-        section=CorporationAudit.UpdateSection.WALLET_JOURNAL,
+        task=self,
+        corporation_pk=corporation_pk,
+        section=CorporationUpdateSection.WALLET_JOURNAL,
         force_refresh=force_refresh,
     )
 
 
-def _update_corporation_section(corporation_pk: int, section: str, force_refresh: bool):
+def _update_corporation_section(
+    task: Task, corporation_pk: int, section: str, force_refresh: bool
+):
     """Update a specific section of the character audit."""
-    section = CorporationAudit.UpdateSection(section)
-    corporation = CorporationAudit.objects.get(pk=corporation_pk)
+    section = CorporationUpdateSection(section)
+    corporation = CorporationOwner.objects.get(pk=corporation_pk)
     logger.debug(
         "Updating %s for %s",
         section.label,
         corporation.eve_corporation.corporation_name,
     )
 
-    corporation.reset_update_status(section)
+    corporation.update_manager.reset_update_status(section)
 
     method: Callable = getattr(corporation, section.method_name)
     method_signature = inspect.signature(method)
@@ -425,8 +461,12 @@ def _update_corporation_section(corporation_pk: int, section: str, force_refresh
     else:
         kwargs = {}
 
-    result = corporation.perform_update_status(section, method, **kwargs)
-    corporation.update_section_log(section, result)
+    with retry_task_on_esi_error(task):
+        result = corporation.update_manager.perform_update_status(
+            section, method, **kwargs
+        )
+
+    corporation.update_manager.update_section_log(section, result)
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)

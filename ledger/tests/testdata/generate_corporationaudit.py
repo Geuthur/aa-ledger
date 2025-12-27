@@ -10,31 +10,31 @@ from app_utils.testing import (
 )
 
 # AA Ledger
-from ledger.models.corporationaudit import CorporationAudit, CorporationUpdateStatus
+from ledger.models.corporationaudit import CorporationOwner, CorporationUpdateStatus
 from ledger.tests.testdata.generate_characteraudit import (
     add_auth_character_to_user,
     create_user_from_evecharacter_with_access,
 )
 
 
-def create_corporationaudit(eve_character: EveCharacter, **kwargs) -> CorporationAudit:
+def create_corporationaudit(eve_character: EveCharacter, **kwargs) -> CorporationOwner:
     """Create a LedgerAudit Corporation from EveCharacter"""
     params = {
         "corporation_name": eve_character.corporation_name,
         "eve_corporation": eve_character.corporation,
     }
     params.update(kwargs)
-    corporation = CorporationAudit(**params)
+    corporation = CorporationOwner(**params)
     corporation.save()
     return corporation
 
 
 def create_corporation_update_status(
-    corporation_audit: CorporationAudit, **kwargs
+    corporation_owner: CorporationOwner, **kwargs
 ) -> CorporationUpdateStatus:
-    """Create a Update Status for a Character Audit"""
+    """Create a Update Status for a Character Owner"""
     params = {
-        "corporation": corporation_audit,
+        "owner": corporation_owner,
     }
     params.update(kwargs)
     update_status = CorporationUpdateStatus(**params)
@@ -42,7 +42,7 @@ def create_corporation_update_status(
     return update_status
 
 
-def create_corporationaudit_from_user(user: User, **kwargs) -> CorporationAudit:
+def create_corporationaudit_from_user(user: User, **kwargs) -> CorporationOwner:
     """Create a Character Audit from a user"""
     eve_character = user.profile.main_character
     if not eve_character:
@@ -54,7 +54,7 @@ def create_corporationaudit_from_user(user: User, **kwargs) -> CorporationAudit:
 
 def create_corporationaudit_from_evecharacter(
     character_id: int, **kwargs
-) -> CorporationAudit:
+) -> CorporationOwner:
     """Create a Audit Character from a existing EveCharacter"""
 
     _, character_ownership = create_user_from_evecharacter_with_access(
@@ -65,7 +65,7 @@ def create_corporationaudit_from_evecharacter(
 
 def add_corporationaudit_corporation_to_user(
     user: User, character_id: int, disconnect_signals: bool = True, **kwargs
-) -> CorporationAudit:
+) -> CorporationOwner:
     character_ownership = add_auth_character_to_user(
         user,
         character_id,
