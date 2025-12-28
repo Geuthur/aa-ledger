@@ -23,8 +23,7 @@ Section Order:
 
 ### Changed
 
-[CHANGE] remove `allianceauth_app_utils` dependency & Refactor Tests
-
+- Update ESI compatibility date to 2025-12-16
 - dependency `django-eveuniverse` set to `>=1.6,<2`
 - dependency `django-ninja` set to `>=1.5,<2`
 - Refactor Test Enviroment
