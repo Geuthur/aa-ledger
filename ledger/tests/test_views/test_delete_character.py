@@ -10,7 +10,7 @@ from django.urls import reverse
 # AA Ledger
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.utils import (
-    add_owner_to_user,
+    create_owner_from_user,
 )
 from ledger.views.character.character_ledger import character_delete
 
@@ -21,7 +21,7 @@ class TestDeleteCharacterView(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = add_owner_to_user(cls.user, 1001)
+        cls.audit = create_owner_from_user(cls.user, owner_type="character")
 
     def test_delete_character(self):
         """

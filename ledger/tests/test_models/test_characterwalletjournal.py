@@ -5,7 +5,7 @@ from django.utils import timezone
 from ledger.models.general import EveEntity
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.utils import (
-    add_owner_to_user,
+    create_owner_from_user,
     create_wallet_journal_entry,
 )
 
@@ -16,9 +16,7 @@ class TestCharacterWalletJournalModel(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = add_owner_to_user(
-            cls.user, cls.user_character.character.character_id
-        )
+        cls.audit = create_owner_from_user(cls.user, owner_type="character")
         cls.eve_character_first_party = EveEntity.objects.get(eve_id=1001)
         cls.eve_character_second_party = EveEntity.objects.get(eve_id=1002)
         cls.journal_entry = create_wallet_journal_entry(
@@ -52,7 +50,6 @@ class TestCharacterWalletJournalModel(LedgerTestCase):
 
     def test_get_visible_should_get_list_with_entries(self):
         """Test get_visible method with entries."""
-        print(list(self.journal_entry.get_visible(self.user)))
         self.assertEqual(
             list(self.journal_entry.get_visible(self.user)), [self.journal_entry]
         )

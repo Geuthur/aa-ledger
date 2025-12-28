@@ -11,7 +11,7 @@ from django.urls import reverse
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.utils import (
     add_new_permission_to_user,
-    add_owner_to_user,
+    create_owner_from_user,
 )
 from ledger.views import index
 from ledger.views.alliance import alliance_ledger
@@ -159,9 +159,8 @@ class TestViewCharacterLedgerAccess(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.owner = add_owner_to_user(
+        cls.owner = create_owner_from_user(
             user=cls.user,
-            character_id=cls.user_character.character.character_id,
             owner_type="character",
         )
 
@@ -355,9 +354,8 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = add_owner_to_user(
+        cls.audit = create_owner_from_user(
             user=cls.user,
-            character_id=cls.user_character.character.character_id,
             owner_type="corporation",
         )
         cls.user = add_new_permission_to_user(cls.user, "ledger.advanced_access")
@@ -587,7 +585,7 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
         This test verifies that a user without permission is redirected and shown an error message when accessing corporation administration.
         """
         # Test Data
-        add_owner_to_user(self.user2, character_id=1002, owner_type="corporation")
+        create_owner_from_user(self.user2, owner_type="corporation")
         request = self.factory.get(
             reverse(
                 "ledger:corporation_administration", kwargs={"corporation_id": 2002}
@@ -700,11 +698,9 @@ class TestViewAllianceLedgerAccess(LedgerTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.audit = add_owner_to_user(
-            user=cls.user, character_id=1001, owner_type="corporation"
-        )
-        cls.audit_admin = add_owner_to_user(
-            user=cls.user2, character_id=1002, owner_type="corporation"
+        cls.audit = create_owner_from_user(user=cls.user, owner_type="corporation")
+        cls.audit_admin = create_owner_from_user(
+            user=cls.user2, owner_type="corporation"
         )
         cls.user = add_new_permission_to_user(cls.user, "ledger.advanced_access")
         cls.user2 = add_new_permission_to_user(cls.user2, "ledger.advanced_access")
@@ -968,9 +964,8 @@ class TestViewPlanetaryLedgerAccess(LedgerTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.audit = add_owner_to_user(
+        cls.audit = create_owner_from_user(
             user=cls.user,
-            character_id=cls.user_character.character.character_id,
         )
         cls.user = add_new_permission_to_user(cls.user, "ledger.advanced_access")
 

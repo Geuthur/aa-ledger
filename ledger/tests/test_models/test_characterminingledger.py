@@ -12,8 +12,8 @@ from eveuniverse.models import EveMarketPrice, EveSolarSystem, EveType
 from ledger.models.characteraudit import CharacterMiningLedger
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.utils import (
-    add_owner_to_user,
     create_miningledger,
+    create_owner_from_user,
 )
 
 MODULE_PATH = "ledger.models.characteraudit"
@@ -23,9 +23,7 @@ class TestCharacterMiningLedgerModel(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = add_owner_to_user(
-            cls.user, cls.user_character.character.character_id
-        )
+        cls.audit = create_owner_from_user(cls.user, owner_type="character")
         cls.eve_type = EveType.objects.get(id=17425)
         cls.eve_system = EveSolarSystem.objects.get(id=30004783)
 

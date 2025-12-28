@@ -12,7 +12,7 @@ from django.urls import reverse
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.utils import (
     add_new_permission_to_user,
-    add_owner_to_user,
+    create_owner_from_user,
 )
 from ledger.views.corporation.corporation_ledger import corporation_delete
 
@@ -23,9 +23,8 @@ class TestDeleteCorporationView(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = add_owner_to_user(
+        cls.audit = create_owner_from_user(
             user=cls.user,
-            character_id=cls.user_character.character.character_id,
             owner_type="corporation",
         )
 

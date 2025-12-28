@@ -11,7 +11,7 @@ from ledger.models.characteraudit import (
 from ledger.models.helpers.update_manager import UpdateStatus
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.utils import (
-    add_owner_to_user,
+    create_owner_from_user,
     create_update_status,
 )
 
@@ -23,9 +23,7 @@ class TestCharacterWalletJournalModel(LedgerTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.owner = add_owner_to_user(
-            cls.user, cls.user_character.character.character_id
-        )
+        cls.owner = create_owner_from_user(cls.user, owner_type="character")
         sections = CharacterUpdateSection.get_sections()
         for section in sections:
             create_update_status(
