@@ -26,6 +26,9 @@ if TYPE_CHECKING:
     from ledger.models.characteraudit import (
         CharacterOwner,
     )
+    from ledger.models.characteraudit import (
+        CharacterWalletJournalEntry as CharacterWalletJournalEntryContext,
+    )
     from ledger.models.general import UpdateSectionResult
 
 
@@ -230,7 +233,7 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         )["total"]
 
 
-class CharWalletManager(models.Manager):
+class CharWalletManager(models.Manager["CharacterWalletJournalEntryContext"]):
     def get_queryset(self) -> CharWalletQuerySet:
         return CharWalletQuerySet(self.model, using=self._db)
 
