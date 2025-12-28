@@ -31,7 +31,7 @@ LEDGER_PRICE_PERCENTAGE = getattr(settings, "LEDGER_PRICE_PERCENTAGE", 0.9)
 # Ledger Cache System
 LEDGER_CACHE_STALE = 60 * 60 * 168  # 168 hours
 LEDGER_CACHE_KEY = "LEDGER"
-LEDGER_CACHE_ENABLED = True
+LEDGER_CACHE_ENABLED = getattr(settings, "LEDGER_CACHE_ENABLED", True)
 
 # Maximum Number of Objects processed per run of DJANGO Batch Method
 # Controls how many database records are inserted in a single batch operation.
