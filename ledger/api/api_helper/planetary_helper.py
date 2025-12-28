@@ -6,11 +6,6 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
-from allianceauth.eveonline.evelinks.eveimageserver import (
-    character_portrait_url,
-    type_icon_url,
-    type_render_url,
-)
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -18,6 +13,7 @@ from eveuniverse.models import EveType
 
 # AA Ledger
 from ledger import __title__
+from ledger.helpers.eveonline import get_icon_render_url
 from ledger.models.planetary import CharacterPlanetDetails
 from ledger.providers import AppLogger
 
@@ -356,54 +352,3 @@ def generate_progressbar(percentage: float | None) -> str:
         </div>
     """
     return progressbar
-
-
-def get_character_render_url(
-    character_id: int, size: int = 32, character_name: str = "", as_html: bool = False
-) -> str:
-    """Get the character render for a character ID."""
-
-    render_url = character_portrait_url(character_id=character_id, size=size)
-
-    if as_html:
-        render_html = format_html(
-            '<img class="type-render rounded-circle" data-bs-tooltip="aa-ledger" src="{}" title="{}">',
-            render_url,
-            character_name,
-        )
-        return render_html
-    return render_url
-
-
-def get_type_render_url(
-    type_id: int, size: int = 32, type_name: str = "", as_html: bool = False
-) -> str:
-    """Get the type render for a type ID."""
-
-    render_url = type_render_url(type_id=type_id, size=size)
-
-    if as_html:
-        render_html = format_html(
-            '<img class="type-render rounded-circle" data-bs-tooltip="aa-ledger" src="{}" title="{}">',
-            render_url,
-            type_name,
-        )
-        return render_html
-    return render_url
-
-
-def get_icon_render_url(
-    type_id: int, size: int = 32, type_name: str = "", as_html: bool = False
-) -> str:
-    """Get the icon render for a type ID."""
-
-    render_url = type_icon_url(type_id=type_id, size=size)
-
-    if as_html:
-        render_html = format_html(
-            '<img class="type-render rounded-circle" data-bs-tooltip="aa-ledger" src="{}" title="{}">',
-            render_url,
-            type_name,
-        )
-        return render_html
-    return render_url

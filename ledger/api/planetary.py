@@ -24,12 +24,9 @@ from ledger.api.api_helper.planetary_helper import (
     generate_is_active_icon,
     generate_is_notification_icon,
     generate_progressbar,
-    get_character_render_url,
     get_factories_info,
     get_factory_info,
-    get_icon_render_url,
     get_storage_info,
-    get_type_render_url,
 )
 from ledger.api.helpers import get_alts_queryset, get_characterowner_or_none
 from ledger.api.schema import (
@@ -38,6 +35,11 @@ from ledger.api.schema import (
     OwnerSchema,
     PlanetSchema,
     ProgressBarSchema,
+)
+from ledger.helpers.eveonline import (
+    get_character_portrait_url,
+    get_icon_render_url,
+    get_type_render_url,
 )
 from ledger.models.planetary import CharacterPlanetDetails
 from ledger.providers import AppLogger
@@ -113,7 +115,7 @@ class PlanetaryApiEndpoints:
                     owner=OwnerSchema(
                         character_id=details.planet.character.eve_character.character_id,
                         character_name=details.planet.character.eve_character.character_name,
-                        icon=get_character_render_url(
+                        icon=get_character_portrait_url(
                             character_id=details.planet.character.eve_character.character_id,
                             character_name=details.planet.character.eve_character.character_name,
                             as_html=True,

@@ -9,6 +9,7 @@ from allianceauth.eveonline.evelinks.eveimageserver import (
     alliance_logo_url,
     character_portrait_url,
     corporation_logo_url,
+    type_icon_url,
     type_render_url,
 )
 
@@ -124,6 +125,34 @@ def get_type_render_url(
     if as_html:
         render_html = format_html(
             '<img class="type-render rounded-circle" src="{}" alt="{}">',
+            render_url,
+            type_name,
+        )
+        return render_html
+    return render_url
+
+
+def get_icon_render_url(
+    type_id: int, size: int = 32, type_name: str = "", as_html: bool = False
+) -> str:
+    """
+    Get the icon render for a type ID.
+
+    Args:
+        type_id (int): The ID of the type.
+        size (int, optional): The size of the icon image.
+        type_name (str, optional): The name of the type.
+        as_html (bool): Whether to return the icon as an HTML img tag.
+
+    Returns:
+        str: The URL of the type icon or an HTML img tag.
+    """
+
+    render_url = type_icon_url(type_id=type_id, size=size)
+
+    if as_html:
+        render_html = format_html(
+            '<img class="type-render rounded-circle" data-bs-tooltip="aa-ledger" src="{}" title="{}">',
             render_url,
             type_name,
         )
