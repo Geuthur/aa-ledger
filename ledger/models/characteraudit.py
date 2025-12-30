@@ -6,6 +6,7 @@ Character Audit Model
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -22,6 +23,7 @@ from ledger.app_settings import (
     LEDGER_USE_COMPRESSED,
 )
 from ledger.errors import TokenDoesNotExist
+from ledger.helpers.eveonline import get_character_portrait_url
 from ledger.managers.character_audit_manager import (
     CharacterAuditManager,
 )
@@ -97,17 +99,19 @@ class CharacterOwner(models.Model):
         total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
         return UpdateStatus(total_update_status)
 
-    @property
-    def alts(self) -> models.QuerySet[EveCharacter]:
-        """Get all alts for this character."""
-        alts = EveCharacter.objects.filter(
-            character_ownership__user=self.eve_character.character_ownership.user
-        ).select_related(
-            "character_ownership",
+    @cached_property
+    def alt_ids(self) -> models.QuerySet[EveCharacter]:
+        """Get all alt IDs for this Owner."""
+        alt_ids = (
+            EveCharacter.objects.filter(
+                character_ownership__user=self.eve_character.character_ownership.user
+            )
+            .order_by("character_id")
+            .values_list("character_id", flat=True)
         )
-        return alts
+        return alt_ids
 
-    @property
+    @cached_property
     def is_orphan(self) -> bool:
         """
         Return True if this character is an orphan else False.
@@ -116,7 +120,7 @@ class CharacterOwner(models.Model):
         """
         return self.character_ownership is None
 
-    @property
+    @cached_property
     def character_ownership(self) -> bool:
         """
         Return the character ownership object of this character.
@@ -149,9 +153,26 @@ class CharacterOwner(models.Model):
     def update_status(self):
         return self.ledger_update_status
 
+    def get_portrait(self, size: int = 64, as_html: bool = False) -> str:
+        """
+        Get the character portrait URL.
+
+        Args:
+            size (int, optional): The size of the portrait.
+            as_html (bool, optional): Whether to return the portrait as an HTML img tag.
+        Returns:
+            str: The URL of the character portrait or an HTML img tag.
+        """
+        return get_character_portrait_url(
+            character_id=self.eve_character.character_id,
+            size=size,
+            character_name=self.eve_character.character_name,
+            as_html=as_html,
+        )
+
     def get_token(self, scopes=None) -> Token:
         """Get the token for this character."""
-        if self.is_orphan:
+        if self.is_orphan:  # pylint: disable=using-constant-test
             raise TokenDoesNotExist(
                 f"Character {self} is an orphan and has no token."
             ) from None
@@ -190,21 +211,7 @@ class CharacterOwner(models.Model):
 
 
 class CharacterWalletJournalEntry(WalletJournalEntry):
-    character = models.ForeignKey(
-        CharacterOwner,
-        on_delete=models.CASCADE,
-        related_name="ledger_character_journal",
-    )
-
     objects: CharWalletManager = CharWalletManager()
-
-    def __str__(self):
-        return f"Character Wallet Journal: RefType: {self.ref_type} - {self.first_party} -> {self.second_party}: {self.amount} ISK"
-
-    @classmethod
-    def get_visible(cls, user):
-        chars_vis = CharacterOwner.objects.visible_to(user)
-        return cls.objects.filter(character__in=chars_vis)
 
     class Meta:
         indexes = (
@@ -217,6 +224,20 @@ class CharacterWalletJournalEntry(WalletJournalEntry):
             models.Index(fields=["second_party"]),
         )
         default_permissions = ()
+
+    character = models.ForeignKey(
+        CharacterOwner,
+        on_delete=models.CASCADE,
+        related_name="ledger_character_journal",
+    )
+
+    def __str__(self):
+        return f"Character Wallet Journal: RefType: {self.ref_type} - {self.first_party} -> {self.second_party}: {self.amount} ISK"
+
+    @classmethod
+    def get_visible(cls, user):
+        chars_vis = CharacterOwner.objects.visible_to(user)
+        return cls.objects.filter(character__in=chars_vis)
 
 
 class CharacterMiningLedger(models.Model):

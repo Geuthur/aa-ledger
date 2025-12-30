@@ -1,7 +1,6 @@
 """PvE Views"""
 
 # Standard Library
-import json
 from http import HTTPStatus
 
 # Django
@@ -10,6 +9,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
@@ -20,9 +21,8 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Ledger
 from ledger import __title__
 from ledger.api.helpers import get_characterowner_or_none
-from ledger.helpers.character import CharacterData
 from ledger.helpers.core import add_info_to_context
-from ledger.models.characteraudit import CharacterOwner, CharacterWalletJournalEntry
+from ledger.models.characteraudit import CharacterOwner
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -42,109 +42,38 @@ def character_ledger(
     """
     Character Ledger
     """
-    perms, character = get_characterowner_or_none(request, character_id)
+    perms = get_characterowner_or_none(request, character_id)[0]
+
+    kwargs = {
+        "character_id": character_id,
+        "section": section,
+    }
+    if year is not None:
+        kwargs["year"] = year
+    if month is not None:
+        kwargs["month"] = month
+    if day is not None:
+        kwargs["day"] = day
+
+    ledger_url = reverse("ledger:api:get_character_ledger", kwargs=kwargs)
+
+    context = {
+        "title": "Character Ledger",
+        "character_id": character_id,
+        "ledger_url": ledger_url,
+        "section": section,
+    }
 
     if not perms:
         msg = _("Permission Denied")
         messages.error(request, msg)
-        context = {
-            "error": msg,
-            "character_id": character_id,
-            "disabled": True,
-        }
         context = add_info_to_context(request, context)
         return render(request, "ledger/view-character-ledger.html", context=context)
 
-    character_data = CharacterData(
-        character=character,
-        year=year,
-        month=month,
-        day=day,
-        section=section,
-    )
-
-    # Create the ledger data
-    ledger = character_data.generate_ledger_data()
-
-    context = {
-        "title": f"Character Ledger - {character.eve_character.character_name}",
-        "character_id": character_id,
-        "billboard": json.dumps(character_data.billboard.dict.asdict()),
-        "ledger": ledger,
-        "years": CharacterWalletJournalEntry.objects.filter(
-            character__in=character_data.characters
-        )
-        .exclude(date__year__isnull=True)
-        .values_list("date__year", flat=True)
-        .order_by("-date__year")
-        .distinct(),
-        "totals": character_data.calculate_totals(ledger),
-        "view": character_data.create_view_data(
-            viewname="character_details",
-            character_id=character_id,
-            section="summary",
-        ),
-        "is_old_ess": character_data.is_old_ess,
-    }
     # Add additional information to the context
     context = add_info_to_context(request, context)
 
     return render(request, "ledger/view-character-ledger.html", context=context)
-
-
-@login_required
-@permission_required("ledger.basic_access")
-# pylint: disable=too-many-positional-arguments
-def character_details(
-    request, character_id, year=None, month=None, day=None, section=None
-):
-    """
-    Character Details
-    """
-    perms, character = get_characterowner_or_none(request, character_id)
-
-    # pylint: disable=duplicate-code
-    if perms is False:
-        msg = _("Permission Denied")
-        return render(
-            request,
-            "ledger/partials/information/view_character_content.html",
-            {
-                "error": msg,
-                "character_id": character_id,
-            },
-        )
-    # pylint: disable=duplicate-code
-    if perms is None:
-        msg = _("Corporation not found")
-        return render(
-            request,
-            "ledger/partials/information/view_character_content.html",
-            {
-                "error": msg,
-                "character_id": character_id,
-            },
-        )
-
-    character_data = CharacterData(character, year, month, day, section)
-
-    journal, mining = character_data.filter_character_journal(character)
-    amounts = character_data._create_character_details(journal, mining)
-    details = character_data._add_average_details(request, amounts, day)
-
-    context = {
-        "title": f"Character Details - {character.eve_character.character_name}",
-        "type": "character",
-        "character": details,
-        "information": f"Character Details - {character_data.get_details_title}",
-    }
-    context = add_info_to_context(request, context)
-
-    return render(
-        request,
-        "ledger/partials/information/view_character_content.html",
-        context=context,
-    )
 
 
 @login_required
@@ -156,6 +85,9 @@ def character_overview(request):
 
     context = {
         "title": "Character Overview",
+        "year": timezone.now().year,
+        "month": timezone.now().month,
+        "section": "summary",
     }
     context = add_info_to_context(request, context)
     return render(request, "ledger/view-character-overview.html", context=context)
@@ -177,22 +109,23 @@ def character_administration(request, character_id=None):
         messages.error(request, msg)
         return redirect("ledger:index")
 
-    linked_characters_ids = character.alts.values_list("character_id", flat=True)
-
     characters = CharacterOwner.objects.filter(
-        eve_character__character_id__in=linked_characters_ids
+        eve_character__character_id__in=character.alt_ids
     ).order_by("eve_character__character_name")
     characters_ids = characters.values_list("eve_character__character_id", flat=True)
 
     missing_characters = (
-        EveCharacter.objects.filter(character_id__in=linked_characters_ids)
+        EveCharacter.objects.filter(character_id__in=character.alt_ids)
         .exclude(character_id__in=characters_ids)
         .order_by("character_name")
     )
 
     context = {
-        "character_id": character_id,
         "title": "Character Administration",
+        "character_id": character_id,
+        "year": timezone.now().year,
+        "month": timezone.now().month,
+        "section": "summary",
         "characters": characters,
         "missing_characters": missing_characters,
     }

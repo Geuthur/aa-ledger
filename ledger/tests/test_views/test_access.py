@@ -207,64 +207,6 @@ class TestViewCharacterLedgerAccess(LedgerTestCase):
         self.assertContains(response, "Character Ledger")
         self.assertTrue(mock_messages.error.called)
 
-    def test_view_character_details(self):
-        """
-        Test view character details.
-
-        This test verifies that a user with permission can access their character details view.
-        """
-        # Test Data
-        request = self.factory.get(
-            reverse(
-                "ledger:character_details",
-                kwargs={
-                    "character_id": self.user_character.character.character_id,
-                    "year": 2025,
-                    "section": "summary",
-                },
-            )
-        )
-        request.user = self.user
-
-        # Test Action
-        response = character_ledger.character_details(
-            request, character_id=self.user_character.character.character_id, year=2025
-        )
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(
-            response,
-            "No ratting data found...",
-        )
-
-    def test_view_character_details_no_permission(self):
-        """
-        Test view character details.
-
-        This test verifies that a user without permission is shown an error message when accessing character details.
-        """
-        # Test Data
-        request = self.factory.get(
-            reverse(
-                "ledger:character_details",
-                kwargs={
-                    "character_id": self.user_character.character.character_id,
-                    "year": 2025,
-                    "section": "summary",
-                },
-            )
-        )
-        request.user = self.user2
-
-        # Test Action
-        response = character_ledger.character_details(
-            request, self.user_character.character.character_id, year=2025
-        )
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Permission Denied")
-
     def test_view_character_overview(self):
         """
         Test view character overview.

@@ -12,34 +12,34 @@
 {% endblock page_topic %}
 
 {% block ledger_block %}
-    {% if view.type == "ledger" %}
-        {% include 'ledger/partials/view-character-ledger/character-table.html' with characters=characters totals=totals is_old_ess=is_old_ess %}
-    {% else %}
-        {% include 'ledger/partials/view/card.html' with character=character totals=totals %}
-    {% endif %}
-
-    {% include 'ledger/partials/thirdparty/billboard.html' %}
-
-    <!-- Modals -->
-    {% include 'ledger/partials/modal/modal.html' with name="ViewCharacter" %}
+    {% include 'ledger/partials/view-character-ledger/character-table.html' %}
+    {% include 'ledger/partials/view-character-ledger/character-billboard.html' %}
 {% endblock %}
 
 {% block extra_css %}
+    {% include 'ledger/bundles/datatables-2-css.html' with extColumnControl=True %}
     {% include 'ledger/bundles/aa-ledger-css.html' %}
 {% endblock %}
 
 {% block extra_javascript %}
-    {% include 'ledger/bundles/aa-ledger-js.html' %}
     <script>
         /**
          * Override settings for aaLedger
          */
         const aaLedgerSettingsOverride = {
+            characterPk: '{{ character_id }}',
             url: {
+                CharacterLedger: "{{ ledger_url }}",
             },
             translations: {
+                ledgerTable: {
+                    summary: "{% translate 'Summary' %}"
+                }
             }
         };
     </script>
+    {% include 'ledger/partials/modal/request-view-details.html' %}
+    {% include 'ledger/bundles/aa-ledger-js.html' %}
+    {% include 'ledger/bundles/datatables-2-js.html' with extColumnControl=True %}
     {% include 'ledger/bundles/view-character-ledger-js.html' %}
 {% endblock extra_javascript %}

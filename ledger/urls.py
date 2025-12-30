@@ -262,32 +262,6 @@ urlpatterns = [
         character_ledger.character_ledger,
         name="character_ledger",
     ),
-    # -- -- Character Details
-    path(
-        "character/<int:character_id>/view/details/section/<str:section>/",
-        character_ledger.character_details,
-        name="character_details",
-    ),
-    path(
-        "character/<int:character_id>/<int:year>/view/details/section/<str:section>/",
-        character_ledger.character_details,
-        name="character_details",
-    ),
-    path(
-        "character/<int:character_id>/<int:year>/<int:month>/view/details/section/<str:section>/",
-        character_ledger.character_details,
-        name="character_details",
-    ),
-    path(
-        "character/<int:character_id>/<int:year>/<int:month>/<int:day>/view/details/section/<str:section>/",
-        character_ledger.character_details,
-        name="character_details",
-    ),
-    path(
-        "character/<int:character_id>/<int:year>/<int:month>/<int:day>/view/details/section/<str:section>/",
-        character_ledger.character_details,
-        name="character_details",
-    ),
     # -- -- Character Administration
     path(
         "character/<int:character_id>/view/administration/",

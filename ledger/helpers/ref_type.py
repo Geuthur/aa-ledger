@@ -193,10 +193,19 @@ class RefTypeManager:
     """Categories for wallet journal reference types."""
 
     # Translations for reference types
-    _("Corporation Contract")
+    _("Bounty Income")
+    _("Mining Income")
+    _("Ess Income")
+
+    _("Assets Income")
+    _("Assets Cost")
+    _("Corporation Contract Income")
+    _("Contract Income")
+    _("Contract Cost")
     _("Corporation Withdrawal")
     _("Mission Reward")
-    _("Market")
+    _("Market Income")
+    _("Market Cost")
     _("Daily Goal Reward")
     _("Structure Rental")
 
@@ -372,6 +381,8 @@ class RefTypeManager:
     def get_all_categories(cls) -> dict[str, list[str]]:
         """Get all categories and their ref types, sorted alphabetically by key in the dict literal. Add NO_CATEGORY for missing JournalRefType."""
         categories = {
+            "BOUNTY": cls.BOUNTY_PRIZES,
+            "ESS": cls.ESS_TRANSFER,
             "ASSETS": cls.ASSETS,
             "CONTRACT": cls.CONTRACT,
             "CORPORATION_ADMINISTRATION": cls.CORPORATION_ADMINISTRATION,
@@ -400,19 +411,10 @@ class RefTypeManager:
         # Alle JournalRefType-Namen in Kleinbuchstaben
         all_types = {jt.name.lower() for jt in JournalRefType}
 
-        # Exclude Bounty and ESS
-        pve = set()
-        # Bounty-Prizes
-        if hasattr(cls, "BOUNTY_PRIZES"):
-            pve.update(cls.BOUNTY_PRIZES)
-        # ESS Transfer
-        if hasattr(cls, "ESS_TRANSFER"):
-            pve.update(cls.ESS_TRANSFER)
-
         # Nicht zugeordnete Typen bestimmen, aber special auslassen
-        not_defined = sorted((all_types - assigned) - pve)
+        not_defined = sorted(all_types - assigned)
         if not_defined:
-            categories["NOT_DEFINED_CATEGORY"] = not_defined
+            categories["UNDEFINED"] = not_defined
 
         return categories
 
@@ -451,7 +453,6 @@ class RefTypeManager:
         entity: "LedgerEntity",
         kwargs: dict[str, int],
         journal_type: str,
-        char_ids: set[int] = None,
     ) -> bool:
         """Handle special cases in Ledger for Details View."""
         # Skip Contract if Contract Creator is Registered as a Member of the Corporation (only count the contract creator)
@@ -462,14 +463,4 @@ class RefTypeManager:
         ):  # Only Count Contract Creator
             kwargs["first_party"] = entity.entity_id
             return kwargs
-
-        # Skip Player Donation if it is to own alts
-        if (
-            "player_donation" in value
-            and entity.is_eve_character
-            and journal_type == "character"
-        ):
-            if char_ids is None:
-                return kwargs
-            kwargs["exclude"] = char_ids
         return kwargs

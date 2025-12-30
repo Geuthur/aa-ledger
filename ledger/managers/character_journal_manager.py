@@ -1,4 +1,5 @@
 # Standard Library
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
 # Django
@@ -75,41 +76,6 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
             )
         )
 
-    def annotate_miscellaneous_exclude_donations(self, exclude=None) -> models.QuerySet:
-        """Allow excluding donations by first_party_id from the miscellaneous sum."""
-        # Normalize single int to list for compatibility with Q lookups
-        if isinstance(exclude, int):
-            exclude = [exclude]
-
-        # Ensure we have a mutable list (remove may not exist on other iterables)
-        all_types = RefTypeManager.all_ref_types()
-        donation_types = RefTypeManager.DONATION
-
-        if exclude is not None:
-            try:
-                all_types.remove("player_donation")
-            except ValueError:
-                pass
-
-        # Base filter: all reference types and only positive amounts (income)
-        filter_q = Q(ref_type__in=all_types, amount__gt=0)
-
-        if exclude:
-            filter_q = filter_q & ~(
-                Q(ref_type__in=donation_types) & Q(first_party_id__in=exclude)
-            )
-
-        return self.annotate(
-            miscellaneous=Coalesce(
-                Sum(
-                    "amount",
-                    filter=filter_q,
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            )
-        )
-
     def annotate_costs(self) -> models.QuerySet:
         return self.annotate(
             costs=Coalesce(
@@ -131,21 +97,26 @@ class CharWalletCostQueryFilter(CharWalletOutSideFilter):
 class CharWalletQuerySet(CharWalletCostQueryFilter):
     def aggregate_bounty(self) -> dict:
         """Aggregate bounty income."""
-        return self.filter(ref_type__in=RefTypeManager.BOUNTY_PRIZES).aggregate(
-            total_bounty=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
-        )["total_bounty"]
+        return Decimal(
+            self.filter(ref_type__in=RefTypeManager.BOUNTY_PRIZES).aggregate(
+                total_bounty=Coalesce(
+                    Sum("amount"), Value(0), output_field=DecimalField()
+                )
+            )["total_bounty"]
+        )
 
     def aggregate_ess(self) -> dict:
         """Aggregate ESS income."""
-        return self.filter(ref_type__in=RefTypeManager.ESS_TRANSFER).aggregate(
-            total_ess=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
-        )["total_ess"]
+        return Decimal(
+            self.filter(ref_type__in=RefTypeManager.ESS_TRANSFER).aggregate(
+                total_ess=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
+            )["total_ess"]
+        )
 
     def aggregate_costs(self, first_party=None, second_party=None) -> dict:
         """Aggregate costs. first_party wird für donation exkludiert."""
         qs = self
         cost_types = RefTypeManager.all_ref_types()
-        donation_types = RefTypeManager.DONATION
 
         if first_party is not None:
             if isinstance(first_party, int):
@@ -155,33 +126,28 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         if second_party is not None:
             if isinstance(second_party, int):
                 second_party = [second_party]
-            # Exclude: alle donation mit first_party_id in Liste, Rest wie gehabt
-            qs = qs.exclude(
-                Q(ref_type__in=donation_types, first_party_id__in=second_party)
-            )
             qs = qs.filter(Q(ref_type__in=cost_types))
         else:
             qs = qs.filter(Q(ref_type__in=cost_types))
 
         qs = qs.filter(amount__lt=0)
-        return qs.aggregate(
-            total_costs=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
-        )["total_costs"]
+        return Decimal(
+            qs.aggregate(
+                total_costs=Coalesce(
+                    Sum("amount"), Value(0), output_field=DecimalField()
+                )
+            )["total_costs"]
+        )
 
     def aggregate_miscellaneous(self, first_party=None, second_party=None) -> dict:
         """Aggregate miscellaneous income. first_party wird nur für donation angewandt."""
         qs = self
 
         misc_types = RefTypeManager.all_ref_types()
-        donation_types = RefTypeManager.DONATION
 
         if first_party is not None:
             if isinstance(first_party, int):
                 first_party = [first_party]
-            # Exclude: alle donation mit first_party_id in Liste, Rest wie gehabt
-            qs = qs.exclude(
-                Q(ref_type__in=donation_types, first_party_id__in=first_party)
-            )
             qs = qs.filter(Q(ref_type__in=misc_types))
         else:
             qs = qs.filter(Q(ref_type__in=misc_types))
@@ -192,17 +158,19 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
             qs = qs.filter(second_party__in=second_party)
 
         qs = qs.filter(amount__gt=0)
-        return qs.aggregate(
-            total_misc=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
-        )["total_misc"]
+        return Decimal(
+            qs.aggregate(
+                total_misc=Coalesce(
+                    Sum("amount"), Value(0), output_field=DecimalField()
+                )
+            )["total_misc"]
+        )
 
-    # pylint: disable=too-many-positional-arguments
     def aggregate_ref_type(
         self,
         ref_type: list,
         first_party=None,
         second_party=None,
-        exclude=None,
         income: bool = False,
     ) -> dict:
         """Aggregate income by ref_type."""
@@ -218,74 +186,72 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
                 second_party = [second_party]
             qs = qs.filter(second_party__in=second_party)
 
-        if exclude is not None:
-            if isinstance(exclude, int):
-                exclude = [exclude]
-            qs = qs.exclude(first_party__in=exclude)
-
         if income:
             qs = qs.filter(amount__gt=0)
         else:
             qs = qs.filter(amount__lt=0)
 
-        return qs.aggregate(
-            total=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
-        )["total"]
+        return Decimal(
+            qs.aggregate(
+                total=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
+            )["total"]
+        )
 
 
 class CharWalletManager(models.Manager["CharacterWalletJournalEntryContext"]):
     def get_queryset(self) -> CharWalletQuerySet:
         return CharWalletQuerySet(self.model, using=self._db)
 
+    # pylint: disable=duplicate-code
     def annotate_bounty_income(self) -> models.QuerySet:
         """Annotate bounty income."""
         return self.get_queryset().annotate_bounty_income()
 
+    # pylint: disable=duplicate-code
     def annotate_ess_income(self) -> models.QuerySet:
         """Annotate ess income."""
         return self.get_queryset().annotate_ess_income()
 
+    # pylint: disable=duplicate-code
     def annotate_miscellaneous(self) -> models.QuerySet:
         """Annotate miscellaneous income."""
         return self.get_queryset().annotate_miscellaneous()
 
-    def annotate_miscellaneous_exclude_donations(self, exclude=None) -> models.QuerySet:
-        """Annotate miscellaneous income excluding donations by first_party_id."""
-        return self.get_queryset().annotate_miscellaneous_exclude_donations(
-            exclude=exclude
-        )
-
+    # pylint: disable=duplicate-code
     def annotate_costs(self) -> models.QuerySet:
         """Annotate costs."""
         return self.get_queryset().annotate_costs()
 
+    # pylint: disable=duplicate-code
     def aggregate_bounty(self) -> dict:
         """Aggregate bounty income."""
         return self.get_queryset().aggregate_bounty()
 
+    # pylint: disable=duplicate-code
     def aggregate_ess(self) -> dict:
         """Aggregate ess income."""
         return self.get_queryset().aggregate_ess()
 
+    # pylint: disable=duplicate-code
     def aggregate_costs(self, first_party=None, second_party=None) -> dict:
         """Aggregate costs."""
         return self.get_queryset().aggregate_costs(
             first_party=first_party, second_party=second_party
         )
 
+    # pylint: disable=duplicate-code
     def aggregate_miscellaneous(self, first_party=None, second_party=None) -> dict:
         """Aggregate miscellaneous income."""
         return self.get_queryset().aggregate_miscellaneous(
             first_party=first_party, second_party=second_party
         )
 
-    # pylint: disable=too-many-positional-arguments
+    # pylint: disable=duplicate-code
     def aggregate_ref_type(
         self,
         ref_type: list,
         first_party=None,
         second_party=None,
-        exclude=None,
         income: bool = False,
     ) -> dict:
         """Aggregate income by ref_type."""
@@ -293,7 +259,6 @@ class CharWalletManager(models.Manager["CharacterWalletJournalEntryContext"]):
             ref_type=ref_type,
             first_party=first_party,
             second_party=second_party,
-            exclude=exclude,
             income=income,
         )
 

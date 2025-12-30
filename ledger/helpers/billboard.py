@@ -22,7 +22,7 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 @dataclass
 class ChartData:
     title: str
-    categories: list[str]
+    categories: list[dict]
     series: list[dict[str, Any]]
 
     def serialize_decimals(self, obj):

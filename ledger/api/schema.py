@@ -8,6 +8,9 @@ from ninja import Schema
 # Django
 from django.utils import timezone
 
+# AA Ledger
+from ledger.helpers.billboard import ChartData
+
 
 class EveName(Schema):
     id: int
@@ -16,12 +19,63 @@ class EveName(Schema):
 
 
 class OwnerSchema(Schema):
+    """
+    Schema for Character or Corporation Owner.
+
+    Attributes:
+        character_id (int): The ID of the character.
+        character_name (str): The name of the character.
+        icon (str | None): The URL of the character's icon, if available.
+    """
+
     character_id: int
     character_name: str
     icon: str | None = None
 
 
+class UpdateStatusSchema(Schema):
+    last_update: datetime | None = None
+    last_run: datetime | None = None
+    status: str | None = None
+    icon: str | None = None
+
+
+class LedgerRequestInfo(Schema):
+    character_id: int
+    year: int
+    month: int | None = None
+    day: int | None = None
+    section: str
+    available_years: list[int] | None = None
+    available_months: list[int] | None = None
+    available_days: list[int] | None = None
+    dropdown_html: str | None = None
+    footer_html: str | None = None
+
+    def to_date_query(self) -> dict:
+        date_query = {"date__year": self.year}
+        if self.month is not None:
+            date_query["date__month"] = self.month
+        if self.day is not None:
+            date_query["date__day"] = self.day
+        return date_query
+
+
 class EveTypeSchema(Schema):
+    """
+    Schema for EVE Online item types.
+
+    Attributes:
+        id (int): The ID of the item type.
+        name (str): The name of the item type.
+        description (str | None): The description of the item type, if available.
+        group_id (int | None): The group ID of the item type, if available.
+        group_name (str | None): The group name of the item type, if available.
+        market_group_id (int | None): The market group ID of the item type, if available.
+        market_group_name (str | None): The market group name of the item type, if available.
+        icon (str | None): The URL of the item type's icon, if available.
+    """
+
     id: int
     name: str
     description: str | None = None
@@ -30,6 +84,19 @@ class EveTypeSchema(Schema):
     market_group_id: int | None = None
     market_group_name: str | None = None
     icon: str | None = None
+
+
+class BillboardSchema(Schema):
+    xy_chart: ChartData | None = None
+    chord_chart: ChartData | None = None
+
+
+class CategorySchema(Schema):
+    name: str
+    amount: float
+    average: float | None = None
+    average_tick: float | None = None
+    ref_types: str | None = None
 
 
 class PlanetSchema(Schema):

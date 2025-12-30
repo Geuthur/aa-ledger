@@ -4,6 +4,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect, render
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -37,6 +38,9 @@ def index(request):
     return redirect(
         "ledger:character_ledger",
         character_id=request.user.profile.main_character.character_id,
+        year=timezone.now().year,
+        month=timezone.now().month,
+        section="summary",
     )
 
 

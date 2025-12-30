@@ -174,15 +174,11 @@ class AdminApiEndpoints:
             if perm is None:
                 return 403, "Character not found"
 
-            linked_characters_ids = character.alts.values_list(
-                "character_id", flat=True
-            )
-
             characters = CharacterOwner.objects.filter(
-                eve_character__character_id__in=linked_characters_ids
+                eve_character__character_id__in=character.alt_ids
             )
 
-            auth_characters = len(linked_characters_ids)
+            auth_characters = len(character.alt_ids)
             active_characters = characters.filter(active=True).count()
             inactive_characters = characters.filter(active=False).count()
             missing_characters = (

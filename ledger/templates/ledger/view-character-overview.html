@@ -41,7 +41,7 @@
 <script type="application/javascript">
     document.addEventListener('DOMContentLoaded', function() {
         const AdminUrl = "{% url 'ledger:api:get_character_overview' %}"
-        let CharacterOverviewUrl = "{% url 'ledger:character_ledger' character_id=1337 %}"
+        let CharacterOverviewUrl = "{% url 'ledger:character_ledger' character_id=1337 year=year month=month section=section %}"
 
         const tableContainer = $('#members');
         const tableOverview = tableContainer.DataTable(

@@ -155,30 +155,6 @@ class TestCharacterJournalManagerAnnotations(LedgerTestCase):
             )
             self.assertEqual(obj.miscellaneous, 1000.00)
 
-    def test_annotate_miscellaneous_exclude_donations(self):
-        """Test including donations in miscellaneous annotation."""
-        qs = (
-            self.audit.ledger_character_journal.all().annotate_miscellaneous_exclude_donations()
-        )
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "miscellaneous"),
-                "Miscellaneous with exclude annotation should be present",
-            )
-            self.assertEqual(obj.miscellaneous, 1000.00)
-
-    def test_annotate_miscellaneous_exclude_donations_with_exclude(self):
-        """Test excluding donations from miscellaneous annotation."""
-        qs = self.audit.ledger_character_journal.all().annotate_miscellaneous_exclude_donations(
-            exclude=1001
-        )
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "miscellaneous"),
-                "Miscellaneous with exclude annotation should be present",
-            )
-            self.assertEqual(obj.miscellaneous, 0)
-
 
 class TestCharacterJournalManagerAggregate(LedgerTestCase):
     """Test aggregation methods in CharacterJournalManager."""
