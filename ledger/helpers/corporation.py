@@ -132,6 +132,7 @@ class CorporationData(LedgerCore):
             ),
         )
 
+    # pylint: disable=too-many-locals
     def create_entity_data(
         self,
         entity: LedgerEntity,
@@ -167,9 +168,14 @@ class CorporationData(LedgerCore):
                         row, ids=ids, account_char_ids=self.auth_character_ids
                     ):
                         continue
-                    bounty += row.get("bounty") or Decimal(0)
-                    ess += row.get("ess") or Decimal(0)
-                    miscellaneous += row.get("miscellaneous") or Decimal(0)
+                    row_bounty = row.get("bounty") or Decimal(0)
+                    row_ess = row.get("ess") or Decimal(0)
+                    row_misc = (
+                        (row.get("miscellaneous") or Decimal(0)) - row_bounty - row_ess
+                    )
+                    bounty += row_bounty
+                    ess += row_ess
+                    miscellaneous += row_misc
                     costs += row.get("costs") or Decimal(0)
                     used_pks.add(pk)
 
