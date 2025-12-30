@@ -37,3 +37,20 @@ const _bootstrapTooltip = ({selector = 'body', namespace = 'aa-ledger', trigger 
             return new bootstrap.Tooltip(tooltipTriggerEl, { trigger });
         });
 };
+
+const _bootstrapPopOver = ({selector = 'body', namespace = 'aa-ledger', trigger = 'hover'} = {}) => {
+    document.querySelectorAll(`${selector} [data-bs-popover="${namespace}"]`)
+        .forEach((popoverTriggerEl) => {
+            // Dispose existing popover instance if it exists
+            const existing = bootstrap.Popover.getInstance(popoverTriggerEl);
+            if (existing) {
+                existing.dispose();
+            }
+
+            // Remove any leftover popover elements
+            $('.bs-popover-auto').remove();
+
+            // Create new popover instance
+            return new bootstrap.Popover(popoverTriggerEl, { trigger });
+        });
+};
