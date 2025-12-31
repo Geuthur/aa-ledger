@@ -107,14 +107,12 @@ class CharacterApiEndpoints:
         Returns:
             str: The generated footer HTML.
         """
-        total_bounty = round(sum(char.ledger.bounty for char in characters))
-        total_ess = round(sum(char.ledger.ess for char in characters))
-        total_mining = round(sum(char.ledger.mining for char in characters))
-        total_costs = round(sum(char.ledger.costs for char in characters))
-        total_miscellaneous = round(
-            sum(char.ledger.miscellaneous for char in characters)
-        )
-        total_total = round(sum(char.ledger.total for char in characters))
+        total_bounty = sum(char.ledger.bounty for char in characters)
+        total_ess = sum(char.ledger.ess for char in characters)
+        total_mining = sum(char.ledger.mining for char in characters)
+        total_costs = sum(char.ledger.costs for char in characters)
+        total_miscellaneous = sum(char.ledger.miscellaneous for char in characters)
+        total_total = sum(char.ledger.total for char in characters)
 
         # Ensure Section is Summary for Details Link
         request_info.section = "summary"
@@ -141,12 +139,12 @@ class CharacterApiEndpoints:
         footer_html = f"""
             <tr>
                 <th class="border-top">{_("Summary")}</th>
-                <th class="border-top text-end">{intcomma(value=total_bounty, use_l10n=True)} ISK</th>
-                <th class="border-top text-end">{intcomma(value=total_ess, use_l10n=True)} ISK</th>
-                <th class="border-top text-end">{intcomma(value=total_mining, use_l10n=True)} ISK {info_html}</th>
-                <th class="border-top text-end">{intcomma(value=total_miscellaneous, use_l10n=True)} ISK</th>
-                <th class="border-top text-end">{intcomma(value=total_costs, use_l10n=True)} ISK</th>
-                <th class="border-start border-top text-end">{intcomma(value=total_total, use_l10n=True)} ISK</th>
+                <th class="border-top text-end">{intcomma(value=int(total_bounty), use_l10n=True)} ISK</th>
+                <th class="border-top text-end">{intcomma(value=int(total_ess), use_l10n=True)} ISK</th>
+                <th class="border-top text-end">{intcomma(value=int(total_mining), use_l10n=True)} ISK {info_html}</th>
+                <th class="border-top text-end">{intcomma(value=int(total_miscellaneous), use_l10n=True)} ISK</th>
+                <th class="border-top text-end">{intcomma(value=int(total_costs), use_l10n=True)} ISK</th>
+                <th class="border-start border-top text-end">{intcomma(value=int(total_total), use_l10n=True)} ISK</th>
                 <th class="border-top">{url}</th>
             </tr>
         """
@@ -282,14 +280,14 @@ class CharacterApiEndpoints:
                 logger.debug(f"Ledger Cache Miss for Character: {character}")
 
                 # Aggregate Data
-                character_bounty = round(wallet_journal.aggregate_bounty())
-                character_ess = round(wallet_journal.aggregate_ess())
-                character_mining = round(mining_journal.aggregate_mining())
+                character_bounty = wallet_journal.aggregate_bounty()
+                character_ess = wallet_journal.aggregate_ess()
+                character_mining = mining_journal.aggregate_mining()
                 # Only Filter Costs not Transfered from Alts
-                character_costs = round(wallet_journal.aggregate_costs())
+                character_costs = wallet_journal.aggregate_costs()
                 # Only Filter Income not Transfered from Alts
                 character_miscellaneous = (
-                    round(wallet_journal.aggregate_miscellaneous())
+                    wallet_journal.aggregate_miscellaneous()
                     - character_bounty
                     - character_ess
                 )
@@ -639,7 +637,7 @@ class CharacterDetailsApiEndpoints:
         footer_html = f"""
             <tr>
                 <th>{_('Summary')}</th>
-                <th class="text-end">{intcomma(value=value, use_l10n=True)} ISK</th>
+                <th class="text-end">{intcomma(value=int(value), use_l10n=True)} ISK</th>
                 <th></th>
             </tr>
         """
@@ -685,9 +683,9 @@ class CharacterDetailsApiEndpoints:
                         name=_(
                             f"{ref_type_name.replace('_', ' ').title()} {kind.capitalize()}"
                         ),
-                        amount=round(amount),
-                        average=round(amount / avg / 30),
-                        average_tick=round(amount / avg / 30 / 20),
+                        amount=amount,
+                        average=amount / avg / 30,
+                        average_tick=amount / avg / 30 / 20,
                         ref_types=get_character_details_popover_button(ref_types=value),
                     )
 
@@ -695,9 +693,9 @@ class CharacterDetailsApiEndpoints:
                         name=_(
                             f"{ref_type_name.replace('_', ' ').title()} {kind.capitalize()}"
                         ),
-                        amount=round(amount / avg),
-                        average=round(amount / avg / 30),
-                        average_tick=round(amount / avg / 20),
+                        amount=amount / avg,
+                        average=amount / avg / 30,
+                        average_tick=amount / avg / 20,
                         ref_types=get_character_details_popover_button(ref_types=value),
                     )
 
@@ -705,9 +703,9 @@ class CharacterDetailsApiEndpoints:
                         name=_(
                             f"{ref_type_name.replace('_', ' ').title()} {kind.capitalize()}"
                         ),
-                        amount=round(amount / avg / 24),
-                        average=round(amount / avg / 24 / 30),
-                        average_tick=round(amount / avg / 24 / 20),
+                        amount=amount / avg / 24,
+                        average=amount / avg / 24 / 30,
+                        average_tick=amount / avg / 24 / 20,
                         ref_types=get_character_details_popover_button(ref_types=value),
                     )
                     # Add Amounts
@@ -721,9 +719,9 @@ class CharacterDetailsApiEndpoints:
         if mining_income > 0:
             monthly_mining = CategorySchema(
                 name=_("Mining Income"),
-                amount=round(mining_income),
-                average=round(mining_income / avg / 30),
-                average_tick=round(mining_income / avg / 30 / 20),
+                amount=mining_income,
+                average=mining_income / avg / 30,
+                average_tick=mining_income / avg / 30 / 20,
                 ref_types=get_character_details_popover_button(
                     ref_types=["mining"],
                 ),
@@ -731,9 +729,9 @@ class CharacterDetailsApiEndpoints:
 
             daily_mining = CategorySchema(
                 name=_("Mining Income"),
-                amount=round(mining_income),
-                average=round(mining_income / avg),
-                average_tick=round(mining_income / avg / 20),
+                amount=mining_income,
+                average=mining_income / avg,
+                average_tick=mining_income / avg / 20,
                 ref_types=get_character_details_popover_button(
                     ref_types=["mining"],
                 ),
@@ -741,9 +739,9 @@ class CharacterDetailsApiEndpoints:
 
             hourly_mining = CategorySchema(
                 name=_("Mining Income"),
-                amount=round(mining_income),
-                average=round(mining_income / avg / 24),
-                average_tick=round(mining_income / avg / 24 / 20),
+                amount=mining_income,
+                average=mining_income / avg / 24,
+                average_tick=mining_income / avg / 24 / 20,
                 ref_types=get_character_details_popover_button(
                     ref_types=["mining"],
                 ),
@@ -760,12 +758,12 @@ class CharacterDetailsApiEndpoints:
             daily=daily_list,
             hourly=hourly_list,
             total=LedgerDetailsSummary(
-                summary=self._create_datatable_footer(round(summary)),
+                summary=self._create_datatable_footer(summary),
                 daily=self._create_datatable_footer(
-                    round(summary / avg),
+                    summary / avg,
                 ),
                 hourly=self._create_datatable_footer(
-                    round(summary / avg / 24),
+                    summary / avg / 24,
                 ),
             ),
         )

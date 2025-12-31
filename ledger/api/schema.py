@@ -93,9 +93,9 @@ class BillboardSchema(Schema):
 
 class CategorySchema(Schema):
     name: str
-    amount: float
-    average: float | None = None
-    average_tick: float | None = None
+    amount: float = 0.00
+    average: float = 0.00
+    average_tick: float = 0.00
     ref_types: str | None = None
 
 
