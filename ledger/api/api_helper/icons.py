@@ -256,8 +256,6 @@ def get_character_dropdown_button(
             class_name = "dropdown-item"
             if request_info.year == year:
                 class_name += " active"
-                if request_info.month is None:
-                    class_name += " disabled"
             html_parts.append(f'<li><a class="{class_name}" {href}>{year}</a></li>')
     html_parts.append("</ul></div>")
 
@@ -282,9 +280,6 @@ def get_character_dropdown_button(
             class_name = "dropdown-item"
             if request_info.month == month:
                 class_name += " active"
-                if request_info.day is None:
-                    class_name += " disabled"
-                href = ""
             html_parts.append(f'<li><a class="{class_name}" {href}>{month}</a></li>')
     html_parts.append("</ul></div>")
 
@@ -309,8 +304,7 @@ def get_character_dropdown_button(
             href = f'href="{url}"'
             class_name = "dropdown-item"
             if request_info.day == day:
-                class_name += " active disabled"
-                href = ""
+                class_name += " active"
             html_parts.append(f'<li><a class="{class_name}" {href}>{day}</a></li>')
     html_parts.append("</ul></div>")
 
