@@ -236,25 +236,6 @@ def get_character_dropdown_button(
 
     html_parts: list[str] = []
 
-    selected_year = (
-        request_info.year
-        if getattr(request_info, "year", None) is not None
-        else (
-            sorted(request_info.available_years, reverse=True)[0]
-            if request_info.available_years
-            else None
-        )
-    )
-    selected_month = (
-        request_info.month
-        if getattr(request_info, "month", None) is not None
-        else (
-            sorted(request_info.available_months)[0]
-            if request_info.available_months
-            else None
-        )
-    )
-
     # Year dropdown
     html_parts.append(
         f'<div class="dropdown px-2">'
@@ -293,7 +274,7 @@ def get_character_dropdown_button(
                 kwargs={
                     "character_id": request_info.character_id,
                     "section": request_info.section,
-                    "year": selected_year,
+                    "year": request_info.year,
                     "month": month,
                 },
             )
@@ -320,8 +301,8 @@ def get_character_dropdown_button(
                 kwargs={
                     "character_id": request_info.character_id,
                     "section": request_info.section,
-                    "year": selected_year,
-                    "month": selected_month,
+                    "year": request_info.year,
+                    "month": request_info.month,
                     "day": day,
                 },
             )
