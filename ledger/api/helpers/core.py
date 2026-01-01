@@ -35,7 +35,7 @@ def get_characterowner_or_none(
     return perms, owner
 
 
-def get_corporation(
+def get_corporationowner_or_none(
     request, corporation_id
 ) -> tuple[bool | None, models.CorporationOwner | None]:
     """Return Corporation and check permissions"""

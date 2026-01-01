@@ -18,7 +18,7 @@ from ledger.api import schema
 from ledger.api.helpers.core import (
     get_all_corporations_from_alliance,
     get_characterowner_or_none,
-    get_corporation,
+    get_corporationowner_or_none,
 )
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
@@ -215,7 +215,7 @@ class AdminApiEndpoints:
             tags=self.tags,
         )
         def get_corporation_dashboard(request, corporation_id: int):
-            perm, corporation = get_corporation(request, corporation_id)
+            perm, corporation = get_corporationowner_or_none(request, corporation_id)
 
             if not perm:
                 return 403, "Permission Denied"
