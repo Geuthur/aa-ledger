@@ -198,8 +198,7 @@ class CharacterApiEndpoints:
 
         Args:
             owner (CharacterOwner): The character owner object.
-            section (str): The section type ('single' or 'summary').
-            date_query (dict): The date query to filter the ledger entries.
+            request_info (LedgerRequestInfo): The request information containing date and section details.
         Returns:
             list[LedgerCharacterSchema]: A list of ledger responses for each character.
         """
@@ -328,7 +327,7 @@ class CharacterApiEndpoints:
         Args:
             character_ids (list[int]): The list of character IDs.
             character_ledger_list (list[LedgerCharacterSchema]): The list of character ledger data.
-            date_query (dict): The date query to filter the ledger entries.
+            request_info (LedgerRequestInfo): The request information containing date and section details.
         Returns:
             LedgerBillboard: The generated billboard data.
         """
