@@ -19,7 +19,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
 from ledger import __title__, forms, tasks
-from ledger.api.helpers import (
+from ledger.api.helpers.core import (
     get_corporation,
     get_manage_corporation,
 )

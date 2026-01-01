@@ -16,13 +16,13 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
 from ledger import __title__
-from ledger.api.api_helper.icons import (
+from ledger.api.helpers.core import (
+    get_characterowner_or_none,
+)
+from ledger.api.helpers.icons import (
     get_character_details_info_button,
     get_character_details_popover_button,
     get_character_dropdown_button,
-)
-from ledger.api.helpers import (
-    get_characterowner_or_none,
 )
 from ledger.api.schema import (
     BillboardSchema,
@@ -113,9 +113,6 @@ class CharacterApiEndpoints:
         total_costs = sum(char.ledger.costs for char in characters)
         total_miscellaneous = sum(char.ledger.miscellaneous for char in characters)
         total_total = sum(char.ledger.total for char in characters)
-
-        # Ensure Section is Summary for Details Link
-        request_info.section = "summary"
 
         # Generate Details Link
         url = get_character_details_info_button(
@@ -301,9 +298,6 @@ class CharacterApiEndpoints:
                     ]
                 )
 
-                # Set to Single for Single View of each Character
-                request_info.section = "single"
-
                 response_ledger = LedgerCharacterSchema(
                     character=OwnerSchema(
                         character_id=character.eve_character.character_id,
@@ -324,6 +318,7 @@ class CharacterApiEndpoints:
                     actions=get_character_details_info_button(
                         character_id=character.eve_character.character_id,
                         request_info=request_info,
+                        section="single",
                     ),
                 )
                 # Cache Ledger Response
@@ -360,17 +355,11 @@ class CharacterApiEndpoints:
         billboard = BillboardSystem()
         # Initialize Cache Manager
         cache_manager = CacheManager()
-        # Determine Character IDs based on Section
-        char_ids = (
-            owner.alt_ids
-            if request_info.section == "summary"
-            else [owner.eve_character.character_id]
-        )
 
         # Get Wallet and Mining Journal Entries
         wallet_journal = (
             CharacterWalletJournalEntry.objects.filter(
-                character__eve_character__character_id__in=char_ids,
+                character__eve_character__character_id__in=owner.alt_ids,
                 **request_info.to_date_query(),
             )
             # Exclude Zero Amount Entries
@@ -383,7 +372,7 @@ class CharacterApiEndpoints:
         )
 
         mining_journal = CharacterMiningLedger.objects.filter(
-            character__eve_character__character_id__in=char_ids,
+            character__eve_character__character_id__in=owner.alt_ids,
             **request_info.to_date_query(),
         ).order_by("-date")
 
@@ -392,12 +381,12 @@ class CharacterApiEndpoints:
         mining_pks = mining_journal.values_list("type_id", flat=True)
         header_ids = list(entry_ids) + list(mining_pks)
         # add character ids to header ids to ensure uniqueness
-        header_ids.extend(char_ids)
+        header_ids.extend(owner.alt_ids)
 
         # Skip Character if no Ledger Entries
         if len(header_ids) == 0:
             logger.debug(
-                f"No Ledger Entries for Billboard Generation for Character IDs: {char_ids}"
+                f"No Ledger Entries for Billboard Generation for Character IDs: {owner.alt_ids}"
             )
             return BillboardSchema()
 
@@ -409,7 +398,7 @@ class CharacterApiEndpoints:
             billboard_hash=wallet_journal_hash
         )
         if response_billboard is False:
-            logger.debug(f"Billboard Cache Miss for Character IDs: {char_ids}")
+            logger.debug(f"Billboard Cache Miss for Character IDs: {owner.alt_ids}")
             # Create Timelines
             wallet_timeline = (
                 billboard.create_timeline(wallet_journal)

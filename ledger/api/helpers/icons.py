@@ -140,6 +140,7 @@ def get_toggle_notification_button(
 def get_character_details_info_button(
     character_id: int,
     request_info: LedgerRequestInfo,
+    section: str = "summary",
 ) -> str:
     """
     Generate a Character Details Info button for the Character Ledger View.
@@ -154,7 +155,7 @@ def get_character_details_info_button(
         String: HTML string containing the info button.
     """
 
-    kwargs = {"character_id": character_id, "section": request_info.section}
+    kwargs = {"character_id": character_id, "section": section}
     if request_info.year is not None:
         kwargs["year"] = request_info.year
     if request_info.month is not None:

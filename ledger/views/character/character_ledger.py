@@ -20,7 +20,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
 from ledger import __title__
-from ledger.api.helpers import get_characterowner_or_none
+from ledger.api.helpers.core import get_characterowner_or_none
 from ledger.helpers.core import add_info_to_context
 from ledger.models.characteraudit import CharacterOwner
 from ledger.providers import AppLogger

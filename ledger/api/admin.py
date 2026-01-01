@@ -15,7 +15,7 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Ledger
 from ledger import __title__
 from ledger.api import schema
-from ledger.api.helpers import (
+from ledger.api.helpers.core import (
     get_all_corporations_from_alliance,
     get_characterowner_or_none,
     get_corporation,
