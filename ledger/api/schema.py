@@ -20,7 +20,7 @@ class EveName(Schema):
 
 class OwnerSchema(Schema):
     """
-    Schema for Character or Corporation Owner.
+    Schema for Character or Character Owner.
 
     Attributes:
         character_id (int): The ID of the character.
@@ -30,6 +30,29 @@ class OwnerSchema(Schema):
 
     character_id: int
     character_name: str
+    icon: str | None = None
+
+
+class CategorySchema(Schema):
+    name: str
+    amount: float = 0.00
+    average: float = 0.00
+    average_tick: float = 0.00
+    ref_types: str | None = None
+
+
+class EntitySchema(Schema):
+    """
+    Schema for Entity or Corporation Owner.
+
+    Attributes:
+        entity_id (int): The ID of the entity.
+        entity_name (str): The name of the entity.
+        icon (str | None): The URL of the entity's icon, if available.
+    """
+
+    entity_id: int
+    entity_name: str
     icon: str | None = None
 
 
@@ -61,6 +84,27 @@ class LedgerRequestInfo(Schema):
         return date_query
 
 
+class LedgerDetailsSummary(Schema):
+    summary: str = ""
+    daily: str = ""
+    hourly: str = ""
+
+
+class LedgerDetailsResponse(Schema):
+    """Flexible schema for detailed ledger categories.
+
+    Attributes:
+        summary (CategorySchema): Summary of all categories.
+        daily (CategorySchema): Daily breakdown of categories.
+        hourly (CategorySchema): Hourly breakdown of categories.
+    """
+
+    summary: list[CategorySchema]
+    daily: list[CategorySchema]
+    hourly: list[CategorySchema]
+    total: LedgerDetailsSummary
+
+
 class EveTypeSchema(Schema):
     """
     Schema for EVE Online item types.
@@ -89,14 +133,6 @@ class EveTypeSchema(Schema):
 class BillboardSchema(Schema):
     xy_chart: ChartData | None = None
     chord_chart: ChartData | None = None
-
-
-class CategorySchema(Schema):
-    name: str
-    amount: float = 0.00
-    average: float = 0.00
-    average_tick: float = 0.00
-    ref_types: str | None = None
 
 
 class PlanetSchema(Schema):

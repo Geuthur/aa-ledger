@@ -27,6 +27,8 @@ from ledger.api.helpers.icons import (
 from ledger.api.schema import (
     BillboardSchema,
     CategorySchema,
+    LedgerDetailsResponse,
+    LedgerDetailsSummary,
     LedgerRequestInfo,
     OwnerSchema,
     UpdateStatusSchema,
@@ -66,27 +68,6 @@ class LedgerResponse(Schema):
     characters: list[LedgerCharacterSchema]
     billboard: BillboardSchema
     actions: str = ""
-
-
-class LedgerDetailsSummary(Schema):
-    summary: str = ""
-    daily: str = ""
-    hourly: str = ""
-
-
-class LedgerDetailsResponse(Schema):
-    """Flexible schema for detailed ledger categories.
-
-    Attributes:
-        summary (CategorySchema): Summary of all categories.
-        daily (CategorySchema): Daily breakdown of categories.
-        hourly (CategorySchema): Hourly breakdown of categories.
-    """
-
-    summary: list[CategorySchema]
-    daily: list[CategorySchema]
-    hourly: list[CategorySchema]
-    total: LedgerDetailsSummary
 
 
 class CharacterApiEndpoints:
