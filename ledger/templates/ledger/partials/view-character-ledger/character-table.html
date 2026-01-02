@@ -5,30 +5,18 @@
     <div class="card-header bg-primary rounded-top d-flex align-items-center">
         <h3 class="me-3">{% translate "Character Ledger" %}</h3>
         <div id="character-ledger-dropdown-buttons" class="d-flex">
-            <div class="dropdown px-2">
-                <button id="yearDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {% trans "Year" %}
-                </button>
-                <ul class="dropdown-menu" id="character-ledger-year-selector">
-                    <!-- Loaded via JavaScript -->
-                </ul>
-            </div>
-            <div class="dropdown px-2">
-                <button id="monthDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {% trans "Month" %}
-                </button>
-                <ul class="dropdown-menu" id="character-ledger-month-selector">
-                    <!-- Loaded via JavaScript -->
-                </ul>
-            </div>
-            <div class="dropdown px-2">
-                <button id="dayDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {% trans "Day" %}
-                </button>
-                <ul class="dropdown-menu" id="character-ledger-day-selector">
-                    <!-- Loaded via JavaScript -->
-                </ul>
-            </div>
+            {% if forms.character_dropdown %}
+                <div class="me-2">
+                    <form id="character-ledger-dropdown-form" method="post" href="{% url 'ledger:character_ledger' character_id=character_id %}" class="d-flex">
+                        {% csrf_token %}
+                        {{ forms.character_dropdown.division }}
+                        {{ forms.character_dropdown.year }}
+                        {{ forms.character_dropdown.month }}
+                        {{ forms.character_dropdown.day }}
+                        <button id="character-ledger-submit" type="submit" class="btn btn-success">{% translate "Submit" %}</button>
+                    </form>
+                </div>
+            {% endif %}
         </div>
         <div class="ms-auto">
             <a class="btn btn-secondary me-2 administration" href="{% url 'ledger:character_administration' character_id=character_id %}" class="administration">{% translate 'Administration' %}{% if issues %} <span class="badge bg-warning">{{ issues }}</span>{% endif %}</a>

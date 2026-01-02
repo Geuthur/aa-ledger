@@ -22,7 +22,6 @@ from ledger.api.helpers.core import (
 from ledger.api.helpers.icons import (
     get_character_details_info_button,
     get_character_details_popover_button,
-    get_character_dropdown_button,
 )
 from ledger.api.schema import (
     BillboardSchema,
@@ -97,7 +96,7 @@ class CharacterApiEndpoints:
 
         # Generate Details Link
         url = get_character_details_info_button(
-            character_id=request_info.character_id,
+            character_id=request_info.entity_id,
             request_info=request_info,
         )
 
@@ -127,63 +126,6 @@ class CharacterApiEndpoints:
             </tr>
         """
         request_info.footer_html = footer_html
-        return request_info
-
-    def _create_dropdown_button(
-        self, owner: CharacterOwner, request_info: LedgerRequestInfo
-    ) -> list[int]:
-        """
-        Create the dropdown button HTML for the character selection.
-
-        This Helper function creates the dropdown button HTML for the character selection
-        based on the available years, months, and days from the character's wallet journal entries.
-
-        Args:
-            owner (CharacterOwner): The character owner object.
-            request_info (LedgerRequestInfo): The request information object to populate.
-
-        Returns:
-            Updated request_info with available years, months, days.
-        """
-
-        characters_journal = CharacterWalletJournalEntry.objects.filter(
-            character__eve_character__character_id__in=owner.alt_ids
-        )
-        # Available Years
-        available_years = list(
-            characters_journal.dates("date", kind="year")
-            .values_list("date__year", flat=True)
-            .distinct()
-        )
-
-        request_info.available_years = available_years
-        # Available Months
-        if request_info.year:
-            available_months = list(
-                characters_journal.filter(date__year=request_info.year)
-                .dates("date", kind="month")
-                .values_list("date__month", flat=True)
-                .distinct()
-            )
-            request_info.available_months = available_months
-
-            # Available Days
-            if request_info.month:
-                available_days = list(
-                    characters_journal.filter(
-                        date__year=request_info.year,
-                        date__month=request_info.month,
-                    )
-                    .dates("date", kind="day")
-                    .values_list("date__day", flat=True)
-                    .distinct()
-                )
-                request_info.available_days = available_days
-
-        dropdown_html = get_character_dropdown_button(
-            request_info=request_info,
-        )
-        request_info.dropdown_html = dropdown_html
         return request_info
 
     # pylint: disable=too-many-locals
@@ -260,14 +202,8 @@ class CharacterApiEndpoints:
                 character_bounty = wallet_journal.aggregate_bounty()
                 character_ess = wallet_journal.aggregate_ess()
                 character_mining = mining_journal.aggregate_mining()
-                # Only Filter Costs not Transfered from Alts
                 character_costs = wallet_journal.aggregate_costs()
-                # Only Filter Income not Transfered from Alts
-                character_miscellaneous = (
-                    wallet_journal.aggregate_miscellaneous()
-                    - character_bounty
-                    - character_ess
-                )
+                character_miscellaneous = wallet_journal.aggregate_miscellaneous()
 
                 total = sum(
                     [
@@ -494,7 +430,7 @@ class CharacterApiEndpoints:
 
         # Build Request Info
         request_info = LedgerRequestInfo(
-            character_id=character_id,
+            entity_id=character_id,
             year=year,
             month=month,
             day=day,
@@ -515,7 +451,6 @@ class CharacterApiEndpoints:
         )
 
         # Update Request Info with Available Data
-        self._create_dropdown_button(owner=owner, request_info=request_info)
         self._create_datatable_footer(
             characters=character_ledger_list, request_info=request_info
         )
@@ -817,7 +752,7 @@ class CharacterDetailsApiEndpoints:
             }
 
         request_info = LedgerRequestInfo(
-            character_id=character_id,
+            entity_id=character_id,
             year=year,
             month=month,
             day=day,

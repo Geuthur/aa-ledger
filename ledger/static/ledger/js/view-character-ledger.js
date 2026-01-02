@@ -38,11 +38,6 @@ $(document).ready(() => {
     const chartChord = 'chord-chart';
     const chartXY = 'xy-chart';
 
-    /**
-     * DropDowns :: IDs
-     */
-    const dropdownButtons = $('#character-ledger-dropdown-buttons');
-
     fetchGet({
         url: aaLedgerSettings.url.CharacterLedger,
     })
@@ -147,8 +142,6 @@ $(document).ready(() => {
                  */
                 load_or_create_Chart(chartXY, data.billboard.xy_chart, 'bar');
                 load_or_create_Chart(chartChord, data.billboard.chord_chart, 'chart');
-                // Insert Dropdown Buttons HTML
-                dropdownButtons.html(data.information.dropdown_html);
             }
         })
         .catch((error) => {

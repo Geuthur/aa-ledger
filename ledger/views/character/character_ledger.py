@@ -19,7 +19,7 @@ from allianceauth.eveonline.models import EveCharacter
 from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
-from ledger import __title__
+from ledger import __title__, forms
 from ledger.api.helpers.core import get_characterowner_or_none
 from ledger.helpers.core import add_info_to_context
 from ledger.models.characteraudit import CharacterOwner
@@ -46,14 +46,29 @@ def character_ledger(
 
     kwargs = {
         "character_id": character_id,
-        "section": section,
     }
+
+    # pylint: disable=duplicate-code
+    if request.POST:
+        year = request.POST.get("year") or None
+        month = request.POST.get("month") or None
+        day = request.POST.get("day") or None
+        # Ensure that if only day is provided, month is also provided
+        if day is not None and month is None:
+            month = timezone.now().month
+
     if year is not None:
         kwargs["year"] = year
     if month is not None:
         kwargs["month"] = month
     if day is not None:
         kwargs["day"] = day
+    if section is not None:
+        kwargs["section"] = section
+
+    # Redirect to the same view with updated parameters
+    if request.POST:
+        return redirect("ledger:character_ledger", **kwargs)
 
     ledger_url = reverse("ledger:api:get_character_ledger", kwargs=kwargs)
 
@@ -61,7 +76,14 @@ def character_ledger(
         "title": "Character Ledger",
         "character_id": character_id,
         "ledger_url": ledger_url,
-        "section": section,
+        "forms": {
+            "character_dropdown": forms.CharacterDropdownForm(
+                character_id=character_id,
+                year=year,
+                month=month,
+                day=day,
+            ),
+        },
     }
 
     if not perms:
