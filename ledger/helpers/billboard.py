@@ -210,7 +210,6 @@ class BillboardSystem:
     def create_or_update_results(
         self,
         qs: QuerySet[dict],
-        is_old_ess: bool = False,
     ):
         """Create or update the results for the billboard"""
         for entry in qs:
@@ -220,9 +219,7 @@ class BillboardSystem:
             miscellaneous = entry.get("miscellaneous", 0)
 
             self.results[date][self.Categories.BOUNTY] += bounty
-            self.results[date][self.Categories.ESS] += (
-                ess if not is_old_ess else bounty * Decimal("0.667")
-            )
+            self.results[date][self.Categories.ESS] += ess
             self.results[date][self.Categories.MISCELLANEOUS] += miscellaneous
 
         return self.results

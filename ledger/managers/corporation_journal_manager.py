@@ -72,7 +72,9 @@ class CorporationWalletQuerySet(models.QuerySet):
             miscellaneous=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0),
+                    filter=Q(
+                        ref_type__in=RefTypeManager.ledger_ref_types(), amount__gt=0
+                    ),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -84,7 +86,9 @@ class CorporationWalletQuerySet(models.QuerySet):
             costs=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0),
+                    filter=Q(
+                        ref_type__in=RefTypeManager.ledger_ref_types(), amount__lt=0
+                    ),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -106,7 +110,7 @@ class CorporationWalletQuerySet(models.QuerySet):
     def aggregate_miscellaneous(self) -> dict:
         """Aggregate miscellaneous income (nur positive Beträge)."""
         return self.filter(
-            ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0
+            ref_type__in=RefTypeManager.ledger_ref_types(), amount__gt=0
         ).aggregate(
             total_misc=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
         )[
@@ -116,7 +120,7 @@ class CorporationWalletQuerySet(models.QuerySet):
     def aggregate_costs(self) -> dict:
         """Aggregate costs."""
         return self.filter(
-            ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0
+            ref_type__in=RefTypeManager.ledger_ref_types(), amount__lt=0
         ).aggregate(
             total_costs=Coalesce(Sum("amount"), Value(0), output_field=DecimalField())
         )[

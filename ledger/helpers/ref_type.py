@@ -419,8 +419,28 @@ class RefTypeManager:
         return categories
 
     @classmethod
+    def ledger_ref_types(cls) -> list[str]:
+        """
+        Get all ref types from all categories.
+
+        This is used to filter journal entries for ledger processing.
+
+        Excluding Bounty Prizes and ESS transfers for specific handling.
+        """
+        all_ref_types = cls.get_all_categories()
+        ref_types_items = []
+        for __, ref_types in all_ref_types.items():
+            if __ in ["BOUNTY", "ESS"]:
+                continue
+            ref_types_items.extend(ref_types)
+        return ref_types_items
+
+    @classmethod
     def all_ref_types(cls) -> list[str]:
-        """Get all ref types from all categories."""
+        """
+        Get all ref types from all categories.
+        This is used to get a complete list of all reference types.
+        """
         all_ref_types = cls.get_all_categories()
         ref_types_items = []
         for __, ref_types in all_ref_types.items():

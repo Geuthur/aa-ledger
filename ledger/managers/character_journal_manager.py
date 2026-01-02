@@ -69,7 +69,9 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
             miscellaneous=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__gt=0),
+                    filter=Q(
+                        ref_type__in=RefTypeManager.ledger_ref_types(), amount__gt=0
+                    ),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -81,7 +83,9 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
             costs=Coalesce(
                 Sum(
                     "amount",
-                    filter=Q(ref_type__in=RefTypeManager.all_ref_types(), amount__lt=0),
+                    filter=Q(
+                        ref_type__in=RefTypeManager.ledger_ref_types(), amount__lt=0
+                    ),
                 ),
                 Value(0),
                 output_field=DecimalField(),
@@ -114,9 +118,17 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         )
 
     def aggregate_costs(self, first_party=None, second_party=None) -> dict:
-        """Aggregate costs. first_party wird für donation exkludiert."""
+        """
+        Aggregate costs.
+
+        Args:
+            first_party (int | list[int], optional): Filter by first party ID(s).
+            second_party (int | list[int], optional): Filter by second party ID(s).
+        Returns:
+            dict: Aggregated total costs.
+        """
         qs = self
-        cost_types = RefTypeManager.all_ref_types()
+        cost_types = RefTypeManager.ledger_ref_types()
 
         if first_party is not None:
             if isinstance(first_party, int):
@@ -140,10 +152,18 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         )
 
     def aggregate_miscellaneous(self, first_party=None, second_party=None) -> dict:
-        """Aggregate miscellaneous income. first_party wird nur für donation angewandt."""
+        """
+        Aggregate miscellaneous income.
+
+        Args:
+            first_party (int | list[int], optional): Filter by first party ID(s).
+            second_party (int | list[int], optional): Filter by second party ID(s).
+        Returns:
+            dict: Aggregated total miscellaneous income.
+        """
         qs = self
 
-        misc_types = RefTypeManager.all_ref_types()
+        misc_types = RefTypeManager.ledger_ref_types()
 
         if first_party is not None:
             if isinstance(first_party, int):
