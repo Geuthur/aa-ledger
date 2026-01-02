@@ -23,6 +23,11 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
 from ledger import __title__, app_settings
+from ledger.helpers.eveonline import (
+    get_alliance_logo_url,
+    get_character_portrait_url,
+    get_corporation_logo_url,
+)
 from ledger.managers.general_manager import EveEntityManager
 from ledger.providers import AppLogger
 
@@ -111,6 +116,41 @@ class EveEntity(models.Model):
     def is_character(self) -> bool:
         """Return True if entity is a character, else False."""
         return self.category == self.CATEGORY_CHARACTER
+
+    def get_portrait(self, size=64, as_html=False) -> str:
+        """
+        Get the portrait URL for this entity.
+
+        Args:
+            size (int, optional): The size of the portrait.
+            as_html (bool, optional): Whether to return the portrait as an HTML img tag.
+        Returns:
+            str: The URL of the portrait or an HTML img tag.
+        """
+        if self.category == self.CATEGORY_ALLIANCE:
+            return get_alliance_logo_url(
+                alliance_id=self.eve_id,
+                size=size,
+                alliance_name=self.name,
+                as_html=as_html,
+            )
+
+        if self.category == self.CATEGORY_CORPORATION:
+            return get_corporation_logo_url(
+                corporation_id=self.eve_id,
+                size=size,
+                corporation_name=self.name,
+                as_html=as_html,
+            )
+
+        if self.category == self.CATEGORY_CHARACTER:
+            return get_character_portrait_url(
+                character_id=self.eve_id,
+                size=size,
+                character_name=self.name,
+                as_html=as_html,
+            )
+        return ""
 
     def icon_url(self, size=128) -> str:
         """Url to an icon image for this organization."""
