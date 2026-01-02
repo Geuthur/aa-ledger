@@ -4,9 +4,11 @@ Corporation Audit Model
 
 # Django
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
+from allianceauth.authentication.models import UserProfile
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
@@ -14,6 +16,7 @@ from esi.models import Token
 
 # AA Ledger
 from ledger import __title__
+from ledger.helpers.eveonline import get_corporation_logo_url
 from ledger.managers.corporation_audit_manager import CorporationAuditManager
 from ledger.managers.corporation_journal_manager import (
     CorporationDivisionManager,
@@ -124,6 +127,22 @@ class CorporationOwner(models.Model):
                 )
         return False
 
+    @cached_property
+    def corp_members_ids(self):
+        """Return the member ids for this corporation."""
+        return EveCharacter.objects.filter(
+            corporation_id=self.eve_corporation.corporation_id
+        ).values_list("character_id", flat=True)
+
+    @cached_property
+    def auth_accounts(self):
+        """Return the user profiles for this corporation."""
+        return UserProfile.objects.filter(
+            main_character__isnull=False,
+        ).order_by(
+            "user__profile__main_character__character_name",
+        )
+
     @property
     def update_manager(self):
         """Return the Update Manager helper for this corporation."""
@@ -131,6 +150,23 @@ class CorporationOwner(models.Model):
             owner=self,
             update_section=CorporationUpdateSection,
             update_status=CorporationUpdateStatus,
+        )
+
+    def get_portrait(self, size: int = 64, as_html: bool = False) -> str:
+        """
+        Get the corporation portrait URL.
+
+        Args:
+            size (int, optional): The size of the portrait.
+            as_html (bool, optional): Whether to return the portrait as an HTML img tag.
+        Returns:
+            str: The URL of the character portrait or an HTML img tag.
+        """
+        return get_corporation_logo_url(
+            corporation_id=self.eve_corporation.corporation_id,
+            size=size,
+            corporation_name=self.eve_corporation.corporation_name,
+            as_html=as_html,
         )
 
     def update_wallet_division_names(self, force_refresh: bool) -> None:
