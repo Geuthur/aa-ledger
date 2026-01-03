@@ -929,6 +929,13 @@ class CorporationDetailsApiEndpoints:
             )
         )
 
+        # If Member, Exclude Corporation Contracts (will count in Corporation itself)
+        if alt_ids is not None:
+            wallet_journal = wallet_journal.exclude(
+                ref_type="contract_price_payment_corp",
+                second_party_id__in=alt_ids,
+            )
+
         response_ledger_details: LedgerDetailsResponse = self._create_ledger_details(
             journal=wallet_journal,
             request_info=request_info,
