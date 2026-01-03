@@ -99,42 +99,6 @@ class BillboardSystem:
             raise ValueError("Invalid view type. Use 'day', 'month', or 'year'.")
         self.view = view
 
-    def chord_add_char_data_from_dict(self, data: dict):
-        """Add character data to chord from dict"""
-        self._create_chart_dict()
-
-        data_points = [
-            {
-                "from": f"{data['main_name']}",
-                "to": "Wallet",
-                "value": abs(data["total_amount"]),
-            },
-            {
-                "from": f"{data['main_name']}",
-                "to": "Wallet",
-                "value": abs(data["total_amount_ess"]),
-            },
-            {
-                "from": f"{data['main_name']}",
-                "to": "Wallet",
-                "value": abs(data["total_amount_mining"]),
-            },
-            {
-                "from": f"{data['main_name']}",
-                "to": "Wallet",
-                "value": abs(data["total_amount_others"]),
-            },
-            {
-                "from": f"{data['main_name']}",
-                "to": "Costs",
-                "value": abs(data["total_amount_costs"]),
-            },
-        ]
-
-        for point in data_points:
-            if point["value"] != 0:
-                self.dict.charts.series.append(point)
-
     def chord_add_data(self, chord_from: str, chord_to: str, value: int):
         """Add Simple Chord data"""
         self._create_chart_dict()
