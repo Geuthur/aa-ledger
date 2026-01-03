@@ -14,14 +14,17 @@ Section Order:
 ### Added
 
 - CSS & JS App bundle
-- DataTable V2
 - UpdateManager
 - AppLogger
 - Retry Manager
   - Retry on Error for CharacterOwner, CorporationOwner Tasks
-- is_orphan property
+- `is_orphan` property in CharacterOwner Model
 - Character Ledger Api Endpoint
 - EVE Online Portrait Generation
+- MonthChoice and DayChoice enums to `constants.py` for better date handling
+- get_portrait method to EveEntity for dynamic portrait URL retrieval
+- cached properties for corporation member IDs and user profiles; implement get_portrait method for dynamic logo retrieval
+- `auth_accounts` property in CorporationOwner Model
 
 ### Fixed
 
@@ -29,6 +32,14 @@ Section Order:
 
 ### Changed
 
+- Switched from `DataTableV1` to `DataTableV2`
+- Refactor Corporation Ledger
+  - moved Backend from `views` to `api`
+  - All Icons & Buttons now been created in Backend in Python instead of JS/Template
+- Refactor Character Ledger
+  - moved Backend from `views` to `api`
+  - Implement Cache System for Character Ledger
+  - All Icons & Buttons now been created in Backend in Python instead of JS/Template
 - Cache System
   - Optimized Ledger Data Caching
   - Performance Optimitation with Caching

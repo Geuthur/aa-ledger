@@ -12,31 +12,34 @@
 {% endblock page_topic %}
 
 {% block ledger_block %}
-    {% include 'ledger/partials/view-corporation-ledger/corporation-table.html' with characters=characters totals=totals %}
-
-    {% include 'ledger/partials/thirdparty/billboard.html' %}
-
-    <!-- Modals -->
-    {% include 'ledger/partials/modal/modal.html' with name="ViewCharacter" %}
+    {% include 'ledger/partials/view-corporation-ledger/corporation-table.html' with forms=forms %}
+    {% include 'ledger/partials/view-corporation-ledger/corporation-billboard.html' %}
 {% endblock %}
 
 {% block extra_css %}
+    {% include 'ledger/bundles/datatables-2-css.html' with extColumnControl=True %}
     {% include 'ledger/bundles/aa-ledger-css.html' %}
 {% endblock %}
 
 {% block extra_javascript %}
-    {% include 'bundles/datatables-js-bs5.html' %}
     <script>
         /**
          * Override settings for aaLedger
          */
         const aaLedgerSettingsOverride = {
+            corporationPk: '{{ corporation_id }}',
             url: {
+                CorporationLedger: "{{ ledger_url }}",
             },
             translations: {
+                ledgerTable: {
+                    summary: "{% translate 'Summary' %}"
+                }
             }
         };
     </script>
+    {% include 'ledger/partials/modal/request-view-corporation-details.html' %}
     {% include 'ledger/bundles/aa-ledger-js.html' %}
+    {% include 'ledger/bundles/datatables-2-js.html' with extColumnControl=True %}
     {% include 'ledger/bundles/view-corporation-ledger-js.html' %}
 {% endblock extra_javascript %}

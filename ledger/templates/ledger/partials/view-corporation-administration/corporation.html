@@ -1,0 +1,57 @@
+{% load i18n %}
+
+{% if not corporation %}
+    <div class="alert alert-info" role="alert">
+        {% translate "No Corporation found." %}
+    </div>
+{% else %}
+    <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
+        <h3 class="text-white">{% translate "Corporation" %}</h3>
+    </div>
+    <div class="card-body bg-secondary">
+        <ul class="card-characters">
+            <div class="card">
+                <!-- Corporation Name -->
+                <div class="card-header text-center">
+                    {{ corporation.corporation_name }} {{ corporation.get_status.bootstrap_icon }}
+                </div>
+                <!-- Corporation Logo -->
+                <div class="card-body text-center">
+                    <a href="{% url 'ledger:corporation_ledger' corporation_id=corporation.eve_corporation.corporation_id %}">
+                        <img src="{{ corporation.eve_corporation.logo_url_256 }}">
+                    </a>
+                </div>
+                <!-- Corporation Actions -->
+                <div class="card-footer text-center">
+                    <a class="btn btn-success btn-sm me-2"
+                        href="{% url 'ledger:corporation_ledger' corporation_id=corporation.eve_corporation.corporation_id year=year month=month %}"
+                        role="button"
+                        data-tooltip-toggle="ledger-tooltip"
+                        title="{% translate 'View Corporation Ledger' %}">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </a>
+
+                    <a class="btn btn-primary btn-sm me-2"
+                        href="{% url 'ledger:corporation_data_export' corporation_id=corporation.eve_corporation.corporation_id %}"
+                        role="button"
+                        data-tooltip-toggle="ledger-tooltip"
+                        title="{% translate 'Corporation Data Export' %}">
+                        <i class="fas fa-file-export"></i>
+                    </a>
+
+                    <button type="button" class="btn btn-danger btn-sm btn-square me-2"
+                        data-bs-toggle="modal"
+                        data-tooltip-toggle="ledger-tooltip"
+                        data-title="{% translate 'Delete Corporation' %} {{ corporation.eve_corporation.corporation_name }}"
+                        data-text="{% translate 'Are you sure to Delete this Corporation?' %}"
+                        data-bs-target="#ledger-delete-confirm"
+                        data-action="{% url 'ledger:delete_corp' corporation_id=corporation.eve_corporation.corporation_id %}"
+                        title="{% translate 'Delete Corporation' %}"
+                        >
+                        <span class="fas fa-trash"></span>
+                    </button>
+                </div>
+            </div>
+        </ul>
+    </div>
+{% endif %}

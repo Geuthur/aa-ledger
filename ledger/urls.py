@@ -164,53 +164,6 @@ urlpatterns = [
         corporation_ledger.corporation_data_export_run_update,
         name="corporation_data_export_run_update",
     ),
-    # -- -- Corporation Details
-    path(
-        "corporation/<int:corporation_id>/view/details/<int:entity_id>/section/<str:section>/",
-        corporation_ledger.corporation_details,
-        name="corporation_details",
-    ),
-    path(
-        "corporation/<int:corporation_id>/<int:year>/view/details/<int:entity_id>/section/<str:section>/",
-        corporation_ledger.corporation_details,
-        name="corporation_details",
-    ),
-    path(
-        "corporation/<int:corporation_id>/<int:year>/<int:month>/view/details/<int:entity_id>/section/<str:section>/",
-        corporation_ledger.corporation_details,
-        name="corporation_details",
-    ),
-    path(
-        "corporation/<int:corporation_id>/<int:year>/<int:month>/<int:day>/view/details/<int:entity_id>/section/<str:section>/",
-        corporation_ledger.corporation_details,
-        name="corporation_details",
-    ),
-    # -- -- Division Details
-    path(
-        "corporation/<int:corporation_id>/division/<int:division_id>/view/details/<int:entity_id>/section/<str:section>/",
-        corporation_ledger.corporation_details,
-        name="corporation_details",
-    ),
-    path(
-        "corporation/<int:corporation_id>/division/<int:division_id>/<int:year>/view/details/<int:entity_id>/section/<str:section>/",
-        corporation_ledger.corporation_details,
-        name="corporation_details",
-    ),
-    path(
-        "corporation/<int:corporation_id>/division/<int:division_id>/<int:year>/<int:month>/view/details/<int:entity_id>/section/<str:section>/",
-        corporation_ledger.corporation_details,
-        name="corporation_details",
-    ),
-    path(
-        "corporation/<int:corporation_id>/division/<int:division_id>/<int:year>/<int:month>/<int:day>/view/details/<int:entity_id>/section/<str:section>/",
-        corporation_ledger.corporation_details,
-        name="corporation_details",
-    ),
-    path(
-        "corporation/<int:corporation_id>/division/<int:division_id>/view/details/<int:entity_id>/section/<str:section>/",
-        corporation_ledger.corporation_details,
-        name="corporation_details",
-    ),
     path(
         "corporation/<int:corporation_id>/view/administration/",
         corporation_ledger.corporation_administration,

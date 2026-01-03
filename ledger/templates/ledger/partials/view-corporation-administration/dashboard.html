@@ -1,0 +1,119 @@
+{% load i18n %}
+
+<div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
+    <h3 class="text-white">{% translate "Dashboard" %}</h3>
+    <div class="ms-auto">
+        <div id="dashboard-buttons-corporation" class="d-none">
+        </div>
+    </div>
+</div>
+<div class="card-body bg-secondary">
+    <div class="d-flex flex-wrap">
+        <!-- Dashboard -->
+        <div class="flex-grow-1 d-none" style="min-width: 150px;" id="dashboard-card">
+            <div class="card-body bg-secondary rounded-top">
+                <h5 class="card-title text-center">
+                    <span id="dashboard-info"></span>
+                </h5>
+                <hr>
+                <div>
+                    <table class="table table-dark table-striped w-100 d-none" id="character-dashboard">
+                        <tbody>
+                            <tr>
+                                <td>{% trans "Status:" %}</td>
+                                <td class="text-end text-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span id="status"></span>
+                                </td>
+                            </tr>
+                            <tr id="character-issues" class="d-none">
+                                <td>{% trans "Characters with Issues:" %}</td>
+                                <td class="text-end text-warning">
+                                    <span id="status-issues"></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-dark table-striped w-100 d-none" id="corporation-dashboard">
+                        <tbody>
+                            <tr>
+                                <td>{% trans "Information:" %}</td>
+                                <td class="text-end" id="status-corporation"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-dark table-striped w-100 d-none" id="alliance-dashboard">
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Statistics -->
+        <div class="flex-grow-1 d-none" style="min-width: 150px;" id="dashboard-statistics-card">
+            <div class="card-body bg-secondary rounded-top">
+                <h5 class="card-title text-center">
+                    <span id="dashboard-info-statistics"></span>
+                </h5>
+                <hr>
+                <div>
+                    <table class="table table-dark table-striped w-100 d-none" id="character-dashboard-statistics">
+                        <tbody>
+                            <tr>
+                                <td>{% trans "Auth Characters:" %}</td>
+                                <td class="text-end" id="auth-characters"></td>
+                            </tr>
+                            <tr>
+                                <td>{% trans "Active Characters:" %}</td>
+                                <td class="text-end" id="active-characters"></td>
+                            </tr>
+                            <tr>
+                                <td>{% trans "Inactive Characters:" %}</td>
+                                <td class="text-end" id="inactive-characters"></td>
+                            </tr>
+                            <tr>
+                                <td>{% trans "Missing Characters:" %}</td>
+                                <td class="text-end" id="missing-characters"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {% comment %} Corporation Statistics {% endcomment %}
+                    <table class="table table-dark table-striped w-100 d-none" id="corporation-dashboard-statistics">
+                        <tbody>
+                            <tr>
+                                <td>{% trans "Corporation Characters:" %}</td>
+                                <td class="text-end" id="auth-characters-corporation"></td>
+                            </tr>
+                            <tr>
+                                <td>{% trans "Active Characters:" %}</td>
+                                <td class="text-end" id="active-characters-corporation"></td>
+                            </tr>
+                            <tr>
+                                <td>{% trans "Missing Characters:" %}</td>
+                                <td class="text-end" id="missing-characters-corporation"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {% comment %} Alliance Statistics {% endcomment %}
+                    <table class="table table-dark table-striped w-100 d-none" id="alliance-dashboard-statistics">
+                        <tbody>
+                            <tr>
+                                <td>{% trans "Auth Corporations:" %}</td>
+                                <td class="text-end" id="auth-corporations"></td>
+                            </tr>
+                            <tr>
+                                <td>{% trans "Active Corporations:" %}</td>
+                                <td class="text-end" id="active-corporations"></td>
+                            </tr>
+                            <tr>
+                                <td>{% trans "Missing Corporations:" %}</td>
+                                <td class="text-end" id="missing-corporations"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

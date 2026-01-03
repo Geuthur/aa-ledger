@@ -33,14 +33,6 @@ class OwnerSchema(Schema):
     icon: str | None = None
 
 
-class CategorySchema(Schema):
-    name: str
-    amount: float = 0.00
-    average: float = 0.00
-    average_tick: float = 0.00
-    ref_types: str | None = None
-
-
 class EntitySchema(Schema):
     """
     Schema for Entity or Corporation Owner.
@@ -53,7 +45,17 @@ class EntitySchema(Schema):
 
     entity_id: int
     entity_name: str
-    icon: str | None = None
+    alt_ids: list[int] = []
+    icon: str = ""
+    popover: str = ""
+
+
+class CategorySchema(Schema):
+    name: str
+    amount: float = 0.00
+    average: float = 0.00
+    average_tick: float = 0.00
+    ref_types: str | None = None
 
 
 class UpdateStatusSchema(Schema):
@@ -63,15 +65,12 @@ class UpdateStatusSchema(Schema):
     icon: str | None = None
 
 
-class LedgerRequestInfo(Schema):
-    character_id: int
+class CharacterLedgerRequestInfo(Schema):
+    owner_id: int
     year: int
     month: int | None = None
     day: int | None = None
-    section: str
-    available_years: list[int] | None = None
-    available_months: list[int] | None = None
-    available_days: list[int] | None = None
+    section: str = "summary"
     dropdown_html: str | None = None
     footer_html: str | None = None
 
@@ -82,6 +81,17 @@ class LedgerRequestInfo(Schema):
         if self.day is not None:
             date_query["date__day"] = self.day
         return date_query
+
+
+class CorporationLedgerRequestInfo(CharacterLedgerRequestInfo):
+    entity_id: int | None = None
+    division_id: int | None = None
+
+    def to_division_query(self) -> dict:
+        division_query = {}
+        if self.division_id is not None:
+            division_query["division__division_id"] = self.division_id
+        return division_query
 
 
 class LedgerDetailsSummary(Schema):
