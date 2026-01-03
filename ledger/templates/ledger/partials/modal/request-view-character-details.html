@@ -1,0 +1,26 @@
+{% load i18n %}
+
+<!-- view extractor details modal -->
+<div class="modal fade" id="ledger-view-character-ledger-details" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title fs-5">
+                    {% translate "Character Ledger Details" %} <span id="custom-title"></span>
+                </div>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate 'Close' %}"></button>
+            </div>
+            <div class="card border-0 modal-body" id="modal-ajax-content">
+                <div id="table-filter-content">
+                    {% include 'ledger/partials/view-character-ledger/character-ledger-details.html' %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-button-cancel-request" type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                    {% translate "Close" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
