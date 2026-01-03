@@ -21,14 +21,14 @@ from ledger.api.helpers.core import (
 )
 from ledger.api.helpers.icons import (
     get_character_details_info_button,
-    get_character_details_popover_button,
+    get_ref_type_details_popover_button,
 )
 from ledger.api.schema import (
     BillboardSchema,
     CategorySchema,
+    CharacterLedgerRequestInfo,
     LedgerDetailsResponse,
     LedgerDetailsSummary,
-    LedgerRequestInfo,
     OwnerSchema,
     UpdateStatusSchema,
 )
@@ -63,7 +63,7 @@ class LedgerCharacterSchema(Schema):
 
 class LedgerResponse(Schema):
     owner: OwnerSchema
-    information: LedgerRequestInfo
+    information: CharacterLedgerRequestInfo
     characters: list[LedgerCharacterSchema]
     billboard: BillboardSchema
     actions: str = ""
@@ -73,8 +73,10 @@ class CharacterApiEndpoints:
     tags = ["Character"]
 
     def _create_datatable_footer(
-        self, characters: list[LedgerCharacterSchema], request_info: LedgerRequestInfo
-    ) -> LedgerRequestInfo:
+        self,
+        characters: list[LedgerCharacterSchema],
+        request_info: CharacterLedgerRequestInfo,
+    ) -> CharacterLedgerRequestInfo:
         """
         Create the footer HTML for the Ledger datatable.
 
@@ -96,7 +98,7 @@ class CharacterApiEndpoints:
 
         # Generate Details Link
         url = get_character_details_info_button(
-            character_id=request_info.entity_id,
+            character_id=request_info.owner_id,
             request_info=request_info,
         )
 
@@ -130,7 +132,7 @@ class CharacterApiEndpoints:
 
     # pylint: disable=too-many-locals
     def generate_character_data(
-        self, owner: CharacterOwner, request_info: LedgerRequestInfo
+        self, owner: CharacterOwner, request_info: CharacterLedgerRequestInfo
     ) -> list[LedgerResponse]:
         """
         Generate the ledger data for all alts of a character owner.
@@ -252,7 +254,7 @@ class CharacterApiEndpoints:
         self,
         owner: CharacterOwner,
         character_ledger_list: list[LedgerCharacterSchema],
-        request_info: LedgerRequestInfo,
+        request_info: CharacterLedgerRequestInfo,
     ) -> BillboardSchema:
         """
         Generate the billboard data for the given character IDs.
@@ -429,8 +431,8 @@ class CharacterApiEndpoints:
             }
 
         # Build Request Info
-        request_info = LedgerRequestInfo(
-            entity_id=character_id,
+        request_info = CharacterLedgerRequestInfo(
+            owner_id=owner.eve_character.character_id,
             year=year,
             month=month,
             day=day,
@@ -552,7 +554,7 @@ class CharacterDetailsApiEndpoints:
         self,
         journal: QuerySet[CharacterWalletJournalEntry],
         mining: QuerySet[CharacterMiningLedger],
-        request_info: LedgerRequestInfo,
+        request_info: CharacterLedgerRequestInfo,
     ) -> LedgerDetailsResponse:
         """
         Generate the detailed ledger data for a character.
@@ -590,7 +592,7 @@ class CharacterDetailsApiEndpoints:
                         amount=amount,
                         average=amount / avg / 30,
                         average_tick=amount / avg / 30 / 20,
-                        ref_types=get_character_details_popover_button(ref_types=value),
+                        ref_types=get_ref_type_details_popover_button(ref_types=value),
                     )
 
                     daily = CategorySchema(
@@ -600,7 +602,7 @@ class CharacterDetailsApiEndpoints:
                         amount=amount / avg,
                         average=amount / avg / 30,
                         average_tick=amount / avg / 20,
-                        ref_types=get_character_details_popover_button(ref_types=value),
+                        ref_types=get_ref_type_details_popover_button(ref_types=value),
                     )
 
                     hourly = CategorySchema(
@@ -610,7 +612,7 @@ class CharacterDetailsApiEndpoints:
                         amount=amount / avg / 24,
                         average=amount / avg / 24 / 30,
                         average_tick=amount / avg / 24 / 20,
-                        ref_types=get_character_details_popover_button(ref_types=value),
+                        ref_types=get_ref_type_details_popover_button(ref_types=value),
                     )
                     # Add Amounts
                     summary += amount
@@ -626,7 +628,7 @@ class CharacterDetailsApiEndpoints:
                 amount=mining_income,
                 average=mining_income / avg / 30,
                 average_tick=mining_income / avg / 30 / 20,
-                ref_types=get_character_details_popover_button(
+                ref_types=get_ref_type_details_popover_button(
                     ref_types=["mining"],
                 ),
             )
@@ -636,7 +638,7 @@ class CharacterDetailsApiEndpoints:
                 amount=mining_income,
                 average=mining_income / avg,
                 average_tick=mining_income / avg / 20,
-                ref_types=get_character_details_popover_button(
+                ref_types=get_ref_type_details_popover_button(
                     ref_types=["mining"],
                 ),
             )
@@ -646,7 +648,7 @@ class CharacterDetailsApiEndpoints:
                 amount=mining_income,
                 average=mining_income / avg / 24,
                 average_tick=mining_income / avg / 24 / 20,
-                ref_types=get_character_details_popover_button(
+                ref_types=get_ref_type_details_popover_button(
                     ref_types=["mining"],
                 ),
             )
@@ -675,11 +677,10 @@ class CharacterDetailsApiEndpoints:
     def create_character_details(
         self,
         owner: CharacterOwner,
-        request_info: LedgerRequestInfo,
+        request_info: CharacterLedgerRequestInfo,
     ) -> dict:
         """
         Create the character amounts for the Information View.
-        Only work with CharacterData Class
         """
         # Determine Character IDs based on Section
         char_ids = (
@@ -751,8 +752,8 @@ class CharacterDetailsApiEndpoints:
                 "error": _("You do not have permission to view this character.")
             }
 
-        request_info = LedgerRequestInfo(
-            entity_id=character_id,
+        request_info = CharacterLedgerRequestInfo(
+            owner_id=owner.eve_character.character_id,
             year=year,
             month=month,
             day=day,
