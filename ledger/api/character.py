@@ -81,7 +81,7 @@ class CharacterApiEndpoints:
         """
         Create the footer HTML for the Ledger datatable.
 
-        This Helper function creates the footer HTML for the datatable
+        This Helper function creates the footer HTML for the Ledger datatable
         by summing up the respective fields from the list of characters.
 
         Args:
