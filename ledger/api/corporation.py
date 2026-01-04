@@ -238,7 +238,6 @@ class CorporationApiEndpoints:
         processed_entry_ids.update(entry_ids)
         return response_entity
 
-    # pylint: disable=too-many-positional-arguments
     def process_member_ledger_data(
         self,
         entity_ids: set[int],
@@ -308,7 +307,6 @@ class CorporationApiEndpoints:
             entity_ledger_list.append(response_ledger)
         return auth_entity_ids
 
-    # pylint: disable=too-many-positional-arguments
     def _process_ledger_data(
         self,
         entities: list[EveEntity],
@@ -776,7 +774,6 @@ class CorporationApiEndpoints:
             response={200: CorporationLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
-        # pylint: disable=too-many-positional-arguments
         def get_corporation_ledger(
             request: WSGIRequest,
             corporation_id: int,
@@ -809,7 +806,7 @@ class CorporationDetailsApiEndpoints:
         """
         return footer_html
 
-    # pylint: disable=too-many-locals, too-many-positional-arguments
+    # pylint: disable=too-many-locals
     def _create_ledger_details(
         self,
         journal: QuerySet[CorporationWalletJournalEntry],
@@ -968,7 +965,7 @@ class CorporationDetailsApiEndpoints:
         )
         return response_ledger_details
 
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
     def _ledger_details_api_response(
         self,
         request: WSGIRequest,
@@ -1055,6 +1052,7 @@ class CorporationDetailsApiEndpoints:
             response={200: LedgerDetailsResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
+        # pylint: disable=too-many-positional-arguments
         def get_corporation_ledger_details(
             request: WSGIRequest,
             corporation_id: int,
@@ -1079,6 +1077,7 @@ class CorporationDetailsApiEndpoints:
             response={200: LedgerDetailsResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
+        # pylint: disable=too-many-positional-arguments
         def get_corporation_ledger_details(
             request: WSGIRequest,
             corporation_id: int,
@@ -1147,6 +1146,7 @@ class CorporationDetailsApiEndpoints:
             response={200: LedgerDetailsResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
+        # pylint: disable=too-many-positional-arguments
         def get_corporation_ledger_details(
             request: WSGIRequest,
             corporation_id: int,

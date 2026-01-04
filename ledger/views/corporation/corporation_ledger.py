@@ -45,7 +45,6 @@ def corporation_ledger_index(request):
     )
 
 
-# pylint: disable=too-many-positional-arguments
 @login_required
 @permission_required("ledger.advanced_access")
 def corporation_ledger(

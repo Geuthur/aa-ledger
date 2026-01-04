@@ -30,7 +30,6 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 
 @login_required
 @permission_required("ledger.basic_access")
-# pylint: disable=too-many-positional-arguments
 def character_ledger(
     request: WSGIRequest,
     character_id: int,

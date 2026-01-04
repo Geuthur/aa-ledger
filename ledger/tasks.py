@@ -502,7 +502,6 @@ def clear_all_etags():
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
-# pylint: disable=too-many-positional-arguments
 def export_data_ledger(
     user_pk: int,
     ledger_type: str,

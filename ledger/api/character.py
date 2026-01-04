@@ -516,7 +516,6 @@ class CharacterApiEndpoints:
             response={200: CharacterLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
-        # pylint: disable=too-many-positional-arguments
         def get_character_ledger(
             request: WSGIRequest,
             character_id: int,
@@ -550,7 +549,7 @@ class CharacterDetailsApiEndpoints:
         """
         return footer_html
 
-    # pylint: disable=too-many-locals, too-many-positional-arguments
+    # pylint: disable=too-many-locals
     def _create_ledger_details(
         self,
         journal: QuerySet[CharacterWalletJournalEntry],
@@ -716,6 +715,7 @@ class CharacterDetailsApiEndpoints:
         )
         return response_ledger_details
 
+    # pylint: disable=too-many-positional-arguments
     def _ledger_details_api_response(
         self,
         request: WSGIRequest,
