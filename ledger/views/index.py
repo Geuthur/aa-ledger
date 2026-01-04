@@ -14,7 +14,6 @@ from allianceauth.services.hooks import get_extension_logger
 from ledger import __title__
 
 # Ledger
-from ledger.helpers.core import add_info_to_context
 from ledger.models.characteraudit import CharacterOwner
 from ledger.providers import AppLogger
 from ledger.tasks import (
@@ -31,10 +30,6 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 @permission_required("ledger.basic_access")
 def index(request):
     """Index View"""
-    context = {
-        "title": "Ledger",
-    }
-    context = add_info_to_context(request, context)
     return redirect(
         "ledger:character_ledger",
         character_id=request.user.profile.main_character.character_id,

@@ -21,7 +21,6 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Ledger
 from ledger import __title__, forms
 from ledger.api.helpers.core import get_characterowner_or_none
-from ledger.helpers.core import add_info_to_context
 from ledger.models.characteraudit import CharacterOwner
 from ledger.providers import AppLogger
 
@@ -88,12 +87,7 @@ def character_ledger(
     if not perms:
         msg = _("Permission Denied")
         messages.error(request, msg)
-        context = add_info_to_context(request, context)
         return render(request, "ledger/view-character-ledger.html", context=context)
-
-    # Add additional information to the context
-    context = add_info_to_context(request, context)
-
     return render(request, "ledger/view-character-ledger.html", context=context)
 
 
@@ -110,7 +104,6 @@ def character_overview(request):
         "month": timezone.now().month,
         "section": "summary",
     }
-    context = add_info_to_context(request, context)
     return render(request, "ledger/view-character-overview.html", context=context)
 
 
@@ -150,7 +143,6 @@ def character_administration(request, character_id=None):
         "characters": characters,
         "missing_characters": missing_characters,
     }
-    context = add_info_to_context(request, context)
     return render(
         request,
         "ledger/view-character-administration.html",

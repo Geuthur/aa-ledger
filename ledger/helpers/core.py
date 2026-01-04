@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 # Django
 from django.core.cache import cache
-from django.db.models import Q, QuerySet, Sum
+from django.db.models import Q, QuerySet
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -47,27 +47,6 @@ if TYPE_CHECKING:
 
     # pylint: disable=import-outside-toplevel
     from ledger.models.corporationaudit import CorporationWalletJournalEntry
-
-
-def add_info_to_context(request, context: dict) -> dict:
-    """Add additional information to the context for the view."""
-    # pylint: disable=import-outside-toplevel
-    # AA Ledger
-    from ledger.models.characteraudit import CharacterOwner
-
-    total_issues = (
-        CharacterOwner.objects.annotate_total_update_status_user(user=request.user)
-        .aggregate(total_failed=Sum("num_sections_failed"))
-        .get("total_failed", 0)
-    )
-
-    new_context = {
-        **{
-            "issues": total_issues,
-        },
-        **context,
-    }
-    return new_context
 
 
 class DummyEveEntity:

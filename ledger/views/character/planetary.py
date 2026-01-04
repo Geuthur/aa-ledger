@@ -12,7 +12,6 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
 from ledger import __title__
-from ledger.helpers.core import add_info_to_context
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -22,8 +21,6 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 @permission_required("ledger.basic_access")
 def planetary_ledger_index(request):
     """Character Ledger Index View"""
-    context = {}
-    context = add_info_to_context(request, context)
     return redirect(
         "ledger:planetary_ledger", request.user.profile.main_character.character_id
     )
@@ -39,7 +36,6 @@ def planetary_ledger(request, character_id=None):
         "title": "Planetary Ledger",
         "character_id": character_id,
     }
-    context = add_info_to_context(request, context)
     return render(request, "ledger/view-character-planetary.html", context=context)
 
 
@@ -53,8 +49,6 @@ def planetary_overview(request):
     context = {
         "title": "Planetary Overview",
     }
-    context = add_info_to_context(request, context)
-
     return render(
         request,
         "ledger/view-character-planetary-overview.html",

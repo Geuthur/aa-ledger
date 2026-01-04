@@ -25,7 +25,6 @@ from ledger.api.helpers.core import (
     get_manage_corporation,
 )
 from ledger.helpers import data_exporter
-from ledger.helpers.core import add_info_to_context
 from ledger.models.corporationaudit import (
     CorporationOwner,
 )
@@ -95,12 +94,7 @@ def corporation_ledger(
     if not perms:
         msg = _("Permission Denied")
         messages.error(request, msg)
-        context = add_info_to_context(request, context)
         return render(request, "ledger/view-corporation-ledger.html", context=context)
-
-    # Add additional information to the context
-    context = add_info_to_context(request, context)
-
     return render(request, "ledger/view-corporation-ledger.html", context=context)
 
 
@@ -115,7 +109,6 @@ def corporation_overview(request):
         "year": timezone.now().year,
         "month": timezone.now().month,
     }
-    context = add_info_to_context(request, context)
     return render(request, "ledger/view-corporation-overview.html", context=context)
 
 
@@ -154,8 +147,6 @@ def corporation_administration(request, corporation_id):
         "characters": corp_characters,
         "is_exportable": corporation_dataexporter.has_data,
     }
-    context = add_info_to_context(request, context)
-
     return render(
         request,
         "ledger/view-corporation-administration.html",
@@ -229,8 +220,6 @@ def corporation_data_export(request, corporation_id: int):
             },
         }
     )
-
-    context = add_info_to_context(request, context)
     return render(request, "ledger/data-export.html", context)
 
 
