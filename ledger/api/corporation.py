@@ -87,7 +87,7 @@ class CorporationApiEndpoints:
         """
         Create the footer HTML for the Ledger datatable.
 
-        This Helper function creates the footer HTML for the datatable
+        This Helper function creates the footer HTML for the Ledger datatable
         by summing up the respective fields from the list of entities.
 
         Args:
@@ -252,6 +252,7 @@ class CorporationApiEndpoints:
 
         This Helper function processes the ledger data for auth member entities
         based on the provided date query.
+
         Args:
             entity_ids (set[int]): The set of entity IDs to process.
             entries_by_entity (dict[int, list[dict]]): The mapping of entity IDs to their ledger entries.
@@ -389,65 +390,87 @@ class CorporationApiEndpoints:
             .order_by("-date")
         )
 
-        entity_ids = set()
-        entity_ledger_list: list[LedgerEntitySchema] = []
-        processed_entry_ids: set[int] = set()
-        entries_by_entity: dict[int, list[dict]] = defaultdict(list)
+        header_ids = list(corp_journal_values.values_list("entry_id", flat=True))
 
-        for row in corp_journal_values:
-            a = row.get("first_party_id")
-            b = row.get("second_party_id")
-            if a:
-                entries_by_entity[a].append(row)
-                entity_ids.add(a)
+        # Skip Corporation if no Ledger Entries
+        if len(header_ids) == 0:
+            return []
 
-            # Only append second party if different from first to avoid double-counting
-            if b and b != a:
-                entries_by_entity[b].append(row)
-                entity_ids.add(b)
+        # Add Owner ID to header ids to ensure uniqueness
+        header_ids.append(owner.eve_corporation.corporation_id)
 
-        # Process Auth Entities (Members) First
-        auth_entity_ids = self.process_member_ledger_data(
-            entity_ids=entity_ids,
-            request_info=request_info,
-            entries_by_entity=entries_by_entity,
-            processed_entry_ids=processed_entry_ids,
-            entity_ledger_list=entity_ledger_list,
+        # Create Ledger Hash
+        wallet_journal_hash = self.cache_manager.create_ledger_hash(header_ids)
+
+        # Get Cached Ledger if Available
+        entity_ledger_list = self.cache_manager.get_cache_ledger(
+            ledger_hash=wallet_journal_hash
         )
+        if entity_ledger_list is False:
+            entity_ids = set()
+            entity_ledger_list: list[LedgerEntitySchema] = []
+            processed_entry_ids: set[int] = set()
+            entries_by_entity: dict[int, list[dict]] = defaultdict(list)
 
-        # Process Remaining Entities
-        entities = (
-            EveEntity.objects.filter(eve_id__in=entity_ids)
-            # Exclude Auth Entities
-            .exclude(eve_id__in=auth_entity_ids)
-            # Exclude NPC Entities
-            .exclude(eve_id__in=NPC_ENTITIES)
-            # Exclude Corporation Itself
-            .exclude(eve_id=owner.eve_corporation.corporation_id).order_by("name")
-        )
+            for row in corp_journal_values:
+                a = row.get("first_party_id")
+                b = row.get("second_party_id")
+                if a:
+                    entries_by_entity[a].append(row)
+                    entity_ids.add(a)
 
-        # Process NPC Entities Last
-        npc_entities = EveEntity.objects.filter(eve_id__in=NPC_ENTITIES).order_by(
-            "name"
-        )
+                # Only append second party if different from first to avoid double-counting
+                if b and b != a:
+                    entries_by_entity[b].append(row)
+                    entity_ids.add(b)
 
-        # Process each Entity
-        self._process_ledger_data(
-            entities=list(entities),
-            request_info=request_info,
-            entries_by_entity=entries_by_entity,
-            processed_entry_ids=processed_entry_ids,
-            entity_ledger_list=entity_ledger_list,
-        )
+            # Process Auth Entities (Members) First
+            auth_entity_ids = self.process_member_ledger_data(
+                entity_ids=entity_ids,
+                request_info=request_info,
+                entries_by_entity=entries_by_entity,
+                processed_entry_ids=processed_entry_ids,
+                entity_ledger_list=entity_ledger_list,
+            )
 
-        # Process NPC Entities
-        self._process_ledger_data(
-            entities=list(npc_entities),
-            request_info=request_info,
-            entries_by_entity=entries_by_entity,
-            processed_entry_ids=processed_entry_ids,
-            entity_ledger_list=entity_ledger_list,
-        )
+            # Process Remaining Entities
+            entities = (
+                EveEntity.objects.filter(eve_id__in=entity_ids)
+                # Exclude Auth Entities
+                .exclude(eve_id__in=auth_entity_ids)
+                # Exclude NPC Entities
+                .exclude(eve_id__in=NPC_ENTITIES)
+                # Exclude Corporation Itself
+                .exclude(eve_id=owner.eve_corporation.corporation_id).order_by("name")
+            )
+
+            # Process NPC Entities Last
+            npc_entities = EveEntity.objects.filter(eve_id__in=NPC_ENTITIES).order_by(
+                "name"
+            )
+
+            # Process each Entity
+            self._process_ledger_data(
+                entities=list(entities),
+                request_info=request_info,
+                entries_by_entity=entries_by_entity,
+                processed_entry_ids=processed_entry_ids,
+                entity_ledger_list=entity_ledger_list,
+            )
+
+            # Process NPC Entities
+            self._process_ledger_data(
+                entities=list(npc_entities),
+                request_info=request_info,
+                entries_by_entity=entries_by_entity,
+                processed_entry_ids=processed_entry_ids,
+                entity_ledger_list=entity_ledger_list,
+            )
+            # Cache Ledger Response
+            self.cache_manager.set_cache_ledger(
+                ledger_hash=wallet_journal_hash,
+                ledger_data=entity_ledger_list,
+            )
         return entity_ledger_list
 
     def generate_billboard_data(
