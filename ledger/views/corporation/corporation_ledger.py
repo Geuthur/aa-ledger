@@ -208,7 +208,7 @@ def corporation_delete(request, corporation_id):
 @permission_required("ledger.basic_access")
 def corporation_data_export(request, corporation_id: int):
     """Data Export View"""
-    perms = get_corporationowner_or_none(request, corporation_id)[0]
+    perms = get_manage_corporation(request, corporation_id)[0]
 
     corporation_exporter = data_exporter.LedgerCSVExporter.create_exporter(
         "corporation", corporation_id
@@ -273,7 +273,7 @@ def corporation_download_export_file(
 @require_POST
 def corporation_data_export_generate(request, corporation_id: int):
     """Handle POST form to generate a data export for a corporation."""
-    perms = get_corporationowner_or_none(request, corporation_id)[0]
+    perms = get_manage_corporation(request, corporation_id)[0]
     if perms is False:
         msg = _("Permission Denied")
         messages.error(request, msg)
@@ -338,7 +338,7 @@ def corporation_data_export_run_update(
         year,
         month,
     )
-    perms = get_corporationowner_or_none(request, entity_id)[0]
+    perms = get_manage_corporation(request, entity_id)[0]
     if perms is False:
         msg = _("Permission Denied")
         messages.error(request, msg)
