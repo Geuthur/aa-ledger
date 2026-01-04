@@ -1,6 +1,5 @@
 # Standard Library
 from datetime import datetime
-from typing import Any
 
 # Third Party
 from ninja import Schema
@@ -10,12 +9,6 @@ from django.utils import timezone
 
 # AA Ledger
 from ledger.helpers.billboard import ChartData
-
-
-class EveName(Schema):
-    id: int
-    name: str
-    cat: str | None = None
 
 
 class OwnerSchema(Schema):
@@ -65,7 +58,9 @@ class UpdateStatusSchema(Schema):
     icon: str | None = None
 
 
-class CharacterLedgerRequestInfo(Schema):
+class OwnerLedgerRequestInfo(Schema):
+    """Schema for Owner Ledger Request Information."""
+
     owner_id: int
     year: int
     month: int | None = None
@@ -83,7 +78,17 @@ class CharacterLedgerRequestInfo(Schema):
         return date_query
 
 
-class CorporationLedgerRequestInfo(CharacterLedgerRequestInfo):
+class CorporationLedgerRequestInfo(OwnerLedgerRequestInfo):
+    """
+    Schema for Corporation Ledger Request Information.
+
+    Subclass of :class:`OwnerLedgerRequestInfo`.
+
+    Attributes:
+        entity_id (int | None): The ID of the entity.
+        division_id (int | None): The ID of the division.
+    """
+
     entity_id: int | None = None
     division_id: int | None = None
 
@@ -94,7 +99,29 @@ class CorporationLedgerRequestInfo(CharacterLedgerRequestInfo):
         return division_query
 
 
+class AllianceLedgerRequestInfo(OwnerLedgerRequestInfo):
+    """
+    Schema for Alliance Ledger Request Information.
+
+    Subclass of :class:`OwnerLedgerRequestInfo`.
+
+    Attributes:
+        corporation_id (int | None): The ID of the corporation.
+    """
+
+    corporation_id: int | None = None
+
+
 class LedgerDetailsSummary(Schema):
+    """
+    Schema for summary of ledger details.
+
+    Attributes:
+        summary (str): Summary of all categories.
+        daily (str): Daily breakdown of categories.
+        hourly (str): Hourly breakdown of categories.
+    """
+
     summary: str = ""
     daily: str = ""
     hourly: str = ""
@@ -113,6 +140,23 @@ class LedgerDetailsResponse(Schema):
     daily: list[CategorySchema]
     hourly: list[CategorySchema]
     total: LedgerDetailsSummary
+
+
+class BillboardSchema(Schema):
+    xy_chart: ChartData | None = None
+    chord_chart: ChartData | None = None
+
+
+class CharacterAdmin(Schema):
+    character: dict | None = None
+
+
+class CorporationAdmin(Schema):
+    corporation: dict | None = None
+
+
+class AllianceAdmin(Schema):
+    alliance: dict | None = None
 
 
 class EveTypeSchema(Schema):
@@ -140,11 +184,6 @@ class EveTypeSchema(Schema):
     icon: str | None = None
 
 
-class BillboardSchema(Schema):
-    xy_chart: ChartData | None = None
-    chord_chart: ChartData | None = None
-
-
 class PlanetSchema(Schema):
     id: int
     name: str
@@ -162,24 +201,6 @@ class CharacterPlanet(Schema):
     upgrade_level: int | None = None
     num_pins: int | None = None
     last_update: datetime | None = None
-
-
-class CharacterAdmin(Schema):
-    character: dict | None = None
-
-
-class CorporationAdmin(Schema):
-    corporation: dict | None = None
-
-
-class AllianceAdmin(Schema):
-    alliance: dict | None = None
-
-
-class Ledger(Schema):
-    ratting: list | None = None
-    billboard: Any | None = None
-    total: dict | None = None
 
 
 class ProgressBarSchema(Schema):

@@ -9,7 +9,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
 from ledger import __title__
-from ledger.api.schema import CharacterLedgerRequestInfo, CorporationLedgerRequestInfo
+from ledger.api.schema import CorporationLedgerRequestInfo, OwnerLedgerRequestInfo
 from ledger.helpers.eveonline import get_character_portrait_url
 from ledger.models.planetary import CharacterPlanetDetails
 from ledger.providers import AppLogger
@@ -139,7 +139,7 @@ def get_toggle_notification_button(
 
 def get_character_details_info_button(
     character_id: int,
-    request_info: CharacterLedgerRequestInfo,
+    request_info: OwnerLedgerRequestInfo,
     section: str = "summary",
 ) -> str:
     """

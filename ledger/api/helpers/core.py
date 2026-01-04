@@ -75,7 +75,9 @@ def get_manage_corporation(
     return perms, main_corp
 
 
-def get_alliance(request, alliance_id) -> tuple[bool | None, EveAllianceInfo | None]:
+def get_alliance_or_none(
+    request, alliance_id
+) -> tuple[bool | None, EveAllianceInfo | None]:
     """Get Alliance and check permissions for each corporation"""
     perms = True
 

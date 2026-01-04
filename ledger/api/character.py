@@ -26,9 +26,9 @@ from ledger.api.helpers.icons import (
 from ledger.api.schema import (
     BillboardSchema,
     CategorySchema,
-    CharacterLedgerRequestInfo,
     LedgerDetailsResponse,
     LedgerDetailsSummary,
+    OwnerLedgerRequestInfo,
     OwnerSchema,
     UpdateStatusSchema,
 )
@@ -63,7 +63,7 @@ class LedgerCharacterSchema(Schema):
 
 class LedgerResponse(Schema):
     owner: OwnerSchema
-    information: CharacterLedgerRequestInfo
+    information: OwnerLedgerRequestInfo
     characters: list[LedgerCharacterSchema]
     billboard: BillboardSchema
     actions: str = ""
@@ -75,8 +75,8 @@ class CharacterApiEndpoints:
     def _create_datatable_footer(
         self,
         characters: list[LedgerCharacterSchema],
-        request_info: CharacterLedgerRequestInfo,
-    ) -> CharacterLedgerRequestInfo:
+        request_info: OwnerLedgerRequestInfo,
+    ) -> OwnerLedgerRequestInfo:
         """
         Create the footer HTML for the Ledger datatable.
 
@@ -132,7 +132,7 @@ class CharacterApiEndpoints:
 
     # pylint: disable=too-many-locals
     def generate_character_data(
-        self, owner: CharacterOwner, request_info: CharacterLedgerRequestInfo
+        self, owner: CharacterOwner, request_info: OwnerLedgerRequestInfo
     ) -> list[LedgerResponse]:
         """
         Generate the ledger data for all alts of a character owner.
@@ -254,7 +254,7 @@ class CharacterApiEndpoints:
         self,
         owner: CharacterOwner,
         character_ledger_list: list[LedgerCharacterSchema],
-        request_info: CharacterLedgerRequestInfo,
+        request_info: OwnerLedgerRequestInfo,
     ) -> BillboardSchema:
         """
         Generate the billboard data for the given character IDs.
@@ -431,7 +431,7 @@ class CharacterApiEndpoints:
             }
 
         # Build Request Info
-        request_info = CharacterLedgerRequestInfo(
+        request_info = OwnerLedgerRequestInfo(
             owner_id=owner.eve_character.character_id,
             year=year,
             month=month,
@@ -554,7 +554,7 @@ class CharacterDetailsApiEndpoints:
         self,
         journal: QuerySet[CharacterWalletJournalEntry],
         mining: QuerySet[CharacterMiningLedger],
-        request_info: CharacterLedgerRequestInfo,
+        request_info: OwnerLedgerRequestInfo,
     ) -> LedgerDetailsResponse:
         """
         Generate the detailed ledger data for a character.
@@ -677,7 +677,7 @@ class CharacterDetailsApiEndpoints:
     def create_character_details(
         self,
         owner: CharacterOwner,
-        request_info: CharacterLedgerRequestInfo,
+        request_info: OwnerLedgerRequestInfo,
     ) -> dict:
         """
         Create the character amounts for the Information View.
@@ -752,7 +752,7 @@ class CharacterDetailsApiEndpoints:
                 "error": _("You do not have permission to view this character.")
             }
 
-        request_info = CharacterLedgerRequestInfo(
+        request_info = OwnerLedgerRequestInfo(
             owner_id=owner.eve_character.character_id,
             year=year,
             month=month,
