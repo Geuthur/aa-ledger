@@ -36,17 +36,6 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 
 @login_required
 @permission_required("ledger.advanced_access")
-def corporation_ledger_index(request):
-    """Corporation Ledger Index View"""
-    context = {}
-    context = add_info_to_context(request, context)
-    return redirect(
-        "ledger:corporation_ledger", request.user.profile.main_character.corporation_id
-    )
-
-
-@login_required
-@permission_required("ledger.advanced_access")
 def corporation_ledger(
     request: WSGIRequest,
     corporation_id: int,
@@ -141,12 +130,12 @@ def corporation_administration(request, corporation_id):
     if perm is False:
         msg = _("Permission Denied")
         messages.error(request, msg)
-        return redirect("ledger:corporation_ledger_index")
+        return redirect("ledger:corporation_overview")
 
     if perm is None:
         msg = _("Corporation not found")
         messages.info(request, msg)
-        return redirect("ledger:corporation_ledger_index")
+        return redirect("ledger:corporation_overview")
 
     # TODO Get Missing Characters from esi-corporations.read_corporation_membership.v1 ?
     corp_characters = CharacterOwnership.objects.filter(

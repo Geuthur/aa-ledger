@@ -302,22 +302,6 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
         )
         cls.user = add_new_permission_to_user(cls.user, "ledger.advanced_access")
 
-    def test_view_corporation_ledger_index(self):
-        """
-        Test view corporation ledger index.
-
-        This test verifies that a user with permission can access the corporation ledger index.
-        """
-        # Test Data
-        request = self.factory.get(reverse("ledger:corporation_ledger_index"))
-        request.user = self.user
-
-        # Test Action
-        response = corporation_ledger.corporation_ledger_index(request)
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-
     def test_view_corporation_ledger(self):
         """
         Test view corporation ledger.
@@ -386,97 +370,6 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Corporation Ledger")
         self.assertTrue(mock_messages.error.called)
-
-    def test_view_corporation_details(self):
-        """
-        Test view corporation details.
-
-        This test verifies that a user with permission can access their corporation details view.
-        """
-        # Test Data
-        request = self.factory.get(
-            reverse(
-                "ledger:corporation_details",
-                kwargs={
-                    "corporation_id": self.user_character.character.corporation_id,
-                    "year": 2025,
-                    "entity_id": 1001,
-                    "section": "summary",
-                },
-            )
-        )
-        request.user = self.user
-
-        # Test Action
-        response = corporation_ledger.corporation_details(
-            request,
-            corporation_id=self.user_character.character.corporation_id,
-            entity_id=1001,
-            year=2025,
-        )
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "No ratting data found...")
-
-    def test_view_corporation_details_no_permission(self):
-        """
-        Test view corporation details.
-
-        This test verifies that a user without permission is shown an error message when accessing corporation details.
-        """
-        # Test Data
-        self.user2 = add_new_permission_to_user(self.user2, "ledger.advanced_access")
-        request = self.factory.get(
-            reverse(
-                "ledger:corporation_details",
-                kwargs={
-                    "corporation_id": 2001,
-                    "year": 2025,
-                    "entity_id": 1001,
-                    "section": "summary",
-                },
-            )
-        )
-        request.user = self.user2
-
-        # Test Action
-        response = corporation_ledger.corporation_details(
-            request, 2001, entity_id=1001, year=2025
-        )
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Permission Denied")
-
-    def test_view_corporation_details_not_found(self):
-        """
-        Test view corporation details.
-
-        This test verifies that a user is shown an error message when accessing non-existent corporation details.
-        """
-        # Test Data
-        request = self.factory.get(
-            reverse(
-                "ledger:corporation_details",
-                kwargs={
-                    "corporation_id": 9999,
-                    "year": 2025,
-                    "entity_id": 9999,
-                    "section": "summary",
-                },
-            )
-        )
-        request.user = self.user
-
-        # Test Action
-        response = corporation_ledger.corporation_details(
-            request, corporation_id=9999, entity_id=9999, year=2025
-        )
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Corporation not found")
 
     def test_view_corporation_overview(self):
         """

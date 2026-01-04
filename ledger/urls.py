@@ -99,11 +99,6 @@ urlpatterns = [
     path("alliance/add/", add_ally, name="add_ally"),
     # -- -- Corporation Ledger
     path(
-        "corporation/",
-        corporation_ledger.corporation_ledger_index,
-        name="corporation_ledger_index",
-    ),
-    path(
         "corporation/<int:corporation_id>/",
         corporation_ledger.corporation_ledger,
         name="corporation_ledger",
