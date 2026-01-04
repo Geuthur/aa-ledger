@@ -33,6 +33,8 @@ from ledger.api.schema import (
     EntitySchema,
     LedgerDetailsResponse,
     LedgerDetailsSummary,
+    LedgerResponse,
+    LedgerSchema,
     OwnerSchema,
 )
 from ledger.constants import NPC_ENTITIES
@@ -50,26 +52,27 @@ from ledger.providers import AppLogger
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
-class LedgerSchema(Schema):
-    bounty: float = 0.00
-    ess: float = 0.00
-    costs: float = 0.00
-    miscellaneous: float = 0.00
-    total: float = 0.00
-
-
 class LedgerEntitySchema(Schema):
     entity: EntitySchema
     ledger: LedgerSchema
     actions: str = ""
 
 
-class LedgerResponse(Schema):
-    owner: OwnerSchema
+class CorporationLedgerResponse(LedgerResponse):
+    """
+    Schema for Corporation Ledger Response.
+
+    This schema represents the response structure for corporation ledger data,
+    extending the base :class:`LedgerResponse` to include corporation-specific ledger data.
+
+    Attributes:
+        information (CorporationLedgerRequestInfo): The request information for the corporation ledger.
+        entities (list[LedgerEntitySchema]): The list of ledger entities.
+
+    """
+
     information: CorporationLedgerRequestInfo
     entities: list[LedgerEntitySchema]
-    billboard: BillboardSchema
-    actions: str = ""
 
 
 class CorporationApiEndpoints:
@@ -348,7 +351,7 @@ class CorporationApiEndpoints:
     # pylint: disable=too-many-locals
     def generate_entity_data(
         self, owner: CorporationOwner, request_info: CorporationLedgerRequestInfo
-    ) -> list[LedgerResponse]:
+    ) -> list[CorporationLedgerResponse]:
         """
         Generate the ledger data for a corporation owner.
 
@@ -359,7 +362,7 @@ class CorporationApiEndpoints:
             owner (CorporationOwner): The corporation owner object.
             request_info (LedgerRequestInfo): The request information object.
         Returns:
-            list[LedgerResponse]: A list of ledger responses for each entity.
+            list[CorporationLedgerResponse]: A list of ledger responses for each entity.
         """
         # Get Corporation Wallet Journal Entries
         corp_journal_values = (
@@ -575,7 +578,7 @@ class CorporationApiEndpoints:
         division_id: int = None,
         month: int = None,
         day: int = None,
-    ) -> LedgerResponse | tuple[int, dict]:
+    ) -> CorporationLedgerResponse | tuple[int, dict]:
         """
         Helper function to generate ledger response for various date parameters.
 
@@ -591,7 +594,7 @@ class CorporationApiEndpoints:
             section (str): The section type ('single' or 'summary').
 
         Returns:
-            LedgerResponse | tuple[int, dict]: The ledger response or error tuple.
+            CorporationLedgerResponse | tuple[int, dict]: The ledger response or error tuple.
         """
         perms, owner = get_corporationowner_or_none(
             request=request, corporation_id=corporation_id
@@ -632,7 +635,7 @@ class CorporationApiEndpoints:
             entities=entity_ledger_list, request_info=request_info
         )
 
-        response_ledger = LedgerResponse(
+        response_ledger = CorporationLedgerResponse(
             owner=OwnerSchema(
                 character_id=owner.eve_corporation.corporation_id,
                 character_name=owner.eve_corporation.corporation_name,
@@ -656,7 +659,7 @@ class CorporationApiEndpoints:
 
         @api.get(
             "corporation/{corporation_id}/division/{division_id}/date/{year}/",
-            response={200: LedgerResponse, 403: dict, 404: dict},
+            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_corporation_ledger(
@@ -672,7 +675,7 @@ class CorporationApiEndpoints:
 
         @api.get(
             "corporation/{corporation_id}/division/{division_id}/date/{year}/{month}/",
-            response={200: LedgerResponse, 403: dict, 404: dict},
+            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_corporation_ledger(
@@ -693,7 +696,7 @@ class CorporationApiEndpoints:
 
         @api.get(
             "corporation/{corporation_id}/division/{division_id}/date/{year}/{month}/{day}/",
-            response={200: LedgerResponse, 403: dict, 404: dict},
+            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_corporation_ledger(
@@ -716,7 +719,7 @@ class CorporationApiEndpoints:
 
         @api.get(
             "corporation/{corporation_id}/date/{year}/",
-            response={200: LedgerResponse, 403: dict, 404: dict},
+            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_corporation_ledger(
@@ -731,7 +734,7 @@ class CorporationApiEndpoints:
 
         @api.get(
             "corporation/{corporation_id}/date/{year}/{month}/",
-            response={200: LedgerResponse, 403: dict, 404: dict},
+            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_corporation_ledger(
@@ -747,7 +750,7 @@ class CorporationApiEndpoints:
 
         @api.get(
             "corporation/{corporation_id}/date/{year}/{month}/{day}/",
-            response={200: LedgerResponse, 403: dict, 404: dict},
+            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         # pylint: disable=too-many-positional-arguments

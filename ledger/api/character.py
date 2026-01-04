@@ -26,8 +26,10 @@ from ledger.api.helpers.icons import (
 from ledger.api.schema import (
     BillboardSchema,
     CategorySchema,
+    CharacterLedgerSchema,
     LedgerDetailsResponse,
     LedgerDetailsSummary,
+    LedgerResponse,
     OwnerLedgerRequestInfo,
     OwnerSchema,
     UpdateStatusSchema,
@@ -45,28 +47,27 @@ from ledger.providers import AppLogger
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
-class LedgerSchema(Schema):
-    bounty: float = 0.00
-    ess: float = 0.00
-    mining: float = 0.00
-    costs: float = 0.00
-    miscellaneous: float = 0.00
-    total: float = 0.00
-
-
 class LedgerCharacterSchema(Schema):
     character: OwnerSchema
-    ledger: LedgerSchema
+    ledger: CharacterLedgerSchema
     update_status: UpdateStatusSchema
     actions: str = ""
 
 
-class LedgerResponse(Schema):
-    owner: OwnerSchema
+class CharacterLedgerResponse(LedgerResponse):
+    """
+    Schema for Character Ledger Response.
+
+    This schema represents the response structure for a character's ledger,
+    extending the base :class:`LedgerResponse` to include character-specific information.
+
+    Attributes:
+        information (OwnerLedgerRequestInfo): Information about the ledger request.
+        characters (list[LedgerCharacterSchema]): List of character ledger data.
+    """
+
     information: OwnerLedgerRequestInfo
     characters: list[LedgerCharacterSchema]
-    billboard: BillboardSchema
-    actions: str = ""
 
 
 class CharacterApiEndpoints:
@@ -133,7 +134,7 @@ class CharacterApiEndpoints:
     # pylint: disable=too-many-locals
     def generate_character_data(
         self, owner: CharacterOwner, request_info: OwnerLedgerRequestInfo
-    ) -> list[LedgerResponse]:
+    ) -> list[CharacterLedgerResponse]:
         """
         Generate the ledger data for all alts of a character owner.
 
@@ -222,7 +223,7 @@ class CharacterApiEndpoints:
                         character_name=character.eve_character.character_name,
                         icon=character.get_portrait(size=32, as_html=True),
                     ),
-                    ledger=LedgerSchema(
+                    ledger=CharacterLedgerSchema(
                         bounty=character_bounty,
                         ess=character_ess,
                         mining=character_mining,
@@ -399,7 +400,7 @@ class CharacterApiEndpoints:
         month: int = None,
         day: int = None,
         section: str = None,
-    ) -> LedgerResponse | tuple[int, dict]:
+    ) -> CharacterLedgerResponse | tuple[int, dict]:
         """
         Helper function to generate ledger response for various date parameters.
 
@@ -415,7 +416,7 @@ class CharacterApiEndpoints:
             section (str): The section type ('single' or 'summary').
 
         Returns:
-            LedgerResponse | tuple[int, dict]: The ledger response or error tuple.
+            CharacterLedgerResponse | tuple[int, dict]: The ledger response or error tuple.
         """
 
         perms, owner = get_characterowner_or_none(
@@ -457,7 +458,7 @@ class CharacterApiEndpoints:
             characters=character_ledger_list, request_info=request_info
         )
 
-        response_ledger = LedgerResponse(
+        response_ledger = CharacterLedgerResponse(
             owner=OwnerSchema(
                 character_id=owner.eve_character.character_id,
                 character_name=owner.eve_character.character_name,
@@ -479,7 +480,7 @@ class CharacterApiEndpoints:
     def __init__(self, api: NinjaAPI):
         @api.get(
             "character/{character_id}/date/{year}/section/{section}/",
-            response={200: LedgerResponse, 403: dict, 404: dict},
+            response={200: CharacterLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_character_ledger(
@@ -495,7 +496,7 @@ class CharacterApiEndpoints:
 
         @api.get(
             "character/{character_id}/date/{year}/{month}/section/{section}/",
-            response={200: LedgerResponse, 403: dict, 404: dict},
+            response={200: CharacterLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_character_ledger(
@@ -512,7 +513,7 @@ class CharacterApiEndpoints:
 
         @api.get(
             "character/{character_id}/date/{year}/{month}/{day}/section/{section}/",
-            response={200: LedgerResponse, 403: dict, 404: dict},
+            response={200: CharacterLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         # pylint: disable=too-many-positional-arguments

@@ -58,6 +58,59 @@ class UpdateStatusSchema(Schema):
     icon: str | None = None
 
 
+class BillboardSchema(Schema):
+    xy_chart: ChartData | None = None
+    chord_chart: ChartData | None = None
+
+
+class LedgerResponse(Schema):
+    """
+    Schema for Ledger Response.
+
+    Attributes:
+        owner (OwnerSchema): The owner of the ledger.
+        billboard (BillboardSchema): Billboard data.
+        actions (str, optional): HTML string for actions.
+    """
+
+    owner: OwnerSchema
+    billboard: BillboardSchema
+    actions: str = ""
+
+
+class LedgerSchema(Schema):
+    """
+
+    Schema for Ledger Summary.
+
+    Attributes:
+        bounty (float): Amount related to bounties.
+        ess (float): Amount related to ESS activities.
+        costs (float): Amount related to costs.
+        miscellaneous (float): Miscellaneous amount.
+        total (float): Total amount.
+    """
+
+    bounty: float = 0.00
+    ess: float = 0.00
+    costs: float = 0.00
+    miscellaneous: float = 0.00
+    total: float = 0.00
+
+
+class CharacterLedgerSchema(LedgerSchema):
+    """
+    Schema for Character Ledger extending LedgerSchema.
+
+    Subclass of :class:`LedgerSchema`.
+
+    Attributes:
+        mining (float): Amount related to mining activities.
+    """
+
+    mining: float = 0.00
+
+
 class OwnerLedgerRequestInfo(Schema):
     """Schema for Owner Ledger Request Information."""
 
@@ -140,11 +193,6 @@ class LedgerDetailsResponse(Schema):
     daily: list[CategorySchema]
     hourly: list[CategorySchema]
     total: LedgerDetailsSummary
-
-
-class BillboardSchema(Schema):
-    xy_chart: ChartData | None = None
-    chord_chart: ChartData | None = None
 
 
 class CharacterAdmin(Schema):
