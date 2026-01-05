@@ -154,7 +154,7 @@ def get_character_details_info_button(
     Args:
         character_id (int): The character ID to be viewed.
         request_info (LedgerRequestInfo): The request information containing date and section details.
-        section (str): The section of the ledger to view.
+        section (str, optional): The section of the ledger to view.
     Returns:
         String: HTML string containing the info button.
     """
@@ -279,10 +279,9 @@ def get_corporation_details_info_button(
     When clicked, it triggers a modal to display detailed information about the Entity.
 
     Args:
-        corporation_id (int): The corporation ID to be viewed.
         entity_id (int): The entity ID to be viewed.
-        section (str): The section of the ledger to view.
         request_info (CorporationLedgerRequestInfo): The request information containing date and section details.
+        section (str, optional): The section of the ledger to view.
     Returns:
         String: HTML string containing the info button.
     """
@@ -332,10 +331,9 @@ def get_alliance_details_info_button(
     When clicked, it triggers a modal to display detailed information about the Entity.
 
     Args:
-        alliance_id (int): The alliance ID to be viewed.
         entity_id (int): The entity ID to be viewed.
-        section (str): The section of the ledger to view.
         request_info (AllianceLedgerRequestInfo): The request information containing date and section details.
+        section (str, optional): The section of the ledger to view.
     Returns:
         String: HTML string containing the info button.
     """
