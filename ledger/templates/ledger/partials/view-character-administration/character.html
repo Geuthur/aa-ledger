@@ -21,14 +21,6 @@
                         </div>
                         <!-- Character Actions -->
                         <div class="card-footer">
-                            <a class="btn btn-success btn-sm"
-                                href="{% url 'ledger:character_ledger' character_id=character.eve_character.character_id year=year month=month %}?single=True"
-                                role="button"
-                                data-tooltip-toggle="ledger-tooltip"
-                                title="{% translate 'View Character Ledger' %}">
-                                <i class="fas fa-sign-in-alt"></i>
-                            </a>
-
                             <button type="button" class="btn btn-danger btn-sm btn-square me-2"
                                 data-bs-toggle="modal"
                                 data-tooltip-toggle="ledger-tooltip"
