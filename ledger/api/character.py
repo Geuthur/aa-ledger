@@ -452,7 +452,6 @@ class CharacterApiEndpoints:
         year: int,
         month: int = None,
         day: int = None,
-        section: str = None,
     ) -> CharacterLedgerResponse | tuple[int, dict]:
         """
         Helper function to generate ledger response for various date parameters.
@@ -490,7 +489,6 @@ class CharacterApiEndpoints:
             year=year,
             month=month,
             day=day,
-            section=section,
         )
 
         # Generate Character Ledger Data
