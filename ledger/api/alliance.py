@@ -432,7 +432,7 @@ class AllianceApiEndpoints:
         Helper function to generate ledger response for various date parameters.
 
         This function consolidates the common logic for generating the ledger response
-        based on the provided date parameters (year, month, day) and section.
+        based on the provided date parameters (year, month, day).
 
         Args:
             request (WSGIRequest): The incoming request object.
@@ -440,7 +440,6 @@ class AllianceApiEndpoints:
             year (int): The year for the ledger data.
             month (int, optional): The month for the ledger data. Defaults to None.
             day (int, optional): The day for the ledger data. Defaults to None.
-            section (str): The section type ('single' or 'summary').
 
         Returns:
             AllianceLedgerResponse | tuple[int, dict]: The ledger response or error tuple.
@@ -506,7 +505,7 @@ class AllianceApiEndpoints:
 class AllianceDetailsApiEndpoints:
     tags = ["Alliance Details"]
 
-    # pylint: disable=too-many-statements, function-redefined, too-many-arguments
+    # pylint: disable=too-many-statements, function-redefined, too-many-arguments, duplicate-code
     def __init__(self, api: NinjaAPI):
         @api.get(
             "alliance/{alliance_id}/date/{year}/section/{section}/view/details/{entity_id}/",

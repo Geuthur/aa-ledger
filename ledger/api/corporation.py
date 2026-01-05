@@ -721,7 +721,7 @@ class CorporationApiEndpoints:
         Helper function to generate ledger response for various date parameters.
 
         This function consolidates the common logic for generating the ledger response
-        based on the provided date parameters (year, month, day) and section.
+        based on the provided date parameters (year, month, day).
 
         Args:
             request (WSGIRequest): The incoming request object.
@@ -729,7 +729,6 @@ class CorporationApiEndpoints:
             year (int): The year for the ledger data.
             month (int, optional): The month for the ledger data. Defaults to None.
             day (int, optional): The day for the ledger data. Defaults to None.
-            section (str): The section type ('single' or 'summary').
 
         Returns:
             CorporationLedgerResponse | tuple[int, dict]: The ledger response or error tuple.

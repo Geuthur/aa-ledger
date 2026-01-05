@@ -35,7 +35,6 @@ def character_ledger(
     year=None,
     month=None,
     day=None,
-    section=None,
 ):
     """
     Character Ledger
@@ -61,8 +60,6 @@ def character_ledger(
         kwargs["month"] = month
     if day is not None:
         kwargs["day"] = day
-    if section is not None:
-        kwargs["section"] = section
 
     # Redirect to the same view with updated parameters
     if request.POST:

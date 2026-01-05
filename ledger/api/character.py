@@ -77,28 +77,25 @@ class CharacterApiEndpoints:
     # flake8: noqa: F811
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "character/{character_id}/date/{year}/section/{section}/",
+            "character/{character_id}/date/{year}/",
             response={200: CharacterLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def get_character_ledger(
-            request: WSGIRequest, character_id: int, year: int, section: str
-        ):
+        def get_character_ledger(request: WSGIRequest, character_id: int, year: int):
             """Get the ledger for a character for a specific year. Admin Endpoint."""
             return self._ledger_api_response(
                 request=request,
                 character_id=character_id,
                 year=year,
-                section=section,
             )
 
         @api.get(
-            "character/{character_id}/date/{year}/{month}/section/{section}/",
+            "character/{character_id}/date/{year}/{month}/",
             response={200: CharacterLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_character_ledger(
-            request: WSGIRequest, character_id: int, year: int, month: int, section: str
+            request: WSGIRequest, character_id: int, year: int, month: int
         ):
             """Get the ledger for a character for a specific year. Admin Endpoint."""
             return self._ledger_api_response(
@@ -106,11 +103,10 @@ class CharacterApiEndpoints:
                 character_id=character_id,
                 year=year,
                 month=month,
-                section=section,
             )
 
         @api.get(
-            "character/{character_id}/date/{year}/{month}/{day}/section/{section}/",
+            "character/{character_id}/date/{year}/{month}/{day}/",
             response={200: CharacterLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
@@ -120,7 +116,6 @@ class CharacterApiEndpoints:
             year: int,
             month: int,
             day: int,
-            section: str,
         ):
             """Get the ledger for a character for a specific year. Admin Endpoint."""
             return self._ledger_api_response(
@@ -129,7 +124,6 @@ class CharacterApiEndpoints:
                 year=year,
                 month=month,
                 day=day,
-                section=section,
             )
 
     def _create_datatable_footer(
