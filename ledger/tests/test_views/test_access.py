@@ -187,7 +187,6 @@ class TestViewCharacterLedgerAccess(LedgerTestCase):
             request,
             character_id=self.user_character.character.character_id,
             year=2025,
-            section="summary",
         )
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -205,7 +204,7 @@ class TestViewCharacterLedgerAccess(LedgerTestCase):
         response = self.client.get(
             reverse(
                 "ledger:character_ledger",
-                kwargs={"character_id": 1003, "year": 2025, "section": "summary"},
+                kwargs={"character_id": 1003, "year": 2025},
             ),
             follow=True,
         )
