@@ -78,6 +78,123 @@ class CorporationLedgerResponse(LedgerResponse):
 class CorporationApiEndpoints:
     tags = ["Corporation"]
 
+    # pylint: disable=too-many-statements, function-redefined, duplicate-code
+    # flake8: noqa: F811
+    def __init__(self, api: NinjaAPI):
+        self.cache_manager = CacheManager()
+
+        @api.get(
+            "corporation/{corporation_id}/division/{division_id}/date/{year}/",
+            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def get_corporation_ledger(
+            request: WSGIRequest, corporation_id: int, division_id: int, year: int
+        ):
+            """Get the ledger for a character for a specific year. Admin Endpoint."""
+            return self._ledger_api_response(
+                request=request,
+                corporation_id=corporation_id,
+                division_id=division_id,
+                year=year,
+            )
+
+        @api.get(
+            "corporation/{corporation_id}/division/{division_id}/date/{year}/{month}/",
+            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def get_corporation_ledger(
+            request: WSGIRequest,
+            corporation_id: int,
+            division_id: int,
+            year: int,
+            month: int,
+        ):
+            """Get the ledger for a character for a specific year. Admin Endpoint."""
+            return self._ledger_api_response(
+                request=request,
+                corporation_id=corporation_id,
+                division_id=division_id,
+                year=year,
+                month=month,
+            )
+
+        @api.get(
+            "corporation/{corporation_id}/division/{division_id}/date/{year}/{month}/{day}/",
+            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def get_corporation_ledger(
+            request: WSGIRequest,
+            corporation_id: int,
+            division_id: int,
+            year: int,
+            month: int,
+            day: int,
+        ):
+            """Get the ledger for a character for a specific year. Admin Endpoint."""
+            return self._ledger_api_response(
+                request=request,
+                corporation_id=corporation_id,
+                division_id=division_id,
+                year=year,
+                month=month,
+                day=day,
+            )
+
+        @api.get(
+            "corporation/{corporation_id}/date/{year}/",
+            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def get_corporation_ledger(
+            request: WSGIRequest, corporation_id: int, year: int
+        ):
+            """Get the ledger for a character for a specific year. Admin Endpoint."""
+            return self._ledger_api_response(
+                request=request,
+                corporation_id=corporation_id,
+                year=year,
+            )
+
+        @api.get(
+            "corporation/{corporation_id}/date/{year}/{month}/",
+            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def get_corporation_ledger(
+            request: WSGIRequest, corporation_id: int, year: int, month: int
+        ):
+            """Get the ledger for a character for a specific year. Admin Endpoint."""
+            return self._ledger_api_response(
+                request=request,
+                corporation_id=corporation_id,
+                year=year,
+                month=month,
+            )
+
+        @api.get(
+            "corporation/{corporation_id}/date/{year}/{month}/{day}/",
+            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def get_corporation_ledger(
+            request: WSGIRequest,
+            corporation_id: int,
+            year: int,
+            month: int,
+            day: int,
+        ):
+            """Get the ledger for a character for a specific year. Admin Endpoint."""
+            return self._ledger_api_response(
+                request=request,
+                corporation_id=corporation_id,
+                year=year,
+                month=month,
+                day=day,
+            )
+
     # pylint: disable=duplicate-code
     def _create_datatable_footer(
         self,
@@ -673,126 +790,152 @@ class CorporationApiEndpoints:
 
         return response_ledger
 
-    # pylint: disable=too-many-statements, function-redefined, duplicate-code
-    # flake8: noqa: F811
-    def __init__(self, api: NinjaAPI):
-        self.cache_manager = CacheManager()
-
-        @api.get(
-            "corporation/{corporation_id}/division/{division_id}/date/{year}/",
-            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger(
-            request: WSGIRequest, corporation_id: int, division_id: int, year: int
-        ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                division_id=division_id,
-                year=year,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/division/{division_id}/date/{year}/{month}/",
-            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger(
-            request: WSGIRequest,
-            corporation_id: int,
-            division_id: int,
-            year: int,
-            month: int,
-        ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                division_id=division_id,
-                year=year,
-                month=month,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/division/{division_id}/date/{year}/{month}/{day}/",
-            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger(
-            request: WSGIRequest,
-            corporation_id: int,
-            division_id: int,
-            year: int,
-            month: int,
-            day: int,
-        ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                division_id=division_id,
-                year=year,
-                month=month,
-                day=day,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/date/{year}/",
-            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger(
-            request: WSGIRequest, corporation_id: int, year: int
-        ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                year=year,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/date/{year}/{month}/",
-            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger(
-            request: WSGIRequest, corporation_id: int, year: int, month: int
-        ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                year=year,
-                month=month,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/date/{year}/{month}/{day}/",
-            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger(
-            request: WSGIRequest,
-            corporation_id: int,
-            year: int,
-            month: int,
-            day: int,
-        ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                year=year,
-                month=month,
-                day=day,
-            )
-
 
 class CorporationDetailsApiEndpoints:
     tags = ["Corporation Details"]
+
+    # pylint: disable=too-many-statements, function-redefined, too-many-arguments
+    def __init__(self, api: NinjaAPI):
+        @api.get(
+            "corporation/{corporation_id}/division/{division_id}/date/{year}/section/{section}/view/details/{entity_id}/",
+            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def get_corporation_ledger_details(
+            request: WSGIRequest,
+            corporation_id: int,
+            division_id: int,
+            year: int,
+            section: str,
+            entity_id: int,
+        ):
+            return self._ledger_details_api_response(
+                request=request,
+                corporation_id=corporation_id,
+                division_id=division_id,
+                entity_id=entity_id,
+                year=year,
+                section=section,
+            )
+
+        @api.get(
+            "corporation/{corporation_id}/division/{division_id}/date/{year}/{month}/section/{section}/view/details/{entity_id}/",
+            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        # pylint: disable=too-many-positional-arguments
+        def get_corporation_ledger_details(
+            request: WSGIRequest,
+            corporation_id: int,
+            division_id: int,
+            year: int,
+            month: int,
+            section: str,
+            entity_id: int,
+        ):
+            return self._ledger_details_api_response(
+                request=request,
+                corporation_id=corporation_id,
+                division_id=division_id,
+                entity_id=entity_id,
+                year=year,
+                month=month,
+                section=section,
+            )
+
+        @api.get(
+            "corporation/{corporation_id}/division/{division_id}/date/{year}/{month}/{day}/section/{section}/view/details/{entity_id}/",
+            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        # pylint: disable=too-many-positional-arguments
+        def get_corporation_ledger_details(
+            request: WSGIRequest,
+            corporation_id: int,
+            division_id: int,
+            year: int,
+            month: int,
+            day: int,
+            section: str,
+            entity_id: int,
+        ):
+            return self._ledger_details_api_response(
+                request=request,
+                corporation_id=corporation_id,
+                division_id=division_id,
+                entity_id=entity_id,
+                year=year,
+                month=month,
+                day=day,
+                section=section,
+            )
+
+        @api.get(
+            "corporation/{corporation_id}/date/{year}/section/{section}/view/details/{entity_id}/",
+            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def get_corporation_ledger_details(
+            request: WSGIRequest,
+            corporation_id: int,
+            year: int,
+            section: str,
+            entity_id: int,
+        ):
+            return self._ledger_details_api_response(
+                request=request,
+                corporation_id=corporation_id,
+                entity_id=entity_id,
+                year=year,
+                section=section,
+            )
+
+        @api.get(
+            "corporation/{corporation_id}/date/{year}/{month}/section/{section}/view/details/{entity_id}/",
+            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def get_corporation_ledger_details(
+            request: WSGIRequest,
+            corporation_id: int,
+            year: int,
+            month: int,
+            section: str,
+            entity_id: int,
+        ):
+            return self._ledger_details_api_response(
+                request=request,
+                corporation_id=corporation_id,
+                entity_id=entity_id,
+                year=year,
+                month=month,
+                section=section,
+            )
+
+        @api.get(
+            "corporation/{corporation_id}/date/{year}/{month}/{day}/section/{section}/view/details/{entity_id}/",
+            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        # pylint: disable=too-many-positional-arguments
+        def get_corporation_ledger_details(
+            request: WSGIRequest,
+            corporation_id: int,
+            year: int,
+            month: int,
+            day: int,
+            section: str,
+            entity_id: int,
+        ):
+            return self._ledger_details_api_response(
+                request=request,
+                corporation_id=corporation_id,
+                entity_id=entity_id,
+                year=year,
+                month=month,
+                day=day,
+                section=section,
+            )
 
     # pylint: disable=duplicate-code
     def _create_datatable_footer(self, value: float) -> str:
@@ -1022,146 +1165,3 @@ class CorporationDetailsApiEndpoints:
             entity_id=entity_id,
             request_info=request_info,
         )
-
-    # pylint: disable=too-many-statements, function-redefined, too-many-arguments
-    def __init__(self, api: NinjaAPI):
-        @api.get(
-            "corporation/{corporation_id}/division/{division_id}/date/{year}/section/{section}/view/details/{entity_id}/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger_details(
-            request: WSGIRequest,
-            corporation_id: int,
-            division_id: int,
-            year: int,
-            section: str,
-            entity_id: int,
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                division_id=division_id,
-                entity_id=entity_id,
-                year=year,
-                section=section,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/division/{division_id}/date/{year}/{month}/section/{section}/view/details/{entity_id}/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        # pylint: disable=too-many-positional-arguments
-        def get_corporation_ledger_details(
-            request: WSGIRequest,
-            corporation_id: int,
-            division_id: int,
-            year: int,
-            month: int,
-            section: str,
-            entity_id: int,
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                division_id=division_id,
-                entity_id=entity_id,
-                year=year,
-                month=month,
-                section=section,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/division/{division_id}/date/{year}/{month}/{day}/section/{section}/view/details/{entity_id}/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        # pylint: disable=too-many-positional-arguments
-        def get_corporation_ledger_details(
-            request: WSGIRequest,
-            corporation_id: int,
-            division_id: int,
-            year: int,
-            month: int,
-            day: int,
-            section: str,
-            entity_id: int,
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                division_id=division_id,
-                entity_id=entity_id,
-                year=year,
-                month=month,
-                day=day,
-                section=section,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/date/{year}/section/{section}/view/details/{entity_id}/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger_details(
-            request: WSGIRequest,
-            corporation_id: int,
-            year: int,
-            section: str,
-            entity_id: int,
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                entity_id=entity_id,
-                year=year,
-                section=section,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/date/{year}/{month}/section/{section}/view/details/{entity_id}/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger_details(
-            request: WSGIRequest,
-            corporation_id: int,
-            year: int,
-            month: int,
-            section: str,
-            entity_id: int,
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                entity_id=entity_id,
-                year=year,
-                month=month,
-                section=section,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/date/{year}/{month}/{day}/section/{section}/view/details/{entity_id}/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        # pylint: disable=too-many-positional-arguments
-        def get_corporation_ledger_details(
-            request: WSGIRequest,
-            corporation_id: int,
-            year: int,
-            month: int,
-            day: int,
-            section: str,
-            entity_id: int,
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                entity_id=entity_id,
-                year=year,
-                month=month,
-                day=day,
-                section=section,
-            )

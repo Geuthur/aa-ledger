@@ -73,6 +73,65 @@ class CharacterLedgerResponse(LedgerResponse):
 class CharacterApiEndpoints:
     tags = ["Character"]
 
+    # pylint: disable=too-many-statements, function-redefined
+    # flake8: noqa: F811
+    def __init__(self, api: NinjaAPI):
+        @api.get(
+            "character/{character_id}/date/{year}/section/{section}/",
+            response={200: CharacterLedgerResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def get_character_ledger(
+            request: WSGIRequest, character_id: int, year: int, section: str
+        ):
+            """Get the ledger for a character for a specific year. Admin Endpoint."""
+            return self._ledger_api_response(
+                request=request,
+                character_id=character_id,
+                year=year,
+                section=section,
+            )
+
+        @api.get(
+            "character/{character_id}/date/{year}/{month}/section/{section}/",
+            response={200: CharacterLedgerResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def get_character_ledger(
+            request: WSGIRequest, character_id: int, year: int, month: int, section: str
+        ):
+            """Get the ledger for a character for a specific year. Admin Endpoint."""
+            return self._ledger_api_response(
+                request=request,
+                character_id=character_id,
+                year=year,
+                month=month,
+                section=section,
+            )
+
+        @api.get(
+            "character/{character_id}/date/{year}/{month}/{day}/section/{section}/",
+            response={200: CharacterLedgerResponse, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def get_character_ledger(
+            request: WSGIRequest,
+            character_id: int,
+            year: int,
+            month: int,
+            day: int,
+            section: str,
+        ):
+            """Get the ledger for a character for a specific year. Admin Endpoint."""
+            return self._ledger_api_response(
+                request=request,
+                character_id=character_id,
+                year=year,
+                month=month,
+                day=day,
+                section=section,
+            )
+
     def _create_datatable_footer(
         self,
         characters: list[LedgerCharacterSchema],
@@ -475,19 +534,21 @@ class CharacterApiEndpoints:
 
         return response_ledger
 
+
+class CharacterDetailsApiEndpoints:
+    tags = ["Character Details"]
+
     # pylint: disable=too-many-statements, function-redefined
-    # flake8: noqa: F811
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "character/{character_id}/date/{year}/section/{section}/",
-            response={200: CharacterLedgerResponse, 403: dict, 404: dict},
+            "character/{character_id}/date/{year}/section/{section}/view/details/",
+            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def get_character_ledger(
+        def get_character_ledger_details(
             request: WSGIRequest, character_id: int, year: int, section: str
         ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
+            return self._ledger_details_api_response(
                 request=request,
                 character_id=character_id,
                 year=year,
@@ -495,15 +556,14 @@ class CharacterApiEndpoints:
             )
 
         @api.get(
-            "character/{character_id}/date/{year}/{month}/section/{section}/",
-            response={200: CharacterLedgerResponse, 403: dict, 404: dict},
+            "character/{character_id}/date/{year}/{month}/section/{section}/view/details/",
+            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def get_character_ledger(
+        def get_character_ledger_details(
             request: WSGIRequest, character_id: int, year: int, month: int, section: str
         ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
+            return self._ledger_details_api_response(
                 request=request,
                 character_id=character_id,
                 year=year,
@@ -512,11 +572,11 @@ class CharacterApiEndpoints:
             )
 
         @api.get(
-            "character/{character_id}/date/{year}/{month}/{day}/section/{section}/",
-            response={200: CharacterLedgerResponse, 403: dict, 404: dict},
+            "character/{character_id}/date/{year}/{month}/{day}/section/{section}/view/details/",
+            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def get_character_ledger(
+        def get_character_ledger_details(
             request: WSGIRequest,
             character_id: int,
             year: int,
@@ -524,8 +584,7 @@ class CharacterApiEndpoints:
             day: int,
             section: str,
         ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
+            return self._ledger_details_api_response(
                 request=request,
                 character_id=character_id,
                 year=year,
@@ -533,10 +592,6 @@ class CharacterApiEndpoints:
                 day=day,
                 section=section,
             )
-
-
-class CharacterDetailsApiEndpoints:
-    tags = ["Character Details"]
 
     def _create_datatable_footer(self, value: float) -> str:
         """Create the footer HTML for the datatable."""
@@ -765,58 +820,3 @@ class CharacterDetailsApiEndpoints:
             owner=owner,
             request_info=request_info,
         )
-
-    # pylint: disable=too-many-statements, function-redefined
-    def __init__(self, api: NinjaAPI):
-        @api.get(
-            "character/{character_id}/date/{year}/section/{section}/view/details/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_character_ledger_details(
-            request: WSGIRequest, character_id: int, year: int, section: str
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                character_id=character_id,
-                year=year,
-                section=section,
-            )
-
-        @api.get(
-            "character/{character_id}/date/{year}/{month}/section/{section}/view/details/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_character_ledger_details(
-            request: WSGIRequest, character_id: int, year: int, month: int, section: str
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                character_id=character_id,
-                year=year,
-                month=month,
-                section=section,
-            )
-
-        @api.get(
-            "character/{character_id}/date/{year}/{month}/{day}/section/{section}/view/details/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_character_ledger_details(
-            request: WSGIRequest,
-            character_id: int,
-            year: int,
-            month: int,
-            day: int,
-            section: str,
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                character_id=character_id,
-                year=year,
-                month=month,
-                day=day,
-                section=section,
-            )
