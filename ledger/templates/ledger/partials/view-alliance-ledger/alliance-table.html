@@ -2,120 +2,46 @@
 {% load evelinks %}
 {% load humanize %}
 <div class="card mb-3">
-    <div class="card-body bg-primary rounded-top d-flex align-items-center">
-        <h3 class="me-3">{% translate "Alliance Ledger" %}</h3>
-        {% if years %}
-            <div class="dropdown px-2">
-                <button id="yearDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {% trans "Year" %}
-                </button>
-                <ul class="dropdown-menu" id="yearDropdown">
-                    {% for year in years %}
-                        <li>
-                            <a class="dropdown-item {% if view.date.year|default:'null' == year %}active{% endif %}" href="{% url 'ledger:alliance_ledger' alliance_id=alliance_id year=year %}{% if view.type == 'single' %}?single=True{% endif %}">{{ year }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div class="dropdown px-2">
-                <button id="monthDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {% trans "Month" %}
-                </button>
-                <ul class="dropdown-menu" id="monthDropdown">
-                    {% for m in 12|range_filter %}
-                        <li>
-                            <a class="dropdown-item {% if view.date.month|default:'null' == m %}active{% endif %}" href="{% url 'ledger:alliance_ledger' alliance_id=alliance_id year=view.date.year|default:view.date.current.year month=m %}{% if view.type == 'single' %}?single=True{% endif %}">
-                                {{ m|month_name }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div class="dropdown px-2">
-                <button id="dayDropDownButton" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {% trans "Day" %}
-                </button>
-                <ul class="dropdown-menu" id="dayDropdown">
-                    {% month_days view.date as month_days %}
-                    {% for day in month_days %}
-                        <li>
-                            <a class="dropdown-item {% if view.date.day|default:'null' == day %}active{% endif %}" href="{% url 'ledger:alliance_ledger' alliance_id=alliance_id year=view.date.year|default:view.date.current.year month=view.date.month|default:view.date.current.month day=day %}{% if view.type == 'single' %}?single=True{% endif %}">
-                                {{ day }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
+    <div class="card-header bg-primary rounded-top d-flex align-items-center">
+        <h3 class="me-3">{% translate "Corporation Ledger" %}</h3>
+        <div id="dropdown alliance-ledger-dropdown-buttons me-2" class="d-flex">
+            {% if forms.alliance_dropdown %}
+                <div class="me-2">
+                    <form id="alliance-ledger-dropdown-form" method="post" href="{% url 'ledger:alliance_ledger' alliance_id=alliance_id %}" class="d-flex">
+                        {% csrf_token %}
+                        {{ forms.alliance_dropdown.year }}
+                        {{ forms.alliance_dropdown.month }}
+                        {{ forms.alliance_dropdown.day }}
+                        <button id="alliance-ledger-submit" type="submit" class="btn btn-success">{% translate "Submit" %}</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
         <div class="ms-auto">
-            <a class="btn btn-secondary me-2 administration {% if disabled %}disabled{% endif %}" href="{% url 'ledger:alliance_administration' alliance_id=alliance_id %}">{% translate 'Administration' %}</a>
-            <a href="{% url 'ledger:alliance_overview' %}"><button class="btn btn-secondary overview">{% translate 'Alliance Overview' %}</button></a>
+            <a class="btn btn-secondary me-2 administration" href="{% url 'ledger:alliance_administration' alliance_id=alliance_id %}" class="administration">{% translate 'Administration' %}{% if issues %} <span class="badge bg-warning">{{ issues }}</span>{% endif %}</a>
+            <a href="{% url 'ledger:alliance_overview' %}" class="overview"><button class="btn btn-secondary overview">{% translate 'Account Overview' %}</button></a>
         </div>
     </div>
 
     <!-- Alliance Ledger Table -->
-    <div class="card-body rounded-bottom">
-        <table class="table table-hover w-100" id="ratting">
-            <thead>
-                <th class="w-auto">{% trans "Character" %}</th>
-                <th class="w-auto">{% trans "Bounty Amount" %}</th>
-                <th class="w-auto">{% trans "ESS Amount" %}
-                </th>
-                <th class="w-auto">{% trans "Misc. Amount" %}</th>
-                <th class="w-auto">{% trans "Costs" %}</th>
-                <th class="w-auto" style="border-left: 2px solid #888;">{% trans "Total" %}</th>
-                <th class="w-auto"></th>
-            </thead>
-            <tbody>
-                {% for corporation_data in ledger %}
-                    <tr>
-                        <td class="nowrap">
-                            <img src="{{ corporation_data.entity.portrait_url }}" class="rounded-circle" alt="{{ corporation_data.entity.entity_name }}">
-                            {{ corporation_data.entity.entity_name }}
-                            {% if corporation_data.alts %}
-                            <i class="fa-regular fa-circle-question"
-                            data-bs-toggle="corp-popover"
-                            data-bs-html="true"
-                            data-bs-trigger="hover focus"
-                            data-bs-placement="top"
-                            title="Included Characters"
-                            data-bs-content="{% for alt_id, alt_name in corporation_data.alts.items %}<p><img src='{{ alt_id|character_portrait_url:32 }}' class='rounded-circle'>{{ alt_name }}</p>{% endfor %}">
-                            </i>
-                            {% endif %}
-                        </td>
-                        <td class="nowrap text-success" id="amount_ratting_{{ corporation_data.entity.entity_id }}" data-order="{{ corporation_data.ledger.bounty|default:0 }}">{{ corporation_data.ledger.bounty|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
-                        <td class="nowrap text-success" id="amount_ess_{{ corporation_data.entity.entity_id }}" data-order="{{ corporation_data.ledger.ess|default:0 }}">{{ corporation_data.ledger.ess|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
-                        <td class="nowrap text-success" id="amount_misc_{{ corporation_data.entity.entity_id }}" data-order="{{ corporation_data.ledger.miscellaneous|default:0 }}">{{ corporation_data.ledger.miscellaneous|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
-                        <td class="nowrap text-danger" id="amount_costs_{{ corporation_data.entity.entity_id }}" data-order="{{ corporation_data.ledger.costs|default:0 }}">{{ corporation_data.ledger.costs|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
-                        <td class="nowrap {% if corporation_data.ledger.total < 0 %}text-danger {% else %}text-success{% endif %}" style="border-left: 2px solid #888;" id="amount_total_{{ corporation_data.entity.entity_id }}" data-order="{{ corporation_data.ledger.total|default:0 }}">{{ corporation_data.ledger.total|floatformat:0|intcomma }} <span class="text-white">ISK</span></td>
-                        <td>{{ corporation_data.entity.create_button }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
+    <div class="table-responsive">
+        <div class="card-body rounded-bottom">
+            <table class="table table-striped table-hover w-100" id="alliance-ledger-table">
+                <thead>
+                    <th class="w-auto">{% trans "Entity" %}</th>
+                    <th class="w-auto">{% trans "Bounty Amount" %}</th>
+                    <th class="w-auto">{% trans "ESS Amount" %}</th>
+                    <th class="w-auto">{% trans "Misc. Amount" %}</th>
+                    <th class="w-auto">{% trans "Costs" %}</th>
+                    <th class="w-auto" style="border-left: 2px solid #888;">{% trans "Total" %}</th>
+                    <th class="w-auto"></th>
+                </thead>
+                <tbody>
+                </tbody>
 
-            <tfoot id="foot">
-                <tr>
-                    <th><strong>{% trans "Summary" %}</strong></th>
-                    <th class="nowrap {% if totals.bounty < 0 %}text-danger {% else %}text-success{% endif %}" id="total_bounty" data-sort="{{ totals.bounty|default:0 }}">{{ totals.bounty|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
-                    <th class="nowrap {% if totals.ess < 0 %}text-danger {% else %}text-success{% endif %}" id="total_ess" data-sort="{{ totals.ess|default:0 }}">{{ totals.ess|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
-                    <th class="nowrap {% if totals.miscellaneous < 0 %}text-danger {% else %}text-success{% endif %}" id="total_misc" data-sort="{{ totals.miscellaneous|default:0 }}">{{ totals.miscellaneous|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
-                    <th class="nowrap {% if totals.costs < 0 %}text-danger {% else %}text-success{% endif %}" id="total_costs" data-sort="{{ totals.costs|default:0 }}">{{ totals.costs|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
-                    <th class="nowrap {% if totals.total < 0 %}text-danger {% else %}text-success{% endif %}" style="border-left: 2px solid #888;" id="total_total" data-sort="{{ totals.total|default:0 }}">{{ totals.total|floatformat:0|intcomma }} <span class="text-white">ISK</span></th>
-                    <th>
-                        {% if view.details_url %}
-                            <button
-                                class="btn btn-primary btn-sm btn-square"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalViewCharacterContainer"
-                                data-ajax_url="{{ view.details_url }}"
-                                title="{% trans 'View Details' %}"
-                                data-tooltip-toggle="ledger-tooltip" data-bs-placement="right">
-                                <span class="fas fa-info"></span>
-                            </button>
-                        {% endif %}
-                    </th>
-                </tr>
-            </tfoot>
-        </table>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
     </div>
 </div>

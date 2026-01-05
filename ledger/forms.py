@@ -227,3 +227,39 @@ class CorporationDropdownForm(DropdownFormBaseModel):
         empty_label=None,
         widget=forms.Select(attrs={"class": "btn btn-secondary form-select me-2"}),
     )
+
+
+class AllianceDropdownForm(DropdownFormBaseModel):
+    """Form for ledger dropdown selector."""
+
+    def __init__(
+        self,
+        *args,
+        alliance_id,
+        year=None,
+        month=None,
+        day=None,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+
+        # Populate the year field with distinct years from the journal entries
+        years_qs = (
+            CorporationWalletJournalEntry.objects.filter(
+                division__corporation__eve_corporation__alliance__alliance_id=alliance_id
+            )
+            .exclude(date__year__isnull=True)
+            .values_list("date__year", flat=True)
+            .order_by("-date__year")
+            .distinct()
+        )
+
+        year_choices = [(str(y), str(y)) for y in years_qs]
+        self.fields["year"].choices = year_choices
+
+        if year is not None:
+            self.fields["year"].initial = year
+        if month is not None and "month" in self.fields:
+            self.fields["month"].initial = month
+        if day is not None and "day" in self.fields:
+            self.fields["day"].initial = day

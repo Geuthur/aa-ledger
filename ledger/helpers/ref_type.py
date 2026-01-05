@@ -2,7 +2,6 @@
 
 # Standard Library
 import enum
-from typing import TYPE_CHECKING
 
 # Django
 from django.utils.translation import gettext_lazy as _
@@ -12,12 +11,6 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
 from ledger import __title__
-
-if TYPE_CHECKING:
-    # AA Ledger
-    from ledger.helpers.core import LedgerEntity
-
-# AA Ledger
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -446,41 +439,3 @@ class RefTypeManager:
         for __, ref_types in all_ref_types.items():
             ref_types_items.extend(ref_types)
         return ref_types_items
-
-    @staticmethod
-    def special_cases(row: dict, ids: set[int], account_char_ids: set[int]) -> bool:
-        """Handle special cases in Ledger."""
-        if isinstance(row, dict) is False:
-            logger.debug("Row is not a dictionary, skipping special case checks.")
-            return False
-
-        # Skip Market Transactions from buyer between the corporation and its members (only count transactions from creator)
-        if row["ref_type"] == "market_transaction" and row["first_party_id"] in ids:
-            return True
-
-        # Skip Contract if Contract Creator is Registered as a Member of the Corporation (only count the contract creator)
-        if (
-            row["ref_type"] == "contract_price_payment_corp"
-            and row["first_party_id"] in account_char_ids
-            and row["second_party_id"] in ids
-        ):
-            return True
-        return False
-
-    @staticmethod
-    def special_cases_details(
-        value: list,
-        entity: "LedgerEntity",
-        kwargs: dict[str, int],
-        journal_type: str,
-    ) -> bool:
-        """Handle special cases in Ledger for Details View."""
-        # Skip Contract if Contract Creator is Registered as a Member of the Corporation (only count the contract creator)
-        if (
-            "contract_price_payment_corp" in value
-            and entity.type == "character"
-            and journal_type == "corporation"
-        ):  # Only Count Contract Creator
-            kwargs["first_party"] = entity.entity_id
-            return kwargs
-        return kwargs

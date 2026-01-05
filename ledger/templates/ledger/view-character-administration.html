@@ -19,14 +19,14 @@
         <!-- Content -->
         <div id="ledger-index" class="card-body rounded-bottom fade">
             <div class="card-body">
-                {% include 'ledger/partials/administration/dashboard.html' %}
+                {% include 'ledger/partials/view-character-administration/dashboard.html' %}
             </div>
             <div class="card-body">
                 <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
                     <h3 class="text-white">{% translate "Characters" %}</h3>
                 </div>
                 <div class="card-body bg-secondary">
-                    {% include 'ledger/partials/administration/character.html' %}
+                    {% include 'ledger/partials/view-character-administration/character.html' %}
                 </div>
             </div>
         </div>
@@ -35,5 +35,5 @@
 
 {% block extra_javascript %}
     {% include 'bundles/datatables-js-bs5.html' %}
-    {% include 'ledger/bundles/char-administration-bundles.html' %}
+    {% include 'ledger/bundles/view-character-administration-js.html' %}
 {% endblock %}

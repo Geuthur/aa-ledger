@@ -91,10 +91,15 @@ def corporation_ledger(
         },
     }
 
-    if not perms:
+    if perms is None:
+        msg = _("Corporation not found")
+        messages.info(request, msg)
+        return redirect("ledger:corporation_overview")
+
+    if perms is False:
         msg = _("Permission Denied")
         messages.error(request, msg)
-        return render(request, "ledger/view-corporation-ledger.html", context=context)
+        return redirect("ledger:corporation_overview")
     return render(request, "ledger/view-corporation-ledger.html", context=context)
 
 

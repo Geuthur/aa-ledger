@@ -9,7 +9,11 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
 from ledger import __title__
-from ledger.api.schema import CorporationLedgerRequestInfo, OwnerLedgerRequestInfo
+from ledger.api.schema import (
+    AllianceLedgerRequestInfo,
+    CorporationLedgerRequestInfo,
+    OwnerLedgerRequestInfo,
+)
 from ledger.helpers.eveonline import get_character_portrait_url
 from ledger.models.planetary import CharacterPlanetDetails
 from ledger.providers import AppLogger
@@ -312,6 +316,59 @@ def get_corporation_details_info_button(
         'data-bs-toggle="modal" '
         'data-bs-tooltip="aa-ledger" '
         'data-bs-target="#ledger-view-corporation-ledger-details" '
+        f'title="{title}">{icon}</button>'
+    )
+    return ledger_info_button
+
+
+def get_alliance_details_info_button(
+    entity_id: int,
+    request_info: AllianceLedgerRequestInfo,
+    section: str = "summary",
+) -> str:
+    """
+    Generate a Entity Details Info button for the Corporation Ledger View.
+
+    When clicked, it triggers a modal to display detailed information about the Entity.
+
+    Args:
+        alliance_id (int): The alliance ID to be viewed.
+        entity_id (int): The entity ID to be viewed.
+        section (str): The section of the ledger to view.
+        request_info (AllianceLedgerRequestInfo): The request information containing date and section details.
+    Returns:
+        String: HTML string containing the info button.
+    """
+
+    kwargs = {
+        "alliance_id": request_info.owner_id,
+        "entity_id": entity_id,
+        "section": section,
+    }
+    if request_info.year is not None:
+        kwargs["year"] = request_info.year
+    if request_info.month is not None:
+        kwargs["month"] = request_info.month
+    if request_info.day is not None:
+        kwargs["day"] = request_info.day
+
+    # Generate the URL for the Info Request
+    button_request_info_url = reverse(
+        "ledger:api:get_alliance_ledger_details", kwargs=kwargs
+    )
+
+    # Define the icon and tooltip for the Info button
+    icon = '<i class="fa-solid fa-info"></i>'
+    title = _("View Details")
+    color = "primary"
+
+    # Create the HTML for the Info icon button
+    ledger_info_button = (
+        f'<button data-action="{button_request_info_url}" '
+        f'class="btn btn-{color} btn-sm btn-square me-2" '
+        'data-bs-toggle="modal" '
+        'data-bs-tooltip="aa-ledger" '
+        'data-bs-target="#ledger-view-alliance-ledger-details" '
         f'title="{title}">{icon}</button>'
     )
     return ledger_info_button

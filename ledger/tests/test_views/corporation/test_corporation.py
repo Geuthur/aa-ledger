@@ -175,7 +175,7 @@ class TestCorporationLedgerView(LedgerTestCase):
             ),
             data=form_data,
         )
-        request.user = self.user
+        request.user = self.superuser
 
         # Test Action
         response = corporation_data_export_generate(
@@ -212,7 +212,7 @@ class TestCorporationLedgerView(LedgerTestCase):
             data=form_data,
         )
 
-        request.user = self.user
+        request.user = self.superuser
 
         # Test Action
         response = corporation_data_export_generate(
@@ -247,7 +247,7 @@ class TestCorporationLedgerView(LedgerTestCase):
             reverse("ledger:corporation_data_export_run_update", args=[hashcode]),
         )
 
-        request.user = self.user
+        request.user = self.superuser
 
         # Test Action
         response = corporation_data_export_run_update(request, hash_code=hashcode)
@@ -315,7 +315,7 @@ class TestCorporationLedgerView(LedgerTestCase):
         request = self.factory.get(
             reverse("ledger:corporation_data_export_run_update", args=[hashcode]),
         )
-        request.user = self.user
+        request.user = self.superuser
 
         # Test Action
         response = corporation_data_export_run_update(request, hash_code=hashcode)

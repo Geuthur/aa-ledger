@@ -21,10 +21,10 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-lg-6 col-md-12">
-                        {% include 'ledger/partials/administration/dashboard.html' %}
+                        {% include 'ledger/partials/view-alliance-administration/dashboard.html' %}
                     </div>
                     <div class="col-lg-6 col-md-12">
-                        {% include 'ledger/partials/administration/alliance.html' %}
+                        {% include 'ledger/partials/view-alliance-administration/alliance.html' %}
                     </div>
                 </div>
             </div>
@@ -33,7 +33,7 @@
                     <h3 class="text-white">{% translate "Corporations" %}</h3>
                 </div>
                 <div class="card-body bg-secondary">
-                    {% include 'ledger/partials/administration/alliance_corporations.html' %}
+                    {% include 'ledger/partials/view-alliance-administration/alliance_corporations.html' %}
                 </div>
             </div>
         </div>
@@ -42,5 +42,5 @@
 
 {% block extra_javascript %}
     {% include 'bundles/datatables-js-bs5.html' %}
-    {% include 'ledger/bundles/ally-administration-bundles.html' %}
+    {% include 'ledger/bundles/view-alliance-administration-js.html' %}
 {% endblock %}

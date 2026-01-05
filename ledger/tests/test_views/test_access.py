@@ -174,14 +174,20 @@ class TestViewCharacterLedgerAccess(LedgerTestCase):
         request = self.factory.get(
             reverse(
                 "ledger:character_ledger",
-                kwargs={"character_id": self.user_character.character.character_id},
+                kwargs={
+                    "character_id": self.user_character.character.character_id,
+                    "year": 2025,
+                },
             )
         )
         request.user = self.user
 
         # Test Action
         response = character_ledger.character_ledger(
-            request, character_id=self.user_character.character.character_id
+            request,
+            character_id=self.user_character.character.character_id,
+            year=2025,
+            section="summary",
         )
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -194,13 +200,15 @@ class TestViewCharacterLedgerAccess(LedgerTestCase):
 
         This test verifies that a user without permission is shown an error message when accessing a character ledger.
         """
-        # Test Data
-        request = self.factory.get(reverse("ledger:character_ledger", args=[1003]))
-        request.user = self.user
-        self._middleware_process_request(request)
-
         # Test Action
-        response = character_ledger.character_ledger(request, 1003)
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse(
+                "ledger:character_ledger",
+                kwargs={"character_id": 1003, "year": 2025, "section": "summary"},
+            ),
+            follow=True,
+        )
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -312,14 +320,19 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
         request = self.factory.get(
             reverse(
                 "ledger:corporation_ledger",
-                kwargs={"corporation_id": self.user_character.character.corporation_id},
+                kwargs={
+                    "corporation_id": self.user_character.character.corporation_id,
+                    "year": 2025,
+                },
             )
         )
         request.user = self.user
 
         # Test Action
         response = corporation_ledger.corporation_ledger(
-            request, corporation_id=self.user_character.character.corporation_id
+            request,
+            corporation_id=self.user_character.character.corporation_id,
+            year=2025,
         )
 
         # Expected Result
@@ -333,15 +346,15 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
 
         This test verifies that a user is shown an info message when accessing a non-existent corporation ledger.
         """
-        # Test Data
-        request = self.factory.get(
-            reverse("ledger:corporation_ledger", kwargs={"corporation_id": 9999})
-        )
-        request.user = self.user
-        self._middleware_process_request(request)
-
         # Test Action
-        response = corporation_ledger.corporation_ledger(request, corporation_id=9999)
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse(
+                "ledger:corporation_ledger",
+                kwargs={"corporation_id": 9999, "year": 2025},
+            ),
+            follow=True,
+        )
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -357,14 +370,15 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
         """
         # Test Data
         self.user2 = add_new_permission_to_user(self.user2, "ledger.advanced_access")
-        request = self.factory.get(
-            reverse("ledger:corporation_ledger", kwargs={"corporation_id": 2001})
-        )
-        request.user = self.user2
-        self._middleware_process_request(request)
-
         # Test Action
-        response = corporation_ledger.corporation_ledger(request, corporation_id=2001)
+        self.client.force_login(self.user2)
+        response = self.client.get(
+            reverse(
+                "ledger:corporation_ledger",
+                kwargs={"corporation_id": 2001, "year": 2025},
+            ),
+            follow=True,
+        )
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -473,7 +487,7 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
         request = self.factory.get(
             reverse("ledger:corporation_data_export", args=[2001])
         )
-        request.user = self.user
+        request.user = self.superuser
 
         # Test Action
         response = corporation_ledger.corporation_data_export(request, 2001)
@@ -515,7 +529,7 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
         request = self.factory.get(
             reverse("ledger:corporation_data_export", args=[9999])
         )
-        request.user = self.user
+        request.user = self.superuser
         self._middleware_process_request(request)
 
         # Test Action
@@ -540,22 +554,6 @@ class TestViewAllianceLedgerAccess(LedgerTestCase):
         cls.user = add_new_permission_to_user(cls.user, "ledger.advanced_access")
         cls.user2 = add_new_permission_to_user(cls.user2, "ledger.advanced_access")
 
-    def test_view_alliance_ledger_index(self):
-        """
-        Test view alliance ledger index.
-
-        This test verifies that a user with permission can access the alliance ledger index.
-        """
-        # Test Data
-        request = self.factory.get(reverse("ledger:alliance_ledger_index"))
-        request.user = self.user
-
-        # Test Action
-        response = alliance_ledger.alliance_ledger_index(request)
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-
     def test_view_alliance_ledger(self):
         """
         Test view alliance ledger.
@@ -566,14 +564,17 @@ class TestViewAllianceLedgerAccess(LedgerTestCase):
         request = self.factory.get(
             reverse(
                 "ledger:alliance_ledger",
-                kwargs={"alliance_id": self.user_character.character.alliance_id},
+                kwargs={
+                    "alliance_id": self.user_character.character.alliance_id,
+                    "year": 2025,
+                },
             )
         )
         request.user = self.user
 
         # Test Action
         response = alliance_ledger.alliance_ledger(
-            request, alliance_id=self.user_character.character.alliance_id
+            request, alliance_id=self.user_character.character.alliance_id, year=2025
         )
 
         # Expected Result
@@ -587,17 +588,18 @@ class TestViewAllianceLedgerAccess(LedgerTestCase):
 
         This test verifies that a user is shown an info message when accessing a non-existent alliance ledger.
         """
-        # Test Data
-        request = self.factory.get(reverse("ledger:alliance_ledger", args=[9999]))
-        request.user = self.user
-        self._middleware_process_request(request)
-
         # Test Action
-        response = alliance_ledger.alliance_ledger(request, alliance_id=9999)
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse(
+                "ledger:alliance_ledger", kwargs={"alliance_id": 9999, "year": 2025}
+            ),
+            follow=True,
+        )
 
-        # Expected Result
+        # Expected Result: final page after redirect is OK and contains the overview
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Alliance Ledger")
+        self.assertContains(response, "Alliance Overview")
         self.assertTrue(mock_messages.info.called)
 
     @patch(ALLYLEDGER_PATH + ".messages")
@@ -607,108 +609,19 @@ class TestViewAllianceLedgerAccess(LedgerTestCase):
 
         This test verifies that a user without permission is shown an error message when accessing an alliance ledger.
         """
-        # Test Data
-        request = self.factory.get(reverse("ledger:alliance_ledger", args=[3001]))
-        request.user = self.user2
-        self._middleware_process_request(request)
-
         # Test Action
-        response = alliance_ledger.alliance_ledger(request, alliance_id=3001)
+        self.client.force_login(self.user2)
+        response = self.client.get(
+            reverse(
+                "ledger:alliance_ledger", kwargs={"alliance_id": 3001, "year": 2025}
+            ),
+            follow=True,
+        )
 
-        # Expected Result
+        # Expected Result: final page after redirect is OK and shows overview, and an error message was created
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Alliance Ledger")
+        self.assertContains(response, "Alliance Overview")
         self.assertTrue(mock_messages.error.called)
-
-    def test_view_alliance_details(self):
-        """
-        Test view alliance details.
-
-        This test verifies that a user with permission can access their alliance details view.
-        """
-        # Test Data
-        request = self.factory.get(
-            reverse(
-                "ledger:alliance_details",
-                kwargs={
-                    "alliance_id": self.user_character.character.alliance_id,
-                    "entity_id": 1001,
-                    "year": 2025,
-                    "section": "summary",
-                },
-            )
-        )
-        request.user = self.user
-
-        # Test Action
-        response = alliance_ledger.alliance_details(
-            request,
-            alliance_id=self.user_character.character.alliance_id,
-            entity_id=1001,
-            year=2025,
-        )
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "No ratting data found...")
-
-    def test_view_alliance_details_no_permission(self):
-        """
-        Test view alliance details without permission.
-
-        This test verifies that a user without permission is shown an error message when accessing alliance details.
-        """
-        # Test Data
-        request = self.factory.get(
-            reverse(
-                "ledger:alliance_details",
-                kwargs={
-                    "alliance_id": 3001,
-                    "year": 2025,
-                    "entity_id": 2001,
-                    "section": "summary",
-                },
-            )
-        )
-        request.user = self.user2
-
-        # Test Action
-        response = alliance_ledger.alliance_details(
-            request, alliance_id=3001, entity_id=2001, year=2025
-        )
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Permission Denied")
-
-    def test_view_alliance_details_not_found(self):
-        """
-        Test view alliance details not found.
-
-        This test verifies that a user is shown an error message when accessing non-existent alliance details.
-        """
-        # Test Data
-        request = self.factory.get(
-            reverse(
-                "ledger:alliance_details",
-                kwargs={
-                    "alliance_id": 9999,
-                    "year": 2025,
-                    "entity_id": 9999,
-                    "section": "summary",
-                },
-            )
-        )
-        request.user = self.user2
-
-        # Test Action
-        response = alliance_ledger.alliance_details(
-            request, alliance_id=9999, entity_id=9999, year=2025
-        )
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Alliance not found.")
 
     def test_view_alliance_overview(self):
         """

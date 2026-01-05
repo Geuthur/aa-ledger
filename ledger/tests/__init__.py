@@ -69,10 +69,12 @@ class LedgerTestCase(NoSocketsTestCase):
             * 'ledger.basic_access' Permission
             * Character ID 1001
             * Corporation ID 2001
+            * Alliance ID 3001
         * `user2` Second user with standard Ledger access.
             * 'ledger.basic_access' Permission
             * Character ID 1002
             * Corporation ID 2002
+            * Alliance ID 3002
         * `superuser` Superuser.
             * Access to whole Application
             * Character ID 1003

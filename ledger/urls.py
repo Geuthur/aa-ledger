@@ -36,11 +36,6 @@ urlpatterns = [
     ),
     # -- -- Alliance Ledger
     path(
-        "alliance/",
-        alliance_ledger.alliance_ledger_index,
-        name="alliance_ledger_index",
-    ),
-    path(
         "alliance/<int:alliance_id>/",
         alliance_ledger.alliance_ledger,
         name="alliance_ledger",
@@ -59,32 +54,6 @@ urlpatterns = [
         "alliance/<int:alliance_id>/date/<int:year>/<int:month>/<int:day>/",
         alliance_ledger.alliance_ledger,
         name="alliance_ledger",
-    ),
-    # -- -- Alliance Details
-    path(
-        "alliance/<int:alliance_id>/view/details/<int:entity_id>/section/<str:section>/",
-        alliance_ledger.alliance_details,
-        name="alliance_details",
-    ),
-    path(
-        "alliance/<int:alliance_id>/<int:year>/view/details/<int:entity_id>/section/<str:section>/",
-        alliance_ledger.alliance_details,
-        name="alliance_details",
-    ),
-    path(
-        "alliance/<int:alliance_id>/<int:year>/<int:month>/view/details/<int:entity_id>/section/<str:section>/",
-        alliance_ledger.alliance_details,
-        name="alliance_details",
-    ),
-    path(
-        "alliance/<int:alliance_id>/<int:year>/<int:month>/<int:day>/view/details/<int:entity_id>/section/<str:section>/",
-        alliance_ledger.alliance_details,
-        name="alliance_details",
-    ),
-    path(
-        "alliance/<int:alliance_id>/<int:year>/<int:month>/<int:day>/view/details/<int:entity_id>/section/<str:section>/",
-        alliance_ledger.alliance_details,
-        name="alliance_details",
     ),
     path(
         "alliance/<int:alliance_id>/view/administration/",
