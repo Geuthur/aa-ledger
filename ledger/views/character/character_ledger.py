@@ -99,7 +99,6 @@ def character_overview(request):
         "title": "Character Overview",
         "year": timezone.now().year,
         "month": timezone.now().month,
-        "section": "summary",
     }
     return render(request, "ledger/view-character-overview.html", context=context)
 
@@ -136,7 +135,6 @@ def character_administration(request, character_id=None):
         "character_id": character_id,
         "year": timezone.now().year,
         "month": timezone.now().month,
-        "section": "summary",
         "characters": characters,
         "missing_characters": missing_characters,
     }

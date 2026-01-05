@@ -35,7 +35,6 @@ def index(request):
         character_id=request.user.profile.main_character.character_id,
         year=timezone.now().year,
         month=timezone.now().month,
-        section="summary",
     )
 
 
