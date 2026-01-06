@@ -84,6 +84,14 @@
     .nav-tabs .nav-item .nav-link.active {
         opacity: 1.0;
     }
+
+    /* CSV Export Button */
+    .aa-ledger-csv {
+        position: relative;
+        z-index: 1;
+        pointer-events: auto;
+        display: inline-block;
+    }
 }
 
 

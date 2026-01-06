@@ -14,19 +14,6 @@ from ledger.models.corporationaudit import (
 from .constants import DayChoice, MonthChoice
 
 
-def _coerce_to_label(choices):
-    def _coerce(val):
-        if val in ("", None):
-            return None
-        val_str = str(val)
-        for v, label in choices:
-            if str(v) == val_str:
-                return label
-        return None
-
-    return _coerce
-
-
 class ConfirmForm(forms.Form):
     """Form Confirms."""
 
@@ -62,58 +49,6 @@ class YearlyModelChoiceField(forms.TypedChoiceField):
 
     def label_from_instance(self, obj) -> str:
         return f"{obj}"
-
-
-class GenerateDataExportForm(forms.Form):
-    """Form to generate data export."""
-
-    def __init__(self, *args, corporation_id, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Set the division queryset based on the corporation_id
-        div_qs = CorporationWalletDivision.objects.filter(
-            corporation__eve_corporation__corporation_id=corporation_id
-        ).order_by("division_id")
-        self.fields["division"].queryset = div_qs
-        # Make sure "All Divisions" uses value "0"
-        div_choices = [("0", _("All Divisions"))] + [
-            (str(d.pk), d.name or "") for d in div_qs
-        ]
-        self.fields["division"].choices = div_choices
-
-        # Populate the year field with distinct years from the journal entries
-        years_qs = (
-            CorporationWalletJournalEntry.objects.filter(
-                division__corporation__eve_corporation__corporation_id=corporation_id
-            )
-            .exclude(date__year__isnull=True)
-            .values_list("date__year", flat=True)
-            .order_by("-date__year")
-            .distinct()
-        )
-
-        year_choices = [("", "---------")] + [(str(y), str(y)) for y in years_qs]
-        self.fields["year"].choices = year_choices
-
-    year = YearlyModelChoiceField(
-        choices=[],
-        required=True,
-        widget=forms.Select(attrs={"class": "form-select"}),
-    )
-
-    month = forms.TypedChoiceField(
-        choices=MonthChoice.choices,
-        required=False,
-        coerce=int,
-        empty_value=None,
-        widget=forms.Select(attrs={"class": "form-select"}),
-    )
-    division = DivisionModelChoiceField(
-        queryset=CorporationWalletDivision.objects.none(),
-        required=False,
-        empty_label=_("All Divisions"),
-        widget=forms.Select(attrs={"class": "form-select"}),
-    )
 
 
 class DropdownFormBaseModel(forms.Form):

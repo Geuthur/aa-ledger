@@ -23,10 +23,14 @@
             <a href="{% url 'ledger:corporation_overview' %}" class="overview"><button class="btn btn-secondary overview">{% translate 'Account Overview' %}</button></a>
         </div>
     </div>
-
     <!-- Corporation Ledger Table -->
     <div class="table-responsive">
         <div class="card-body rounded-bottom">
+            <div class="float-end">
+                <button id="ledger-export-csv" class="aa-ledger-csv btn btn-sm btn-primary d-none">
+                    {% translate "Export Table to CSV" %}
+                </button>
+            </div>
             <table class="table table-striped table-hover w-100" id="corporation-ledger-table">
                 <thead>
                     <th class="w-auto">{% trans "Entity" %}</th>

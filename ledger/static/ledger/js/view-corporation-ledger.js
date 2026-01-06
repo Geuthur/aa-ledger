@@ -1,4 +1,4 @@
-/* global aaLedgerSettings, aaLedgerSettingsOverride, _bootstrapTooltip, _bootstrapPopOver, fetchGet, fetchPost, bootstrap, DataTable, moment, numberFormatter, load_or_create_Chart */
+/* global aaLedgerSettings, aaLedgerSettingsOverride, _bootstrapTooltip, _bootstrapPopOver, fetchGet, fetchPost, bootstrap, DataTable, moment, numberFormatter, load_or_create_Chart, _exportTableToCSV */
 
 $(document).ready(() => {
     /**
@@ -8,6 +8,22 @@ $(document).ready(() => {
     const corporationSummaryTable = $('#corporation-ledger-summary-table');
     const corporationDailyTable = $('#corporation-ledger-daily-table');
     const corporationHourlyTable = $('#corporation-ledger-hourly-table');
+
+    /**
+     * Modals :: IDs
+     */
+    const modalRequestViewCorporationLedgerDetails = $('#ledger-view-corporation-ledger-details');
+
+    /**
+     * Chart :: IDs
+     */
+    const chartChord = 'chord-chart';
+    const chartXY = 'xy-chart';
+
+    /**
+     * Button :: IDs
+     */
+    const buttonExportCSV = $('#ledger-export-csv');
 
     /**
      * Helper: format currency with classes
@@ -26,17 +42,6 @@ $(document).ready(() => {
         });
         return `<span class="${cls}">${formatted}</span>`;
     };
-
-    /**
-     * Modals :: IDs
-     */
-    const modalRequestViewCorporationLedgerDetails = $('#ledger-view-corporation-ledger-details');
-
-    /**
-     * Chart :: IDs
-     */
-    const chartChord = 'chord-chart';
-    const chartXY = 'xy-chart';
 
     fetchGet({
         url: aaLedgerSettings.url.CorporationLedger,
@@ -120,8 +125,13 @@ $(document).ready(() => {
                         }
                     ],
                     initComplete: function() {
+                        const dt = corporationTable.DataTable();
+
                         _bootstrapTooltip({selector: '#corporation-ledger-table'});
                         _bootstrapPopOver({selector: '#corporation-ledger-table'});
+                        if (dt.rows().count() !== 0) {
+                            buttonExportCSV.removeClass('d-none');
+                        }
                     },
                     drawCallback: function () {
                         _bootstrapTooltip({selector: '#corporation-ledger-table'});
@@ -142,6 +152,15 @@ $(document).ready(() => {
         .catch((error) => {
             console.error('Error fetching Corporation Ledger data:', error);
         });
+
+    /**
+     * Export Corporation Ledger Table to CSV
+     */
+    buttonExportCSV.on('click', (event) => {
+        const dt = corporationTable.DataTable();
+        // Exclude Actions column (index 6)
+        _exportTableToCSV(dt, 6, 'corporation_ledger.csv');
+    });
 
     /**
      * Modal :: View Ledger Details :: Table :: Summary Table DataTable

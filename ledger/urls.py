@@ -107,27 +107,6 @@ urlpatterns = [
         corporation_ledger.corporation_ledger,
         name="corporation_ledger",
     ),
-    # -- -- Data Export
-    path(
-        "corporation/<int:corporation_id>/data-export/",
-        corporation_ledger.corporation_data_export,
-        name="corporation_data_export",
-    ),
-    path(
-        "corporation/<int:corporation_id>/data-export/generate/",
-        corporation_ledger.corporation_data_export_generate,
-        name="corporation_data_export_generate",
-    ),
-    path(
-        "corporation/<str:hash_code>/data-export/download/",
-        corporation_ledger.corporation_download_export_file,
-        name="corporation_download_export_file",
-    ),
-    path(
-        "corporation/<str:hash_code>/data-export/update/",
-        corporation_ledger.corporation_data_export_run_update,
-        name="corporation_data_export_run_update",
-    ),
     path(
         "corporation/<int:corporation_id>/view/administration/",
         corporation_ledger.corporation_administration,

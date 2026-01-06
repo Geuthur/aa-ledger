@@ -13,13 +13,12 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
-from allianceauth.authentication.models import CharacterOwnership, User
+from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.services.tasks import QueueOnce
 
 # AA Ledger
 from ledger import __title__, app_settings
-from ledger.helpers import data_exporter
 from ledger.helpers.discord import send_user_notification
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
@@ -499,38 +498,3 @@ def clear_all_etags():
         logger.info("Deleted %s etag keys", deleted)
     else:
         logger.info("No etag keys to delete")
-
-
-@shared_task(**TASK_DEFAULTS_ONCE)
-def export_data_ledger(
-    user_pk: int,
-    ledger_type: str,
-    entity_id: int,
-    division_id: int = None,
-    year: int = None,
-    month: int = None,
-):
-    """Export data for a ledger."""
-    msg = data_exporter.export_ledger_to_archive(
-        ledger_type, entity_id, division_id, year, month
-    )
-
-    try:
-        user = User.objects.get(pk=user_pk)
-    except User.DoesNotExist:
-        logger.debug("User with pk %s does not exist", user_pk)
-        return
-
-    if msg is not None:
-        title = _(f"{ledger_type.capitalize()} Data Export Ready")
-        message = _(
-            f"Your data export for topic {ledger_type} is ready. You can download it from the Data Export page.",
-        )
-
-        send_user_notification.delay(
-            user_id=user.pk,
-            title=title,
-            message=message,
-            embed_message=True,
-            level="info",
-        )
