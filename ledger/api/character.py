@@ -389,50 +389,13 @@ class CharacterApiEndpoints:
                 results=xy_results, request_info=request_info
             )
             # Initialize Chord Billboard
-            chord_billboard = self.billboard.create_chord_billboard()
-
-            # Generate Chord Data
-            for char_data in character_ledger_list:
-                bounty = char_data.ledger.bounty
-                ess = char_data.ledger.ess
-                mining_val = char_data.ledger.mining
-                miscellaneous = char_data.ledger.miscellaneous
-                costs = char_data.ledger.costs
-
-                self.billboard.chord_create_or_add_data(
-                    chord_from=char_data.character.character_name,
-                    chord_to=_("Bounty"),
-                    value=abs(bounty),
-                    chord_billboard=chord_billboard,
-                )
-                self.billboard.chord_create_or_add_data(
-                    chord_from=char_data.character.character_name,
-                    chord_to=_("ESS"),
-                    value=abs(ess),
-                    chord_billboard=chord_billboard,
-                )
-                self.billboard.chord_create_or_add_data(
-                    chord_from=char_data.character.character_name,
-                    chord_to=_("Mining"),
-                    value=abs(mining_val),
-                    chord_billboard=chord_billboard,
-                )
-                self.billboard.chord_create_or_add_data(
-                    chord_from=char_data.character.character_name,
-                    chord_to=_("Miscellaneous"),
-                    value=abs(miscellaneous),
-                    chord_billboard=chord_billboard,
-                )
-                self.billboard.chord_create_or_add_data(
-                    chord_from=char_data.character.character_name,
-                    chord_to=_("Costs"),
-                    value=abs(costs),
-                    chord_billboard=chord_billboard,
-                )
+            chord_billboard = self.billboard.create_chord_billboard(
+                character_ledger_list
+            )
 
             response_billboard = BillboardSchema(
-                xy_chart=xy_billboard if xy_billboard.series else None,
-                chord_chart=chord_billboard if chord_billboard.series else None,
+                xy_chart=xy_billboard,
+                chord_chart=chord_billboard,
             )
             # Cache Billboard Response
             self.cache_manager.set_cache_billboard(

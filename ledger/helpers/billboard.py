@@ -78,46 +78,89 @@ class BillboardSystem:
             return date.strftime("%Y-%m")
         raise ValueError("Invalid view type. Use 'day', 'month', or 'year'.")
 
-    def create_chord_billboard(self) -> BillboardData:
+    # pylint: disable=too-many-branches
+    def create_chord_billboard(self, ledger_list) -> BillboardData | None:
         """
-        Create an empty chord billboard data structure.
+        Create chord billboard data from a list of ledger schemas.
 
+        Args:
+            ledger_list (list): List of ledger schemas (Character, Entity, Alliance).
         Returns:
-            BillboardData: An empty chord billboard data structure.
+            BillboardData | None: The generated chord billboard data or None if no data.
         """
-        return BillboardData(
+        billboard = BillboardData(
             categories=[],
             series=[],
         )
 
-    def chord_create_or_add_data(
-        self, chord_from: str, chord_to: str, value: int, chord_billboard: BillboardData
-    ):
-        """
-        Create or update the chord billboard data
+        if len(ledger_list) == 0:
+            return None
 
-        Args:
-            chord_billboard (BillboardData): The chord billboard data to be updated.
-            chord_from (str): The 'from' category.
-            chord_to (str): The 'to' category.
-            value (int): The value to be added.
+        for ledger in ledger_list:
+            # Determine ledger type by presence of identifying attributes
+            if hasattr(ledger, "character"):
+                name = ledger.character.character_name
+            elif hasattr(ledger, "entity"):
+                name = ledger.entity.entity_name
+            elif hasattr(ledger, "corporation"):
+                name = ledger.corporation.entity_name
+            else:
+                name = "Unknown"
 
-        Returns:
-            BillboardData: The updated chord billboard data.
-        """
-        if value == 0:
-            return chord_billboard
+            bounty = ledger.ledger.bounty
+            ess = ledger.ledger.ess
+            miscellaneous = ledger.ledger.miscellaneous
+            costs = ledger.ledger.costs
 
-        data = {
-            "from": chord_from,
-            "to": chord_to,
-            "value": value,
-        }
-        chord_billboard.series.append(data)
+            # Only character ledgers have mining values
+            if hasattr(ledger, "character") and hasattr(ledger, "ledger"):
+                mining = getattr(ledger.ledger, "mining", 0)
+                if mining != 0:
+                    data = {
+                        "from": name,
+                        "to": _("Mining"),
+                        "value": abs(mining),
+                    }
 
-        if len(chord_billboard.series) > 25:
-            self.chord_handle_overflow(chord_billboard)
-        return chord_billboard
+                    billboard.series.append(data)
+
+            if bounty != 0:
+                data = {
+                    "from": name,
+                    "to": _("Bounty"),
+                    "value": abs(bounty),
+                }
+
+                billboard.series.append(data)
+            if ess != 0:
+                data = {
+                    "from": name,
+                    "to": _("ESS"),
+                    "value": abs(ess),
+                }
+
+                billboard.series.append(data)
+            if miscellaneous != 0:
+                data = {
+                    "from": name,
+                    "to": _("Miscellaneous"),
+                    "value": abs(miscellaneous),
+                }
+
+                billboard.series.append(data)
+            if costs != 0:
+                data = {
+                    "from": name,
+                    "to": _("Costs"),
+                    "value": abs(costs),
+                }
+
+                billboard.series.append(data)
+
+        # Handle overflow
+        if len(billboard.series) > 25:
+            self.chord_handle_overflow(billboard)
+        return billboard
 
     def chord_handle_overflow(self, chord_billboard: BillboardData):
         """
@@ -243,7 +286,7 @@ class BillboardSystem:
         self,
         results: dict[datetime, dict[str, Decimal]],
         request_info: "OwnerLedgerRequestInfo",
-    ) -> BillboardData:
+    ) -> BillboardData | None:
         """
         Create XY Billboard Data
 
@@ -254,7 +297,7 @@ class BillboardSystem:
             request_info (OwnerLedgerRequestInfo): The request information containing view details.
 
         Returns:
-            BillboardData: The generated billboard data with categories and series.
+            BillboardData | None: The generated XY billboard data or None if no data.
         """
         series = []
         category_set = set()
@@ -283,10 +326,7 @@ class BillboardSystem:
             categories.append({"name": cat, "label": str(label)})
 
         if not series or not categories:
-            return BillboardData(
-                categories=[],
-                series=[],
-            )
+            return None
 
         # Sort Series by Date
         series.sort(key=lambda x: x["date"])

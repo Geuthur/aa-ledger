@@ -659,43 +659,10 @@ class CorporationApiEndpoints:
                 results=xy_results, request_info=request_info
             )
             # Initialize Chord Billboard
-            chord_billboard = self.billboard.create_chord_billboard()
-
-            # Generate Chord Data
-            for entity_data in entity_ledger_list:
-                bounty = entity_data.ledger.bounty
-                ess = entity_data.ledger.ess
-                miscellaneous = entity_data.ledger.miscellaneous
-                costs = entity_data.ledger.costs
-
-                self.billboard.chord_create_or_add_data(
-                    chord_from=entity_data.entity.entity_name,
-                    chord_to=_("Bounty"),
-                    value=abs(bounty),
-                    chord_billboard=chord_billboard,
-                )
-                self.billboard.chord_create_or_add_data(
-                    chord_from=entity_data.entity.entity_name,
-                    chord_to=_("ESS"),
-                    value=abs(ess),
-                    chord_billboard=chord_billboard,
-                )
-                self.billboard.chord_create_or_add_data(
-                    chord_from=entity_data.entity.entity_name,
-                    chord_to=_("Miscellaneous"),
-                    value=abs(miscellaneous),
-                    chord_billboard=chord_billboard,
-                )
-                self.billboard.chord_create_or_add_data(
-                    chord_from=entity_data.entity.entity_name,
-                    chord_to=_("Costs"),
-                    value=abs(costs),
-                    chord_billboard=chord_billboard,
-                )
+            chord_billboard = self.billboard.create_chord_billboard(entity_ledger_list)
 
             response_billboard = BillboardSchema(
-                xy_chart=xy_billboard if xy_billboard.series else None,
-                chord_chart=chord_billboard if chord_billboard.series else None,
+                xy_chart=xy_billboard, chord_chart=chord_billboard
             )
             # Cache Billboard Response
             self.cache_manager.set_cache_billboard(
