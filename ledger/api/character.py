@@ -249,8 +249,8 @@ class CharacterApiEndpoints:
             wallet_journal_hash = self.cache_manager.create_ledger_hash(header_ids)
 
             # Get Cached Ledger if Available
-            response_ledger = self.cache_manager.get_cache_ledger(
-                ledger_hash=wallet_journal_hash
+            response_ledger = self.cache_manager.get_cache_key(
+                key="character", ledger_hash=wallet_journal_hash
             )
             if response_ledger is False:
                 logger.debug(f"Ledger Cache Miss for Character: {character}")
@@ -295,7 +295,8 @@ class CharacterApiEndpoints:
                     ),
                 )
                 # Cache Ledger Response
-                self.cache_manager.set_cache_ledger(
+                self.cache_manager.set_cache_key(
+                    key="character",
                     ledger_hash=wallet_journal_hash,
                     ledger_data=response_ledger,
                 )
@@ -348,8 +349,6 @@ class CharacterApiEndpoints:
         entry_ids = wallet_journal.values_list("entry_id", flat=True)
         mining_pks = mining_journal.values_list("type_id", flat=True)
         header_ids = list(entry_ids) + list(mining_pks)
-        # add character ids to header ids to ensure uniqueness
-        header_ids.extend(owner.alt_ids)
 
         # Skip Character if no Ledger Entries
         if len(header_ids) == 0:
@@ -358,12 +357,15 @@ class CharacterApiEndpoints:
             )
             return BillboardSchema()
 
+        # add character ids to header ids to ensure uniqueness
+        header_ids.extend(owner.alt_ids)
+
         # Create Ledger Hash
         wallet_journal_hash = self.cache_manager.create_ledger_hash(header_ids)
 
         # Get Cached Billboard if Available
-        response_billboard = self.cache_manager.get_cache_billboard(
-            billboard_hash=wallet_journal_hash
+        response_billboard = self.cache_manager.get_cache_key(
+            key="character-billboard", ledger_hash=wallet_journal_hash
         )
         if response_billboard is False:
             logger.debug(f"Billboard Cache Miss for Character IDs: {owner.alt_ids}")
@@ -398,9 +400,10 @@ class CharacterApiEndpoints:
                 chord_chart=chord_billboard,
             )
             # Cache Billboard Response
-            self.cache_manager.set_cache_billboard(
-                billboard_hash=wallet_journal_hash,
-                billboard_data=response_billboard,
+            self.cache_manager.set_cache_key(
+                key="character-billboard",
+                ledger_hash=wallet_journal_hash,
+                ledger_data=response_billboard,
             )
         # Billboard Data Generation Logic Here
         return response_billboard

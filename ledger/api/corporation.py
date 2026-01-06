@@ -519,8 +519,8 @@ class CorporationApiEndpoints:
         wallet_journal_hash = self.cache_manager.create_ledger_hash(header_ids)
 
         # Get Cached Ledger if Available
-        entity_ledger_list = self.cache_manager.get_cache_ledger(
-            ledger_hash=wallet_journal_hash
+        entity_ledger_list = self.cache_manager.get_cache_key(
+            key="corporation", ledger_hash=wallet_journal_hash
         )
         if entity_ledger_list is False:
             entity_ids = set()
@@ -583,7 +583,8 @@ class CorporationApiEndpoints:
                 entity_ledger_list=entity_ledger_list,
             )
             # Cache Ledger Response
-            self.cache_manager.set_cache_ledger(
+            self.cache_manager.set_cache_key(
+                key="corporation",
                 ledger_hash=wallet_journal_hash,
                 ledger_data=entity_ledger_list,
             )
@@ -627,19 +628,19 @@ class CorporationApiEndpoints:
         # Get IDs for Hashing
         header_ids = list(corp_wallet_journal.values_list("entry_id", flat=True))
 
-        # add corporation id to header ids to ensure uniqueness
-        header_ids.append(owner.eve_corporation.corporation_id)
-
         # Skip Corporation if no Ledger Entries
         if len(header_ids) == 0:
             return BillboardSchema()
+
+        # add corporation id to header ids to ensure uniqueness
+        header_ids.append(owner.eve_corporation.corporation_id)
 
         # Create Ledger Hash
         wallet_journal_hash = self.cache_manager.create_ledger_hash(header_ids)
 
         # Get Cached Billboard if Available
-        response_billboard = self.cache_manager.get_cache_billboard(
-            billboard_hash=wallet_journal_hash
+        response_billboard = self.cache_manager.get_cache_key(
+            key="corporation-billboard", ledger_hash=wallet_journal_hash
         )
         if response_billboard is False:
             logger.debug(f"Billboard Cache for: {owner}")
@@ -665,9 +666,10 @@ class CorporationApiEndpoints:
                 xy_chart=xy_billboard, chord_chart=chord_billboard
             )
             # Cache Billboard Response
-            self.cache_manager.set_cache_billboard(
-                billboard_hash=wallet_journal_hash,
-                billboard_data=response_billboard,
+            self.cache_manager.set_cache_key(
+                key="corporation-billboard",
+                ledger_hash=wallet_journal_hash,
+                ledger_data=response_billboard,
             )
         # Billboard Data Generation Logic Here
         return response_billboard
