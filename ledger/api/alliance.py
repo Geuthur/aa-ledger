@@ -79,6 +79,7 @@ class AllianceApiEndpoints:
     # flake8: noqa: F811
     def __init__(self, api: NinjaAPI):
         self.cache_manager = CacheManager()
+        self.billboard = BillboardSystem()
 
         @api.get(
             "alliance/{alliance_id}/date/{year}/",
@@ -307,8 +308,6 @@ class AllianceApiEndpoints:
         Returns:
             BillboardSchema: The generated billboard data.
         """
-        billboard = BillboardSystem()
-
         corporations = CorporationOwner.objects.filter(
             eve_corporation__alliance__alliance_id=owner.alliance_id
         )
@@ -358,23 +357,21 @@ class AllianceApiEndpoints:
             logger.debug(f"Billboard Cache for: {owner}")
             # Create Timelines
             wallet_timeline = (
-                billboard.create_timeline(corp_wallet_journal)
+                self.billboard.create_timeline(
+                    journal=corp_wallet_journal, request_info=request_info
+                )
                 .annotate_bounty_income()
                 .annotate_ess_income()
                 .annotate_miscellaneous()
             )
 
-            # Generate the billboard data
-            billboard.create_or_update_results(wallet_timeline)
-
-            # Generate XY Series
-            series, categories = billboard.generate_xy_series()
-            if series and categories:
-                billboard.create_xy_chart(
-                    title=_("Ratting Income Over Time"),
-                    categories=categories,
-                    series=series,
-                )
+            # Generate XY Billboard
+            xy_results = self.billboard.create_or_update_results(wallet_timeline)
+            xy_billboard = self.billboard.create_xy_billboard(
+                results=xy_results, request_info=request_info
+            )
+            # Initialize Chord Billboard
+            chord_billboard = self.billboard.create_chord_billboard()
 
             # Generate Chord Data
             for entity_data in alliance_ledger_list:
@@ -383,33 +380,34 @@ class AllianceApiEndpoints:
                 miscellaneous = entity_data.ledger.miscellaneous
                 costs = entity_data.ledger.costs
 
-                billboard.chord_add_data(
+                self.billboard.chord_create_or_add_data(
                     chord_from=entity_data.corporation.entity_name,
                     chord_to=_("Bounty"),
                     value=abs(bounty),
+                    chord_billboard=chord_billboard,
                 )
-                billboard.chord_add_data(
+                self.billboard.chord_create_or_add_data(
                     chord_from=entity_data.corporation.entity_name,
                     chord_to=_("ESS"),
                     value=abs(ess),
+                    chord_billboard=chord_billboard,
                 )
-                billboard.chord_add_data(
+                self.billboard.chord_create_or_add_data(
                     chord_from=entity_data.corporation.entity_name,
                     chord_to=_("Miscellaneous"),
                     value=abs(miscellaneous),
+                    chord_billboard=chord_billboard,
                 )
-                billboard.chord_add_data(
+                self.billboard.chord_create_or_add_data(
                     chord_from=entity_data.corporation.entity_name,
                     chord_to=_("Costs"),
                     value=abs(costs),
+                    chord_billboard=chord_billboard,
                 )
 
-            # Handle Chord Overflow
-            billboard.chord_handle_overflow()
-
             response_billboard = BillboardSchema(
-                xy_chart=billboard.dict.rattingbar,
-                chord_chart=billboard.dict.charts,
+                xy_chart=xy_billboard if xy_billboard.series else None,
+                chord_chart=chord_billboard if chord_billboard.series else None,
             )
             # Cache Billboard Response
             self.cache_manager.set_cache_billboard(

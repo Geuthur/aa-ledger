@@ -8,7 +8,7 @@ from ninja import Schema
 from django.utils import timezone
 
 # AA Ledger
-from ledger.helpers.billboard import ChartData
+from ledger.helpers.billboard import BillboardData
 
 
 class OwnerSchema(Schema):
@@ -59,8 +59,8 @@ class UpdateStatusSchema(Schema):
 
 
 class BillboardSchema(Schema):
-    xy_chart: ChartData | None = None
-    chord_chart: ChartData | None = None
+    xy_chart: BillboardData | None = None
+    chord_chart: BillboardData | None = None
 
 
 class LedgerResponse(Schema):

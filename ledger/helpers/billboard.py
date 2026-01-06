@@ -2,11 +2,12 @@
 from collections import defaultdict
 from dataclasses import asdict, dataclass
 from decimal import Decimal
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 # Django
 from django.db.models import QuerySet, TextChoices
 from django.db.models.functions import TruncDay, TruncHour, TruncMonth
+from django.utils.timezone import datetime
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -18,10 +19,13 @@ from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
+if TYPE_CHECKING:
+    # AA Ledger
+    from ledger.api.schema import OwnerLedgerRequestInfo
+
 
 @dataclass
-class ChartData:
-    title: str
+class BillboardData:
     categories: list[dict]
     series: list[dict[str, Any]]
 
@@ -53,74 +57,84 @@ class BillboardSystem:
         COSTS = "Costs", _("Costs")
         UNKNOWN = "Unknown", _("Unknown")
 
-    @dataclass
-    class BillboardDict:
-        """BillboardDict class to store the billboard data."""
+    def _get_formatted_date(
+        self, date: datetime, request_info: "OwnerLedgerRequestInfo"
+    ) -> str:
+        """
+        Get formatted date string based on the view type.
 
-        charts: ChartData = None
-        rattingbar: ChartData = None
+        Args:
+            date (datetime): The date to be formatted.
+            request_info (OwnerLedgerRequestInfo): The request information containing view details.
 
-        def asdict(self) -> dict:
-            """Return this object as dict."""
-            return {
-                "charts": self.charts.asdict() if self.charts else None,
-                "rattingbar": self.rattingbar.asdict() if self.rattingbar else None,
-            }
-
-    def __init__(
-        self,
-        view: str = "month",
-    ):
-        self.view = view
-        self.dict = self.BillboardDict()
-        self.results = defaultdict(lambda: defaultdict(Decimal))
-
-    def _get_formatted_date(self, date, view):
-        if view == "year":
-            return date.strftime("%Y-%m")
-        if view == "month":
-            return date.strftime("%Y-%m-%d")
-        if self.view == "day":
+        Returns:
+            str: The formatted date string.
+        """
+        if request_info.day is not None:
             return date.strftime("%Y-%m-%d %H:%M")
+        if request_info.month is not None:
+            return date.strftime("%Y-%m-%d")
+        if request_info.year is not None:
+            return date.strftime("%Y-%m")
         raise ValueError("Invalid view type. Use 'day', 'month', or 'year'.")
 
-    def _create_chart_dict(self):
-        """Create the Charts dict if it doesn't exist"""
-        if self.dict.charts is None:
-            self.dict.charts = ChartData(
-                title="Billboard",
-                categories=[],
-                series=[],
-            )
+    def create_chord_billboard(self) -> BillboardData:
+        """
+        Create an empty chord billboard data structure.
 
-    def change_view(self, view: str):
-        """Change the view of the billboard"""
-        if view not in ["day", "month", "year"]:
-            raise ValueError("Invalid view type. Use 'day', 'month', or 'year'.")
-        self.view = view
+        Returns:
+            BillboardData: An empty chord billboard data structure.
+        """
+        return BillboardData(
+            categories=[],
+            series=[],
+        )
 
-    def chord_add_data(self, chord_from: str, chord_to: str, value: int):
-        """Add Simple Chord data"""
-        self._create_chart_dict()
+    def chord_create_or_add_data(
+        self, chord_from: str, chord_to: str, value: int, chord_billboard: BillboardData
+    ):
+        """
+        Create or update the chord billboard data
 
+        Args:
+            chord_billboard (BillboardData): The chord billboard data to be updated.
+            chord_from (str): The 'from' category.
+            chord_to (str): The 'to' category.
+            value (int): The value to be added.
+
+        Returns:
+            BillboardData: The updated chord billboard data.
+        """
         if value == 0:
-            return
+            return chord_billboard
 
         data = {
             "from": chord_from,
             "to": chord_to,
             "value": value,
         }
-        self.dict.charts.series.append(data)
+        chord_billboard.series.append(data)
 
-    def chord_handle_overflow(self):
-        """Order and handle overflow data for the billboard, for each 'to' category and sort it by from and to."""
-        if self.dict.charts is None:
-            return
+        if len(chord_billboard.series) > 25:
+            self.chord_handle_overflow(chord_billboard)
+        return chord_billboard
+
+    def chord_handle_overflow(self, chord_billboard: BillboardData):
+        """
+        Handle overflow in the chord billboard data by grouping lesser entries into 'Others'.
+
+        Args:
+            chord_billboard (BillboardData): The chord billboard data to be processed.
+
+        Returns:
+            BillboardData: The updated chord billboard data with overflow handled.
+        """
+        if chord_billboard is None:
+            return chord_billboard
 
         # Group by 'to' category
         grouped = defaultdict(list)
-        for entry in self.dict.charts.series:
+        for entry in chord_billboard.series:
             grouped[entry["to"]].append(entry)
 
         new_series = []
@@ -143,28 +157,35 @@ class BillboardSystem:
                 new_series.extend(sorted_entries)
 
         # Sort the final series by value descending for display
-        self.dict.charts.series = sorted(
+        chord_billboard.series = sorted(
             new_series, key=lambda x: x["value"], reverse=True
         )
-        self.sort_chord_data()
+        return chord_billboard
 
-    def sort_chord_data(self):
-        """Sort the chord data by 'from' and 'to' categories."""
-        if self.dict.charts is None:
-            return
+    def create_timeline(
+        self, journal: QuerySet, request_info: "OwnerLedgerRequestInfo"
+    ) -> QuerySet[dict]:
+        """
 
-        self.dict.charts.series.sort(key=lambda x: (x["from"], x["to"]))
+        Create the timeline data for the billboard
 
-    def create_timeline(self, journal: QuerySet):
-        """Create the timeline data for the billboard"""
+        This function annotates the journal entries based on the view type (year, month, day)
+        and groups them accordingly.
+
+        Args:
+            journal (QuerySet): The journal entries to be processed.
+
+        Returns:
+            QuerySet[dict]: Annotated and grouped journal entries.
+        """
         qs = journal
 
-        if self.view == "year":
-            qs = qs.annotate(period=TruncMonth("date"))
-        elif self.view == "month":
-            qs = qs.annotate(period=TruncDay("date"))
-        elif self.view == "day":
+        if request_info.day is not None:
             qs = qs.annotate(period=TruncHour("date"))
+        elif request_info.month is not None:
+            qs = qs.annotate(period=TruncDay("date"))
+        elif request_info.year is not None:
+            qs = qs.annotate(period=TruncMonth("date"))
         else:
             raise ValueError("Invalid view type. Use 'day', 'month', or 'year'.")
 
@@ -174,39 +195,71 @@ class BillboardSystem:
     def create_or_update_results(
         self,
         qs: QuerySet[dict],
-    ):
-        """Create or update the results for the billboard"""
+    ) -> dict[datetime, dict[str, Decimal]]:
+        """
+        Create or Update the results dictionary from the timeline data
+        """
+        results = defaultdict(lambda: defaultdict(Decimal))
+
         for entry in qs:
             date = entry["period"]
             bounty = entry.get("bounty_income", 0)
             ess = entry.get("ess_income", 0)
             miscellaneous = entry.get("miscellaneous", 0)
 
-            self.results[date][self.Categories.BOUNTY] += bounty
-            self.results[date][self.Categories.ESS] += ess
-            self.results[date][self.Categories.MISCELLANEOUS] += miscellaneous
+            results[date][self.Categories.BOUNTY] += bounty
+            results[date][self.Categories.ESS] += ess
+            results[date][self.Categories.MISCELLANEOUS] += miscellaneous
 
-        return self.results
+        return results
 
-    def add_category(self, qs: QuerySet[dict], category: str):
-        """Add category data to the results
-
-        **the annotation must be have _income as ending
+    def add_category_to_xy_billboard(
+        self,
+        results: dict[datetime, dict[str, Decimal]],
+        category: str,
+        queryset: QuerySet[dict],
+    ):
         """
-        for entry in qs:
+        Add category data to the results dictionary for the XY billboard
+
+        Args:
+            results (dict[datetime, dict[str, Decimal]]): The results data to be updated.
+            category (str): The category to be added.
+            queryset (QuerySet[dict]): The queryset containing the category data.
+
+        Returns:
+            dict[datetime, dict[str, Decimal]]: The updated results dictionary.
+        """
+        for entry in queryset:
             date = entry["period"]
             category_value = entry.get(f"{category}_income", 0)
             try:
-                self.results[date][self.Categories[category.upper()]] += category_value
+                results[date][self.Categories[category.upper()]] += category_value
             except KeyError:
-                self.results[date][self.Categories.UNKNOWN] += category_value
+                results[date][self.Categories.UNKNOWN] += category_value
+        return results
 
-    def generate_xy_series(self):
-        """Create the ratting bar amounts and categories for the billboard"""
+    def create_xy_billboard(
+        self,
+        results: dict[datetime, dict[str, Decimal]],
+        request_info: "OwnerLedgerRequestInfo",
+    ) -> BillboardData:
+        """
+        Create XY Billboard Data
+
+        This function creates the XY billboard data from the results dictionary.
+
+        Args:
+            results (dict[datetime, dict[str, Decimal]]): The results data to be processed.
+            request_info (OwnerLedgerRequestInfo): The request information containing view details.
+
+        Returns:
+            BillboardData: The generated billboard data with categories and series.
+        """
         series = []
         category_set = set()
 
-        for date, values in self.results.items():
+        for date, values in results.items():
             # Remove categories with value 0
             filtered_values = {str(k): v for k, v in values.items() if v != 0}
             if not filtered_values:
@@ -214,7 +267,7 @@ class BillboardSystem:
 
             series.append(
                 {
-                    "date": self._get_formatted_date(date, self.view),
+                    "date": self._get_formatted_date(date, request_info=request_info),
                     **{k: int(v) for k, v in filtered_values.items()},
                 }
             )
@@ -229,18 +282,16 @@ class BillboardSystem:
                 label = cat
             categories.append({"name": cat, "label": str(label)})
 
-        if not series:
-            return [], []
+        if not series or not categories:
+            return BillboardData(
+                categories=[],
+                series=[],
+            )
 
         # Sort Series by Date
         series.sort(key=lambda x: x["date"])
 
-        return series, categories
-
-    def create_xy_chart(self, title, categories, series):
-        """Create the XY chart for the billboard"""
-        self.dict.rattingbar = ChartData(
-            title=title,
+        return BillboardData(
             categories=categories,
             series=series,
         )

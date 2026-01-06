@@ -77,6 +77,7 @@ class CharacterApiEndpoints:
     # flake8: noqa: F811
     def __init__(self, api: NinjaAPI):
         self.cache_manager = CacheManager()
+        self.billboard = BillboardSystem()
 
         @api.get(
             "character/{character_id}/date/{year}/",
@@ -323,9 +324,6 @@ class CharacterApiEndpoints:
         Returns:
             LedgerBillboard: The generated billboard data.
         """
-        # Initialize Billboard System
-        billboard = BillboardSystem()
-
         # Get Wallet and Mining Journal Entries
         wallet_journal = (
             CharacterWalletJournalEntry.objects.filter(
@@ -371,27 +369,27 @@ class CharacterApiEndpoints:
             logger.debug(f"Billboard Cache Miss for Character IDs: {owner.alt_ids}")
             # Create Timelines
             wallet_timeline = (
-                billboard.create_timeline(wallet_journal)
+                self.billboard.create_timeline(
+                    journal=wallet_journal, request_info=request_info
+                )
                 .annotate_bounty_income()
                 .annotate_ess_income()
                 .annotate_miscellaneous()
             )
-            mining_timeline = billboard.create_timeline(mining_journal).annotate_mining(
-                with_period=True
+            mining_timeline = self.billboard.create_timeline(
+                journal=mining_journal, request_info=request_info
+            ).annotate_mining(with_period=True)
+
+            # Generate XY Billboard
+            xy_results = self.billboard.create_or_update_results(wallet_timeline)
+            xy_results = self.billboard.add_category_to_xy_billboard(
+                xy_results, category="mining", queryset=mining_timeline
             )
-
-            # Generate the billboard data
-            billboard.create_or_update_results(wallet_timeline)
-            billboard.add_category(mining_timeline, category="mining")
-
-            # Generate XY Series
-            series, categories = billboard.generate_xy_series()
-            if series and categories:
-                billboard.create_xy_chart(
-                    title=_("Ratting Income Over Time"),
-                    categories=categories,
-                    series=series,
-                )
+            xy_billboard = self.billboard.create_xy_billboard(
+                results=xy_results, request_info=request_info
+            )
+            # Initialize Chord Billboard
+            chord_billboard = self.billboard.create_chord_billboard()
 
             # Generate Chord Data
             for char_data in character_ledger_list:
@@ -401,38 +399,40 @@ class CharacterApiEndpoints:
                 miscellaneous = char_data.ledger.miscellaneous
                 costs = char_data.ledger.costs
 
-                billboard.chord_add_data(
+                self.billboard.chord_create_or_add_data(
                     chord_from=char_data.character.character_name,
                     chord_to=_("Bounty"),
                     value=abs(bounty),
+                    chord_billboard=chord_billboard,
                 )
-                billboard.chord_add_data(
+                self.billboard.chord_create_or_add_data(
                     chord_from=char_data.character.character_name,
                     chord_to=_("ESS"),
                     value=abs(ess),
+                    chord_billboard=chord_billboard,
                 )
-                billboard.chord_add_data(
+                self.billboard.chord_create_or_add_data(
                     chord_from=char_data.character.character_name,
                     chord_to=_("Mining"),
                     value=abs(mining_val),
+                    chord_billboard=chord_billboard,
                 )
-                billboard.chord_add_data(
+                self.billboard.chord_create_or_add_data(
                     chord_from=char_data.character.character_name,
                     chord_to=_("Miscellaneous"),
                     value=abs(miscellaneous),
+                    chord_billboard=chord_billboard,
                 )
-                billboard.chord_add_data(
+                self.billboard.chord_create_or_add_data(
                     chord_from=char_data.character.character_name,
                     chord_to=_("Costs"),
                     value=abs(costs),
+                    chord_billboard=chord_billboard,
                 )
 
-            # Handle Chord Overflow
-            billboard.chord_handle_overflow()
-
             response_billboard = BillboardSchema(
-                xy_chart=billboard.dict.rattingbar,
-                chord_chart=billboard.dict.charts,
+                xy_chart=xy_billboard if xy_billboard.series else None,
+                chord_chart=chord_billboard if chord_billboard.series else None,
             )
             # Cache Billboard Response
             self.cache_manager.set_cache_billboard(
