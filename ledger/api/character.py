@@ -76,6 +76,8 @@ class CharacterApiEndpoints:
     # pylint: disable=too-many-statements, function-redefined
     # flake8: noqa: F811
     def __init__(self, api: NinjaAPI):
+        self.cache_manager = CacheManager()
+
         @api.get(
             "character/{character_id}/date/{year}/",
             response={200: CharacterLedgerResponse, 403: dict, 404: dict},
@@ -200,8 +202,6 @@ class CharacterApiEndpoints:
         Returns:
             list[LedgerCharacterSchema]: A list of ledger responses for each character.
         """
-        # Initalize Cache Manager
-        cache_manager = CacheManager()
         # Get All Alts for this Owner
         characters = CharacterOwner.objects.filter(
             eve_character__character_id__in=owner.alt_ids
@@ -245,10 +245,10 @@ class CharacterApiEndpoints:
             header_ids.append(character.eve_character.character_id)
 
             # Create Ledger Hash
-            wallet_journal_hash = cache_manager.create_ledger_hash(header_ids)
+            wallet_journal_hash = self.cache_manager.create_ledger_hash(header_ids)
 
             # Get Cached Ledger if Available
-            response_ledger = cache_manager.get_cache_ledger(
+            response_ledger = self.cache_manager.get_cache_ledger(
                 ledger_hash=wallet_journal_hash
             )
             if response_ledger is False:
@@ -294,7 +294,7 @@ class CharacterApiEndpoints:
                     ),
                 )
                 # Cache Ledger Response
-                cache_manager.set_cache_ledger(
+                self.cache_manager.set_cache_ledger(
                     ledger_hash=wallet_journal_hash,
                     ledger_data=response_ledger,
                 )
@@ -325,8 +325,6 @@ class CharacterApiEndpoints:
         """
         # Initialize Billboard System
         billboard = BillboardSystem()
-        # Initialize Cache Manager
-        cache_manager = CacheManager()
 
         # Get Wallet and Mining Journal Entries
         wallet_journal = (
@@ -363,10 +361,10 @@ class CharacterApiEndpoints:
             return BillboardSchema()
 
         # Create Ledger Hash
-        wallet_journal_hash = cache_manager.create_ledger_hash(header_ids)
+        wallet_journal_hash = self.cache_manager.create_ledger_hash(header_ids)
 
         # Get Cached Billboard if Available
-        response_billboard = cache_manager.get_cache_billboard(
+        response_billboard = self.cache_manager.get_cache_billboard(
             billboard_hash=wallet_journal_hash
         )
         if response_billboard is False:
@@ -437,7 +435,7 @@ class CharacterApiEndpoints:
                 chord_chart=billboard.dict.charts,
             )
             # Cache Billboard Response
-            cache_manager.set_cache_billboard(
+            self.cache_manager.set_cache_billboard(
                 billboard_hash=wallet_journal_hash,
                 billboard_data=response_billboard,
             )
