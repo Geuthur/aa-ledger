@@ -22,9 +22,10 @@ Section Order:
 - Character Ledger Api Endpoint
 - EVE Online Portrait Generation
 - MonthChoice and DayChoice enums to `constants.py` for better date handling
-- get_portrait method to EveEntity for dynamic portrait URL retrieval
+- `get_portrait` method to EveEntity for dynamic portrait URL retrieval
 - cached properties for corporation member IDs and user profiles; implement get_portrait method for dynamic logo retrieval
 - `auth_accounts` property in CorporationOwner Model
+- Create `libs` folder and save `amCharts` local
 
 ### Fixed
 
@@ -32,18 +33,18 @@ Section Order:
 
 ### Changed
 
+- Data Export will now handled by JS
+- Renamed `charlink` label
+- Refactor Billboard Class
+- `max-positional-args` increased from `5` to `6` in pylintrc
 - Switched from `DataTableV1` to `DataTableV2`
-- Refactor Corporation Ledger
+- Refactor Alliance Ledger, Corporation Ledger, Character Ledger
   - moved Backend from `views` to `api`
   - All Icons & Buttons now been created in Backend in Python instead of JS/Template
-- Refactor Character Ledger
-  - moved Backend from `views` to `api`
-  - Implement Cache System for Character Ledger
-  - All Icons & Buttons now been created in Backend in Python instead of JS/Template
+  - Optimized Date Selector Dropdown Menu
 - Cache System
   - Optimized Ledger Data Caching
   - Performance Optimitation with Caching
-  - Cache Rest from `7` days set to `30` days
 - Update ESI compatibility date to 2025-12-16
 - dependency `django-eveuniverse` set to `>=1.6,<2`
 - dependency `django-ninja` set to `>=1.5,<2`
@@ -51,12 +52,6 @@ Section Order:
   - Optimized Tests
   - Added docstrings
   - Added OpenAPI ESI Stub
-- Refactor Ledger Core Class
-  - Optimized Auth Characer IDs property
-  - `self.mining` has been removed as it is not required.
-  - `self.auth_char_ids` has been removed as it is used as property
-- Refactor CharacterData
-  - `self.request` has been removed as it is not required.
 - Refactor CharacterAudit
   - renamed `CharacterAudit` to `CharacterOwner`
   - moved all Update related stuff to `UpdateManager`
@@ -67,7 +62,6 @@ Section Order:
 - Optimzed API Structure
   - Optimized Pylance
   - Optimized Structure
-- create libs folder and save `amCharts` file local
 - Refactor Planetary
   - Icon Generation Backend
   - Optimized Functions regarding to Planets
@@ -88,6 +82,13 @@ Section Order:
 - unused constants and cleaning up the code
 - unused annoations in Manager Class
 - `allianceauth-app-utils` dependency
+- single view for Character Ledger
+- `add_info_to_context` function
+- `core` Class
+- `Character Data` Class
+- `Corporation Data` Class
+- `Alliance Data` Class
+- `Data Exporter` Class
 
 ## [1.0.4] - 2025-12-03
 
