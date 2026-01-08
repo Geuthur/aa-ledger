@@ -1,29 +1,7 @@
 {% load i18n %}
 {% load evelinks %}
 {% load humanize %}
-<div class="card mb-3">
-    <div class="card-header bg-primary rounded-top d-flex align-items-center">
-        <h3 class="me-3">{% translate "Character Ledger" %}</h3>
-        <div id="character-ledger-dropdown-buttons" class="d-flex">
-            {% if forms.character_dropdown %}
-                <div class="me-2">
-                    <form id="character-ledger-dropdown-form" method="post" href="{% url 'ledger:character_ledger' character_id=character_id %}" class="d-flex">
-                        {% csrf_token %}
-                        {{ forms.character_dropdown.division }}
-                        {{ forms.character_dropdown.year }}
-                        {{ forms.character_dropdown.month }}
-                        {{ forms.character_dropdown.day }}
-                        <button id="character-ledger-submit" type="submit" class="btn btn-success">{% translate "Submit" %}</button>
-                    </form>
-                </div>
-            {% endif %}
-        </div>
-        <div class="ms-auto">
-            <a class="btn btn-secondary me-2 administration" href="{% url 'ledger:character_administration' character_id=character_id %}" class="administration">{% translate 'Administration' %}{% if issues %} <span class="badge bg-warning">{{ issues }}</span>{% endif %}</a>
-            <a href="{% url 'ledger:character_overview' %}" class="overview"><button class="btn btn-secondary overview">{% translate 'Account Overview' %}</button></a>
-        </div>
-    </div>
-
+<div class="card mt-2 rounded">
     <!-- Character Ledger Table -->
     <div class="table-responsive">
         <div class="card-body rounded-bottom">

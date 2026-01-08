@@ -11,6 +11,31 @@
     </h1>
 {% endblock page_topic %}
 
+{% block aaledger_header %}
+    <div class="card">
+        <div class="card-header bg-primary rounded d-flex align-items-center">
+            <h3 class="me-3">{% translate "Corporation Ledger" %}</h3>
+            <div id="dropdown alliance-ledger-dropdown-buttons me-2" class="d-flex">
+                {% if forms.alliance_dropdown %}
+                    <div class="me-2">
+                        <form id="alliance-ledger-dropdown-form" method="post" href="{% url 'ledger:alliance_ledger' alliance_id=alliance_id %}" class="d-flex">
+                            {% csrf_token %}
+                            {{ forms.alliance_dropdown.year }}
+                            {{ forms.alliance_dropdown.month }}
+                            {{ forms.alliance_dropdown.day }}
+                            <button id="alliance-ledger-submit" type="submit" class="btn btn-success">{% translate "Submit" %}</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="ms-auto">
+                <a class="btn btn-secondary me-2 administration" href="{% url 'ledger:alliance_administration' alliance_id=alliance_id %}" class="administration">{% translate 'Administration' %}{% if issues %} <span class="badge bg-warning">{{ issues }}</span>{% endif %}</a>
+                <a href="{% url 'ledger:alliance_overview' %}" class="overview"><button class="btn btn-secondary overview">{% translate 'Account Overview' %}</button></a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
 {% block ledger_block %}
     {% include 'ledger/partials/view-alliance-ledger/alliance-table.html' %}
     {% include 'ledger/partials/view-alliance-ledger/alliance-billboard.html' %}
