@@ -19,6 +19,7 @@ from ledger.views.character import character_ledger, planetary
 from ledger.views.corporation import corporation_ledger
 
 INDEX_PATH = "ledger.views.index"
+TASKS_PATH = "ledger.tasks"
 CHARLEDGER_PATH = "ledger.views.character.character_ledger"
 CORPLEDGER_PATH = "ledger.views.corporation.corporation_ledger"
 ALLYLEDGER_PATH = "ledger.views.alliance.alliance_ledger"
@@ -29,6 +30,9 @@ class TestViewIndexAccess(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+
+        create_owner_from_user(cls.user)
+        create_owner_from_user(cls.user, owner_type="corporation")
 
     def test_admin(self, mock_messages):
         """
@@ -66,16 +70,16 @@ class TestViewIndexAccess(LedgerTestCase):
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertTrue(mock_messages.error.called)
 
-    @patch(INDEX_PATH + ".clear_all_etags")
-    def test_admin_clear_all_etags(self, mock_clear_etags, mock_messages):
+    @patch(TASKS_PATH + ".clear_all_cache")
+    def test_admin_clear_all_cache(self, mock_clear_cache, mock_messages):
         """
-        Test clear all etags.
+        Test clear all cache.
 
-        This test posts to the admin view to trigger the clear etags action.
+        This test posts to the admin view to trigger the clear cache action.
         """
         # Test Data
         request = self.factory.post(
-            reverse("ledger:admin"), data={"run_clear_etag": True}
+            reverse("ledger:admin"), data={"run_clear_cache": True}
         )
         request.user = self.superuser
         self._middleware_process_request(request)
@@ -85,7 +89,8 @@ class TestViewIndexAccess(LedgerTestCase):
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        mock_messages.info.assert_called_once_with(request, "Queued Clear All ETags")
+        mock_messages.info.assert_called_once_with(request, "Queued Clear All Cache")
+        mock_clear_cache.apply_async.assert_called_once_with(priority=1)
 
     def test_force_refresh(self, mock_messages):
         """
@@ -106,16 +111,19 @@ class TestViewIndexAccess(LedgerTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
-    @patch(INDEX_PATH + ".update_all_characters")
-    def test_run_char_updates(self, mock_update_characters, mock_messages):
+    @patch(TASKS_PATH + ".update_all_characters")
+    def test_run_character_updates(self, mock_update_characters, mock_messages):
         """
-        Test run char updates.
+        Test run character updates.
 
         This test posts to the admin view to trigger the run character updates action.
+
+        # Expected Results
+            - Update all characters task is queued
         """
         # Test Data
         request = self.factory.post(
-            reverse("ledger:admin"), data={"run_char_updates": True}
+            reverse("ledger:admin"), data={"run_character_updates": True}
         )
         request.user = self.superuser
         self._middleware_process_request(request)
@@ -128,17 +136,82 @@ class TestViewIndexAccess(LedgerTestCase):
         mock_messages.info.assert_called_once_with(
             request, "Queued Update All Characters"
         )
+        mock_update_characters.apply_async.assert_called_once()
 
-    @patch(INDEX_PATH + ".update_all_corporations")
-    def test_run_corp_updates(self, mock_update_corporations, mock_messages):
+    @patch(TASKS_PATH + ".update_character")
+    def test_run_character_updates_character_1001(
+        self, mock_update_characters, mock_messages
+    ):
         """
-        Test Run corp updates.
+        Test run character updates.
 
-        This test posts to the admin view to trigger the run corporation updates action.
+        This test posts to the admin view to trigger the run character updates action for character ID 1001.
+
+        # Expected Results
+            - Update task is queued for the specified character
         """
         # Test Data
         request = self.factory.post(
-            reverse("ledger:admin"), data={"run_corp_updates": True}
+            reverse("ledger:admin"),
+            data={"run_character_updates": True, "character_id": 1001},
+        )
+        request.user = self.superuser
+        self._middleware_process_request(request)
+
+        # Test Action
+        response = index.admin(request)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        mock_messages.info.assert_called_once_with(
+            request,
+            f"Queued Update for Character: {self.user_character.character.character_name}",
+        )
+        mock_update_characters.apply_async.assert_called_once()
+
+    @patch(TASKS_PATH + ".update_character")
+    def test_run_character_updates_character_not_exist(
+        self, mock_update_characters, mock_messages
+    ):
+        """
+        Test run character updates.
+
+        This test posts to the admin view to trigger the run character updates action for a non-existent character ID.
+
+        # Expected Results
+            - Error message is shown for the non-existent character
+        """
+        # Test Data
+        request = self.factory.post(
+            reverse("ledger:admin"),
+            data={"run_character_updates": True, "character_id": 9999},
+        )
+        request.user = self.superuser
+        self._middleware_process_request(request)
+
+        # Test Action
+        response = index.admin(request)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        mock_messages.error.assert_called_with(
+            request, "Character with ID 9999 not found"
+        )
+        mock_update_characters.apply_async.assert_not_called()
+
+    @patch(TASKS_PATH + ".update_all_corporations")
+    def test_run_corporation_updates(self, mock_update_corporations, mock_messages):
+        """
+        Test run corporation updates.
+
+        This test posts to the admin view to trigger the run corporation updates action.
+
+        # Expected Results
+            - Update all corporations task is queued
+        """
+        # Test Data
+        request = self.factory.post(
+            reverse("ledger:admin"), data={"run_corporation_updates": True}
         )
         request.user = self.superuser
         self._middleware_process_request(request)
@@ -151,6 +224,68 @@ class TestViewIndexAccess(LedgerTestCase):
         mock_messages.info.assert_called_once_with(
             request, "Queued Update All Corporations"
         )
+        mock_update_corporations.apply_async.assert_called_once()
+
+    @patch(TASKS_PATH + ".update_corporation")
+    def test_run_corporation_updates_corporation_2001(
+        self, mock_update_corporations, mock_messages
+    ):
+        """
+        Test run corporation updates.
+
+        This test posts to the admin view to trigger the run corporation updates action for corporation ID 2001.
+
+        # Expected Results
+            - Update task is queued for the specified corporation
+        """
+        # Test Data
+        request = self.factory.post(
+            reverse("ledger:admin"),
+            data={"run_corporation_updates": True, "corporation_id": 2001},
+        )
+        request.user = self.superuser
+        self._middleware_process_request(request)
+
+        # Test Action
+        response = index.admin(request)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        mock_messages.info.assert_called_once_with(
+            request,
+            f"Queued Update for Corporation: {self.user_character.character.corporation.corporation_name}",
+        )
+        mock_update_corporations.apply_async.assert_called_once()
+
+    @patch(TASKS_PATH + ".update_corporation")
+    def test_run_corporation_updates_corporation_not_exist(
+        self, mock_update_corporations, mock_messages
+    ):
+        """
+        Test run corporation updates.
+
+        This test posts to the admin view to trigger the run corporation updates action for a non-existent corporation ID.
+
+        # Expected Results
+            - Error message is shown for the non-existent corporation
+        """
+        # Test Data
+        request = self.factory.post(
+            reverse("ledger:admin"),
+            data={"run_corporation_updates": True, "corporation_id": 9999},
+        )
+        request.user = self.superuser
+        self._middleware_process_request(request)
+
+        # Test Action
+        response = index.admin(request)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        mock_messages.error.assert_called_with(
+            request, "Corporation with ID 9999 not found"
+        )
+        mock_update_corporations.apply_async.assert_not_called()
 
 
 class TestViewCharacterLedgerAccess(LedgerTestCase):

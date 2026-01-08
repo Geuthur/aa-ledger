@@ -20,3 +20,11 @@
         </a>
     </li>
 {% endif %}
+
+{% if request.user.is_superuser %}
+    <li class="nav-item">
+        <a class="nav-link py-0" href="{% url 'ledger:admin' %}">
+            <span class="btn btn-danger">{% translate 'Admin' %}</span>
+        </a>
+    </li>
+{% endif %}

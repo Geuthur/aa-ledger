@@ -476,7 +476,7 @@ def _update_corporation_section(
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
-def clear_all_etags():
+def clear_all_cache():
     logger.debug("Clearing all etags")
     try:
         # Third Party
