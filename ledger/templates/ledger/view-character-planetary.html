@@ -12,21 +12,21 @@
     </h1>
 {% endblock page_topic %}
 
-{% block ledger_block %}
-<div class="card mb-3">
-    <div class="card-header bg-primary rounded-top d-flex align-items-center">
-        <h3>{% translate "Planetary Details" %} </h3>
-        <div class="ms-auto">
-            <a class="nav-link py-0" href="{% url 'ledger:planetary_overview' %}">
-                <span class="btn btn-secondary">{% translate 'Planetary Overview' %}</span>
-            </a>
+{% block aaledger_header %}
+    <div class="card">
+        <div class="card-header bg-primary rounded d-flex align-items-center">
+            <h3>{% translate "Planetary Details" %} </h3>
+            <div class="ms-auto">
+                <a class="nav-link py-0" href="{% url 'ledger:planetary_overview' %}">
+                    <span class="btn btn-secondary">{% translate 'Planetary Overview' %}</span>
+                </a>
+            </div>
         </div>
     </div>
+{% endblock %}
 
-    <div class="card-body table-responsive">
-        {% include 'ledger/partials/view-character-planetary/planetary-table.html' %}
-    </div>
-</div>
+{% block ledger_block %}
+    {% include 'ledger/partials/view-character-planetary/planetary-table.html' %}
 {% endblock %}
 
 {% block extra_css %}

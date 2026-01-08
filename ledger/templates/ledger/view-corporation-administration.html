@@ -11,24 +11,27 @@
     </h1>
 {% endblock page_topic %}
 
-{% block ledger_block %}
-    <div class="card card-corporation-administration">
-        <div class="card-header bg-primary rounded-top d-flex align-items-center">
+{% block aaledger_header %}
+    <div class="card">
+        <div class="card-header bg-primary rounded d-flex align-items-center">
             <h3 class="me-3">{% translate "Administration" %}</h3>
         </div>
-        <!-- Content -->
-        <div id="ledger-index" class="card-body rounded-bottom fade">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-lg-6 col-md-12">
-                        {% include 'ledger/partials/view-corporation-administration/dashboard.html' %}
-                    </div>
-                    <div class="col-lg-6 col-md-12">
-                        {% include 'ledger/partials/view-corporation-administration/corporation.html' %}
-                    </div>
+    </div>
+{% endblock %}
+
+{% block ledger_block %}
+    <!-- Corporation Administration -->
+    <div class="card card-corporation-administration mt-2 rounded">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-6 col-md-12">
+                    {% include 'ledger/partials/view-corporation-administration/dashboard.html' %}
                 </div>
-                {% include 'ledger/partials/view-corporation-administration/corporation_characters.html' %}
+                <div class="col-lg-6 col-md-12">
+                    {% include 'ledger/partials/view-corporation-administration/corporation.html' %}
+                </div>
             </div>
+            {% include 'ledger/partials/view-corporation-administration/corporation_characters.html' %}
         </div>
     </div>
 {% endblock %}
