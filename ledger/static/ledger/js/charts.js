@@ -6,7 +6,10 @@
 /* global am5xy */
 /* global entityType */
 
-// Function to dispose of a root instance if it exists
+/**
+ * Helper function to dispose existing Root instances
+ * @param {*} rootId
+ */
 function disposeRoot(rootId) {
     const rootElement = am5.registry.rootElements.find(root => root.dom.id === rootId);
     if (rootElement) {
@@ -14,6 +17,13 @@ function disposeRoot(rootId) {
     }
 }
 
+/**
+ * Helper function to load or create a chart
+ * @param {*} div - div id
+ * @param {*} data - chart data
+ * @param {*} chart - chart type
+ * @returns {boolean|object} - returns true or the created amChart object
+ */
 function load_or_create_Chart(div, data, chart) {
     // Dispose existing Root instances
     disposeRoot(div);
@@ -43,6 +53,13 @@ function initCharts(data) {
     const chart = load_or_create_Chart(rootChartId, billboard.charts, 'chart');
 }
 
+/**
+ * Helper function to create a chord chart
+ * @param {*} root - am5 Root object
+ * @param {*} data - chart data
+ * @param {*} id - div id
+ * @returns {object} - amChart object
+ */
 function createChordChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {
         console.log('Data is not in the expected format:', data);
@@ -124,6 +141,13 @@ function createChordChart(root, data, id) {
     series.appear(1000, 100);
 }
 
+/**
+ * Helper function to create a bar chart
+ * @param {*} root - am5 Root object
+ * @param {*} data - chart data
+ * @param {*} id - div id
+ * @returns {object} - amChart object
+ */
 function createRattingBarChart(root, data, id) {
     if (!data || !Array.isArray(data.series)) {
         console.debug('Data is not in the expected format:', data);

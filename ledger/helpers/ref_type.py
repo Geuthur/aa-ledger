@@ -2,25 +2,18 @@
 
 # Standard Library
 import enum
-from typing import TYPE_CHECKING
 
 # Django
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
+from ledger.providers import AppLogger
 
-if TYPE_CHECKING:
-    # AA Ledger
-    from ledger.helpers.core import LedgerEntity
-
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 # Unified Journal Reference Type Enum - All ref types in one place
@@ -193,10 +186,19 @@ class RefTypeManager:
     """Categories for wallet journal reference types."""
 
     # Translations for reference types
-    _("Corporation Contract")
+    _("Bounty Income")
+    _("Mining Income")
+    _("Ess Income")
+
+    _("Assets Income")
+    _("Assets Cost")
+    _("Corporation Contract Income")
+    _("Contract Income")
+    _("Contract Cost")
     _("Corporation Withdrawal")
     _("Mission Reward")
-    _("Market")
+    _("Market Income")
+    _("Market Cost")
     _("Daily Goal Reward")
     _("Structure Rental")
 
@@ -372,6 +374,8 @@ class RefTypeManager:
     def get_all_categories(cls) -> dict[str, list[str]]:
         """Get all categories and their ref types, sorted alphabetically by key in the dict literal. Add NO_CATEGORY for missing JournalRefType."""
         categories = {
+            "BOUNTY": cls.BOUNTY_PRIZES,
+            "ESS": cls.ESS_TRANSFER,
             "ASSETS": cls.ASSETS,
             "CONTRACT": cls.CONTRACT,
             "CORPORATION_ADMINISTRATION": cls.CORPORATION_ADMINISTRATION,
@@ -400,76 +404,38 @@ class RefTypeManager:
         # Alle JournalRefType-Namen in Kleinbuchstaben
         all_types = {jt.name.lower() for jt in JournalRefType}
 
-        # Exclude Bounty and ESS
-        pve = set()
-        # Bounty-Prizes
-        if hasattr(cls, "BOUNTY_PRIZES"):
-            pve.update(cls.BOUNTY_PRIZES)
-        # ESS Transfer
-        if hasattr(cls, "ESS_TRANSFER"):
-            pve.update(cls.ESS_TRANSFER)
-
         # Nicht zugeordnete Typen bestimmen, aber special auslassen
-        not_defined = sorted((all_types - assigned) - pve)
+        not_defined = sorted(all_types - assigned)
         if not_defined:
-            categories["NOT_DEFINED_CATEGORY"] = not_defined
+            categories["UNDEFINED"] = not_defined
 
         return categories
 
     @classmethod
+    def ledger_ref_types(cls) -> list[str]:
+        """
+        Get all ref types from all categories.
+
+        This is used to filter journal entries for ledger processing.
+
+        Excluding Bounty Prizes and ESS transfers for specific handling.
+        """
+        all_ref_types = cls.get_all_categories()
+        ref_types_items = []
+        for __, ref_types in all_ref_types.items():
+            if __ in ["BOUNTY", "ESS"]:
+                continue
+            ref_types_items.extend(ref_types)
+        return ref_types_items
+
+    @classmethod
     def all_ref_types(cls) -> list[str]:
-        """Get all ref types from all categories."""
+        """
+        Get all ref types from all categories.
+        This is used to get a complete list of all reference types.
+        """
         all_ref_types = cls.get_all_categories()
         ref_types_items = []
         for __, ref_types in all_ref_types.items():
             ref_types_items.extend(ref_types)
         return ref_types_items
-
-    @staticmethod
-    def special_cases(row: dict, ids: set[int], account_char_ids: set[int]) -> bool:
-        """Handle special cases in Ledger."""
-        if isinstance(row, dict) is False:
-            logger.debug("Row is not a dictionary, skipping special case checks.")
-            return False
-
-        # Skip Market Transactions from buyer between the corporation and its members (only count transactions from creator)
-        if row["ref_type"] == "market_transaction" and row["first_party_id"] in ids:
-            return True
-
-        # Skip Contract if Contract Creator is Registered as a Member of the Corporation (only count the contract creator)
-        if (
-            row["ref_type"] == "contract_price_payment_corp"
-            and row["first_party_id"] in account_char_ids
-            and row["second_party_id"] in ids
-        ):
-            return True
-        return False
-
-    @staticmethod
-    def special_cases_details(
-        value: list,
-        entity: "LedgerEntity",
-        kwargs: dict[str, int],
-        journal_type: str,
-        char_ids: set[int] = None,
-    ) -> bool:
-        """Handle special cases in Ledger for Details View."""
-        # Skip Contract if Contract Creator is Registered as a Member of the Corporation (only count the contract creator)
-        if (
-            "contract_price_payment_corp" in value
-            and entity.type == "character"
-            and journal_type == "corporation"
-        ):  # Only Count Contract Creator
-            kwargs["first_party"] = entity.entity_id
-            return kwargs
-
-        # Skip Player Donation if it is to own alts
-        if (
-            "player_donation" in value
-            and entity.is_eve_character
-            and journal_type == "character"
-        ):
-            if char_ids is None:
-                return kwargs
-            kwargs["exclude"] = char_ids
-        return kwargs

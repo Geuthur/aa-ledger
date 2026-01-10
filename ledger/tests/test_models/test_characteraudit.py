@@ -1,46 +1,36 @@
-# Standard Library
-from unittest.mock import PropertyMock, patch
-
 # Django
-from django.test import RequestFactory, TestCase
+from django.test import TestCase
 from django.utils import timezone
 
 # AA Ledger
-from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
-from ledger.models.general import _NeedsUpdate
-from ledger.tests.testdata.generate_characteraudit import (
-    add_characteraudit_character_to_user,
-    create_update_status,
-    create_user_from_evecharacter_with_access,
+from ledger.models.characteraudit import (
+    CharacterOwner,
+    CharacterUpdateSection,
+    CharacterUpdateStatus,
 )
-from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_eveentity import load_eveentity
-from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
+from ledger.models.helpers.update_manager import UpdateStatus
+from ledger.tests import LedgerTestCase
+from ledger.tests.testdata.utils import (
+    create_owner_from_user,
+    create_update_status,
+)
 
 MODULE_PATH = "ledger.models.characteraudit"
 
 
-class TestCharacterWalletJournalModel(TestCase):
+class TestCharacterWalletJournalModel(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-        load_eveentity()
 
-        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
-            1001,
-        )
-        cls.audit = add_characteraudit_character_to_user(
-            cls.user, cls.character_ownership.character.character_id
-        )
-        sections = CharacterAudit.UpdateSection.get_sections()
+        cls.owner = create_owner_from_user(cls.user, owner_type="character")
+        sections = CharacterUpdateSection.get_sections()
         for section in sections:
             create_update_status(
-                cls.audit,
+                owner=cls.owner,
                 section=section,
-                is_success=True,
                 error_message="",
+                is_success=True,
                 has_token_error=False,
                 last_run_at=timezone.now(),
                 last_run_finished_at=timezone.now(),
@@ -48,21 +38,27 @@ class TestCharacterWalletJournalModel(TestCase):
                 last_update_finished_at=timezone.now(),
             )
         cls.update_status_wallet = CharacterUpdateStatus.objects.get(
-            character=cls.audit,
-            section=CharacterAudit.UpdateSection.WALLET_JOURNAL,
+            owner=cls.owner,
+            section=CharacterUpdateSection.WALLET_JOURNAL,
         )
         cls.update_status_mining_ledger = CharacterUpdateStatus.objects.get(
-            character=cls.audit,
-            section=CharacterAudit.UpdateSection.MINING_LEDGER,
+            owner=cls.owner,
+            section=CharacterUpdateSection.MINING_LEDGER,
         )
 
     def test_str(self):
-        excepted_str = CharacterAudit.objects.get(id=self.audit.id)
-        self.assertEqual(self.audit, excepted_str)
+        excepted_str = CharacterOwner.objects.get(id=self.owner.id)
+        self.assertEqual(self.owner, excepted_str)
 
     def test_get_esi_scopes(self):
+        """
+        Test retrieval of ESI scopes for CharacterOwner.
+
+        ### Expected Result
+        - Correct list of ESI scopes is returned.
+        """
         self.assertEqual(
-            self.audit.get_esi_scopes(),
+            self.owner.get_esi_scopes(),
             [
                 # Mining Ledger
                 "esi-industry.read_character_mining.v1",
@@ -75,77 +71,65 @@ class TestCharacterWalletJournalModel(TestCase):
         )
 
     def test_get_status_states(self):
-        update_status = self.update_status_wallet
-        audit = self.audit
+        """
+        Test various states of get_status property.
 
+        ### Expected Results:
+        - OK
+        - DISABLED
+        - TOKEN_ERROR
+        - ERROR
+        - INCOMPLETE
+        """
+        # Test Data - OK
+        update_status = self.update_status_wallet
+        audit = self.owner
+
+        # Expected Result
         self.assertEqual(
-            self.audit.get_status,
-            CharacterAudit.UpdateStatus.OK,
+            self.owner.get_status,
+            UpdateStatus.OK,
         )
 
+        # Test Data - DISABLED
         audit.active = False
         audit.save()
 
+        # Expected Result
         self.assertEqual(
-            self.audit.get_status,
-            CharacterAudit.UpdateStatus.DISABLED,
+            self.owner.get_status,
+            UpdateStatus.DISABLED,
         )
 
+        # Test Data - TOKEN_ERROR
         audit.active = True
         audit.save()
         update_status.is_success = False
         update_status.has_token_error = True
         update_status.save()
 
+        # Expected Result
         self.assertEqual(
-            self.audit.get_status,
-            CharacterAudit.UpdateStatus.TOKEN_ERROR,
+            self.owner.get_status,
+            UpdateStatus.TOKEN_ERROR,
         )
 
+        # Test Data - ERROR
         audit.active = True
         audit.save()
         update_status.is_success = False
         update_status.has_token_error = False
         update_status.save()
 
+        # Expected Result
         self.assertEqual(
-            self.audit.get_status,
-            CharacterAudit.UpdateStatus.ERROR,
+            self.owner.get_status,
+            UpdateStatus.ERROR,
         )
-
         update_status.delete()
 
+        # Test Data - INCOMPLETE
         self.assertEqual(
-            self.audit.get_status,
-            CharacterAudit.UpdateStatus.INCOMPLETE,
-        )
-
-    def test_reset_has_token_error(self):
-        audit = self.audit
-
-        self.assertEqual(
-            audit.reset_has_token_error(),
-            False,
-        )
-
-        self.update_status_mining_ledger.has_token_error = True
-        self.update_status_mining_ledger.save()
-
-        self.assertEqual(
-            audit.reset_has_token_error(),
-            True,
-        )
-
-    def test_reset_update_status(self):
-        # given
-        audit = self.audit
-        # when
-        update_status = audit.reset_update_status("mining_ledger")
-        # then
-        self.assertEqual(
-            update_status,
-            CharacterUpdateStatus.objects.get(
-                character=audit,
-                section="mining_ledger",
-            ),
+            self.owner.get_status,
+            UpdateStatus.INCOMPLETE,
         )

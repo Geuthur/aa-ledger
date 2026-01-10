@@ -1,0 +1,62 @@
+{% extends "ledger/base.html" %}
+{% load i18n %}
+
+{% block page_template_title %}
+    {{ title }}
+{% endblock page_template_title %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block aaledger_header %}
+    <div class="card">
+        <div class="card-header bg-primary rounded d-flex align-items-center">
+            <h3 class="me-3">{% translate "Administration" %}</h3>
+        </div>
+    </div>
+{% endblock %}
+
+{% block ledger_block %}
+    <div class="card mt-2 rounded">
+        <div class="card-body w-auto">
+            <form action="{% url 'ledger:admin' %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3 form-check">
+                    <input class="form-check-input" type="checkbox" name="force_refresh" id="force_refresh">
+                    <label class="form-check-label" for="force_refresh">{% translate "Mark all tasks as Force Refresh" %}</label>
+                </div>
+                <hr class="my-4">
+                <div class="mb-3 form-check">
+                    <input class="form-check-input" type="checkbox" name="run_clear_cache" id="run_clear_cache">
+                    <label class="form-check-label" for="run_clear_cache">{% translate "Clear all Cache" %}</label>
+                </div>
+                <hr class="my-4">
+                <div class="col-auto form-check mb-0">
+                    <input class="form-check-input" type="checkbox" name="run_character_updates" id="run_character_updates">
+                    <label class="form-check-label" for="run_character_updates">{% translate "Update Character Updates" %}</label>
+                </div>
+                <div class="col">
+                    <label for="character_id" class="form-label mb-0">{% translate "Character ID (optional)" %}</label>
+                    <input type="number" class="form-control" name="character_id" id="character_id" placeholder="{% translate 'Enter Character ID' %}">
+                    <small class="form-text text-muted">{% translate "Leave empty to update all characters" %}</small>
+                </div>
+                <hr class="my-4">
+                <div class="col-auto form-check mb-0">
+                    <input class="form-check-input" type="checkbox" name="run_corporation_updates" id="run_corporation_updates">
+                    <label class="form-check-label" for="run_corporation_updates">{% translate "Update Corporation Updates" %}</label>
+                </div>
+                <div class="col">
+                    <label for="corporation_id" class="form-label mb-0">{% translate "Corporation ID (optional)" %}</label>
+                    <input type="number" class="form-control" name="corporation_id" id="corporation_id" placeholder="{% translate 'Enter Corporation ID' %}">
+                    <small class="form-text text-muted">{% translate "Leave empty to update all corporations" %}</small>
+                </div>
+                <div class="mt-2">
+                    <input type="submit" value="{% translate 'Submit' %}" class="btn col-md-12 btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock ledger_block %}

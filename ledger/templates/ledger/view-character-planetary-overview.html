@@ -1,0 +1,133 @@
+{% extends 'ledger/base.html' %}
+{% load i18n %}
+
+{% block page_template_title %}
+    {{ title }}
+{% endblock page_template_title %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block aaledger_header %}
+    <div class="card">
+        <div class="card-header bg-primary rounded d-flex align-items-center">
+            <h3 class="text-white">{% translate "Planetary Overview" %}</h3>
+        </div>
+    </div>
+{% endblock %}
+
+{% block ledger_block %}
+    <div class="card card-body mt-2 rounded">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover w-100" id="overview-table">
+                <thead>
+                    <th class="col-portrait" style="width: 10%;"></th>
+                    <th class="col-user" style="width: 20%;">Character</th>
+                    <th class="col-group" style="width: 20%;">Corporation</th>
+                    <th class="col-actions" style="width: 10%;">{% trans "Actions" %}</th>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block extra_css %}
+    {% include 'ledger/bundles/datatables-2-css.html' with extColumnControl=True %}
+    {% include 'ledger/bundles/aa-ledger-css.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+    {% include 'ledger/bundles/aa-ledger-js.html' %}
+    {% include 'ledger/bundles/datatables-2-js.html' with extColumnControl=True %}
+    <script type="application/javascript">
+        /* global aaLedgerSettings, aaLedgerSettingsOverride, _bootstrapTooltip, fetchGet, bootstrap, DataTable*/
+        $(document).ready(() => {
+            /**
+             * Overview :: Urls
+            */
+            const AdminUrl = "{% url 'ledger:api:get_planetary_overview' %}"
+            const PlanetaryOverviewUrl = "{% url 'ledger:planetary_ledger' character_id=1337 %}"
+
+            /**
+            * Table :: IDs
+            */
+            const overviewTable = $('#overview-table');
+
+            fetchGet({
+                url: AdminUrl,
+            })
+            .then((data) => {
+                if (data) {
+                    /**
+                    * DataTable for Corporation Overview Table
+                    * @type {*|jQuery}
+                    */
+                    const overviewDataTable = new DataTable(overviewTable, {
+                        data: Object.values(data[0].character),
+                        language: aaLedgerSettings.dataTables.language,
+                        layout: aaLedgerSettings.dataTables.layout,
+                        ordering: aaLedgerSettings.dataTables.ordering,
+                        columnControl: aaLedgerSettings.dataTables.columnControl,
+                        order: [[1, 'asc']],
+                        columns: [
+                            {
+                                data: 'character_id'
+                            },
+                            {
+                                data: 'character_name'
+                            },
+                            {
+                                data: 'corporation_name'
+                            },
+                        ],
+                        columnDefs: [
+                            {
+                                targets: 0,
+                                render: function (data, type, row) {
+                                    return '<img src="https://images.evetech.net/characters/' + row.character_id + '/portrait?size=32" class="rounded-circle" title="' + row.character_name + '" height="30" data-tooltip-toggle="char-tooltip" data-bs-placement="top">';
+                                },
+                                columnControl: [
+                                    {target: 0, content: []},
+                                    {target: 1, content: []}
+                                ]
+                            },
+                            {
+                                targets: 3,
+                                columnControl: [
+                                    {target: 0, content: []},
+                                    {target: 1, content: []}
+                                ],
+                                render: function (data, type, row) {
+                                    var OverviewUrl = PlanetaryOverviewUrl.replace('1337', row.character_id);
+                                    return `<a href="${OverviewUrl}">
+                                        <button class="btn btn-primary btn-sm"
+                                            title="{% trans "Show" %}"
+                                            data-bs-tooltip="aa-ledger"
+                                            data-bs-placement="left"
+                                        >
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                    </a>`;
+                                },
+                            }
+                        ],
+                        initComplete: function() {
+                            _bootstrapTooltip({selector: '#overview-table'});
+                        },
+                        drawCallback: function() {
+                            _bootstrapTooltip({selector: '#overview-table'});
+                        }
+                    })
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching Character Ledger data:', error);
+            });
+        });
+    </script>
+{% endblock %}

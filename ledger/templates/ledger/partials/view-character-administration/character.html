@@ -1,0 +1,59 @@
+{% load i18n %}
+{% if characters|length == 0 %}
+    <div class="alert alert-info" role="alert">
+        {% translate "No Characters found." %}
+    </div>
+{% else %}
+    <div class="card-characters-container">
+        <ul class="card-characters">
+            {% for character in characters %}
+                <li class="card-item">
+                    <div class="card">
+                        <!-- Character Name -->
+                        <div class="card-header">
+                            {{ character.character_name }} {{ character.get_status.bootstrap_icon }}
+                        </div>
+                        <!-- Character Logo -->
+                        <div class="card-body text-center">
+                            <a href="{% url 'ledger:character_ledger' character_id=character.eve_character.character_id year=year month=month %}?single=True">
+                                <img src="{{ character.eve_character.portrait_url_256 }}">
+                            </a>
+                        </div>
+                        <!-- Character Actions -->
+                        <div class="card-footer">
+                            <button type="button" class="btn btn-danger btn-sm btn-square me-2"
+                                data-bs-toggle="modal"
+                                data-tooltip-toggle="ledger-tooltip"
+                                data-title="{% translate 'Delete Character' %} {{ character.eve_character.character_name }}"
+                                data-text="{% translate 'Are you sure to Delete this Character?' %}"
+                                data-bs-target="#ledger-delete-confirm"
+                                data-action="{% url 'ledger:delete_char' character_id=character.eve_character.character_id %}"
+                                >
+                                <span class="fas fa-trash"></span>
+                            </button>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+            {% comment %} Is a EveCharacter QuerySet {% endcomment %}
+            {% for character in missing_characters %}
+                <li class="card-item">
+                    <div class="card bg-danger opacity-25">
+                        <!-- Character Name -->
+                        <div class="card-header">
+                            {{ character.character_name }}
+                        </div>
+                        <!-- Character Logo -->
+                        <div class="card-body">
+                            <img src="{{ character.portrait_url_256 }}">
+                        </div>
+                        <!-- Character Actions -->
+                        <div class="card-footer no-opacity">
+                            {% translate "Character is not registered in Ledger." %}
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}

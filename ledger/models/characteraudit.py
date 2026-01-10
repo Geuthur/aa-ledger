@@ -4,7 +4,9 @@ Character Audit Model
 
 # Django
 from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -12,7 +14,6 @@ from allianceauth.eveonline.models import EveCharacter, Token
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
 from eveuniverse.models import EveMarketPrice, EveSolarSystem, EveType
 
 # AA Ledger
@@ -22,39 +23,38 @@ from ledger.app_settings import (
     LEDGER_USE_COMPRESSED,
 )
 from ledger.errors import TokenDoesNotExist
+from ledger.helpers.eveonline import get_character_portrait_url
 from ledger.managers.character_audit_manager import (
     CharacterAuditManager,
 )
 from ledger.managers.character_journal_manager import CharWalletManager
 from ledger.managers.character_mining_manager import CharacterMiningLedgerEntryManager
 from ledger.models.general import (
-    AuditBase,
-    EveEntity,
     UpdateSectionResult,
+    UpdateStatusBaseModel,
+    WalletJournalEntry,
+)
+from ledger.models.helpers.update_manager import (
+    CharacterUpdateSection,
+    UpdateManager,
     UpdateStatus,
 )
+from ledger.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
-class CharacterAudit(AuditBase):
+class CharacterOwner(models.Model):
     """A model to store character information."""
 
-    class UpdateSection(models.TextChoices):
-        WALLET_JOURNAL = "wallet_journal", _("Wallet Journal")
-        MINING_LEDGER = "mining_ledger", _("Mining Ledger")
-        PLANETS = "planets", _("Planets")
-        PLANETS_DETAILS = "planets_details", _("Planets Details")
+    objects: CharacterAuditManager = CharacterAuditManager()
 
-        @classmethod
-        def get_sections(cls) -> list[str]:
-            """Return list of section values."""
-            return [choice.value for choice in cls]
-
-        @property
-        def method_name(self) -> str:
-            """Return method name for this section."""
-            return f"update_{self.value}"
+    class Meta:
+        default_permissions = ()
+        permissions = (
+            ("char_audit_manager", "Has access to all characters for own Corp"),
+            ("char_audit_admin_manager", "Has access to all characters"),
+        )
 
     id = models.AutoField(primary_key=True)
 
@@ -70,20 +70,11 @@ class CharacterAudit(AuditBase):
         max_digits=20, decimal_places=2, null=True, default=None
     )
 
-    objects = CharacterAuditManager()
-
     def __str__(self) -> str:
         try:
             return f"{self.eve_character.character_name} ({self.id})"
         except AttributeError:
             return f"{self.character_name} ({self.id})"
-
-    class Meta:
-        default_permissions = ()
-        permissions = (
-            ("char_audit_manager", "Has access to all characters for own Corp"),
-            ("char_audit_admin_manager", "Has access to all characters"),
-        )
 
     @classmethod
     def get_esi_scopes(cls) -> list[str]:
@@ -99,24 +90,54 @@ class CharacterAudit(AuditBase):
         ]
 
     @property
-    def get_status(self) -> UpdateStatus:
+    def get_status(self) -> UpdateStatusBaseModel:
         """Get the status of this character."""
         if self.active is False:
-            return self.UpdateStatus.DISABLED
+            return UpdateStatus.DISABLED
 
-        qs = CharacterAudit.objects.filter(pk=self.pk).annotate_total_update_status()
+        qs = CharacterOwner.objects.filter(pk=self.pk).annotate_total_update_status()
         total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
-        return self.UpdateStatus(total_update_status)
+        return UpdateStatus(total_update_status)
+
+    @cached_property
+    def alt_ids(self) -> models.QuerySet[EveCharacter]:
+        """Get all alt IDs for this Owner."""
+        alt_ids = (
+            EveCharacter.objects.filter(
+                character_ownership__user=self.eve_character.character_ownership.user
+            )
+            .order_by("character_id")
+            .values_list("character_id", flat=True)
+        )
+        return alt_ids
+
+    @cached_property
+    def is_orphan(self) -> bool:
+        """
+        Return True if this character is an orphan else False.
+
+        An orphan is a character that is not owned anymore by a user.
+        """
+        return self.character_ownership is None
+
+    @cached_property
+    def character_ownership(self) -> bool:
+        """
+        Return the character ownership object of this character.
+        """
+        try:
+            return self.eve_character.character_ownership
+        except ObjectDoesNotExist:
+            return None
 
     @property
-    def alts(self) -> models.QuerySet[EveCharacter]:
-        """Get all alts for this character."""
-        alts = EveCharacter.objects.filter(
-            character_ownership__user=self.eve_character.character_ownership.user
-        ).select_related(
-            "character_ownership",
+    def update_manager(self):
+        """Return the Update Manager helper for this owner."""
+        return UpdateManager(
+            owner=self,
+            update_section=CharacterUpdateSection,
+            update_status=CharacterUpdateStatus,
         )
-        return alts
 
     @property
     def mining_ledger(self):
@@ -132,8 +153,30 @@ class CharacterAudit(AuditBase):
     def update_status(self):
         return self.ledger_update_status
 
+    def get_portrait(self, size: int = 64, as_html: bool = False) -> str:
+        """
+        Get the character portrait URL.
+
+        Args:
+            size (int, optional): The size of the portrait.
+            as_html (bool, optional): Whether to return the portrait as an HTML img tag.
+        Returns:
+            str: The URL of the character portrait or an HTML img tag.
+        """
+        return get_character_portrait_url(
+            character_id=self.eve_character.character_id,
+            size=size,
+            character_name=self.eve_character.character_name,
+            as_html=as_html,
+        )
+
     def get_token(self, scopes=None) -> Token:
         """Get the token for this character."""
+        if self.is_orphan:  # pylint: disable=using-constant-test
+            raise TokenDoesNotExist(
+                f"Character {self} is an orphan and has no token."
+            ) from None
+
         token = (
             Token.objects.filter(character_id=self.eve_character.character_id)
             .require_scopes(scopes if scopes else self.get_esi_scopes())
@@ -167,59 +210,12 @@ class CharacterAudit(AuditBase):
         )
 
 
-class WalletJournalEntry(models.Model):
-    amount = models.DecimalField(
-        max_digits=20, decimal_places=2, null=True, default=None
-    )
-    balance = models.DecimalField(
-        max_digits=20, decimal_places=2, null=True, default=None
-    )
-    context_id = models.BigIntegerField(null=True, default=None)
-
-    class ContextType(models.TextChoices):
-        STRUCTURE_ID = "structure_id"
-        STATION_ID = "station_id"
-        MARKET_TRANSACTION_ID = "market_transaction_id"
-        CHARACTER_ID = "character_id"
-        CORPORATION_ID = "corporation_id"
-        ALLIANCE_ID = "alliance_id"
-        EVE_SYSTEM = "eve_system"
-        INDUSTRY_JOB_ID = "industry_job_id"
-        CONTRACT_ID = "contract_id"
-        PLANET_ID = "planet_id"
-        SYSTEM_ID = "system_id"
-        TYPE_ID = "type_id"
-
-    context_id_type = models.CharField(
-        max_length=30, choices=ContextType.choices, null=True, default=None
-    )
-    date = models.DateTimeField()
-    description = models.CharField(max_length=500)
-    first_party = models.ForeignKey(
-        EveEntity,
-        on_delete=models.SET_DEFAULT,
-        default=None,
-        null=True,
-        blank=True,
-        related_name="+",
-    )
-    entry_id = models.BigIntegerField()
-    reason = models.CharField(max_length=500, null=True, default=None)
-    ref_type = models.CharField(max_length=72)
-    second_party = models.ForeignKey(
-        EveEntity,
-        on_delete=models.SET_DEFAULT,
-        default=None,
-        null=True,
-        blank=True,
-        related_name="+",
-    )
-    tax = models.DecimalField(max_digits=20, decimal_places=2, null=True, default=None)
-    tax_receiver_id = models.IntegerField(null=True, default=None)
+class CharacterWalletJournalEntry(WalletJournalEntry):
+    objects: CharWalletManager = CharWalletManager()
 
     class Meta:
-        abstract = True
         indexes = (
+            models.Index(fields=["character"]),
             models.Index(fields=["date"]),
             models.Index(fields=["amount"]),
             models.Index(fields=["entry_id"]),
@@ -229,32 +225,30 @@ class WalletJournalEntry(models.Model):
         )
         default_permissions = ()
 
-
-class CharacterWalletJournalEntry(WalletJournalEntry):
     character = models.ForeignKey(
-        CharacterAudit,
+        CharacterOwner,
         on_delete=models.CASCADE,
         related_name="ledger_character_journal",
     )
 
-    objects = CharWalletManager()
-
     def __str__(self):
-        return f"Character Wallet Journal: RefType: {self.ref_type} - {self.first_party.name} -> {self.second_party.name}: {self.amount} ISK"
+        return f"Character Wallet Journal: RefType: {self.ref_type} - {self.first_party} -> {self.second_party}: {self.amount} ISK"
 
     @classmethod
     def get_visible(cls, user):
-        chars_vis = CharacterAudit.objects.visible_to(user)
+        chars_vis = CharacterOwner.objects.visible_to(user)
         return cls.objects.filter(character__in=chars_vis)
 
 
-# Mining Models
-
-
 class CharacterMiningLedger(models.Model):
+    objects: CharacterMiningLedgerEntryManager = CharacterMiningLedgerEntryManager()
+
+    class Meta:
+        default_permissions = ()
+
     id = models.CharField(max_length=50, primary_key=True)
     character = models.ForeignKey(
-        CharacterAudit, on_delete=models.CASCADE, related_name="ledger_character_mining"
+        CharacterOwner, on_delete=models.CASCADE, related_name="ledger_character_mining"
     )
     date = models.DateTimeField()
     type = models.ForeignKey(
@@ -298,24 +292,22 @@ class CharacterMiningLedger(models.Model):
             price = None
         return price
 
-    objects = CharacterMiningLedgerEntryManager()
-
-    class Meta:
-        default_permissions = ()
-
     def __str__(self) -> str:
         return f"{self.character} {self.id}"
 
 
-class CharacterUpdateStatus(UpdateStatus):
+class CharacterUpdateStatus(UpdateStatusBaseModel):
     """A Model to track the status of the last update."""
 
-    character = models.ForeignKey(
-        CharacterAudit, on_delete=models.CASCADE, related_name="ledger_update_status"
+    owner = models.ForeignKey(
+        CharacterOwner, on_delete=models.CASCADE, related_name="ledger_update_status"
     )
     section = models.CharField(
-        max_length=32, choices=CharacterAudit.UpdateSection.choices, db_index=True
+        max_length=32, choices=CharacterUpdateSection.choices, db_index=True
     )
 
     def __str__(self) -> str:
-        return f"{self.character} - {self.section} - {self.is_success}"
+        return f"{self.owner} - {self.section}"
+
+    class Meta:
+        default_permissions = ()

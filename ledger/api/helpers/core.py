@@ -1,0 +1,142 @@
+# Django
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import QuerySet
+
+# Alliance Auth
+from allianceauth.eveonline.models import EveAllianceInfo
+from allianceauth.services.hooks import get_extension_logger
+
+# AA Ledger
+from ledger import __title__, models
+from ledger.providers import AppLogger
+
+logger = AppLogger(get_extension_logger(__name__), __title__)
+
+
+def get_characterowner_or_none(
+    request, character_id
+) -> tuple[bool, models.CharacterOwner | None]:
+    """Get Character and check permissions"""
+    perms = True
+
+    try:
+        owner = models.CharacterOwner.objects.get(
+            eve_character__character_id=character_id
+        )
+    except ObjectDoesNotExist:
+        return False, None
+    except ValueError:
+        return None, None
+
+    # check access
+    visible = models.CharacterOwner.objects.visible_eve_characters(request.user)
+    if owner.eve_character not in visible:
+        perms = False
+    return perms, owner
+
+
+def get_corporationowner_or_none(
+    request, corporation_id
+) -> tuple[bool | None, models.CorporationOwner | None]:
+    """Return Corporation and check permissions"""
+    perms = True
+
+    try:
+        main_corp = models.CorporationOwner.objects.get(
+            eve_corporation__corporation_id=corporation_id
+        )
+    except ObjectDoesNotExist:
+        return None, None
+
+    # Check access
+    visible = models.CorporationOwner.objects.visible_to(request.user)
+    if main_corp not in visible:
+        perms = False
+    return perms, main_corp
+
+
+def get_manage_corporation(
+    request, corporation_id
+) -> tuple[bool | None, models.CorporationOwner | None]:
+    """Returns a tuple of the permissions and the corporation object if manageable"""
+    perms = True
+
+    try:
+        main_corp = models.CorporationOwner.objects.get(
+            eve_corporation__corporation_id=corporation_id
+        )
+    except ObjectDoesNotExist:
+        return None, None
+
+    # Check access
+    visible = models.CorporationOwner.objects.manage_to(request.user)
+    if main_corp not in visible:
+        perms = False
+    return perms, main_corp
+
+
+def get_alliance_or_none(
+    request, alliance_id
+) -> tuple[bool | None, EveAllianceInfo | None]:
+    """Get Alliance and check permissions for each corporation"""
+    perms = True
+
+    corporations = models.CorporationOwner.objects.filter(
+        eve_corporation__alliance__alliance_id=alliance_id
+    )
+
+    if not corporations.exists():
+        return None, None
+
+    # Check access
+    visible = models.CorporationOwner.objects.visible_to(request.user)
+
+    # Check if there is an intersection between main_corp and visible
+    common_corps = corporations.intersection(visible)
+    if not common_corps.exists():
+        perms = False
+
+    ally = EveAllianceInfo.objects.get(alliance_id=alliance_id)
+    return perms, ally
+
+
+def get_all_corporations_from_alliance(
+    request, alliance_id
+) -> tuple[bool | None, list[models.CorporationOwner] | None]:
+    """Get Alliance and check permissions for each corporation"""
+    perms = True
+
+    corporations = models.CorporationOwner.objects.filter(
+        eve_corporation__alliance__alliance_id=alliance_id
+    )
+
+    if not corporations.exists():
+        return None, None
+
+    # Check access
+    visible = models.CorporationOwner.objects.visible_to(request.user)
+
+    # Check if there is an intersection between main_corp and visible
+    common_corps = corporations.intersection(visible)
+    if not common_corps.exists():
+        perms = False
+    return perms, corporations
+
+
+def get_alts_queryset(
+    owner: models.CharacterOwner,
+) -> QuerySet[list[models.CharacterOwner]]:
+    """Get all alts for a main character."""
+    try:
+        linked_characters = (
+            owner.eve_character.character_ownership.user.character_ownerships.all()
+        )
+
+        linked_characters = linked_characters.values_list("character_id", flat=True)
+        return models.CharacterOwner.objects.filter(
+            eve_character__id__in=linked_characters
+        )
+    except ObjectDoesNotExist:
+        return models.CharacterOwner.objects.filter(
+            eve_character__pk=owner.eve_character.pk
+        )

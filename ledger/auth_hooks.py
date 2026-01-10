@@ -10,7 +10,7 @@ from allianceauth.services.hooks import MenuItemHook, UrlHook
 
 # AA Ledger
 from ledger import app_settings, urls
-from ledger.models.characteraudit import CharacterAudit
+from ledger.models.characteraudit import CharacterOwner
 
 
 class LedgerMenuItem(MenuItemHook):
@@ -27,7 +27,7 @@ class LedgerMenuItem(MenuItemHook):
     def render(self, request):
         if request.user.has_perm("ledger.basic_access"):
             self.count = (
-                CharacterAudit.objects.annotate_total_update_status_user(
+                CharacterOwner.objects.annotate_total_update_status_user(
                     user=request.user
                 )
                 .aggregate(total_failed=Sum("num_sections_failed"))

@@ -13,8 +13,8 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth.eveonline.evelinks import eveimageserver
 
 # AA Ledger
-from ledger.models.characteraudit import CharacterAudit, CharacterUpdateStatus
-from ledger.models.corporationaudit import CorporationAudit, CorporationUpdateStatus
+from ledger.models.characteraudit import CharacterOwner, CharacterUpdateStatus
+from ledger.models.corporationaudit import CorporationOwner, CorporationUpdateStatus
 from ledger.tasks import update_character, update_corporation
 
 
@@ -84,7 +84,7 @@ class CorporationUpdateStatusAdminInline(admin.TabularInline):
         return timesince(started_at, finished_at)
 
 
-@admin.register(CorporationAudit)
+@admin.register(CorporationOwner)
 class CorporationAuditAdmin(admin.ModelAdmin):
     list_display = (
         "_entity_pic",
@@ -97,11 +97,14 @@ class CorporationAuditAdmin(admin.ModelAdmin):
         "_corporation__corporation_id",
     )
 
-    list_select_related = ("corporation",)
+    list_select_related = ("eve_corporation",)
 
-    ordering = ["corporation__corporation_name"]
+    ordering = ["eve_corporation__corporation_name"]
 
-    search_fields = ["corporation__corporation_name", "corporation__corporation_id"]
+    search_fields = [
+        "eve_corporation__corporation_name",
+        "eve_corporation__corporation_id",
+    ]
 
     actions = [
         "delete_objects",
@@ -120,19 +123,21 @@ class CorporationAuditAdmin(admin.ModelAdmin):
         )
 
     @admin.display(description="")
-    def _entity_pic(self, obj: CorporationAudit):
-        eve_id = obj.corporation.corporation_id
+    def _entity_pic(self, obj: CorporationOwner):
+        eve_id = obj.eve_corporation.corporation_id
         return format_html(
             '<img src="{}" class="img-circle">',
             eveimageserver._eve_entity_image_url("corporation", eve_id, 32),
         )
 
-    @admin.display(description="Corporation ID", ordering="corporation__corporation_id")
-    def _corporation__corporation_id(self, obj: CorporationAudit):
-        return obj.corporation.corporation_id
+    @admin.display(
+        description="Corporation ID", ordering="eve_corporation__corporation_id"
+    )
+    def _corporation__corporation_id(self, obj: CorporationOwner):
+        return obj.eve_corporation.corporation_id
 
     @admin.display(ordering="last_update_at", description=_("last update run"))
-    def _last_update_at(self, obj: CorporationAudit):
+    def _last_update_at(self, obj: CorporationOwner):
         return naturaltime(obj.last_update_at) if obj.last_update_at else "-"
 
     # pylint: disable=unused-argument
@@ -169,9 +174,9 @@ class CharacterUpdateStatusAdminInline(admin.TabularInline):
         "_is_success",
         "_is_token_ok",
         "error_message",
-        "run_finished_at",
+        "last_run_finished_at",
         "_run_duration",
-        "update_finished_at",
+        "last_update_finished_at",
         "_update_duration",
     )
     readonly_fields = (
@@ -226,7 +231,7 @@ class CharacterUpdateStatusAdminInline(admin.TabularInline):
         return timesince(started_at, finished_at)
 
 
-@admin.register(CharacterAudit)
+@admin.register(CharacterOwner)
 class CharacterAuditAdmin(admin.ModelAdmin):
     list_display = (
         "_entity_pic",
@@ -262,7 +267,7 @@ class CharacterAuditAdmin(admin.ModelAdmin):
         )
 
     @admin.display(description="")
-    def _entity_pic(self, obj: CharacterAudit):
+    def _entity_pic(self, obj: CharacterOwner):
         eve_id = obj.eve_character.character_id
         return format_html(
             '<img src="{}" class="img-circle">',
@@ -272,11 +277,11 @@ class CharacterAuditAdmin(admin.ModelAdmin):
     @admin.display(
         description="Character Name", ordering="eve_character__character_name"
     )
-    def _eve_character__character_name(self, obj: CharacterAudit):
+    def _eve_character__character_name(self, obj: CharacterOwner):
         return obj.eve_character.character_name
 
     @admin.display(ordering="last_update_at", description=_("last update run"))
-    def _last_update_at(self, obj: CharacterAudit):
+    def _last_update_at(self, obj: CharacterOwner):
         return naturaltime(obj.last_update_at) if obj.last_update_at else "-"
 
     # pylint: disable=unused-argument

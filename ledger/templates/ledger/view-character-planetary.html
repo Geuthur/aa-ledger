@@ -1,0 +1,71 @@
+{% extends 'ledger/base.html' %}
+{% load i18n %}
+{% load sri %}
+
+{% block page_template_title %}
+    {{ title }}
+{% endblock page_template_title %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block aaledger_header %}
+    <div class="card">
+        <div class="card-header bg-primary rounded d-flex align-items-center">
+            <h3>{% translate "Planetary Details" %} </h3>
+            <div class="ms-auto">
+                <a class="nav-link py-0" href="{% url 'ledger:planetary_overview' %}">
+                    <span class="btn btn-secondary">{% translate 'Planetary Overview' %}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block ledger_block %}
+    {% include 'ledger/partials/view-character-planetary/planetary-table.html' %}
+{% endblock %}
+
+{% block extra_css %}
+    {% include 'ledger/bundles/datatables-2-css.html' with extColumnControl=True %}
+    {% include 'ledger/bundles/aa-ledger-css.html' %}
+    {% include 'ledger/bundles/view-character-planetary-css.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const singleViewParms = urlParams.get('single');
+
+        /**
+         * Override settings for aaLedger
+         */
+        const aaLedgerSettingsOverride = {
+            characterPk: '{{ character_id }}',
+            updateInterval: '{{ update_interval }}',
+            url: {
+                Planetary: '{% url "ledger:api:get_planetarydetails" character_id=character_id planet_id=0 %}',
+            },
+            translations: {
+                confirmSwitchAlarm: '{% translate "Are you sure to Switch Notification" %}',
+                buttonSwitchAlarm: '{% translate "Switch Notification" %}',
+                notificationActivated: '{% translate "Notification Activated" %}',
+                notificationDeactivated: '{% translate "Notification Deactivated" %}',
+            }
+        };
+
+        // Construct the planetaryUrl with the 'main' parameter
+        if (singleViewParms) {
+            aaLedgerSettings.url.Planetary += '?single=' + singleViewParms;
+        }
+    </script>
+    {% include 'ledger/partials/modal/request-accept-switch-notification.html' %}
+    {% include 'ledger/partials/modal/request-view-factory.html' %}
+    {% include 'ledger/partials/modal/request-view-extractor.html' %}
+    {% include 'ledger/bundles/aa-ledger-js.html' %}
+    {% include 'ledger/bundles/datatables-2-js.html' with extColumnControl=True %}
+    {% include 'ledger/bundles/view-character-planetary-js.html' %}
+{% endblock %}

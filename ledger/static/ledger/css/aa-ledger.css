@@ -1,0 +1,130 @@
+@media all {
+    @keyframes l-shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
+        75% { transform: translateX(-5px); }
+    }
+
+    .l-shake {
+        animation: l-shake 0.5s;
+        animation-iteration-count: infinite;
+    }
+
+    /* Custom CSS for tab mouseover */
+    .nav-tabs .nav-link:hover {
+        opacity: 0.8;
+        color: white;
+        border-color: white;
+    }
+
+    .dropdown-scrollable {
+        max-height: 200px; /* Adjust the height as needed */
+        overflow-y: auto;
+    }
+
+    .dropdown-item.active {
+        background-color: rgb(248 249 250); /* Lighter background color */
+        color: rgb(33 37 41); /* Dark text color */
+    }
+
+    /* Ratting Chart */
+    .rattingchart {
+        height: 500px;
+        margin-left: 50px;
+        margin-top: 70px;
+        margin-bottom: 50px;
+    }
+
+    .rattingbar {
+        height: 500px;
+    }
+
+    /* Ratting Table */
+    #ratting {
+        table-layout: fixed;
+        overflow-wrap: break-word;
+    }
+
+    #ratting th,
+    #ratting td {
+        padding: 0.75rem;
+        vertical-align: top;
+    }
+
+    #ratting thead th {
+        text-align: center;
+    }
+
+    #ratting thead th.col-main-character {
+        text-align: left;
+    }
+
+    #ratting tbody td {
+        text-align: right;
+    }
+
+    #ratting tbody td:nth-child(1) {
+        text-align: left;
+    }
+
+    #ratting tfoot th {
+        text-align: right;
+        border-top: 1px solid rgb(222 226 230);
+    }
+
+    #ratting tfoot th:nth-child(1) {
+        text-align: left;
+    }
+
+    .nav-tabs .nav-item .nav-link {
+        opacity: 0.3;
+    }
+
+    .nav-tabs .nav-item .nav-link.active {
+        opacity: 1.0;
+    }
+
+    /* CSV Export Button */
+    .aa-ledger-csv {
+        position: relative;
+        z-index: 1;
+        pointer-events: auto;
+        display: inline-block;
+    }
+}
+
+
+@media (width <= 1238px) {
+    .rattingchart {
+        height: 250px;
+        margin-left: 10px;
+        margin-bottom: 70px;
+    }
+
+    .rattingbar {
+        height: 250px;
+    }
+}
+
+@media (width >= 1238px) {
+    .rattingchart {
+        height: 280px;
+        margin-left: 10px;
+        margin-bottom: 70px;
+    }
+
+    .rattingbar {
+        height: 280px;
+    }
+}
+
+@media (width >= 1680px) {
+    .rattingchart {
+        height: 500px;
+    }
+
+    .rattingbar {
+        height: 500px;
+    }
+}

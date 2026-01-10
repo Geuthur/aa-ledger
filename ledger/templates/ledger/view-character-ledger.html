@@ -1,0 +1,71 @@
+{% extends 'ledger/base.html' %}
+{% load i18n %}
+
+{% block page_template_title %}
+    {{ title }}
+{% endblock page_template_title %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block aaledger_header %}
+    <div class="card">
+        <div class="card-header bg-primary rounded d-flex align-items-center">
+            <h3 class="me-3">{% translate "Character Ledger" %}</h3>
+            <div id="character-ledger-dropdown-buttons" class="d-flex">
+                {% if forms.character_dropdown %}
+                    <div class="me-2">
+                        <form id="character-ledger-dropdown-form" method="post" href="{% url 'ledger:character_ledger' character_id=character_id %}" class="d-flex">
+                            {% csrf_token %}
+                            {{ forms.character_dropdown.division }}
+                            {{ forms.character_dropdown.year }}
+                            {{ forms.character_dropdown.month }}
+                            {{ forms.character_dropdown.day }}
+                            <button id="character-ledger-submit" type="submit" class="btn btn-success">{% translate "Submit" %}</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="ms-auto">
+                <a class="btn btn-secondary me-2 administration" href="{% url 'ledger:character_administration' character_id=character_id %}" class="administration">{% translate 'Administration' %}{% if issues %} <span class="badge bg-warning">{{ issues }}</span>{% endif %}</a>
+                <a href="{% url 'ledger:character_overview' %}" class="overview"><button class="btn btn-secondary overview">{% translate 'Account Overview' %}</button></a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block ledger_block %}
+    {% include 'ledger/partials/view-character-ledger/character-table.html' %}
+    {% include 'ledger/partials/view-character-ledger/character-billboard.html' %}
+{% endblock %}
+
+{% block extra_css %}
+    {% include 'ledger/bundles/datatables-2-css.html' with extColumnControl=True %}
+    {% include 'ledger/bundles/aa-ledger-css.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+    <script>
+        /**
+         * Override settings for aaLedger
+         */
+        const aaLedgerSettingsOverride = {
+            characterPk: '{{ character_id }}',
+            url: {
+                CharacterLedger: "{{ ledger_url }}",
+            },
+            translations: {
+                ledgerTable: {
+                    summary: "{% translate 'Summary' %}"
+                }
+            }
+        };
+    </script>
+    {% include 'ledger/partials/modal/request-view-character-details.html' %}
+    {% include 'ledger/bundles/aa-ledger-js.html' %}
+    {% include 'ledger/bundles/datatables-2-js.html' with extColumnControl=True %}
+    {% include 'ledger/bundles/view-character-ledger-js.html' %}
+{% endblock extra_javascript %}

@@ -5,40 +5,34 @@ import json
 from http import HTTPStatus
 
 # Django
-from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 # AA Ledger
-from ledger.tests.testdata.generate_characteraudit import (
-    add_characteraudit_character_to_user,
-    create_user_from_evecharacter_with_access,
+from ledger.tests import LedgerTestCase
+from ledger.tests.testdata.utils import (
+    create_owner_from_user,
 )
-
-# AA Skillfarm
-from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
 from ledger.views.character.character_ledger import character_delete
 
 MODULE_PATH = "ledger.views.character.character_ledger"
 
 
-class TestDeleteCharacterView(TestCase):
+class TestDeleteCharacterView(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-
-        cls.factory = RequestFactory()
-        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
-            1001
-        )
-        cls.audit = add_characteraudit_character_to_user(cls.user, 1001)
-        cls.no_audit_user, cls.character_ownership = (
-            create_user_from_evecharacter_with_access(1002)
-        )
+        cls.audit = create_owner_from_user(cls.user, owner_type="character")
 
     def test_delete_character(self):
+        """
+        Test deleting a character that the user has permission to delete.
+
+        This test verifies that when a user with the appropriate permissions
+        attempts to delete a character they own, the system successfully deletes
+        the character and provides appropriate feedback.
+
+        ## Results: Character is deleted successfully.
+        """
         character_id = self.audit.eve_character.character_id
 
         request = self.factory.post(reverse("ledger:delete_char", args=[character_id]))
@@ -53,8 +47,17 @@ class TestDeleteCharacterView(TestCase):
         self.assertEqual(response_data["message"], "Gneuten successfully deleted")
 
     def test_delete_character_no_permission(self):
+        """
+        Test deleting a character that the user does not have permission to delete.
+
+        This test verifies that when a user without the appropriate permissions
+        attempts to delete a character they do not own, the system prevents the
+        deletion and provides an appropriate error message.
+
+        ## Results: Permission Denied error is returned.
+        """
         request = self.factory.post(reverse("ledger:delete_char", args=[1001]))
-        request.user = self.no_audit_user
+        request.user = self.user2
 
         response = character_delete(request, character_id=1001)
 

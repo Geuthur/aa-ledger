@@ -11,6 +11,85 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- CSS & JS App bundle
+- UpdateManager
+- AppLogger
+- Retry Manager
+  - Retry on Error for CharacterOwner, CorporationOwner Tasks
+- `is_orphan` property in CharacterOwner Model
+- Character Ledger Api Endpoint
+- EVE Online Portrait Generation
+- MonthChoice and DayChoice enums to `constants.py` for better date handling
+- `get_portrait` method to EveEntity for dynamic portrait URL retrieval
+- cached properties for corporation member IDs and user profiles; implement get_portrait method for dynamic logo retrieval
+- `auth_accounts` property in CorporationOwner Model
+- Create `libs` folder and save `amCharts` local
+
+### Fixed
+
+- LEDGER_CACHE_ENABLED consider settings
+
+### Changed
+
+- Data Export will now handled by JS
+- Renamed `charlink` label
+- Refactor Billboard Class
+- `max-positional-args` increased from `5` to `6` in pylintrc
+- Switched from `DataTableV1` to `DataTableV2`
+- Refactor Alliance Ledger, Corporation Ledger, Character Ledger
+  - moved Backend from `views` to `api`
+  - All Icons & Buttons now been created in Backend in Python instead of JS/Template
+  - Optimized Date Selector Dropdown Menu
+- Cache System
+  - Optimized Ledger Data Caching
+  - Performance Optimitation with Caching
+- Update ESI compatibility date to 2025-12-16
+- dependency `django-eveuniverse` set to `>=1.6,<2`
+- dependency `django-ninja` set to `>=1.5,<2`
+- Refactor Test Enviroment
+  - Optimized Tests
+  - Added docstrings
+  - Added OpenAPI ESI Stub
+- Refactor CharacterAudit
+  - renamed `CharacterAudit` to `CharacterOwner`
+  - moved all Update related stuff to `UpdateManager`
+  - added index for `Character` in `CharacterWalletJournalEntry` Model Class
+- Refactor CorporationAudit
+  - renamed `CorporationAudit` to `CorporationOwner`
+  - moved all Update related stuff to `UpdateManager`
+- Optimzed API Structure
+  - Optimized Pylance
+  - Optimized Structure
+- Refactor Planetary
+  - Icon Generation Backend
+  - Optimized Functions regarding to Planets
+  - renamed `planet` to `eve_planet` in `CharacterPlanet` for better clarification
+  - renamed `planet_name` to `name` in `CharacterPlanet`
+  - renamed `facilitys` to `factories` in `CharacterPlanetDetails`
+  - Optimized Pylance for Planetary Manager
+  - Optimized CSS, Template
+- Refactor CorporationOwner
+  - renamed `corporation` to `eve_corporation` for better clarification
+- Optimized CSS, JS, Template for Ledger
+  - Optimized Path Structure
+  - Optimized JS Structure
+  - Optimized CSS Structure
+
+### Removed
+
+- unused constants and cleaning up the code
+- unused annoations in Manager Class
+- `allianceauth-app-utils` dependency
+- single view for Character Ledger
+- `add_info_to_context` function
+- `core` Class
+- `Character Data` Class
+- `Corporation Data` Class
+- `Alliance Data` Class
+- `Data Exporter` Class
+
 ## [1.0.4] - 2025-12-03
 
 ### Changed

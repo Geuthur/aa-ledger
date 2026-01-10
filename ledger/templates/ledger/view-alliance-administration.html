@@ -1,0 +1,49 @@
+{% extends 'ledger/base.html' %}
+{% load i18n %}
+
+{% block page_template_title %}
+    {{ title }}
+{% endblock page_template_title %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block aaledger_header %}
+    <div class="card">
+        <div class="card-header bg-primary rounded d-flex align-items-center">
+            <h3 class="me-3">{% translate "Administration" %}</h3>
+        </div>
+    </div>
+{% endblock %}
+
+{% block ledger_block %}
+    <!-- Alliance Administration -->
+    <div class="card card-alliance-administration mt-2 rounded">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-6 col-md-12">
+                    {% include 'ledger/partials/view-alliance-administration/dashboard.html' %}
+                </div>
+                <div class="col-lg-6 col-md-12">
+                    {% include 'ledger/partials/view-alliance-administration/alliance.html' %}
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
+                <h3 class="text-white">{% translate "Corporations" %}</h3>
+            </div>
+            <div class="card-body bg-secondary">
+                {% include 'ledger/partials/view-alliance-administration/alliance_corporations.html' %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_javascript %}
+    {% include 'bundles/datatables-js-bs5.html' %}
+    {% include 'ledger/bundles/view-alliance-administration-js.html' %}
+{% endblock %}

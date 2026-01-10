@@ -33,5 +33,6 @@ disable=
 
 [DESIGN]
 max-attributes=10
+max-positional-arguments=6
 max-args=7
 max-locals=17

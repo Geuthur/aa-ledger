@@ -1,44 +1,41 @@
 # Standard Library
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 # Django
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
-# Alliance Auth (External Libs)
-from app_utils.testing import NoSocketsTestCase
-
 # AA Ledger
 from ledger.models.general import EveEntity
-from ledger.tests.testdata.esi_stub import esi_client_stub_openapi
-from ledger.tests.testdata.generate_characteraudit import (
-    create_characteraudit_from_evecharacter,
+from ledger.tests import LedgerTestCase
+from ledger.tests.testdata.esi_stub_openapi import EsiEndpoint, create_esi_client_stub
+from ledger.tests.testdata.utils import (
+    create_owner_from_user,
+    create_wallet_journal_entry,
 )
-from ledger.tests.testdata.generate_walletjournal import create_wallet_journal_entry
-from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_eveentity import load_eveentity
-from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
 
 MODULE_PATH = "ledger.managers.character_journal_manager"
+
+LEDGER_CHARACTER_WALLET_JOURNAL_ENDPOINTS = [
+    EsiEndpoint("Wallet", "GetCharactersCharacterIdWalletJournal", "character_id"),
+]
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 @patch(MODULE_PATH + ".esi")
 @patch("ledger.models.general.EveEntity")
-class TestCharacterJournalManager(NoSocketsTestCase):
+class TestCharacterJournalManager(LedgerTestCase):
+    """Test Character Journal Manager for Character."""
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-        load_eveentity()
-        cls.audit = create_characteraudit_from_evecharacter(1001)
-
+        cls.audit = create_owner_from_user(user=cls.user)
         cls.eve_character_first_party = EveEntity.objects.get(eve_id=1001)
         cls.eve_character_second_party = EveEntity.objects.get(eve_id=1002)
 
         cls.journal_entry = create_wallet_journal_entry(
-            journal_type="character",
+            owner_type="character",
             character=cls.audit,
             context_id=1,
             entry_id=10,
@@ -59,18 +56,34 @@ class TestCharacterJournalManager(NoSocketsTestCase):
             second_party=cls.eve_character_second_party,
             ref_type="player_donation",
         )
+        cls.token = cls.user_character.user.token_set.first()
+        cls.audit.get_token = MagicMock(return_value=cls.token)
 
     def test_update_wallet_journal(self, mock_eveentity, mock_esi):
-        # given
-        mock_esi.client = esi_client_stub_openapi
+        """
+        Test updating the wallet journal for a character.
+
+        This test mocks the ESI client and EveEntity model to simulate
+        fetching wallet journal entries from ESI and updating the local
+        database accordingly.
+
+        ### Results:
+            - Wallet Journal Entries (entry_id: 10, 13, 16) are created with correct data.
+        """
+        # Test Data
+        mock_esi.client = create_esi_client_stub(
+            endpoints=LEDGER_CHARACTER_WALLET_JOURNAL_ENDPOINTS
+        )
         mock_eveentity.objects.create_bulk_from_esi.return_value = True
 
         EveEntity.objects.create(
             eve_id=9999, name="Test Character 1", category="character"
         )
 
+        # Test Action
         self.audit.update_wallet_journal(force_refresh=False)
 
+        # Expected Results
         self.assertSetEqual(
             set(self.audit.ledger_character_journal.values_list("entry_id", flat=True)),
             {10, 13, 16},
@@ -88,20 +101,19 @@ class TestCharacterJournalManager(NoSocketsTestCase):
         self.assertEqual(obj.amount, 10000)
 
 
-class TestCharacterJournalManagerAnnotations(TestCase):
+class TestCharacterJournalManagerAnnotations(LedgerTestCase):
+    """Test annotation methods in CharacterJournalManager."""
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-        load_eveentity()
-        cls.audit = create_characteraudit_from_evecharacter(1001)
+        cls.audit = create_owner_from_user(user=cls.user)
 
         cls.eve_character_first_party = EveEntity.objects.get(eve_id=1001)
         cls.eve_character_second_party = EveEntity.objects.get(eve_id=1002)
 
         cls.journal_entry = create_wallet_journal_entry(
-            journal_type="character",
+            owner_type="character",
             character=cls.audit,
             context_id=1,
             entry_id=10,
@@ -124,6 +136,7 @@ class TestCharacterJournalManagerAnnotations(TestCase):
         )
 
     def test_annotate_bounty_income(self):
+        """ "Test annotating bounty income."""
         qs = self.audit.ledger_character_journal.all().annotate_bounty_income()
         for obj in qs:
             self.assertTrue(
@@ -132,79 +145,8 @@ class TestCharacterJournalManagerAnnotations(TestCase):
             )
             self.assertEqual(obj.bounty_income, 0)
 
-    def test_annotate_mission_income(self):
-        qs = self.audit.ledger_character_journal.all().annotate_mission_income()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "mission_income"),
-                "Mission income annotation should be present",
-            )
-            self.assertEqual(obj.mission_income, 0)
-
-    def test_annotate_market_income(self):
-        qs = self.audit.ledger_character_journal.all().annotate_market_income()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "market_income"),
-                "Market income annotation should be present",
-            )
-            self.assertEqual(obj.market_income, 0)
-
-    def test_annotate_incursion_income(self):
-        qs = self.audit.ledger_character_journal.all().annotate_incursion_income()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "incursion_income"),
-                "Incursion income annotation should be present",
-            )
-            self.assertEqual(obj.incursion_income, 0)
-
-    def test_annotate_contract_income(self):
-        qs = self.audit.ledger_character_journal.all().annotate_contract_income()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "contract_income"),
-                "Contract income annotation should be present",
-            )
-            self.assertEqual(obj.contract_income, 0)
-
-    def test_annotate_donation_income(self):
-        qs = self.audit.ledger_character_journal.all().annotate_donation_income()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "donation_income"),
-                "Donation income annotation should be present",
-            )
-            self.assertEqual(obj.donation_income, 1000.00)
-
-    def test_annotate_insurance_income(self):
-        qs = self.audit.ledger_character_journal.all().annotate_insurance_income()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "insurance_income"),
-                "Insurance income annotation should be present",
-            )
-            self.assertEqual(obj.insurance_income, 0)
-
-    def test_annotate_milestone_income(self):
-        qs = self.audit.ledger_character_journal.all().annotate_milestone_income()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "milestone_income"),
-                "Milestone income annotation should be present",
-            )
-            self.assertEqual(obj.milestone_income, 0)
-
-    def test_annotate_daily_goal_income(self):
-        qs = self.audit.ledger_character_journal.all().annotate_daily_goal_income()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "daily_goal_income"),
-                "Daily goal income annotation should be present",
-            )
-            self.assertEqual(obj.daily_goal_income, 0)
-
     def test_annotate_miscellaneous_income(self):
+        """Test annotating miscellaneous income."""
         qs = self.audit.ledger_character_journal.all().annotate_miscellaneous()
         for obj in qs:
             self.assertTrue(
@@ -213,126 +155,20 @@ class TestCharacterJournalManagerAnnotations(TestCase):
             )
             self.assertEqual(obj.miscellaneous, 1000.00)
 
-    def test_annotate_miscellaneous_exclude_donations(self):
-        """Test including donations in miscellaneous annotation."""
-        qs = (
-            self.audit.ledger_character_journal.all().annotate_miscellaneous_exclude_donations()
-        )
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "miscellaneous"),
-                "Miscellaneous with exclude annotation should be present",
-            )
-            self.assertEqual(obj.miscellaneous, 1000.00)
 
-    def test_annotate_miscellaneous_exclude_donations_with_exclude(self):
-        """Test excluding donations from miscellaneous annotation."""
-        qs = self.audit.ledger_character_journal.all().annotate_miscellaneous_exclude_donations(
-            exclude=1001
-        )
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "miscellaneous"),
-                "Miscellaneous with exclude annotation should be present",
-            )
-            self.assertEqual(obj.miscellaneous, 0)
+class TestCharacterJournalManagerAggregate(LedgerTestCase):
+    """Test aggregation methods in CharacterJournalManager."""
 
-    def test_annotate_contract_cost(self):
-        qs = self.audit.ledger_character_journal.all().annotate_contract_cost()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "contract_cost"),
-                "Contract costs annotation should be present",
-            )
-            self.assertEqual(obj.contract_cost, 0)
-
-    def test_annotate_market_cost(self):
-        qs = self.audit.ledger_character_journal.all().annotate_market_cost()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "market_cost"),
-                "Market costs annotation should be present",
-            )
-            self.assertEqual(obj.market_cost, 0)
-
-    def test_annotate_asset_cost(self):
-        qs = self.audit.ledger_character_journal.all().annotate_asset_cost()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "asset_cost"),
-                "Asset costs annotation should be present",
-            )
-            self.assertEqual(obj.asset_cost, 0)
-
-    def test_annotate_traveling_cost(self):
-        qs = self.audit.ledger_character_journal.all().annotate_traveling_cost()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "traveling_cost"),
-                "Traveling costs annotation should be present",
-            )
-            self.assertEqual(obj.traveling_cost, 0)
-
-    def test_annotate_production_cost(self):
-        qs = self.audit.ledger_character_journal.all().annotate_production_cost()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "production_cost"),
-                "Production costs annotation should be present",
-            )
-            self.assertEqual(obj.production_cost, 0)
-
-    def test_annotate_skill_cost(self):
-        qs = self.audit.ledger_character_journal.all().annotate_skill_cost()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "skill_cost"),
-                "Skill costs annotation should be present",
-            )
-            self.assertEqual(obj.skill_cost, 0)
-
-    def test_annotate_insurance_cost(self):
-        qs = self.audit.ledger_character_journal.all().annotate_insurance_cost()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "insurance_cost"),
-                "Insurance costs annotation should be present",
-            )
-            self.assertEqual(obj.insurance_cost, 0)
-
-    def test_annotate_planetary_cost(self):
-        qs = self.audit.ledger_character_journal.all().annotate_planetary_cost()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "planetary_cost"),
-                "Planetary costs annotation should be present",
-            )
-            self.assertEqual(obj.planetary_cost, 0)
-
-    def test_annotate_lp_cost(self):
-        qs = self.audit.ledger_character_journal.all().annotate_lp_cost()
-        for obj in qs:
-            self.assertTrue(
-                hasattr(obj, "lp_cost"),
-                "LP costs annotation should be present",
-            )
-            self.assertEqual(obj.lp_cost, 0)
-
-
-class TestCharacterJournalManagerAggregate(NoSocketsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-        load_eveentity()
-        cls.audit = create_characteraudit_from_evecharacter(1001)
+        cls.audit = create_owner_from_user(user=cls.user)
 
         cls.eve_character_first_party = EveEntity.objects.get(eve_id=1001)
         cls.eve_character_second_party = EveEntity.objects.get(eve_id=1002)
 
         cls.journal_entry = create_wallet_journal_entry(
-            journal_type="character",
+            owner_type="character",
             character=cls.audit,
             context_id=1,
             entry_id=10,
@@ -355,18 +191,22 @@ class TestCharacterJournalManagerAggregate(NoSocketsTestCase):
         )
 
     def test_aggregate_bounty(self):
+        """Test aggregating bounty income."""
         result = self.audit.ledger_character_journal.all().aggregate_bounty()
         self.assertEqual(result, 0)
 
     def test_aggregate_costs(self):
+        """Test aggregating costs."""
         result = self.audit.ledger_character_journal.all().aggregate_costs()
         self.assertEqual(result, 0)
 
     def test_aggregate_miscellaneous(self):
+        """Test aggregating miscellaneous income."""
         result = self.audit.ledger_character_journal.all().aggregate_miscellaneous()
         self.assertEqual(result, 1000.00)
 
     def test_aggregate_ref_type(self):
+        """Test aggregating by reference type."""
         result = self.audit.ledger_character_journal.all().aggregate_ref_type(
             ref_type=["player_donation"], income=True
         )

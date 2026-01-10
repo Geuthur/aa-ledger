@@ -4,22 +4,22 @@ from typing import TYPE_CHECKING
 # Django
 from django.db import models, transaction
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 from esi.exceptions import HTTPNotModified
 
 # Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
 from eveuniverse.models import EvePlanet, EveType
 
 # AA Ledger
 from ledger import __title__
 from ledger.app_settings import LEDGER_BULK_BATCH_SIZE
-from ledger.constants import COMMAND_CENTER, EXTRACTOR_CONTROL_UNIT, SPACEPORTS
 from ledger.decorators import log_timing
-from ledger.models.characteraudit import CharacterAudit
-from ledger.providers import esi
+from ledger.models.characteraudit import CharacterOwner
+from ledger.models.helpers.update_manager import CharacterUpdateSection
+from ledger.providers import AppLogger, esi
 
 if TYPE_CHECKING:  # pragma: no cover
     # Alliance Auth
@@ -28,9 +28,10 @@ if TYPE_CHECKING:  # pragma: no cover
 
     # AA Ledger
     from ledger.models.general import UpdateSectionResult
-    from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
+    from ledger.models.planetary import CharacterPlanet as PlanetContext
+    from ledger.models.planetary import CharacterPlanetDetails as PlanetDetailsContext
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 def to_json_serializable(data):
@@ -45,50 +46,46 @@ def to_json_serializable(data):
     return data
 
 
-class PlanetaryQuerySet(models.QuerySet):
-    pass
-
-
-class PlanetaryManagerBase(models.Manager):
+class CharacterPlanetManager(models.Manager["PlanetContext"]):
     @log_timing(logger)
     def update_or_create_esi(
-        self, character: "CharacterAudit", force_refresh: bool = False
+        self, owner: CharacterOwner, force_refresh: bool = False
     ) -> "UpdateSectionResult":
         """Update or Create a planets entry from ESI data."""
-        return character.update_section_if_changed(
-            section=character.UpdateSection.PLANETS,
+        return owner.update_manager.update_section_if_changed(
+            section=CharacterUpdateSection.PLANETS,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
         )
 
     def _fetch_esi_data(
-        self, audit: "CharacterAudit", force_refresh: bool = False
+        self, owner: CharacterOwner, force_refresh: bool = False
     ) -> None:
         """Fetch planetary entries from ESI data."""
         req_scopes = ["esi-planets.manage_planets.v1"]
-        token = audit.get_token(scopes=req_scopes)
+        token = owner.get_token(scopes=req_scopes)
 
         # Make the ESI request
         operation = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanets(
-            character_id=audit.eve_character.character_id,
+            character_id=owner.eve_character.character_id,
             token=token,
         )
 
         planets_items = operation.results(force_refresh=force_refresh)
 
-        self._update_or_create_objs(character=audit, objs=planets_items)
+        self._update_or_create_objs(owner=owner, objs=planets_items)
 
     @transaction.atomic()
     def _update_or_create_objs(
-        self, character: "CharacterAudit", objs: list["PlanetGetItem"]
+        self, owner: CharacterOwner, objs: list["PlanetGetItem"]
     ) -> None:
         """Update or Create planets entries from objs data."""
         # pylint: disable=import-outside-toplevel
         # AA Ledger
         from ledger.models.planetary import CharacterPlanetDetails
 
-        _current_planets = self.filter(character=character).values_list(
-            "planet_id", flat=True
+        _current_planets = self.filter(character=owner).values_list(
+            "eve_planet_id", flat=True
         )
 
         _planets_ids = []
@@ -100,16 +97,16 @@ class PlanetaryManagerBase(models.Manager):
             _planets_ids.append(eve_planet.id)
 
             try:
-                e_planet = self.get(character=character, planet=eve_planet)
+                e_planet = self.get(character=owner, eve_planet=eve_planet)
                 prim_key = e_planet.id
             except self.model.DoesNotExist:
                 prim_key = None
 
             planet = self.model(
                 id=prim_key,
-                character=character,
-                planet=eve_planet,
-                planet_name=eve_planet.name,
+                name=eve_planet.name,
+                character=owner,
+                eve_planet=eve_planet,
                 upgrade_level=planet.upgrade_level,
                 num_pins=planet.num_pins,
             )
@@ -130,39 +127,22 @@ class PlanetaryManagerBase(models.Manager):
 
         # Delete Planets that are no longer in the list
         obsolete_planets = set(_current_planets) - set(_planets_ids)
-        self.filter(character=character, planet_id__in=obsolete_planets).delete()
+        self.filter(character=owner, eve_planet_id__in=obsolete_planets).delete()
         # Delete Planet Details that are no longer in the list
         CharacterPlanetDetails.objects.filter(
-            planet__character=character, planet__planet_id__in=obsolete_planets
+            planet__character=owner, planet__eve_planet_id__in=obsolete_planets
         ).delete()
 
 
-PlanetaryManager = PlanetaryManagerBase.from_queryset(PlanetaryQuerySet)
-
-
-class PlanetaryDetailsQuerySet(models.QuerySet):
-    def get_or_create_facilitys(self, planet: "CharacterPlanet"):
-        """Get or Create Facilitys for a given Planet"""
-        return self._get_or_create_facilitys(planet=planet)
-
-    def _get_or_create_facilitys(self, planet: "CharacterPlanet"):
-        try:
-            facilitys = self.get(planet=planet)
-            facility = facilitys.facilitys
-            created = False
-            return facility, created
-        except self.model.DoesNotExist:
-            facility, created = self.update_or_create_facilitys(planet=planet)
-        return facility, created
-
+class PlanetDetailsQuerySet(models.QuerySet):
     def update_or_create_layout(
         self,
-        character: CharacterAudit,
-        planet: "CharacterPlanetDetails",
+        owner: CharacterOwner,
+        planet: "PlanetDetailsContext",
         objs: list["PlanetDetailsItem"],
     ):
         """Update or Create Layout for a given Planet"""
-        return self._update_or_create(character=character, planet=planet, objs=objs)
+        return self._update_or_create(owner=owner, planet=planet, objs=objs)
 
     def _convert_to_dict(
         self,
@@ -176,13 +156,14 @@ class PlanetaryDetailsQuerySet(models.QuerySet):
 
     def _update_or_create(
         self,
-        character: "CharacterAudit",
-        planet: "CharacterPlanetDetails",
+        owner: CharacterOwner,
+        planet: "PlanetDetailsContext",
         objs: list["PlanetDetailsItem"],
-    ):
+    ) -> tuple["PlanetDetailsContext", bool]:
         """Update or Create Layout for a given Planet"""
         if not isinstance(objs, list):
             objs = [objs]
+
         for result in objs:
             links = self._convert_to_dict(result.links)
             pins = self._convert_to_dict(result.pins)
@@ -190,66 +171,147 @@ class PlanetaryDetailsQuerySet(models.QuerySet):
 
             planetdetails, created = self.update_or_create(
                 planet=planet,
-                character=character,
+                character=owner,
                 defaults={
                     "links": links,
                     "pins": pins,
                     "routes": routes,
-                    "facilitys": None,
+                    "factories": None,
                 },
             )
 
-            self._update_facility(planetdetails)
+            self._update_factory(planetdetails)
 
-            logger.debug("Planet %s Facilitys Updated", planetdetails)
+            logger.debug("Planet %s Factories Updated", planetdetails)
 
             return planetdetails, created
 
-    def _update_facility(self, planet: "CharacterPlanetDetails"):
-        facility_info = self.get_facility_info(planet)
-        planet.facilitys = facility_info
-        planet.save()
-        return planet
+    def _update_factory(self, planet: "PlanetDetailsContext"):
 
-    # TODO make code easier or split it to peaces for better readable
-    def get_facility_info(self, planet: "CharacterPlanetDetails"):
-        facility_info = {}
+        factory_dict = {}
 
         # Process pins
         for pin in planet.pins:
             pin_id = pin["pin_id"]
             item_type, _ = EveType.objects.get_or_create_esi(id=pin["type_id"])
-            if (
-                pin["type_id"] in SPACEPORTS
-                or pin["type_id"] in EXTRACTOR_CONTROL_UNIT
-                or pin["type_id"] in COMMAND_CENTER
+
+            # Skip Command Center
+            if pin["type_id"] in EveType.objects.filter(eve_group_id=1027).values_list(
+                "id", flat=True
             ):
                 continue
-            facility_info[pin_id] = {
+
+            # Create Facility Pin Entry
+            factory_dict[pin_id] = {
                 "facility_id": pin["type_id"],
                 "facility_name": item_type.name,
-                "resources": [],
-                "storage": {
-                    content["type_id"]: content["amount"]
-                    for content in pin.get("contents", [])
-                },
+                "facility_type": (
+                    item_type.eve_group.name if item_type.eve_group else "N/A"
+                ),
+                "ressources": [],
             }
 
-        self._facility_production_chain(planet, facility_info)
+            # Spaceport and Storage Facility
+            if pin["type_id"] in EveType.objects.filter(
+                eve_group_id__in=[1029, 1030]
+            ).values_list("id", flat=True):
+                factory_dict[pin_id]["storage"] = {}
+                self._storage_info(pin, factory_dict[pin_id])
 
-        self._facility_produce_depend(planet, facility_info)
+            # Extractor
+            if pin["type_id"] in EveType.objects.filter(eve_group_id=1063).values_list(
+                "id", flat=True
+            ):
+                factory_dict[pin_id]["extractor"] = {}
+                self._extractor_info(pin, factory_dict[pin_id])
 
-        return facility_info
+        self._factory_production_chain(planet, factory_dict)
 
-    def _facility_production_chain(
-        self, planet: "CharacterPlanetDetails", facility_info: dict
+        planet.factories = factory_dict
+        planet.save()
+        return planet
+
+    def _storage_info(self, pin: dict, facility_dict: dict):
+        """Update per-facility dict and add all Storage Information."""
+        for content in pin.get("contents", []):
+            item_type, _ = EveType.objects.get_or_create_esi(id=content["type_id"])
+
+            item_type_id = content["type_id"]
+            item_amount = content["amount"]
+
+            if item_type_id in facility_dict["storage"]:
+                facility_dict["storage"][item_type_id]["amount"] += item_amount
+            else:
+                facility_dict["storage"][item_type_id] = {
+                    "item_id": item_type_id,
+                    "item_name": item_type.name,
+                    "amount": item_amount,
+                }
+        return facility_dict
+
+    def _extractor_info(self, pin: dict, factory_dict: dict):
+        """Update dict and add all Extractor Information to the given dict"""
+        # Update Extractor Information (ensure None is treated as empty dict)
+        extractor_details = pin.get("extractor_details") or {}
+        product_type_id = extractor_details.get("product_type_id")
+        product_type_name = "N/A"
+
+        # Get Product Eve Type
+        if product_type_id:
+            item_type, _ = EveType.objects.get_or_create_esi(id=product_type_id)
+            product_type_name = item_type.name
+
+        # Use timezone-aware datetimes and compute elapsed/total seconds
+        current_time = timezone.now()
+
+        install_time = None
+        if pin.get("install_time") is not None:
+            install_time = parse_datetime(pin.get("install_time"))
+        expiry_time = None
+        if pin.get("expiry_time") is not None:
+            expiry_time = parse_datetime(pin.get("expiry_time"))
+
+        # Create Extractor Info Entry on the per-facility dict
+        factory_dict["extractor"] = {
+            "head_count": extractor_details.get("head_count"),
+            "product_type_id": product_type_id,
+            "product_type_name": product_type_name,
+            "install_time": str(install_time),
+            "expiry_time": str(expiry_time),
+            "cycle_time": extractor_details.get("cycle_time"),
+            "progress_percentage": None,
+        }
+
+        is_running = False
+        # Calculate progress as percentage (0-100) based on elapsed time
+        if install_time and expiry_time:
+            total_seconds = (expiry_time - install_time).total_seconds()
+            if total_seconds > 0:
+                elapsed_seconds = (current_time - install_time).total_seconds()
+                progress = (elapsed_seconds / total_seconds) * 100.0
+                progress = max(0.0, min(progress, 100.0))
+                factory_dict["extractor"]["progress_percentage"] = round(progress, 2)
+
+            # Extractor is running
+            if progress < 100.0:
+                is_running = True
+
+        # Store is_running status
+        factory_dict["extractor"]["is_running"] = is_running
+
+    # pylint: disable=too-many-locals
+    def _factory_production_chain(
+        self, planet: "PlanetDetailsContext", factory_dict: dict
     ):
         """Update dict and add all Production Information to the given dict"""
+        item_ids = set()
+        for facility in factory_dict.values():
+            for storage_item in facility.get("storage", {}).values():
+                item_ids.add(storage_item["item_id"])
 
-        extractors = planet.get_extractors_info()
-        extractors_item_ids = [
-            extractor["item_id"] for extractor in extractors.values()
-        ]
+            extractor_product = facility.get("extractor", {}).get("product_type_id")
+            if extractor_product:
+                item_ids.add(extractor_product)
 
         for route in planet.routes:
             destination_pin_id = route["destination_pin_id"]
@@ -258,69 +320,54 @@ class PlanetaryDetailsQuerySet(models.QuerySet):
                 id=route["content_type_id"]
             )
 
-            if destination_pin_id in facility_info:
+            if destination_pin_id in factory_dict:
                 req_quantity = route["quantity"]
-                current_quantity = facility_info[destination_pin_id]["storage"].get(
-                    content_type.id, 0
-                )
-                missing_quantity = req_quantity - current_quantity
+                storage = factory_dict[destination_pin_id].get("storage", {})
+                current_quantity = storage.get(content_type.id, {}).get("amount", 0)
+                missing_quantity = max((req_quantity - current_quantity), 0)
+
                 still_producing = (
-                    content_type.id in extractors_item_ids
-                    if not planet.is_expired
-                    else False
+                    content_type.id in item_ids if not planet.is_expired else False
                 )
+
+                is_active = still_producing and missing_quantity > 0
 
                 resource = {
                     "item_id": content_type.id,
                     "item_name": content_type.name,
                     "req_quantity": req_quantity,
                     "current_quantity": current_quantity,
-                    "missing_quantity": max(missing_quantity, 0),
-                    "still_producing": still_producing,
+                    "missing_quantity": missing_quantity,
+                    "is_active": is_active,
                 }
-                facility_info[destination_pin_id]["resources"].append(resource)
+                factory_dict[destination_pin_id]["ressources"].append(resource)
 
-            if source_pin_id in facility_info:
-                facility_info[source_pin_id]["output_product"] = {
+            if source_pin_id in factory_dict:
+                factory_dict[source_pin_id]["output_product"] = {
                     "item_id": content_type.id,
                     "item_name": content_type.name,
                     "output_quantity": route["quantity"],
                 }
-        return facility_info
-
-    def _facility_produce_depend(self, planet, facility_info):
-        """Check if Facility is Producing"""
-        for facility in facility_info.values():
-            for resource in facility["resources"]:
-                self._facility_still_producing(planet, resource, facility_info)
-        return facility_info
-
-    def _facility_still_producing(self, planet, resource, facility_info) -> bool:
-        """Check if ressource exist in Production Chain and change State"""
-        for other_facility in facility_info.values():
-            if (
-                "output_product" in other_facility
-                and other_facility["output_product"]["item_id"] == resource["item_id"]
-                and not planet.is_expired
-            ):
-                if other_facility["output_product"]["output_quantity"] > 0:
-                    resource["still_producing"] = True
+        return factory_dict
 
 
-class PlanetaryDetailsManagerBase(models.Manager):
+class PlanetDetailsManager(models.Manager["PlanetDetailsContext"]):
+    def get_queryset(self):
+        return PlanetDetailsQuerySet(self.model, using=self._db)
+
     @log_timing(logger)
     def update_or_create_esi(
-        self, character: "CharacterAudit", force_refresh: bool = False
+        self, owner: CharacterOwner, force_refresh: bool = False
     ) -> "UpdateSectionResult":
         """Update or Create a planets details entry from ESI data."""
-        return character.update_section_if_changed(
-            section=character.UpdateSection.PLANETS_DETAILS,
+        return owner.update_manager.update_section_if_changed(
+            section=CharacterUpdateSection.PLANETS_DETAILS,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
         )
 
     def _fetch_esi_data(
-        self, audit: "CharacterAudit", force_refresh: bool = False
+        self, owner: CharacterOwner, force_refresh: bool = False
     ) -> None:
         """Fetch planets details entries from ESI data."""
         # pylint: disable=import-outside-toplevel
@@ -329,17 +376,17 @@ class PlanetaryDetailsManagerBase(models.Manager):
 
         req_scopes = ["esi-planets.manage_planets.v1"]
 
-        token = audit.get_token(scopes=req_scopes)
+        token = owner.get_token(scopes=req_scopes)
 
-        planets_ids = CharacterPlanet.objects.filter(character=audit).values_list(
-            "planet_id", flat=True
+        planets_ids = CharacterPlanet.objects.filter(character=owner).values_list(
+            "eve_planet_id", flat=True
         )
         is_updated = False
 
         for planet_id in planets_ids:
             # Make the ESI request
             operation = esi.client.Planetary_Interaction.GetCharactersCharacterIdPlanetsPlanetId(
-                character_id=audit.eve_character.character_id,
+                character_id=owner.eve_character.character_id,
                 planet_id=planet_id,
                 token=token,
             )
@@ -351,7 +398,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
                 continue
 
             self._update_or_create_objs(
-                character=audit,
+                owner=owner,
                 objs=planets_details_items,
                 planet_id=planet_id,
             )
@@ -362,7 +409,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
     @transaction.atomic()
     def _update_or_create_objs(
         self,
-        character: "CharacterAudit",
+        owner: CharacterOwner,
         objs: list["PlanetDetailsItem"],
         planet_id: int,
     ) -> None:
@@ -373,18 +420,18 @@ class PlanetaryDetailsManagerBase(models.Manager):
 
         try:
             character_planet = CharacterPlanet.objects.get(
-                character=character, planet_id=planet_id
+                character=owner, eve_planet_id=planet_id
             )
         except CharacterPlanet.DoesNotExist:
             logger.warning(
                 "Planet %s not found for character %s",
                 planet_id,
-                character.eve_character.character_name,
+                owner.eve_character.character_name,
             )
             return
 
-        planet_details, created = self.update_or_create_layout(
-            character=character,
+        planet_details, created = self.get_queryset().update_or_create_layout(
+            owner=owner,
             planet=character_planet,
             objs=objs,
         )
@@ -394,7 +441,7 @@ class PlanetaryDetailsManagerBase(models.Manager):
             if planet_details.is_expired and planet_details.last_alert is None:
                 logger.debug(
                     "Planet %s Extractor Heads Expired for: %s",
-                    planet_details.planet.planet.name,
+                    planet_details.planet.eve_planet.name,
                     planet_details.planet.character.eve_character.character_name,
                 )
                 planet_details.last_alert = timezone.now()
@@ -408,14 +455,9 @@ class PlanetaryDetailsManagerBase(models.Manager):
                 logger.debug(
                     "Notification Reseted for %s Planet: %s",
                     planet_details.planet.character.eve_character.character_name,
-                    planet_details.planet.planet.name,
+                    planet_details.planet.eve_planet.name,
                 )
                 planet_details.last_alert = None
                 planet_details.notification_sent = False
 
             planet_details.save()
-
-
-PlanetaryDetailsManager = PlanetaryDetailsManagerBase.from_queryset(
-    PlanetaryDetailsQuerySet
-)

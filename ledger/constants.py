@@ -2,6 +2,10 @@
 Constants
 """
 
+# Django
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 # Embed colors
 DISCORD_EMBED_COLOR_INFO = 0x5BC0DE
 DISCORD_EMBED_COLOR_SUCCESS = 0x5CB85C
@@ -16,188 +20,57 @@ DISCORD_EMBED_COLOR_MAP = {
     "danger": DISCORD_EMBED_COLOR_DANGER,
 }
 
-COMMAND_CENTER = [
-    2129,
-    2130,
-    2131,
-    2132,
-    2136,
-    2137,
-    2138,
-    2139,
-    2140,
-    2141,
-    2142,
-    2143,
-    2144,
-    2145,
-    2146,
-    2147,
-    2148,
-    2149,
-    2150,
-    2151,
-    2152,
-    2153,
-    2154,
-    2155,
-    2156,
-    2157,
-    2158,
-    2159,
-    2160,
-    2254,
-    2524,
-    2525,
-    2533,
-    2534,
-    2549,
-    2550,
-    2551,
-    2574,
-    2576,
-    2577,
-    2568,
-    2581,
-    2582,
-    2585,
-    2586,
-]
-SPACEPORTS = [2256, 2542, 2543, 2544, 2552, 2555, 2556, 2557]
-STORAGE_FACILITY = [2257, 2535, 2536, 2541, 2558, 2560, 2561, 2562]
-EXTRACTOR_CONTROL_UNIT = [2848, 3060, 3061, 3062, 3063, 3064, 3067, 3068]
-P0_PRODUCTS_SOLID = [2267, 2270, 2272, 2306, 2307]
-P0_PRODUCTS_LIQUID_GAS = [2268, 2308, 2309, 2310, 2311]
-P0_PRODUCTS_ORGANIC = [2073, 2286, 2287, 2288, 2305]
-P0_PRODUCTS = P0_PRODUCTS_SOLID + P0_PRODUCTS_LIQUID_GAS + P0_PRODUCTS_ORGANIC
-P1_PRODUCTS = [
-    2389,
-    2390,
-    2392,
-    2393,
-    2395,
-    2396,
-    2397,
-    2398,
-    2399,
-    2400,
-    2401,
-    3645,
-    3683,
-    3779,
-    9828,
-]
-P2_PRODUCTS = [
-    44,
-    2312,
-    2317,
-    2319,
-    2321,
-    2327,
-    2328,
-    2329,
-    2463,
-    3689,
-    3691,
-    3693,
-    3695,
-    3697,
-    3725,
-    3775,
-    3828,
-    983,
-    9832,
-    9836,
-    9838,
-    9840,
-    9842,
-    15317,
-]
-P3_PRODUCTS = [
-    2344,
-    2345,
-    2346,
-    2348,
-    2349,
-    2351,
-    2352,
-    2354,
-    2358,
-    2360,
-    2361,
-    2366,
-    2367,
-    9834,
-    9846,
-    9848,
-    12836,
-    17136,
-    17392,
-    17898,
-    28974,
-]
-P4_PRODUCTS = [2867, 2868, 2869, 2870, 2871, 2872, 2875, 2876]
-P5_PRODUCTS = []
-
 NPC_ENTITIES = [
     1000125,  # Concord Bounties (Bounty Prizes, ESS
     1000132,  # Secure Commerce Commission (Market Fees)
     1000413,  # Air Laboratories (Daily Login Rewards, etc.)
 ]
 
-BOUNTY_PRIZES = ["bounty_prizes"]
-ESS_TRANSFER = ["ess_escrow_transfer"]
-MISSION_REWARD = ["agent_mission_reward", "agent_mission_time_bonus_reward"]
-INCURSION = ["corporate_reward_payout"]
 
-# Cost Ref Types
-CONTRACT = [
-    "contract_price",
-    "contract_collateral",
-    "contract_reward_deposited",
-    "contract_brokers_fee",
-    "contract_sales_tax",
-    "contract_price_payment_corp",
-    "contract_reward",
-    "contract_reward_refund",
-    "contract_collateral_refund",
-    "contract_deposit_refund",
-]
-MARKET = [
-    "market_escrow",
-    "transaction_tax",
-    "market_provider_tax",
-    "brokers_fee",
-    "market_transaction",
-]
-ASSETS = ["asset_safety_recovery_tax"]
-TRAVELING = [
-    "structure_gate_jump",
-    "jump_clone_activation_fee",
-    "jump_clone_installation_fee",
-]
-PRODUCTION = [
-    "industry_job_tax",
-    "manufacturing",
-    "researching_time_productivity",
-    "researching_material_productivity",
-    "copying",
-    "reprocessing_tax",
-    "reaction",
-]
-SKILL = ["skill_purchase"]
-PLANETARY = [
-    "planetary_export_tax",
-    "planetary_import_tax",
-    "planetary_construction",
-]
-LP = ["lp_store"]
-# Trading
-DONATION = ["player_donation"]
-INSURANCE = ["insurance"]
-# MISC
-MILESTONE_REWARD = ["milestone_reward_payment"]
-DAILY_GOAL_REWARD = ["daily_goal_payouts"]
+class MonthChoice(models.TextChoices):
+    JANUARY = 1, _("January")
+    FEBRUARY = 2, _("February")
+    MARCH = 3, _("March")
+    APRIL = 4, _("April")
+    MAY = 5, _("May")
+    JUNE = 6, _("June")
+    JULY = 7, _("July")
+    AUGUST = 8, _("August")
+    SEPTEMBER = 9, _("September")
+    OCTOBER = 10, _("October")
+    NOVEMBER = 11, _("November")
+    DECEMBER = 12, _("December")
 
-RENTAL = ["office_rental_fee"]
-CORP_WITHDRAW = ["corporation_account_withdrawal"]
+
+class DayChoice(models.TextChoices):
+    DAY_1 = 1, _("1")
+    DAY_2 = 2, _("2")
+    DAY_3 = 3, _("3")
+    DAY_4 = 4, _("4")
+    DAY_5 = 5, _("5")
+    DAY_6 = 6, _("6")
+    DAY_7 = 7, _("7")
+    DAY_8 = 8, _("8")
+    DAY_9 = 9, _("9")
+    DAY_10 = 10, _("10")
+    DAY_11 = 11, _("11")
+    DAY_12 = 12, _("12")
+    DAY_13 = 13, _("13")
+    DAY_14 = 14, _("14")
+    DAY_15 = 15, _("15")
+    DAY_16 = 16, _("16")
+    DAY_17 = 17, _("17")
+    DAY_18 = 18, _("18")
+    DAY_19 = 19, _("19")
+    DAY_20 = 20, _("20")
+    DAY_21 = 21, _("21")
+    DAY_22 = 22, _("22")
+    DAY_23 = 23, _("23")
+    DAY_24 = 24, _("24")
+    DAY_25 = 25, _("25")
+    DAY_26 = 26, _("26")
+    DAY_27 = 27, _("27")
+    DAY_28 = 28, _("28")
+    DAY_29 = 29, _("29")
+    DAY_30 = 30, _("30")
+    DAY_31 = 31, _("31")

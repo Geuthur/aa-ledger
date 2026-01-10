@@ -3,7 +3,6 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 # Django
-from django.test import TestCase
 from django.utils import timezone
 
 # Alliance Auth (External Libs)
@@ -11,32 +10,20 @@ from eveuniverse.models import EveMarketPrice, EveSolarSystem, EveType
 
 # AA Ledger
 from ledger.models.characteraudit import CharacterMiningLedger
-from ledger.tests.testdata.generate_characteraudit import (
-    add_characteraudit_character_to_user,
-    create_user_from_evecharacter_with_access,
+from ledger.tests import LedgerTestCase
+from ledger.tests.testdata.utils import (
+    create_miningledger,
+    create_owner_from_user,
 )
-from ledger.tests.testdata.generate_miningledger import create_miningledger
-from ledger.tests.testdata.load_allianceauth import load_allianceauth
-from ledger.tests.testdata.load_eveentity import load_eveentity
-from ledger.tests.testdata.load_eveuniverse import load_eveuniverse
 
 MODULE_PATH = "ledger.models.characteraudit"
 
 
-class TestCharacterMiningLedgerModel(TestCase):
+class TestCharacterMiningLedgerModel(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-        load_eveentity()
-
-        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
-            1001,
-        )
-        cls.audit = add_characteraudit_character_to_user(
-            cls.user, cls.character_ownership.character.character_id
-        )
+        cls.audit = create_owner_from_user(cls.user, owner_type="character")
         cls.eve_type = EveType.objects.get(id=17425)
         cls.eve_system = EveSolarSystem.objects.get(id=30004783)
 
@@ -79,30 +66,37 @@ class TestCharacterMiningLedgerModel(TestCase):
         )
 
     def test_str(self):
+        """Test string representation of CharacterMiningLedger."""
         self.assertEqual(str(self.miningentry), f"{self.audit} 1")
 
     def test_create_primary_key(self):
-        # when
+        """Test creation of primary key for CharacterMiningLedger."""
+        # Test Data
         primary_key = CharacterMiningLedger.create_primary_key(
             self.audit.eve_character.character_id, self.miningrecord
         )
-        # then
+        # Expected Result
         self.assertEqual(primary_key, "20240101-1-1001-1")
 
     def test_get_npc_price(self):
-        # when
+        """Test retrieval of NPC price for CharacterMiningLedger."""
+        # Test Data
         npc_price = self.miningentry2.get_npc_price()
-        # then
+
+        # Expected Result
         self.assertIsNotNone(npc_price)
         self.assertEqual(npc_price, 100)
 
     @patch(MODULE_PATH + ".cache.get", return_value=False)
     @patch(MODULE_PATH + ".EveMarketPrice.objects.update_from_esi")
     def test_update_evemarket_price(self, mock_market_price, mock_cache_get):
-        # given
+        """Test updating Eve market price for CharacterMiningLedger."""
+        # Test Data
         mock_market_price.return_value = 1337
-        # when
+
+        # Test Action
         updated = self.miningentry.update_evemarket_price()
-        # then
+
+        # Expected Result
         self.assertTrue(mock_market_price.called)
         self.assertEqual(updated, 1337)

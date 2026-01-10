@@ -15,14 +15,12 @@ from allianceauth.eveonline.providers import ObjectNotFound, provider
 from allianceauth.services.hooks import get_extension_logger
 from esi.decorators import token_required
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
 from ledger.models.general import EveEntity
+from ledger.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 @login_required

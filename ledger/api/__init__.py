@@ -8,14 +8,12 @@ from django.conf import settings
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
-from ledger.api import ledger
+from ledger.api import admin, alliance, character, corporation, planetary
+from ledger.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 api = NinjaAPI(
@@ -26,5 +24,23 @@ api = NinjaAPI(
     openapi_url=settings.DEBUG and "/openapi.json" or "",
 )
 
-# Add the ledger endpoints
-ledger.setup(api)
+
+def setup(ninja_api):
+    admin.AdminApiEndpoints(ninja_api)
+
+    # Character Endpoints
+    character.CharacterApiEndpoints(ninja_api)
+    character.CharacterDetailsApiEndpoints(ninja_api)
+    planetary.PlanetaryApiEndpoints(ninja_api)
+
+    # Corporation Endpoints
+    corporation.CorporationApiEndpoints(ninja_api)
+    corporation.CorporationDetailsApiEndpoints(ninja_api)
+
+    # Alliance Endpoints
+    alliance.AllianceApiEndpoints(ninja_api)
+    alliance.AllianceDetailsApiEndpoints(ninja_api)
+
+
+# Initialize API endpoints
+setup(api)

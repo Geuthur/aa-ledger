@@ -1,5 +1,5 @@
 # Standard Library
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 # Django
 from django.db import models
@@ -8,18 +8,19 @@ from django.db import models
 from allianceauth.eveonline.providers import ObjectNotFound
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA Ledger
 from ledger import __title__
 from ledger.app_settings import LEDGER_BULK_BATCH_SIZE
-from ledger.providers import esi
+from ledger.providers import AppLogger, esi
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
+
+if TYPE_CHECKING:
+    # AA Ledger
+    from ledger.models.general import EveEntity as EveEntityContext
 
 
-class EveEntityManager(models.Manager):
+class EveEntityManager(models.Manager["EveEntityContext"]):
     def get_or_create_esi(self, *, eve_id: int) -> tuple[Any, bool]:
         """gets or creates entity object with data fetched from ESI"""
         # pylint: disable=import-outside-toplevel

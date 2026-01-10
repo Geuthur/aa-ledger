@@ -1,43 +1,36 @@
-# Django
-from django.contrib.auth.models import Permission
-from django.test import TestCase
-
-# Alliance Auth
-from allianceauth.tests.auth_utils import AuthUtils
-
 # AA Ledger
-from ledger.models.corporationaudit import CorporationAudit
-from ledger.tests.testdata.generate_corporationaudit import (
-    create_corporationaudit_from_user,
-    create_user_from_evecharacter,
+from ledger.models.corporationaudit import CorporationOwner
+from ledger.tests import LedgerTestCase
+from ledger.tests.testdata.utils import (
+    add_new_permission_to_user,
+    create_owner_from_user,
 )
-from ledger.tests.testdata.load_allianceauth import load_allianceauth
 
 MODULE_PATH = "ledger.models.corporationaudit"
 
 
-class TestCorporationAuditModel(TestCase):
+class TestCorporationAuditModel(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
 
-        cls.user, cls.character_ownership = create_user_from_evecharacter(
-            1001, permissions=["ledger.basic_access"]
-        )
-        cls.user2, cls.character_ownership2 = create_user_from_evecharacter(
-            1002, permissions=["ledger.basic_access"]
-        )
-        cls.audit = create_corporationaudit_from_user(cls.user)
-        cls.audit2 = create_corporationaudit_from_user(cls.user2)
+        cls.owner = create_owner_from_user(user=cls.user, owner_type="corporation")
+        cls.owner2 = create_owner_from_user(user=cls.user2, owner_type="corporation")
 
     def test_str(self):
-        expected_str = CorporationAudit.objects.get(id=self.audit.pk)
-        self.assertEqual(self.audit, expected_str)
+        """Test the string representation of CorporationOwner."""
+        expected_str = CorporationOwner.objects.get(id=self.owner.pk)
+        self.assertEqual(self.owner, expected_str)
 
     def test_get_esi_scopes(self):
+        """
+        Test the ESI scopes for CorporationOwner.
+
+        ### Expected Result
+        - Correct list of ESI scopes is returned.
+        """
         self.assertEqual(
-            self.audit.get_esi_scopes(),
+            self.owner.get_esi_scopes(),
             [
                 # General
                 "esi-search.search_structures.v1",
@@ -53,16 +46,29 @@ class TestCorporationAuditModel(TestCase):
             ],
         )
 
-    def test_access_no_perms(self):
-        corporation = CorporationAudit.objects.visible_to(self.user)
-        self.assertNotIn(self.audit, corporation)
-        self.assertNotIn(self.audit2, corporation)
+    def test_visible_to_should_not_include_any_corporations(self):
+        """
+        Test access permissions for CorporationOwner without permissions.
 
-    def test_access_perms_own_corp(self):
-        self.user = AuthUtils.add_permission_to_user_by_name(
-            "ledger.advanced_access", self.user
+        ### Expected Result
+        - User without permissions cannot access any corporations.
+        """
+        corporation = CorporationOwner.objects.visible_to(self.user)
+        self.assertNotIn(self.owner, corporation)
+        self.assertNotIn(self.owner2, corporation)
+
+    def test_visible_to_should_include_own_corporation_only(self):
+        """
+        Test access permissions for CorporationOwner with own corporation permission.
+
+        ### Expected Result
+        - User with own corporation permission can access their own corporation only.
+        - User can not access other corporations.
+        """
+        self.user = add_new_permission_to_user(
+            user=self.user, permission_name="ledger.advanced_access"
         )
         self.user.refresh_from_db()
-        corporation = CorporationAudit.objects.visible_to(self.user)
-        self.assertIn(self.audit, corporation)
-        self.assertNotIn(self.audit2, corporation)
+        corporation = CorporationOwner.objects.visible_to(self.user)
+        self.assertIn(self.owner, corporation)
+        self.assertNotIn(self.owner2, corporation)

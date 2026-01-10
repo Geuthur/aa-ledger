@@ -1,14 +1,9 @@
-# Standard Library
-from unittest.mock import MagicMock
-
-# Django
-from django.test import TestCase
-
 # AA Ledger
 from ledger.templatetags.ledger import get_item, month_days, month_name, range_filter
+from ledger.tests import LedgerTestCase
 
 
-class TestTemplateTags(TestCase):
+class TestTemplateTags(LedgerTestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
