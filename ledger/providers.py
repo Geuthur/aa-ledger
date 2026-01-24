@@ -7,6 +7,7 @@ from contextlib import contextmanager
 from http import HTTPStatus
 
 # Third Party
+from aiopenapi3 import RequestError
 from celery import Task
 
 # Alliance Auth
@@ -122,3 +123,5 @@ def retry_task_on_esi_error(task: Task):
         ]:
             retry(exc, 60, f"ESI seems to be down (HTTP {exc.status_code})")
         raise exc
+    except RequestError as exc:
+        retry(exc, 60, "Request Error")
