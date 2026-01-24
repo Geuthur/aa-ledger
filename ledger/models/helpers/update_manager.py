@@ -205,7 +205,7 @@ class UpdateManager:
                 "%s: Update has changed, section: %s", self.owner, section.label
             )
         except HTTPServerError as exc:
-            logger.debug(
+            logger.error(
                 "%s: Update has an HTTP internal server error: %s", self.owner, exc
             )
             return UpdateSectionResult(is_changed=False, is_updated=False)
