@@ -46,7 +46,7 @@ def admin(request: WSGIRequest):
     # Handle Character
     def _handle_character_updates(force_refresh):
         character_id = request.POST.get("character_id")
-        if character_id is not None:
+        if character_id:
             try:
                 character = CharacterOwner.objects.get(
                     eve_character__character_id=int(character_id)
@@ -80,7 +80,7 @@ def admin(request: WSGIRequest):
     # Handle Corporation
     def _handle_corporation_updates(force_refresh):
         corporation_id = request.POST.get("corporation_id")
-        if corporation_id is not None:
+        if corporation_id:
             try:
                 corporation = CorporationOwner.objects.get(
                     eve_corporation__corporation_id=int(corporation_id)
