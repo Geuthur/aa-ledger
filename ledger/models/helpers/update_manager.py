@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
-from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
+from esi.exceptions import HTTPClientError, HTTPNotModified
 
 # AA Ledger
 from ledger import __title__
@@ -204,11 +204,6 @@ class UpdateManager:
             logger.debug(
                 "%s: Update has changed, section: %s", self.owner, section.label
             )
-        except HTTPServerError as exc:
-            logger.error(
-                "%s: Update has an HTTP internal server error: %s", self.owner, exc
-            )
-            return UpdateSectionResult(is_changed=False, is_updated=False)
         except HTTPNotModified:
             logger.debug(
                 "%s: Update has not changed, section: %s", self.owner, section.label
