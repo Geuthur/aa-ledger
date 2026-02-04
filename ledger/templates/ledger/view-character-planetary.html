@@ -30,7 +30,8 @@
 {% endblock %}
 
 {% block extra_css %}
-    {% include 'ledger/bundles/datatables-2-css.html' with extColumnControl=True %}
+    {% include 'bundles/datatables-2-css-bs5.html' %}
+    {% include 'bundles/datatables-2-columncontrol-css-bs5.html' %}
     {% include 'ledger/bundles/aa-ledger-css.html' %}
     {% include 'ledger/bundles/view-character-planetary-css.html' %}
 {% endblock %}
@@ -66,6 +67,7 @@
     {% include 'ledger/partials/modal/request-view-factory.html' %}
     {% include 'ledger/partials/modal/request-view-extractor.html' %}
     {% include 'ledger/bundles/aa-ledger-js.html' %}
-    {% include 'ledger/bundles/datatables-2-js.html' with extColumnControl=True %}
+    {% include 'bundles/datatables-2-js-bs5.html' %}
+    {% include 'bundles/datatables-2-columncontrol-js-bs5.html' %}
     {% include 'ledger/bundles/view-character-planetary-js.html' %}
 {% endblock %}

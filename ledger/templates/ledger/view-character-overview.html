@@ -36,13 +36,15 @@
 {% endblock %}
 
 {% block extra_css %}
-    {% include 'ledger/bundles/datatables-2-css.html' with extColumnControl=True %}
+    {% include 'bundles/datatables-2-css-bs5.html' %}
+    {% include 'bundles/datatables-2-columncontrol-css-bs5.html' %}
     {% include 'ledger/bundles/aa-ledger-css.html' %}
 {% endblock %}
 
 {% block extra_javascript %}
     {% include 'ledger/bundles/aa-ledger-js.html' %}
-    {% include 'ledger/bundles/datatables-2-js.html' with extColumnControl=True %}
+    {% include 'bundles/datatables-2-js-bs5.html' %}
+    {% include 'bundles/datatables-2-columncontrol-js-bs5.html' %}
     <script type="application/javascript">
         /* global aaLedgerSettings, aaLedgerSettingsOverride, _bootstrapTooltip, fetchGet, bootstrap, DataTable*/
         $(document).ready(() => {
