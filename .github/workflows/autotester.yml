@@ -53,7 +53,7 @@ jobs:
           - '3.10' # [LTS] Maintained until: October 2026
           - '3.11' # [LTS] Maintained until: October 2027
           - '3.12' # [LTS] Maintained until: October 2028
-          - '3.13' # [LTS] Maintained until: October 2029
+        #  - '3.13' # [LTS] Maintained until: October 2029 AA does not yet support Python 3.13
         # MySQL versions to test against
         database:
           # https://endoflife.date/mysql
