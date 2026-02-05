@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Ledger \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-ledger/issues\n"
-"POT-Creation-Date: 2026-01-10 16:35+0100\n"
+"POT-Creation-Date: 2026-02-05 12:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,44 +47,52 @@ msgstr ""
 msgid "Please re-register characters with issues"
 msgstr ""
 
-#: ledger/api/alliance.py:419 ledger/api/alliance.py:727
+#: ledger/api/alliance.py:419 ledger/api/alliance.py:734
 msgid "Alliance not found in Ledger."
 msgstr ""
 
-#: ledger/api/alliance.py:423 ledger/api/alliance.py:731
+#: ledger/api/alliance.py:423 ledger/api/alliance.py:738
 msgid "You do not have permission to view this alliance."
 msgstr ""
 
-#: ledger/api/alliance.py:595 ledger/api/alliance.py:605
-#: ledger/api/alliance.py:615 ledger/api/character.py:601
-#: ledger/api/character.py:611 ledger/api/character.py:621
-#: ledger/api/corporation.py:955 ledger/api/corporation.py:965
-#: ledger/api/corporation.py:975
-msgid "{ref_type_name.replace('_', ' ').title()} {kind.capitalize()}"
+#: ledger/api/alliance.py:592 ledger/api/character.py:598
+#: ledger/api/corporation.py:952
+msgid "Income from"
+msgstr ""
+
+#: ledger/api/alliance.py:592 ledger/api/character.py:598
+#: ledger/api/corporation.py:952
+msgid "Cost from"
+msgstr ""
+
+#: ledger/api/alliance.py:593 ledger/api/character.py:599
+#: ledger/api/corporation.py:953
+#, python-format
+msgid "%(kind)s %(category)s"
 msgstr ""
 
 #: ledger/api/character.py:166
 msgid "This amount is displayed for information only"
 msgstr ""
 
-#: ledger/api/character.py:443 ledger/api/character.py:760
+#: ledger/api/character.py:443 ledger/api/character.py:767
 msgid "Character not found in Ledger."
 msgstr ""
 
-#: ledger/api/character.py:447 ledger/api/character.py:764
+#: ledger/api/character.py:447 ledger/api/character.py:771
 msgid "You do not have permission to view this character."
 msgstr ""
 
-#: ledger/api/character.py:638 ledger/api/character.py:648
-#: ledger/api/character.py:658 ledger/helpers/ref_type.py:190
+#: ledger/api/character.py:645 ledger/api/character.py:655
+#: ledger/api/character.py:665
 msgid "Mining Income"
 msgstr ""
 
-#: ledger/api/corporation.py:708 ledger/api/corporation.py:1112
+#: ledger/api/corporation.py:708 ledger/api/corporation.py:1119
 msgid "Corporation not found in Ledger."
 msgstr ""
 
-#: ledger/api/corporation.py:712 ledger/api/corporation.py:1116
+#: ledger/api/corporation.py:712 ledger/api/corporation.py:1123
 msgid "You do not have permission to view this corporation."
 msgstr ""
 
@@ -351,10 +359,12 @@ msgid "All Divisions"
 msgstr ""
 
 #: ledger/helpers/billboard.py:53 ledger/helpers/billboard.py:130
+#: ledger/helpers/ref_type.py:188
 msgid "Bounty"
 msgstr ""
 
 #: ledger/helpers/billboard.py:54 ledger/helpers/billboard.py:138
+#: ledger/helpers/ref_type.py:189
 msgid "ESS"
 msgstr ""
 
@@ -379,56 +389,80 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: ledger/helpers/ref_type.py:189
-msgid "Bounty Income"
+#: ledger/helpers/ref_type.py:190
+msgid "Assets"
 msgstr ""
 
 #: ledger/helpers/ref_type.py:191
-msgid "Ess Income"
+msgid "Contract"
+msgstr ""
+
+#: ledger/helpers/ref_type.py:192
+msgid "Corporation Administration"
 msgstr ""
 
 #: ledger/helpers/ref_type.py:193
-msgid "Assets Income"
+msgid "Corporation Contract"
 msgstr ""
 
 #: ledger/helpers/ref_type.py:194
-msgid "Assets Cost"
-msgstr ""
-
-#: ledger/helpers/ref_type.py:195
-msgid "Corporation Contract Income"
-msgstr ""
-
-#: ledger/helpers/ref_type.py:196
-msgid "Contract Income"
-msgstr ""
-
-#: ledger/helpers/ref_type.py:197
-msgid "Contract Cost"
-msgstr ""
-
-#: ledger/helpers/ref_type.py:198
 msgid "Corporation Withdrawal"
 msgstr ""
 
-#: ledger/helpers/ref_type.py:199
-msgid "Mission Reward"
-msgstr ""
-
-#: ledger/helpers/ref_type.py:200
-msgid "Market Income"
-msgstr ""
-
-#: ledger/helpers/ref_type.py:201
-msgid "Market Cost"
-msgstr ""
-
-#: ledger/helpers/ref_type.py:202
+#: ledger/helpers/ref_type.py:195
 msgid "Daily Goal Reward"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:196
+msgid "Donation"
+msgstr ""
+
+#: ledger/helpers/ref_type.py:197
+msgid "Freelance Jobs"
+msgstr ""
+
+#: ledger/helpers/ref_type.py:198
+msgid "Incursion"
+msgstr ""
+
+#: ledger/helpers/ref_type.py:199
+msgid "Insurance"
+msgstr ""
+
+#: ledger/helpers/ref_type.py:200
+msgid "LP Store"
+msgstr ""
+
+#: ledger/helpers/ref_type.py:201
+msgid "Market"
+msgstr ""
+
+#: ledger/helpers/ref_type.py:202
+msgid "Mission Reward"
+msgstr ""
+
 #: ledger/helpers/ref_type.py:203
+msgid "Planetary Interaction"
+msgstr ""
+
+#: ledger/helpers/ref_type.py:204
+msgid "Production"
+msgstr ""
+
+#: ledger/helpers/ref_type.py:205
+msgid "Skill Training"
+msgstr ""
+
+#: ledger/helpers/ref_type.py:206
 msgid "Structure Rental"
+msgstr ""
+
+#: ledger/helpers/ref_type.py:207
+msgid "Traveling Fees"
+msgstr ""
+
+#: ledger/helpers/ref_type.py:208
+msgid "Undefined"
 msgstr ""
 
 #: ledger/managers/corporation_journal_manager.py:402
@@ -757,9 +791,9 @@ msgstr ""
 #: ledger/templates/ledger/partials/view-alliance-ledger/alliance-ledger-details.html:7
 #: ledger/templates/ledger/partials/view-character-ledger/character-ledger-details.html:7
 #: ledger/templates/ledger/partials/view-corporation-ledger/corporation-ledger-details.html:7
-#: ledger/templates/ledger/view-alliance-ledger.html:61
-#: ledger/templates/ledger/view-character-ledger.html:62
-#: ledger/templates/ledger/view-corporation-ledger.html:62
+#: ledger/templates/ledger/view-alliance-ledger.html:62
+#: ledger/templates/ledger/view-character-ledger.html:63
+#: ledger/templates/ledger/view-corporation-ledger.html:63
 msgid "Summary"
 msgstr ""
 
@@ -1071,10 +1105,10 @@ msgstr ""
 msgid "Alliance Overview"
 msgstr ""
 
-#: ledger/templates/ledger/view-alliance-overview.html:105
-#: ledger/templates/ledger/view-character-overview.html:109
-#: ledger/templates/ledger/view-character-planetary-overview.html:109
-#: ledger/templates/ledger/view-corporation-overview.html:105
+#: ledger/templates/ledger/view-alliance-overview.html:107
+#: ledger/templates/ledger/view-character-overview.html:111
+#: ledger/templates/ledger/view-character-planetary-overview.html:111
+#: ledger/templates/ledger/view-corporation-overview.html:107
 msgid "Show"
 msgstr ""
 
@@ -1087,19 +1121,19 @@ msgstr ""
 msgid "Planetary Details"
 msgstr ""
 
-#: ledger/templates/ledger/view-character-planetary.html:53
+#: ledger/templates/ledger/view-character-planetary.html:54
 msgid "Are you sure to Switch Notification"
 msgstr ""
 
-#: ledger/templates/ledger/view-character-planetary.html:54
+#: ledger/templates/ledger/view-character-planetary.html:55
 msgid "Switch Notification"
 msgstr ""
 
-#: ledger/templates/ledger/view-character-planetary.html:55
+#: ledger/templates/ledger/view-character-planetary.html:56
 msgid "Notification Activated"
 msgstr ""
 
-#: ledger/templates/ledger/view-character-planetary.html:56
+#: ledger/templates/ledger/view-character-planetary.html:57
 msgid "Notification Deactivated"
 msgstr ""
 

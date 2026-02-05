@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
-from esi.exceptions import HTTPClientError, HTTPNotModified
+from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
 
 # AA Ledger
 from ledger import __title__
@@ -278,6 +278,8 @@ class UpdateManager:
         """
         try:
             result = method(*args, **kwargs)
+        except HTTPServerError as exc:
+            raise exc
         except Exception as exc:
             error_message = f"{type(exc).__name__}: {str(exc)}"
             logger.error(
