@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Ledger \n"
+"Project-Id-Version: AA Ledger\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-ledger/issues\n"
 "POT-Creation-Date: 2026-01-10 16:35+0100\n"
-"PO-Revision-Date: 2026-02-04 12:31+0000\n"
+"PO-Revision-Date: 2026-02-05 12:13+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "ledger/de/>\n"
@@ -64,20 +64,18 @@ msgstr "Sie haben keine Berechtigung, diese Allianz anzuzeigen."
 #: ledger/api/alliance.py:592 ledger/api/character.py:598
 #: ledger/api/corporation.py:952
 msgid "Income from"
-msgstr ""
+msgstr "Einkünfte aus"
 
 #: ledger/api/alliance.py:592 ledger/api/character.py:598
 #: ledger/api/corporation.py:952
-#, fuzzy
-#| msgid "Cost per Hour"
 msgid "Cost from"
-msgstr "Kosten pro Stunde"
+msgstr "Ausgaben von"
 
 #: ledger/api/alliance.py:593 ledger/api/character.py:599
 #: ledger/api/corporation.py:953
 #, python-format
 msgid "%(kind)s %(category)s"
-msgstr ""
+msgstr "%(kind)s %(category)s"
 
 #: ledger/api/character.py:166
 msgid "This amount is displayed for information only"
@@ -421,34 +419,28 @@ msgid "Daily Goal Reward"
 msgstr "Tägliche Ziele Belohnung"
 
 #: ledger/helpers/ref_type.py:196
-#, fuzzy
-#| msgid "Corporation"
 msgid "Donation"
-msgstr "Corporation"
+msgstr "Spenden"
 
 #: ledger/helpers/ref_type.py:197
 msgid "Freelance Jobs"
-msgstr ""
+msgstr "Freelance Aufträge"
 
 #: ledger/helpers/ref_type.py:198
 msgid "Incursion"
-msgstr ""
+msgstr "Incursion"
 
 #: ledger/helpers/ref_type.py:199
 msgid "Insurance"
-msgstr ""
+msgstr "Versicherung"
 
 #: ledger/helpers/ref_type.py:200
-#, fuzzy
-#| msgid "Storage"
 msgid "LP Store"
-msgstr "Lager"
+msgstr "LP-Laden"
 
 #: ledger/helpers/ref_type.py:201
-#, fuzzy
-#| msgid "Market Cost"
 msgid "Market"
-msgstr "Markt Kosten"
+msgstr "Markt"
 
 #: ledger/helpers/ref_type.py:202
 msgid "Mission Reward"
@@ -459,14 +451,12 @@ msgid "Planetary Interaction"
 msgstr "Planetarische Interaktion"
 
 #: ledger/helpers/ref_type.py:204
-#, fuzzy
-#| msgid "Product"
 msgid "Production"
-msgstr "Produkt"
+msgstr "Produktion"
 
 #: ledger/helpers/ref_type.py:205
 msgid "Skill Training"
-msgstr ""
+msgstr "Skill-Training"
 
 #: ledger/helpers/ref_type.py:206
 msgid "Structure Rental"
@@ -474,11 +464,11 @@ msgstr "Strukturen Miete"
 
 #: ledger/helpers/ref_type.py:207
 msgid "Traveling Fees"
-msgstr ""
+msgstr "Reisekosten"
 
 #: ledger/helpers/ref_type.py:208
 msgid "Undefined"
-msgstr ""
+msgstr "Undefiniert"
 
 #: ledger/managers/corporation_journal_manager.py:402
 msgid "Master Wallet"
@@ -1226,8 +1216,7 @@ msgstr "Aktualisiere alle Charaktere wurde in Warteschlange eingereiht"
 #: ledger/views/index.py:89
 #, python-brace-format
 msgid "Queued Update for Corporation: {corporation_name}"
-msgstr ""
-"Aktualisierung für Corporation in der Warteschlange: {corporation_name}"
+msgstr "Aktualisierung für Corporation in der Warteschlange: {corporation_name}"
 
 #: ledger/views/index.py:100
 #, python-brace-format
@@ -1241,162 +1230,3 @@ msgstr "Aktualisiere alle Corporationen wurde in Warteschlange eingereiht"
 #: ledger/views/index.py:118
 msgid "Queued Clear All Cache"
 msgstr "In der Warteschlange Alle Cache löschen"
-
-#~ msgid "{ref_type_name.replace('_', ' ').title()} {kind.capitalize()}"
-#~ msgstr "{ref_type_name.replace('_', ' ').title()} {kind.capitalize()}"
-
-#~ msgid "Bounty Income"
-#~ msgstr "Einkünfte aus Kopfgeld"
-
-#~ msgid "Ess Income"
-#~ msgstr "Einkünfte aus ESS"
-
-#~ msgid "Assets Income"
-#~ msgstr "Einkünfte aus Assets"
-
-#~ msgid "Contract Income"
-#~ msgstr "Einkünfte aus Verträgen"
-
-#~ msgid "Market Income"
-#~ msgstr "Einkünfte aus dem Markt"
-
-#~ msgid "Factory Information"
-#~ msgstr "Anlagen Information"
-
-#~ msgid "Planet not Found"
-#~ msgstr "Planet nicht gefunden"
-
-#~ msgid "Extractor Information"
-#~ msgstr "Extraktor Information"
-
-#~ msgid "Ratting Bar"
-#~ msgstr "Ratting Fortschritt"
-
-#~ msgid "Bounty (Wallet)"
-#~ msgstr "Kopfgeld (Konto)"
-
-#~ msgid "ESS (Wallet)"
-#~ msgstr "ESS (Konto)"
-
-#~ msgid "Costs (Wallet)"
-#~ msgstr "Kosten (Konto)"
-
-#~ msgid "Miscellaneous (Wallet)"
-#~ msgstr "Verschiedenes (Konto)"
-
-#~ msgid "Encounter Surveillance System"
-#~ msgstr "Gefechtsüberwachungssystem"
-
-#~ msgid "error"
-#~ msgstr "fehler"
-
-#~ msgid "ok"
-#~ msgstr "Ok"
-
-#~ msgid "in progress"
-#~ msgstr "in Arbeit"
-
-#~ msgid "Year"
-#~ msgstr "Jahr"
-
-#~ msgid "No Permission"
-#~ msgstr "Keine Berechtigung"
-
-#~ msgid "ON"
-#~ msgstr "AN"
-
-#~ msgid "OFF"
-#~ msgstr "AUS"
-
-#~ msgid "Toggle Alarm"
-#~ msgstr "Alarm umschalten"
-
-#~ msgid "Turn All On/Off"
-#~ msgstr "Schalte Alle An/Aus"
-
-#~ msgid "Division"
-#~ msgstr "Abteilung"
-
-#~ msgid "Ledger - Error"
-#~ msgstr "Ledger - Fehler"
-
-#~ msgid "Index"
-#~ msgstr "Index"
-
-#~ msgid "View Character Ledger"
-#~ msgstr "Zeige Charakter Ledger"
-
-#~ msgid "Avg."
-#~ msgstr "Durchschn."
-
-#~ msgid "per Day"
-#~ msgstr "pro Tag"
-
-#~ msgid "Cost per Day"
-#~ msgstr "Kosten pro Tag"
-
-#~ msgid "Summary Day"
-#~ msgstr "Zusammenfassung Tag"
-
-#~ msgid "Current Day -"
-#~ msgstr "Aktueller Tag -"
-
-#~ msgid "Current Day Cost -"
-#~ msgstr "Aktuelle Kosten Tag -"
-
-#~ msgid "Current Day"
-#~ msgstr "Aktueller Tag"
-
-#~ msgid "per Hour"
-#~ msgstr "pro Stunde"
-
-#~ msgid "Summary Hour"
-#~ msgstr "Zusammenfassung Stunde"
-
-#~ msgid "Cost"
-#~ msgstr "Kosten"
-
-#~ msgid "No ratting data found..."
-#~ msgstr "Keine Ratting daten gefunden..."
-
-#~ msgid "No data found..."
-#~ msgstr "Keine Daten gefunden..."
-
-#~ msgid "No output"
-#~ msgstr "Keine Ausgabe"
-
-#~ msgid "Estimated Only"
-#~ msgstr "Nur Schätzung"
-
-#~ msgid "Overview"
-#~ msgstr "Übersicht"
-
-#~ msgid "Estimated"
-#~ msgstr "Schätzung"
-
-#~ msgid "All alarms successfully switched"
-#~ msgstr "Alle Alarme wurden erfolgreich gewechselt"
-
-#~ msgid "id"
-#~ msgstr "ID"
-
-#~ msgid "category"
-#~ msgstr "Kategorie"
-
-#~ msgid "name"
-#~ msgstr "Name"
-
-#~ msgid "ESS Payout"
-#~ msgstr "ESS Auszahlung"
-
-#~ msgid "TAX"
-#~ msgstr "Steuer"
-
-#~ msgid "Orange Color is for Info only and is not included in the Calculation"
-#~ msgstr ""
-#~ "Die orange Farbe dient nur zur Information und wird nicht in die "
-#~ "Berechnung einbezogen"
-
-#~ msgid "All amounts shown are taxes collected from characters"
-#~ msgstr ""
-#~ "Alle angegebenen Beträge sind Steuern, die von Charaktären erhoben werden"
