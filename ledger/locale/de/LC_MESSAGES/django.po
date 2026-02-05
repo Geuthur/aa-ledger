@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Ledger \n"
+"Project-Id-Version: AA Ledger\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-ledger/issues\n"
 "POT-Creation-Date: 2026-01-10 16:35+0100\n"
-"PO-Revision-Date: 2026-02-04 12:31+0000\n"
+"PO-Revision-Date: 2026-02-05 12:13+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "ledger/de/>\n"
@@ -64,20 +64,18 @@ msgstr "Sie haben keine Berechtigung, diese Allianz anzuzeigen."
 #: ledger/api/alliance.py:592 ledger/api/character.py:598
 #: ledger/api/corporation.py:952
 msgid "Income from"
-msgstr ""
+msgstr "Einkünfte aus"
 
 #: ledger/api/alliance.py:592 ledger/api/character.py:598
 #: ledger/api/corporation.py:952
-#, fuzzy
-#| msgid "Cost per Hour"
 msgid "Cost from"
-msgstr "Kosten pro Stunde"
+msgstr "Ausgaben von"
 
 #: ledger/api/alliance.py:593 ledger/api/character.py:599
 #: ledger/api/corporation.py:953
 #, python-format
 msgid "%(kind)s %(category)s"
-msgstr ""
+msgstr "%(kind)s %(category)s"
 
 #: ledger/api/character.py:166
 msgid "This amount is displayed for information only"
@@ -421,34 +419,28 @@ msgid "Daily Goal Reward"
 msgstr "Tägliche Ziele Belohnung"
 
 #: ledger/helpers/ref_type.py:196
-#, fuzzy
-#| msgid "Corporation"
 msgid "Donation"
-msgstr "Corporation"
+msgstr "Spenden"
 
 #: ledger/helpers/ref_type.py:197
 msgid "Freelance Jobs"
-msgstr ""
+msgstr "Freelance Aufträge"
 
 #: ledger/helpers/ref_type.py:198
 msgid "Incursion"
-msgstr ""
+msgstr "Incursion"
 
 #: ledger/helpers/ref_type.py:199
 msgid "Insurance"
-msgstr ""
+msgstr "Versicherung"
 
 #: ledger/helpers/ref_type.py:200
-#, fuzzy
-#| msgid "Storage"
 msgid "LP Store"
-msgstr "Lager"
+msgstr "LP-Laden"
 
 #: ledger/helpers/ref_type.py:201
-#, fuzzy
-#| msgid "Market Cost"
 msgid "Market"
-msgstr "Markt Kosten"
+msgstr "Markt"
 
 #: ledger/helpers/ref_type.py:202
 msgid "Mission Reward"
@@ -459,14 +451,12 @@ msgid "Planetary Interaction"
 msgstr "Planetarische Interaktion"
 
 #: ledger/helpers/ref_type.py:204
-#, fuzzy
-#| msgid "Product"
 msgid "Production"
-msgstr "Produkt"
+msgstr "Produktion"
 
 #: ledger/helpers/ref_type.py:205
 msgid "Skill Training"
-msgstr ""
+msgstr "Skill-Training"
 
 #: ledger/helpers/ref_type.py:206
 msgid "Structure Rental"
@@ -474,11 +464,11 @@ msgstr "Strukturen Miete"
 
 #: ledger/helpers/ref_type.py:207
 msgid "Traveling Fees"
-msgstr ""
+msgstr "Reisekosten"
 
 #: ledger/helpers/ref_type.py:208
 msgid "Undefined"
-msgstr ""
+msgstr "Undefiniert"
 
 #: ledger/managers/corporation_journal_manager.py:402
 msgid "Master Wallet"
@@ -1226,8 +1216,7 @@ msgstr "Aktualisiere alle Charaktere wurde in Warteschlange eingereiht"
 #: ledger/views/index.py:89
 #, python-brace-format
 msgid "Queued Update for Corporation: {corporation_name}"
-msgstr ""
-"Aktualisierung für Corporation in der Warteschlange: {corporation_name}"
+msgstr "Aktualisierung für Corporation in der Warteschlange: {corporation_name}"
 
 #: ledger/views/index.py:100
 #, python-brace-format
