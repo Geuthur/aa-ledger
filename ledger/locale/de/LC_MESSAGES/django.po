@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: AA Ledger \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-ledger/issues\n"
 "POT-Creation-Date: 2026-01-10 16:35+0100\n"
-"PO-Revision-Date: 2026-01-11 20:50+0000\n"
+"PO-Revision-Date: 2026-02-04 12:31+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "ledger/de/>\n"
@@ -46,7 +46,7 @@ msgid ""
 "Started force update for {count} character(s). Updates will run in the "
 "background."
 msgstr ""
-"Die erzwungene Aktualisierung für {count} Zeichen wurde gestartet. Die "
+"Die erzwungene Aktualisierung für {count} Charaktere wurde gestartet. Die "
 "Aktualisierungen werden im Hintergrund ausgeführt."
 
 #: ledger/api/admin.py:196
@@ -635,7 +635,7 @@ msgstr "Schließen"
 #: ledger/templates/ledger/partials/modal/request-accept-delete-alliance.html:10
 #: ledger/templates/ledger/partials/modal/request-accept-delete-alliance.html:33
 msgid "Accept Delete Alliance request"
-msgstr "Annehmen Löschen Allianzantrag"
+msgstr "Anfrage zur Löschung der Allianz akzeptieren"
 
 #: ledger/templates/ledger/partials/modal/request-accept-delete-alliance.html:18
 msgid "Are you sure you want to delete this alliance?"
@@ -653,7 +653,7 @@ msgstr "Möchten Sie diesen Charakter wirklich löschen?"
 #: ledger/templates/ledger/partials/modal/request-accept-delete-corporation.html:10
 #: ledger/templates/ledger/partials/modal/request-accept-delete-corporation.html:33
 msgid "Accept Delete Corporation request"
-msgstr "Anfrage von Delete Corporation akzeptieren"
+msgstr "Anfrage von Löschen Corporation akzeptieren"
 
 #: ledger/templates/ledger/partials/modal/request-accept-delete-corporation.html:18
 msgid "Are you sure you want to delete this corporation?"
@@ -662,7 +662,7 @@ msgstr "Sind Sie sicher, dass Sie diese Corporation löschen möchten?"
 #: ledger/templates/ledger/partials/modal/request-accept-switch-notification.html:10
 #: ledger/templates/ledger/partials/modal/request-accept-switch-notification.html:33
 msgid "Accept Toggle Notification request"
-msgstr "Benachrichtigung Anfrage akzeptieren"
+msgstr "Anfrage Benachrichtigung Umschalten akzeptieren"
 
 #: ledger/templates/ledger/partials/modal/request-accept-switch-notification.html:18
 msgid "Are you sure you want to toggle notification for this planet?"
@@ -1080,11 +1080,11 @@ msgstr "Charakter-ID (optional)"
 
 #: ledger/templates/ledger/view-administration.html:43
 msgid "Enter Character ID"
-msgstr "Zeichen-ID eingeben"
+msgstr "Character-ID eingeben"
 
 #: ledger/templates/ledger/view-administration.html:44
 msgid "Leave empty to update all characters"
-msgstr "Leer lassen, um alle Zeichen zu aktualisieren"
+msgstr "Leer lassen, um alle Charaktere zu aktualisieren"
 
 #: ledger/templates/ledger/view-administration.html:49
 msgid "Update Corporation Updates"
