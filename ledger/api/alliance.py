@@ -584,40 +584,47 @@ class AllianceDetailsApiEndpoints:
         hourly_list = []
         summary = 0
         # Income/Cost Ref Types
-        for ref_type, value in ref_types.items():
-            ref_type_name = ref_type.lower()
-            for kind, income_flag in (("income", True), ("cost", False)):
-                kwargs = {"ref_type": value, "income": income_flag}
+        for category in RefTypeManager.CategoryChoice:
+            category_ref_types = ref_types.get(category.value, [])
+            if not category_ref_types:
+                continue
+            for __, income_flag in (("income", True), ("cost", False)):
+                kind_label = _("Income from") if income_flag else _("Cost from")
+                name = _("%(kind)s %(category)s") % {
+                    "category": category.label,
+                    "kind": kind_label,
+                }
+                kwargs = {"ref_type": category_ref_types, "income": income_flag}
                 amount = journal.aggregate_ref_type(**kwargs)
                 if (income_flag and amount > 0) or (not income_flag and amount < 0):
                     monthly = CategorySchema(
-                        name=_(
-                            f"{ref_type_name.replace('_', ' ').title()} {kind.capitalize()}"
-                        ),
+                        name=name,
                         amount=amount,
                         average=amount / avg / 30,
                         average_tick=amount / avg / 30 / 20,
-                        ref_types=get_ref_type_details_popover_button(ref_types=value),
+                        ref_types=get_ref_type_details_popover_button(
+                            ref_types=category_ref_types
+                        ),
                     )
 
                     daily = CategorySchema(
-                        name=_(
-                            f"{ref_type_name.replace('_', ' ').title()} {kind.capitalize()}"
-                        ),
+                        name=name,
                         amount=amount / avg,
                         average=amount / avg / 30,
                         average_tick=amount / avg / 20,
-                        ref_types=get_ref_type_details_popover_button(ref_types=value),
+                        ref_types=get_ref_type_details_popover_button(
+                            ref_types=category_ref_types
+                        ),
                     )
 
                     hourly = CategorySchema(
-                        name=_(
-                            f"{ref_type_name.replace('_', ' ').title()} {kind.capitalize()}"
-                        ),
+                        name=name,
                         amount=amount / avg / 24,
                         average=amount / avg / 24 / 30,
                         average_tick=amount / avg / 24 / 20,
-                        ref_types=get_ref_type_details_popover_button(ref_types=value),
+                        ref_types=get_ref_type_details_popover_button(
+                            ref_types=category_ref_types
+                        ),
                     )
                     # Add Amounts
                     summary += amount

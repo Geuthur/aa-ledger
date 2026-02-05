@@ -4,6 +4,7 @@
 import enum
 
 # Django
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -185,22 +186,30 @@ class JournalRefType(enum.Enum):
 class RefTypeManager:
     """Categories for wallet journal reference types."""
 
-    # Translations for reference types
-    _("Bounty Income")
-    _("Mining Income")
-    _("Ess Income")
-
-    _("Assets Income")
-    _("Assets Cost")
-    _("Corporation Contract Income")
-    _("Contract Income")
-    _("Contract Cost")
-    _("Corporation Withdrawal")
-    _("Mission Reward")
-    _("Market Income")
-    _("Market Cost")
-    _("Daily Goal Reward")
-    _("Structure Rental")
+    class CategoryChoice(models.TextChoices):
+        BOUNTY = "BOUNTY", _("Bounty")
+        ESS = "ESS", _("ESS")
+        ASSETS = "ASSETS", _("Assets")
+        CONTRACT = "CONTRACT", _("Contract")
+        CORPORATION_ADMINISTRATION = "CORPORATION_ADMINISTRATION", _(
+            "Corporation Administration"
+        )
+        CORPORATION_CONTRACT = "CORPORATION_CONTRACT", _("Corporation Contract")
+        CORPORATION_WITHDRAWAL = "CORPORATION_WITHDRAWAL", _("Corporation Withdrawal")
+        DAILY_GOAL_REWARD = "DAILY_GOAL_REWARD", _("Daily Goal Reward")
+        DONATION = "DONATION", _("Donation")
+        FREELANCE_JOBS = "FREELANCE_JOBS", _("Freelance Jobs")
+        INCURSION = "INCURSION", _("Incursion")
+        INSURANCE = "INSURANCE", _("Insurance")
+        LP = "LP", _("LP Store")
+        MARKET = "MARKET", _("Market")
+        MISSION_REWARD = "MISSION_REWARD", _("Mission Reward")
+        PLANETARY = "PLANETARY", _("Planetary Interaction")
+        PRODUCTION = "PRODUCTION", _("Production")
+        SKILL = "SKILL", _("Skill Training")
+        STRUCTURE_RENTAL = "STRUCTURE_RENTAL", _("Structure Rental")
+        TRAVELING = "TRAVELING", _("Traveling Fees")
+        UNDEFINED = "UNDEFINED", _("Undefined")
 
     # Assets/Items
     ASSETS = [
