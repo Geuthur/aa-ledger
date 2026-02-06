@@ -11,6 +11,8 @@ Section Order:
 ### Removed
 -->
 
+## [2.0.0] - 06.02.2026
+
 ### Added
 
 - CSS & JS App bundle
@@ -33,6 +35,9 @@ Section Order:
 
 ### Changed
 
+- pin `allianceauth` to `>=4.12<5`
+- Disable Python 3.13 support until AA supports it
+- Optimized Translation in some cases
 - Data Export will now handled by JS
 - Renamed `charlink` label
 - Refactor Billboard Class
@@ -1352,5 +1357,6 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 [1.0.2]: https://github.com/Geuthur/aa-ledger/compare/v1.0.1...v1.0.2 "1.0.2"
 [1.0.3]: https://github.com/Geuthur/aa-ledger/compare/v1.0.2...v1.0.3 "1.0.3"
 [1.0.4]: https://github.com/Geuthur/aa-ledger/compare/v1.0.3...v1.0.4 "1.0.4"
-[in development]: https://github.com/Geuthur/aa-ledger/compare/v1.0.4...HEAD "In Development"
+[2.0.0]: https://github.com/Geuthur/aa-ledger/compare/v1.0.4...v2.0.0 "2.0.0"
+[in development]: https://github.com/Geuthur/aa-ledger/compare/v2.0.0...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-ledger/issues "report any issues"
