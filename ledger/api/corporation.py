@@ -910,7 +910,7 @@ class CorporationDetailsApiEndpoints:
         footer_html = f"""
             <tr>
                 <th>{_('Summary')}</th>
-                <th class="text-end">{intcomma(value=int(value), use_l10n=True)} ISK</th>
+                <th class="text-end {get_footer_text_class(value)}">{intcomma(value=int(value), use_l10n=True)} ISK</th>
                 <th></th>
             </tr>
         """
