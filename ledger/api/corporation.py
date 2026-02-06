@@ -41,6 +41,7 @@ from ledger.constants import NPC_ENTITIES
 from ledger.helpers.billboard import BillboardSystem
 from ledger.helpers.cache import CacheManager
 from ledger.helpers.eveonline import get_character_portrait_url
+from ledger.helpers.ledger_data import get_footer_text_class
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.corporationaudit import (
     CorporationOwner,
@@ -233,11 +234,11 @@ class CorporationApiEndpoints:
         footer_html = f"""
             <tr>
                 <th class="border-top">{_("Summary")}</th>
-                <th class="border-top text-end">{intcomma(value=int(total_bounty), use_l10n=True)} ISK</th>
-                <th class="border-top text-end">{intcomma(value=int(total_ess), use_l10n=True)} ISK</th>
-                <th class="border-top text-end">{intcomma(value=int(total_miscellaneous), use_l10n=True)} ISK</th>
-                <th class="border-top text-end">{intcomma(value=int(total_costs), use_l10n=True)} ISK</th>
-                <th class="border-start border-top text-end">{intcomma(value=int(total_total), use_l10n=True)} ISK</th>
+                <th class="border-top text-end {get_footer_text_class(total_bounty)}">{intcomma(value=int(total_bounty), use_l10n=True)} ISK</th>
+                <th class="border-top text-end {get_footer_text_class(total_ess)}">{intcomma(value=int(total_ess), use_l10n=True)} ISK</th>
+                <th class="border-top text-end {get_footer_text_class(total_miscellaneous)}">{intcomma(value=int(total_miscellaneous), use_l10n=True)} ISK</th>
+                <th class="border-top text-end {get_footer_text_class(total_costs)}">{intcomma(value=int(total_costs), use_l10n=True)} ISK</th>
+                <th class="border-start border-top text-end {get_footer_text_class(total_total)}">{intcomma(value=int(total_total), use_l10n=True)} ISK</th>
                 <th class="border-top">{url}</th>
             </tr>
         """
@@ -909,7 +910,7 @@ class CorporationDetailsApiEndpoints:
         footer_html = f"""
             <tr>
                 <th>{_('Summary')}</th>
-                <th class="text-end">{intcomma(value=int(value), use_l10n=True)} ISK</th>
+                <th class="text-end {get_footer_text_class(value)}">{intcomma(value=int(value), use_l10n=True)} ISK</th>
                 <th></th>
             </tr>
         """
