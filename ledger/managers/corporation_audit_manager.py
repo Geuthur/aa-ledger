@@ -18,12 +18,10 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 
 if TYPE_CHECKING:
     # AA Ledger
-    from ledger.models.corporationaudit import (
-        CorporationOwner as CorporationAuditContext,
-    )
+    from ledger.models.corporationaudit import CorporationOwner
 
 
-class CorporationAuditQuerySet(models.QuerySet["CorporationAuditContext"]):
+class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
     def visible_to(self, user: User):
         """Returns a queryset of all corps visible to the user."""
         if user.is_superuser:
@@ -174,7 +172,7 @@ class CorporationAuditQuerySet(models.QuerySet["CorporationAuditContext"]):
         return qs
 
 
-class CorporationAuditManager(models.Manager["CorporationAuditContext"]):
+class CorporationAuditManager(models.Manager["CorporationOwner"]):
     def get_queryset(self) -> CorporationAuditQuerySet:
         return CorporationAuditQuerySet(self.model, using=self._db)
 

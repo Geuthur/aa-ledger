@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from ledger.models.corporationaudit import (
         CorporationOwner,
         CorporationWalletDivision,
+        CorporationWalletJournalEntry,
     )
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -163,7 +164,7 @@ class CorporationWalletQuerySet(models.QuerySet):
         )["total"]
 
 
-class CorporationWalletManager(models.Manager):
+class CorporationWalletManager(models.Manager["CorporationWalletJournalEntry"]):
     def get_queryset(self) -> CorporationWalletQuerySet:
         return CorporationWalletQuerySet(self.model, using=self._db)
 
@@ -326,7 +327,7 @@ class CorporationWalletManager(models.Manager):
         )
 
 
-class CorporationDivisionManager(models.Manager):
+class CorporationDivisionManager(models.Manager["CorporationWalletDivision"]):
     @log_timing(logger)
     def update_or_create_esi(
         self, owner: "CorporationOwner", force_refresh: bool = False
