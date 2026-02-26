@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 from django.test import override_settings
 
 # Alliance Auth (External Libs)
-from eveuniverse.models import EveType
+from eve_sde.models.types import ItemType
 
 # AA Ledger
 from ledger.tests import LedgerTestCase
@@ -79,7 +79,6 @@ class TestPlanetaryManager(LedgerTestCase):
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
-@patch(MODULE_PATH + ".EveType.objects.get_or_create_esi")
 @patch(MODULE_PATH + ".esi")
 class TestPlanetaryDetailsManager(LedgerTestCase):
     """Test Planetary Details Manager for Character Planets."""
@@ -94,7 +93,7 @@ class TestPlanetaryDetailsManager(LedgerTestCase):
         cls.token = cls.user_character.user.token_set.first()
         cls.audit.get_token = MagicMock(return_value=cls.token)
 
-    def test_update_planets_details(self, mock_esi, mock_get_or_create_esi):
+    def test_update_planets_details(self, mock_esi):
         """
         Test updating the character planetary details.
 
@@ -109,8 +108,6 @@ class TestPlanetaryDetailsManager(LedgerTestCase):
         mock_esi.client = create_esi_client_stub(
             endpoints=LEDGER_CHARACTER_PLANETARY_ENDPOINTS
         )
-        eve_type = EveType.objects.get(id=2268)
-        mock_get_or_create_esi.return_value = (eve_type, True)
 
         # Test Action
         self.audit.update_planets_details(force_refresh=False)

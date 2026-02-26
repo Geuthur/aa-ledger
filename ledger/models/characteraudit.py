@@ -14,7 +14,9 @@ from allianceauth.eveonline.models import EveCharacter, Token
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
-from eveuniverse.models import EveMarketPrice, EveSolarSystem, EveType
+from eve_sde.models import ItemType
+from eve_sde.models.map import SolarSystem
+from eveuniverse.models import EveMarketPrice
 
 # AA Ledger
 from ledger import __title__
@@ -252,10 +254,10 @@ class CharacterMiningLedger(models.Model):
     )
     date = models.DateTimeField()
     type = models.ForeignKey(
-        EveType, on_delete=models.CASCADE, related_name="ledger_evetype"
+        ItemType, on_delete=models.CASCADE, related_name="ledger_evetype"
     )
     system = models.ForeignKey(
-        EveSolarSystem, on_delete=models.CASCADE, related_name="ledger_evesolarsystem"
+        SolarSystem, on_delete=models.CASCADE, related_name="ledger_evesolarsystem"
     )
     quantity = models.IntegerField()
 
@@ -285,10 +287,13 @@ class CharacterMiningLedger(models.Model):
         try:
             if LEDGER_USE_COMPRESSED:
                 type_name = f"Compressed {self.type.name}"
-                price = EveType.objects.get(name=type_name).market_price.average_price
+                # price = ItemType.objects.get(name=type_name).market_price.average_price
+                price = EveMarketPrice.objects.get(
+                    eve_type__name=type_name
+                ).average_price
             else:
-                price = self.type.market_price.average_price
-        except (EveMarketPrice.DoesNotExist, EveType.DoesNotExist):
+                price = EveMarketPrice.objects.get(eve_type=self.type).average_price
+        except (EveMarketPrice.DoesNotExist, ItemType.DoesNotExist):
             price = None
         return price
 

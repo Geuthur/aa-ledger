@@ -14,7 +14,8 @@ from allianceauth.tests.auth_utils import AuthUtils
 from esi.models import Scope, Token
 
 # Alliance Auth (External Libs)
-from eveuniverse.models import EveEntity, EvePlanet, EveSolarSystem, EveType
+from eve_sde.models.map import Planet, SolarSystem
+from eve_sde.models.types import ItemType
 
 # AA Ledger
 from ledger.models.characteraudit import (
@@ -29,6 +30,7 @@ from ledger.models.corporationaudit import (
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
 )
+from ledger.models.general import EveEntity
 from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
 
@@ -473,8 +475,8 @@ def create_miningledger(
     character: CharacterOwner,
     id: int,
     date: str,
-    type: EveType,
-    system: EveSolarSystem,
+    type: ItemType,
+    system: SolarSystem,
     quantity: int,
     **kwargs,
 ) -> CharacterMiningLedger:
@@ -485,7 +487,7 @@ def create_miningledger(
         character (CharacterOwner): The character.
         id (int): The ID of the mining ledger.
         date (str): The date of the mining ledger.
-        type (EveType): The type of the mined item.
+        type (ItemType): The type of the mined item.
         system (EveSolarSystem): The solar system where mining took place.
         quantity (int): The quantity mined.
         **kwargs: Fields for the CharacterMiningLedger
@@ -579,7 +581,7 @@ def create_character_planet(
     """Create a CharacterPlanet from CharacterOwner and planet_id."""
     params = {
         "character": owner,
-        "eve_planet": EvePlanet.objects.get(id=planet_id),
+        "eve_planet": Planet.objects.get(id=planet_id),
     }
     params.update(kwargs)
     planet = CharacterPlanet(**params)

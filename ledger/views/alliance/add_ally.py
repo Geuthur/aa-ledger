@@ -46,7 +46,7 @@ def add_ally(request, token) -> HttpResponse:
                     "executor_corp_id": ally_data.executor_corp_id,
                 },
             )
-            # Add/Update All Corporations to eveuniverse model
+            # Add/Update All Corporations AA model
             ally.populate_alliance()
 
             # Add the alliance to the EveEntity model

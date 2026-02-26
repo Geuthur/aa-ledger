@@ -11,7 +11,8 @@ from allianceauth.services.hooks import get_extension_logger
 from esi.exceptions import HTTPNotModified
 
 # Alliance Auth (External Libs)
-from eveuniverse.models import EvePlanet, EveType
+from eve_sde.models.map import Planet
+from eve_sde.models.types import ItemType
 
 # AA Ledger
 from ledger import __title__
@@ -93,7 +94,7 @@ class CharacterPlanetManager(models.Manager["PlanetContext"]):
         _planets_update = []
 
         for planet in objs:
-            eve_planet, _ = EvePlanet.objects.get_or_create_esi(id=planet.planet_id)
+            eve_planet = Planet.objects.get(id=planet.planet_id)
             _planets_ids.append(eve_planet.id)
 
             try:
@@ -193,10 +194,10 @@ class PlanetDetailsQuerySet(models.QuerySet):
         # Process pins
         for pin in planet.pins:
             pin_id = pin["pin_id"]
-            item_type, _ = EveType.objects.get_or_create_esi(id=pin["type_id"])
+            item_type = ItemType.objects.get(id=pin["type_id"])
 
             # Skip Command Center
-            if pin["type_id"] in EveType.objects.filter(eve_group_id=1027).values_list(
+            if pin["type_id"] in ItemType.objects.filter(group_id=1027).values_list(
                 "id", flat=True
             ):
                 continue
@@ -205,21 +206,19 @@ class PlanetDetailsQuerySet(models.QuerySet):
             factory_dict[pin_id] = {
                 "facility_id": pin["type_id"],
                 "facility_name": item_type.name,
-                "facility_type": (
-                    item_type.eve_group.name if item_type.eve_group else "N/A"
-                ),
+                "facility_type": (item_type.group.name if item_type.group else "N/A"),
                 "ressources": [],
             }
 
             # Spaceport and Storage Facility
-            if pin["type_id"] in EveType.objects.filter(
-                eve_group_id__in=[1029, 1030]
+            if pin["type_id"] in ItemType.objects.filter(
+                group_id__in=[1029, 1030]
             ).values_list("id", flat=True):
                 factory_dict[pin_id]["storage"] = {}
                 self._storage_info(pin, factory_dict[pin_id])
 
             # Extractor
-            if pin["type_id"] in EveType.objects.filter(eve_group_id=1063).values_list(
+            if pin["type_id"] in ItemType.objects.filter(group_id=1063).values_list(
                 "id", flat=True
             ):
                 factory_dict[pin_id]["extractor"] = {}
@@ -234,7 +233,7 @@ class PlanetDetailsQuerySet(models.QuerySet):
     def _storage_info(self, pin: dict, facility_dict: dict):
         """Update per-facility dict and add all Storage Information."""
         for content in pin.get("contents", []):
-            item_type, _ = EveType.objects.get_or_create_esi(id=content["type_id"])
+            item_type = ItemType.objects.get(id=content["type_id"])
 
             item_type_id = content["type_id"]
             item_amount = content["amount"]
@@ -258,7 +257,7 @@ class PlanetDetailsQuerySet(models.QuerySet):
 
         # Get Product Eve Type
         if product_type_id:
-            item_type, _ = EveType.objects.get_or_create_esi(id=product_type_id)
+            item_type = ItemType.objects.get(id=product_type_id)
             product_type_name = item_type.name
 
         # Use timezone-aware datetimes and compute elapsed/total seconds
@@ -316,9 +315,7 @@ class PlanetDetailsQuerySet(models.QuerySet):
         for route in planet.routes:
             destination_pin_id = route["destination_pin_id"]
             source_pin_id = route["source_pin_id"]
-            content_type, _ = EveType.objects.get_or_create_esi(
-                id=route["content_type_id"]
-            )
+            content_type = ItemType.objects.get(id=route["content_type_id"])
 
             if destination_pin_id in factory_dict:
                 req_quantity = route["quantity"]

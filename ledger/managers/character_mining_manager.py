@@ -18,9 +18,6 @@ from django.utils import timezone
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from eveuniverse.models import EveSolarSystem, EveType
-
 # AA Ledger
 from ledger import __title__
 from ledger.app_settings import LEDGER_BULK_BATCH_SIZE, LEDGER_PRICE_PERCENTAGE
@@ -238,10 +235,6 @@ class CharacterMiningLedgerEntryManager(models.Manager["MiningLedgerContext"]):
                 old_events.append(_e)
             else:
                 new_events.append(_e)
-
-        # Ensure both EveType and EveSolarSystem objects exist before creating mining entries
-        EveType.objects.bulk_get_or_create_esi(ids=list(type_ids))
-        EveSolarSystem.objects.bulk_get_or_create_esi(ids=list(system_ids))
 
         if new_events:
             self.bulk_create(

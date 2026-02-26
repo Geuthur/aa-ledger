@@ -5,7 +5,8 @@ from unittest.mock import MagicMock, patch
 from django.test import override_settings
 
 # Alliance Auth (External Libs)
-from eveuniverse.models import EveSolarSystem, EveType
+from eve_sde.models.map import SolarSystem
+from eve_sde.models.types import ItemType
 
 # AA Ledger
 from ledger.tests import LedgerTestCase
@@ -27,7 +28,6 @@ LEDGER_CHARACTER_MINING_LEDGER_ENDPOINTS = [
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 @patch(MODULE_PATH + ".esi")
-@patch(MODULE_PATH + ".EveType.objects.bulk_get_or_create_esi")
 @patch(CHARACTEROWNER_PATH + ".update_evemarket_price")
 class TestCharacterMiningManager(LedgerTestCase):
     @classmethod
@@ -35,13 +35,13 @@ class TestCharacterMiningManager(LedgerTestCase):
         super().setUpClass()
         cls.audit = create_owner_from_user(user=cls.user)
 
-        cls.eve_type = EveType.objects.get(id=17425)
-        cls.eve_system = EveSolarSystem.objects.get(id=30004783)
+        cls.eve_type = ItemType.objects.get(id=17425)
+        cls.eve_system = SolarSystem.objects.get(id=30004783)
 
         cls.token = cls.user_character.user.token_set.first()
         cls.audit.get_token = MagicMock(return_value=cls.token)
 
-    def test_update_mining_ledger(self, _, __, mock_esi):
+    def test_update_mining_ledger(self, _, mock_esi):
         """
         Test updating the character mining ledger.
 

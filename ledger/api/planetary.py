@@ -125,11 +125,11 @@ class PlanetaryApiEndpoints:
                         id=details.planet.eve_planet.id,
                         name=details.planet.eve_planet.name,
                         type=EveTypeSchema(
-                            id=details.planet.eve_planet.eve_type.id,
-                            name=details.planet.eve_planet.eve_type.name,
+                            id=details.planet.eve_planet.item_type.id,
+                            name=details.planet.eve_planet.item_type.name,
                             icon=get_icon_render_url(
-                                type_id=details.planet.eve_planet.eve_type.id,
-                                type_name=details.planet.eve_planet.eve_type.name,
+                                type_id=details.planet.eve_planet.item_type.id,
+                                type_name=details.planet.eve_planet.item_type.name,
                                 size=32,
                                 as_html=True,
                             ),
@@ -207,10 +207,10 @@ class PlanetaryApiEndpoints:
                     id=planet_details.planet.eve_planet.id,
                     name=planet_details.planet.eve_planet.name,
                     type=EveTypeSchema(
-                        id=planet_details.planet.eve_planet.eve_type.id,
-                        name=planet_details.planet.eve_planet.eve_type.name,
+                        id=planet_details.planet.eve_planet.item_type.id,
+                        name=planet_details.planet.eve_planet.item_type.name,
                         icon=get_type_render_url(
-                            type_id=planet_details.planet.eve_planet.eve_type.id,
+                            type_id=planet_details.planet.eve_planet.item_type.id,
                             size=32,
                             as_html=True,
                         ),
@@ -293,10 +293,10 @@ class PlanetaryApiEndpoints:
                     id=planet_details.planet.eve_planet.id,
                     name=planet_details.planet.eve_planet.name,
                     type=EveTypeSchema(
-                        id=planet_details.planet.eve_planet.eve_type.id,
-                        name=planet_details.planet.eve_planet.eve_type.name,
+                        id=planet_details.planet.eve_planet.item_type.id,
+                        name=planet_details.planet.eve_planet.item_type.name,
                         icon=get_type_render_url(
-                            type_id=planet_details.planet.eve_planet.eve_type.id,
+                            type_id=planet_details.planet.eve_planet.item_type.id,
                             size=32,
                             as_html=True,
                         ),
