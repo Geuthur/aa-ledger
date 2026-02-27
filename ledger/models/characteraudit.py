@@ -14,7 +14,8 @@ from allianceauth.eveonline.models import EveCharacter, Token
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
-from eveuniverse.models import EveMarketPrice, EveSolarSystem, EveType
+from eve_sde.models import ItemType
+from eve_sde.models.map import SolarSystem
 
 # AA Ledger
 from ledger import __title__
@@ -30,6 +31,7 @@ from ledger.managers.character_audit_manager import (
 from ledger.managers.character_journal_manager import CharWalletManager
 from ledger.managers.character_mining_manager import CharacterMiningLedgerEntryManager
 from ledger.models.general import (
+    EveMarketPrice,
     UpdateSectionResult,
     UpdateStatusBaseModel,
     WalletJournalEntry,
@@ -140,17 +142,17 @@ class CharacterOwner(models.Model):
         )
 
     @property
-    def mining_ledger(self):
+    def mining_ledger(self) -> models.QuerySet["CharacterMiningLedger"]:
         """Get the mining ledger for this character."""
         return self.ledger_character_mining
 
     @property
-    def wallet_journal(self):
+    def wallet_journal(self) -> models.QuerySet["CharacterWalletJournalEntry"]:
         """Get the wallet journal for this character."""
         return self.ledger_character_journal
 
     @property
-    def update_status(self):
+    def update_status(self) -> models.QuerySet["CharacterUpdateStatus"]:
         return self.ledger_update_status
 
     def get_portrait(self, size: int = 64, as_html: bool = False) -> str:
@@ -252,10 +254,10 @@ class CharacterMiningLedger(models.Model):
     )
     date = models.DateTimeField()
     type = models.ForeignKey(
-        EveType, on_delete=models.CASCADE, related_name="ledger_evetype"
+        ItemType, on_delete=models.CASCADE, related_name="ledger_evetype"
     )
     system = models.ForeignKey(
-        EveSolarSystem, on_delete=models.CASCADE, related_name="ledger_evesolarsystem"
+        SolarSystem, on_delete=models.CASCADE, related_name="ledger_evesolarsystem"
     )
     quantity = models.IntegerField()
 
@@ -268,7 +270,7 @@ class CharacterMiningLedger(models.Model):
         return f"{mining_record.date.strftime('%Y%m%d')}-{mining_record.type_id}-{character_id}-{mining_record.solar_system_id}"
 
     @staticmethod
-    def update_evemarket_price():  # Dont want to make a task only for this
+    def update_evemarket_price():
         """Update Prices for the EveMarketPrice."""
         updated = 0
         cached_update = cache.get(f"{LEDGER_CACHE_KEY}-eve-market-price", False)
@@ -285,10 +287,13 @@ class CharacterMiningLedger(models.Model):
         try:
             if LEDGER_USE_COMPRESSED:
                 type_name = f"Compressed {self.type.name}"
-                price = EveType.objects.get(name=type_name).market_price.average_price
+                # price = ItemType.objects.get(name=type_name).market_price.average_price
+                price = EveMarketPrice.objects.get(
+                    eve_type__name=type_name
+                ).average_price
             else:
-                price = self.type.market_price.average_price
-        except (EveMarketPrice.DoesNotExist, EveType.DoesNotExist):
+                price = EveMarketPrice.objects.get(eve_type=self.type).average_price
+        except (EveMarketPrice.DoesNotExist, ItemType.DoesNotExist):
             price = None
         return price
 

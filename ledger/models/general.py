@@ -21,6 +21,9 @@ from allianceauth.eveonline.models import (
 )
 from allianceauth.services.hooks import get_extension_logger
 
+# Alliance Auth (External Libs)
+from eve_sde.models import ItemType
+
 # AA Ledger
 from ledger import __title__, app_settings
 from ledger.helpers.eveonline import (
@@ -28,7 +31,7 @@ from ledger.helpers.eveonline import (
     get_character_portrait_url,
     get_corporation_logo_url,
 )
-from ledger.managers.general_manager import EveEntityManager
+from ledger.managers.general_manager import EveEntityManager, EveMarketPriceManager
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -169,6 +172,27 @@ class EveEntity(models.Model):
 
     def needs_update(self):
         return self.last_update + datetime.timedelta(days=7) < timezone.now()
+
+
+class EveMarketPrice(models.Model):
+    """A market price of an Eve Online type"""
+
+    class Meta:
+        default_permissions = ()
+
+    objects: EveMarketPriceManager = EveMarketPriceManager()
+
+    eve_type = models.ForeignKey(
+        ItemType,
+        on_delete=models.CASCADE,
+        related_name="+",
+    )
+    adjusted_price = models.FloatField(default=None, null=True)
+    average_price = models.FloatField(default=None, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"{self.eve_type}: {self.average_price}"
 
 
 class UpdateSectionResult(NamedTuple):

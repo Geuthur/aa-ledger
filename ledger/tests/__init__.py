@@ -12,7 +12,6 @@ from django.urls import reverse
 # AA Ledger
 from ledger.tests.testdata.integrations.allianceauth import load_allianceauth
 from ledger.tests.testdata.integrations.eveentity import load_eveentity
-from ledger.tests.testdata.integrations.eveuniverse import load_eveuniverse
 from ledger.tests.testdata.utils import create_user_from_evecharacter
 from ledger.views.alliance.add_ally import add_ally
 from ledger.views.character.add_char import add_char
@@ -57,7 +56,6 @@ class LedgerTestCase(NoSocketsTestCase):
 
     Pre-Load:
         * Alliance Auth Characters, Corporation, Alliance Data
-        * Eve Universe Data
         * Eve Entity Data
         * Taken User IDs: 1001, 1002, 1003, 1004, 1005
 
@@ -108,7 +106,6 @@ class LedgerTestCase(NoSocketsTestCase):
         super().setUpClass()
         # Initialize Alliance Auth test data
         load_allianceauth()
-        load_eveuniverse()
         load_eveentity()
 
         # Request Factory

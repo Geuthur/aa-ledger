@@ -2,7 +2,7 @@
 from unittest.mock import patch
 
 # AA Ledger
-from ledger.models.general import EveEntity
+from ledger.models.general import EveEntity, EveMarketPrice
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.esi_stub_openapi import EsiEndpoint, create_esi_client_stub
 
@@ -11,6 +11,7 @@ MODULE_PATH = "ledger.managers.general_manager"
 LEDGER_EVE_ENTITY_ENDPOINTS = [
     EsiEndpoint("Universe", "PostUniverseNames", "ids"),
     EsiEndpoint("Universe", "GetUniverseNames", "ids"),
+    EsiEndpoint("Market", "GetMarketsPrices", ()),
 ]
 
 
@@ -117,3 +118,31 @@ class TestGeneralManager(LedgerTestCase):
         self.assertEqual(result.eve_id, 9999)
         self.assertEqual(result.name, "New Test Character")
         self.assertTrue(created)
+
+    @patch("ledger.managers.general_manager.esi")
+    def test_update_or_create_esi_market_price(self, mock_esi):
+        """
+        Test updating or creating EveMarketPrice from ESI data.
+
+        This test verifies that the EveMarketPrice is correctly updated or created
+        based on data fetched from the ESI API. It checks that the market price has the
+        expected eve_type_id and average_price, and that the created flag is set to True.
+
+        ### Expected Result
+        - EveMarketPrice is updated or created correctly.
+        - Market price has correct eve_type_id and average_price.
+        - Created flag is True.
+        """
+        # Test Data
+        mock_esi.client = create_esi_client_stub(endpoints=LEDGER_EVE_ENTITY_ENDPOINTS)
+
+        # Test Action
+        result = EveMarketPrice.objects.update_from_esi()
+
+        # Expected Results
+        self.assertEqual(result, 1)
+        self.assertTrue(
+            EveMarketPrice.objects.filter(
+                eve_type_id=17425, average_price=100.0
+            ).exists()
+        )

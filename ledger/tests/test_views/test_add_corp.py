@@ -36,9 +36,7 @@ class TestAddCorpView(LedgerTestCase):
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertEqual(
-            response.url, reverse("ledger:corporation_ledger", args=[2001])
-        )
+        self.assertEqual(response.url, reverse("ledger:corporation_overview"))
         self.assertTrue(mock_tasks.update_corporation.apply_async.called)
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(

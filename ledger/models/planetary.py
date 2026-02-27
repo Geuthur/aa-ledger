@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
-from eveuniverse.models import EvePlanet
+from eve_sde.models.map import Planet
 
 # AA Ledger
 from ledger import __title__
@@ -43,7 +43,7 @@ class CharacterPlanet(models.Model):
     name = models.CharField(max_length=100, null=True, default=None)
 
     eve_planet = models.ForeignKey(
-        EvePlanet, on_delete=models.CASCADE, related_name="ledger_planet"
+        Planet, on_delete=models.CASCADE, related_name="ledger_planet"
     )
 
     character = models.ForeignKey(

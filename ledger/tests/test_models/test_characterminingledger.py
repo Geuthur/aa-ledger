@@ -6,10 +6,12 @@ from unittest.mock import patch
 from django.utils import timezone
 
 # Alliance Auth (External Libs)
-from eveuniverse.models import EveMarketPrice, EveSolarSystem, EveType
+from eve_sde.models.map import SolarSystem
+from eve_sde.models.types import ItemType
 
 # AA Ledger
 from ledger.models.characteraudit import CharacterMiningLedger
+from ledger.models.general import EveMarketPrice
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.utils import (
     create_miningledger,
@@ -24,11 +26,11 @@ class TestCharacterMiningLedgerModel(LedgerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.audit = create_owner_from_user(cls.user, owner_type="character")
-        cls.eve_type = EveType.objects.get(id=17425)
-        cls.eve_system = EveSolarSystem.objects.get(id=30004783)
+        cls.eve_type = ItemType.objects.get(id=17425)
+        cls.eve_system = SolarSystem.objects.get(id=30004783)
 
-        cls.eve_type2 = EveType.objects.get(id=16268)
-        cls.eve_type_price = EveType.objects.get(id=28437)
+        cls.eve_type2 = ItemType.objects.get(id=16268)
+        cls.eve_type_price = ItemType.objects.get(id=28437)
 
         cls.miningentry = create_miningledger(
             character=cls.audit,

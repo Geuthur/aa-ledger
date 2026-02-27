@@ -46,7 +46,7 @@ def add_ally(request, token) -> HttpResponse:
                     "executor_corp_id": ally_data.executor_corp_id,
                 },
             )
-            # Add/Update All Corporations to eveuniverse model
+            # Add/Update All Corporations AA model
             ally.populate_alliance()
 
             # Add the alliance to the EveEntity model
@@ -66,5 +66,5 @@ def add_ally(request, token) -> HttpResponse:
                 alliance_name=char.alliance_name,
             )
             messages.warning(request, msg)
-            return redirect("ledger:alliance_ledger", alliance_id=char.alliance_id)
-    return redirect("ledger:alliance_ledger", alliance_id=ally.alliance_id)
+            return redirect("ledger:alliance_overview")
+    return redirect("ledger:alliance_overview")

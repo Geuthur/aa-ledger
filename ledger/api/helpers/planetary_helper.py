@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
-from eveuniverse.models import EveType
+from eve_sde.models.types import ItemType
 
 # AA Ledger
 from ledger import __title__
@@ -200,7 +200,7 @@ def get_storage_info(planet_details: CharacterPlanetDetails) -> list[StorageSche
         storage = factory.get("storage", {}) or {}
         for type_id, stored in storage.items():
             # Get Eve Type
-            type_data = EveType.objects.get_or_create_esi(id=type_id)[0]
+            type_data = ItemType.objects.get(id=type_id)
 
             # Get Amount if Available
             amount = (

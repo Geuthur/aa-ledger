@@ -57,7 +57,7 @@ class TestAddAllyView(LedgerTestCase):
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertEqual(response.url, reverse("ledger:alliance_ledger", args=[3001]))
+        self.assertEqual(response.url, reverse("ledger:alliance_overview"))
         self.assertEqual(mock_messages.info.call_count, 1)
 
     @patch(MODULE_PATH + ".provider")
@@ -94,7 +94,7 @@ class TestAddAllyView(LedgerTestCase):
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertEqual(response.url, reverse("ledger:alliance_ledger", args=[3005]))
+        self.assertEqual(response.url, reverse("ledger:alliance_overview"))
         self.assertEqual(mock_messages.success.call_count, 1)
         mock_get.assert_called_once_with(alliance_id=3001)
         mock_provider.get_alliance.assert_called_once_with(3001)
@@ -126,6 +126,6 @@ class TestAddAllyView(LedgerTestCase):
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertEqual(response.url, reverse("ledger:alliance_ledger", args=[3001]))
+        self.assertEqual(response.url, reverse("ledger:alliance_overview"))
         self.assertEqual(mock_messages.warning.call_count, 1)
         mock_get_or_create.assert_not_called()

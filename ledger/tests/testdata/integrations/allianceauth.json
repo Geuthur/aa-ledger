@@ -207,5 +207,330 @@
             "alliance_name": "Voices of War",
             "alliance_ticker": "VOW"
         }
+    ],
+    "EveCategory": [
+        {
+            "id": 2,
+            "name": "Celestial",
+            "published": true
+        },
+        {
+            "id": 4,
+            "name": "Material",
+            "published": true
+        },
+        {
+            "id": 25,
+            "name": "Asteroid",
+            "published": true
+        },
+        {
+            "id": 42,
+            "name": "Planetary Resources",
+            "published": true
+        },
+        {
+            "id": 43,
+            "name": "Planetary Commodities",
+            "published": true
+        },
+        {
+            "id": 65,
+            "name": "Structure",
+            "published": true
+        }
+    ],
+    "EveGroup": [
+        {
+            "category_id": 2,
+            "id": 7,
+            "name": "Planet",
+            "published": false
+        },
+        {
+            "category_id": 25,
+            "id": 450,
+            "name": "Arkonor",
+            "published": true
+        },
+        {
+            "category_id": 25,
+            "id": 465,
+            "name": "Ice",
+            "published": true
+        },
+        {
+            "category_id": 42,
+            "id": 1033,
+            "name": "Planet Liquid-Gas - Raw Resource",
+            "published": true
+        },
+        {
+            "category_id": 43,
+            "id": 1034,
+            "name": "Refined Commodities - Tier 2",
+            "published": true
+        },
+        {
+            "category_id": 43,
+            "id": 1042,
+            "name": "Basic Commodities - Tier 1",
+            "published": true
+        }
+    ],
+    "EveConstellation": [
+        {
+            "region_id": 10000060,
+            "id": 20000699,
+            "name": "LSC-4P",
+            "position_x": -4.055529772550624e17,
+            "position_y": 6.744814196037672e16,
+            "position_z": -2.885111598682538e17
+        },
+        {
+            "region_id": 10000042,
+            "id": 20000304,
+            "name": "Aldodan",
+            "position_x": -1.0747745827663346e+17,
+            "position_y": -6953093208971083.0,
+            "position_z": 4.036681485589451e+16
+        },
+        {
+            "region_id": 10000030,
+            "id": 20000372,
+            "name": "Hed",
+            "position_x": -1.282693384263374e+17,
+            "position_y": 3.8212719069804984e+16,
+            "position_z": 7556108809294752.0
+        }
+    ],
+    "EveRegion": [
+        {
+            "description": "\"Never Again\"",
+            "id": 10000030,
+            "name": "Heimatar"
+        },
+        {
+            "description": "It has long been an established fact of civilization that wherever a seat of government lies, then so will a concentration of its subjects, the better to fuel the halls of bureaucracy.  In this, the Republic has been no exception and in locating their Parliament and Justice Department in the Gedulf constellation, they guaranteed a huge population influx.  This population needs supporting, and so some of the largest Matari corporations also have their head offices here, making the region bustle with activity, not unlike a large Metropolis.",
+            "id": 10000042,
+            "name": "Metropolis"
+        },
+        {
+            "description": "\"Never Again\"",
+            "id": 10000060,
+            "name": "Delve"
+        }
+    ],
+    "EveSolarSystem": [
+        {
+            "constellation_id": 20000699,
+            "star_id": null,
+            "id": 30004783,
+            "name": "N8D9-Z",
+            "position_x": -3.997667726720811e17,
+            "position_y": 6.678881359632571e16,
+            "position_z": -2.690098844885066e17,
+            "security_status": -0.47704941034317017
+        },
+        {
+            "constellation_id": 20000304,
+            "star_id": null,
+            "id": 30002063,
+            "name": "Helgatild",
+            "position_x": -9.933649837287458e+16,
+            "position_y": -1.0099325834620358e+16,
+            "position_z": 3.0712591164613148e+16,
+            "security_status": 0.151897594332695
+        },
+        {
+            "constellation_id": 20000372,
+            "star_id": null,
+            "id": 30002542,
+            "name": "Auga",
+            "position_x": -1.280818422914163e+17,
+            "position_y": 4.273309719085835e+16,
+            "position_z": 6568509050290774.0,
+            "security_status": 0.38548383116722107
+        }
+    ],
+    "EveType": [
+        {
+            "capacity": 0.0,
+            "description": "Gas planets are characterized by a deep, opaque upper atmosphere, usually composed primarily of light elements such as hydrogen or helium. Simple chemicals can add a range of hues and shades in the visual spectrum, and the interaction between upwellings and rapidly circulating pressure bands result in a huge variety of visible surface structures. A similar level of diversity can be found beneath the cloud-tops: the inner composition of a given gas planet might belong to any one of a dozen broad groups, with no two planets entirely alike in this regard.",
+            "group_id": 7,
+            "id": 13,
+            "mass": 1e+35,
+            "name": "Planet (Gas)",
+            "portion_size": 1,
+            "published": false,
+            "radius": 10000.0,
+            "volume": 1.0
+        },
+        {
+            "capacity": 0.0,
+            "description": "Asteroids are small, irregularly shaped rocky bodies that orbit the sun. They are smaller than planets and are sometimes called minor planets or planetoids. Most asteroids are found in the asteroid belt, a region of space between Mars and Jupiter. Asteroids are made of rock, metals, and other elements. They have irregular shapes and are often pitted or cratered. Some asteroids are large enough to have their own moons.",
+            "group_id": 450,
+            "mass": 1e+35,
+            "id": 17425,
+            "name": "Crimson Arkonor",
+            "portion_size": 100,
+            "published": true,
+            "radius": 1,
+            "volume": 16
+        },
+        {
+            "id": 2268,
+            "name": "Aqueous Liquids",
+            "capacity": 0,
+            "mass": 0,
+            "packaged_volume": 0.005,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume": 0.005,
+            "group_id": 1033,
+            "description": "The abundance of water on terrestrial planets is often a misconception: What many refer to offhandedly as \"water\" is often an amalgamation of many liquids, microscopic particles, and saturated compounds combined with water and other liquids. Aqueous liquids represent those liquids from which pure water can be separated easily from waste or hazardous particles, but only using the proper equipment."
+        },
+        {
+            "id": 2309,
+            "name":"Ionic Solutions",
+            "capacity": 0,
+            "mass": 0,
+            "packaged_volume": 0.005,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume": 0.005,
+            "group_id": 1033,
+            "description":"An electrolyte found in a raw, natural form is called an ionic solution, especially in terms of planetary astronomy. Only after a lengthy process of extraction and refining can the resulting fluid go on to be used for medical, industrial, or nutritive applications."
+        },
+        {
+            "id": 2390,
+            "name":"Electrolytes",
+            "capacity": 0.0,
+            "mass": 0,
+            "packaged_volume": 0.19,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume": 0.19,
+            "group_id": 7,
+            "description":"This conductive liquid is able to carry an electrical current due to its unique ionic properties, making it ideal for use as a reactive coolant, a high-energy fuel, or a transference medium for power plants."
+        },
+        {
+            "id": 2534,
+            "name":"Gas Launchpad",
+            "capacity": 0.0,
+            "mass": 0,
+            "packaged_volume": 0.19,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume": 0.19,
+            "group_id": 7,
+            "description":"."
+        },
+        {
+            "id": 2557,
+            "name":"Storm Launchpad",
+            "capacity": 0.0,
+            "mass": 0,
+            "packaged_volume": 0.19,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume": 0.19,
+            "group_id": 7,
+            "description":"."
+        },
+        {
+            "id": 3060,
+            "name":"Gas Extractor Control Unit",
+            "capacity": 0.0,
+            "mass": 0,
+            "packaged_volume": 0.19,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume": 0.19,
+            "group_id": 7,
+            "description":"."
+        },
+        {
+            "id": 3645,
+            "name":"Water",
+            "capacity": 0,
+            "mass": 0,
+            "packaged_volume": 0.19,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume": 0.19,
+            "group_id": 1042,
+            "description":"Water is one of the basic conditional elements of human survival. Most worlds have this compound in relative short supply and hence must rely on starship freight."
+        },
+        {
+            "id": 9832,
+            "name":"Coolant",
+            "capacity": 0,
+            "mass": 0,
+            "packaged_volume":0.75,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume": 0.75,
+            "group_id": 1034,
+            "description":"This specially blended fluid is ideal for transferring thermal energy away from sensitive machinery or computer components, rerouting it to heat sinks so it can be eliminated from the system."
+        },
+        {
+            "id": 16268,
+            "name": "Gelidus",
+            "capacity": 0,
+            "mass": 1000,
+            "packaged_volume": 1000,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume": 1000,
+            "group_id": 465,
+            "description": "Fairly rare and very valuable, Gelidus-type ice formations are a large-scale source of strontium clathrates, one of the rarest ice solids found in the universe, in addition to which they contain unusually large concentrations of heavy water and liquid ozone.\r\n\r\nAvailable in <color='0xFFFF0000'>0.0<\/color> security status solar systems or lower."
+        },
+        {
+            "id": 28437,
+            "name": "Compressed Gelidus",
+            "capacity": 0,
+            "mass": 1000,
+            "packaged_volume": 100,
+            "portion_size": 1,
+            "radius": 1,
+            "published": 1,
+            "volume": 100,
+            "group_id": 465,
+            "description": "Fairly rare and very valuable, Gelidus-type ice formations are a large-scale source of strontium clathrates, one of the rarest ice solids found in the universe, in addition to which they contain unusually large concentrations of heavy water and liquid ozone.\r\n\r\nThis material is compressed and a much more compact form of the original material."
+        }
+    ],
+    "EvePlanet": [
+        {
+            "id": 4001,
+            "name": "Test Planet I",
+            "last_updated": "2024-02-14 22:38:23.813892",
+            "position_x": 1539254041784,
+            "position_y": -233186718285,
+            "position_z": -634258364444,
+            "solar_system_id": 30004783,
+            "type_id": 13,
+            "enabled_sections": 0
+        },
+        {
+            "id": 4002,
+            "name": "Test Planet I",
+            "last_updated": "2024-02-14 22:38:23.813892",
+            "position_x": 1539254041784,
+            "position_y": -233186718285,
+            "position_z": -634258364444,
+            "solar_system_id": 30004783,
+            "type_id": 13,
+            "enabled_sections": 0
+        }
     ]
 }

@@ -8,7 +8,6 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("eveuniverse", "0010_alter_eveindustryactivityduration_eve_type_and_more"),
         ("ledger", "0003_alter_characteraudit_options_and_more"),
     ]
 

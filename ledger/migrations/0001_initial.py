@@ -12,7 +12,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("eveonline", "0017_alliance_and_corp_names_are_not_unique"),
-        ("eveuniverse", "0010_alter_eveindustryactivityduration_eve_type_and_more"),
     ]
 
     operations = [
