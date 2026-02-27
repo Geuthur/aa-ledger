@@ -441,6 +441,15 @@
          }
       }
    },
+   "Market": {
+      "GetMarketsPrices": [
+         {
+            "type_id": 17425,
+            "adjusted_price": 1000.00,
+            "average_price": 100.00
+         }
+      ]
+   },
    "Universe": {
       "PostUniverseNames": {
          "[1001]": [
