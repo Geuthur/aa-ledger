@@ -8,10 +8,10 @@ from django.utils import timezone
 # Alliance Auth (External Libs)
 from eve_sde.models.map import SolarSystem
 from eve_sde.models.types import ItemType
-from eveuniverse.models import EveMarketPrice, EveType
 
 # AA Ledger
 from ledger.models.characteraudit import CharacterMiningLedger
+from ledger.models.general import EveMarketPrice
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.utils import (
     create_miningledger,
@@ -31,8 +31,6 @@ class TestCharacterMiningLedgerModel(LedgerTestCase):
 
         cls.eve_type2 = ItemType.objects.get(id=16268)
         cls.eve_type_price = ItemType.objects.get(id=28437)
-
-        cls.deprecated_eve_type = EveType.objects.get(id=28437)
 
         cls.miningentry = create_miningledger(
             character=cls.audit,
@@ -65,7 +63,7 @@ class TestCharacterMiningLedgerModel(LedgerTestCase):
             solar_system_id=1,
         )
         cls.eve_market_price = EveMarketPrice.objects.create(
-            eve_type=cls.deprecated_eve_type,
+            eve_type=cls.eve_type_price,
             average_price=100,
         )
 

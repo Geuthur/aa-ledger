@@ -10,18 +10,18 @@ __app_name_useragent__ = "AA-Ledger"
 
 __github_url__ = f"https://github.com/Geuthur/{__package_name__}"
 
-__character_operations__ = [
+__operations__ = [
     "GetCharactersCharacterIdWalletJournal",
     "GetCharactersCharacterIdRoles",
     "GetCharactersCharacterIdPlanets",
     "GetCharactersCharacterIdPlanetsPlanetId",
     "GetCharactersCharacterIdMining",
-]
-
-__corporation_operations__ = [
+    # Market
+    "GetMarketsPrices",
+    # Corporation
     "GetCorporationsCorporationIdWallets",
     "GetCorporationsCorporationIdWalletsDivisionJournal",
     "GetCorporationsCorporationIdDivisions",
+    # Universe
+    "PostUniverseNames",
 ]
-
-__universe_operations__ = ["PostUniverseNames"]

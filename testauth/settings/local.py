@@ -58,7 +58,6 @@ if os.environ.get("USE_MYSQL", True) is True:
 INSTALLED_APPS += [
     "allianceauth.services.modules.discord",
     PACKAGE,
-    "eveuniverse",
 ]
 # By default, apps are prevented from having public views for security reasons.
 # If you want to allow specific apps to have public views,

@@ -31,7 +31,7 @@ from ledger.helpers.eveonline import (
     get_character_portrait_url,
     get_corporation_logo_url,
 )
-from ledger.managers.general_manager import EveEntityManager
+from ledger.managers.general_manager import EveEntityManager, EveMarketPriceManager
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -177,6 +177,11 @@ class EveEntity(models.Model):
 class EveMarketPrice(models.Model):
     """A market price of an Eve Online type"""
 
+    class Meta:
+        default_permissions = ()
+
+    objects: EveMarketPriceManager = EveMarketPriceManager()
+
     eve_type = models.ForeignKey(
         ItemType,
         on_delete=models.CASCADE,
@@ -184,17 +189,7 @@ class EveMarketPrice(models.Model):
     )
     adjusted_price = models.FloatField(default=None, null=True)
     average_price = models.FloatField(default=None, null=True)
-    price_date = models.DateField(default=timezone.localdate, db_index=True)
-
-    # objects = EveMarketPriceManager()
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["eve_type", "price_date"],
-                name="ledger_evemarketprice_type_price_date_uniq",
-            )
-        ]
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
         return f"{self.eve_type}: {self.average_price}"

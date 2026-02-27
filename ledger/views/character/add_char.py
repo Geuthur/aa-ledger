@@ -40,6 +40,4 @@ def add_char(request, token):
         character_name=char.eve_character.character_name,
     )
     messages.info(request, msg)
-    return redirect(
-        "ledger:character_ledger", character_id=char.eve_character.character_id
-    )
+    return redirect("ledger:index")

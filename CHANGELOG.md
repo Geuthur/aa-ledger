@@ -11,6 +11,19 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- `django-eveonline-sde` as new static data provider
+- `EveMarketPrice` Model for pricing
+
+### Fixed
+
+- Add Char, Corp, Ally redirect issue
+
+### Removed
+
+- `django-eveuniverse` dependency
+
 ## [2.0.0] - 06.02.2026
 
 ### Added

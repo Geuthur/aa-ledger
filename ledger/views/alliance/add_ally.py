@@ -66,5 +66,5 @@ def add_ally(request, token) -> HttpResponse:
                 alliance_name=char.alliance_name,
             )
             messages.warning(request, msg)
-            return redirect("ledger:alliance_ledger", alliance_id=char.alliance_id)
-    return redirect("ledger:alliance_ledger", alliance_id=ally.alliance_id)
+            return redirect("ledger:alliance_overview")
+    return redirect("ledger:alliance_overview")

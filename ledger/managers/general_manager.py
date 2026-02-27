@@ -3,10 +3,14 @@ from typing import TYPE_CHECKING, Any
 
 # Django
 from django.db import models
+from django.utils import timezone
 
 # Alliance Auth
 from allianceauth.eveonline.providers import ObjectNotFound
 from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from eve_sde.models import ItemType
 
 # AA Ledger
 from ledger import __title__
@@ -16,8 +20,12 @@ from ledger.providers import AppLogger, esi
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
 if TYPE_CHECKING:
+    # Alliance Auth
+    from esi.stubs import MarketsPricesGetItem
+
     # AA Ledger
     from ledger.models.general import EveEntity as EveEntityContext
+    from ledger.models.general import EveMarketPrice as EveMarketPriceContext
 
 
 class EveEntityManager(models.Manager["EveEntityContext"]):
@@ -79,3 +87,61 @@ class EveEntityManager(models.Manager["EveEntityContext"]):
                 "category": entity_data.category,
             },
         )
+
+
+class EveMarketPriceManager(models.Manager["EveMarketPriceContext"]):
+    def update_from_esi(self) -> int:
+        """Update or create EveMarketPrice from ESI data."""
+
+        prices = self.fetch_data_from_esi()
+        if not prices:
+            logger.debug("No market price data fetched from ESI.")
+            return 0
+
+        updated_prices = self.update_objs_from_esi(prices)
+        return updated_prices
+
+    def fetch_data_from_esi(self) -> list["MarketsPricesGetItem"]:
+        """Fetch market price data from ESI."""
+        response = esi.client.Market.GetMarketsPrices().results(use_etag=False)
+        return response
+
+    def update_objs_from_esi(self, objs: list["MarketsPricesGetItem"]) -> int:
+        """Update or create EveMarketPrice objects from ESI data."""
+        # pylint: disable=import-outside-toplevel
+        # AA Ledger
+        from ledger.models.general import EveMarketPrice
+
+        _update_price = []
+        _new_price = []
+        _esi_market_type_ids = {obj.type_id for obj in objs}
+        _current_market_prices = EveMarketPrice.objects.filter(
+            eve_type_id__in=_esi_market_type_ids
+        ).values_list("eve_type_id", flat=True)
+
+        for obj in objs:
+            eve_market_type = EveMarketPrice(
+                eve_type=ItemType.objects.get(
+                    id=obj.type_id
+                ),  # TODO: optimize get? to avoid that much queries
+                average_price=obj.average_price,
+                adjusted_price=obj.adjusted_price,
+                updated_at=timezone.now(),
+            )
+
+            if obj.type_id in _current_market_prices:
+                _update_price.append(eve_market_type)
+            else:
+                _new_price.append(eve_market_type)
+
+        if _update_price:
+            self.bulk_update(
+                _update_price,
+                fields=["average_price", "adjusted_price", "updated_at"],
+                batch_size=LEDGER_BULK_BATCH_SIZE,
+            )
+        if _new_price:
+            self.bulk_create(
+                _new_price, batch_size=LEDGER_BULK_BATCH_SIZE, ignore_conflicts=True
+            )
+        return len(objs)

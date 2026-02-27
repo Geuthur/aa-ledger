@@ -41,7 +41,7 @@ class TestAddCharView(LedgerTestCase):
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertEqual(response.url, reverse("ledger:character_ledger", args=[1001]))
+        self.assertEqual(response.url, reverse("ledger:index"))
         self.assertTrue(mock_tasks.update_character.apply_async.called)
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(
