@@ -11,6 +11,12 @@ Section Order:
 ### Removed
 -->
 
+## [2.1.1] - 02.03.2026
+
+### Fixed
+
+- Bulk_Update Error, Optimize market price updates by reusing existing objects and reducing timezone calls
+
 ## [2.1.0] - 27.02.2026
 
 > [!IMPORTANT]
@@ -1414,5 +1420,6 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 [1.0.4]: https://github.com/Geuthur/aa-ledger/compare/v1.0.3...v1.0.4 "1.0.4"
 [2.0.0]: https://github.com/Geuthur/aa-ledger/compare/v1.0.4...v2.0.0 "2.0.0"
 [2.1.0]: https://github.com/Geuthur/aa-ledger/compare/v2.0.0...v2.1.0 "2.1.0"
+[2.1.1]: https://github.com/Geuthur/aa-ledger/compare/v2.1.0...v2.1.1 "2.1.1"
 [in development]: https://github.com/Geuthur/aa-ledger/compare/v2.1.0...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-ledger/issues "report any issues"
