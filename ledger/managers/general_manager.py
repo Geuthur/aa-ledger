@@ -115,23 +115,30 @@ class EveMarketPriceManager(models.Manager["EveMarketPriceContext"]):
         _update_price = []
         _new_price = []
         _esi_market_type_ids = {obj.type_id for obj in objs}
-        _current_market_prices = EveMarketPrice.objects.filter(
-            eve_type_id__in=_esi_market_type_ids
-        ).values_list("eve_type_id", flat=True)
+        _current_market_prices = {
+            market_price.eve_type_id: market_price
+            for market_price in EveMarketPrice.objects.filter(
+                eve_type_id__in=_esi_market_type_ids
+            )
+        }
+        _now = timezone.now()
 
         for obj in objs:
-            eve_market_type = EveMarketPrice(
-                eve_type=ItemType.objects.get(
-                    id=obj.type_id
-                ),  # TODO: optimize get? to avoid that much queries
-                average_price=obj.average_price,
-                adjusted_price=obj.adjusted_price,
-                updated_at=timezone.now(),
-            )
-
             if obj.type_id in _current_market_prices:
+                eve_market_type = _current_market_prices[obj.type_id]
+                eve_market_type.average_price = obj.average_price
+                eve_market_type.adjusted_price = obj.adjusted_price
+                eve_market_type.updated_at = _now
                 _update_price.append(eve_market_type)
             else:
+                eve_market_type = EveMarketPrice(
+                    eve_type=ItemType.objects.get(
+                        id=obj.type_id
+                    ),  # TODO: optimize get? to avoid that much queries
+                    average_price=obj.average_price,
+                    adjusted_price=obj.adjusted_price,
+                    updated_at=_now,
+                )
                 _new_price.append(eve_market_type)
 
         if _update_price:
