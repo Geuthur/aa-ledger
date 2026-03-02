@@ -6,7 +6,10 @@ requires = [
 
 [project]
 name = "aa-ledger"
-description = "Character and Corporation statistics, including detailed information on ESS, Ratting, Trading, Mining, and other activities."
+description = """\
+    Character and Corporation statistics, including detailed information on ESS, Ratting, Trading, Mining, and other \
+    activities.\
+    """
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
@@ -53,10 +56,8 @@ urls.Homepage = "https://github.com/Geuthur/aa-ledger"
 urls.Source = "https://github.com/Geuthur/aa-ledger"
 urls.Tracker = "https://github.com/Geuthur/aa-ledger/issues"
 
-[tool.hatch.build]
-include = [
+[tool.hatch]
+build.include = [
     "/ledger",
 ]
-
-[tool.hatch.version]
-path = "ledger/__init__.py"
+version.path = "ledger/__init__.py"
