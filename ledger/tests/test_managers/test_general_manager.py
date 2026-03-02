@@ -1,4 +1,5 @@
 # Standard Library
+from types import SimpleNamespace
 from unittest.mock import patch
 
 # AA Ledger
@@ -146,3 +147,27 @@ class TestGeneralManager(LedgerTestCase):
                 eve_type_id=17425, average_price=100.0
             ).exists()
         )
+
+    def test_update_objs_from_esi_updates_existing_market_price(self):
+        """Test existing EveMarketPrice entries are updated via bulk_update."""
+        EveMarketPrice.objects.create(
+            eve_type_id=17425,
+            average_price=1.0,
+            adjusted_price=1.0,
+        )
+
+        result = EveMarketPrice.objects.update_objs_from_esi(
+            [
+                SimpleNamespace(
+                    type_id=17425,
+                    average_price=42.0,
+                    adjusted_price=84.0,
+                )
+            ]
+        )
+
+        updated_obj = EveMarketPrice.objects.get(eve_type_id=17425)
+
+        self.assertEqual(result, 1)
+        self.assertEqual(updated_obj.average_price, 42.0)
+        self.assertEqual(updated_obj.adjusted_price, 84.0)
