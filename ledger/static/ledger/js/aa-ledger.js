@@ -99,7 +99,7 @@ const _exportTableToCSV = (dt, columnIndex, filename = 'ledger.csv') => {
         const row = [];
         for (let k = 0; k < exportColIndexes.length; k++) {
             const ci = exportColIndexes[k];
-            let raw = '';
+            let raw;
             try {
                 const renderMode = 'sort';
                 raw = dt.cell(rowIndex, ci).render(renderMode);
