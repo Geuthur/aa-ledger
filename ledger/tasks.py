@@ -48,14 +48,9 @@ TASK_DEFAULTS_BIND_ONCE = {**TASK_DEFAULTS, **{"bind": True, "base": QueueOnce}}
 # Default params for tasks that need run once only.
 TASK_DEFAULTS_ONCE = {**TASK_DEFAULTS, **{"base": QueueOnce}}
 
-TASK_DEFAULTS_BIND_ONCE_CHARACTER = {
+TASK_DEFAULTS_BIND_ONCE_OWNER = {
     **TASK_DEFAULTS_BIND_ONCE,
-    **{"once": {"keys": ["character_pk"], "graceful": True}},
-}
-
-TASK_DEFAULTS_BIND_ONCE_CORPORATION = {
-    **TASK_DEFAULTS_BIND_ONCE,
-    **{"once": {"keys": ["corporation_pk"], "graceful": True}},
+    **{"once": {"keys": ["eve_id"], "graceful": True}},
 }
 
 
@@ -133,9 +128,9 @@ def update_all_characters(runs: int = 0, force_refresh=False):
     CharacterOwner.objects.disable_characters_with_no_owner()
 
     characters = CharacterOwner.objects.select_related("eve_character").filter(active=1)
-    for char in characters:
+    for character in characters:
         update_character.apply_async(
-            args=[char.pk], kwargs={"force_refresh": force_refresh}
+            args=[character.eve_id], kwargs={"force_refresh": force_refresh}
         )
         runs = runs + 1
     logger.debug("Queued %s Character Audit Tasks", runs)
@@ -162,28 +157,28 @@ def update_subset_characters(subset=2, min_runs=50, max_runs=500, force_refresh=
         .distinct()[:characters_count]
     )
 
-    for char in characters:
+    for character in characters:
         update_character.apply_async(
-            args=[char.pk], kwargs={"force_refresh": force_refresh}
+            args=[character.eve_id], kwargs={"force_refresh": force_refresh}
         )
     logger.debug("Queued %s Character Audit Tasks", len(characters))
 
 
-@shared_task(**TASK_DEFAULTS_BIND_ONCE_CHARACTER)
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
 def update_character(
-    self: Task, character_pk: int, force_refresh=False
+    self: Task, eve_id: int, force_refresh=False
 ) -> bool:  # pylint: disable=unused-argument
     """Update a character owner
 
     Args:
-        character_pk (int): Primary key of the CharacterOwner to update
+        eve_id (int): Eve ID of the CharacterOwner to update
         force_refresh (bool): Whether to force a refresh of all sections
 
     Returns:
         True if the task was successful, False otherwise
     """
     character = CharacterOwner.objects.prefetch_related("ledger_update_status").get(
-        pk=character_pk
+        eve_character__character_id=eve_id
     )
 
     if character.is_orphan:
@@ -226,7 +221,9 @@ def update_character(
         task_name = f"update_char_{section}"
         task = globals().get(task_name)
         que.append(
-            task.si(character.pk, force_refresh=force_refresh).set(priority=priority)
+            task.si(character.eve_id, force_refresh=force_refresh).set(
+                priority=priority
+            )
         )
 
     chain(que).apply_async()
@@ -238,54 +235,54 @@ def update_character(
     return True
 
 
-@shared_task(**TASK_DEFAULTS_BIND_ONCE_CHARACTER)
-def update_char_wallet_journal(self: Task, character_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_char_wallet_journal(self: Task, eve_id: int, force_refresh: bool):
     return _update_character_section(
         task=self,
-        character_pk=character_pk,
+        eve_id=eve_id,
         section=CharacterUpdateSection.WALLET_JOURNAL,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**TASK_DEFAULTS_BIND_ONCE_CHARACTER)
-def update_char_mining_ledger(self: Task, character_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_char_mining_ledger(self: Task, eve_id: int, force_refresh: bool):
     return _update_character_section(
         task=self,
-        character_pk=character_pk,
+        eve_id=eve_id,
         section=CharacterUpdateSection.MINING_LEDGER,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**TASK_DEFAULTS_BIND_ONCE_CHARACTER)
-def update_char_planets(self: Task, character_pk: int, force_refresh: bool):
-    logger.debug("Updating Planet Data for %s", character_pk)
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_char_planets(self: Task, eve_id: int, force_refresh: bool):
+    logger.debug("Updating Planet Data for %s", eve_id)
     return _update_character_section(
         task=self,
-        character_pk=character_pk,
+        eve_id=eve_id,
         section=CharacterUpdateSection.PLANETS,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**TASK_DEFAULTS_BIND_ONCE_CHARACTER)
-def update_char_planets_details(self: Task, character_pk: int, force_refresh: bool):
-    logger.debug("Updating Planet Details for %s", character_pk)
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_char_planets_details(self: Task, eve_id: int, force_refresh: bool):
+    logger.debug("Updating Planet Details for %s", eve_id)
     return _update_character_section(
         task=self,
-        character_pk=character_pk,
+        eve_id=eve_id,
         section=CharacterUpdateSection.PLANETS_DETAILS,
         force_refresh=force_refresh,
     )
 
 
 def _update_character_section(
-    task: Task, character_pk: int, section: str, force_refresh: bool
+    task: Task, eve_id: int, section: str, force_refresh: bool
 ):
     """Update a specific section of the character audit."""
     section = CharacterUpdateSection(section)
-    character = CharacterOwner.objects.get(pk=character_pk)
+    character = CharacterOwner.objects.get(eve_character__character_id=eve_id)
     logger.debug(
         "Updating %s for %s", section.label, character.eve_character.character_name
     )
@@ -310,10 +307,10 @@ def _update_character_section(
 # Corporation Audit - Tasks
 @shared_task(**TASK_DEFAULTS_ONCE)
 def update_all_corporations(runs: int = 0, force_refresh=False):
-    corps = CorporationOwner.objects.filter(active=1)
-    for corp in corps:
+    corporations = CorporationOwner.objects.filter(active=1)
+    for corporation in corporations:
         update_corporation.apply_async(
-            args=[corp.pk], kwargs={"force_refresh": force_refresh}
+            args=[corporation.eve_id], kwargs={"force_refresh": force_refresh}
         )
         runs = runs + 1
     logger.info("Queued %s Corporation Audit Tasks", runs)
@@ -344,19 +341,19 @@ def update_subset_corporations(
 
     for corp in corporations:
         update_corporation.apply_async(
-            args=[corp.pk], kwargs={"force_refresh": force_refresh}
+            args=[corp.eve_id], kwargs={"force_refresh": force_refresh}
         )
     logger.debug("Queued %s Corporation Audit Tasks", len(corporations))
 
 
-@shared_task(**TASK_DEFAULTS_BIND_ONCE_CORPORATION)
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
 def update_corporation(
-    self: Task, corporation_pk, force_refresh=False
+    self: Task, eve_id: int, force_refresh=False
 ) -> bool:  # pylint: disable=unused-argument
     """Update a corporation owner
 
     Args:
-        corporation_pk (int): Primary key of the CorporationOwner to update
+        eve_id (int): Eve ID of the CorporationOwner to update
         force_refresh (bool): Whether to force a refresh of all sections
 
     Returns:
@@ -364,7 +361,7 @@ def update_corporation(
     """
     corporation = CorporationOwner.objects.prefetch_related(
         "ledger_corporation_update_status"
-    ).get(pk=corporation_pk)
+    ).get(eve_corporation__corporation_id=eve_id)
 
     que = []
     priority = 7
@@ -401,7 +398,9 @@ def update_corporation(
         task_name = f"update_corp_{section}"
         task = globals().get(task_name)
         que.append(
-            task.si(corporation.pk, force_refresh=force_refresh).set(priority=priority)
+            task.si(corporation.eve_id, force_refresh=force_refresh).set(
+                priority=priority
+            )
         )
 
     chain(que).apply_async()
@@ -413,44 +412,42 @@ def update_corporation(
     return True
 
 
-@shared_task(**TASK_DEFAULTS_BIND_ONCE_CORPORATION)
-def update_corp_wallet_division_names(
-    self: Task, corporation_pk: int, force_refresh: bool
-):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corp_wallet_division_names(self: Task, eve_id: int, force_refresh: bool):
     return _update_corporation_section(
         task=self,
-        corporation_pk=corporation_pk,
+        eve_id=eve_id,
         section=CorporationUpdateSection.WALLET_DIVISION_NAMES,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**TASK_DEFAULTS_BIND_ONCE_CORPORATION)
-def update_corp_wallet_division(self: Task, corporation_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corp_wallet_division(self: Task, eve_id: int, force_refresh: bool):
     return _update_corporation_section(
         task=self,
-        corporation_pk=corporation_pk,
+        eve_id=eve_id,
         section=CorporationUpdateSection.WALLET_DIVISION,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**TASK_DEFAULTS_BIND_ONCE_CORPORATION)
-def update_corp_wallet_journal(self: Task, corporation_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corp_wallet_journal(self: Task, eve_id: int, force_refresh: bool):
     return _update_corporation_section(
         task=self,
-        corporation_pk=corporation_pk,
+        eve_id=eve_id,
         section=CorporationUpdateSection.WALLET_JOURNAL,
         force_refresh=force_refresh,
     )
 
 
 def _update_corporation_section(
-    task: Task, corporation_pk: int, section: str, force_refresh: bool
+    task: Task, eve_id: int, section: str, force_refresh: bool
 ):
     """Update a specific section of the character audit."""
     section = CorporationUpdateSection(section)
-    corporation = CorporationOwner.objects.get(pk=corporation_pk)
+    corporation = CorporationOwner.objects.get(eve_corporation__corporation_id=eve_id)
     logger.debug(
         "Updating %s for %s",
         section.label,
