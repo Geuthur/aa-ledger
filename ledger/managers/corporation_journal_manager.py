@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
+from esi.errors import TokenError
 from esi.exceptions import HTTPNotModified
 
 # AA Ledger
@@ -239,6 +240,9 @@ class CorporationWalletManager(models.Manager["CorporationWalletJournalEntry"]):
 
         token = owner.get_token(scopes=req_scopes, req_roles=req_roles)
 
+        if not token:
+            raise TokenError("No valid token found for corporation.")
+
         divisions = CorporationWalletDivision.objects.filter(corporation=owner)
         is_updated = False
 
@@ -351,6 +355,9 @@ class CorporationDivisionManager(models.Manager["CorporationWalletDivision"]):
         req_roles = ["CEO", "Director", "Accountant", "Junior_Accountant"]
         token = owner.get_token(scopes=req_scopes, req_roles=req_roles)
 
+        if not token:
+            raise TokenError("No valid token found for corporation.")
+
         # Make the ESI request
         operation = esi.client.Wallet.GetCorporationsCorporationIdWallets(
             corporation_id=owner.eve_corporation.corporation_id,
@@ -380,6 +387,9 @@ class CorporationDivisionManager(models.Manager["CorporationWalletDivision"]):
         ]
         req_roles = ["CEO", "Director"]
         token = owner.get_token(scopes=req_scopes, req_roles=req_roles)
+
+        if not token:
+            raise TokenError("No valid token found for corporation.")
 
         # Make the ESI request
         operation = esi.client.Corporation.GetCorporationsCorporationIdDivisions(

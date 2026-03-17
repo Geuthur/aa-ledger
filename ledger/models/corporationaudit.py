@@ -95,7 +95,7 @@ class CorporationOwner(models.Model):
     def update_status(self):
         return self.ledger_corporation_update_status
 
-    def get_token(self, scopes, req_roles) -> Token:
+    def get_token(self, scopes: list, req_roles: list) -> Token:
         """Get the token for this corporation."""
         if "esi-characters.read_corporation_roles.v1" not in scopes:
             scopes.append("esi-characters.read_corporation_roles.v1")
@@ -110,7 +110,7 @@ class CorporationOwner(models.Model):
             try:
                 roles = esi.client.Character.GetCharactersCharacterIdRoles(
                     character_id=token.character_id, token=token
-                ).result(force_refresh=True)
+                ).result(use_etag=False)
 
                 has_roles = False
                 for role in roles.roles:

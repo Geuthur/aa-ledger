@@ -5,6 +5,9 @@ from unittest.mock import MagicMock, patch
 from django.test import override_settings
 from django.utils import timezone
 
+# Alliance Auth
+from esi.errors import TokenError
+
 # AA Ledger
 from ledger.models.general import EveEntity
 from ledger.tests import LedgerTestCase
@@ -113,6 +116,30 @@ class TestCharacterJournalManager(LedgerTestCase):
 
         obj = self.division.ledger_corporation_journal.get(entry_id=16)
         self.assertEqual(obj.amount, 10000)
+
+    def test_update_wallet_journal_no_token(self, mock_eveentity, mock_esi):
+        """
+        Test updating the wallet journal for a corporation when no valid token is available.
+
+        This test verifies that a TokenError is raised when attempting to update the wallet journal
+        without a valid token.
+
+        ### Expected Result
+        - A TokenError is raised indicating that no valid token was found.
+        """
+        # Test Data
+        mock_esi.client = create_esi_client_stub(
+            endpoints=LEDGER_CORPORATION_JOURNAL_ENDPOINTS
+        )
+
+        # Simulate no valid token by returning None
+        self.audit.get_token = MagicMock(return_value=None)
+
+        # Test Action and Expected Result
+        with self.assertRaises(TokenError) as context:
+            self.audit.update_wallet_journal(force_refresh=False)
+
+        self.assertIn("No valid token found for corporation", str(context.exception))
 
 
 class TestCorporationJournalManagerAnnotations(LedgerTestCase):
