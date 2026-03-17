@@ -82,6 +82,29 @@ class TestDivisionManager(LedgerTestCase):
         )
         self.assertEqual(obj.name, "Partner")
 
+    def test_update_division_names_no_token(self, mock_esi):
+        """Test updating the corporation division names with no valid token.
+
+        This test verifies that an appropriate error is raised when there is no valid token
+        for the corporation.
+
+        ### Expected Result
+        - TokenError is raised indicating no valid token found.
+        """
+        # Test Data
+        mock_esi.client = create_esi_client_stub(
+            endpoints=LEDGER_CORPORATION_DIVISION_ENDPOINTS
+        )
+
+        # Mock get_token to return None to simulate no valid token
+        self.audit.get_token = MagicMock(return_value=None)
+
+        # Test Action & Expected Result
+        with self.assertRaises(TokenError) as context:
+            self.audit.update_wallet_division_names(force_refresh=False)
+
+        self.assertIn("No valid token found for corporation", str(context.exception))
+
     def test_update_division(self, mock_esi):
         """
         Test updating the corporation division balances.
