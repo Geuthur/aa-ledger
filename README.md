@@ -105,15 +105,15 @@ To set up the Scheduled Tasks add following code to your `local.py`
 
 ```python
 if "ledger" in INSTALLED_APPS:
-    CELERYBEAT_SCHEDULE["ledger_character_audit_update_subset_characters"] = {
+    CELERYBEAT_SCHEDULE["AA Ledger :: Update Subset Characters"] = {
         "task": "ledger.tasks.update_subset_characters",
         "schedule": 1800,
     }
-    CELERYBEAT_SCHEDULE["ledger_corporation_audit_update_subset_corporations"] = {
+    CELERYBEAT_SCHEDULE["AA Ledger :: Update Subset Corporations"] = {
         "task": "ledger.tasks.update_subset_corporations",
         "schedule": 1800,
     }
-    CELERYBEAT_SCHEDULE["ledger_check_planetary_alarms"] = {
+    CELERYBEAT_SCHEDULE["AA Ledger :: Check Planetary Notification"] = {
         "task": "ledger.tasks.check_planetary_alarms",
         "schedule": 10800,
     }
