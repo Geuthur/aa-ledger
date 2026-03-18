@@ -30,7 +30,7 @@ Dieses System bietet vier Hauptklassen:
 **Wichtig:** Die `endpoints` Liste ist IMMER erforderlich! Sie definiert, welche ESI-Methoden verfügbar sind.
 
 ```python
-from taxsystem.tests.testdata.esi_stub_openapi import (
+from ledger.tests.testdata.esi_stub_openapi import (
     EsiEndpoint,
     create_esi_client_stub,
 )
@@ -64,7 +64,7 @@ stub = create_esi_client_stub(test_data)  # ❌ Fehler: endpoints fehlt
 ### Grundlegende Verwendung
 
 ```python
-from taxsystem.tests.testdata.esi_stub_openapi import (
+from ledger.tests.testdata.esi_stub_openapi import (
     EsiEndpoint,
     create_esi_client_stub,
 )
@@ -119,13 +119,13 @@ data_list = operation.results()
 
 ```python
 from unittest.mock import patch, PropertyMock
-from taxsystem.tests.testdata.esi_stub_openapi import (
+from ledger.tests.testdata.esi_stub_openapi import (
     EsiEndpoint,
     create_esi_client_stub,
 )
 
 
-@patch("taxsystem.providers.esi")
+@patch("ledger.providers.esi")
 def test_something(self, mock_esi):
     # Endpoints definieren
     endpoints = [
@@ -169,7 +169,7 @@ Sie können ESI-Exceptions über Endpoint-Definitionen simulieren:
 
 ```python
 from esi.exceptions import HTTPNotModified, HTTPClientError, HTTPServerError
-from taxsystem.tests.testdata.esi_stub_openapi import (
+from ledger.tests.testdata.esi_stub_openapi import (
     EsiEndpoint,
     create_esi_client_stub,
 )
@@ -335,7 +335,7 @@ erforderlich und wird validiert.
 
 ```python
 from esi.exceptions import HTTPNotModified, HTTPClientError
-from taxsystem.tests.testdata.esi_stub_openapi import (
+from ledger.tests.testdata.esi_stub_openapi import (
     EsiEndpoint,
     create_esi_client_stub,
 )

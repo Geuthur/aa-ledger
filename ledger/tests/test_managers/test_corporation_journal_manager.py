@@ -33,7 +33,7 @@ LEDGER_CORPORATION_JOURNAL_ENDPOINTS = [
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 @patch(MODULE_PATH + ".esi")
 @patch("ledger.models.general.EveEntity")
-class TestCharacterJournalManager(LedgerTestCase):
+class TestCorporationJournalManager(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
