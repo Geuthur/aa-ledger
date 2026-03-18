@@ -5,17 +5,15 @@ Example tests demonstrating usage of the ESI OpenAPI stub system.
 # Standard Library
 from unittest.mock import patch
 
-# Third Party
-# AA TaxSystem
-# AA Taxsystem
-from taxsystem.tests import NoSocketsTestCase
-from taxsystem.tests.testdata.esi_stub_openapi import (
+# Alliance Auth
+from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
+
+# AA Ledger
+from ledger.tests import NoSocketsTestCase
+from ledger.tests.testdata.esi_stub_openapi import (
     EsiEndpoint,
     create_esi_client_stub,
 )
-
-# Alliance Auth
-from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
 
 # Example test data configuration
 EXAMPLE_TEST_DATA = {
@@ -137,7 +135,7 @@ class TestEsiStubUsage(NoSocketsTestCase):
         self.assertEqual(len(result.skills), 1)
         self.assertEqual(result.skills[0].skill_id, 99999)
 
-    @patch("taxsystem.providers.esi")
+    @patch("ledger.providers.esi")
     def test_should_mock_esi(self, mock_esi):
         """
         Test should mock esi provider to return the stub client.

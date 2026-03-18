@@ -92,6 +92,11 @@ class CharacterOwner(models.Model):
         ]
 
     @property
+    def eve_id(self) -> int:
+        """Return the Eve ID of this character."""
+        return self.eve_character.character_id
+
+    @property
     def get_status(self) -> UpdateStatusBaseModel:
         """Get the status of this character."""
         if self.active is False:
