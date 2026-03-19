@@ -223,10 +223,20 @@ class CharacterMiningLedgerEntryManager(models.Manager["MiningLedgerContext"]):
             type_ids.add(entry.type_id)
             system_ids.add(entry.solar_system_id)
             pk = self.model.create_primary_key(owner.pk, entry)
+
+            # Convert to time zone supported datetime
+            try:
+                entry_date = timezone.make_aware(
+                    timezone.datetime.combine(entry.date, timezone.datetime.min.time()),
+                    timezone.utc,
+                )
+            except Exception:  # pylint: disable=broad-except
+                entry_date = entry.date
+
             _e = self.model(
                 character=owner,
                 id=pk,
-                date=entry.date,
+                date=entry_date,
                 type_id=entry.type_id,
                 system_id=entry.solar_system_id,
                 quantity=entry.quantity,
