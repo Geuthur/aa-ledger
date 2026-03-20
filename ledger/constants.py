@@ -27,7 +27,7 @@ NPC_ENTITIES = [
 ]
 
 
-class MonthChoice(models.TextChoices):
+class MonthChoice(models.IntegerChoices):
     JANUARY = 1, _("January")
     FEBRUARY = 2, _("February")
     MARCH = 3, _("March")
@@ -42,7 +42,7 @@ class MonthChoice(models.TextChoices):
     DECEMBER = 12, _("December")
 
 
-class DayChoice(models.TextChoices):
+class DayChoice(models.IntegerChoices):
     DAY_1 = 1, _("1")
     DAY_2 = 2, _("2")
     DAY_3 = 3, _("3")
