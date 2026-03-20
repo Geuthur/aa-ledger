@@ -43,7 +43,9 @@ dependencies = [
     "django-ninja>=1.5,<2",
 ]
 optional-dependencies.tests-allianceauth-development = [
+    "aa-discordnotify",
     "allianceauth @ git+https://gitlab.com/allianceauth/allianceauth#egg=master",
+    "allianceauth-discordbot",
     "coverage",
     "discordproxy",
     "factory-boy",
