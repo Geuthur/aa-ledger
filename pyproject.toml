@@ -38,7 +38,7 @@ dynamic = [
 ]
 dependencies = [
     "allianceauth>=4.12,<6",
-    "django-esi>=8,<9",
+    "django-esi>=8,<9.1",
     "django-eveonline-sde",
     "django-ninja>=1.5,<2",
 ]
