@@ -37,7 +37,7 @@ dynamic = [
     "version",
 ]
 dependencies = [
-    "allianceauth>=4.12,<5",
+    "allianceauth>=4.12,<6",
     "django-esi>=8,<9",
     "django-eveonline-sde",
     "django-ninja>=1.5,<2",
@@ -46,7 +46,6 @@ optional-dependencies.tests-allianceauth-development = [
     "allianceauth @ git+https://gitlab.com/allianceauth/allianceauth#egg=master",
     "coverage",
     "discordproxy",
-    "django-esi>=9.0.0a3,<10",
     "factory-boy",
 ]
 optional-dependencies.tests-allianceauth-latest = [
