@@ -11,9 +11,18 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
-from allianceauth.eveonline.providers import ObjectNotFound, provider
+from allianceauth.eveonline.providers import ObjectNotFound
 from allianceauth.services.hooks import get_extension_logger
 from esi.decorators import token_required
+
+# Fix AAv5 Test
+try:
+    # V5.#
+    # Alliance Auth
+    from allianceauth.eveonline.providers import open_api_provider as provider
+except ImportError:
+    # V4.#
+    from allianceauth.eveonline.providers import provider
 
 # AA Ledger
 from ledger import __title__
