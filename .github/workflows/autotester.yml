@@ -129,3 +129,71 @@ jobs:
           verbose: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  # Run Test Coverage AA 5 Development
+  test-coverage-development:
+    needs: [pre-commit]
+    name: AA Development (Python ${{ matrix.python-version }} with ${{ matrix.database }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      # Set Python versions to test against
+      matrix:
+        python-version:
+          - '3.10' # [LTS] Maintained until: October 2026
+          - '3.11' # [LTS] Maintained until: October 2027
+          - '3.12' # [LTS] Maintained until: October 2028
+        #  - '3.13' # [LTS] Maintained until: October 2029 AA does not yet support Python 3.13
+        # MySQL versions to test against
+        database:
+          # https://endoflife.date/mysql
+          - mysql:8.4     # [LTS] Maintained until: April 2032
+          # https://endoflife.date/mariadb and https://mariadb.com/kb/en/mariadb-server-release-dates/
+          - mariadb:10.11 # [LTS] Maintained until: February 2028
+          - mariadb:11.4 # [LTS] Maintained until: May 2029
+
+#    continue-on-error: ${{ matrix.python-version == '3.13' }}
+
+    # Set up services
+    services:
+      database:
+        image: ${{ matrix.database }}
+        env:
+          MYSQL_ROOT_PASSWORD: temp_password_aa_tox_tests
+          MYSQL_DATABASE: temp_allianceauth
+        ports:
+          - 3306:3306
+        options: --tmpfs /var/lib/mysql
+
+    steps:
+      # Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Redis
+        uses: shogo82148/actions-setup-redis@v1
+        with:
+          redis-version: 'latest'
+
+      - name: Verify Redis is running
+        run: |
+          redis-cli ping
+          redis-cli info
+
+      # Set up Python
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Install Tox and any other packages
+      - name: Install Tox and any other packages
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade tox tox-gh-actions
+
+      # Run Tox with the specified environment
+      - name: Run Tox
+        env:
+          TOX_ENV: allianceauth-development
+        run: tox -v -e ${{ env.TOX_ENV }}
