@@ -2,6 +2,7 @@
 
 # Django
 from django import forms
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 # AA Ledger
@@ -94,6 +95,11 @@ class CharacterDropdownForm(DropdownFormBaseModel):
             .distinct()
         )
 
+        if not years_qs.exists():
+            # If there are no entries, default to the current year
+            current_year = timezone.now().year
+            years_qs = [current_year]
+
         year_choices = [(str(y), str(y)) for y in years_qs]
         self.fields["year"].choices = year_choices
 
@@ -143,6 +149,11 @@ class CorporationDropdownForm(DropdownFormBaseModel):
             .distinct()
         )
 
+        if not years_qs.exists():
+            # If there are no entries, default to the current year
+            current_year = timezone.now().year
+            years_qs = [current_year]
+
         year_choices = [(str(y), str(y)) for y in years_qs]
         self.fields["year"].choices = year_choices
 
@@ -188,6 +199,11 @@ class AllianceDropdownForm(DropdownFormBaseModel):
             .order_by("-date__year")
             .distinct()
         )
+
+        if not years_qs.exists():
+            # If there are no entries, default to the current year
+            current_year = timezone.now().year
+            years_qs = [current_year]
 
         year_choices = [(str(y), str(y)) for y in years_qs]
         self.fields["year"].choices = year_choices
