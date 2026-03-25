@@ -37,14 +37,14 @@ dynamic = [
     "version",
 ]
 dependencies = [
-    "allianceauth>=4.12,<6",
-    "django-esi>=8,<9.1",
+    "allianceauth>=4.12",
+    "django-esi>=8",
     "django-eveonline-sde",
     "django-ninja>=1.5,<2",
 ]
 optional-dependencies.tests-allianceauth-development = [
     "aa-discordnotify",
-    "allianceauth @ git+https://gitlab.com/allianceauth/allianceauth#egg=master",
+    "allianceauth==5.0.0b1",
     "allianceauth-discordbot",
     "coverage",
     "discordproxy",
@@ -69,4 +69,3 @@ build.include = [
     "/ledger",
 ]
 version.path = "ledger/__init__.py"
-metadata.allow-direct-references = true
