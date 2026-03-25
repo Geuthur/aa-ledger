@@ -33,7 +33,9 @@ def add_char(request, token):
         },
     )[0]
     tasks.update_character.apply_async(
-        args=[char.pk], kwargs={"force_refresh": True}, priority=6
+        args=[char.eve_character.character_id],
+        kwargs={"force_refresh": True},
+        priority=6,
     )
 
     msg = _("{character_name} successfully added/updated to Ledger").format(
