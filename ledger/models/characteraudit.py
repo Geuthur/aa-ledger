@@ -293,13 +293,16 @@ class CharacterMiningLedger(models.Model):
             if LEDGER_USE_COMPRESSED:
                 type_name = f"Compressed {self.type.name}"
                 # price = ItemType.objects.get(name=type_name).market_price.average_price
-                price = (
-                    EveMarketPrice.objects.exclude(
-                        eve_type__name__startswith="Batch Compressed"
+                try:
+                    price = (
+                        EveMarketPrice.objects.exclude(
+                            eve_type__name__startswith="Batch Compressed"
+                        )
+                        .get(eve_type__name=type_name)
+                        .average_price
                     )
-                    .get(eve_type__name=type_name)
-                    .average_price
-                )
+                except EveMarketPrice.MultipleObjectsReturned:
+                    price = EveMarketPrice.objects.get(eve_type=self.type).average_price
             else:
                 price = EveMarketPrice.objects.get(eve_type=self.type).average_price
         except (EveMarketPrice.DoesNotExist, ItemType.DoesNotExist):
