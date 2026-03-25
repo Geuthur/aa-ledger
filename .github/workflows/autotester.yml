@@ -185,6 +185,12 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
+          
+      # AAv5 development branch requires libbz2-dev for some reason, so we need to install it before running Tox
+      - name: Install libbz2-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libbz2-dev
 
       # Install Tox and any other packages
       - name: Install Tox and any other packages
