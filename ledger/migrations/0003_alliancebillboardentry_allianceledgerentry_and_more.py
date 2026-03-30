@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("eveonline", "0018_alter_evecharacter_alliance_name_and_more"),
+        ("eveonline", "0017_alliance_and_corp_names_are_not_unique"),  # AAv4
         ("ledger", "0002_alter_characterowner_eve_character_and_more"),
     ]
 
