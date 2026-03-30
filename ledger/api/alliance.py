@@ -36,11 +36,10 @@ from ledger.api.schema import (
     OwnerSchema,
     UpdateStatusSchema,
 )
-from ledger.helpers.billboard import BillboardSystem
-from ledger.helpers.cache import CacheManager
 from ledger.helpers.eveonline import get_alliance_logo_url, get_corporation_logo_url
 from ledger.helpers.ledger_data import get_footer_text_class
 from ledger.helpers.ref_type import RefTypeManager
+from ledger.models import AllianceBillboardEntry, AllianceLedgerEntry
 from ledger.models.corporationaudit import (
     CorporationOwner,
     CorporationWalletJournalEntry,
@@ -79,16 +78,13 @@ class AllianceApiEndpoints:
     # pylint: disable=too-many-statements, function-redefined, duplicate-code
     # flake8: noqa: F811
     def __init__(self, api: NinjaAPI):
-        self.cache_manager = CacheManager()
-        self.billboard = BillboardSystem()
-
         @api.get(
             "alliance/{alliance_id}/date/{year}/",
             response={200: AllianceLedgerResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_alliance_ledger(request: WSGIRequest, alliance_id: int, year: int):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
+            """Get the ledger for an alliance for a specific year. Admin Endpoint."""
             return self._ledger_api_response(
                 request=request,
                 alliance_id=alliance_id,
@@ -103,7 +99,7 @@ class AllianceApiEndpoints:
         def get_alliance_ledger(
             request: WSGIRequest, alliance_id: int, year: int, month: int
         ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
+            """Get the ledger for an alliance for a specific year and month. Admin Endpoint."""
             return self._ledger_api_response(
                 request=request,
                 alliance_id=alliance_id,
@@ -123,7 +119,7 @@ class AllianceApiEndpoints:
             month: int,
             day: int,
         ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
+            """Get the ledger for an alliance for a specific year, month, and day. Admin Endpoint."""
             return self._ledger_api_response(
                 request=request,
                 alliance_id=alliance_id,
@@ -204,118 +200,8 @@ class AllianceApiEndpoints:
             eve_corporation__alliance__alliance_id=owner.alliance_id
         )
 
-        alliance_ledger_list: list[LedgerAllianceSchema] = []
-        for corporation in corporations:
-            wallet_journal = (
-                CorporationWalletJournalEntry.objects.filter(
-                    division__corporation=corporation,
-                    **request_info.to_date_query(),
-                )
-                # Exclude Zero Amount Entries
-                .exclude(amount=Decimal("0.00"))
-                # Exclude Internal Transfers
-                .exclude(
-                    first_party_id=corporation.eve_corporation.corporation_id,
-                    second_party_id=corporation.eve_corporation.corporation_id,
-                )
-            )
-
-            if not wallet_journal.exists():
-                continue
-
-            # Get IDs for Hashing
-            header_ids = list(wallet_journal.values_list("entry_id", flat=True))
-
-            # Add Alliance ID to header ids to ensure uniqueness
-            header_ids.append(owner.alliance_id)
-
-            # Create Ledger Hash
-            wallet_journal_hash = self.cache_manager.create_ledger_hash(header_ids)
-
-            # Get Cached Ledger if Available
-            response_ledger = self.cache_manager.get_cache_key(
-                ledger_hash=wallet_journal_hash, key="alliance"
-            )
-            if response_ledger is False:
-                logger.debug(f"Ledger Cache Miss for: {corporation}")
-
-                # Aggregate Data
-                bounty = wallet_journal.aggregate_bounty()
-                ess = wallet_journal.aggregate_ess()
-                miscellaneous = wallet_journal.aggregate_miscellaneous()
-                costs = wallet_journal.aggregate_costs()
-
-                total = sum(
-                    [
-                        bounty,
-                        ess,
-                        miscellaneous,
-                        costs,
-                    ]
-                )
-
-                response_ledger = LedgerAllianceSchema(
-                    corporation=EntitySchema(
-                        entity_id=corporation.eve_corporation.corporation_id,
-                        entity_name=corporation.eve_corporation.corporation_name,
-                        icon=get_corporation_logo_url(
-                            corporation_id=corporation.eve_corporation.corporation_id,
-                            corporation_name=corporation.eve_corporation.corporation_name,
-                            as_html=True,
-                        ),
-                    ),
-                    ledger=LedgerSchema(
-                        bounty=bounty,
-                        ess=ess,
-                        miscellaneous=miscellaneous,
-                        costs=costs,
-                        total=total,
-                    ),
-                    update_status=UpdateStatusSchema(
-                        status=corporation.get_status,
-                    ),
-                    actions=get_alliance_details_info_button(
-                        entity_id=corporation.eve_corporation.corporation_id,
-                        request_info=request_info,
-                    ),
-                )
-                # Cache Ledger Response
-                self.cache_manager.set_cache_key(
-                    key="alliance",
-                    ledger_hash=wallet_journal_hash,
-                    ledger_data=response_ledger,
-                )
-
-            # Add to Corporation Ledger List
-            alliance_ledger_list.append(response_ledger)
-        return alliance_ledger_list
-
-    # pylint: disable=too-many-locals
-    def generate_billboard_data(
-        self,
-        owner: EveAllianceInfo,
-        alliance_ledger_list: list[LedgerAllianceSchema],
-        request_info: AllianceLedgerRequestInfo,
-    ) -> BillboardSchema:
-        """
-        Generate the billboard data for the corporation ledger.
-
-        This Helper function generates the billboard data for the corporation
-        based on the provided alliance ledger data.
-
-        Args:
-            owner (CorporationOwner): The corporation owner object.
-            alliance_ledger_list (list[LedgerAllianceSchema]): The list of alliance ledger data.
-            request_info (LedgerRequestInfo): The request information object.
-        Returns:
-            BillboardSchema: The generated billboard data.
-        """
-        corporations = CorporationOwner.objects.filter(
-            eve_corporation__alliance__alliance_id=owner.alliance_id
-        )
-
         # Get Wallet Journal Entries
-        corp_wallet_journal = (
+        corporations_journal = (
             CorporationWalletJournalEntry.objects.filter(
                 division__corporation__in=corporations,
                 **request_info.to_date_query(),
@@ -337,56 +223,194 @@ class AllianceApiEndpoints:
             )
         )
 
-        # Get IDs for Hashing
-        header_ids = list(corp_wallet_journal.values_list("entry_id", flat=True))
+        # Check for Existing Billboard Entry
+        billboard = AllianceBillboardEntry.objects.filter(
+            owner=owner,
+            year=request_info.year,
+            month=request_info.month,
+            day=request_info.day,
+        ).first()
 
-        # Skip Alliance if no Ledger Entries
-        if len(header_ids) == 0:
+        alliance_ledger_list: list[LedgerAllianceSchema] = []
+        for corporation in corporations:
+            wallet_journal = (
+                CorporationWalletJournalEntry.objects.filter(
+                    division__corporation=corporation,
+                    **request_info.to_date_query(),
+                )
+                # Exclude Zero Amount Entries
+                .exclude(amount=Decimal("0.00"))
+                # Exclude Internal Transfers
+                .exclude(
+                    first_party_id=corporation.eve_corporation.corporation_id,
+                    second_party_id=corporation.eve_corporation.corporation_id,
+                )
+            )
+
+            if not wallet_journal.exists():
+                continue
+
+            # Check for Existing Ledger Entry
+            ledger_data = AllianceLedgerEntry.objects.filter(
+                owner=owner,
+                corporation_id=corporation.eve_corporation.corporation_id,
+                year=request_info.year,
+                month=request_info.month,
+                day=request_info.day,
+            ).first()
+
+            # If Ledger Entry Exists, Use it. Otherwise, Aggregate Data and Create/Update Ledger Entry.
+            if ledger_data is not None and ledger_data.is_final:
+                # Use Cached Ledger Data
+                response_ledger = LedgerAllianceSchema(
+                    corporation=EntitySchema(
+                        entity_id=corporation.eve_corporation.corporation_id,
+                        entity_name=corporation.eve_corporation.corporation_name,
+                        icon=get_corporation_logo_url(
+                            corporation_id=corporation.eve_corporation.corporation_id,
+                            corporation_name=corporation.eve_corporation.corporation_name,
+                            as_html=True,
+                        ),
+                    ),
+                    ledger=LedgerSchema(
+                        bounty=ledger_data.bounty,
+                        ess=ledger_data.ess,
+                        miscellaneous=ledger_data.miscellaneous,
+                        costs=ledger_data.costs,
+                        total=sum(
+                            [
+                                ledger_data.bounty,
+                                ledger_data.ess,
+                                ledger_data.costs,
+                                ledger_data.miscellaneous,
+                            ]
+                        ),
+                    ),
+                    update_status=UpdateStatusSchema(
+                        status=corporation.get_status,
+                    ),
+                    actions=get_alliance_details_info_button(
+                        entity_id=corporation.eve_corporation.corporation_id,
+                        request_info=request_info,
+                    ),
+                )
+                alliance_ledger_list.append(response_ledger)
+                continue
+
+            logger.debug(
+                "Aggregating data for corporation %s (%s)",
+                corporation.eve_corporation.corporation_name,
+                corporation.eve_corporation.corporation_id,
+            )
+
+            # Aggregate Data
+            bounty = wallet_journal.aggregate_bounty()
+            ess = wallet_journal.aggregate_ess()
+            miscellaneous = wallet_journal.aggregate_miscellaneous()
+            costs = wallet_journal.aggregate_costs()
+
+            # Update or Create Ledger Entry to Store Aggregated Data
+            AllianceLedgerEntry.objects.update_or_create(
+                owner=owner,
+                corporation_id=corporation.eve_corporation.corporation_id,
+                year=request_info.year,
+                month=request_info.month,
+                day=request_info.day,
+                defaults={
+                    "name": owner.alliance_name,
+                    "bounty": bounty,
+                    "ess": ess,
+                    "costs": costs,
+                    "miscellaneous": miscellaneous,
+                    "final_data": request_info.is_final_data,
+                },
+            )
+
+            total = sum(
+                [
+                    bounty,
+                    ess,
+                    miscellaneous,
+                    costs,
+                ]
+            )
+
+            response_ledger = LedgerAllianceSchema(
+                corporation=EntitySchema(
+                    entity_id=corporation.eve_corporation.corporation_id,
+                    entity_name=corporation.eve_corporation.corporation_name,
+                    icon=get_corporation_logo_url(
+                        corporation_id=corporation.eve_corporation.corporation_id,
+                        corporation_name=corporation.eve_corporation.corporation_name,
+                        as_html=True,
+                    ),
+                ),
+                ledger=LedgerSchema(
+                    bounty=bounty,
+                    ess=ess,
+                    miscellaneous=miscellaneous,
+                    costs=costs,
+                    total=total,
+                ),
+                update_status=UpdateStatusSchema(
+                    status=corporation.get_status,
+                ),
+                actions=get_alliance_details_info_button(
+                    entity_id=corporation.eve_corporation.corporation_id,
+                    request_info=request_info,
+                ),
+            )
+            # Add to Corporation Ledger List
+            alliance_ledger_list.append(response_ledger)
+
+        # If No Billboard Data Exists or Existing Billboard Data is Not Final, Update or Create Billboard Entry for Owner
+        if billboard is None or not billboard.is_final:
+            logger.debug(
+                "Updating billboard entry for alliance %s (%s)",
+                owner.alliance_name,
+                owner.alliance_id,
+            )
+            AllianceBillboardEntry.objects.update_or_create_billboard_entry(
+                owner=owner,
+                request_info=request_info,
+                wallet_journal=corporations_journal,
+                ledger_list=alliance_ledger_list,
+            )
+        return alliance_ledger_list
+
+    # pylint: disable=too-many-locals
+    def generate_billboard_data(
+        self,
+        owner: EveAllianceInfo,
+        request_info: AllianceLedgerRequestInfo,
+    ) -> BillboardSchema:
+        """
+        Generate the billboard data for the corporation ledger.
+
+        This Helper function generates the billboard data for the corporation
+        based on the provided alliance ledger data.
+
+        Args:
+            owner (EveAllianceInfo): The alliance owner object.
+            request_info (AllianceLedgerRequestInfo): The request information object.
+        Returns:
+            BillboardSchema: The generated billboard data.
+        """
+        # Get Billboard Entry for Owner
+        billboard = AllianceBillboardEntry.objects.filter(
+            owner=owner,
+            year=request_info.year,
+            month=request_info.month,
+            day=request_info.day,
+        ).first()
+
+        # If Billboard Data Still Doesn't Exist, Return Empty Billboard Schema
+        if billboard is None:
             return BillboardSchema()
 
-        # Add Alliance ID to header ids to ensure uniqueness
-        header_ids.append(owner.alliance_id)
-
-        # Create Ledger Hash
-        wallet_journal_hash = self.cache_manager.create_ledger_hash(header_ids)
-
-        # Get Cached Billboard if Available
-        response_billboard = self.cache_manager.get_cache_key(
-            key="alliance-billboard", ledger_hash=wallet_journal_hash
+        response_billboard = BillboardSchema(
+            xy_chart=billboard.xy_billboard, chord_chart=billboard.chord_billboard
         )
-
-        if response_billboard is False:
-            logger.debug(f"Billboard Cache for: {owner}")
-            # Create Timelines
-            wallet_timeline = (
-                self.billboard.create_timeline(
-                    journal=corp_wallet_journal, request_info=request_info
-                )
-                .annotate_bounty_income()
-                .annotate_ess_income()
-                .annotate_miscellaneous()
-            )
-
-            # Generate XY Billboard
-            xy_results = self.billboard.create_or_update_results(wallet_timeline)
-            xy_billboard = self.billboard.create_xy_billboard(
-                results=xy_results, request_info=request_info
-            )
-            # Initialize Chord Billboard
-            chord_billboard = self.billboard.create_chord_billboard(
-                alliance_ledger_list
-            )
-
-            response_billboard = BillboardSchema(
-                xy_chart=xy_billboard, chord_chart=chord_billboard
-            )
-            # Cache Billboard Response
-            self.cache_manager.set_cache_key(
-                key="alliance-billboard",
-                ledger_hash=wallet_journal_hash,
-                ledger_data=response_billboard,
-            )
-        # Billboard Data Generation Logic Here
         return response_billboard
 
     # pylint: disable=duplicate-code
@@ -441,7 +465,6 @@ class AllianceApiEndpoints:
         # Generate Billboard Data
         billboard = self.generate_billboard_data(
             owner=owner,
-            alliance_ledger_list=corporation_ledger_list,
             request_info=request_info,
         )
 
@@ -563,14 +586,13 @@ class AllianceDetailsApiEndpoints:
         request_info: AllianceLedgerRequestInfo,
     ) -> LedgerDetailsResponse:
         """
-        Generate the detailed ledger data for a character.
-        This Helper function generates the detailed ledger data for a character
+        Generate the detailed ledger data for an alliance.
+        This Helper function generates the detailed ledger data for an alliance
         based on the provided date query.
 
         Args:
             journal (QuerySet): The wallet journal entries.
-            mining (QuerySet): The mining ledger entries. Defaults to None.
-            request_info (LedgerRequestInfo): The request information containing date and section details.
+            request_info (AllianceLedgerRequestInfo): The request information containing date and section details.
         Returns:
             LedgerDetailsResponse: The generated ledger details response.
         """
