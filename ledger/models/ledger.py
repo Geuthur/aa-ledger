@@ -13,7 +13,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
 from ledger import __title__
-from ledger.managers.character_ledger_manger import BillboardEntryManager
+from ledger.managers.ledger_manager import BillboardEntryManager
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
 from ledger.providers import AppLogger
