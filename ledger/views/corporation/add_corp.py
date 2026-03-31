@@ -44,8 +44,7 @@ def add_corp(request, token) -> HttpResponse:
     )[0]
 
     tasks.update_corporation.apply_async(
-        args=[corp.eve_corporation.corporation_id],
-        kwargs={"force_refresh": True},
+        kwargs={"eve_id": corp.eve_corporation.corporation_id, "force_refresh": True},
         priority=6,
     )
     msg = _("{corporation_name} successfully added/updated to Ledger").format(
