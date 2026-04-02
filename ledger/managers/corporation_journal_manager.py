@@ -171,16 +171,16 @@ class CorporationWalletManager(models.Manager["CorporationWalletJournalEntry"]):
 
     def annotate_bounty_income(
         self,
-    ) -> CorporationWalletQuerySet:
+    ) -> models.QuerySet:
         return self.get_queryset().annotate_bounty_income()
 
-    def annotate_ess_income(self) -> CorporationWalletQuerySet:
+    def annotate_ess_income(self) -> models.QuerySet:
         return self.get_queryset().annotate_ess_income()
 
-    def annotate_miscellaneous(self) -> CorporationWalletQuerySet:
+    def annotate_miscellaneous(self) -> models.QuerySet:
         return self.get_queryset().annotate_miscellaneous()
 
-    def annotate_costs(self) -> CorporationWalletQuerySet:
+    def annotate_costs(self) -> models.QuerySet:
         return self.get_queryset().annotate_costs()
 
     def aggregate_bounty(self) -> dict:

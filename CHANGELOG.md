@@ -11,6 +11,27 @@ Section Order:
 ### Removed
 -->
 
+> [!WARNING]
+>
+> If you are not having already follow all instructions for v2.1.0 you need to do that now, otherwise this version will not work!
+
+### Added
+
+- Added new properties in CharacterOwner and CorporationOwner models to access recent ledger and billboard entries.
+
+### Changed
+
+- Introduced new models: CharacterLedgerEntry, CorporationLedgerEntry, CharacterBillboardEntry, CorporationBillboardEntry, and AllianceLedgerEntry.
+- Updated CorporationApiEndpoints to utilize new ledger models for processing and storing ledger data.
+- Enhanced request info schema to include is_final_data property for determining finality of data.
+- Refactored billboard data generation logic to streamline the process and improve performance.
+- Updated migrations to create new ledger and billboard entry models in the database.
+
+### Removed
+
+- Removed CacheManager and BillboardSystem from CorporationApiEndpoints.
+- Removed deprecated cache handling code and replaced it with direct database interactions for ledger entries.
+
 ## [2.1.1] - 02.03.2026
 
 ### Fixed

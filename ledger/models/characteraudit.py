@@ -2,6 +2,9 @@
 Character Audit Model
 """
 
+# Standard Library
+from typing import TYPE_CHECKING
+
 # Django
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
@@ -44,6 +47,10 @@ from ledger.models.helpers.update_manager import (
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
+
+if TYPE_CHECKING:
+    # AA Ledger
+    from ledger.models.ledger import CharacterBillboardEntry, CharacterLedgerEntry
 
 
 class CharacterOwner(models.Model):
@@ -155,6 +162,16 @@ class CharacterOwner(models.Model):
     def wallet_journal(self) -> models.QuerySet["CharacterWalletJournalEntry"]:
         """Get the wallet journal for this character."""
         return self.ledger_character_journal
+
+    @property
+    def ledger_entry(self) -> models.QuerySet["CharacterLedgerEntry"]:
+        """Get the most recent ledger entry for this character, if one exists."""
+        return self.ledger_character_entry
+
+    @property
+    def ledger_billboard_entry(self) -> models.QuerySet["CharacterBillboardEntry"]:
+        """Get the most recent ledger entry for this character, if one exists."""
+        return self.ledger_char_billboard_entries
 
     @property
     def update_status(self) -> models.QuerySet["CharacterUpdateStatus"]:
