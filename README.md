@@ -150,19 +150,22 @@ LOGGING["loggers"]["extensions.ledger"] = {
 }
 ```
 
-### Step 4 - Migration to AA<a name="step4"></a>
-
-```shell
-python manage.py collectstatic
-python manage.py migrate
-```
-
-### Step 4.1 - Preload EVE SDE Data<a name="step41">
+### Step 4 - Migrate & Preload EVE SDE Data<a name="step4"></a>
 
 AA Ledger uses EVE SDE data to map IDs to names for EveTypes. You will need to preload some data from SDE once.
 
 ```shell
+python manage.py migrate eve_sde
 python manage.py esde_load_sde
+```
+
+### Step 4.1 - Migrate App and collect static<a name="step41">
+
+Migrate the app and collect static.
+
+```shell
+python manage.py migrate ledger
+python manage.py collectstatic --noinput
 ```
 
 ### Step 5 - Setting up Permissions<a name="step5"></a>
