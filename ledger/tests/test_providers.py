@@ -8,6 +8,7 @@ from aiopenapi3 import RequestError
 
 # Django
 from django.test import override_settings
+from django.utils import timezone
 
 # Alliance Auth
 from esi.exceptions import (
@@ -18,7 +19,7 @@ from esi.exceptions import (
 )
 
 # AA Ledger
-from ledger.providers import retry_task_on_esi_error
+from ledger.providers import DownTimeError, retry_task_on_esi_error
 from ledger.tests import NoSocketsTestCase
 
 MODULE_PATH = "ledger.providers"
@@ -110,7 +111,7 @@ class TestRetryTaskOnESIError(NoSocketsTestCase):
         self.task.retry.assert_called_once()
         call_kwargs = self.task.retry.call_args[1]
         self.assertEqual(call_kwargs["exc"], exc)
-        self.assertEqual(call_kwargs["countdown"], 62)
+        self.assertEqual(call_kwargs["countdown"], 602)
 
     @patch(MODULE_PATH + ".random.uniform")
     def test_should_retry_on_http_503_error(self, mock_random):
@@ -133,7 +134,7 @@ class TestRetryTaskOnESIError(NoSocketsTestCase):
         self.assertEqual(str(context.exception), "Retry called")
         self.task.retry.assert_called_once()
         call_kwargs = self.task.retry.call_args[1]
-        self.assertEqual(call_kwargs["countdown"], 63)
+        self.assertEqual(call_kwargs["countdown"], 603)
 
     @patch(MODULE_PATH + ".random.uniform")
     def test_should_retry_on_http_504_error(self, mock_random):
@@ -156,7 +157,7 @@ class TestRetryTaskOnESIError(NoSocketsTestCase):
         self.assertEqual(str(context.exception), "Retry called")
         self.task.retry.assert_called_once()
         call_kwargs = self.task.retry.call_args[1]
-        self.assertEqual(call_kwargs["countdown"], 62)
+        self.assertEqual(call_kwargs["countdown"], 602)
 
     @patch(MODULE_PATH + ".random.uniform")
     def test_should_retry_on_request_error(self, mock_random):
@@ -184,7 +185,7 @@ class TestRetryTaskOnESIError(NoSocketsTestCase):
         self.assertEqual(str(context.exception), "Retry called")
         self.task.retry.assert_called_once()
         call_kwargs = self.task.retry.call_args[1]
-        self.assertEqual(call_kwargs["countdown"], 62)
+        self.assertEqual(call_kwargs["countdown"], 602)
 
     def test_should_not_retry_on_http_404_error(self):
         """
@@ -284,3 +285,31 @@ class TestRetryTaskOnESIError(NoSocketsTestCase):
         # Expected Result
         self.task.retry.assert_not_called()
         self.assertEqual(str(context.exception), "Some other error")
+
+    @patch(MODULE_PATH + ".random.uniform")
+    def test_should_retry_on_daily_downtime(self, mock_random):
+        """
+        Test should retry task when ESI is in daily downtime.
+
+        Results:
+        - The task.retry method is called with appropriate countdown.
+        """
+        mock_random.return_value = 3.0  # Fixed jitter for testing
+        # Test Data
+        with patch(MODULE_PATH + ".timezone.now") as mock_now:
+            mock_now.return_value = timezone.datetime.strptime("11:05", "%H:%M")
+            exc = Exception("Downtime Error")
+
+            # Test Action
+            with self.assertRaises(Exception) as context:
+                with retry_task_on_esi_error(self.task):
+                    raise exc
+
+            # Expected Result
+            self.assertEqual(str(context.exception), "Retry called")
+            self.task.retry.assert_called_once()
+            call_kwargs = self.task.retry.call_args[1]
+            self.assertEqual(
+                str(call_kwargs["exc"]), str(DownTimeError("ESI is in daily downtime"))
+            )
+            self.assertEqual(call_kwargs["countdown"], 603)
