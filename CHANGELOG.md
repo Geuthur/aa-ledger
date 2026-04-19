@@ -11,6 +11,10 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- Downtime Checker for ESI Tasks
+
 ## [2.1.2] - 14.04.2026
 
 ### Added
