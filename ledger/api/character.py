@@ -34,8 +34,6 @@ from ledger.api.schema import (
     OwnerSchema,
     UpdateStatusSchema,
 )
-from ledger.helpers.billboard import BillboardSystem
-from ledger.helpers.cache import CacheManager
 from ledger.helpers.ledger_data import get_footer_text_class
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.characteraudit import (
@@ -43,6 +41,7 @@ from ledger.models.characteraudit import (
     CharacterOwner,
     CharacterWalletJournalEntry,
 )
+from ledger.models.ledger import CharacterBillboardEntry, CharacterLedgerEntry
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -77,9 +76,6 @@ class CharacterApiEndpoints:
     # pylint: disable=too-many-statements, function-redefined
     # flake8: noqa: F811
     def __init__(self, api: NinjaAPI):
-        self.cache_manager = CacheManager()
-        self.billboard = BillboardSystem()
-
         @api.get(
             "character/{character_id}/date/{year}/",
             response={200: CharacterLedgerResponse, 403: dict, 404: dict},
@@ -209,123 +205,6 @@ class CharacterApiEndpoints:
             eve_character__character_id__in=owner.alt_ids
         )
 
-        # Create Ledger Response for each Character
-        character_ledger_list: list[LedgerCharacterSchema] = []
-        for character in characters:
-            # Get Journal Data
-            wallet_journal = (
-                character.ledger_character_journal.filter(
-                    **request_info.to_date_query(),
-                )
-                # Exclude Zero Amount Entries
-                .exclude(amount=Decimal("0.00"))
-                # Exclude Internal Donations between Alts
-                .exclude(
-                    Q(ref_type="player_donation")
-                    & (
-                        Q(first_party__in=owner.alt_ids)
-                        & Q(second_party__in=owner.alt_ids)
-                    )
-                ).order_by("-date")
-            )
-
-            mining_journal = character.ledger_character_mining.filter(
-                **request_info.to_date_query(),
-            ).order_by("-date")
-
-            # Get IDs for Hashing
-            entry_ids = wallet_journal.values_list("entry_id", flat=True)
-            mining_pks = mining_journal.values_list("type_id", flat=True)
-            header_ids = list(entry_ids) + list(mining_pks)
-
-            # Skip Character if no Ledger Entries
-            if len(header_ids) == 0:
-                logger.debug(f"Skipping Character {character} - No Ledger Entries")
-                continue
-
-            # Add Character ID to header ids to ensure uniqueness
-            header_ids.append(character.eve_character.character_id)
-
-            # Create Ledger Hash
-            wallet_journal_hash = self.cache_manager.create_ledger_hash(header_ids)
-
-            # Get Cached Ledger if Available
-            response_ledger = self.cache_manager.get_cache_key(
-                key="character", ledger_hash=wallet_journal_hash
-            )
-            if response_ledger is False:
-                logger.debug(f"Ledger Cache Miss for Character: {character}")
-
-                # Aggregate Data
-                character_bounty = wallet_journal.aggregate_bounty()
-                character_ess = wallet_journal.aggregate_ess()
-                character_mining = mining_journal.aggregate_mining()
-                character_costs = wallet_journal.aggregate_costs()
-                character_miscellaneous = wallet_journal.aggregate_miscellaneous()
-
-                total = sum(
-                    [
-                        character_bounty,
-                        character_ess,
-                        character_miscellaneous,
-                        character_costs,
-                    ]
-                )
-
-                response_ledger = LedgerCharacterSchema(
-                    character=OwnerSchema(
-                        character_id=character.eve_character.character_id,
-                        character_name=character.eve_character.character_name,
-                        icon=character.get_portrait(size=32, as_html=True),
-                    ),
-                    ledger=CharacterLedgerSchema(
-                        bounty=character_bounty,
-                        ess=character_ess,
-                        mining=character_mining,
-                        costs=character_costs,
-                        miscellaneous=character_miscellaneous,
-                        total=total,
-                    ),
-                    update_status=UpdateStatusSchema(
-                        status=owner.get_status,
-                    ),
-                    actions=get_character_details_info_button(
-                        character_id=character.eve_character.character_id,
-                        request_info=request_info,
-                        section="single",
-                    ),
-                )
-                # Cache Ledger Response
-                self.cache_manager.set_cache_key(
-                    key="character",
-                    ledger_hash=wallet_journal_hash,
-                    ledger_data=response_ledger,
-                )
-
-            # Add Character Ledger to List
-            character_ledger_list.append(response_ledger)
-        return character_ledger_list
-
-    # pylint: disable=too-many-locals
-    def generate_billboard_data(
-        self,
-        owner: CharacterOwner,
-        character_ledger_list: list[LedgerCharacterSchema],
-        request_info: OwnerLedgerRequestInfo,
-    ) -> BillboardSchema:
-        """
-        Generate the billboard data for the given character IDs.
-
-        This Helper function generates the billboard data for the given character IDs
-        based on the provided date query.
-
-        Args:
-            character_ids (list[int]): The list of character IDs.
-            character_ledger_list (list[LedgerCharacterSchema]): The list of character ledger data.
-            request_info (LedgerRequestInfo): The request information containing date and section details.
-        Returns:
-            LedgerBillboard: The generated billboard data.
-        """
         # Get Wallet and Mining Journal Entries
         wallet_journal = (
             CharacterWalletJournalEntry.objects.filter(
@@ -346,66 +225,180 @@ class CharacterApiEndpoints:
             **request_info.to_date_query(),
         ).order_by("-date")
 
-        # Get IDs for Hashing
-        entry_ids = wallet_journal.values_list("entry_id", flat=True)
-        mining_pks = mining_journal.values_list("type_id", flat=True)
-        header_ids = list(entry_ids) + list(mining_pks)
-
-        # Skip Character if no Ledger Entries
-        if len(header_ids) == 0:
-            logger.debug(
-                f"No Ledger Entries for Billboard Generation for Character IDs: {owner.alt_ids}"
+        # Create Ledger Response for each Character
+        character_ledger_list: list[LedgerCharacterSchema] = []
+        for character in characters:
+            # Get Journal Data
+            character_journal = wallet_journal.filter(
+                character=character,
             )
-            return BillboardSchema()
+            # Get Mining Journal Data
+            character_mining_journal = mining_journal.filter(
+                character=character,
+            )
 
-        # add character ids to header ids to ensure uniqueness
-        header_ids.extend(owner.alt_ids)
+            # Skip if No Data for Character
+            if not character_journal.exists() and not character_mining_journal.exists():
+                continue
 
-        # Create Ledger Hash
-        wallet_journal_hash = self.cache_manager.create_ledger_hash(header_ids)
+            # Check for Existing Ledger Entry
+            ledger_data = character.ledger_entry.filter(
+                year=request_info.year,
+                month=request_info.month,
+                day=request_info.day,
+            ).first()
 
-        # Get Cached Billboard if Available
-        response_billboard = self.cache_manager.get_cache_key(
-            key="character-billboard", ledger_hash=wallet_journal_hash
-        )
-        if response_billboard is False:
-            logger.debug(f"Billboard Cache Miss for Character IDs: {owner.alt_ids}")
-            # Create Timelines
-            wallet_timeline = (
-                self.billboard.create_timeline(
-                    journal=wallet_journal, request_info=request_info
+            # If Ledger Entry Exists, Use it. Otherwise, Aggregate Data and Create/Update Ledger Entry.
+            if ledger_data is not None and ledger_data.is_final:
+                character_ledger_list.append(
+                    LedgerCharacterSchema(
+                        character=OwnerSchema(
+                            character_id=character.eve_character.character_id,
+                            character_name=character.eve_character.character_name,
+                            icon=character.get_portrait(size=32, as_html=True),
+                        ),
+                        ledger=CharacterLedgerSchema(
+                            bounty=ledger_data.bounty,
+                            ess=ledger_data.ess,
+                            mining=ledger_data.mining,
+                            costs=ledger_data.costs,
+                            miscellaneous=ledger_data.miscellaneous,
+                            total=sum(
+                                [
+                                    ledger_data.bounty,
+                                    ledger_data.ess,
+                                    ledger_data.mining,
+                                    ledger_data.costs,
+                                    ledger_data.miscellaneous,
+                                ]
+                            ),
+                        ),
+                        update_status=UpdateStatusSchema(
+                            status=owner.get_status,
+                        ),
+                        actions=get_character_details_info_button(
+                            character_id=character.eve_character.character_id,
+                            request_info=request_info,
+                            section="single",
+                        ),
+                    )
                 )
-                .annotate_bounty_income()
-                .annotate_ess_income()
-                .annotate_miscellaneous()
-            )
-            mining_timeline = self.billboard.create_timeline(
-                journal=mining_journal, request_info=request_info
-            ).annotate_mining(with_period=True)
+                continue
 
-            # Generate XY Billboard
-            xy_results = self.billboard.create_or_update_results(wallet_timeline)
-            xy_results = self.billboard.add_category_to_xy_billboard(
-                xy_results, category="mining", queryset=mining_timeline
+            logger.debug(
+                "Aggregating data for character %s (%s)",
+                character.eve_character.character_name,
+                character.eve_character.character_id,
             )
-            xy_billboard = self.billboard.create_xy_billboard(
-                results=xy_results, request_info=request_info
-            )
-            # Initialize Chord Billboard
-            chord_billboard = self.billboard.create_chord_billboard(
-                character_ledger_list
+            # Aggregate Data
+            character_bounty = character_journal.aggregate_bounty()
+            character_ess = character_journal.aggregate_ess()
+            character_mining = character_mining_journal.aggregate_mining()
+            character_costs = character_journal.aggregate_costs()
+            character_miscellaneous = character_journal.aggregate_miscellaneous()
+
+            # Update or Create Ledger Entry to Store Aggregated Data
+            CharacterLedgerEntry.objects.update_or_create(
+                owner=character,
+                year=request_info.year,
+                month=request_info.month,
+                day=request_info.day,
+                defaults={
+                    "name": character.eve_character.character_name,
+                    "bounty": character_bounty,
+                    "ess": character_ess,
+                    "mining": character_mining,
+                    "costs": character_costs,
+                    "miscellaneous": character_miscellaneous,
+                    "final_data": request_info.is_final_data,
+                },
             )
 
-            response_billboard = BillboardSchema(
-                xy_chart=xy_billboard,
-                chord_chart=chord_billboard,
+            total = sum(
+                [
+                    character_bounty,
+                    character_ess,
+                    character_miscellaneous,
+                    character_costs,
+                ]
             )
-            # Cache Billboard Response
-            self.cache_manager.set_cache_key(
-                key="character-billboard",
-                ledger_hash=wallet_journal_hash,
-                ledger_data=response_billboard,
+
+            response_ledger = LedgerCharacterSchema(
+                character=OwnerSchema(
+                    character_id=character.eve_character.character_id,
+                    character_name=character.eve_character.character_name,
+                    icon=character.get_portrait(size=32, as_html=True),
+                ),
+                ledger=CharacterLedgerSchema(
+                    bounty=character_bounty,
+                    ess=character_ess,
+                    mining=character_mining,
+                    costs=character_costs,
+                    miscellaneous=character_miscellaneous,
+                    total=total,
+                ),
+                update_status=UpdateStatusSchema(
+                    status=owner.get_status,
+                ),
+                actions=get_character_details_info_button(
+                    character_id=character.eve_character.character_id,
+                    request_info=request_info,
+                    section="single",
+                ),
             )
+
+            # Add Character Ledger to List
+            character_ledger_list.append(response_ledger)
+
+        # Check for Existing Billboard Entry
+        billboard_data = owner.ledger_billboard_entry.filter(
+            year=request_info.year,
+            month=request_info.month,
+            day=request_info.day,
+        ).first()
+
+        # If No Billboard Data Exists or Existing Billboard Data is Not Final, Update or Create Billboard Entry for Owner
+        if billboard_data is None or not billboard_data.is_final:
+            logger.debug(
+                "Updating billboard entry for character %s (%s)",
+                owner.eve_character.character_name,
+                owner.eve_character.character_id,
+            )
+            CharacterBillboardEntry.objects.update_or_create_billboard_entry(
+                owner=owner,
+                request_info=request_info,
+                wallet_journal=wallet_journal,
+                mining_journal=mining_journal,
+                ledger_list=character_ledger_list,
+            )
+        return character_ledger_list
+
+    # pylint: disable=too-many-locals
+    def generate_billboard_data(
+        self,
+        owner: CharacterOwner,
+        request_info: OwnerLedgerRequestInfo,
+    ) -> BillboardSchema:
+        """
+        Generate the billboard data for the given character IDs.
+
+        This Helper function generates the billboard data for the given character IDs
+        based on the provided date query.
+
+        Returns:
+            LedgerBillboard: The generated billboard data.
+        """
+        # Get Billboard Entry for Owner
+        billboard = owner.ledger_billboard_entry.filter(
+            year=request_info.year,
+            month=request_info.month,
+            day=request_info.day,
+        ).first()
+
+        response_billboard = BillboardSchema(
+            xy_chart=billboard.xy_billboard if billboard else None,
+            chord_chart=billboard.chord_billboard if billboard else None,
+        )
         # Billboard Data Generation Logic Here
         return response_billboard
 
@@ -465,7 +458,6 @@ class CharacterApiEndpoints:
         # Generate Billboard Data
         billboard = self.generate_billboard_data(
             owner=owner,
-            character_ledger_list=character_ledger_list,
             request_info=request_info,
         )
 
