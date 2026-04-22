@@ -261,7 +261,6 @@ class AllianceApiEndpoints:
 
             # If Ledger Entry Exists, Use it. Otherwise, Aggregate Data and Create/Update Ledger Entry.
             if ledger_data is not None and ledger_data.is_final:
-                # Use Cached Ledger Data
                 response_ledger = LedgerAllianceSchema(
                     corporation=EntitySchema(
                         entity_id=corporation.eve_corporation.corporation_id,

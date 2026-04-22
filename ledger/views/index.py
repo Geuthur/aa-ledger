@@ -115,10 +115,6 @@ def admin(request: WSGIRequest):
     if request.method == "POST":
         force_refresh = bool(request.POST.get("force_refresh", False))
 
-        # General Tasks
-        if request.POST.get("run_clear_cache"):
-            messages.info(request, _("Queued Clear All Cache"))
-            tasks.clear_all_cache.apply_async(priority=1)
         # Specific Tasks
         if request.POST.get("run_character_updates"):
             _handle_character_updates(force_refresh)

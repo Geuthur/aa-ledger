@@ -6,7 +6,6 @@ Character Audit Model
 from typing import TYPE_CHECKING
 
 # Django
-from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.functional import cached_property
@@ -23,7 +22,6 @@ from eve_sde.models.map import SolarSystem
 # AA Ledger
 from ledger import __title__
 from ledger.app_settings import (
-    LEDGER_CACHE_KEY,
     LEDGER_USE_COMPRESSED,
 )
 from ledger.errors import TokenDoesNotExist
@@ -294,14 +292,7 @@ class CharacterMiningLedger(models.Model):
     @staticmethod
     def update_evemarket_price():
         """Update Prices for the EveMarketPrice."""
-        updated = 0
-        cached_update = cache.get(f"{LEDGER_CACHE_KEY}-eve-market-price", False)
-        if cached_update is False:
-            updated = EveMarketPrice.objects.update_from_esi()
-            cache.set(
-                f"{LEDGER_CACHE_KEY}-eve-market-price", None, (60 * 60 * 24)
-            )  # Cache for 24 hours
-            logger.debug(f"Updated {updated} for entries EveMarketPrice")
+        updated = EveMarketPrice.objects.update_from_esi()
         return updated
 
     def get_npc_price(self):
