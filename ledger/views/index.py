@@ -58,7 +58,7 @@ def admin(request: WSGIRequest):
                 messages.info(request, msg)
                 tasks.update_character.apply_async(
                     kwargs={
-                        "character_pk": character.pk,
+                        "eve_id": character.eve_character.character_id,
                         "force_refresh": force_refresh,
                     },
                     priority=7,
@@ -91,8 +91,10 @@ def admin(request: WSGIRequest):
                 )
                 messages.info(request, msg)
                 tasks.update_corporation.apply_async(
-                    args=[corporation.pk],
-                    kwargs={"force_refresh": force_refresh},
+                    kwargs={
+                        "eve_id": corporation.eve_corporation.corporation_id,
+                        "force_refresh": force_refresh,
+                    },
                     priority=7,
                 )
             except (ValueError, CorporationOwner.DoesNotExist):

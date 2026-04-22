@@ -31,6 +31,19 @@ Section Order:
 
 - Removed CacheManager and BillboardSystem from CorporationApiEndpoints.
 - Removed deprecated cache handling code and replaced it with direct database interactions for ledger entries.
+### Added
+
+- Downtime Checker for ESI Tasks
+
+## [2.1.2] - 14.04.2026
+
+### Added
+
+- Python 3.13 Support
+
+### Changed
+
+- Update README & CHANGELOG
 
 ## [2.1.1] - 02.03.2026
 
@@ -75,7 +88,15 @@ if "eve_sde" in INSTALLED_APPS:
 After running migrations, make sure to run the following commands to import the SDE data into your database.
 
 ```shell
+python manage.py migrate eve_sde
 python manage.py esde_load_sde
+```
+
+Migrate the app and collect static.
+
+```shell
+python manage.py migrate ledger
+python manage.py collectstatic --noinput
 ```
 
 Restart your Auth via `supervisor` after running these commands
