@@ -2,8 +2,10 @@
 Character Audit Model
 """
 
+# Standard Library
+from typing import TYPE_CHECKING
+
 # Django
-from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.functional import cached_property
@@ -20,7 +22,6 @@ from eve_sde.models.map import SolarSystem
 # AA Ledger
 from ledger import __title__
 from ledger.app_settings import (
-    LEDGER_CACHE_KEY,
     LEDGER_USE_COMPRESSED,
 )
 from ledger.errors import TokenDoesNotExist
@@ -44,6 +45,10 @@ from ledger.models.helpers.update_manager import (
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
+
+if TYPE_CHECKING:
+    # AA Ledger
+    from ledger.models.ledger import CharacterBillboardEntry, CharacterLedgerEntry
 
 
 class CharacterOwner(models.Model):
@@ -155,6 +160,16 @@ class CharacterOwner(models.Model):
     def wallet_journal(self) -> models.QuerySet["CharacterWalletJournalEntry"]:
         """Get the wallet journal for this character."""
         return self.ledger_character_journal
+
+    @property
+    def ledger_entry(self) -> models.QuerySet["CharacterLedgerEntry"]:
+        """Get the most recent ledger entry for this character, if one exists."""
+        return self.ledger_character_entry
+
+    @property
+    def ledger_billboard_entry(self) -> models.QuerySet["CharacterBillboardEntry"]:
+        """Get the most recent ledger entry for this character, if one exists."""
+        return self.ledger_char_billboard_entries
 
     @property
     def update_status(self) -> models.QuerySet["CharacterUpdateStatus"]:
@@ -277,14 +292,7 @@ class CharacterMiningLedger(models.Model):
     @staticmethod
     def update_evemarket_price():
         """Update Prices for the EveMarketPrice."""
-        updated = 0
-        cached_update = cache.get(f"{LEDGER_CACHE_KEY}-eve-market-price", False)
-        if cached_update is False:
-            updated = EveMarketPrice.objects.update_from_esi()
-            cache.set(
-                f"{LEDGER_CACHE_KEY}-eve-market-price", None, (60 * 60 * 24)
-            )  # Cache for 24 hours
-            logger.debug(f"Updated {updated} for entries EveMarketPrice")
+        updated = EveMarketPrice.objects.update_from_esi()
         return updated
 
     def get_npc_price(self):
