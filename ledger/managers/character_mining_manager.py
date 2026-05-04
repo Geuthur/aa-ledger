@@ -33,9 +33,7 @@ if TYPE_CHECKING:
     from ledger.models.characteraudit import (
         CharacterMiningLedger as MiningLedgerContext,
     )
-    from ledger.models.characteraudit import (
-        CharacterOwner,
-    )
+    from ledger.models.characteraudit import CharacterOwner
     from ledger.models.general import UpdateSectionResult
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
