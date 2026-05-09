@@ -11,9 +11,21 @@ Section Order:
 ### Removed
 -->
 
+## [3.0.0] - 2026-05-09
+
+> [!IMPORTANT]
+>
+> This Release needs at least Alliance Auth v5
+> Please make sure to update your Alliance Auth before you install this APP
+
 ### Added
 
 - Downtime Checker for ESI Tasks
+- Compatibility to Alliance Auth v5
+
+### Removed
+
+- Compatibility to Alliance Auth v4
 
 ## [2.1.2] - 14.04.2026
 
@@ -1443,5 +1455,7 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 [2.0.0]: https://github.com/Geuthur/aa-ledger/compare/v1.0.4...v2.0.0 "2.0.0"
 [2.1.0]: https://github.com/Geuthur/aa-ledger/compare/v2.0.0...v2.1.0 "2.1.0"
 [2.1.1]: https://github.com/Geuthur/aa-ledger/compare/v2.1.0...v2.1.1 "2.1.1"
-[in development]: https://github.com/Geuthur/aa-ledger/compare/v2.1.0...HEAD "In Development"
+[2.1.2]: https://github.com/Geuthur/aa-ledger/compare/v2.1.1...v2.1.2 "2.1.2"
+[3.0.0]: https://github.com/Geuthur/aa-ledger/compare/v2.1.2...v3.0.0 "2.1.1"
+[in development]: https://github.com/Geuthur/aa-ledger/compare/v3.0.0...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-ledger/issues "report any issues"
