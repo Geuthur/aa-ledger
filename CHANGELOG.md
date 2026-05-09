@@ -11,6 +11,8 @@ Section Order:
 ### Removed
 -->
 
+## [3.0.0] - 08.05.2026
+
 > [!IMPORTANT]
 >
 > This Release needs at least Alliance Auth v5
@@ -1449,5 +1451,6 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 [2.0.0]: https://github.com/Geuthur/aa-ledger/compare/v1.0.4...v2.0.0 "2.0.0"
 [2.1.0]: https://github.com/Geuthur/aa-ledger/compare/v2.0.0...v2.1.0 "2.1.0"
 [2.1.1]: https://github.com/Geuthur/aa-ledger/compare/v2.1.0...v2.1.1 "2.1.1"
+[3.0.0]: https://github.com/Geuthur/aa-ledger/compare/v2.1.1...v3.0.0 "3.0.0"
 [in development]: https://github.com/Geuthur/aa-ledger/compare/v3.0.0...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-ledger/issues "report any issues"
