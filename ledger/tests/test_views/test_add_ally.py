@@ -28,6 +28,11 @@ class TestAddAllyView(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.alliance = Mock()
+        cls.alliance.id = 3001
+        cls.alliance.name = "Test Alliance"
+        cls.alliance.ticker = "TST"
+        cls.alliance.executor_corp_id = 2001
 
     def test_add_ally_already_exist(self, mock_messages):
         """
