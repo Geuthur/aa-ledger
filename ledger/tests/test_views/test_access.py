@@ -70,28 +70,6 @@ class TestViewIndexAccess(LedgerTestCase):
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertTrue(mock_messages.error.called)
 
-    @patch(TASKS_PATH + ".clear_all_cache")
-    def test_admin_clear_all_cache(self, mock_clear_cache, mock_messages):
-        """
-        Test clear all cache.
-
-        This test posts to the admin view to trigger the clear cache action.
-        """
-        # Test Data
-        request = self.factory.post(
-            reverse("ledger:admin"), data={"run_clear_cache": True}
-        )
-        request.user = self.superuser
-        self._middleware_process_request(request)
-
-        # Test Action
-        response = index.admin(request)
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        mock_messages.info.assert_called_once_with(request, "Queued Clear All Cache")
-        mock_clear_cache.apply_async.assert_called_once_with(priority=1)
-
     def test_force_refresh(self, mock_messages):
         """
         Test force refresh.

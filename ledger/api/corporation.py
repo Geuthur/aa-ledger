@@ -38,8 +38,6 @@ from ledger.api.schema import (
     OwnerSchema,
 )
 from ledger.constants import NPC_ENTITIES
-from ledger.helpers.billboard import BillboardSystem
-from ledger.helpers.cache import CacheManager
 from ledger.helpers.eveonline import get_character_portrait_url
 from ledger.helpers.ledger_data import get_footer_text_class
 from ledger.helpers.ref_type import RefTypeManager
@@ -48,6 +46,7 @@ from ledger.models.corporationaudit import (
     CorporationWalletJournalEntry,
 )
 from ledger.models.general import EveEntity
+from ledger.models.ledger import CorporationBillboardEntry, CorporationLedgerEntry
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -82,9 +81,6 @@ class CorporationApiEndpoints:
     # pylint: disable=too-many-statements, function-redefined, duplicate-code
     # flake8: noqa: F811
     def __init__(self, api: NinjaAPI):
-        self.cache_manager = CacheManager()
-        self.billboard = BillboardSystem()
-
         @api.get(
             "corporation/{corporation_id}/division/{division_id}/date/{year}/",
             response={200: CorporationLedgerResponse, 403: dict, 404: dict},
@@ -211,7 +207,7 @@ class CorporationApiEndpoints:
 
         Args:
             entities (list[LedgerEntitySchema]): The list of entity ledger data.
-
+            request_info (CorporationLedgerRequestInfo): The request information object.
         Returns:
             str: The generated footer HTML.
         """
@@ -254,7 +250,6 @@ class CorporationApiEndpoints:
             entry_list (list[dict]): List of ledger entry dicts.
             ref_types (list[str]): Reference types to include.
             sign (str|None): If "positive", include only positive amounts; if "negative", only negative amounts.
-
         Returns:
             Decimal: The summed amount.
         """
@@ -272,6 +267,7 @@ class CorporationApiEndpoints:
     # pylint: disable=too-many-locals
     def _process_entity_entries(
         self,
+        owner: CorporationOwner,
         entity: EntitySchema,
         request_info: CorporationLedgerRequestInfo,
         entries_by_entity: dict[int, list[dict]],
@@ -285,7 +281,10 @@ class CorporationApiEndpoints:
 
         Args:
             owner (CorporationOwner): The corporation owner object.
-            request_info (LedgerRequestInfo): The request information object.
+            entity (EntitySchema): The entity schema for which to process entries.
+            request_info (CorporationLedgerRequestInfo): The request information object.
+            entries_by_entity (dict[int, list[dict]]): The mapping of entity IDs to their ledger entries.
+            processed_entry_ids (set[int]|None): The set of already processed ledger entry IDs to avoid double-counting.
         Returns:
             list[EntitySchema]: A list of entity schemas for each processed entity.
         """
@@ -309,7 +308,6 @@ class CorporationApiEndpoints:
 
         # Skip Entity if no Ledger Entries
         if not entry_list:
-            # logger.debug(f"Skipping Entity {entity} - No Ledger Entries")
             return None
 
         # Deduplicate by entry_id (an entry may appear under multiple alt_ids)
@@ -321,15 +319,54 @@ class CorporationApiEndpoints:
         entry_ids = list(unique.keys())
         entry_list = list(unique.values())
 
-        # Aggregate Data using in-memory rows
-        entity_bounty = self._sum_by_ref_types(entry_list, RefTypeManager.BOUNTY_PRIZES)
-        entity_ess = self._sum_by_ref_types(entry_list, RefTypeManager.ESS_TRANSFER)
-        entity_costs = self._sum_by_ref_types(
-            entry_list, RefTypeManager.ledger_ref_types(), sign="negative"
-        )
-        entity_miscellaneous = self._sum_by_ref_types(
-            entry_list, RefTypeManager.ledger_ref_types(), sign="positive"
-        )
+        ledger_data = CorporationLedgerEntry.objects.filter(
+            entity_id=entity.entity_id,
+            owner=owner,
+            year=request_info.year,
+            month=request_info.month,
+            day=request_info.day,
+        ).first()
+
+        # If Ledger Entry Exists, Use it. Otherwise, Aggregate Data and Create/Update Ledger Entry.
+        if ledger_data is not None and ledger_data.is_final:
+            entity_bounty = ledger_data.bounty
+            entity_ess = ledger_data.ess
+            entity_costs = ledger_data.costs
+            entity_miscellaneous = ledger_data.miscellaneous
+        else:
+            logger.debug(
+                "Aggregating ledger data for entity %s (%s)",
+                entity.entity_name,
+                entity.entity_id,
+            )
+            # Aggregate Data using in-memory rows
+            entity_bounty = self._sum_by_ref_types(
+                entry_list, RefTypeManager.BOUNTY_PRIZES
+            )
+            entity_ess = self._sum_by_ref_types(entry_list, RefTypeManager.ESS_TRANSFER)
+            entity_costs = self._sum_by_ref_types(
+                entry_list, RefTypeManager.ledger_ref_types(), sign="negative"
+            )
+            entity_miscellaneous = self._sum_by_ref_types(
+                entry_list, RefTypeManager.ledger_ref_types(), sign="positive"
+            )
+
+            CorporationLedgerEntry.objects.update_or_create(
+                owner=owner,
+                entity_id=entity.entity_id,
+                year=request_info.year,
+                month=request_info.month,
+                day=request_info.day,
+                defaults={
+                    "name": entity.entity_name,
+                    "owner": owner,
+                    "bounty": entity_bounty,
+                    "ess": entity_ess,
+                    "costs": entity_costs,
+                    "miscellaneous": entity_miscellaneous,
+                    "final_data": request_info.is_final_data,
+                },
+            )
 
         total = sum(
             [
@@ -357,8 +394,10 @@ class CorporationApiEndpoints:
         processed_entry_ids.update(entry_ids)
         return response_entity
 
+    # pylint: disable=too-many-positional-arguments
     def process_member_ledger_data(
         self,
+        owner: CorporationOwner,
         entity_ids: set[int],
         request_info: CorporationLedgerRequestInfo,
         entries_by_entity: dict[int, list[dict]],
@@ -372,7 +411,9 @@ class CorporationApiEndpoints:
         based on the provided date query.
 
         Args:
+            owner (CorporationOwner): The owner of the corporation.
             entity_ids (set[int]): The set of entity IDs to process.
+            request_info (CorporationLedgerRequestInfo): The request information object.
             entries_by_entity (dict[int, list[dict]]): The mapping of entity IDs to their ledger entries.
             processed_entry_ids (set[int]): The set of already processed ledger entry IDs.
             entity_ledger_list (list[LedgerEntitySchema]): The list to append processed ledger data to.
@@ -403,6 +444,7 @@ class CorporationApiEndpoints:
                 continue
 
             response_ledger = self._process_entity_entries(
+                owner=owner,
                 entity=EntitySchema(
                     entity_id=account.main_character.character_id,
                     entity_name=account.main_character.character_name,
@@ -426,8 +468,10 @@ class CorporationApiEndpoints:
             entity_ledger_list.append(response_ledger)
         return auth_entity_ids
 
+    # pylint: disable=too-many-positional-arguments
     def _process_ledger_data(
         self,
+        owner: CorporationOwner,
         entities: list[EveEntity],
         request_info: CorporationLedgerRequestInfo,
         entries_by_entity: dict[int, list[dict]],
@@ -441,7 +485,9 @@ class CorporationApiEndpoints:
         based on the provided date query.
 
         Args:
-            entity_ids (list[int]): The list of entity IDs to process.
+            owner (CorporationOwner): The corporation owner object.
+            entities (list[EveEntity]): The list of entities to process.
+            request_info (CorporationLedgerRequestInfo): The request information object.
             entries_by_entity (dict[int, list[dict]]): The mapping of entity IDs to their ledger entries.
             processed_entry_ids (set[int]): The set of already processed ledger entry IDs.
             entity_ledger_list (list[LedgerEntitySchema]): The list to append processed ledger data to.
@@ -450,6 +496,7 @@ class CorporationApiEndpoints:
         """
         for entity in entities:
             response_ledger = self._process_entity_entries(
+                owner=owner,
                 entity=EntitySchema(
                     entity_id=entity.eve_id,
                     entity_name=entity.name,
@@ -478,12 +525,12 @@ class CorporationApiEndpoints:
 
         Args:
             owner (CorporationOwner): The corporation owner object.
-            request_info (LedgerRequestInfo): The request information object.
+            request_info (CorporationLedgerRequestInfo): The request information object.
         Returns:
             list[CorporationLedgerResponse]: A list of ledger responses for each entity.
         """
         # Get Corporation Wallet Journal Entries
-        corp_journal_values = (
+        corp_journal = (
             CorporationWalletJournalEntry.objects.filter(
                 division__corporation=owner,
                 **request_info.to_date_query(),
@@ -495,106 +542,110 @@ class CorporationApiEndpoints:
             .exclude(
                 first_party_id=owner.eve_corporation.corporation_id,
                 second_party_id=owner.eve_corporation.corporation_id,
-            )
-            .values(
-                "entry_id",
-                "amount",
-                "ref_type",
-                "first_party_id",
-                "second_party_id",
-                "date",
-            )
-            .order_by("-date")
+            ).order_by("-date")
         )
 
-        header_ids = list(corp_journal_values.values_list("entry_id", flat=True))
+        corp_journal_values = corp_journal.values(
+            "entry_id",
+            "amount",
+            "ref_type",
+            "first_party_id",
+            "second_party_id",
+            "date",
+        )
+
+        # Check for Existing Billboard Entry
+        billboard = owner.ledger_billboard_entry.filter(
+            year=request_info.year,
+            month=request_info.month,
+            day=request_info.day,
+        ).first()
 
         # Skip Corporation if no Ledger Entries
-        if len(header_ids) == 0:
+        if not corp_journal.exists():
             return []
 
-        # Add Owner ID to header ids to ensure uniqueness
-        header_ids.append(owner.eve_corporation.corporation_id)
+        entity_ids = set()
+        entity_ledger_list: list[LedgerEntitySchema] = []
+        processed_entry_ids: set[int] = set()
+        entries_by_entity: dict[int, list[dict]] = defaultdict(list)
 
-        # Create Ledger Hash
-        wallet_journal_hash = self.cache_manager.create_ledger_hash(header_ids)
+        for row in corp_journal_values:
+            a = row.get("first_party_id")
+            b = row.get("second_party_id")
+            if a:
+                entries_by_entity[a].append(row)
+                entity_ids.add(a)
 
-        # Get Cached Ledger if Available
-        entity_ledger_list = self.cache_manager.get_cache_key(
-            key="corporation", ledger_hash=wallet_journal_hash
+            # Only append second party if different from first to avoid double-counting
+            if b and b != a:
+                entries_by_entity[b].append(row)
+                entity_ids.add(b)
+
+        # Process Auth Entities (Members) First
+        auth_entity_ids = self.process_member_ledger_data(
+            owner=owner,
+            entity_ids=entity_ids,
+            request_info=request_info,
+            entries_by_entity=entries_by_entity,
+            processed_entry_ids=processed_entry_ids,
+            entity_ledger_list=entity_ledger_list,
         )
-        if entity_ledger_list is False:
-            entity_ids = set()
-            entity_ledger_list: list[LedgerEntitySchema] = []
-            processed_entry_ids: set[int] = set()
-            entries_by_entity: dict[int, list[dict]] = defaultdict(list)
 
-            for row in corp_journal_values:
-                a = row.get("first_party_id")
-                b = row.get("second_party_id")
-                if a:
-                    entries_by_entity[a].append(row)
-                    entity_ids.add(a)
+        # Process Remaining Entities
+        entities = (
+            EveEntity.objects.filter(eve_id__in=entity_ids)
+            # Exclude Auth Entities
+            .exclude(eve_id__in=auth_entity_ids)
+            # Exclude NPC Entities
+            .exclude(eve_id__in=NPC_ENTITIES)
+            # Exclude Corporation Itself
+            .exclude(eve_id=owner.eve_corporation.corporation_id).order_by("name")
+        )
 
-                # Only append second party if different from first to avoid double-counting
-                if b and b != a:
-                    entries_by_entity[b].append(row)
-                    entity_ids.add(b)
+        # Process NPC Entities Last
+        npc_entities = EveEntity.objects.filter(eve_id__in=NPC_ENTITIES).order_by(
+            "name"
+        )
 
-            # Process Auth Entities (Members) First
-            auth_entity_ids = self.process_member_ledger_data(
-                entity_ids=entity_ids,
+        # Process each Entity
+        self._process_ledger_data(
+            owner=owner,
+            entities=list(entities),
+            request_info=request_info,
+            entries_by_entity=entries_by_entity,
+            processed_entry_ids=processed_entry_ids,
+            entity_ledger_list=entity_ledger_list,
+        )
+
+        # Process NPC Entities
+        self._process_ledger_data(
+            owner=owner,
+            entities=list(npc_entities),
+            request_info=request_info,
+            entries_by_entity=entries_by_entity,
+            processed_entry_ids=processed_entry_ids,
+            entity_ledger_list=entity_ledger_list,
+        )
+
+        # If No Billboard Data Exists or Existing Billboard Data is Not Final, Update or Create Billboard Entry for Owner
+        if billboard is None or not billboard.is_final:
+            logger.debug(
+                "Updating billboard entry for corporation %s (%s)",
+                owner.eve_corporation.corporation_name,
+                owner.eve_corporation.corporation_id,
+            )
+            CorporationBillboardEntry.objects.update_or_create_billboard_entry(
+                owner=owner,
                 request_info=request_info,
-                entries_by_entity=entries_by_entity,
-                processed_entry_ids=processed_entry_ids,
-                entity_ledger_list=entity_ledger_list,
-            )
-
-            # Process Remaining Entities
-            entities = (
-                EveEntity.objects.filter(eve_id__in=entity_ids)
-                # Exclude Auth Entities
-                .exclude(eve_id__in=auth_entity_ids)
-                # Exclude NPC Entities
-                .exclude(eve_id__in=NPC_ENTITIES)
-                # Exclude Corporation Itself
-                .exclude(eve_id=owner.eve_corporation.corporation_id).order_by("name")
-            )
-
-            # Process NPC Entities Last
-            npc_entities = EveEntity.objects.filter(eve_id__in=NPC_ENTITIES).order_by(
-                "name"
-            )
-
-            # Process each Entity
-            self._process_ledger_data(
-                entities=list(entities),
-                request_info=request_info,
-                entries_by_entity=entries_by_entity,
-                processed_entry_ids=processed_entry_ids,
-                entity_ledger_list=entity_ledger_list,
-            )
-
-            # Process NPC Entities
-            self._process_ledger_data(
-                entities=list(npc_entities),
-                request_info=request_info,
-                entries_by_entity=entries_by_entity,
-                processed_entry_ids=processed_entry_ids,
-                entity_ledger_list=entity_ledger_list,
-            )
-            # Cache Ledger Response
-            self.cache_manager.set_cache_key(
-                key="corporation",
-                ledger_hash=wallet_journal_hash,
-                ledger_data=entity_ledger_list,
+                wallet_journal=corp_journal,
+                ledger_list=entity_ledger_list,
             )
         return entity_ledger_list
 
     def generate_billboard_data(
         self,
         owner: CorporationOwner,
-        entity_ledger_list: list[LedgerEntitySchema],
         request_info: CorporationLedgerRequestInfo,
     ) -> BillboardSchema:
         """
@@ -605,74 +656,24 @@ class CorporationApiEndpoints:
 
         Args:
             owner (CorporationOwner): The corporation owner object.
-            character_ledger_list (list[LedgerCharacterSchema]): The list of character ledger data.
-            request_info (LedgerRequestInfo): The request information object.
+            request_info (CorporationLedgerRequestInfo): The request information object.
         Returns:
             BillboardSchema: The generated billboard data.
         """
-        # Get Wallet Journal Entries
-        corp_wallet_journal = (
-            CorporationWalletJournalEntry.objects.filter(
-                division__corporation=owner,
-                **request_info.to_date_query(),
-                **request_info.to_division_query(),
-            )
-            # Exclude Zero Amount Entries
-            .exclude(amount=Decimal("0.00"))
-            # Exclude Internal Transfers
-            .exclude(
-                first_party_id=owner.eve_corporation.corporation_id,
-                second_party_id=owner.eve_corporation.corporation_id,
-            )
-        )
+        # Get Billboard Entry for Owner
+        billboard = owner.ledger_billboard_entry.filter(
+            year=request_info.year,
+            month=request_info.month,
+            day=request_info.day,
+        ).first()
 
-        # Get IDs for Hashing
-        header_ids = list(corp_wallet_journal.values_list("entry_id", flat=True))
-
-        # Skip Corporation if no Ledger Entries
-        if len(header_ids) == 0:
+        # If Billboard Data Still Doesn't Exist, Return Empty Billboard Schema
+        if billboard is None:
             return BillboardSchema()
 
-        # add corporation id to header ids to ensure uniqueness
-        header_ids.append(owner.eve_corporation.corporation_id)
-
-        # Create Ledger Hash
-        wallet_journal_hash = self.cache_manager.create_ledger_hash(header_ids)
-
-        # Get Cached Billboard if Available
-        response_billboard = self.cache_manager.get_cache_key(
-            key="corporation-billboard", ledger_hash=wallet_journal_hash
+        response_billboard = BillboardSchema(
+            xy_chart=billboard.xy_billboard, chord_chart=billboard.chord_billboard
         )
-        if response_billboard is False:
-            logger.debug(f"Billboard Cache for: {owner}")
-            # Create Timelines
-            wallet_timeline = (
-                self.billboard.create_timeline(
-                    journal=corp_wallet_journal, request_info=request_info
-                )
-                .annotate_bounty_income()
-                .annotate_ess_income()
-                .annotate_miscellaneous()
-            )
-
-            # Generate XY Billboard
-            xy_results = self.billboard.create_or_update_results(wallet_timeline)
-            xy_billboard = self.billboard.create_xy_billboard(
-                results=xy_results, request_info=request_info
-            )
-            # Initialize Chord Billboard
-            chord_billboard = self.billboard.create_chord_billboard(entity_ledger_list)
-
-            response_billboard = BillboardSchema(
-                xy_chart=xy_billboard, chord_chart=chord_billboard
-            )
-            # Cache Billboard Response
-            self.cache_manager.set_cache_key(
-                key="corporation-billboard",
-                ledger_hash=wallet_journal_hash,
-                ledger_data=response_billboard,
-            )
-        # Billboard Data Generation Logic Here
         return response_billboard
 
     # pylint: disable=too-many-positional-arguments, duplicate-code
@@ -695,9 +696,9 @@ class CorporationApiEndpoints:
             request (WSGIRequest): The incoming request object.
             corporation_id (int): The corporation ID.
             year (int): The year for the ledger data.
+            division_id (int, optional): The division ID for the ledger data. Defaults to None.
             month (int, optional): The month for the ledger data. Defaults to None.
             day (int, optional): The day for the ledger data. Defaults to None.
-
         Returns:
             CorporationLedgerResponse | tuple[int, dict]: The ledger response or error tuple.
         """
@@ -715,6 +716,7 @@ class CorporationApiEndpoints:
 
         # Build Request Info
         request_info = CorporationLedgerRequestInfo(
+            owner=owner,
             owner_id=owner.eve_corporation.corporation_id,
             division_id=division_id,
             year=year,
@@ -731,7 +733,6 @@ class CorporationApiEndpoints:
         # Generate Billboard Data
         billboard = self.generate_billboard_data(
             owner=owner,
-            entity_ledger_list=entity_ledger_list,
             request_info=request_info,
         )
 
@@ -929,8 +930,7 @@ class CorporationDetailsApiEndpoints:
 
         Args:
             journal (QuerySet): The wallet journal entries.
-            mining (QuerySet): The mining ledger entries. Defaults to None.
-            request_info (LedgerRequestInfo): The request information containing date and section details.
+            request_info (CorporationLedgerRequestInfo): The request information containing date and section details.
         Returns:
             LedgerDetailsResponse: The generated ledger details response.
         """

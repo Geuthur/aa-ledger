@@ -28,11 +28,6 @@ LEDGER_STALE_TYPES = getattr(
 LEDGER_USE_COMPRESSED = getattr(settings, "LEDGER_USE_COMPRESSED", True)
 LEDGER_PRICE_PERCENTAGE = getattr(settings, "LEDGER_PRICE_PERCENTAGE", 0.9)
 
-# Ledger Cache System
-LEDGER_CACHE_STALE = 60 * 60 * 24 * 30  # 30 days
-LEDGER_CACHE_KEY = "LEDGER"
-LEDGER_CACHE_ENABLED = getattr(settings, "LEDGER_CACHE_ENABLED", True)
-
 # Maximum Number of Objects processed per run of DJANGO Batch Method
 # Controls how many database records are inserted in a single batch operation.
 # If you encounter "Got a packet bigger than 'max_allowed_packet' bytes" errors,
