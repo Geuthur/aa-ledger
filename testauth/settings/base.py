@@ -27,7 +27,6 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django_celery_beat",
     "solo",
-    "bootstrapform",
     "django_bootstrap5",  # https://github.com/zostera/django-bootstrap5
     "sortedm2m",
     "esi",
@@ -60,9 +59,10 @@ CELERYBEAT_SCHEDULE = {
         "task": "esi.tasks.cleanup_callbackredirect",
         "schedule": crontab(minute="0", hour="*/4"),
     },
-    "esi_cleanup_token": {
-        "task": "esi.tasks.cleanup_token",
-        "schedule": crontab(minute="0", hour="0"),
+    "esi_cleanup_token": {  # 1/48th * 1hr = 48Hr/2Day Refresh Cycles.
+        "task": "esi.tasks.cleanup_token_subset",
+        "schedule": crontab(minute="0", hour="*"),
+        "apply_offset": True,
     },
     "run_model_update": {
         "task": "allianceauth.eveonline.tasks.run_model_update",
@@ -89,6 +89,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "allianceauth.authentication.middleware.UserSettingsMiddleware",
+    "allianceauth.middleware.DeviceDetectionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -119,7 +120,12 @@ LANGUAGES = (  # Sorted by Language Code alphabetical order + English at top
 
 # Django's language codes are different from some of the libraries we use,
 # so we need to map them.
+# When adding a new language, please remember to add it to the mapping
+# and add the language files to their respective directories under `allianceauth/static/allianceauth/libs/`.
 LANGUAGE_MAPPING = {
+    # See https://github.com/DataTables/Plugins/tree/master/i18n for available languages
+    # (We use the JSON files)
+    # `allianceauth/static/allianceauth/libs/DataTables/Plugins/{version}/i18n/` for the files
     "DataTables": {
         "cs-cz": "cs",
         "de": "de-DE",
@@ -134,6 +140,8 @@ LANGUAGE_MAPPING = {
         "uk": "uk",
         "zh-hans": "zh-HANT",
     },
+    # See https://github.com/moment/moment/tree/master/locale for available languages
+    # `allianceauth/static/allianceauth/libs/moment.js/{version}/locale/` for the files
     "MomentJS": {
         "cs-cz": "cs",
         "de": "de",
@@ -149,6 +157,7 @@ LANGUAGE_MAPPING = {
         "zh-hans": "zh-cn",
     },
 }
+
 
 TEMPLATES = [
     {
@@ -211,6 +220,15 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "allianceauth.framework.staticfiles.storage.AaManifestStaticFilesStorage",
+    },
+}
+
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     os.path.join(PROJECT_DIR, "static"),
@@ -230,6 +248,7 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 DEBUG = True
+DISPLAY_DEBUG = True
 ALLOWED_HOSTS = ["*"]
 DATABASES = {
     "default": {
@@ -283,7 +302,7 @@ LOGGING = {
             "backupCount": 5,  # edit this line to change number of log backups
         },
         "extension_file": {
-            "level": "ERROR",
+            "level": "INFO",
             "class": "logging.handlers.RotatingFileHandler",
             "filename": os.path.join(BASE_DIR, "log/extensions.log"),
             "formatter": "verbose",
@@ -308,7 +327,7 @@ LOGGING = {
         },
         "extensions": {
             "handlers": ["extension_file", "console"],
-            "level": "ERROR",
+            "level": "DEBUG",
         },
         "django": {
             "handlers": ["log_file", "console"],
@@ -316,7 +335,7 @@ LOGGING = {
         },
         "esi": {
             "handlers": ["log_file", "console"],
-            "level": "ERROR",
+            "level": "DEBUG",
         },
     },
 }

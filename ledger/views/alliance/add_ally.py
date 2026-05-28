@@ -11,7 +11,6 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
-from allianceauth.eveonline.providers import ObjectNotFound
 from allianceauth.services.hooks import get_extension_logger
 from esi.decorators import token_required
 
@@ -70,10 +69,15 @@ def add_ally(request, token) -> HttpResponse:
                 alliance_name=ally.alliance_name,
             )
             messages.success(request, msg)
-        except ObjectNotFound:
+        except Exception as exc:  # pylint: disable=broad-except
             msg = _("Failed to fetch Alliance data for {alliance_name}").format(
                 alliance_name=char.alliance_name,
             )
             messages.warning(request, msg)
+            logger.debug(
+                "Error fetching alliance data for alliance_id %s: %s",
+                char.alliance_id,
+                exc,
+            )
             return redirect("ledger:alliance_overview")
     return redirect("ledger:alliance_overview")
