@@ -10,7 +10,6 @@ from django.urls import reverse
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo
-from allianceauth.eveonline.providers import Alliance, ObjectNotFound
 
 # AA Ledger
 from ledger.tests import LedgerTestCase
@@ -29,14 +28,6 @@ class TestAddAllyView(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.alliance = Alliance(
-            id=3005,
-            name="Test Alliance",
-            ticker="T.E.S.T",
-            corp_ids=[2001, 2002],
-            executor_corp_id=None,
-            faction_id=None,
-        )
 
     def test_add_ally_already_exist(self, mock_messages):
         """
@@ -117,7 +108,7 @@ class TestAddAllyView(LedgerTestCase):
         # Test Data
         self.user = add_new_permission_to_user(self.user, "ledger.advanced_access")
         mock_get.side_effect = EveAllianceInfo.DoesNotExist
-        mock_provider.get_alliance.side_effect = ObjectNotFound(3001, "alliance")
+        mock_provider.get_alliance.side_effect = Exception("API Error")
 
         token = self.user.token_set.get(character_id=1001)
 
