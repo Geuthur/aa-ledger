@@ -56,7 +56,7 @@ urls.Source = "https://github.com/Geuthur/aa-ledger"
 urls.Tracker = "https://github.com/Geuthur/aa-ledger/issues"
 
 [tool.hatch]
+version.path = "ledger/__init__.py"
 build.include = [
     "/ledger",
 ]
-version.path = "ledger/__init__.py"
