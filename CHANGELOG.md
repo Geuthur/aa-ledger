@@ -11,10 +11,6 @@ Section Order:
 ### Removed
 -->
 
-> [!WARNING]
->
-> If you are not having already follow all instructions for v2.1.0 you need to do that now, otherwise this version will not work!
-
 ### Added
 
 - Added new properties in CharacterOwner and CorporationOwner models to access recent ledger and billboard entries.
@@ -31,6 +27,9 @@ Section Order:
 
 - Removed CacheManager and BillboardSystem from CorporationApiEndpoints.
 - Removed deprecated cache handling code and replaced it with direct database interactions for ledger entries.
+### Changed
+
+- `DownTimeError` Will no longer send out warning logs
 
 ## [3.0.1] - 28.05.2026
 
