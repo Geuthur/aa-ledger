@@ -129,7 +129,7 @@ jobs:
                 && matrix.database == 'mariadb:10.11'
               )
             }}
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           files: coverage.xml
           verbose: true
