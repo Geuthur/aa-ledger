@@ -4,7 +4,7 @@ Character Audit Model
 
 # Django
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -291,9 +291,9 @@ class CharacterMiningLedger(models.Model):
         """Get the NPC price for the type."""
         try:
             if LEDGER_USE_COMPRESSED:
-                type_name = f"Compressed {self.type.name}"
                 # price = ItemType.objects.get(name=type_name).market_price.average_price
                 try:
+                    type_name = f"Compressed {self.type.name}"
                     price = (
                         EveMarketPrice.objects.exclude(
                             eve_type__name__startswith="Batch Compressed"
@@ -301,7 +301,7 @@ class CharacterMiningLedger(models.Model):
                         .get(eve_type__name=type_name)
                         .average_price
                     )
-                except EveMarketPrice.MultipleObjectsReturned:
+                except MultipleObjectsReturned:
                     price = EveMarketPrice.objects.get(eve_type=self.type).average_price
             else:
                 price = EveMarketPrice.objects.get(eve_type=self.type).average_price

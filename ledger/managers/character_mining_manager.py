@@ -3,7 +3,7 @@ from collections import defaultdict
 from typing import TYPE_CHECKING
 
 # Django
-from django.db import models, transaction
+from django.db import models
 from django.db.models import (
     DecimalField,
     ExpressionWrapper,
@@ -198,8 +198,8 @@ class CharacterMiningLedgerEntryManager(models.Manager["MiningLedgerContext"]):
 
         # Process and update or create mining ledger entries
         self._update_or_create_objs(owner=owner, objs=mining_items)
+        self._update_mining_price(owner=owner)
 
-    @transaction.atomic()
     def _update_or_create_objs(
         self,
         owner: "CharacterOwner",
@@ -253,8 +253,6 @@ class CharacterMiningLedgerEntryManager(models.Manager["MiningLedgerContext"]):
             self.bulk_update(
                 old_events, fields=["quantity"], batch_size=LEDGER_BULK_BATCH_SIZE
             )
-
-        self._update_mining_price(owner=owner)
 
     def _update_mining_price(self, owner: "CharacterOwner") -> None:
         """Update prices for mining ledger entries."""

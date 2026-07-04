@@ -182,7 +182,7 @@ class EveMarketPrice(models.Model):
 
     objects: EveMarketPriceManager = EveMarketPriceManager()
 
-    eve_type = models.ForeignKey(
+    eve_type = models.OneToOneField(
         ItemType,
         on_delete=models.CASCADE,
         related_name="+",
