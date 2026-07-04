@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("eve_sde", "0018_blueprintactivity_blueprintactivityproduct_and_more"),
-        ("ledger", "0002_alter_characterowner_eve_character_and_more"),
+        ("ledger", "0003_alliancebillboardentry_allianceledgerentry_and_more"),
     ]
 
     operations = [
