@@ -130,6 +130,24 @@ class OwnerLedgerRequestInfo(Schema):
             date_query["date__day"] = self.day
         return date_query
 
+    @property
+    def is_final_data(self) -> bool:
+        today = timezone.now().date()
+        return (
+            (self.year < today.year)
+            or (
+                self.year == today.year
+                and self.month is not None
+                and self.month < today.month
+            )
+            or (
+                self.year == today.year
+                and self.month == today.month
+                and self.day is not None
+                and self.day < today.day
+            )
+        )
+
 
 class CorporationLedgerRequestInfo(OwnerLedgerRequestInfo):
     """

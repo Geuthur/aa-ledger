@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 # Django
 from django.db.models import QuerySet, TextChoices
 from django.db.models.functions import TruncDay, TruncHour, TruncMonth
+from django.utils.functional import Promise
 from django.utils.timezone import datetime
 from django.utils.translation import gettext_lazy as _
 
@@ -30,12 +31,14 @@ class BillboardData:
     series: list[dict[str, Any]]
 
     def serialize_decimals(self, obj):
-        if isinstance(obj, dict):
+        if isinstance(obj, dict):  # Recursively serialize dicts
             return {k: self.serialize_decimals(v) for k, v in obj.items()}
-        if isinstance(obj, list):
+        if isinstance(obj, list):  # Serialize lists of dicts
             return [self.serialize_decimals(i) for i in obj]
-        if isinstance(obj, Decimal):
+        if isinstance(obj, Decimal):  # Convert Decimal to float for JSON serialization
             return float(obj)
+        if isinstance(obj, Promise):  # Handle lazy translation objects
+            return str(obj)
         return obj
 
     def asdict(self) -> dict:

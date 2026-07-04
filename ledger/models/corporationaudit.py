@@ -2,6 +2,9 @@
 Corporation Audit Model
 """
 
+# Standard Library
+from typing import TYPE_CHECKING
+
 # Django
 from django.db import models
 from django.utils.functional import cached_property
@@ -34,6 +37,10 @@ from ledger.models.helpers.update_manager import (
 from ledger.providers import AppLogger, esi
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
+
+if TYPE_CHECKING:
+    # AA Ledger
+    from ledger.models.ledger import CorporationBillboardEntry, CorporationLedgerEntry
 
 
 class CorporationOwner(models.Model):
@@ -156,6 +163,23 @@ class CorporationOwner(models.Model):
             update_section=CorporationUpdateSection,
             update_status=CorporationUpdateStatus,
         )
+
+    @property
+    def ledger_entry(self) -> models.QuerySet["CorporationLedgerEntry"]:
+        """Get the most recent ledger entry for this corporation, if one exists."""
+        return self.ledger_corporation_entry
+
+    @property
+    def ledger_billboard_entry(self) -> models.QuerySet["CorporationBillboardEntry"]:
+        """Get the most recent ledger entry for this corporation, if one exists."""
+        return self.ledger_corp_billboard_entries
+
+    @property
+    def ledger_alliance_billboard_entry(
+        self,
+    ) -> models.QuerySet["CorporationBillboardEntry"]:
+        """Get the most recent ledger entry for this corporation, if one exists."""
+        return self.ledger_alliance_billboard_entries
 
     def get_portrait(self, size: int = 64, as_html: bool = False) -> str:
         """
