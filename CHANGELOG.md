@@ -27,6 +27,7 @@ Section Order:
 
 - Removed CacheManager and BillboardSystem from CorporationApiEndpoints.
 - Removed deprecated cache handling code and replaced it with direct database interactions for ledger entries.
+
 ### Changed
 
 - `DownTimeError` Will no longer send out warning logs
