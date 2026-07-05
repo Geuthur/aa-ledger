@@ -20,7 +20,7 @@ from allianceauth.services.tasks import QueueOnce
 # AA Ledger
 from ledger import __title__, app_settings
 from ledger.helpers.discord import send_user_notification
-from ledger.models.characteraudit import CharacterOwner
+from ledger.models.characteraudit import CharacterMiningLedger, CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
 from ledger.models.helpers.update_manager import (
     CharacterUpdateSection,
@@ -126,6 +126,8 @@ def update_all_characters(runs: int = 0, force_refresh=False):
     """Update all characters"""
     # Disable characters with no owner
     CharacterOwner.objects.disable_characters_with_no_owner()
+    # Update EveMarketPrice
+    CharacterMiningLedger.update_evemarket_price()
 
     characters = CharacterOwner.objects.select_related("eve_character").filter(active=1)
     for character in characters:
@@ -141,6 +143,8 @@ def update_subset_characters(subset=2, min_runs=50, max_runs=500, force_refresh=
     """Update a batch of characters to prevent overload ESI"""
     # Disable characters with no owner
     CharacterOwner.objects.disable_characters_with_no_owner()
+    # Update EveMarketPrice
+    CharacterMiningLedger.update_evemarket_price()
 
     # Calculate number of characters to update
     total_characters = CharacterOwner.objects.filter(active=1).count()
