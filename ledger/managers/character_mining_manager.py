@@ -3,7 +3,7 @@ from collections import defaultdict
 from typing import TYPE_CHECKING
 
 # Django
-from django.db import models
+from django.db import models, transaction
 from django.db.models import (
     DecimalField,
     ExpressionWrapper,
@@ -200,6 +200,7 @@ class CharacterMiningLedgerEntryManager(models.Manager["MiningLedgerContext"]):
         self._update_or_create_objs(owner=owner, objs=mining_items)
         self._update_mining_price(owner=owner)
 
+    @transaction.atomic()
     def _update_or_create_objs(
         self,
         owner: "CharacterOwner",
@@ -256,10 +257,10 @@ class CharacterMiningLedgerEntryManager(models.Manager["MiningLedgerContext"]):
 
     def _update_mining_price(self, owner: "CharacterOwner") -> None:
         """Update prices for mining ledger entries."""
-        # Update EveMarketPrice on a Daily basis
-        self.model.update_evemarket_price()
-
-        mining_ledger = owner.mining_ledger.filter(price_per_unit__isnull=True)
+        mining_ledger = owner.mining_ledger.filter(
+            price_per_unit__isnull=True,
+            date__gte=timezone.now() - timezone.timedelta(days=30),
+        )
         logger.debug(
             f"Checking {mining_ledger.count()} mining ledger entries for missing prices."
         )

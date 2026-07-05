@@ -309,11 +309,11 @@ class CharacterMiningLedger(models.Model):
                         .get(eve_type__name=type_name)
                         .average_price
                     )
-                except MultipleObjectsReturned:
+                except (MultipleObjectsReturned, ObjectDoesNotExist):
                     price = EveMarketPrice.objects.get(eve_type=self.type).average_price
             else:
                 price = EveMarketPrice.objects.get(eve_type=self.type).average_price
-        except (EveMarketPrice.DoesNotExist, ItemType.DoesNotExist):
+        except ObjectDoesNotExist:
             price = None
         return price
 
