@@ -34,8 +34,10 @@ class TestTasks(LedgerTestCase):
 
     @patch(TASKS_PATH + ".update_corporation", spec=True)
     @patch(TASKS_PATH + ".update_character", spec=True)
+    @patch(TASKS_PATH + ".CharacterMiningLedger.update_evemarket_price", spec=True)
     def test_update_all_ledger(
         self,
+        mock_update_evemarket_price: MagicMock,
         mock_update_character: MagicMock,
         mock_update_corporation: MagicMock,
     ):
