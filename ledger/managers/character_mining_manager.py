@@ -1,4 +1,5 @@
 # Standard Library
+import datetime as dt
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
@@ -227,7 +228,7 @@ class CharacterMiningLedgerEntryManager(models.Manager["MiningLedgerContext"]):
             try:
                 entry_date = timezone.make_aware(
                     timezone.datetime.combine(entry.date, timezone.datetime.min.time()),
-                    timezone.utc,
+                    dt.timezone.utc,
                 )
             except Exception:  # pylint: disable=broad-except
                 entry_date = entry.date

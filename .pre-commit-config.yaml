@@ -116,7 +116,7 @@ repos:
         description: Ensure that files end with a newline.
 
   - repo: https://github.com/eslint/eslint
-    rev: v10.4.1
+    rev: v10.6.0
     hooks:
       - id: eslint
         name: ESLint
@@ -124,7 +124,7 @@ repos:
         args: [--fix, --color, --max-warnings, '0']
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
-    rev: v17.12.0
+    rev: v17.14.0
     hooks:
       - id: stylelint
         name: Stylelint
@@ -171,7 +171,7 @@ repos:
         description: Check for compliance with the definitions in the EditorConfig file.
 
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.30.0
+    rev: 1.31.1
     hooks:
       - id: django-upgrade
         name: Django upgrade
@@ -256,7 +256,7 @@ repos:
         description: Format the tox.ini file.
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.23.0
+    rev: v2.25.1
     hooks:
       - id: pyproject-fmt
         name: pyproject.toml formatter
@@ -274,7 +274,7 @@ repos:
         description: Validate the pyproject.toml file.
 
   - repo: https://github.com/pylint-dev/pylint
-    rev: v4.0.5
+    rev: v4.0.6
     hooks:
       - id: pylint
         name: Pylint
@@ -283,7 +283,7 @@ repos:
           - --py-version=3.10  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.37.2
+    rev: 0.37.4
     hooks:
       - id: check-github-actions
         name: Check GitHub Actions
