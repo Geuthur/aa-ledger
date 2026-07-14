@@ -11,26 +11,30 @@ Section Order:
 ### Removed
 -->
 
+## [3.0.2] - 14.07.2026
+
 ### Added
 
 - Added new properties in CharacterOwner and CorporationOwner models to access recent ledger and billboard entries.
 
+### Fixed
+
+- MultipleObjects in Market Price
+
 ### Changed
 
+- Moved Eve Market Price Update to Character Task
 - Introduced new models: CharacterLedgerEntry, CorporationLedgerEntry, CharacterBillboardEntry, CorporationBillboardEntry, and AllianceLedgerEntry.
 - Updated CorporationApiEndpoints to utilize new ledger models for processing and storing ledger data.
 - Enhanced request info schema to include is_final_data property for determining finality of data.
 - Refactored billboard data generation logic to streamline the process and improve performance.
 - Updated migrations to create new ledger and billboard entry models in the database.
+- `DownTimeError` Will no longer send out warning logs
 
 ### Removed
 
 - Removed CacheManager and BillboardSystem from CorporationApiEndpoints.
 - Removed deprecated cache handling code and replaced it with direct database interactions for ledger entries.
-
-### Changed
-
-- `DownTimeError` Will no longer send out warning logs
 
 ## [3.0.1] - 28.05.2026
 
@@ -1480,5 +1484,6 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 [2.1.1]: https://github.com/Geuthur/aa-ledger/compare/v2.1.0...v2.1.1 "2.1.1"
 [3.0.0]: https://github.com/Geuthur/aa-ledger/compare/v2.1.1...v3.0.0 "3.0.0"
 [3.0.1]: https://github.com/Geuthur/aa-ledger/compare/v3.0.0...v3.0.1 "3.0.1"
-[in development]: https://github.com/Geuthur/aa-ledger/compare/v3.0.1...HEAD "In Development"
+[3.0.2]: https://github.com/Geuthur/aa-ledger/compare/v3.0.1...v3.0.2 "3.0.2"
+[in development]: https://github.com/Geuthur/aa-ledger/compare/v3.0.2...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-ledger/issues "report any issues"
