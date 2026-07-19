@@ -2,11 +2,11 @@
 from charlink.app_imports.utils import AppImport, LoginImport
 
 # Django
-from django.contrib.auth.models import Permission, User
 from django.db.models import Exists, OuterRef
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
+from allianceauth.authentication.models import Permission, User
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 
 # AA Ledger
