@@ -1,5 +1,11 @@
 name: Checks
 
+env:
+  COVERAGE_DATABASE_VERSION: mariadb:10.11
+  COVERAGE_PYTHON_VERSION: 3.12
+  NODE_VERSION: 24 # [LTS] End of Life: 30 Apr 2028 (https://endoflife.date/nodejs)
+  REDIS_VERSION: latest
+
 on:
   push:
     branches:
@@ -23,16 +29,16 @@ jobs:
         uses: actions/checkout@v7
 
       # Set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version-file: 'pyproject.toml' # Read the Python version from the pyproject.toml file
+      #- name: Set up Python
+      #  uses: actions/setup-python@v6
+      #  with:
+      #    python-version-file: 'pyproject.toml' # Read the Python version from the pyproject.toml file
 
       # Set up Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: 'package-lock.json'
       - run: npm install
@@ -85,7 +91,7 @@ jobs:
       - name: Install Redis
         uses: shogo82148/actions-setup-redis@v1
         with:
-          redis-version: 'latest'
+          redis-version: ${{ env.REDIS_VERSION }}
 
       - name: Verify Redis is running
         run: |
@@ -127,8 +133,8 @@ jobs:
                 )
               )
               && (
-                matrix.python-version == '3.12'
-                && matrix.database == 'mariadb:10.11'
+                matrix.python-version == env.COVERAGE_PYTHON_VERSION
+                && matrix.database == env.COVERAGE_DATABASE_VERSION
               )
             }}
         uses: codecov/codecov-action@v7
