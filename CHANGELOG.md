@@ -11,9 +11,25 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- Dev Make File
+
 ### Fixed
 
-- AttributeError in Permission Model since AAv5.2
+- `AttributeError` in Permission Proxy Model since AAv5.2 use their own models
+- `Pook` package that provides a more efficient approach to handling ESI calls at the http level.
+- Support for Python `3.14`
+
+### Changed
+
+- pin `allianceauth` Dependency to `>=5.2`
+- Modernized Tests
+- DataTable v2 now uses the AAv5 import
+
+### Removed
+
+- Dependency `django-esi` it already needed for AAv5
 
 ## [3.0.2] - 14.07.2026
 
