@@ -2,12 +2,8 @@
 from django.utils import timezone
 
 # AA Ledger
-from ledger.models.general import EveEntity
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.utils import (
-    create_owner_from_user,
-    create_wallet_journal_entry,
-)
+from ledger.tests.testdata.factory import CharacterJournalFactory, CharacterOwnerFactory
 
 MODULE_PATH = "ledger.models.characteraudit"
 
@@ -16,36 +12,18 @@ class TestCharacterWalletJournalModel(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(cls.user, owner_type="character")
-        cls.eve_character_first_party = EveEntity.objects.get(eve_id=1001)
-        cls.eve_character_second_party = EveEntity.objects.get(eve_id=1002)
-        cls.journal_entry = create_wallet_journal_entry(
-            owner_type="character",
+        cls.audit = CharacterOwnerFactory(user=cls.user)
+        cls.journal_entry = CharacterJournalFactory(
             character=cls.audit,
-            entry_id=1,
             amount=1000,
-            balance=1000000,
-            date=timezone.datetime.replace(
-                timezone.now(),
-                year=2024,
-                month=1,
-                day=1,
-                hour=0,
-                minute=0,
-                second=0,
-                microsecond=0,
-            ),
-            description="Test",
-            first_party=cls.eve_character_first_party,
-            second_party=cls.eve_character_second_party,
-            ref_type="test",
+            ref_type="player_donation",
         )
 
     def test_str(self):
         """Test the string representation of CharacterWalletJournalEntry."""
         self.assertEqual(
             str(self.journal_entry),
-            f"Character Wallet Journal: RefType: test - {self.eve_character_first_party.name} -> {self.eve_character_second_party.name}: 1000 ISK",
+            f"Character Wallet Journal: RefType: player_donation - {self.journal_entry.first_party.name} -> {self.journal_entry.second_party.name}: 1000 ISK",
         )
 
     def test_get_visible_should_get_list_with_entries(self):

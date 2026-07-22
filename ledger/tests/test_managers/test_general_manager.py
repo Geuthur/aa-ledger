@@ -1,29 +1,25 @@
 # Standard Library
+from http import HTTPStatus
 from types import SimpleNamespace
-from unittest.mock import patch
+
+# Third Party
+import pook
 
 # AA Ledger
 from ledger.models.general import EveEntity, EveMarketPrice
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.esi_stub_openapi import EsiEndpoint, create_esi_client_stub
 
 MODULE_PATH = "ledger.managers.general_manager"
 
-LEDGER_EVE_ENTITY_ENDPOINTS = [
-    EsiEndpoint("Universe", "PostUniverseNames", "ids"),
-    EsiEndpoint("Universe", "GetUniverseNames", "ids"),
-    EsiEndpoint("Market", "GetMarketsPrices", ()),
-]
 
-
+@pook.on
 class TestGeneralManager(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.manager = EveEntity.objects
 
-    @patch("ledger.managers.general_manager.esi")
-    def test_get_or_create_esi_existing(self, mock_esi):
+    def test_get_or_create_esi_existing(self):
         """
         Test retrieving an existing EveEntity from the database.
 
@@ -46,8 +42,7 @@ class TestGeneralManager(LedgerTestCase):
         self.assertEqual(result, entity)
         self.assertFalse(created)
 
-    @patch("ledger.managers.general_manager.esi")
-    def test_get_or_create_esi_new(self, mock_esi):
+    def test_get_or_create_esi_new(self):
         """
         Test creating a new EveEntity from ESI data.
 
@@ -61,7 +56,13 @@ class TestGeneralManager(LedgerTestCase):
         - Created flag is True.
         """
         # Test Data
-        mock_esi.client = create_esi_client_stub(endpoints=LEDGER_EVE_ENTITY_ENDPOINTS)
+        pook.post(
+            url="https://esi.evetech.net/universe/names",
+            reply=HTTPStatus.OK,
+            response_json=[
+                {"id": 9996, "name": "Create Character", "category": "character"},
+            ],
+        )
 
         # Test Action
         result, created = self.manager.get_or_create_esi(eve_id=9996)
@@ -71,8 +72,7 @@ class TestGeneralManager(LedgerTestCase):
         self.assertEqual(result.name, "Create Character")
         self.assertTrue(created)
 
-    @patch("ledger.managers.general_manager.esi")
-    def test_create_bulk_from_esi(self, mock_esi):
+    def test_create_bulk_from_esi(self):
         """
         Test bulk creation of EveEntity objects from ESI data.
 
@@ -85,7 +85,14 @@ class TestGeneralManager(LedgerTestCase):
         - Entities with specified eve_ids exist in the database.
         """
         # Test Data
-        mock_esi.client = create_esi_client_stub(endpoints=LEDGER_EVE_ENTITY_ENDPOINTS)
+        pook.post(
+            url="https://esi.evetech.net/universe/names",
+            reply=HTTPStatus.OK,
+            response_json=[
+                {"id": 9997, "name": "Bulk Character", "category": "character"},
+                {"id": 9998, "name": "Bulk Character 2", "category": "character"},
+            ],
+        )
 
         # Test Action
         result = self.manager.create_bulk_from_esi([9997, 9998])
@@ -95,8 +102,7 @@ class TestGeneralManager(LedgerTestCase):
         self.assertTrue(EveEntity.objects.filter(eve_id=9997).exists())
         self.assertTrue(EveEntity.objects.filter(eve_id=9998).exists())
 
-    @patch("ledger.managers.general_manager.esi")
-    def test_update_or_create_esi(self, mock_esi):
+    def test_update_or_create_esi(self):
         """
         Test updating or creating an EveEntity from ESI data.
 
@@ -110,7 +116,13 @@ class TestGeneralManager(LedgerTestCase):
         - Created flag is True.
         """
         # Test Data
-        mock_esi.client = create_esi_client_stub(endpoints=LEDGER_EVE_ENTITY_ENDPOINTS)
+        pook.get(
+            url="https://esi.evetech.net/universe/names",
+            reply=HTTPStatus.OK,
+            response_json=[
+                {"id": 9999, "name": "New Test Character", "category": "character"},
+            ],
+        )
 
         # Test Action
         result, created = self.manager.update_or_create_esi(eve_id=9999)
@@ -120,8 +132,7 @@ class TestGeneralManager(LedgerTestCase):
         self.assertEqual(result.name, "New Test Character")
         self.assertTrue(created)
 
-    @patch("ledger.managers.general_manager.esi")
-    def test_update_or_create_esi_market_price(self, mock_esi):
+    def test_update_or_create_esi_market_price(self):
         """
         Test updating or creating EveMarketPrice from ESI data.
 
@@ -135,7 +146,13 @@ class TestGeneralManager(LedgerTestCase):
         - Created flag is True.
         """
         # Test Data
-        mock_esi.client = create_esi_client_stub(endpoints=LEDGER_EVE_ENTITY_ENDPOINTS)
+        pook.get(
+            url="https://esi.evetech.net/markets/prices",
+            reply=HTTPStatus.OK,
+            response_json=[
+                {"type_id": 17425, "average_price": 100.0, "adjusted_price": 90.0},
+            ],
+        )
 
         # Test Action
         result = EveMarketPrice.objects.update_from_esi()

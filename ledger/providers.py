@@ -5,6 +5,7 @@ import logging
 import random
 from contextlib import contextmanager
 from http import HTTPStatus
+from pathlib import Path
 
 # Third Party
 from aiopenapi3 import RequestError
@@ -33,12 +34,14 @@ from ledger import (
 )
 from ledger.errors import DownTimeError
 
+spec_file = Path(__file__).parent / "openapi_2026-07-21.json"
 esi = ESIClientProvider(
     compatibility_date=__esi_compatibility_date__,
     ua_appname=__app_name_useragent__,
     ua_version=__version__,
     ua_url=__github_url__,
     operations=__operations__,
+    spec_file=spec_file,
 )
 
 DOWNTIME_TIMER = 60 * 10  # 10 minutes

@@ -54,6 +54,20 @@ if TYPE_CHECKING:
 class CharacterOwner(models.Model):
     """A model to store character information."""
 
+    if TYPE_CHECKING:
+        # AA Ledger
+        # pylint: disable=import-outside-toplevel
+        from ledger.managers.character_planetary_manager import (
+            CharacterPlanetManager,
+            PlanetDetailsManager,
+        )
+
+        ledger_character_journal: CharWalletManager
+        ledger_character_mining: CharacterMiningLedgerEntryManager
+        ledger_character_planet: CharacterPlanetManager
+        ledger_character_planet_details: PlanetDetailsManager
+        ledger_update_status: models.QuerySet["CharacterUpdateStatus"]
+
     objects: CharacterAuditManager = CharacterAuditManager()
 
     class Meta:

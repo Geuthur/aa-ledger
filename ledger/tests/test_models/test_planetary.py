@@ -1,17 +1,10 @@
-# Standard Library
-from unittest.mock import patch
-
-# Django
-from django.test import TestCase
-from django.utils import timezone
-
 # AA Ledger
 from ledger.tests import LedgerTestCase
+from ledger.tests.testdata.factory import CharacterOwnerFactory
 from ledger.tests.testdata.integrations.planetary import _planetary_data
 from ledger.tests.testdata.utils import (
     create_character_planet,
     create_character_planet_details,
-    create_owner_from_user,
 )
 
 MODULE_PATH = "ledger.models.planetary"
@@ -27,13 +20,16 @@ class TestPlanetModel(LedgerTestCase):
             "num_pins": 5,
         }
 
-        cls.owner = create_owner_from_user(user=cls.user, owner_type="character")
+        cls.owner = CharacterOwnerFactory(user=cls.user)
         cls.planetary = create_character_planet(
             owner=cls.owner, planet_id=4001, **cls.planet_params
         )
 
     def test_str(self):
-        self.assertEqual(str(self.planetary), "Planet Data: Gneuten - Test Planet I")
+        self.assertEqual(
+            str(self.planetary),
+            f"Planet Data: {self.planetary.character.character_name} - Test Planet I",
+        )
 
     def test_get_esi_scopes(self):
         self.assertEqual(
@@ -51,7 +47,7 @@ class TestPlanetaryDetailsModel(LedgerTestCase):
             "num_pins": 5,
         }
 
-        cls.owner = create_owner_from_user(user=cls.user, owner_type="character")
+        cls.owner = CharacterOwnerFactory(user=cls.user)
         cls.planetary = create_character_planet(
             owner=cls.owner, planet_id=4001, **cls.planet_params
         )
@@ -61,7 +57,8 @@ class TestPlanetaryDetailsModel(LedgerTestCase):
 
     def test_details_str(self):
         self.assertEqual(
-            str(self.planetarydetails), "Planet Details Data: Gneuten - Test Planet I"
+            str(self.planetarydetails),
+            f"Planet Details Data: {self.planetarydetails.planet.character.character_name} - Test Planet I",
         )
 
     def test_is_expired(self):

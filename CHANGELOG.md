@@ -26,10 +26,11 @@ Section Order:
 - pin `allianceauth` Dependency to `>=5.2`
 - Modernized Tests
 - DataTable v2 now uses the AAv5 import
+- Update ESI Compatibility to `2026-07-21`
 
 ### Removed
 
-- Dependency `django-esi` it already needed for AAv5
+- `django-esi` dependency is already required for AAv5.
 
 ## [3.0.2] - 14.07.2026
 

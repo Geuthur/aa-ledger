@@ -10,9 +10,8 @@ from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 # AA Ledger
+from ledger.tests.testdata.factory import UserMainFactory
 from ledger.tests.testdata.integrations.allianceauth import load_allianceauth
-from ledger.tests.testdata.integrations.eveentity import load_eveentity
-from ledger.tests.testdata.utils import create_user_from_evecharacter
 from ledger.views.alliance.add_ally import add_ally
 from ledger.views.character.add_char import add_char
 from ledger.views.corporation.add_corp import add_corp
@@ -106,48 +105,41 @@ class LedgerTestCase(NoSocketsTestCase):
         super().setUpClass()
         # Initialize Alliance Auth test data
         load_allianceauth()
-        load_eveentity()
 
         # Request Factory
         cls.factory = RequestFactory()
 
-        # User with Standard Access - Corporation 2001
-        cls.user, cls.user_character = create_user_from_evecharacter(
-            character_id=1001,
-            permissions=["ledger.basic_access"],
-        )
-        # User with Standard Access - Corporation 2002
-        cls.user2, cls.user2_character = create_user_from_evecharacter(
-            character_id=1002,
-            permissions=["ledger.basic_access"],
-        )
-        # User with Superuser Access - Corporation 2003
-        cls.superuser, cls.superuser_character = create_user_from_evecharacter(
-            character_id=1003,
-            permissions=[],
-        )
+        # User with Standard Access - Corporation 2001 - Alliance 3001
+        cls.user = UserMainFactory()
+        cls.user_character = cls.user.profile.main_character
+        # User with Standard Access - Corporation 2002 - Alliance 3002
+        cls.user2 = UserMainFactory()
+        cls.user2_character = cls.user2.profile.main_character
+        # User with Superuser Access - Corporation 2003 - Alliance 3003
+        cls.superuser = UserMainFactory()
+        cls.superuser_character = cls.superuser.profile.main_character
         cls.superuser.is_superuser = True
         cls.superuser.save()
-        # User with Manage Own Corporation Access - Corporation 2001
-        cls.manage_own_user, cls.manage_own_character = create_user_from_evecharacter(
-            character_id=1004,
-            permissions=[
+        # User with Manage Own Corporation Access - Corporation 2001 - Alliance 3001
+        cls.manage_own_user = UserMainFactory(
+            permissions__=[
                 "ledger.basic_access",
                 "ledger.advanced_access",
                 "ledger.corp_audit_manager",
                 "ledger.manage_access",
-            ],
+            ]
         )
-        # User with Manage Corporations Access - Corporation 2001
-        cls.manage_user, cls.manage_character = create_user_from_evecharacter(
-            character_id=1005,
-            permissions=[
+        cls.manage_own_character = cls.manage_own_user.profile.main_character
+        # User with Manage Corporations Access - Corporation 2001 - Alliance 3001
+        cls.manage_user = UserMainFactory(
+            permissions__=[
                 "ledger.basic_access",
                 "ledger.advanced_access",
                 "ledger.corp_audit_admin_manager",
                 "ledger.manage_access",
-            ],
+            ]
         )
+        cls.manage_character = cls.manage_user.profile.main_character
 
     def _add_character(self, user, token):
         request = self.factory.get(reverse("ledger:add_char"))

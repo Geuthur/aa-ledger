@@ -13,9 +13,9 @@ from eve_sde.models.types import ItemType
 from ledger.models.characteraudit import CharacterMiningLedger
 from ledger.models.general import EveMarketPrice
 from ledger.tests import LedgerTestCase
+from ledger.tests.testdata.factory import CharacterOwnerFactory
 from ledger.tests.testdata.utils import (
     create_miningledger,
-    create_owner_from_user,
 )
 
 MODULE_PATH = "ledger.models.characteraudit"
@@ -25,7 +25,7 @@ class TestCharacterMiningLedgerModel(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(cls.user, owner_type="character")
+        cls.audit = CharacterOwnerFactory(user=cls.user)
         cls.eve_type = ItemType.objects.get(id=17425)
         cls.eve_system = SolarSystem.objects.get(id=30004783)
 
@@ -78,7 +78,9 @@ class TestCharacterMiningLedgerModel(LedgerTestCase):
             self.audit.eve_character.character_id, self.miningrecord
         )
         # Expected Result
-        self.assertEqual(primary_key, "20240101-1-1001-1")
+        self.assertEqual(
+            primary_key, f"20240101-1-{self.audit.eve_character.character_id}-1"
+        )
 
     def test_get_npc_price(self):
         """Test retrieval of NPC price for CharacterMiningLedger."""

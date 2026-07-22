@@ -29,43 +29,6 @@ def load_allianceauth():
     EveAllianceInfo.objects.all().delete()
     EveCorporationInfo.objects.all().delete()
     EveCharacter.objects.all().delete()
-    for character_info in _entities_data.get("EveCharacter"):
-        if character_info.get("alliance_id"):
-            try:
-                alliance = EveAllianceInfo.objects.get(
-                    alliance_id=character_info.get("alliance_id")
-                )
-            except EveAllianceInfo.DoesNotExist:
-                alliance = EveAllianceInfo.objects.create(
-                    alliance_id=character_info.get("alliance_id"),
-                    alliance_name=character_info.get("alliance_name"),
-                    alliance_ticker=character_info.get("alliance_ticker"),
-                    executor_corp_id=character_info.get("corporation_id"),
-                )
-        else:
-            alliance = None
-        try:
-            corporation = EveCorporationInfo.objects.get(
-                corporation_id=character_info.get("corporation_id")
-            )
-        except EveCorporationInfo.DoesNotExist:
-            corporation = EveCorporationInfo.objects.create(
-                corporation_id=character_info.get("corporation_id"),
-                corporation_name=character_info.get("corporation_name"),
-                corporation_ticker=character_info.get("corporation_ticker"),
-                member_count=99,
-                alliance=alliance,
-            )
-        EveCharacter.objects.create(
-            character_id=character_info.get("character_id"),
-            character_name=character_info.get("character_name"),
-            corporation_id=corporation.corporation_id,
-            corporation_name=corporation.corporation_name,
-            corporation_ticker=corporation.corporation_ticker,
-            alliance_id=alliance.alliance_id if alliance else None,
-            alliance_name=alliance.alliance_name if alliance else "",
-            alliance_ticker=alliance.alliance_ticker if alliance else "",
-        )
 
     for item_category in _entities_data.get("EveCategory"):
         ItemCategory.objects.create(

@@ -1,28 +1,25 @@
 # Standard Library
+from http import HTTPStatus
 from unittest.mock import MagicMock, patch
 
+# Third Party
+import pook
+
 # Django
-from django.test import TestCase, override_settings
 from django.utils import timezone
 
 # AA Ledger
 from ledger.models.general import EveEntity
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.esi_stub_openapi import EsiEndpoint, create_esi_client_stub
-from ledger.tests.testdata.utils import (
-    create_owner_from_user,
-    create_wallet_journal_entry,
+from ledger.tests.testdata.factory import (
+    CharacterJournalFactory,
+    CharacterOwnerFactory,
+    EveEntityFactory,
 )
 
 MODULE_PATH = "ledger.managers.character_journal_manager"
 
-LEDGER_CHARACTER_WALLET_JOURNAL_ENDPOINTS = [
-    EsiEndpoint("Wallet", "GetCharactersCharacterIdWalletJournal", "character_id"),
-]
 
-
-@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
-@patch(MODULE_PATH + ".esi")
 @patch("ledger.models.general.EveEntity")
 class TestCharacterJournalManager(LedgerTestCase):
     """Test Character Journal Manager for Character."""
@@ -30,36 +27,12 @@ class TestCharacterJournalManager(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(user=cls.user)
-        cls.eve_character_first_party = EveEntity.objects.get(eve_id=1001)
-        cls.eve_character_second_party = EveEntity.objects.get(eve_id=1002)
-
-        cls.journal_entry = create_wallet_journal_entry(
-            owner_type="character",
-            character=cls.audit,
-            context_id=1,
-            entry_id=10,
-            amount=1000,
-            balance=2000,
-            date=timezone.datetime.replace(
-                timezone.now(),
-                year=2016,
-                month=10,
-                day=29,
-                hour=0,
-                minute=0,
-                second=0,
-                microsecond=0,
-            ),
-            description="Test Journal",
-            first_party=cls.eve_character_first_party,
-            second_party=cls.eve_character_second_party,
-            ref_type="player_donation",
-        )
-        cls.token = cls.user_character.user.token_set.first()
+        cls.audit = CharacterOwnerFactory(user=cls.user)
+        cls.token = cls.user.token_set.first()
         cls.audit.get_token = MagicMock(return_value=cls.token)
 
-    def test_update_wallet_journal(self, mock_eveentity, mock_esi):
+    @pook.on
+    def test_update_wallet_journal(self, mock_eveentity):
         """
         Test updating the wallet journal for a character.
 
@@ -71,9 +44,62 @@ class TestCharacterJournalManager(LedgerTestCase):
             - Wallet Journal Entries (entry_id: 10, 13, 16) are created with correct data.
         """
         # Test Data
-        mock_esi.client = create_esi_client_stub(
-            endpoints=LEDGER_CHARACTER_WALLET_JOURNAL_ENDPOINTS
+        EveEntityFactory(eve_id=1001)
+        EveEntityFactory(eve_id=1002)
+        EveEntityFactory(eve_id=2001)
+        pook.get(
+            f"https://esi.evetech.net/characters/{self.user_character.character_id}/wallet/journal",
+            reply=HTTPStatus.OK,
+            response_headers={"X-Pages": "1"},
+            response_json=[
+                {
+                    "amount": 1000,
+                    "balance": 2000,
+                    "context_id": 1,
+                    "context_id_type": "character_id",
+                    "date": "2016-10-29T14:00:00Z",
+                    "description": "Test Journal",
+                    "first_party_id": 1001,
+                    "id": 10,
+                    "reason": "Test Reason",
+                    "ref_type": "player_donation",
+                    "second_party_id": 1002,
+                    "tax": 0,
+                    "tax_receiver_id": 0,
+                },
+                {
+                    "amount": 5000,
+                    "balance": 10000,
+                    "context_id": 2,
+                    "context_id_type": "character_id",
+                    "date": "2016-12-01T14:00:00Z",
+                    "description": "Courier Contract",
+                    "first_party_id": 2001,
+                    "id": 13,
+                    "reason": "Courier has been completed",
+                    "ref_type": "contract_reward",
+                    "second_party_id": 1001,
+                    "tax": 0,
+                    "tax_receiver_id": 0,
+                },
+                {
+                    "amount": 10000,
+                    "balance": 20000,
+                    "context_id": 4,
+                    "context_id_type": "character_id",
+                    "date": "2016-12-01T14:00:00Z",
+                    "description": "Unknown Second Party",
+                    "first_party_id": 1001,
+                    "id": 16,
+                    "reason": "Second party unknown",
+                    "ref_type": "bounty_prizes",
+                    "second_party_id": 9999,
+                    "tax": 0,
+                    "tax_receiver_id": 0,
+                },
+            ],
         )
+
         mock_eveentity.objects.create_bulk_from_esi.return_value = True
 
         EveEntity.objects.create(
@@ -107,37 +133,16 @@ class TestCharacterJournalManagerAnnotations(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(user=cls.user)
-
-        cls.eve_character_first_party = EveEntity.objects.get(eve_id=1001)
-        cls.eve_character_second_party = EveEntity.objects.get(eve_id=1002)
-
-        cls.journal_entry = create_wallet_journal_entry(
-            owner_type="character",
-            character=cls.audit,
-            context_id=1,
-            entry_id=10,
+        cls.journal_entry = CharacterJournalFactory(
             amount=1000,
-            balance=2000,
-            date=timezone.datetime.replace(
-                timezone.now(),
-                year=2016,
-                month=10,
-                day=29,
-                hour=0,
-                minute=0,
-                second=0,
-                microsecond=0,
-            ),
-            description="Test Journal",
-            first_party=cls.eve_character_first_party,
-            second_party=cls.eve_character_second_party,
             ref_type="player_donation",
         )
 
     def test_annotate_bounty_income(self):
         """ "Test annotating bounty income."""
-        qs = self.audit.ledger_character_journal.all().annotate_bounty_income()
+        qs = (
+            self.journal_entry.character.ledger_character_journal.all().annotate_bounty_income()
+        )
         for obj in qs:
             self.assertTrue(
                 hasattr(obj, "bounty_income"),
@@ -147,7 +152,9 @@ class TestCharacterJournalManagerAnnotations(LedgerTestCase):
 
     def test_annotate_miscellaneous_income(self):
         """Test annotating miscellaneous income."""
-        qs = self.audit.ledger_character_journal.all().annotate_miscellaneous()
+        qs = (
+            self.journal_entry.character.ledger_character_journal.all().annotate_miscellaneous()
+        )
         for obj in qs:
             self.assertTrue(
                 hasattr(obj, "miscellaneous"),
@@ -162,52 +169,35 @@ class TestCharacterJournalManagerAggregate(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(user=cls.user)
-
-        cls.eve_character_first_party = EveEntity.objects.get(eve_id=1001)
-        cls.eve_character_second_party = EveEntity.objects.get(eve_id=1002)
-
-        cls.journal_entry = create_wallet_journal_entry(
-            owner_type="character",
-            character=cls.audit,
-            context_id=1,
-            entry_id=10,
+        cls.journal_entry = CharacterJournalFactory(
             amount=1000,
-            balance=2000,
-            date=timezone.datetime.replace(
-                timezone.now(),
-                year=2016,
-                month=10,
-                day=29,
-                hour=0,
-                minute=0,
-                second=0,
-                microsecond=0,
-            ),
-            description="Test Journal",
-            first_party=cls.eve_character_first_party,
-            second_party=cls.eve_character_second_party,
             ref_type="player_donation",
         )
 
     def test_aggregate_bounty(self):
         """Test aggregating bounty income."""
-        result = self.audit.ledger_character_journal.all().aggregate_bounty()
+        result = (
+            self.journal_entry.character.ledger_character_journal.all().aggregate_bounty()
+        )
         self.assertEqual(result, 0)
 
     def test_aggregate_costs(self):
         """Test aggregating costs."""
-        result = self.audit.ledger_character_journal.all().aggregate_costs()
+        result = (
+            self.journal_entry.character.ledger_character_journal.all().aggregate_costs()
+        )
         self.assertEqual(result, 0)
 
     def test_aggregate_miscellaneous(self):
         """Test aggregating miscellaneous income."""
-        result = self.audit.ledger_character_journal.all().aggregate_miscellaneous()
+        result = (
+            self.journal_entry.character.ledger_character_journal.all().aggregate_miscellaneous()
+        )
         self.assertEqual(result, 1000.00)
 
     def test_aggregate_ref_type(self):
         """Test aggregating by reference type."""
-        result = self.audit.ledger_character_journal.all().aggregate_ref_type(
+        result = self.journal_entry.character.ledger_character_journal.all().aggregate_ref_type(
             ref_type=["player_donation"], income=True
         )
         self.assertEqual(result, 1000.00)

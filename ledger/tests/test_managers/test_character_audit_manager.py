@@ -6,9 +6,9 @@ from django.utils import timezone
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.helpers.update_manager import CharacterUpdateSection, UpdateStatus
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.utils import (
-    create_owner_from_user,
-    create_update_status,
+from ledger.tests.testdata.factory import (
+    CharacterOwnerFactory,
+    CharacterUpdateStatusFactory,
 )
 
 MODULE_PATH = "ledger.managers.character_audit_manager"
@@ -18,9 +18,7 @@ class TestCharacterAuditManager(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(user=cls.user)
-
-        cls.user_character.delete()
+        cls.audit = CharacterOwnerFactory(user=cls.user)
 
     def test_disable_characters_with_no_ownership_should_disable(self):
         """
@@ -35,10 +33,11 @@ class TestCharacterAuditManager(LedgerTestCase):
         - The method returns the correct count of disabled characters.
         """
         # Test Data
+        self.audit.eve_character.character_ownership.delete()  # Delete ownership to simulate no ownership
         sections = CharacterUpdateSection.get_sections()
         for section in sections:
-            create_update_status(
-                self.audit,
+            CharacterUpdateStatusFactory(
+                owner=self.audit,
                 section=section,
                 is_success=True,
                 error_message="",
@@ -70,15 +69,12 @@ class TestCharacterAnnotateTotalUpdateStatus(LedgerTestCase):
         - The method correctly annotates the total update status.
         """
         # Test Data
-        character = create_owner_from_user(user=self.user)
+        character = CharacterOwnerFactory(user=self.user)
         sections = CharacterUpdateSection.get_sections()
         for section in sections:
-            create_update_status(
-                character,
+            CharacterUpdateStatusFactory(
+                owner=character,
                 section=section,
-                is_success=True,
-                error_message="",
-                has_token_error=False,
                 last_run_at=timezone.now(),
                 last_run_finished_at=timezone.now(),
                 last_update_at=timezone.now(),
@@ -103,15 +99,12 @@ class TestCharacterAnnotateTotalUpdateStatus(LedgerTestCase):
         - Characters with incomplete updates are marked as INCOMPLETE.
         - The method correctly annotates the total update status."""
         # Test Data
-        character = create_owner_from_user(user=self.user)
+        character = CharacterOwnerFactory(user=self.user)
         sections = CharacterUpdateSection.get_sections()
         for section in sections[:2]:
-            create_update_status(
-                character,
+            CharacterUpdateStatusFactory(
+                owner=character,
                 section=section,
-                is_success=True,
-                error_message="",
-                has_token_error=False,
                 last_run_at=timezone.now(),
                 last_run_finished_at=timezone.now(),
                 last_update_at=timezone.now(),
@@ -137,24 +130,21 @@ class TestCharacterAnnotateTotalUpdateStatus(LedgerTestCase):
         - The method correctly annotates the total update status.
         """
         # Test Data
-        character = create_owner_from_user(user=self.user)
+        character = CharacterOwnerFactory(user=self.user)
         sections = CharacterUpdateSection.get_sections()
         for section in sections:
-            create_update_status(
-                character,
+            CharacterUpdateStatusFactory(
+                owner=character,
                 section=section,
-                is_success=True,
-                error_message="",
-                has_token_error=False,
                 last_run_at=timezone.now(),
                 last_run_finished_at=timezone.now(),
                 last_update_at=timezone.now(),
                 last_update_finished_at=timezone.now(),
             )
 
-        create_update_status(
-            character,
-            section=CharacterUpdateSection.WALLET_JOURNAL,
+        character.ledger_update_status.filter(
+            section=CharacterUpdateSection.WALLET_JOURNAL
+        ).update(
             is_success=False,
             error_message="",
             has_token_error=True,
@@ -183,15 +173,12 @@ class TestCharacterAnnotateTotalUpdateStatus(LedgerTestCase):
         - The method correctly annotates the total update status.
         """
         # Test Data
-        character = create_owner_from_user(user=self.user)
+        character = CharacterOwnerFactory(user=self.user)
         sections = CharacterUpdateSection.get_sections()
         for section in sections:
-            create_update_status(
-                character,
+            CharacterUpdateStatusFactory(
+                owner=character,
                 section=section,
-                is_success=True,
-                error_message="",
-                has_token_error=False,
                 last_run_at=timezone.now(),
                 last_run_finished_at=timezone.now(),
                 last_update_at=timezone.now(),
@@ -220,15 +207,13 @@ class TestCharacterAnnotateTotalUpdateStatus(LedgerTestCase):
         - The method correctly annotates the total update status.
         """
         # Test Data
-        character = create_owner_from_user(user=self.user)
+        character = CharacterOwnerFactory(user=self.user)
         sections = CharacterUpdateSection.get_sections()
         for section in sections:
-            create_update_status(
-                character,
+            CharacterUpdateStatusFactory(
+                owner=character,
                 section=section,
                 is_success=False,
-                error_message="",
-                has_token_error=False,
                 last_run_at=timezone.now(),
                 last_run_finished_at=timezone.now(),
                 last_update_at=timezone.now(),

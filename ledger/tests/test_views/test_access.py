@@ -9,9 +9,9 @@ from django.urls import reverse
 
 # AA Ledger
 from ledger.tests import LedgerTestCase
+from ledger.tests.testdata.factory import CharacterOwnerFactory, CorporationOwnerFactory
 from ledger.tests.testdata.utils import (
     add_new_permission_to_user,
-    create_owner_from_user,
 )
 from ledger.views import index
 from ledger.views.alliance import alliance_ledger
@@ -31,8 +31,8 @@ class TestViewIndexAccess(LedgerTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        create_owner_from_user(cls.user)
-        create_owner_from_user(cls.user, owner_type="corporation")
+        CharacterOwnerFactory(user=cls.user)
+        CorporationOwnerFactory(user=cls.user)
 
     def test_admin(self, mock_messages):
         """
@@ -131,7 +131,10 @@ class TestViewIndexAccess(LedgerTestCase):
         # Test Data
         request = self.factory.post(
             reverse("ledger:admin"),
-            data={"run_character_updates": True, "character_id": 1001},
+            data={
+                "run_character_updates": True,
+                "character_id": self.user_character.character_id,
+            },
         )
         request.user = self.superuser
         self._middleware_process_request(request)
@@ -143,7 +146,7 @@ class TestViewIndexAccess(LedgerTestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_messages.info.assert_called_once_with(
             request,
-            f"Queued Update for Character: {self.user_character.character.character_name}",
+            f"Queued Update for Character: {self.user_character.character_name}",
         )
         mock_update_characters.apply_async.assert_called_once()
 
@@ -219,7 +222,10 @@ class TestViewIndexAccess(LedgerTestCase):
         # Test Data
         request = self.factory.post(
             reverse("ledger:admin"),
-            data={"run_corporation_updates": True, "corporation_id": 2001},
+            data={
+                "run_corporation_updates": True,
+                "corporation_id": self.user_character.corporation.corporation_id,
+            },
         )
         request.user = self.superuser
         self._middleware_process_request(request)
@@ -231,7 +237,7 @@ class TestViewIndexAccess(LedgerTestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_messages.info.assert_called_once_with(
             request,
-            f"Queued Update for Corporation: {self.user_character.character.corporation.corporation_name}",
+            f"Queued Update for Corporation: {self.user_character.corporation.corporation_name}",
         )
         mock_update_corporations.apply_async.assert_called_once()
 
@@ -272,10 +278,7 @@ class TestViewCharacterLedgerAccess(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.owner = create_owner_from_user(
-            user=cls.user,
-            owner_type="character",
-        )
+        cls.owner = CharacterOwnerFactory(user=cls.user)
 
     def test_view_character_ledger(self):
         """
@@ -288,7 +291,7 @@ class TestViewCharacterLedgerAccess(LedgerTestCase):
             reverse(
                 "ledger:character_ledger",
                 kwargs={
-                    "character_id": self.user_character.character.character_id,
+                    "character_id": self.user_character.character_id,
                     "year": 2025,
                 },
             )
@@ -298,7 +301,7 @@ class TestViewCharacterLedgerAccess(LedgerTestCase):
         # Test Action
         response = character_ledger.character_ledger(
             request,
-            character_id=self.user_character.character.character_id,
+            character_id=self.user_character.character_id,
             year=2025,
         )
         # Expected Result
@@ -354,14 +357,14 @@ class TestViewCharacterLedgerAccess(LedgerTestCase):
         request = self.factory.get(
             reverse(
                 "ledger:character_administration",
-                kwargs={"character_id": self.user_character.character.character_id},
+                kwargs={"character_id": self.user_character.character_id},
             )
         )
         request.user = self.user
 
         # Test Action
         response = character_ledger.character_administration(
-            request, character_id=self.user_character.character.character_id
+            request, character_id=self.user_character.character_id
         )
 
         # Expected Result
@@ -378,7 +381,7 @@ class TestViewCharacterLedgerAccess(LedgerTestCase):
         request = self.factory.get(
             reverse(
                 "ledger:character_administration",
-                kwargs={"character_id": self.user_character.character.character_id},
+                kwargs={"character_id": self.user_character.character_id},
             )
         )
         request.user = self.user
@@ -416,9 +419,8 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(
+        cls.audit = CorporationOwnerFactory(
             user=cls.user,
-            owner_type="corporation",
         )
         cls.user = add_new_permission_to_user(cls.user, "ledger.advanced_access")
 
@@ -433,7 +435,7 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
             reverse(
                 "ledger:corporation_ledger",
                 kwargs={
-                    "corporation_id": self.user_character.character.corporation_id,
+                    "corporation_id": self.user_character.corporation_id,
                     "year": 2025,
                 },
             )
@@ -443,7 +445,7 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
         # Test Action
         response = corporation_ledger.corporation_ledger(
             request,
-            corporation_id=self.user_character.character.corporation_id,
+            corporation_id=self.user_character.corporation_id,
             year=2025,
         )
 
@@ -478,7 +480,7 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
         """
         Test view corporation ledger without permission.
 
-        This test verifies that a user without permission is shown an error message when accessing a corporation ledger.
+        This test verifies that a user without permission is shown an error message when accessing a corporation ledger from another corporation.
         """
         # Test Data
         self.user2 = add_new_permission_to_user(self.user2, "ledger.advanced_access")
@@ -487,7 +489,10 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
         response = self.client.get(
             reverse(
                 "ledger:corporation_ledger",
-                kwargs={"corporation_id": 2001, "year": 2025},
+                kwargs={
+                    "corporation_id": self.audit.eve_corporation.corporation_id,
+                    "year": 2025,
+                },
             ),
             follow=True,
         )
@@ -521,17 +526,18 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
         This test verifies that a user with permission can access their corporation administration view.
         """
         # Test Data
+        CorporationOwnerFactory(user=self.manage_own_user)
         request = self.factory.get(
             reverse(
                 "ledger:corporation_administration",
-                kwargs={"corporation_id": self.user_character.character.corporation_id},
+                kwargs={"corporation_id": self.manage_own_character.corporation_id},
             )
         )
         request.user = self.manage_own_user
 
         # Test Action
         response = corporation_ledger.corporation_administration(
-            request, self.user_character.character.corporation_id
+            request, self.manage_own_character.corporation_id
         )
 
         # Expected Result
@@ -546,10 +552,11 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
         This test verifies that a user without permission is redirected and shown an error message when accessing corporation administration.
         """
         # Test Data
-        create_owner_from_user(self.user2, owner_type="corporation")
+        audit = CorporationOwnerFactory(user=self.user2)
         request = self.factory.get(
             reverse(
-                "ledger:corporation_administration", kwargs={"corporation_id": 2002}
+                "ledger:corporation_administration",
+                kwargs={"corporation_id": audit.eve_corporation.corporation_id},
             )
         )
         request.user = self.manage_own_user
@@ -557,7 +564,7 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
 
         # Test Action
         response = corporation_ledger.corporation_administration(
-            request, corporation_id=2002
+            request, corporation_id=audit.eve_corporation.corporation_id
         )
 
         # Expected Result
@@ -595,10 +602,8 @@ class TestViewAllianceLedgerAccess(LedgerTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.audit = create_owner_from_user(user=cls.user, owner_type="corporation")
-        cls.audit_admin = create_owner_from_user(
-            user=cls.user2, owner_type="corporation"
-        )
+        cls.audit = CorporationOwnerFactory(user=cls.user)
+        cls.audit_admin = CorporationOwnerFactory(user=cls.user2)
         cls.user = add_new_permission_to_user(cls.user, "ledger.advanced_access")
         cls.user2 = add_new_permission_to_user(cls.user2, "ledger.advanced_access")
 
@@ -613,7 +618,7 @@ class TestViewAllianceLedgerAccess(LedgerTestCase):
             reverse(
                 "ledger:alliance_ledger",
                 kwargs={
-                    "alliance_id": self.user_character.character.alliance_id,
+                    "alliance_id": self.user_character.alliance_id,
                     "year": 2025,
                 },
             )
@@ -622,7 +627,7 @@ class TestViewAllianceLedgerAccess(LedgerTestCase):
 
         # Test Action
         response = alliance_ledger.alliance_ledger(
-            request, alliance_id=self.user_character.character.alliance_id, year=2025
+            request, alliance_id=self.user_character.alliance_id, year=2025
         )
 
         # Expected Result
@@ -661,7 +666,11 @@ class TestViewAllianceLedgerAccess(LedgerTestCase):
         self.client.force_login(self.user2)
         response = self.client.get(
             reverse(
-                "ledger:alliance_ledger", kwargs={"alliance_id": 3001, "year": 2025}
+                "ledger:alliance_ledger",
+                kwargs={
+                    "alliance_id": self.audit.eve_corporation.alliance.alliance_id,
+                    "year": 2025,
+                },
             ),
             follow=True,
         )
@@ -698,14 +707,14 @@ class TestViewAllianceLedgerAccess(LedgerTestCase):
         request = self.factory.get(
             reverse(
                 "ledger:alliance_administration",
-                kwargs={"alliance_id": self.user_character.character.alliance_id},
+                kwargs={"alliance_id": self.user_character.alliance_id},
             )
         )
         request.user = self.manage_user
 
         # Test Action
         response = alliance_ledger.alliance_administration(
-            request, alliance_id=self.user_character.character.alliance_id
+            request, alliance_id=self.user_character.alliance_id
         )
 
         # Expected Result
@@ -721,14 +730,20 @@ class TestViewAllianceLedgerAccess(LedgerTestCase):
         """
         # Test Data
         request = self.factory.get(
-            reverse("ledger:alliance_administration", kwargs={"alliance_id": 3002})
+            reverse(
+                "ledger:alliance_administration",
+                kwargs={
+                    "alliance_id": self.audit_admin.eve_corporation.alliance.alliance_id
+                },
+            )
         )
         request.user = self.manage_own_user
         self._middleware_process_request(request)
 
         # Test Action
-        response = alliance_ledger.alliance_administration(request, alliance_id=3002)
-
+        response = alliance_ledger.alliance_administration(
+            request, alliance_id=self.audit_admin.eve_corporation.alliance.alliance_id
+        )
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         mock_messages.error.assert_called_once_with(request, "Permission Denied")
@@ -760,9 +775,7 @@ class TestViewPlanetaryLedgerAccess(LedgerTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.audit = create_owner_from_user(
-            user=cls.user,
-        )
+        cls.audit = CharacterOwnerFactory(user=cls.user)
         cls.user = add_new_permission_to_user(cls.user, "ledger.advanced_access")
 
     def test_view_planetary_ledger_index(self):
@@ -781,14 +794,12 @@ class TestViewPlanetaryLedgerAccess(LedgerTestCase):
         request = self.factory.get(
             reverse(
                 "ledger:planetary_ledger",
-                args=[self.user_character.character.character_id],
+                args=[self.user_character.character_id],
             )
         )
         request.user = self.user
         # when
-        response = planetary.planetary_ledger(
-            request, self.user_character.character.character_id
-        )
+        response = planetary.planetary_ledger(request, self.user_character.character_id)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Planetary Details")
@@ -799,7 +810,7 @@ class TestViewPlanetaryLedgerAccess(LedgerTestCase):
         request = self.factory.get(
             reverse(
                 "ledger:planetary_ledger",
-                args=[self.user_character.character.character_id],
+                args=[self.user_character.character_id],
             )
         )
         request.user = self.user
