@@ -5,7 +5,6 @@ from http import HTTPStatus
 from unittest.mock import patch
 
 # Django
-from django.test import override_settings
 from django.urls import reverse
 
 # AA Ledger
@@ -17,7 +16,6 @@ MODULE_PATH = "ledger.views.character.add_char"
 
 @patch(MODULE_PATH + ".messages")
 @patch(MODULE_PATH + ".tasks")
-@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 class TestAddCharView(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
@@ -34,7 +32,7 @@ class TestAddCharView(LedgerTestCase):
         ## Results: Character is added successfully.
         """
         # Test Data
-        token = self.user.token_set.get(character_id=1001)
+        token = self.user.token_set.first()
 
         # Test Action
         response = self._add_character(self.user, token)
@@ -45,5 +43,7 @@ class TestAddCharView(LedgerTestCase):
         self.assertTrue(mock_tasks.update_character.apply_async.called)
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(
-            CharacterOwner.objects.filter(eve_character__character_id=1001).exists()
+            CharacterOwner.objects.filter(
+                eve_character__character_id=self.user_character.character_id
+            ).exists()
         )

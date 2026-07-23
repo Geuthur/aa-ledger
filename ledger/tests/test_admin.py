@@ -3,7 +3,6 @@ from unittest.mock import patch
 
 # Django
 from django.contrib.admin.sites import AdminSite
-from django.test import override_settings
 from django.utils import timezone
 
 # Alliance Auth
@@ -19,9 +18,11 @@ from ledger.admin import (
 from ledger.models.characteraudit import CharacterOwner, CharacterUpdateStatus
 from ledger.models.corporationaudit import CorporationOwner, CorporationUpdateStatus
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.utils import (
-    add_owner_to_user,
-    create_update_status,
+from ledger.tests.testdata.factory import (
+    CharacterOwnerFactory,
+    CharacterUpdateStatusFactory,
+    CorporationOwnerFactory,
+    CorporationUpdateStatusFactory,
 )
 
 ADMIN_PATH = "ledger.admin"
@@ -31,7 +32,6 @@ class MockRequest:
     pass
 
 
-@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 class TestCorporationAuditAdmin(LedgerTestCase):
     """Test Backend AA Administration for Ledger."""
 
@@ -42,16 +42,11 @@ class TestCorporationAuditAdmin(LedgerTestCase):
         cls.site = AdminSite()
 
         cls.corporation_audit_admin = CorporationAuditAdmin(CorporationOwner, cls.site)
-        cls.corporation_audit = add_owner_to_user(
-            cls.user,
-            cls.user_character.character.character_id,
-            owner_type="corporation",
-        )
+        cls.corporation_audit = CorporationOwnerFactory(user=cls.user)
 
-        cls.update_status = create_update_status(
+        cls.update_status = CorporationUpdateStatusFactory(
             owner=cls.corporation_audit,
             section="wallet_journal",
-            owner_type="corporation",
             last_update_at=timezone.now() - timezone.timedelta(minutes=5),
             last_update_finished_at=timezone.now() - timezone.timedelta(minutes=3),
             last_run_at=timezone.now() - timezone.timedelta(minutes=4),
@@ -153,7 +148,7 @@ class TestCorporationAuditAdmin(LedgerTestCase):
             self.corporation_audit_admin._corporation__corporation_id(
                 self.corporation_audit
             ),
-            2001,
+            self.user_character.corporation.corporation_id,
         )
 
     def test_has_add_permission(self):
@@ -199,13 +194,9 @@ class TestCharacterAuditAdmin(LedgerTestCase):
         cls.site = AdminSite()
 
         cls.character_audit_admin = CharacterAuditAdmin(CharacterOwner, cls.site)
-        cls.character_audit = add_owner_to_user(
-            cls.user,
-            cls.user_character.character.character_id,
-            owner_type="character",
-        )
-        cls.update_status = create_update_status(
-            cls.character_audit,
+        cls.character_audit = CharacterOwnerFactory(user=cls.user)
+        cls.update_status = CharacterUpdateStatusFactory(
+            owner=cls.character_audit,
             section="wallet_journal",
             last_update_at=timezone.now() - timezone.timedelta(minutes=5),
             last_update_finished_at=timezone.now() - timezone.timedelta(minutes=3),

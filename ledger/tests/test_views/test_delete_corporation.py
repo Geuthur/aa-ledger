@@ -5,14 +5,13 @@ import json
 from http import HTTPStatus
 
 # Django
-from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 # AA Ledger
 from ledger.tests import LedgerTestCase
+from ledger.tests.testdata.factory import CorporationOwnerFactory
 from ledger.tests.testdata.utils import (
     add_new_permission_to_user,
-    create_owner_from_user,
 )
 from ledger.views.corporation.corporation_ledger import corporation_delete
 
@@ -23,10 +22,7 @@ class TestDeleteCorporationView(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(
-            user=cls.user,
-            owner_type="corporation",
-        )
+        cls.audit = CorporationOwnerFactory(user=cls.manage_own_user)
 
     def test_delete_corporation(self):
         """
@@ -56,7 +52,10 @@ class TestDeleteCorporationView(LedgerTestCase):
         response_data = json.loads(response.content)
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTrue(response_data["success"])
-        self.assertEqual(response_data["message"], "Hell RiderZ successfully deleted")
+        self.assertEqual(
+            response_data["message"],
+            f"{self.audit.eve_corporation.corporation_name} successfully deleted",
+        )
 
     def test_delete_corporation_no_audit(self):
         """

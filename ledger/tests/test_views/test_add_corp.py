@@ -5,7 +5,6 @@ from http import HTTPStatus
 from unittest.mock import patch
 
 # Django
-from django.test import override_settings
 from django.urls import reverse
 
 # AA Ledger
@@ -18,7 +17,6 @@ MODULE_PATH = "ledger.views.corporation.add_corp"
 
 @patch(MODULE_PATH + ".messages")
 @patch(MODULE_PATH + ".tasks")
-@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 class TestAddCorpView(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
@@ -29,7 +27,7 @@ class TestAddCorpView(LedgerTestCase):
         # Test Data
         self.user = add_new_permission_to_user(self.user, "ledger.advanced_access")
         user = self.user
-        token = user.token_set.get(character_id=1001)
+        token = user.token_set.first()
 
         # Test Action
         response = self._add_corporation(user, token)
@@ -41,6 +39,6 @@ class TestAddCorpView(LedgerTestCase):
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(
             CorporationOwner.objects.filter(
-                eve_corporation__corporation_id=2001
+                eve_corporation__corporation_id=self.user_character.corporation.corporation_id
             ).exists()
         )

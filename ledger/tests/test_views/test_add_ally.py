@@ -5,7 +5,6 @@ from http import HTTPStatus
 from unittest.mock import Mock, patch
 
 # Django
-from django.test import override_settings
 from django.urls import reverse
 
 # Alliance Auth
@@ -21,18 +20,12 @@ MODULE_PATH = "ledger.views.alliance.add_ally"
 
 
 @patch(MODULE_PATH + ".messages")
-@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 class TestAddAllyView(LedgerTestCase):
     """Test Add Ally View."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.alliance = Mock()
-        cls.alliance.id = 3001
-        cls.alliance.name = "Test Alliance"
-        cls.alliance.ticker = "TST"
-        cls.alliance.executor_corp_id = 2001
 
     def test_add_ally_already_exist(self, mock_messages):
         """
@@ -46,7 +39,7 @@ class TestAddAllyView(LedgerTestCase):
         """
         # Test Data
         self.user = add_new_permission_to_user(self.user, "ledger.advanced_access")
-        token = self.user.token_set.get(character_id=1001)
+        token = self.user.token_set.first()
 
         # Test Action
         response = self._add_alliance(self.user, token)
@@ -73,8 +66,13 @@ class TestAddAllyView(LedgerTestCase):
         """
         # Test Data
         self.user = add_new_permission_to_user(self.user, "ledger.advanced_access")
+        alliance = Mock()
+        alliance.id = 99000001
+        alliance.name = "Test Alliance"
+        alliance.ticker = "TST"
+        alliance.executor_corp_id = 2001
         mock_get.side_effect = EveAllianceInfo.DoesNotExist
-        mock_provider.get_alliance.return_value = self.alliance
+        mock_provider.get_alliance.return_value = alliance
 
         mock_ally = Mock()
         mock_ally.populate_alliance = Mock()
@@ -83,7 +81,7 @@ class TestAddAllyView(LedgerTestCase):
         mock_ally.alliance_ticker = "T.E.S.T"
         mock_ally.executor_corp_id = 2001
         mock_get_or_create.return_value = (mock_ally, True)
-        token = self.user.token_set.get(character_id=1001)
+        token = self.user.token_set.first()
 
         # Test Action
         response = self._add_alliance(self.user, token)
@@ -92,8 +90,8 @@ class TestAddAllyView(LedgerTestCase):
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertEqual(response.url, reverse("ledger:alliance_overview"))
         self.assertEqual(mock_messages.success.call_count, 1)
-        mock_get.assert_called_once_with(alliance_id=3001)
-        mock_provider.get_alliance.assert_called_once_with(3001)
+        mock_get.assert_called_once_with(alliance_id=alliance.id)
+        mock_provider.get_alliance.assert_called_once_with(alliance.id)
         mock_get_or_create.assert_called_once()
 
     @patch(MODULE_PATH + ".provider")
@@ -115,7 +113,7 @@ class TestAddAllyView(LedgerTestCase):
         mock_get.side_effect = EveAllianceInfo.DoesNotExist
         mock_provider.get_alliance.side_effect = Exception("API Error")
 
-        token = self.user.token_set.get(character_id=1001)
+        token = self.user.token_set.first()
 
         # Test Action
         response = self._add_alliance(self.user, token)

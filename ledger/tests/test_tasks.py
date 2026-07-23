@@ -20,13 +20,19 @@ from ledger.tasks import (
     update_corporation,
 )
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.utils import create_owner_from_user, create_update_status
+from ledger.tests.testdata.factory import (
+    CharacterOwnerFactory,
+    CharacterUpdateStatusFactory,
+    CorporationOwnerFactory,
+    CorporationUpdateStatusFactory,
+)
 
 TASKS_PATH = "ledger.tasks"
 MANAGERS_PATH = "ledger.managers"
 MODELS_PATH = "ledger.models"
 
 
+@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 class TestTasks(LedgerTestCase):
     """
     Tests for ledger tasks.
@@ -48,8 +54,8 @@ class TestTasks(LedgerTestCase):
             1. Task queues update tasks for all active corporation and character owners.
         """
         # Test Data
-        create_owner_from_user(user=self.user)
-        create_owner_from_user(user=self.user, owner_type="corporation")
+        CharacterOwnerFactory(user=self.user)
+        CorporationOwnerFactory(user=self.user)
 
         # Test Action
         update_all_corporations(force_refresh=False)
@@ -59,9 +65,6 @@ class TestTasks(LedgerTestCase):
         self.assertTrue(mock_update_character.apply_async.called)
         self.assertTrue(mock_update_corporation.apply_async.called)
 
-    @override_settings(
-        CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True
-    )
     @patch(TASKS_PATH + ".logger")
     @patch(TASKS_PATH + ".update_corp_wallet_journal")
     @patch(
@@ -79,7 +82,7 @@ class TestTasks(LedgerTestCase):
             2. Task no need update when data is fresh.
         """
         # Test Data
-        owner = create_owner_from_user(user=self.user, owner_type="corporation")
+        owner = CorporationOwnerFactory(user=self.user)
 
         # Test Action
         update_corporation(eve_id=owner.eve_id, force_refresh=False)
@@ -91,11 +94,10 @@ class TestTasks(LedgerTestCase):
 
         # Setup for Scenario 2: No update needed
         mock_update_corp_wallet.reset_mock()
-        create_update_status(
+        CorporationUpdateStatusFactory(
             owner=owner,
             section="wallet_journal",
             is_success=True,
-            owner_type="corporation",
             last_run_at=timezone.now(),
             last_run_finished_at=timezone.now(),
             last_update_at=timezone.now(),
@@ -125,7 +127,7 @@ class TestTasks(LedgerTestCase):
             - CorporationUpdateStatus is created/updated correctly.
         """
         # Test Data
-        owner = create_owner_from_user(user=self.user, owner_type="corporation")
+        owner = CorporationOwnerFactory(user=self.user)
         dummy_result = UpdateSectionResult(
             is_changed=True,
             is_updated=True,
@@ -143,9 +145,8 @@ class TestTasks(LedgerTestCase):
         mock_update_manager.perform_update_status.return_value = dummy_result
 
         def _mock_update_section_log(section, result):
-            create_update_status(
+            CorporationUpdateStatusFactory(
                 owner=owner,
-                owner_type="corporation",
                 section=section,
                 has_token_error=result.has_token_error,
                 is_success=not result.has_token_error,
@@ -170,9 +171,6 @@ class TestTasks(LedgerTestCase):
         self.assertEqual(new_update_status.has_token_error, False)
         self.assertEqual(new_update_status.is_success, True)
 
-    @override_settings(
-        CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True
-    )
     @patch(TASKS_PATH + ".logger")
     @patch(TASKS_PATH + ".update_char_wallet_journal")
     @patch(
@@ -189,7 +187,7 @@ class TestTasks(LedgerTestCase):
             2. Task no need update when data is fresh.
         """
         # Test Data
-        owner = create_owner_from_user(user=self.user, owner_type="character")
+        owner = CharacterOwnerFactory(user=self.user)
 
         # Test Action
         update_character(eve_id=owner.eve_id, force_refresh=False)
@@ -201,11 +199,9 @@ class TestTasks(LedgerTestCase):
 
         # Setup for Scenario 2: No update needed
         mock_update_wallet_journal.reset_mock()
-        create_update_status(
+        CharacterUpdateStatusFactory(
             owner=owner,
-            owner_type="character",
             section="wallet_journal",
-            is_success=True,
             last_run_at=timezone.now(),
             last_run_finished_at=timezone.now(),
             last_update_at=timezone.now(),
@@ -235,7 +231,7 @@ class TestTasks(LedgerTestCase):
             - CharacterUpdateStatus is created/updated correctly.
         """
         # Test Data
-        owner = create_owner_from_user(user=self.user, owner_type="character")
+        owner = CharacterOwnerFactory(user=self.user)
         token = self.user.token_set.first()
         owner.get_token = MagicMock(return_value=token)
         dummy_result = UpdateSectionResult(
@@ -255,9 +251,8 @@ class TestTasks(LedgerTestCase):
         mock_update_manager.perform_update_status.return_value = dummy_result
 
         def _mock_update_section_log(section, result):
-            create_update_status(
+            CharacterUpdateStatusFactory(
                 owner=owner,
-                owner_type="character",
                 section=section,
                 has_token_error=result.has_token_error,
                 is_success=not result.has_token_error,

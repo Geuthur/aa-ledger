@@ -28,6 +28,15 @@ check-python-venv:
 		exit 1; \
 	fi
 
+# Check if the 'myauth' path exists
+.PHONY: check-myauth-path
+check-myauth-path:
+	@if [ ! -d "$(myauth_path)" ]; then \
+		echo "$(TEXT_COLOR_RED)$(TEXT_BOLD)Error: '$(myauth_path)' does not exist!$(TEXT_RESET)"; \
+		echo "Please set the absolute path to your 'myauth' directory in the '.make/myauth-path' file."; \
+		exit 1; \
+	fi
+
 # Confirm action
 .PHONY: confirm-action
 confirm-action:

@@ -1,9 +1,9 @@
 # AA Ledger
 from ledger.models.corporationaudit import CorporationOwner
 from ledger.tests import LedgerTestCase
+from ledger.tests.testdata.factory import CorporationOwnerFactory
 from ledger.tests.testdata.utils import (
     add_new_permission_to_user,
-    create_owner_from_user,
 )
 
 MODULE_PATH = "ledger.models.corporationaudit"
@@ -14,8 +14,8 @@ class TestCorporationAuditModel(LedgerTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.owner = create_owner_from_user(user=cls.user, owner_type="corporation")
-        cls.owner2 = create_owner_from_user(user=cls.user2, owner_type="corporation")
+        cls.owner = CorporationOwnerFactory(user=cls.user)
+        cls.owner2 = CorporationOwnerFactory(user=cls.user2)
 
     def test_str(self):
         """Test the string representation of CorporationOwner."""

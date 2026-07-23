@@ -29,7 +29,7 @@ from ledger.helpers.eveonline import get_character_portrait_url
 from ledger.managers.character_audit_manager import (
     CharacterAuditManager,
 )
-from ledger.managers.character_journal_manager import CharWalletManager
+from ledger.managers.character_journal_manager import CharacterWalletManager
 from ledger.managers.character_mining_manager import CharacterMiningLedgerEntryManager
 from ledger.models.general import (
     EveMarketPrice,
@@ -46,13 +46,27 @@ from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
-if TYPE_CHECKING:
-    # AA Ledger
-    from ledger.models.ledger import CharacterBillboardEntry, CharacterLedgerEntry
-
 
 class CharacterOwner(models.Model):
     """A model to store character information."""
+
+    if TYPE_CHECKING:
+        # AA Ledger
+        # pylint: disable=import-outside-toplevel
+        from ledger.managers.character_planetary_manager import (
+            CharacterPlanetManager,
+            PlanetDetailsManager,
+        )
+        from ledger.managers.ledger_manager import BillboardEntryManager
+        from ledger.models.ledger import CharacterLedgerEntry
+
+        ledger_character: models.QuerySet["CharacterLedgerEntry"]
+        ledger_character_journal: CharacterWalletManager
+        ledger_character_mining: CharacterMiningLedgerEntryManager
+        ledger_character_planet: CharacterPlanetManager
+        ledger_character_planet_details: PlanetDetailsManager
+        ledger_update_status: models.QuerySet["CharacterUpdateStatus"]
+        ledger_character_billboard: BillboardEntryManager
 
     objects: CharacterAuditManager = CharacterAuditManager()
 
@@ -152,26 +166,6 @@ class CharacterOwner(models.Model):
         )
 
     @property
-    def mining_ledger(self) -> models.QuerySet["CharacterMiningLedger"]:
-        """Get the mining ledger for this character."""
-        return self.ledger_character_mining
-
-    @property
-    def wallet_journal(self) -> models.QuerySet["CharacterWalletJournalEntry"]:
-        """Get the wallet journal for this character."""
-        return self.ledger_character_journal
-
-    @property
-    def ledger_entry(self) -> models.QuerySet["CharacterLedgerEntry"]:
-        """Get the most recent ledger entry for this character, if one exists."""
-        return self.ledger_character_entry
-
-    @property
-    def ledger_billboard_entry(self) -> models.QuerySet["CharacterBillboardEntry"]:
-        """Get the most recent ledger entry for this character, if one exists."""
-        return self.ledger_char_billboard_entries
-
-    @property
     def update_status(self) -> models.QuerySet["CharacterUpdateStatus"]:
         return self.ledger_update_status
 
@@ -211,6 +205,7 @@ class CharacterOwner(models.Model):
             )
         return token
 
+    # Task Section
     def update_wallet_journal(self, force_refresh: bool) -> UpdateSectionResult:
         return self.ledger_character_journal.update_or_create_esi(
             self, force_refresh=force_refresh
@@ -233,7 +228,7 @@ class CharacterOwner(models.Model):
 
 
 class CharacterWalletJournalEntry(WalletJournalEntry):
-    objects: CharWalletManager = CharWalletManager()
+    objects: CharacterWalletManager = CharacterWalletManager()
 
     class Meta:
         indexes = (

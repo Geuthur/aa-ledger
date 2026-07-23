@@ -9,8 +9,8 @@ from django.urls import reverse
 
 # AA Ledger
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.utils import (
-    create_owner_from_user,
+from ledger.tests.testdata.factory import (
+    CharacterOwnerFactory,
 )
 from ledger.views.character.character_ledger import character_delete
 
@@ -21,7 +21,7 @@ class TestDeleteCharacterView(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(cls.user, owner_type="character")
+        cls.audit = CharacterOwnerFactory(user=cls.user)
 
     def test_delete_character(self):
         """
@@ -44,7 +44,10 @@ class TestDeleteCharacterView(LedgerTestCase):
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTrue(response_data["success"])
-        self.assertEqual(response_data["message"], "Gneuten successfully deleted")
+        self.assertEqual(
+            response_data["message"],
+            f"{self.user_character.character_name} successfully deleted",
+        )
 
     def test_delete_character_no_permission(self):
         """

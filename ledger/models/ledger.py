@@ -60,24 +60,26 @@ class LedgerEntry(models.Model):
         )
 
 
-class AllianceLedgerEntry(LedgerEntry):
-    """A model to store alliance ledger information."""
+class CharacterLedgerEntry(LedgerEntry):
+    """A model to store character ledger information."""
 
     class Meta:
         default_permissions = ()
         permissions = ()
 
+    id = models.AutoField(primary_key=True)
+
     name = models.CharField(max_length=100, null=True, default=None)
 
     owner = models.ForeignKey(
-        EveAllianceInfo, on_delete=models.CASCADE, related_name="ledger_alliance_entry"
+        CharacterOwner, on_delete=models.CASCADE, related_name="ledger_character"
     )
-
-    corporation_id = models.IntegerField(null=True, default=None)
 
     def __str__(self) -> str:
         try:
-            return f"Ledger Entry: {self.owner.eve_corporation.alliance.alliance_name} ({self.id})"
+            return (
+                f"Ledger Entry: {self.owner.eve_character.character_name} ({self.id})"
+            )
         except AttributeError:
             return f"Ledger Entry: {self.name} ({self.id})"
 
@@ -94,7 +96,7 @@ class CorporationLedgerEntry(LedgerEntry):
     owner = models.ForeignKey(
         CorporationOwner,
         on_delete=models.CASCADE,
-        related_name="ledger_corporation_entry",
+        related_name="ledger_corporation",
     )
 
     entity_id = models.IntegerField(null=True, default=None)
@@ -106,26 +108,24 @@ class CorporationLedgerEntry(LedgerEntry):
             return f"Ledger Entry: {self.name} ({self.id})"
 
 
-class CharacterLedgerEntry(LedgerEntry):
-    """A model to store character ledger information."""
+class AllianceLedgerEntry(LedgerEntry):
+    """A model to store alliance ledger information."""
 
     class Meta:
         default_permissions = ()
         permissions = ()
 
-    id = models.AutoField(primary_key=True)
-
     name = models.CharField(max_length=100, null=True, default=None)
 
     owner = models.ForeignKey(
-        CharacterOwner, on_delete=models.CASCADE, related_name="ledger_character_entry"
+        EveAllianceInfo, on_delete=models.CASCADE, related_name="ledger_alliance"
     )
+
+    corporation_id = models.IntegerField(null=True, default=None)
 
     def __str__(self) -> str:
         try:
-            return (
-                f"Ledger Entry: {self.owner.eve_character.character_name} ({self.id})"
-            )
+            return f"Ledger Entry: {self.owner.eve_corporation.alliance.alliance_name} ({self.id})"
         except AttributeError:
             return f"Ledger Entry: {self.name} ({self.id})"
 
@@ -177,7 +177,7 @@ class CharacterBillboardEntry(BillboardEntry):
     owner = models.ForeignKey(
         CharacterOwner,
         on_delete=models.CASCADE,
-        related_name="ledger_char_billboard_entries",
+        related_name="ledger_character_billboard",
     )
 
     def __str__(self) -> str:
@@ -201,7 +201,7 @@ class CorporationBillboardEntry(BillboardEntry):
     owner = models.ForeignKey(
         CorporationOwner,
         on_delete=models.CASCADE,
-        related_name="ledger_corp_billboard_entries",
+        related_name="ledger_corporation_billboard",
     )
 
     def __str__(self) -> str:
@@ -225,7 +225,7 @@ class AllianceBillboardEntry(BillboardEntry):
     owner = models.ForeignKey(
         EveAllianceInfo,
         on_delete=models.CASCADE,
-        related_name="ledger_alliance_billboard_entries",
+        related_name="ledger_alliance_billboard",
     )
 
     def __str__(self) -> str:

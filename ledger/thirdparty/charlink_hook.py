@@ -73,16 +73,18 @@ def _users_with_perms_charaudit():
     permission = Permission.objects.get(
         content_type__app_label="ledger", codename="basic_access"
     )
+    # Use Alliance Auth's User model to get users with the permission, including those in groups and superusers (Fix Issue with Proxy Model)
+    user_model = permission.user_set.model
 
     users_qs = (
         permission.user_set.all()
-        | User.objects.filter(
+        | user_model.objects.filter(
             groups__in=list(permission.group_set.values_list("pk", flat=True))
         )
-        | User.objects.select_related("profile").filter(
+        | user_model.objects.select_related("profile").filter(
             profile__state__in=list(permission.state_set.values_list("pk", flat=True))
         )
-        | User.objects.filter(is_superuser=True)
+        | user_model.objects.filter(is_superuser=True)
     )
     return users_qs.distinct()
 
@@ -92,16 +94,18 @@ def _users_with_perms_corp():
         content_type__app_label=_corp_perms[0].split(".", maxsplit=1)[0],
         codename=_corp_perms[0].split(".", maxsplit=1)[1],
     )
+    # Use Alliance Auth's User model to get users with the permission, including those in groups and superusers (Fix Issue with Proxy Model)
+    user_model = permission.user_set.model
 
     users_qs = (
         permission.user_set.all()
-        | User.objects.filter(
+        | user_model.objects.filter(
             groups__in=list(permission.group_set.values_list("pk", flat=True))
         )
-        | User.objects.select_related("profile").filter(
+        | user_model.objects.select_related("profile").filter(
             profile__state__in=list(permission.state_set.values_list("pk", flat=True))
         )
-        | User.objects.filter(is_superuser=True)
+        | user_model.objects.filter(is_superuser=True)
     )
     users = users_qs.distinct()
 
@@ -110,18 +114,19 @@ def _users_with_perms_corp():
             content_type__app_label=perm_str.split(".", maxsplit=1)[0],
             codename=perm_str.split(".", maxsplit=1)[1],
         )
+        user_model = permission.user_set.model
 
         users_qs = (
             permission.user_set.all()
-            | User.objects.filter(
+            | user_model.objects.filter(
                 groups__in=list(permission.group_set.values_list("pk", flat=True))
             )
-            | User.objects.select_related("profile").filter(
+            | user_model.objects.select_related("profile").filter(
                 profile__state__in=list(
                     permission.state_set.values_list("pk", flat=True)
                 )
             )
-            | User.objects.filter(is_superuser=True)
+            | user_model.objects.filter(is_superuser=True)
         )
         users |= users_qs.distinct()
     return users

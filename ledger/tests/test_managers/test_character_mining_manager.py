@@ -1,47 +1,33 @@
 # Standard Library
+from http import HTTPStatus
 from unittest.mock import MagicMock, patch
 
-# Django
-from django.test import override_settings
-
-# Alliance Auth (External Libs)
-from eve_sde.models.map import SolarSystem
-from eve_sde.models.types import ItemType
+# Third Party
+import pook
 
 # AA Ledger
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.esi_stub_openapi import EsiEndpoint, create_esi_client_stub
-from ledger.tests.testdata.utils import (
-    create_owner_from_user,
+from ledger.tests.testdata.factory import (
+    CharacterOwnerFactory,
+    ItemTypeFactory,
+    SolarSystemFactory,
 )
 
 MODULE_PATH = "ledger.managers.character_mining_manager"
 CHARACTEROWNER_PATH = "ledger.models.characteraudit.CharacterMiningLedger"
-LEDGER_CHARACTER_MINING_LEDGER_ENDPOINTS = [
-    EsiEndpoint(
-        "Industry",
-        "GetCharactersCharacterIdMining",
-        "character_id",
-    ),
-]
 
 
-@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
-@patch(MODULE_PATH + ".esi")
 @patch(CHARACTEROWNER_PATH + ".update_evemarket_price")
 class TestCharacterMiningManager(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(user=cls.user)
-
-        cls.eve_type = ItemType.objects.get(id=17425)
-        cls.eve_system = SolarSystem.objects.get(id=30004783)
-
-        cls.token = cls.user_character.user.token_set.first()
+        cls.audit = CharacterOwnerFactory(user=cls.user)
+        cls.token = cls.user.token_set.first()
         cls.audit.get_token = MagicMock(return_value=cls.token)
 
-    def test_update_mining_ledger(self, _, mock_esi):
+    @pook.on
+    def test_update_mining_ledger(self, _):
         """
         Test updating the character mining ledger.
 
@@ -54,8 +40,19 @@ class TestCharacterMiningManager(LedgerTestCase):
         - Entries have correct quantity, system_id, and type_id.
         """
         # Test Data
-        mock_esi.client = create_esi_client_stub(
-            endpoints=LEDGER_CHARACTER_MINING_LEDGER_ENDPOINTS,
+        ItemTypeFactory(id=17425, name="Tritanium")
+        SolarSystemFactory(id=30004783, name="Jita")
+        pook.get(
+            f"https://esi.evetech.net/characters/{self.user_character.character_id}/mining",
+            reply=HTTPStatus.OK,
+            response_json=[
+                {
+                    "date": "2014-10-29",
+                    "quantity": 5000,
+                    "type_id": 17425,
+                    "solar_system_id": 30004783,
+                }
+            ],
         )
 
         # Test Action

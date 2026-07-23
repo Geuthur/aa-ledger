@@ -6,7 +6,7 @@
 default_language_version:
   # force all unspecified python hooks to run python3
   python: python3
-  node: 22.19.0 # LTS https://nodejs.org/en/blog/release/
+  node: 24.18.0 # LTS https://nodejs.org/en/blog/release/
 
 # https://pre-commit.ci/
 ci:
@@ -27,6 +27,7 @@ exclude: |
   (?x)(
     .github/|
     LICENSE|
+    openapi_2026-07-21.json|
     .min(.css|.css.map|.js|.js.map)|
     locale/|
     static/(.*)/libs/
@@ -115,13 +116,15 @@ repos:
         name: End of file fixer
         description: Ensure that files end with a newline.
 
-  - repo: https://github.com/eslint/eslint
+  - repo: https://github.com/pre-commit/mirrors-eslint
     rev: v10.6.0
     hooks:
       - id: eslint
         name: ESLint
+        args: [--fix, --color, --max-warnings, "0"]
         description: Check for problems in JavaScript files.
-        args: [--fix, --color, --max-warnings, '0']
+        additional_dependencies:
+          - eslint@10.6.0
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
     rev: v17.14.0
@@ -133,8 +136,8 @@ repos:
           - --formatter=compact
         additional_dependencies:
           # stylelint itself needs to be here when using additional_dependencies.
-          - stylelint@16.25.0  # https://github.com/stylelint/stylelint/releases/latest
-          - stylelint-config-standard@39.0.1  # https://github.com/stylelint/stylelint-config-standard/releases/latest
+          - stylelint@17.14.0  # https://github.com/stylelint/stylelint/releases/latest
+          - stylelint-config-standard@40.0.0  # https://github.com/stylelint/stylelint-config-standard/releases/latest
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
@@ -143,7 +146,7 @@ repos:
         name: Check for blanket noqa
         description: Check for blanket noqa annotations.
 
-      - id: python-check-blanket-type-ignore  # Enforce that # type: ignore annotations always occur with specific codes. Sample annotations: # type: ignore[attr-defined], # type: ignore[attr-defined, name-defined]
+      - id: python-check-blanket-type-ignore  # Enforce that # type: ignore annotations always occur with specific codes. Sample annotations: # type: ignore[attr-defined], # type: ignore[attr-def...
         name: Check for blanket type ignore
         description: Check for blanket type ignore annotations.
 

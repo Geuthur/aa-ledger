@@ -5,17 +5,13 @@ from unittest.mock import patch
 # Django
 from django.utils import timezone
 
-# Alliance Auth (External Libs)
-from eve_sde.models.map import SolarSystem
-from eve_sde.models.types import ItemType
-
 # AA Ledger
 from ledger.models.characteraudit import CharacterMiningLedger
 from ledger.models.general import EveMarketPrice
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.utils import (
-    create_miningledger,
-    create_owner_from_user,
+from ledger.tests.testdata.factory import (
+    CharacterMiningLedgerFactory,
+    CharacterOwnerFactory,
 )
 
 MODULE_PATH = "ledger.models.characteraudit"
@@ -25,28 +21,14 @@ class TestCharacterMiningLedgerModel(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(cls.user, owner_type="character")
-        cls.eve_type = ItemType.objects.get(id=17425)
-        cls.eve_system = SolarSystem.objects.get(id=30004783)
-
-        cls.eve_type2 = ItemType.objects.get(id=16268)
-        cls.eve_type_price = ItemType.objects.get(id=28437)
-
-        cls.miningentry = create_miningledger(
+        cls.audit = CharacterOwnerFactory(user=cls.user)
+        cls.miningentry = CharacterMiningLedgerFactory(
             character=cls.audit,
-            id=1,
             date=timezone.now(),
-            type=cls.eve_type,
-            system=cls.eve_system,
-            quantity=100,
         )
-        cls.miningentry2 = create_miningledger(
+        cls.miningentry2 = CharacterMiningLedgerFactory(
             character=cls.audit,
-            id=2,
             date=timezone.now(),
-            type=cls.eve_type2,
-            system=cls.eve_system,
-            quantity=100,
         )
         cls.miningrecord = SimpleNamespace(
             date=timezone.datetime.replace(
@@ -59,17 +41,16 @@ class TestCharacterMiningLedgerModel(LedgerTestCase):
                 second=0,
                 microsecond=0,
             ),
-            type_id=1,
-            solar_system_id=1,
-        )
-        cls.eve_market_price = EveMarketPrice.objects.create(
-            eve_type=cls.eve_type_price,
-            average_price=100,
+            type_id=cls.miningentry.type_id,
+            solar_system_id=cls.miningentry.system_id,
         )
 
     def test_str(self):
         """Test string representation of CharacterMiningLedger."""
-        self.assertEqual(str(self.miningentry), f"{self.audit} 1")
+        self.assertEqual(
+            str(self.miningentry),
+            f"{self.audit} {self.miningentry.date.strftime('%Y%m%d')}-{self.miningentry.type_id}-{self.audit.eve_id}-{self.miningentry.system_id}",
+        )
 
     def test_create_primary_key(self):
         """Test creation of primary key for CharacterMiningLedger."""
@@ -78,16 +59,22 @@ class TestCharacterMiningLedgerModel(LedgerTestCase):
             self.audit.eve_character.character_id, self.miningrecord
         )
         # Expected Result
-        self.assertEqual(primary_key, "20240101-1-1001-1")
+        self.assertEqual(
+            primary_key,
+            f"20240101-{self.miningrecord.type_id}-{self.audit.eve_character.character_id}-{self.miningrecord.solar_system_id}",
+        )
 
     def test_get_npc_price(self):
         """Test retrieval of NPC price for CharacterMiningLedger."""
         # Test Data
         npc_price = self.miningentry2.get_npc_price()
+        eve_market_price = EveMarketPrice.objects.filter(
+            eve_type=self.miningentry2.type
+        ).first()
 
         # Expected Result
         self.assertIsNotNone(npc_price)
-        self.assertEqual(npc_price, 100)
+        self.assertEqual(npc_price, eve_market_price.average_price)
 
     @patch(MODULE_PATH + ".EveMarketPrice.objects.update_from_esi")
     def test_update_evemarket_price(self, mock_market_price):

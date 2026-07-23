@@ -40,11 +40,23 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 
 if TYPE_CHECKING:
     # AA Ledger
-    from ledger.models.ledger import CorporationBillboardEntry, CorporationLedgerEntry
+    from ledger.models.ledger import CorporationBillboardEntry
 
 
 class CorporationOwner(models.Model):
     """A model to store corporation information."""
+
+    if TYPE_CHECKING:
+        # AA Ledger
+        # pylint: disable=import-outside-toplevel
+        from ledger.managers.ledger_manager import BillboardEntryManager
+        from ledger.models.ledger import CorporationLedgerEntry
+
+        ledger_corporation: models.QuerySet["CorporationLedgerEntry"]
+        ledger_corporation_update_status: models.QuerySet["CorporationUpdateStatus"]
+        ledger_corporation_billboard: BillboardEntryManager
+
+    objects: CorporationAuditManager = CorporationAuditManager()
 
     class Meta:
         default_permissions = ()
@@ -52,8 +64,6 @@ class CorporationOwner(models.Model):
             ("corp_audit_manager", "Has Access to own Corporations."),
             ("corp_audit_admin_manager", "Has access to all Corporations."),
         )
-
-    objects: CorporationAuditManager = CorporationAuditManager()
 
     corporation_name = models.CharField(max_length=100, null=True, default=None)
 
@@ -163,16 +173,6 @@ class CorporationOwner(models.Model):
             update_section=CorporationUpdateSection,
             update_status=CorporationUpdateStatus,
         )
-
-    @property
-    def ledger_entry(self) -> models.QuerySet["CorporationLedgerEntry"]:
-        """Get the most recent ledger entry for this corporation, if one exists."""
-        return self.ledger_corporation_entry
-
-    @property
-    def ledger_billboard_entry(self) -> models.QuerySet["CorporationBillboardEntry"]:
-        """Get the most recent ledger entry for this corporation, if one exists."""
-        return self.ledger_corp_billboard_entries
 
     @property
     def ledger_alliance_billboard_entry(

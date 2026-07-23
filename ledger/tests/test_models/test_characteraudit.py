@@ -10,9 +10,9 @@ from ledger.models.characteraudit import (
 )
 from ledger.models.helpers.update_manager import UpdateStatus
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.utils import (
-    create_owner_from_user,
-    create_update_status,
+from ledger.tests.testdata.factory import (
+    CharacterOwnerFactory,
+    CharacterUpdateStatusFactory,
 )
 
 MODULE_PATH = "ledger.models.characteraudit"
@@ -23,15 +23,12 @@ class TestCharacterWalletJournalModel(LedgerTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.owner = create_owner_from_user(cls.user, owner_type="character")
+        cls.owner = CharacterOwnerFactory(user=cls.user)
         sections = CharacterUpdateSection.get_sections()
         for section in sections:
-            create_update_status(
+            CharacterUpdateStatusFactory(
                 owner=cls.owner,
                 section=section,
-                error_message="",
-                is_success=True,
-                has_token_error=False,
                 last_run_at=timezone.now(),
                 last_run_finished_at=timezone.now(),
                 last_update_at=timezone.now(),

@@ -48,3 +48,13 @@ updates:
     commit-message:
       # Prefix all commit messages with "[npm] "
       prefix: "[npm] "
+  
+  # Maintain dependencies for pre-commit
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    target-branch: "master"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      # Prefix all commit messages with "[pre-commit] "
+      prefix: "[pre-commit] "
