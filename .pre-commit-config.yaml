@@ -122,6 +122,7 @@ repos:
       - id: eslint
         name: ESLint
         args: [--fix, --color, --max-warnings, "0"]
+        description: Check for problems in JavaScript files.
         additional_dependencies:
           - eslint@10.6.0
 
