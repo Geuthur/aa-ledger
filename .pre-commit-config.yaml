@@ -124,10 +124,6 @@ repos:
         description: Check for problems in JavaScript files.
         args: [--fix, --color, --max-warnings, '0']
         language: node
-        additional_dependencies:
-          # eslint itself needs to be here when using additional_dependencies.
-          - eslint@10.6.0 # https://github.com/eslint/eslint/releases/latest
-          - globals@17.7.0 # https://github.com/sindresorhus/globals/releases/latest
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
     rev: v17.14.0
