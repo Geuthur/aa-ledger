@@ -1,14 +1,19 @@
 # Standard Library
 from http import HTTPStatus
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 # Third Party
 import pook
 
 # AA Ledger
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.factory import CharacterOwnerFactory
-from ledger.tests.testdata.utils import create_character_planet
+from ledger.tests.testdata.factory import (
+    CharacterOwnerFactory,
+    CharacterPlanetFactory,
+    ItemTypeFactory,
+    PlanetFactory,
+    SolarSystemFactory,
+)
 
 MODULE_PATH = "ledger.managers.character_planetary_manager"
 
@@ -35,6 +40,10 @@ class TestPlanetaryManager(LedgerTestCase):
         - Planets have correct upgrade levels and number of pins.
         """
         # Test Data
+        PlanetFactory(id=4001)
+        PlanetFactory(id=4002)
+        SolarSystemFactory(id=30004783, name="Jita")
+        SolarSystemFactory(id=30004784, name="Amarr")
         pook.get(
             f"https://esi.evetech.net/characters/{self.audit.eve_character.character_id}/planets",
             reply=HTTPStatus.OK,
@@ -90,8 +99,8 @@ class TestPlanetaryDetailsManager(LedgerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.audit = CharacterOwnerFactory(user=cls.user)
-        cls.planet = create_character_planet(
-            owner=cls.audit, planet_id=4001, upgrade_level=5, num_pins=5
+        cls.planet = CharacterPlanetFactory(
+            character=cls.audit, upgrade_level=5, num_pins=5
         )
         cls.token = cls.user.token_set.first()
         cls.audit.get_token = MagicMock(return_value=cls.token)
@@ -109,6 +118,11 @@ class TestPlanetaryDetailsManager(LedgerTestCase):
         - Planet details have correct planet IDs.
         """
         # Test Data
+        ItemTypeFactory(id=2534, name="Extractor Control Unit")
+        ItemTypeFactory(id=3060, name="Gas Extractor Head")
+        ItemTypeFactory(id=2268, name="T2 Product")
+        ItemTypeFactory(id=9832, name="T1 Product")
+        ItemTypeFactory(id=2309, name="Launchpad")
         pook.get(
             f"https://esi.evetech.net/characters/{self.audit.eve_character.character_id}/planets/{self.planet.eve_planet_id}",
             reply=HTTPStatus.OK,
@@ -193,5 +207,5 @@ class TestPlanetaryDetailsManager(LedgerTestCase):
                     "planet__eve_planet_id", flat=True
                 )
             ),
-            {4001},
+            {self.planet.eve_planet_id},
         )

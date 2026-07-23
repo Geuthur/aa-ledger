@@ -7,31 +7,18 @@ import string
 from django.contrib.auth.models import User
 
 # Alliance Auth
-from allianceauth.authentication.backends import StateBackend
 from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.tests.auth_utils import AuthUtils
 from esi.models import Scope, Token
 
-# Alliance Auth (External Libs)
-from eve_sde.models.map import Planet, SolarSystem
-from eve_sde.models.types import ItemType
-
 # AA Ledger
 from ledger.models.characteraudit import (
-    CharacterMiningLedger,
     CharacterOwner,
-    CharacterUpdateStatus,
-    CharacterWalletJournalEntry,
 )
 from ledger.models.corporationaudit import (
     CorporationOwner,
-    CorporationUpdateStatus,
-    CorporationWalletDivision,
-    CorporationWalletJournalEntry,
 )
-from ledger.models.general import EveEntity
-from ledger.models.planetary import CharacterPlanet, CharacterPlanetDetails
 
 
 def dt_eveformat(my_dt: dt.datetime) -> str:
@@ -270,68 +257,3 @@ def add_auth_character_to_user(
         scopes=scopes,
         disconnect_signals=disconnect_signals,
     )
-
-
-def create_miningledger(
-    character: CharacterOwner,
-    id: int,
-    date: str,
-    type: ItemType,
-    system: SolarSystem,
-    quantity: int,
-    **kwargs,
-) -> CharacterMiningLedger:
-    """
-    Create a CharacterMiningLedger
-
-    Args:
-        character (CharacterOwner): The character.
-        id (int): The ID of the mining ledger.
-        date (str): The date of the mining ledger.
-        type (ItemType): The type of the mined item.
-        system (EveSolarSystem): The solar system where mining took place.
-        quantity (int): The quantity mined.
-        **kwargs: Fields for the CharacterMiningLedger
-    Returns:
-        CharacterMiningLedger: The created mining ledger.
-    """
-    params = {
-        "character": character,
-        "id": id,
-        "date": date,
-        "type": type,
-        "system": system,
-        "quantity": quantity,
-    }
-    params.update(kwargs)
-    mining_ledger = CharacterMiningLedger(**params)
-    mining_ledger.save()
-    return mining_ledger
-
-
-def create_character_planet(
-    owner: CharacterOwner, planet_id: int, **kwargs
-) -> CharacterPlanet:
-    """Create a CharacterPlanet from CharacterOwner and planet_id."""
-    params = {
-        "character": owner,
-        "eve_planet": Planet.objects.get(id=planet_id),
-    }
-    params.update(kwargs)
-    planet = CharacterPlanet(**params)
-    planet.save()
-    return planet
-
-
-def create_character_planet_details(
-    planet: CharacterPlanet, **kwargs
-) -> CharacterPlanetDetails:
-    """Create a CharacterPlanetDetails from CharacterPlanet."""
-    params = {
-        "character": planet.character,
-        "planet": planet,
-    }
-    params.update(kwargs)
-    planetdetails = CharacterPlanetDetails(**params)
-    planetdetails.save()
-    return planetdetails

@@ -7,7 +7,11 @@ import pook
 
 # AA Ledger
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.factory import CharacterOwnerFactory
+from ledger.tests.testdata.factory import (
+    CharacterOwnerFactory,
+    ItemTypeFactory,
+    SolarSystemFactory,
+)
 
 MODULE_PATH = "ledger.managers.character_mining_manager"
 CHARACTEROWNER_PATH = "ledger.models.characteraudit.CharacterMiningLedger"
@@ -36,6 +40,8 @@ class TestCharacterMiningManager(LedgerTestCase):
         - Entries have correct quantity, system_id, and type_id.
         """
         # Test Data
+        ItemTypeFactory(id=17425, name="Tritanium")
+        SolarSystemFactory(id=30004783, name="Jita")
         pook.get(
             f"https://esi.evetech.net/characters/{self.user_character.character_id}/mining",
             reply=HTTPStatus.OK,

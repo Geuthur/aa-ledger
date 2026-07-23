@@ -11,7 +11,6 @@ from django.urls import reverse
 
 # AA Ledger
 from ledger.tests.testdata.factory import UserMainFactory
-from ledger.tests.testdata.integrations.allianceauth import load_allianceauth
 from ledger.views.alliance.add_ally import add_ally
 from ledger.views.character.add_char import add_char
 from ledger.views.corporation.add_corp import add_corp
@@ -103,9 +102,6 @@ class LedgerTestCase(NoSocketsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        # Initialize Alliance Auth test data
-        load_allianceauth()
-
         # Request Factory
         cls.factory = RequestFactory()
 
