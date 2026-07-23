@@ -242,7 +242,7 @@ class CharacterApiEndpoints:
                 continue
 
             # Check for Existing Ledger Entry
-            ledger_data = character.ledger_entry.filter(
+            ledger_data = character.ledger_character.filter(
                 year=request_info.year,
                 month=request_info.month,
                 day=request_info.day,
@@ -351,7 +351,7 @@ class CharacterApiEndpoints:
             character_ledger_list.append(response_ledger)
 
         # Check for Existing Billboard Entry
-        billboard_data = owner.ledger_billboard_entry.filter(
+        billboard_data = owner.ledger_character_billboard.filter(
             year=request_info.year,
             month=request_info.month,
             day=request_info.day,
@@ -389,7 +389,7 @@ class CharacterApiEndpoints:
             LedgerBillboard: The generated billboard data.
         """
         # Get Billboard Entry for Owner
-        billboard = owner.ledger_billboard_entry.filter(
+        billboard = owner.ledger_character_billboard.filter(
             year=request_info.year,
             month=request_info.month,
             day=request_info.day,

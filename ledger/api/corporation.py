@@ -46,7 +46,7 @@ from ledger.models.corporationaudit import (
     CorporationWalletJournalEntry,
 )
 from ledger.models.general import EveEntity
-from ledger.models.ledger import CorporationBillboardEntry, CorporationLedgerEntry
+from ledger.models.ledger import CorporationBillboardEntry
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -319,9 +319,8 @@ class CorporationApiEndpoints:
         entry_ids = list(unique.keys())
         entry_list = list(unique.values())
 
-        ledger_data = CorporationLedgerEntry.objects.filter(
+        ledger_data = owner.ledger_corporation.filter(
             entity_id=entity.entity_id,
-            owner=owner,
             year=request_info.year,
             month=request_info.month,
             day=request_info.day,
@@ -351,8 +350,7 @@ class CorporationApiEndpoints:
                 entry_list, RefTypeManager.ledger_ref_types(), sign="positive"
             )
 
-            CorporationLedgerEntry.objects.update_or_create(
-                owner=owner,
+            owner.ledger_corporation.update_or_create(
                 entity_id=entity.entity_id,
                 year=request_info.year,
                 month=request_info.month,
@@ -555,7 +553,7 @@ class CorporationApiEndpoints:
         )
 
         # Check for Existing Billboard Entry
-        billboard = owner.ledger_billboard_entry.filter(
+        billboard = owner.ledger_corporation_billboard.filter(
             year=request_info.year,
             month=request_info.month,
             day=request_info.day,
@@ -661,7 +659,7 @@ class CorporationApiEndpoints:
             BillboardSchema: The generated billboard data.
         """
         # Get Billboard Entry for Owner
-        billboard = owner.ledger_billboard_entry.filter(
+        billboard = owner.ledger_corporation_billboard.filter(
             year=request_info.year,
             month=request_info.month,
             day=request_info.day,

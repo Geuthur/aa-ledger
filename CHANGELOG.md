@@ -27,10 +27,13 @@ Section Order:
 - Modernized Tests
 - DataTable v2 now uses the AAv5 import
 - Update ESI Compatibility to `2026-07-21`
+- Optimize TypeHint for `CharacterOwner` & `CorporationOwner` Model
+- Pre-Commit Dependencies & GitHub Workflow
 
 ### Removed
 
 - `django-esi` dependency is already required for AAv5.
+- Unnecessary properties in `CharacterOwner` & `CorporationOwner` Model
 
 ## [3.0.2] - 14.07.2026
 

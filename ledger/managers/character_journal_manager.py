@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
-class CharWalletIncomeFilter(models.QuerySet):
+class CharacterWalletIncomeFilter(models.QuerySet):
     # PvE - Income
     def annotate_bounty_income(self) -> models.QuerySet:
         return self.annotate(
@@ -63,7 +63,7 @@ class CharWalletIncomeFilter(models.QuerySet):
         )
 
 
-class CharWalletOutSideFilter(CharWalletIncomeFilter):
+class CharacterWalletOutSideFilter(CharacterWalletIncomeFilter):
     def annotate_miscellaneous(self) -> models.QuerySet:
         return self.annotate(
             miscellaneous=Coalesce(
@@ -93,12 +93,12 @@ class CharWalletOutSideFilter(CharWalletIncomeFilter):
         )
 
 
-class CharWalletCostQueryFilter(CharWalletOutSideFilter):
+class CharacterWalletCostQueryFilter(CharacterWalletOutSideFilter):
     pass
 
 
 # pylint: disable=used-before-assignment
-class CharWalletQuerySet(CharWalletCostQueryFilter):
+class CharacterWalletQuerySet(CharacterWalletCostQueryFilter):
     def aggregate_bounty(self) -> dict:
         """Aggregate bounty income."""
         return Decimal(
@@ -218,9 +218,9 @@ class CharWalletQuerySet(CharWalletCostQueryFilter):
         )
 
 
-class CharWalletManager(models.Manager["CharacterWalletJournalEntryContext"]):
-    def get_queryset(self) -> CharWalletQuerySet:
-        return CharWalletQuerySet(self.model, using=self._db)
+class CharacterWalletManager(models.Manager["CharacterWalletJournalEntryContext"]):
+    def get_queryset(self) -> CharacterWalletQuerySet:
+        return CharacterWalletQuerySet(self.model, using=self._db)
 
     # pylint: disable=duplicate-code
     def annotate_bounty_income(self) -> models.QuerySet:

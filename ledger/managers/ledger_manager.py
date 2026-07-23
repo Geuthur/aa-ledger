@@ -1,5 +1,5 @@
 # Standard Library
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 # Django
 from django.db import models
@@ -16,31 +16,49 @@ from ledger.models.characteraudit import (
     CharacterOwner,
     CharacterWalletJournalEntry,
 )
-from ledger.models.corporationaudit import CorporationOwner
+from ledger.models.corporationaudit import (
+    CorporationOwner,
+    CorporationWalletJournalEntry,
+)
 from ledger.providers import AppLogger
 
 if TYPE_CHECKING:
     # AA Ledger
-    from ledger.models.ledger import (
-        CharacterLedgerEntry,
+    from ledger.api.schema import (
+        AllianceLedgerRequestInfo,
+        CorporationLedgerRequestInfo,
+        OwnerLedgerRequestInfo,
     )
+
+    # pylint: disable=import-outside-toplevel
+    from ledger.models.ledger import (
+        CharacterBillboardEntry,
+        CorporationBillboardEntry,
+    )
+
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
-class BillboardEntryQueryset(models.QuerySet["CharacterLedgerEntry"]):
+class BillboardEntryQueryset(models.QuerySet["CharacterBillboardEntry"]):
     pass
 
 
-class BillboardEntryManager(models.Manager["CharacterLedgerEntry"]):
+class BillboardEntryManager(
+    models.Manager[Union["CharacterBillboardEntry", "CorporationBillboardEntry"]]
+):
     def get_queryset(self) -> BillboardEntryQueryset:
         return BillboardEntryQueryset(self.model, using=self._db)
 
     def update_or_create_billboard_entry(
         self,
         owner: CharacterOwner | CorporationOwner | EveAllianceInfo,
-        request_info: dict,
-        wallet_journal: CharacterWalletJournalEntry,
+        request_info: Union[
+            "OwnerLedgerRequestInfo",
+            "CorporationLedgerRequestInfo",
+            "AllianceLedgerRequestInfo",
+        ],
+        wallet_journal: CharacterWalletJournalEntry | CorporationWalletJournalEntry,
         ledger_list: list,
         mining_journal: CharacterMiningLedger | None = None,
     ) -> None:
@@ -49,7 +67,7 @@ class BillboardEntryManager(models.Manager["CharacterLedgerEntry"]):
 
         Args:
             owner (CharacterOwner | CorporationOwner | EveAllianceInfo): The owner for whom the billboard entry is being updated or created.
-            request_info (dict): Information about the request, including year, month, day, and whether it's final data.
+            request_info (OwnerLedgerRequestInfo | CorporationLedgerRequestInfo | AllianceLedgerRequestInfo): Information about the request, including year, month, day, and whether it's final data.
             wallet_journal (CharacterWalletJournalEntry): The wallet journal entry to be used for generating the billboard data.
             ledger_list (list): A list of ledger entries to be used for generating the chord billboard.
             mining_journal (CharacterMiningLedger, optional): The mining journal entry to be used for generating the billboard data. Defaults to None.

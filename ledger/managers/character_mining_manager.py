@@ -258,7 +258,7 @@ class CharacterMiningLedgerEntryManager(models.Manager["MiningLedgerContext"]):
 
     def _update_mining_price(self, owner: "CharacterOwner") -> None:
         """Update prices for mining ledger entries."""
-        mining_ledger = owner.mining_ledger.filter(
+        mining_ledger = owner.ledger_character_mining.filter(
             price_per_unit__isnull=True,
             date__gte=timezone.now() - timezone.timedelta(days=30),
         )
