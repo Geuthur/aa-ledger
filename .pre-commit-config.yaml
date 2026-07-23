@@ -117,7 +117,7 @@ repos:
         description: Ensure that files end with a newline.
 
   - repo: https://github.com/eslint/eslint
-    rev: v10.7.0
+    rev: v10.6.0
     hooks:
       - id: eslint
         name: ESLint
@@ -126,7 +126,7 @@ repos:
         language: node
         additional_dependencies:
           # eslint itself needs to be here when using additional_dependencies.
-          - eslint@10.7.0 # https://github.com/eslint/eslint/releases/latest
+          - eslint@10.6.0 # https://github.com/eslint/eslint/releases/latest
           - globals@17.7.0 # https://github.com/sindresorhus/globals/releases/latest
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
