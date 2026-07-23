@@ -116,13 +116,14 @@ repos:
         name: End of file fixer
         description: Ensure that files end with a newline.
 
-  - repo: https://github.com/eslint/eslint
+  - repo: https://github.com/pre-commit/mirrors-eslint
     rev: v10.6.0
     hooks:
       - id: eslint
         name: ESLint
-        description: Check for problems in JavaScript files.
-        args: [--fix, --color, --max-warnings, '0']
+        args: [--fix, --color, --max-warnings, "0"]
+        additional_dependencies:
+          - eslint@10.6.0
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
     rev: v17.14.0
@@ -144,7 +145,7 @@ repos:
         name: Check for blanket noqa
         description: Check for blanket noqa annotations.
 
-      - id: python-check-blanket-type-ignore  # Enforce that # type: ignore annotations always occur with specific codes. Sample annotations: # type: ignore[attr-defined], # type: ignore[attr-defined, name-defined]
+      - id: python-check-blanket-type-ignore  # Enforce that # type: ignore annotations always occur with specific codes. Sample annotations: # type: ignore[attr-defined], # type: ignore[attr-def...
         name: Check for blanket type ignore
         description: Check for blanket type ignore annotations.
 
