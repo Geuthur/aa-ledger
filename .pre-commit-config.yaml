@@ -6,7 +6,7 @@
 default_language_version:
   # force all unspecified python hooks to run python3
   python: python3
-  node: 24.17.0 # LTS https://nodejs.org/en/blog/release/
+  node: 24.18.0 # LTS https://nodejs.org/en/blog/release/
 
 # https://pre-commit.ci/
 ci:
@@ -123,7 +123,6 @@ repos:
         name: ESLint
         description: Check for problems in JavaScript files.
         args: [--fix, --color, --max-warnings, '0']
-        language: node
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
     rev: v17.14.0
