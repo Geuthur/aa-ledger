@@ -259,7 +259,7 @@ repos:
         description: Format the tox.ini file.
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.25.1
+    rev: v2.25.3
     hooks:
       - id: pyproject-fmt
         name: pyproject.toml formatter
