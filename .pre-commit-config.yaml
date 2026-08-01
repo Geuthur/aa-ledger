@@ -117,7 +117,7 @@ repos:
         description: Ensure that files end with a newline.
 
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v10.7.0
+    rev: v10.8.0
     hooks:
       - id: eslint
         name: ESLint
