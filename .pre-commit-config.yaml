@@ -267,7 +267,7 @@ repos:
         args:
           - --indent=4
         additional_dependencies:
-          - tox==4.32.0  # https://github.com/tox-dev/tox/releases/latest
+          - tox==4.58.0  # https://github.com/tox-dev/tox/releases/latest
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.25
