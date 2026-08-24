@@ -60,6 +60,12 @@ class BillboardSystem:
         COSTS = "Costs", _("Costs")
         UNKNOWN = "Unknown", _("Unknown")
 
+        BOUNTY_CHART = "Bounty Chart", f"{_('Bounty')} 🏦"
+        ESS_CHART = "ESS Chart", f"{_('ESS')} 🏦"
+        MINING_CHART = "Mining Chart", f"{_('Mining')} 🏦"
+        MISCELLANEOUS_CHART = "Miscellaneous Chart", f"{_('Miscellaneous')} 🏦"
+        COSTS_CHART = "Costs Chart", f"{_('Costs')} 🏦"
+
     def _get_formatted_date(
         self, date: datetime, request_info: "OwnerLedgerRequestInfo"
     ) -> str:
@@ -81,7 +87,7 @@ class BillboardSystem:
             return date.strftime("%Y-%m")
         raise ValueError("Invalid view type. Use 'day', 'month', or 'year'.")
 
-    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches,no-member
     def create_chord_billboard(self, ledger_list) -> BillboardData | None:
         """
         Create chord billboard data from a list of ledger schemas.
@@ -121,7 +127,7 @@ class BillboardSystem:
                 if mining != 0:
                     data = {
                         "from": name,
-                        "to": _("Mining"),
+                        "to": self.Categories.MINING_CHART.label,
                         "value": abs(mining),
                     }
 
@@ -130,7 +136,7 @@ class BillboardSystem:
             if bounty != 0:
                 data = {
                     "from": name,
-                    "to": _("Bounty"),
+                    "to": self.Categories.BOUNTY_CHART.label,
                     "value": abs(bounty),
                 }
 
@@ -138,7 +144,7 @@ class BillboardSystem:
             if ess != 0:
                 data = {
                     "from": name,
-                    "to": _("ESS"),
+                    "to": self.Categories.ESS_CHART.label,
                     "value": abs(ess),
                 }
 
@@ -146,7 +152,7 @@ class BillboardSystem:
             if miscellaneous != 0:
                 data = {
                     "from": name,
-                    "to": _("Miscellaneous"),
+                    "to": self.Categories.MISCELLANEOUS_CHART.label,
                     "value": abs(miscellaneous),
                 }
 
@@ -154,7 +160,7 @@ class BillboardSystem:
             if costs != 0:
                 data = {
                     "from": name,
-                    "to": _("Costs"),
+                    "to": self.Categories.COSTS_CHART.label,
                     "value": abs(costs),
                 }
 

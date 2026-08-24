@@ -174,13 +174,6 @@ class CorporationOwner(models.Model):
             update_status=CorporationUpdateStatus,
         )
 
-    @property
-    def ledger_alliance_billboard_entry(
-        self,
-    ) -> models.QuerySet["CorporationBillboardEntry"]:
-        """Get the most recent ledger entry for this corporation, if one exists."""
-        return self.ledger_alliance_billboard_entries
-
     def get_portrait(self, size: int = 64, as_html: bool = False) -> str:
         """
         Get the corporation portrait URL.
