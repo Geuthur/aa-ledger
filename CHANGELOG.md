@@ -14,6 +14,7 @@ Section Order:
 ### Added
 
 - Dev Make File
+- Chart categories to BillboardSystem and update labels
 
 ### Fixed
 
