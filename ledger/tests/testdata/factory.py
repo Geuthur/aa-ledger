@@ -693,7 +693,6 @@ class SolarSystemFactory(
     regional = False
     security_class = factory.fuzzy.FuzzyChoice([None, "A", "B", "C", "D", "E"])
     security_status = factory.fuzzy.FuzzyFloat(0, 1, 2)
-    star_id_raw = factory.fuzzy.FuzzyInteger(0, 100)
     visual_effect = (
         None  # Not needed for testing, can be set to a VisualEffect object if needed
     )
