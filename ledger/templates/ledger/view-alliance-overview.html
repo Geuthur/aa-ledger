@@ -28,7 +28,15 @@
                     <th class="w-auto">{% translate "Alliance" %}</th>
                     <th class="w-auto">{% translate "Actions" %}</th>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    <tr>
+                        <td colspan="3" class="text-center" id="loading-message-container">
+                            <div class="spinner-border text-primary">
+                                <span class="visually-hidden">{% translate "Loading..." %}</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     </div>
