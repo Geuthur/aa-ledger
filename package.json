@@ -2,8 +2,8 @@
     "type": "module",
     "devDependencies": {
         "@eslint/js": "^10.0.1",
-        "eslint": "^10.8.0",
-        "globals": "^17.8.0",
+        "eslint": "^10.9.1",
+        "globals": "^17.11.0",
         "stylelint": "^17.14.1",
         "stylelint-config-standard": "^40.0.0"
     }
