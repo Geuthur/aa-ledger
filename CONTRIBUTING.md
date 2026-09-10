@@ -145,4 +145,4 @@ You can do so by providing a `.make/myauth-path` file in the project root with t
 
 [aa dev enviroment guide]: https://allianceauth.readthedocs.io/en/latest/development/dev_setup/aa-dev-setup-wsl-vsc-v2.html "AA Dev Enviroment Guide"
 [python unittest]: https://docs.python.org/3/library/unittest.html "Python Unittest"
-[weblate]: https://weblate.voices-of-war.de/ "Weblate"
+[weblate]: https://weblate.geuthur.de/ "Weblate"
