@@ -1,4 +1,4 @@
-# Contributing to This Project
+# Contributing to This Project<a name="contributing-to-this-project"></a>
 
 There are many ways to Contribute to this Project:
 
@@ -9,21 +9,26 @@ There are many ways to Contribute to this Project:
 
 and many more feel free to make a pull request.
 
-- [Test Utilities](#test-utilities)
-- [Branching and Pull Requests](#branching-and-pull-requests)
-- [Translation](#translation)
-- [Development](#development)
-  - [Licence Agreements](#licence)
-  - [Code of Conduct](#code-of-conduct)
-  - [Enviroment](#enviroment)
-  - [Makefile System](#makefile-system)
-    - [General Commands](#general-commands)
-    - [Migration Handling](#migration-handling)
-    - [Translation Handling](#translation-handling)
-    - [Git Handling](#git-handling)
-    - [Pre-Commit](#pre-commit)
-    - [Redis](#redis)
-    - [Tests](#tests)
+<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
+
+- [Contributing to This Project](#contributing-to-this-project)
+  - [Test Utilities](#test-utilities)
+  - [Branching and Pull Requests](#branching-and-pull-requests)
+  - [Translation](#translation)
+  - [Development](#development)
+    - [Licence](#licence)
+    - [Code of Conduct](#code-of-conduct)
+    - [Enviroment](#enviroment)
+    - [Makefile System](#makefile-system)
+      - [General Commands](#general-commands)
+      - [Migration Handling](#migration-handling)
+      - [Translation Handling](#translation-handling)
+      - [Git Handling](#git-handling)
+      - [Pre-Commit](#pre-commit)
+      - [Redis](#redis)
+      - [Tests](#tests)
+
+<!-- mdformat-toc end -->
 
 #### Test Utilities<a name="test-utilities"></a>
 

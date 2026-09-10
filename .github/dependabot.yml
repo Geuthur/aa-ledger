@@ -53,6 +53,12 @@ updates:
   - package-ecosystem: "pre-commit"
     directory: "/"
     target-branch: "master"
+    groups:
+      "Pre-Commit Dependencies":
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
     schedule:
       interval: "monthly"
     commit-message:
