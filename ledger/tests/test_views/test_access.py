@@ -7,12 +7,12 @@ from unittest.mock import patch
 # Django
 from django.urls import reverse
 
+# Alliance Auth (External Libs)
+from evesde_factory.utils import add_permission_to_user
+
 # AA Ledger
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.factory import CharacterOwnerFactory, CorporationOwnerFactory
-from ledger.tests.testdata.utils import (
-    add_new_permission_to_user,
-)
 from ledger.views import index
 from ledger.views.alliance import alliance_ledger
 from ledger.views.character import character_ledger, planetary
@@ -422,7 +422,9 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
         cls.audit = CorporationOwnerFactory(
             user=cls.user,
         )
-        cls.user = add_new_permission_to_user(cls.user, "ledger.advanced_access")
+        cls.user = add_permission_to_user(
+            user=cls.user, permissions=["ledger.advanced_access"]
+        )
 
     def test_view_corporation_ledger(self):
         """
@@ -483,7 +485,9 @@ class TestViewCorporationLedgerAccess(LedgerTestCase):
         This test verifies that a user without permission is shown an error message when accessing a corporation ledger from another corporation.
         """
         # Test Data
-        self.user2 = add_new_permission_to_user(self.user2, "ledger.advanced_access")
+        self.user2 = add_permission_to_user(
+            user=self.user2, permissions=["ledger.advanced_access"]
+        )
         # Test Action
         self.client.force_login(self.user2)
         response = self.client.get(
@@ -604,8 +608,12 @@ class TestViewAllianceLedgerAccess(LedgerTestCase):
 
         cls.audit = CorporationOwnerFactory(user=cls.user)
         cls.audit_admin = CorporationOwnerFactory(user=cls.user2)
-        cls.user = add_new_permission_to_user(cls.user, "ledger.advanced_access")
-        cls.user2 = add_new_permission_to_user(cls.user2, "ledger.advanced_access")
+        cls.user = add_permission_to_user(
+            user=cls.user, permissions=["ledger.advanced_access"]
+        )
+        cls.user2 = add_permission_to_user(
+            user=cls.user2, permissions=["ledger.advanced_access"]
+        )
 
     def test_view_alliance_ledger(self):
         """
@@ -776,7 +784,9 @@ class TestViewPlanetaryLedgerAccess(LedgerTestCase):
         super().setUpClass()
 
         cls.audit = CharacterOwnerFactory(user=cls.user)
-        cls.user = add_new_permission_to_user(cls.user, "ledger.advanced_access")
+        cls.user = add_permission_to_user(
+            user=cls.user, permissions=["ledger.advanced_access"]
+        )
 
     def test_view_planetary_ledger_index(self):
         """Test view planetary ledger index."""

@@ -7,10 +7,12 @@ from unittest.mock import patch
 # Django
 from django.urls import reverse
 
+# Alliance Auth (External Libs)
+from evesde_factory.utils import add_permission_to_user
+
 # AA Ledger
 from ledger.models.corporationaudit import CorporationOwner
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.utils import add_new_permission_to_user
 
 MODULE_PATH = "ledger.views.corporation.add_corp"
 
@@ -25,7 +27,9 @@ class TestAddCorpView(LedgerTestCase):
     def test_add_corp(self, mock_tasks, mock_messages):
         """Test adding a corporation via the add_corp view."""
         # Test Data
-        self.user = add_new_permission_to_user(self.user, "ledger.advanced_access")
+        self.user = add_permission_to_user(
+            user=self.user, permissions=["ledger.advanced_access"]
+        )
         user = self.user
         token = user.token_set.first()
 

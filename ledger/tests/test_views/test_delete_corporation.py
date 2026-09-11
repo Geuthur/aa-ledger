@@ -7,12 +7,12 @@ from http import HTTPStatus
 # Django
 from django.urls import reverse
 
+# Alliance Auth (External Libs)
+from evesde_factory.utils import add_permission_to_user
+
 # AA Ledger
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.factory import CorporationOwnerFactory
-from ledger.tests.testdata.utils import (
-    add_new_permission_to_user,
-)
 from ledger.views.corporation.corporation_ledger import corporation_delete
 
 MODULE_PATH = "ledger.views.corporation.corporation_ledger"
@@ -98,9 +98,7 @@ class TestDeleteCorporationView(LedgerTestCase):
                 kwargs={"corporation_id": self.audit.eve_corporation.corporation_id},
             )
         )
-        add_new_permission_to_user(
-            user=self.user2, permission_name="ledger.manage_access"
-        )
+        add_permission_to_user(user=self.user2, permissions=["ledger.manage_access"])
         request.user = self.user2
 
         # Test Action

@@ -5,9 +5,6 @@ from unittest.mock import MagicMock, patch
 # Third Party
 import pook
 
-# Django
-from django.utils import timezone
-
 # AA Ledger
 from ledger.models.general import EveEntity
 from ledger.tests import LedgerTestCase

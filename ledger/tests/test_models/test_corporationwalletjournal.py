@@ -1,5 +1,5 @@
-# Django
-from django.utils import timezone
+# Alliance Auth (External Libs)
+from evesde_factory.utils import add_permission_to_user
 
 # AA Ledger
 from ledger.tests import LedgerTestCase
@@ -7,9 +7,6 @@ from ledger.tests.testdata.factory import (
     CorporationJournalFactory,
     CorporationOwnerFactory,
     DivisionFactory,
-)
-from ledger.tests.testdata.utils import (
-    add_new_permission_to_user,
 )
 
 MODULE_PATH = "ledger.models.corporationaudit"
@@ -44,8 +41,8 @@ class TestCorporationWalletJournalModel(LedgerTestCase):
         - User with permissions can access journal entries.
         """
         # Test Data
-        self.user = add_new_permission_to_user(
-            user=self.user, permission_name="ledger.advanced_access"
+        self.user = add_permission_to_user(
+            user=self.user, permissions=["ledger.advanced_access"]
         )
 
         # Expected Result

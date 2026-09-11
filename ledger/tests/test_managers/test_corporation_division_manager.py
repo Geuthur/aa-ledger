@@ -8,10 +8,12 @@ import pook
 # Alliance Auth
 from esi.errors import TokenError
 
+# Alliance Auth (External Libs)
+from evesde_factory.utils import add_new_token
+
 # AA Ledger
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.factory import CorporationOwnerFactory
-from ledger.tests.testdata.utils import add_new_token
 
 MODULE_PATH = "ledger.managers.corporation_journal_manager"
 
