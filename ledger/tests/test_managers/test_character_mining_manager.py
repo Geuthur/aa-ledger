@@ -5,12 +5,16 @@ from unittest.mock import MagicMock, patch
 # Third Party
 import pook
 
+# Alliance Auth (External Libs)
+from evesde_factory.eve_sde import (
+    ItemTypeFactory,
+    SolarSystemFactory,
+)
+
 # AA Ledger
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
-    ItemTypeFactory,
-    SolarSystemFactory,
 )
 
 MODULE_PATH = "ledger.managers.character_mining_manager"

@@ -5,14 +5,18 @@ from unittest.mock import MagicMock
 # Third Party
 import pook
 
+# Alliance Auth (External Libs)
+from evesde_factory.eve_sde import (
+    ItemTypeFactory,
+    PlanetFactory,
+    SolarSystemFactory,
+)
+
 # AA Ledger
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
     CharacterPlanetFactory,
-    ItemTypeFactory,
-    PlanetFactory,
-    SolarSystemFactory,
 )
 
 MODULE_PATH = "ledger.managers.character_planetary_manager"

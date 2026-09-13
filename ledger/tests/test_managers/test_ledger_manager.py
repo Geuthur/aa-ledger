@@ -10,14 +10,12 @@ from ledger.api.schema import CorporationLedgerRequestInfo, EntitySchema, Ledger
 from ledger.models import (
     CorporationBillboardEntry,
     CorporationWalletJournalEntry,
-    EveEntity,
 )
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.factory import (
     CorporationJournalFactory,
     CorporationOwnerFactory,
     DivisionFactory,
-    EveEntityFactory,
 )
 
 MODULE_PATH = "ledger.managers.ledger_manager"

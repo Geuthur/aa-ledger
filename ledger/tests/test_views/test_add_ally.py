@@ -10,11 +10,11 @@ from django.urls import reverse
 # Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo
 
+# Alliance Auth (External Libs)
+from evesde_factory.utils import add_permission_to_user
+
 # AA Ledger
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.utils import (
-    add_new_permission_to_user,
-)
 
 MODULE_PATH = "ledger.views.alliance.add_ally"
 
@@ -38,7 +38,9 @@ class TestAddAllyView(LedgerTestCase):
         ## Results: Redirects to alliance ledger with info message.
         """
         # Test Data
-        self.user = add_new_permission_to_user(self.user, "ledger.advanced_access")
+        self.user = add_permission_to_user(
+            user=self.user, permissions=["ledger.advanced_access"]
+        )
         token = self.user.token_set.first()
 
         # Test Action
@@ -65,7 +67,9 @@ class TestAddAllyView(LedgerTestCase):
         ## Results: Ally is added successfully.
         """
         # Test Data
-        self.user = add_new_permission_to_user(self.user, "ledger.advanced_access")
+        self.user = add_permission_to_user(
+            user=self.user, permissions=["ledger.advanced_access"]
+        )
         alliance = Mock()
         alliance.id = 99000001
         alliance.name = "Test Alliance"
@@ -109,7 +113,9 @@ class TestAddAllyView(LedgerTestCase):
         ## Results: Redirects to alliance ledger with warning message.
         """
         # Test Data
-        self.user = add_new_permission_to_user(self.user, "ledger.advanced_access")
+        self.user = add_permission_to_user(
+            user=self.user, permissions=["ledger.advanced_access"]
+        )
         mock_get.side_effect = EveAllianceInfo.DoesNotExist
         mock_provider.get_alliance.side_effect = Exception("API Error")
 

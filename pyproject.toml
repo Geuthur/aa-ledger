@@ -43,6 +43,7 @@ dependencies = [
 ]
 optional-dependencies.tests-allianceauth-latest = [
     "aa-discordnotify",
+    "aa-evesde-factory",
     "allianceauth-discordbot",
     "coverage",
     "discordproxy",
