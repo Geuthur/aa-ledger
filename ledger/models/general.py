@@ -45,6 +45,8 @@ class General(models.Model):
     class Meta:
         managed = False
         default_permissions = ()
+        verbose_name = "AA-Ledger"
+        verbose_name_plural = "AA-Ledger"
         permissions = (
             ("basic_access", "Can access this app, Ledger."),
             ("advanced_access", "Can access Corporation and Alliance Ledger."),
