@@ -162,5 +162,12 @@
   "Show characters": "Show characters",
   "Show characters of {{name}}": "Show characters of {{name}}",
   "Share": "Share",
-  "No characters": "No characters"
+  "No characters": "No characters",
+  "Reference Types": "Reference Types",
+  "Search reference type": "Search reference type",
+  "Matching reference types": "Matching reference types",
+  "No matching reference types": "No matching reference types",
+  "Total of the matches": "Total of the matches",
+  "+{{number}} more": "+{{number}} more",
+  "Reference Type": "Reference Type"
 }

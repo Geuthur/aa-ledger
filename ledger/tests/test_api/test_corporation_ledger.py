@@ -11,6 +11,7 @@ from evesde_factory.allianceauth import EveCharacterFactory
 from evesde_factory.utils import add_character_to_user
 
 # AA Ledger
+from ledger.helpers.ref_type import RefTypeManager
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.factory import (
     CorporationJournalFactory,
@@ -136,7 +137,10 @@ class TestCorporationLedgerApi(LedgerTestCase):
         data = response.json()
         self.assertEqual(data["total"]["summary"], 1000)
         self.assertEqual(data["summary"][0]["amount"], 1000)
-        self.assertIsInstance(data["summary"][0]["ref_types"], list)
+        self.assertEqual(
+            data["summary"][0]["ref_types"],
+            [{"ref_type": "bounty_prizes", "amount": 1000}],
+        )
 
     def test_get_details_should_return_empty_response_without_data(self):
         # Test Data
@@ -152,6 +156,64 @@ class TestCorporationLedgerApi(LedgerTestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(response.json()["summary"], [])
         self.assertEqual(response.json()["total"]["summary"], 0)
+
+
+class TestCorporationDetailsRefTypes(LedgerTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.audit = CorporationOwnerFactory(user=cls.manage_user)
+        division = DivisionFactory(corporation=cls.audit, division_id=1)
+        date = timezone.now().replace(
+            year=2016, month=10, day=29, hour=0, minute=0, second=0, microsecond=0
+        )
+        cls.small, cls.large = RefTypeManager.CONTRACT[:2]
+        for ref_type, amount in ((cls.small, 100), (cls.large, 300), (cls.small, -40)):
+            CorporationJournalFactory(
+                division=division, amount=amount, date=date, ref_type=ref_type
+            )
+        cls.url = (
+            f"{reverse('ledger:index')}api/corporation/"
+            f"{cls.audit.eve_corporation.corporation_id}/details/"
+            f"?year=2016&month=10&day=29&entity_id={cls.audit.eve_corporation.corporation_id}"
+            "&section=single"
+        )
+
+    def _rows(self, period="summary"):
+        self.client.force_login(self.manage_user)
+        rows = self.client.get(self.url).json()[period]
+        return {"income": rows[0], "cost": rows[1]}
+
+    def test_get_details_should_list_ref_types_by_amount(self):
+        # Test Action
+        income = self._rows()["income"]
+
+        # Expected Result
+        self.assertEqual(income["amount"], 400)
+        self.assertEqual(
+            income["ref_types"],
+            [
+                {"ref_type": self.large, "amount": 300},
+                {"ref_type": self.small, "amount": 100},
+            ],
+        )
+
+    def test_get_details_should_split_costs_from_income(self):
+        # Test Action
+        cost = self._rows()["cost"]
+
+        # Expected Result
+        self.assertEqual(cost["ref_types"], [{"ref_type": self.small, "amount": -40}])
+
+    def test_get_details_should_scale_ref_types_to_the_period(self):
+        # Test Action
+        income = self._rows("daily")["income"]
+
+        # Expected Result
+        self.assertAlmostEqual(
+            sum(item["amount"] for item in income["ref_types"]), income["amount"]
+        )
+        self.assertAlmostEqual(income["amount"], 400 / 29)
 
 
 class TestCorporationLedgerMembers(LedgerTestCase):

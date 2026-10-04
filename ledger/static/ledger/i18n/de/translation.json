@@ -160,5 +160,12 @@
   "Show characters": "Charaktere anzeigen",
   "Show characters of {{name}}": "Charaktere von {{name}} anzeigen",
   "Share": "Anteil",
-  "No characters": "Keine Charaktere"
+  "No characters": "Keine Charaktere",
+  "Reference Types": "Referenztypen",
+  "Search reference type": "Referenztyp suchen",
+  "Matching reference types": "Passende Referenztypen",
+  "No matching reference types": "Keine passenden Referenztypen",
+  "Total of the matches": "Summe der Treffer",
+  "+{{number}} more": "+{{number}} weitere",
+  "Reference Type": "Referenztyp"
 }

@@ -10,11 +10,13 @@ import { Modal, Nav } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { CategorySchema, LedgerDetailsResponse } from "@/Api/schema";
+import RefTypeBadges from "@/Components/Ledger/RefTypeBadges";
+import RefTypesModal from "@/Components/Ledger/RefTypesModal";
 import ErrorLoader from "@/Components/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Loader/FetchingLoader";
 import { BaseTable } from "@/Components/Tables/BaseTable";
-import { renderTooltip } from "@/Components/Tables/BaseTable/tableHelper";
 import { amountClass, formatIsk } from "@/Utils/ledger";
+import { filterCategories, filterRefTypes, formatRefType, sumRefTypes } from "@/Utils/refTypes";
 
 type Period = "summary" | "daily" | "hourly";
 
@@ -32,6 +34,8 @@ export interface DetailsModalProps {
 function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsModalProps) {
   const { t } = useTranslation();
   const [period, setPeriod] = useState<Period>("summary");
+  const [search, setSearch] = useState("");
+  const [refTypesOf, setRefTypesOf] = useState<CategorySchema | null>(null);
 
   const { data, isFetching, isError, error } = useQuery({
     queryKey,
@@ -65,18 +69,22 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
         }),
         columnHelper.display({
           id: "ref_types",
-          header: t("Included Reference Types"),
-          cell: ({ row }) => {
-            const refTypes = row.original.ref_types ?? [];
-            return renderTooltip(
-              refTypes.join(", "),
-              <span className="badge bg-secondary">{refTypes.length}</span>,
-            );
-          },
+          header: t("Reference Types"),
+          cell: ({ row }) => (
+            <RefTypeBadges
+              refTypes={filterRefTypes(row.original.ref_types ?? [], search)}
+              showAmounts={search.trim() !== ""}
+              onShowAll={() => setRefTypesOf(row.original)}
+            />
+          ),
         }),
       ] as ColumnDef<CategorySchema, unknown>[],
-    [t],
+    [t, search],
   );
+
+  const rows = useMemo(() => filterCategories(data?.[period] ?? [], search), [data, period, search]);
+  const matches = useMemo(() => sumRefTypes(rows, search), [rows, search]);
+  const matchTotal = matches.reduce((sum, item) => sum + item.amount, 0);
 
   const periods: { key: Period; label: string }[] = [
     { key: "summary", label: t("Summary") },
@@ -85,7 +93,14 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
   ];
 
   return (
-    <Modal show={entityId !== null} onHide={onHide} size="xl" centered restoreFocus={false}>
+    <Modal
+      show={entityId !== null}
+      onHide={onHide}
+      onExited={() => setSearch("")}
+      size="xl"
+      centered
+      restoreFocus={false}
+    >
       <Modal.Header closeButton>
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
@@ -106,9 +121,39 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                 </Nav.Item>
               ))}
             </Nav>
+            <input
+              type="search"
+              className="lg-select lg-input w-100 my-3"
+              placeholder={t("Search reference type")}
+              aria-label={t("Search reference type")}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+            {search.trim() !== "" && (
+              <div className="lg-chord-details mb-3" role="region" aria-label={t("Matching reference types")}>
+                {matches.length === 0 ? (
+                  <span className="text-muted">{t("No matching reference types")}</span>
+                ) : (
+                  <>
+                    <ul className="list-unstyled m-0">
+                      {matches.map((item) => (
+                        <li key={item.ref_type} className="lg-chord-flow">
+                          <span className="flex-grow-1">{formatRefType(item.ref_type)}</span>
+                          <span className={amountClass(item.amount)}>{formatIsk(item.amount)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="d-flex justify-content-between fw-bold border-top mt-2 pt-2">
+                      <span>{t("Total of the matches")}</span>
+                      <span className={amountClass(matchTotal)}>{formatIsk(matchTotal)}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
             <BaseTable
               columns={columns}
-              data={data[period]}
+              data={rows}
               emptyText={t("No data for the selected period")}
               exportFileName="ledger-details.csv"
             />
@@ -121,6 +166,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
           </>
         )}
       </Modal.Body>
+      <RefTypesModal category={refTypesOf} initialSearch={search} onHide={() => setRefTypesOf(null)} />
     </Modal>
   );
 }

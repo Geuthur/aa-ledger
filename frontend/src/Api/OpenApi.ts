@@ -756,7 +756,7 @@ export interface components {
              * Ref Types
              * @default []
              */
-            ref_types: string[];
+            ref_types: components["schemas"]["RefTypeAmountSchema"][];
         };
         /**
          * LedgerDetailsResponse
@@ -801,6 +801,19 @@ export interface components {
              * @default 0
              */
             hourly: number;
+        };
+        /**
+         * RefTypeAmountSchema
+         * @description Amount that a single reference type contributed to a category.
+         */
+        RefTypeAmountSchema: {
+            /** Ref Type */
+            ref_type: string;
+            /**
+             * Amount
+             * @default 0
+             */
+            amount: number;
         };
         /**
          * PlanetSelection

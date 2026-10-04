@@ -102,7 +102,7 @@ describe("CharacterLedger", () => {
     vi.mocked(ApiCalls.fetchCharacterLedger).mockResolvedValue(ledger as never);
     vi.mocked(ApiCalls.fetchCharacterDetails).mockResolvedValue({
       summary: [
-        { name: "Income from Bounty", amount: 1000, average: 1, average_tick: 1, ref_types: ["bounty_prizes"] },
+        { name: "Income from Bounty", amount: 1000, average: 1, average_tick: 1, ref_types: [{ ref_type: "bounty_prizes", amount: 1000 }] },
       ],
       daily: [],
       hourly: [],

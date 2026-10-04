@@ -2336,7 +2336,7 @@
           "ref_types": {
             "default": [],
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/RefTypeAmountSchema"
             },
             "title": "Ref Types",
             "type": "array"
@@ -2405,6 +2405,25 @@
           }
         },
         "title": "LedgerDetailsSummary",
+        "type": "object"
+      },
+      "RefTypeAmountSchema": {
+        "description": "Amount that a single reference type contributed to a category.",
+        "properties": {
+          "ref_type": {
+            "title": "Ref Type",
+            "type": "string"
+          },
+          "amount": {
+            "default": 0.0,
+            "title": "Amount",
+            "type": "number"
+          }
+        },
+        "required": [
+          "ref_type"
+        ],
+        "title": "RefTypeAmountSchema",
         "type": "object"
       },
       "PlanetSelection": {

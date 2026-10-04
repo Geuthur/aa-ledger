@@ -40,6 +40,10 @@
     cursor: not-allowed;
 }
 
+.lg-input {
+    cursor: text;
+}
+
 /* ═══ BUTTONS ══════════════════════════════════════════════════════════════ */
 .lg-btn {
     display: inline-flex;

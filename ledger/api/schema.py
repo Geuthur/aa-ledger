@@ -142,12 +142,20 @@ class EntitySchema(Schema):
     icon: str | None = None
 
 
+class RefTypeAmountSchema(Schema):
+    """Amount that a single reference type contributed to a category."""
+
+    ref_type: str
+    amount: float = 0.00
+
+
 class CategorySchema(Schema):
     name: str
     amount: float = 0.00
     average: float = 0.00
     average_tick: float = 0.00
-    ref_types: list[str] = []
+    # Only the reference types with entries, largest absolute amount first.
+    ref_types: list[RefTypeAmountSchema] = []
 
 
 class UpdateStatusSchema(Schema):

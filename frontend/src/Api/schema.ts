@@ -28,6 +28,7 @@ export type UpdateStatusSchema = components["schemas"]["UpdateStatusSchema"];
 export type DivisionSchema = components["schemas"]["DivisionSchema"];
 export type LedgerDetailsResponse = components["schemas"]["LedgerDetailsResponse"];
 export type CategorySchema = components["schemas"]["CategorySchema"];
+export type RefTypeAmountSchema = components["schemas"]["RefTypeAmountSchema"];
 
 export type PlanetaryDetails = components["schemas"]["PlanetaryDetails"];
 export type PlanetDetailResponse = components["schemas"]["PlanetDetailResponse"];

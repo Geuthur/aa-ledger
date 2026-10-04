@@ -7,7 +7,7 @@ from ninja import NinjaAPI, Query, Schema
 
 # Django
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import Q, QuerySet
+from django.db.models import Q, QuerySet, Sum
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
@@ -30,6 +30,7 @@ from ledger.api.schema import (
     LedgerDetailsSummary,
     LedgerResponse,
     OwnerSchema,
+    RefTypeAmountSchema,
     Section,
     UpdateStatusSchema,
 )
@@ -199,6 +200,37 @@ class CharacterApiEndpoints:
         )
 
 
+def _amounts_by_ref_type(journal: QuerySet, income: bool) -> dict[str, Decimal]:
+    """Sum the journal per reference type, counting either income or costs."""
+    entries = journal.filter(amount__gt=0) if income else journal.filter(amount__lt=0)
+    return {
+        row["ref_type"]: row["total"]
+        for row in entries.order_by().values("ref_type").annotate(total=Sum("amount"))
+    }
+
+
+def _category_rows(
+    categories: list[tuple[str, dict[str, Decimal]]],
+    amount_divisor: Decimal | int,
+    average_divisor: Decimal | int,
+    tick_divisor: Decimal | int,
+) -> list[CategorySchema]:
+    """Scale the amounts of every category and its reference types to one period."""
+    return [
+        CategorySchema(
+            name=name,
+            amount=sum(ref_amounts.values()) / amount_divisor,
+            average=sum(ref_amounts.values()) / average_divisor,
+            average_tick=sum(ref_amounts.values()) / tick_divisor,
+            ref_types=[
+                RefTypeAmountSchema(ref_type=ref_type, amount=value / amount_divisor)
+                for ref_type, value in ref_amounts.items()
+            ],
+        )
+        for name, ref_amounts in categories
+    ]
+
+
 # pylint: disable=too-many-locals
 def create_ledger_details(
     journal: QuerySet,
@@ -225,52 +257,34 @@ def create_ledger_details(
     if section == "summary":
         avg = 365
 
-    monthly_list: list[CategorySchema] = []
-    daily_list: list[CategorySchema] = []
-    hourly_list: list[CategorySchema] = []
-    summary = 0
+    amounts = {
+        flag: _amounts_by_ref_type(journal, income=flag) for flag in (True, False)
+    }
+    categories: list[tuple[str, dict[str, Decimal]]] = []
     for category in RefTypeManager.CategoryChoice:
-        category_ref_types = ref_types.get(category.value, [])
-        if not category_ref_types:
-            continue
         for income_flag in (True, False):
             kind_label = _("Income from") if income_flag else _("Cost from")
+            category_amounts = {
+                ref_type: amounts[income_flag][ref_type]
+                for ref_type in ref_types.get(category.value, [])
+                if ref_type in amounts[income_flag]
+            }
+            if not category_amounts:
+                continue
             name = _("%(kind)s %(category)s") % {
                 "category": category.label,
                 "kind": kind_label,
             }
-            amount = journal.aggregate_ref_type(
-                ref_type=category_ref_types, income=income_flag
+            # Largest contribution first
+            ordered = dict(
+                sorted(category_amounts.items(), key=lambda item: -abs(item[1]))
             )
-            if (income_flag and amount > 0) or (not income_flag and amount < 0):
-                monthly_list.append(
-                    CategorySchema(
-                        name=name,
-                        amount=amount,
-                        average=amount / avg / 30,
-                        average_tick=amount / avg / 30 / 20,
-                        ref_types=category_ref_types,
-                    )
-                )
-                daily_list.append(
-                    CategorySchema(
-                        name=name,
-                        amount=amount / avg,
-                        average=amount / avg / 30,
-                        average_tick=amount / avg / 20,
-                        ref_types=category_ref_types,
-                    )
-                )
-                hourly_list.append(
-                    CategorySchema(
-                        name=name,
-                        amount=amount / avg / 24,
-                        average=amount / avg / 24 / 30,
-                        average_tick=amount / avg / 24 / 20,
-                        ref_types=category_ref_types,
-                    )
-                )
-                summary += amount
+            categories.append((name, ordered))
+
+    monthly_list = _category_rows(categories, 1, avg * 30, avg * 30 * 20)
+    daily_list = _category_rows(categories, avg, avg * 30, avg * 20)
+    hourly_list = _category_rows(categories, avg * 24, avg * 24 * 30, avg * 24 * 20)
+    summary = sum(sum(ref_amounts.values()) for __, ref_amounts in categories)
 
     if mining is not None:
         mining_income = mining.aggregate_mining()
@@ -286,7 +300,9 @@ def create_ledger_details(
                         amount=mining_income,
                         average=mining_income / divisor,
                         average_tick=mining_income / divisor / 20,
-                        ref_types=["mining"],
+                        ref_types=[
+                            RefTypeAmountSchema(ref_type="mining", amount=mining_income)
+                        ],
                     )
                 )
 

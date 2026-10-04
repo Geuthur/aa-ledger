@@ -40,6 +40,7 @@ Section Order:
 - Chord diagram: nodes can be hidden in a legend and show the flows with their share
 - Corporation ledger: modal with the characters of a member and their contribution (`members` in the ledger response)
 - Animated extractor progress bar in the planetary ledger
+- Details modal: a badge per reference type (max. 10, the rest in an extra modal) and a search by reference type that lists the amount of every match
 
 ### Fixed
 
@@ -55,7 +56,7 @@ Section Order:
   - `character/{id}/planets/[?planet_id&single]`, `character/{id}/planets/{planet_id}/` (factories, storage and extractors in one response) and `POST character/{id}/planets/notification/[?planet_id]`
   - `{character|corporation|alliance}/overview/` return plain lists, `{character|corporation|alliance}/{id}/dashboard/` return counts
   - Added `menu/`, `user/` and `POST admin/update/`
-- **Breaking:** Responses no longer contain HTML (footers, action buttons, icons, popovers, progress bars). Icons are URLs, flags are booleans, `ref_types` is a list and details totals are numbers.
+- **Breaking:** Responses no longer contain HTML (footers, action buttons, icons, popovers, progress bars). Icons are URLs, flags are booleans, `ref_types` is a list of `{ref_type, amount}` (only the types with entries, largest first) and details totals are numbers.
 - **Breaking:** Errors use a single `{"error": "..."}` schema, invalid dates return `422`.
 - Ledger responses include the selectable `years` (and `divisions` for corporations).
 - pin `allianceauth` Dependency to `>=5.2`
