@@ -13,6 +13,7 @@ from django.utils.translation import gettext as _
 
 # Alliance Auth
 from allianceauth.authentication.models import UserProfile
+from allianceauth.eveonline.models import EveCharacter
 from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
@@ -269,6 +270,7 @@ class CorporationApiEndpoints:
                         character_name=account.main_character.character_name,
                         size=32,
                     ),
+                    is_member=True,
                 ),
                 entries_by_entity=entries_by_entity,
                 processed_entry_ids=processed_entry_ids,
@@ -284,14 +286,22 @@ class CorporationApiEndpoints:
         entries_by_entity: dict[int, list[dict]],
         processed_entry_ids: set[int],
         entity_ledger_list: list[LedgerEntitySchema],
+        corp_member_ids: set[int] | None = None,
+        corp_id: int | None = None,
     ) -> list[LedgerEntitySchema]:
         """Process the ledger data for the given entities."""
+        corp_members = corp_member_ids or set()
         for entity in entities:
+            is_member = bool(
+                entity.eve_id in corp_members
+                or (entity.corporation_id == corp_id if corp_id else False)
+            )
             response_ledger = self._process_entity_entries(
                 entity=EntitySchema(
                     entity_id=entity.eve_id,
                     entity_name=entity.name,
                     icon=entity.get_portrait(size=32),
+                    is_member=is_member,
                 ),
                 entries_by_entity=entries_by_entity,
                 processed_entry_ids=processed_entry_ids,
@@ -301,6 +311,7 @@ class CorporationApiEndpoints:
 
         return entity_ledger_list
 
+    # pylint: disable=too-many-locals
     def generate_entity_data(
         self, owner: CorporationOwner, filters: CorporationLedgerFilter
     ) -> tuple[list[LedgerEntitySchema], BillboardSchema]:
@@ -373,12 +384,20 @@ class CorporationApiEndpoints:
             "name"
         )
 
+        corp_member_ids = set(
+            EveCharacter.objects.filter(
+                corporation_id=owner.eve_corporation.corporation_id
+            ).values_list("character_id", flat=True)
+        )
+
         for entity_group in (list(entities), list(npc_entities)):
             self._process_ledger_data(
                 entities=entity_group,
                 entries_by_entity=entries_by_entity,
                 processed_entry_ids=processed_entry_ids,
                 entity_ledger_list=entity_ledger_list,
+                corp_member_ids=corp_member_ids,
+                corp_id=owner.eve_corporation.corporation_id,
             )
 
         xy_chart, chord_chart = BillboardSystem().create_billboards(

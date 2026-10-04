@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 
 # Alliance Auth
+from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveAllianceInfo
 from allianceauth.services.hooks import get_extension_logger
 
@@ -82,10 +83,12 @@ class AllianceApiEndpoints:
                 request=request, alliance_id=alliance_id, filters=filters
             )
 
+    # pylint: disable=too-many-locals
     def generate_corporation_data(
         self,
         owner: EveAllianceInfo,
         filters: DateFilter,
+        user_corp_ids: set[int] | None = None,
     ) -> tuple[list[LedgerAllianceSchema], BillboardSchema]:
         """
         Generate the ledger and billboard data for all corporations of the alliance.
@@ -93,6 +96,7 @@ class AllianceApiEndpoints:
         Args:
             owner (EveAllianceInfo): The alliance owner object.
             filters (DateFilter): The requested date range.
+            user_corp_ids (set[int] | None): Corporation IDs of the requesting user.
         Returns:
             tuple[list[LedgerAllianceSchema], BillboardSchema]: Ledger rows and chart data.
         """
@@ -135,6 +139,7 @@ class AllianceApiEndpoints:
             miscellaneous = wallet_journal.aggregate_miscellaneous()
             costs = wallet_journal.aggregate_costs()
 
+            is_member = bool(user_corp_ids and corporation_id in user_corp_ids)
             alliance_ledger_list.append(
                 LedgerAllianceSchema(
                     corporation=EntitySchema(
@@ -144,6 +149,7 @@ class AllianceApiEndpoints:
                             corporation_id=corporation_id,
                             corporation_name=corporation.eve_corporation.corporation_name,
                         ),
+                        is_member=is_member,
                     ),
                     ledger=LedgerSchema(
                         bounty=bounty,
@@ -179,8 +185,16 @@ class AllianceApiEndpoints:
                 "error": _("You do not have permission to view this alliance.")
             }
 
+        user_corp_ids: set[int] = set()
+        if request.user.is_authenticated:
+            user_corp_ids = set(
+                CharacterOwnership.objects.filter(user=request.user).values_list(
+                    "character__corporation_id", flat=True
+                )
+            )
+
         corporation_ledger_list, billboard = self.generate_corporation_data(
-            owner=owner, filters=filters
+            owner=owner, filters=filters, user_corp_ids=user_corp_ids
         )
 
         return AllianceLedgerResponse(

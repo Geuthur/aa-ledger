@@ -1,8 +1,12 @@
 // Third Party
 import { describe, expect, it } from "vitest";
 
-import type { CharacterLedgerResponse, CorporationLedgerResponse } from "@/Api/schema";
-import { amountClass, characterRows, entityRows, sumRows } from "@/Utils/ledger";
+import type {
+  AllianceLedgerResponse,
+  CharacterLedgerResponse,
+  CorporationLedgerResponse,
+} from "@/Api/schema";
+import { amountClass, characterRows, corporationRows, entityRows, sumRows } from "@/Utils/ledger";
 
 describe("ledger rows", () => {
   it("characterRows keeps mining out of the total", () => {
@@ -24,7 +28,7 @@ describe("ledger rows", () => {
     expect(row).toMatchObject({ id: 1, name: "Alice", mining: 500, total: 95, status: "ok" });
   });
 
-  it("entityRows exposes the alts", () => {
+  it("entityRows exposes the alts and flags members", () => {
     // Test Data
     const response = {
       entities: [
@@ -36,20 +40,54 @@ describe("ledger rows", () => {
           },
           ledger: { bounty: 1, ess: 0, costs: 0, miscellaneous: 0, total: 1 },
         },
+        {
+          entity: {
+            entity_id: 4,
+            entity_name: "NPC Corp",
+            alts: [],
+          },
+          ledger: { bounty: 0, ess: 0, costs: 0, miscellaneous: 0, total: 0 },
+        },
       ],
     } as CorporationLedgerResponse;
 
     // Test Action
-    const [row] = entityRows(response);
+    const rows = entityRows(response);
 
     // Expected Result
-    expect(row.alts).toHaveLength(1);
-    expect(row.mining).toBeUndefined();
+    expect(rows[0].alts).toHaveLength(1);
+    expect(rows[0].is_member).toBe(true);
+    expect(rows[0].mining).toBeUndefined();
+    expect(rows[1].is_member).toBe(false);
+  });
+
+  it("corporationRows flags the user corporation as member", () => {
+    // Test Data
+    const response = {
+      corporations: [
+        {
+          corporation: { entity_id: 100, entity_name: "My Corp" },
+          ledger: { bounty: 10, ess: 0, costs: 0, miscellaneous: 0, total: 10 },
+        },
+        {
+          corporation: { entity_id: 200, entity_name: "Other Corp" },
+          ledger: { bounty: 20, ess: 0, costs: 0, miscellaneous: 0, total: 20 },
+        },
+      ],
+    } as AllianceLedgerResponse;
+
+    // Test Action
+    const rows = corporationRows(response, 100);
+
+    // Expected Result
+    expect(rows[0].is_member).toBe(true);
+    expect(rows[1].is_member).toBe(false);
   });
 
   it("returns no rows without a response", () => {
     expect(characterRows()).toEqual([]);
     expect(entityRows()).toEqual([]);
+    expect(corporationRows()).toEqual([]);
   });
 
   it("sumRows adds up every column", () => {

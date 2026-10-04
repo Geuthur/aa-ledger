@@ -12,23 +12,26 @@ export interface TableHeaderProps<TData> {
   table: TanStackTable<TData>;
 }
 
-const BaseHeader = <TData,>({ table }: TableHeaderProps<TData>) => {
+function BaseHeader<TData>({ table }: TableHeaderProps<TData>) {
     return (
         <>
             {table.getHeaderGroups().map((headerGroup: HeaderGroup<TData>) => (
             <Fragment key={headerGroup.id}>
               <tr>
-                {headerGroup.headers.map((header: Header<TData, unknown>) => (
-                  <th key={header.id} colSpan={header.colSpan}>
-                    {header.isPlaceholder ? null : (
-                      <div
-                        className={
-                          header.column.getCanSort()
-                            ? "d-flex align-items-center cursor-pointer select-none"
-                            : "d-flex align-items-center"
-                        }
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
+                {headerGroup.headers.map((header: Header<TData, unknown>) => {
+                  const meta = header.column.columnDef.meta as { align?: string } | undefined;
+                  const isRight = meta?.align === "right";
+                  return (
+                    <th key={header.id} colSpan={header.colSpan} className={isRight ? "text-end" : ""}>
+                      {header.isPlaceholder ? null : (
+                        <div
+                          className={
+                            header.column.getCanSort()
+                              ? `d-flex align-items-center cursor-pointer select-none ${isRight ? "justify-content-end" : ""}`
+                              : `d-flex align-items-center ${isRight ? "justify-content-end" : ""}`
+                          }
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
                         {header.column.getCanSort() && (
                           <div>
                             {{
@@ -43,7 +46,8 @@ const BaseHeader = <TData,>({ table }: TableHeaderProps<TData>) => {
                       </div>
                     )}
                   </th>
-                ))}
+                  );
+                })}
               </tr>
               <tr>
                 {headerGroup.headers.map((header) => (

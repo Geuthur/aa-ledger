@@ -1,5 +1,13 @@
 // Third Party
-import { Info } from "lucide-react";
+import {
+  Boxes,
+  Info,
+  Pickaxe,
+  Shield,
+  Skull,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 import { Col, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
@@ -18,26 +26,67 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
   const { t } = useTranslation();
 
   const items = [
-    { label: t("Bounty"), value: totals.bounty },
-    { label: t("ESS"), value: totals.ess },
-    ...(showMining ? [{ label: t("Mining"), value: totals.mining ?? 0, mining: true }] : []),
-    { label: t("Miscellaneous"), value: totals.miscellaneous },
-    { label: t("Costs"), value: totals.costs },
-    { label: t("Total"), value: totals.total },
+    {
+      label: t("Bounty"),
+      value: totals.bounty,
+      icon: Skull,
+      color: "#f43f5e",
+    },
+    {
+      label: t("ESS"),
+      value: totals.ess,
+      icon: Shield,
+      color: "#38bdf8",
+    },
+    ...(showMining
+      ? [
+          {
+            label: t("Mining"),
+            value: totals.mining ?? 0,
+            mining: true,
+            icon: Pickaxe,
+            color: "#fbbf24",
+          },
+        ]
+      : []),
+    {
+      label: t("Miscellaneous"),
+      value: totals.miscellaneous,
+      icon: Boxes,
+      color: "#c084fc",
+    },
+    {
+      label: t("Costs"),
+      value: totals.costs,
+      icon: TrendingDown,
+      color: "#fb7185",
+    },
+    {
+      label: t("Total"),
+      value: totals.total,
+      icon: TrendingUp,
+      color: totals.total >= 0 ? "#34d399" : "#fb7185",
+    },
   ];
 
   return (
     <Row className="g-2 align-items-stretch" aria-label={t("Summary")}>
-      {items.map((item) => (
-        <Col key={item.label} xs={6} md>
-          <div className="aa-panel h-100">
-            <div className="text-muted small">{item.label}</div>
-            <div className={`fw-bold ${amountClass(item.value, "mining" in item)}`}>
-              {formatIsk(item.value)}
+      {items.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Col key={item.label} xs={6} md>
+            <div className="aa-panel lg-stat-card">
+              <div className="lg-stat-header">
+                <span className="lg-stat-label">{item.label}</span>
+                <Icon className="lg-stat-icon" color={item.color} size={24} />
+              </div>
+              <span className={`lg-stat-value ${amountClass(item.value, "mining" in item)}`}>
+                {formatIsk(item.value)}
+              </span>
             </div>
-          </div>
-        </Col>
-      ))}
+          </Col>
+        );
+      })}
       {onDetails && (
         <Col xs="auto" className="d-flex align-items-center">
           {renderTooltip(

@@ -140,6 +140,7 @@ class EntitySchema(Schema):
     alt_ids: list[int] = []
     alts: list[AltSchema] = []
     icon: str | None = None
+    is_member: bool = False
 
 
 class RefTypeAmountSchema(Schema):

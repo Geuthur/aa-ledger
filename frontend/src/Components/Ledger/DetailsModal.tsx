@@ -49,6 +49,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
         columnHelper.accessor("name", { header: t("Category") }),
         columnHelper.accessor("amount", {
           header: t("Amount"),
+          meta: { align: "right" },
           cell: ({ getValue }) => (
             <span className={`text-end d-block ${amountClass(getValue())}`}>
               {formatIsk(getValue())}
@@ -57,12 +58,14 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
         }),
         columnHelper.accessor("average", {
           header: t("Average"),
+          meta: { align: "right" },
           cell: ({ getValue }) => (
             <span className="text-end d-block">{formatIsk(getValue())}</span>
           ),
         }),
         columnHelper.accessor("average_tick", {
           header: t("Average per Tick"),
+          meta: { align: "right" },
           cell: ({ getValue }) => (
             <span className="text-end d-block">{formatIsk(getValue())}</span>
           ),

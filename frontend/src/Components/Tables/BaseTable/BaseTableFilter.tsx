@@ -18,6 +18,7 @@ declare module "@tanstack/react-table" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- must match the original interface's arity, not just what this augmentation itself uses
   interface ColumnMeta<TData, TValue> {
     filterOptionLabel?: (value: string) => string;
+    align?: "left" | "right" | "center";
   }
 }
 

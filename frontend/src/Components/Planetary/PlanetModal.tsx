@@ -124,6 +124,7 @@ function PlanetModal({ ownerId, planetId, onHide }: PlanetModalProps) {
         storageColumn.accessor((row) => row.product.item_quantity ?? 0, {
           id: "amount",
           header: t("Amount"),
+          meta: { align: "right" },
           cell: ({ getValue }) => (
             <span className="text-end d-block">{formatNumber(getValue())}</span>
           ),

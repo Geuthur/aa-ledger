@@ -24,6 +24,7 @@ export interface LedgerRow {
   costs: number;
   total: number;
   status?: string | null;
+  is_member?: boolean;
 }
 
 export type LedgerTotals = Pick<
@@ -59,10 +60,14 @@ export function entityRows(response?: CorporationLedgerResponse): LedgerRow[] {
     alts: entity.alts ?? [],
     members: members ?? [],
     ...amounts(ledger),
+    is_member: Boolean(entity.is_member || (entity.alts && entity.alts.length > 0)),
   }));
 }
 
-export function corporationRows(response?: AllianceLedgerResponse): LedgerRow[] {
+export function corporationRows(
+  response?: AllianceLedgerResponse,
+  userCorporationId?: number,
+): LedgerRow[] {
   return (response?.corporations ?? []).map(({ corporation, ledger, update_status }) => ({
     id: corporation.entity_id,
     name: corporation.entity_name,
@@ -70,6 +75,10 @@ export function corporationRows(response?: AllianceLedgerResponse): LedgerRow[] 
     alts: [],
     ...amounts(ledger),
     status: update_status?.status,
+    is_member: Boolean(
+      corporation.is_member ||
+        (userCorporationId && corporation.entity_id === userCorporationId),
+    ),
   }));
 }
 

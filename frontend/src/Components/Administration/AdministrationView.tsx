@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { QueryKey } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { LogIn, Trash2 } from "lucide-react";
+import { LogIn, Trash2, UserCheck, UserMinus, UserX, Users } from "lucide-react";
 import { Alert, Button, Col, Modal, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
@@ -91,21 +91,27 @@ function AdministrationView({
           <>
             <Row className="g-2" aria-label={t("Statistics")}>
               {[
-                { label: t("Total"), value: data.dashboard.auth_count },
-                { label: t("Registered"), value: data.dashboard.active_count },
+                { label: t("Total"), value: data.dashboard.auth_count, icon: Users, color: "#60a5fa" },
+                { label: t("Registered"), value: data.dashboard.active_count, icon: UserCheck, color: "#34d399" },
                 ...(data.dashboard.inactive_count !== null &&
                 data.dashboard.inactive_count !== undefined
-                  ? [{ label: t("Inactive"), value: data.dashboard.inactive_count }]
+                  ? [{ label: t("Inactive"), value: data.dashboard.inactive_count, icon: UserMinus, color: "#fbbf24" }]
                   : []),
-                { label: t("Missing"), value: data.dashboard.missing_count },
-              ].map((item) => (
-                <Col key={item.label} xs={6} md>
-                  <div className="aa-panel h-100">
-                    <div className="text-muted small">{item.label}</div>
-                    <div className="fw-bold">{item.value}</div>
-                  </div>
-                </Col>
-              ))}
+                { label: t("Missing"), value: data.dashboard.missing_count, icon: UserX, color: "#fb7185" },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Col key={item.label} xs={6} md>
+                    <div className="aa-panel lg-stat-card">
+                      <div className="lg-stat-header">
+                        <span className="lg-stat-label">{item.label}</span>
+                        <Icon className="lg-stat-icon" color={item.color} size={24} />
+                      </div>
+                      <span className="lg-stat-value">{item.value}</span>
+                    </div>
+                  </Col>
+                );
+              })}
             </Row>
 
             {(data.dashboard.issues ?? []).length > 0 && (

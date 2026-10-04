@@ -31,6 +31,7 @@ function MembersModal({ row, onHide }: MembersModalProps) {
       columnHelper.accessor((member) => member.ledger[key] ?? 0, {
         id: key,
         header,
+        meta: { align: "right" },
         cell: ({ getValue }) => (
           <span className={`text-end d-block ${amountClass(getValue())}`}>{formatIsk(getValue())}</span>
         ),
@@ -56,6 +57,7 @@ function MembersModal({ row, onHide }: MembersModalProps) {
       columnHelper.accessor((member) => (entityTotal ? (member.ledger.total ?? 0) / entityTotal : 0), {
         id: "share",
         header: t("Share"),
+        meta: { align: "right" },
         cell: ({ getValue }) => (
           <span className="text-end d-block">{entityTotal ? `${(getValue() * 100).toFixed(1)}%` : "-"}</span>
         ),

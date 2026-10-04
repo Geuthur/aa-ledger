@@ -1036,6 +1036,8 @@ export interface components {
             alts: components["schemas"]["AltSchema"][];
             /** Icon */
             icon?: string | null;
+            /** Is Member */
+            is_member?: boolean;
         };
         /** LedgerEntitySchema */
         LedgerEntitySchema: {

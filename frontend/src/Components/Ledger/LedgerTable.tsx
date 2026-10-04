@@ -41,6 +41,7 @@ function LedgerTable({
     const amountColumn = (key: "bounty" | "ess" | "miscellaneous" | "costs" | "total", header: string) =>
       columnHelper.accessor(key, {
         header,
+        meta: { align: "right" },
         cell: ({ getValue }) => (
           <span className={`text-end d-block ${amountClass(getValue())}`}>
             {formatIsk(getValue())}
@@ -51,6 +52,7 @@ function LedgerTable({
     const miningColumn = columnHelper.accessor((row) => row.mining ?? 0, {
       id: "mining",
       header: t("Mining"),
+      meta: { align: "right" },
       cell: ({ getValue }) => (
         <span className={`text-end d-block ${amountClass(getValue(), true)}`}>
           {formatIsk(getValue())}
@@ -62,11 +64,20 @@ function LedgerTable({
       columnHelper.accessor("name", {
         header: nameLabel,
         cell: ({ row }) => {
-          const { icon, name, alts } = row.original;
+          const { icon, name, alts, is_member } = row.original;
           return (
-            <span className="d-inline-flex align-items-center gap-2">
+            <span
+              className={`d-inline-flex align-items-center gap-2 ${
+                is_member ? "lg-text-member" : ""
+              }`}
+            >
               {icon && <img src={icon} alt="" width={24} height={24} className="rounded-circle" />}
               {name}
+              {is_member && (
+                <span className="lg-badge-member">
+                  {nameLabel === t("Corporation") ? t("Member Corp") : t("Member")}
+                </span>
+              )}
               {alts.length > 1 &&
                 renderTooltip(
                   t("Show characters"),
@@ -118,6 +129,7 @@ function LedgerTable({
         emptyText={t("No ledger entries for the selected period")}
         initialState={{ sorting: [{ id: "total", desc: true }] }}
         exportFileName="ledger.csv"
+        getRowClassName={(row) => (row.original.is_member ? "lg-table-row-member" : "")}
       />
       <MembersModal row={membersRow} onHide={() => setMembersRow(null)} />
     </>

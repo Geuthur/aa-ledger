@@ -5,7 +5,7 @@ import { Link, useParams } from "react-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
-import { fetchAllianceDetails, fetchAllianceLedger } from "@/Api/ApiCalls";
+import { fetchAllianceDetails, fetchAllianceLedger, loadUserData } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
 import DetailsModal from "@/Components/Ledger/DetailsModal";
 import LedgerView from "@/Components/Ledger/LedgerView";
@@ -19,6 +19,11 @@ function AllianceLedger() {
   const { filters } = useDateFilter();
   const { entityId, section, openDetails, closeDetails } = useDetailsState();
 
+  const { data: userData } = useQuery({
+    queryKey: queryKeys.User,
+    queryFn: loadUserData,
+  });
+
   const { data, isLoading, isFetching, error } = useQuery({
     queryKey: queryKeys.AllianceLedger(allianceId, filters),
     queryFn: () => fetchAllianceLedger(allianceId, filters),
@@ -31,7 +36,7 @@ function AllianceLedger() {
         data ? `${t("Alliance Ledger")} - ${data.owner.character_name}` : t("Alliance Ledger")
       }
       nameLabel={t("Corporation")}
-      rows={corporationRows(data)}
+      rows={corporationRows(data, userData?.user.corporation_id)}
       billboard={data?.billboard}
       years={data?.years ?? []}
       isLoading={isLoading}

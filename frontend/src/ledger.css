@@ -247,3 +247,75 @@
     opacity: 0.55;
     border-color: var(--aa-border-rose);
 }
+
+/* ═══ STAT CARDS / DASHBOARD ═══════════════════════════════════════════════ */
+.lg-stat-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px;
+    height: 100%;
+    transition: border-color 150ms ease;
+}
+
+.lg-stat-card:hover {
+    border-color: var(--aa-border-light, #52525b);
+}
+
+.lg-stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    gap: 8px;
+}
+
+.lg-stat-label {
+    color: var(--aa-text-secondary);
+    font-size: var(--aa-font-size-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.lg-stat-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.lg-stat-value {
+    font-size: var(--aa-font-size-lg);
+    font-weight: 700;
+    letter-spacing: -.025em;
+}
+
+/* ═══ TABLE HIGHLIGHT FOR MEMBERS ═══════════════════════════════════════════ */
+.lg-table-row-member {
+    background-color: rgba(16, 185, 129, 0.08) !important;
+    transition: background-color 150ms ease;
+}
+
+.lg-table-row-member:hover {
+    background-color: rgba(16, 185, 129, 0.16) !important;
+}
+
+.lg-table-row-member > td:first-child {
+    box-shadow: inset 4px 0 0 var(--aa-color-emerald, #10b981);
+}
+
+.lg-text-member {
+    color: var(--aa-color-emerald-light, #00bc7d) !important;
+    font-weight: 600;
+}
+
+.lg-badge-member {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: rgba(16, 185, 129, 0.15);
+    color: var(--aa-color-emerald-light, #00bc7d);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    font-weight: 600;
+}
+

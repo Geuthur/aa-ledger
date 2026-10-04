@@ -44,6 +44,7 @@ function RefTypesModal({ category, initialSearch = "", onHide }: RefTypesModalPr
         columnHelper.accessor((item) => item.amount ?? 0, {
           id: "amount",
           header: t("Amount"),
+          meta: { align: "right" },
           sortingFn: (a, b) => Math.abs(a.original.amount ?? 0) - Math.abs(b.original.amount ?? 0),
           cell: ({ getValue }) => (
             <span className={`text-end d-block ${amountClass(getValue())}`}>{formatIsk(getValue())}</span>
@@ -52,6 +53,7 @@ function RefTypesModal({ category, initialSearch = "", onHide }: RefTypesModalPr
         columnHelper.accessor((item) => (categoryTotal ? (item.amount ?? 0) / categoryTotal : 0), {
           id: "share",
           header: t("Share"),
+          meta: { align: "right" },
           cell: ({ getValue }) => (
             <span className="text-end d-block">{categoryTotal ? `${(getValue() * 100).toFixed(1)}%` : "-"}</span>
           ),
