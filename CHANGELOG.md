@@ -55,7 +55,7 @@ Section Order:
 - **Breaking:** The API is JSON-only and consolidated. Date and division filters moved from the path to query parameters:
   - `character|corporation|alliance/{id}/ledger/?year&month&day[&division_id]`
   - `character|corporation|alliance/{id}/details/?year&month&day&section[&entity_id&division_id]`
-  - `character/{id}/planets/[?planet_id&single]`, `character/{id}/planets/{planet_id}/` (factories, storage and extractors in one response) and `POST character/{id}/planets/notification/[?planet_id]`
+  - `character/{id}/planets/[?planet_id]`, `character/{id}/planets/{planet_id}/` (factories, storage and extractors in one response) and `POST character/{id}/planets/notification/[?planet_id]` (toggles across all characters/alts of the owner)
   - `{character|corporation|alliance}/overview/` return plain lists, `{character|corporation|alliance}/{id}/dashboard/` return counts
   - Added `menu/`, `user/` and `POST admin/update/`
 - **Breaking:** Responses no longer contain HTML (footers, action buttons, icons, popovers, progress bars). Icons are URLs, flags are booleans, `ref_types` is a list of `{ref_type, amount}` (only the types with entries, largest first) and details totals are numbers.

@@ -152,11 +152,11 @@ describe("Planetary and administration API client functions", () => {
     vi.spyOn(apiClient, "GET").mockResolvedValueOnce(ok([]));
 
     // Test Action
-    await fetchPlanets(3, true);
+    await fetchPlanets(3);
 
     // Expected Result
     expect(apiClient.GET).toHaveBeenCalledWith("/ledger/api/character/{character_id}/planets/", {
-      params: { path: { character_id: 3 }, query: { single: true } },
+      params: { path: { character_id: 3 } },
     });
   });
 

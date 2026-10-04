@@ -61,7 +61,7 @@ class TestPlanetaryApi(LedgerTestCase):
         self.client.force_login(self.user)
 
         # Test Action
-        response = self.client.get(f"{self.base_url}/?planet_id=0&single=true")
+        response = self.client.get(f"{self.base_url}/?planet_id=0")
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -124,3 +124,53 @@ class TestPlanetaryApi(LedgerTestCase):
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+
+    def test_toggle_notification_should_switch_planets_across_all_alts(self):
+        # Test Data
+        self.client.force_login(self.user)
+        alt_owner = CharacterOwnerFactory(user=self.user)
+        alt_planet = CharacterPlanetFactory(
+            character=alt_owner, upgrade_level=5, num_pins=5
+        )
+        alt_details = CharacterPlanetDetailsFactory(
+            character=alt_owner, planet=alt_planet, **_planetary_data
+        )
+
+        # Test Action
+        response = self.client.post(f"{self.base_url}/notification/")
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(response.json()["notification"])
+        self.details.refresh_from_db()
+        alt_details.refresh_from_db()
+        self.assertTrue(self.details.notification)
+        self.assertTrue(alt_details.notification)
+
+    def test_toggle_notification_should_switch_single_planet(self):
+        # Test Data
+        self.client.force_login(self.user)
+        self.details.notification = False
+        self.details.save()
+
+        # Test Action - toggle on
+        response = self.client.post(
+            f"{self.base_url}/notification/?planet_id={self.planet.id}"
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(response.json()["notification"])
+        self.details.refresh_from_db()
+        self.assertTrue(self.details.notification)
+
+        # Test Action - toggle off
+        response = self.client.post(
+            f"{self.base_url}/notification/?planet_id={self.planet.id}"
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertFalse(response.json()["notification"])
+        self.details.refresh_from_db()
+        self.assertFalse(self.details.notification)

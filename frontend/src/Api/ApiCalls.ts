@@ -205,10 +205,9 @@ export async function fetchAllianceDetails(
 
 export async function fetchPlanets(
   characterId: number,
-  single: boolean,
 ): Promise<PlanetaryDetails[]> {
   const { data, error } = await apiClient.GET(`${API_BASE}/character/{character_id}/planets/`, {
-    params: { path: { character_id: characterId }, query: { single } },
+    params: { path: { character_id: characterId } },
   });
   if (error || !data) {
     throw new Error(errorMessage(error, "Failed to load the planets"));

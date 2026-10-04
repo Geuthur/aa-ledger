@@ -33,7 +33,7 @@ export const queryKeys = {
     section: Section,
   ) => ["AllianceDetails", allianceId, entityId, filters, section] as const,
 
-  Planets: (characterId: number, single: boolean) => ["Planets", characterId, single] as const,
+  Planets: (characterId: number) => ["Planets", characterId] as const,
   PlanetDetails: (characterId: number, planetId: number) =>
     ["PlanetDetails", characterId, planetId] as const,
 

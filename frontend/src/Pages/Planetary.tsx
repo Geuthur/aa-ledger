@@ -7,8 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Bell, BellOff, Info } from "lucide-react";
-import { parseAsBoolean, parseAsInteger, useQueryState, useQueryStates } from "nuqs";
-import { Form } from "react-bootstrap";
+import { parseAsInteger, useQueryStates } from "nuqs";
 import { useTranslation } from "react-i18next";
 
 import { fetchPlanets, togglePlanetNotification } from "@/Api/ApiCalls";
@@ -29,8 +28,6 @@ function Planetary() {
   const queryClient = useQueryClient();
   const characterId = Number(useParams().characterId);
 
-  // `single` hides the alts of the character.
-  const [single, setSingle] = useQueryState("single", parseAsBoolean.withDefault(false));
   // The planet of the open modal; the owner is needed because alts are listed too.
   const [modal, setModal] = useQueryStates({
     planet: parseAsInteger,
@@ -38,15 +35,15 @@ function Planetary() {
   });
 
   const { data, isLoading, error } = useQuery({
-    queryKey: queryKeys.Planets(characterId, single),
-    queryFn: () => fetchPlanets(characterId, single),
+    queryKey: queryKeys.Planets(characterId),
+    queryFn: () => fetchPlanets(characterId),
   });
 
   const toggle = useMutation({
     mutationFn: ({ ownerId, planetId }: { ownerId: number; planetId?: number }) =>
       togglePlanetNotification(ownerId, planetId),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.Planets(characterId, single) }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.Planets(characterId) }),
   });
 
   const columns = useMemo(
@@ -158,13 +155,6 @@ function Planetary() {
   return (
     <main>
       <BaseSectionHeader name={t("Planetary Ledger")}>
-        <Form.Check
-          type="switch"
-          id="planetary-single"
-          label={t("Only this character")}
-          checked={single}
-          onChange={(event) => setSingle(event.target.checked)}
-        />
         <button
           type="button"
           className="lg-btn lg-btn-secondary"

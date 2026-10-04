@@ -132,7 +132,6 @@ class PlanetaryApiEndpoints:
             request: WSGIRequest,
             character_id: int,
             filters: Query[PlanetSelection],
-            single: bool = False,
         ):
             perm, character = get_characterowner_or_none(request, character_id)
 
@@ -141,7 +140,7 @@ class PlanetaryApiEndpoints:
             if not perm:
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
-            characters = [character] if single else get_alts_queryset(character)
+            characters = get_alts_queryset(character)
 
             planets_details = filters.filter(
                 CharacterPlanetDetails.objects.filter(planet__character__in=characters)
@@ -181,8 +180,10 @@ class PlanetaryApiEndpoints:
             if not perm:
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
+            characters = get_alts_queryset(character)
+
             details = CharacterPlanetDetails.objects.filter(
-                planet__character=character, planet__id=planet_id
+                planet__character__in=characters, planet__id=planet_id
             ).first()
 
             if details is None:
@@ -216,19 +217,27 @@ class PlanetaryApiEndpoints:
             if not perm:
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
+            characters = get_alts_queryset(character)
+
             planets = selection.filter(
-                CharacterPlanetDetails.objects.filter(planet__character=character)
+                CharacterPlanetDetails.objects.filter(planet__character__in=characters)
             )
 
             if not planets.exists():
                 return HTTPStatus.NOT_FOUND, {"error": _("Planet not found.")}
 
-            # Switch every planet to the opposite of the current majority
-            notification = not (
-                planets.filter(notification=True).count()
-                > planets.filter(notification=False).count()
-            )
-            planets.update(notification=notification)
+            # If a single planet is targeted, invert its specific notification status
+            if selection.planet_id is not None:
+                single_planet = planets.first()
+                notification = not single_planet.notification
+                planets.update(notification=notification)
+            else:
+                # Switch all planets to the opposite of the current majority
+                notification = not (
+                    planets.filter(notification=True).count()
+                    > planets.filter(notification=False).count()
+                )
+                planets.update(notification=notification)
 
             return NotificationResponse(
                 message=_("Notification toggled successfully."),
