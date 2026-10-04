@@ -10,6 +10,7 @@ from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 # AA Ledger
+from ledger.tests import pook_httpx2
 from ledger.tests.testdata.factory import UserMainFactory
 from ledger.views import add_ally, add_char, add_corp
 
