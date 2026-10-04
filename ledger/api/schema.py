@@ -121,6 +121,7 @@ class AltSchema(Schema):
     character_id: int
     character_name: str
     icon: str | None = None
+    is_registered: bool = False
 
 
 class EntitySchema(Schema):

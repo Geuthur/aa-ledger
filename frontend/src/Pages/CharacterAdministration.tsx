@@ -1,5 +1,5 @@
 // React
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 
 // Third Party
 import { useQuery } from "@tanstack/react-query";
@@ -29,6 +29,12 @@ function CharacterAdministration() {
       queryKey={queryKey}
       ledgerPath={(ownerId) => `/ledger/character/${ownerId}/`}
       onDelete={deleteCharacter}
+      headerAction={
+        <Link className="lg-btn lg-btn-secondary" to={`/ledger/character/${characterId}/`}>
+          {t("View Ledger")}
+        </Link>
+      }
+      showCardLedger={false}
     />
   );
 }

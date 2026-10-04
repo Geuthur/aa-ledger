@@ -81,6 +81,22 @@ class TestAdministrationApi(LedgerTestCase):
             data["dashboard"]["missing_count"],
             data["dashboard"]["auth_count"] - data["dashboard"]["active_count"],
         )
+        # manage_user's main character is in the corporation but not registered as CharacterOwner
+        self.assertEqual(len(data["missing"]), 1)
+        self.assertEqual(
+            data["missing"][0]["owner_id"],
+            self.manage_user.profile.main_character.character_id,
+        )
+        self.assertFalse(data["members"][0]["is_registered"])
+
+        # When character is registered in CharacterOwner
+        CharacterOwnerFactory(eve_character=self.manage_user.profile.main_character)
+        response_registered = self.client.get(
+            f"{self.api}/corporation/{audit.eve_id}/administration/"
+        )
+        data_reg = response_registered.json()
+        self.assertEqual(len(data_reg["missing"]), 0)
+        self.assertTrue(data_reg["members"][0]["is_registered"])
 
     def test_alliance_administration_should_count_corporations(self):
         # Test Data

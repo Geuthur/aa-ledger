@@ -28,8 +28,8 @@ const row: LedgerRow = {
   costs: 0,
   total: 1300,
   members: [
-    { character_id: 1, character_name: "Main Pilot", icon: null, ledger: ledger(1000) },
-    { character_id: 2, character_name: "Alt Pilot", icon: null, ledger: ledger(300) },
+    { character_id: 1, character_name: "Main Pilot", icon: null, is_registered: true, ledger: ledger(1000) },
+    { character_id: 2, character_name: "Alt Pilot", icon: null, is_registered: false, ledger: ledger(300) },
   ],
 };
 

@@ -1,5 +1,6 @@
 // React
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { Link } from "react-router";
 
 // Third Party
@@ -7,8 +8,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { QueryKey } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { LogIn, Trash2, UserCheck, UserMinus, UserX, Users } from "lucide-react";
-import { Alert, Button, Col, Modal, Row } from "react-bootstrap";
+import { CheckCircle2, LogIn, Trash2, UserCheck, UserMinus, UserX, Users, XCircle } from "lucide-react";
+import { Alert, Badge, Button, Col, Modal, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { AdminOwnerSchema, AdministrationResponse, AltSchema, MessageSchema } from "@/Api/schema";
@@ -27,11 +28,17 @@ export interface AdministrationViewProps {
   error: Error | null;
   /** Singular label of the registered entries, e.g. "Character". */
   entryLabel: string;
+  /** Singular label of the missing entries if different from entryLabel, e.g. "Character" when entry is "Corporation". */
+  missingLabel?: string;
   queryKey: QueryKey;
   /** Route of the ledger of an entry. */
   ledgerPath: (ownerId: number) => string;
   /** Removes an entry; omit if entries cannot be removed on this page. */
   onDelete?: (ownerId: number) => Promise<MessageSchema>;
+  /** Optional custom action element in the header. */
+  headerAction?: ReactNode;
+  /** Whether to show "View Ledger" button on each card (default: true). */
+  showCardLedger?: boolean;
 }
 
 function AdministrationView({
@@ -40,9 +47,12 @@ function AdministrationView({
   isLoading,
   error,
   entryLabel,
+  missingLabel,
   queryKey,
   ledgerPath,
   onDelete,
+  headerAction,
+  showCardLedger = true,
 }: AdministrationViewProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -73,11 +83,28 @@ function AdministrationView({
         </span>
       ),
     }),
+    memberColumn.accessor("is_registered", {
+      header: t("Ledger Status"),
+      cell: ({ row }) =>
+        row.original.is_registered ? (
+          <Badge bg="success" className="d-inline-flex align-items-center gap-1">
+            <CheckCircle2 size={12} />
+            {t("Registered")}
+          </Badge>
+        ) : (
+          <Badge bg="secondary" className="d-inline-flex align-items-center gap-1">
+            <XCircle size={12} />
+            {t("Not in Ledger")}
+          </Badge>
+        ),
+    }),
   ] as ColumnDef<AltSchema, unknown>[];
 
   return (
     <main>
-      <BaseSectionHeader name={data ? `${title} - ${data.owner.character_name}` : title} />
+      <BaseSectionHeader name={data ? `${title} - ${data.owner.character_name}` : title}>
+        {headerAction}
+      </BaseSectionHeader>
       <section className="mt-3 d-flex flex-column gap-3">
         {isLoading && <FetchingLoader message={t("Loading...")} />}
         {error && <ErrorLoader title={t("Error")} message={error.message} />}
@@ -133,16 +160,17 @@ function AdministrationView({
                   </div>
                   <img src={entry.icon ?? ""} alt="" width={96} height={96} className="rounded" />
                   <div className="d-flex justify-content-center gap-2">
-                    {renderTooltip(
-                      t("View Ledger"),
-                      <Link
-                        className="lg-btn lg-btn-success lg-btn-sm"
-                        to={ledgerPath(entry.owner_id)}
-                        aria-label={t("View Ledger")}
-                      >
-                        <LogIn size={14} />
-                      </Link>,
-                    )}
+                    {showCardLedger &&
+                      renderTooltip(
+                        t("View Ledger"),
+                        <Link
+                          className="lg-btn lg-btn-success lg-btn-sm"
+                          to={ledgerPath(entry.owner_id)}
+                          aria-label={t("View Ledger")}
+                        >
+                          <LogIn size={14} />
+                        </Link>,
+                      )}
                     {onDelete &&
                       renderTooltip(
                         t("Delete"),
@@ -166,7 +194,7 @@ function AdministrationView({
                   <div className="fw-bold">{entry.name}</div>
                   <img src={entry.icon ?? ""} alt="" width={96} height={96} className="rounded" />
                   <div className="small">
-                    {t("{{entry}} is not registered in Ledger.", { entry: entryLabel })}
+                    {t("{{entry}} is not registered in Ledger.", { entry: missingLabel ?? entryLabel })}
                   </div>
                 </div>
               ))}

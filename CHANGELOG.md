@@ -43,6 +43,8 @@ Section Order:
 - Details modal: a badge per reference type (max. 10, the rest in an extra modal) and a search by reference type that lists the amount of every match
 - Lucide React icons for dashboard summary and statistics cards (e.g. `Skull` for Bounty, `Shield` for ESS, `Pickaxe` for Mining, etc.)
 - Visual green highlight (`lg-table-row-member`, `lg-text-member`, `lg-badge-member`) for corporation members in Corporation Ledger and member corporations in Alliance Ledger
+- Character Administration: Single "View Ledger" button in header toolbar and removed per-card "View Ledger" button
+- Corporation Administration: Missing characters cards and member list status indicating characters not registered in Ledger
 
 ### Fixed
 

@@ -886,16 +886,6 @@
               "title": "Planet Id"
             },
             "required": false
-          },
-          {
-            "in": "query",
-            "name": "single",
-            "schema": {
-              "default": false,
-              "title": "Single",
-              "type": "boolean"
-            },
-            "required": false
           }
         ],
         "responses": {
@@ -1991,6 +1981,11 @@
               }
             ],
             "title": "Icon"
+          },
+          "is_registered": {
+            "default": false,
+            "title": "Is Registered",
+            "type": "boolean"
           }
         },
         "required": [
@@ -2899,6 +2894,11 @@
             ],
             "title": "Icon"
           },
+          "is_registered": {
+            "default": false,
+            "title": "Is Registered",
+            "type": "boolean"
+          },
           "ledger": {
             "$ref": "#/components/schemas/LedgerSchema"
           }
@@ -3008,6 +3008,11 @@
               }
             ],
             "title": "Icon"
+          },
+          "is_member": {
+            "default": false,
+            "title": "Is Member",
+            "type": "boolean"
           }
         },
         "required": [

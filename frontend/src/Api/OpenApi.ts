@@ -592,6 +592,11 @@ export interface components {
             character_name: string;
             /** Icon */
             icon?: string | null;
+            /**
+             * Is Registered
+             * @default false
+             */
+            is_registered: boolean;
         };
         /**
          * DashboardSchema
@@ -972,6 +977,11 @@ export interface components {
             character_name: string;
             /** Icon */
             icon?: string | null;
+            /**
+             * Is Registered
+             * @default false
+             */
+            is_registered: boolean;
             ledger: components["schemas"]["LedgerSchema"];
         };
         /**
@@ -1036,8 +1046,11 @@ export interface components {
             alts: components["schemas"]["AltSchema"][];
             /** Icon */
             icon?: string | null;
-            /** Is Member */
-            is_member?: boolean;
+            /**
+             * Is Member
+             * @default false
+             */
+            is_member: boolean;
         };
         /** LedgerEntitySchema */
         LedgerEntitySchema: {
@@ -1655,7 +1668,6 @@ export interface operations {
         parameters: {
             query?: {
                 planet_id?: number | null;
-                single?: boolean;
             };
             header?: never;
             path: {

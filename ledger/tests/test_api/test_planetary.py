@@ -4,6 +4,10 @@ from http import HTTPStatus
 # Django
 from django.urls import reverse
 
+# Alliance Auth (External Libs)
+from evesde_factory.allianceauth import EveCharacterFactory
+from evesde_factory.utils import add_character_to_user
+
 # AA Ledger
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.factory import (
@@ -128,7 +132,9 @@ class TestPlanetaryApi(LedgerTestCase):
     def test_toggle_notification_should_switch_planets_across_all_alts(self):
         # Test Data
         self.client.force_login(self.user)
-        alt_owner = CharacterOwnerFactory(user=self.user)
+        alt_char = EveCharacterFactory()
+        add_character_to_user(self.user, alt_char)
+        alt_owner = CharacterOwnerFactory(eve_character=alt_char)
         alt_planet = CharacterPlanetFactory(
             character=alt_owner, upgrade_level=5, num_pins=5
         )

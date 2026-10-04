@@ -28,9 +28,9 @@ class TestGeneralApi(LedgerTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
         links = [link["link"] for link in response.json()["left_links"]]
-        self.assertEqual(links, ["/", "/planetary/"])
+        self.assertEqual(links, ["/", "/planetary/", "/settings/"])
         right_links = [link["link"] for link in response.json()["right_links"]]
-        self.assertEqual(right_links, [reverse("ledger:add_char"), "/settings/"])
+        self.assertEqual(right_links, [reverse("ledger:add_char")])
 
     def test_get_menu_should_show_advanced_and_admin_links(self):
         # Test Data

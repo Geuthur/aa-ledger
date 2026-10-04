@@ -170,6 +170,18 @@ class AdministrationApiEndpoints:
                 corporation_id=corporation.corporation_id
             ).member_count
 
+            registered_ids = set(
+                CharacterOwner.objects.filter(
+                    eve_character__corporation_id=corporation.corporation_id
+                ).values_list("eve_character__character_id", flat=True)
+            )
+
+            missing_characters = [
+                member.character
+                for member in members
+                if member.character.character_id not in registered_ids
+            ]
+
             return schema.AdministrationResponse(
                 owner=schema.OwnerSchema(
                     character_id=corporation.corporation_id,
@@ -197,6 +209,17 @@ class AdministrationApiEndpoints:
                         status=owner.get_status,
                     )
                 ],
+                missing=[
+                    schema.AdminOwnerSchema(
+                        owner_id=char.character_id,
+                        name=char.character_name,
+                        icon=_character_icon(
+                            char.character_id,
+                            char.character_name,
+                        ),
+                    )
+                    for char in missing_characters
+                ],
                 members=[
                     schema.AltSchema(
                         character_id=member.character.character_id,
@@ -205,6 +228,7 @@ class AdministrationApiEndpoints:
                             member.character.character_id,
                             member.character.character_name,
                         ),
+                        is_registered=member.character.character_id in registered_ids,
                     )
                     for member in members
                 ],
