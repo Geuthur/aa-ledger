@@ -25,12 +25,17 @@ ci:
 # https://pre-commit.com/#pre-commit-configyaml---top-level
 exclude: |
   (?x)(
-    .github/|
-    LICENSE|
-    openapi_.*\.json|
-    .min(.css|.css.map|.js|.js.map)|
-    locale/|
-    static/(.*)/libs/
+    .github/ |
+    frontend/ |
+    LICENSE |
+    openapi_.*\.json |
+    .min(.css|.css.map|.js|.js.map) |
+    .app(.json) |
+    .node(.json) |
+    locale/ |
+    static/(.*)/libs/ |
+    static/(.*)/react/ |
+    docs/
   )
 
 # pre-commit setup

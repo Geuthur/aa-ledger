@@ -10,7 +10,15 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
 from ledger import __title__
-from ledger.api import admin, alliance, character, corporation, planetary
+from ledger.api import (
+    admin,
+    administration,
+    alliance,
+    character,
+    corporation,
+    general,
+    planetary,
+)
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -26,7 +34,9 @@ api = NinjaAPI(
 
 
 def setup(ninja_api):
+    general.GeneralApiEndpoints(ninja_api)
     admin.AdminApiEndpoints(ninja_api)
+    administration.AdministrationApiEndpoints(ninja_api)
 
     # Character Endpoints
     character.CharacterApiEndpoints(ninja_api)

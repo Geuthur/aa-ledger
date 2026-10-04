@@ -37,6 +37,10 @@ ______________________________________________________________________
   - Graphical Statistics
   - Yearly, Monthly, Daily, Hourly
   - Current Day
+  - Shareable links: year, month, day, division and opened details are part of the URL
+- Administration
+  - Registered and missing characters, corporations and alliances
+  - Per user setting to disable all notifications
 - Character Ledger
   - Graphical Overview for each Character
     - Graphical Statistics
@@ -65,7 +69,6 @@ ______________________________________________________________________
 
 ## Upcoming<a name="upcoming"></a>
 
-- Corporation Administration
 - Status Update System for each Section
 - Costs for Corporation Ledger
 

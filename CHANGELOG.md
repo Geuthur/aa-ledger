@@ -32,6 +32,11 @@ Section Order:
 
 - Dev Make File
 - Chart categories to BillboardSystem and update labels
+- Composite `(character|division, date)` indexes on wallet journal and mining ledger for direct aggregation
+- `BillboardSystem.create_billboards` to build charts directly from the journals
+- React frontend: ledger pages for characters, corporations and alliances, planetary ledger, overviews, administration and settings. Year, month, day, division, details modal and planet modal are kept in the URL with `nuqs`, so views are shareable.
+- `UserSettings` model (`disable_notifications`) with `GET|PUT settings/`
+- Chord diagram (`d3-chord`) for the distribution of the ledger categories
 
 ### Fixed
 
@@ -41,6 +46,15 @@ Section Order:
 
 ### Changed
 
+- **Breaking:** The API is JSON-only and consolidated. Date and division filters moved from the path to query parameters:
+  - `character|corporation|alliance/{id}/ledger/?year&month&day[&division_id]`
+  - `character|corporation|alliance/{id}/details/?year&month&day&section[&entity_id&division_id]`
+  - `character/{id}/planets/[?planet_id&single]`, `character/{id}/planets/{planet_id}/` (factories, storage and extractors in one response) and `POST character/{id}/planets/notification/[?planet_id]`
+  - `{character|corporation|alliance}/overview/` return plain lists, `{character|corporation|alliance}/{id}/dashboard/` return counts
+  - Added `menu/`, `user/` and `POST admin/update/`
+- **Breaking:** Responses no longer contain HTML (footers, action buttons, icons, popovers, progress bars). Icons are URLs, flags are booleans, `ref_types` is a list and details totals are numbers.
+- **Breaking:** Errors use a single `{"error": "..."}` schema, invalid dates return `422`.
+- Ledger responses include the selectable `years` (and `divisions` for corporations).
 - pin `allianceauth` Dependency to `>=5.2`
 - Modernized Tests
 - DataTable v2 now uses the AAv5 import
@@ -52,6 +66,10 @@ Section Order:
 
 - `django-esi` dependency is already required for AAv5.
 - Unnecessary properties in `CharacterOwner` & `CorporationOwner` Model
+- Cache layer: `CharacterLedgerEntry`, `CorporationLedgerEntry`, `AllianceLedgerEntry`, `CharacterBillboardEntry`, `CorporationBillboardEntry`, `AllianceBillboardEntry` models, `BillboardEntryManager` and `is_final_data`. Ledger and chart data is now always aggregated directly from the journals. Migration `0007` drops the tables.
+- `get_footer_text_class`, the HTML button helpers of the API (`api/helpers/icons.py`) and the `FactorySchema`/`ProgressBarSchema` API schemas.
+- **Breaking:** Server-rendered UI. All Django templates except the React shell, the ledger, planetary, overview and administration views, `forms.py` and the `ledger` template tags were removed. The ESI SSO views `character/add/`, `corporation/add/` and `alliance/add/` stay, every other route is served by the React app.
+- **Breaking:** The `character/{id}/delete/` and `corporation/{id}/delete/` POST views, replaced by `DELETE character/{id}/` and `DELETE corporation/{id}/`. The `*/dashboard/` endpoints were replaced by `*/administration/`.
 
 ## [3.0.2] - 14.07.2026
 

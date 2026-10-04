@@ -23,6 +23,7 @@ and many more feel free to make a pull request.
       - [General Commands](#general-commands)
       - [Migration Handling](#migration-handling)
       - [Translation Handling](#translation-handling)
+      - [React Frontend](#react-frontend)
       - [Git Handling](#git-handling)
       - [Pre-Commit](#pre-commit)
       - [Redis](#redis)
@@ -114,6 +115,19 @@ You can do so by providing a `.make/myauth-path` file in the project root with t
 #### Translation Handling<a name="translation-handling"></a>
 
 - `make pot` - Create or update the translation template file
+
+#### React Frontend<a name="react-frontend"></a>
+
+The UI is a React app in `frontend/` that talks to the JSON API (`ledger/api`).
+The ESI SSO views (`character/add/`, `corporation/add/`, `alliance/add/`) are the only server-rendered routes.
+
+- `make react-dev` - Start the Vite dev server
+- `make react-build` - Build the frontend
+- `make react-openapi` - Export the OpenAPI schema from the API and generate the TypeScript types. Run it after every API change
+- `make react-test-build` - Build and copy the assets into the Django static directory
+- `make react-release` - Build, scan translations, copy assets and translations and collect static
+
+The frontend tests and linter run in `frontend/` with `npm test` and `npm run lint`.
 
 #### Git Handling<a name="git-handling"></a>
 

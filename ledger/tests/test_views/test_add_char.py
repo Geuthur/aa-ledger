@@ -11,7 +11,7 @@ from django.urls import reverse
 from ledger.models.characteraudit import CharacterOwner
 from ledger.tests import LedgerTestCase
 
-MODULE_PATH = "ledger.views.character.add_char"
+MODULE_PATH = "ledger.views"
 
 
 @patch(MODULE_PATH + ".messages")

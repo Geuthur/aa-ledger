@@ -1,11 +1,11 @@
 # Standard Library
 from decimal import Decimal
+from http import HTTPStatus
 
 # Third Party
-from ninja import NinjaAPI, Schema
+from ninja import NinjaAPI, Query, Schema
 
 # Django
-from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import Q, QuerySet
 from django.utils import timezone
@@ -17,31 +17,29 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Ledger
 from ledger import __title__
 from ledger.api.helpers.core import (
+    get_available_years,
     get_characterowner_or_none,
-)
-from ledger.api.helpers.icons import (
-    get_character_details_info_button,
-    get_ref_type_details_popover_button,
 )
 from ledger.api.schema import (
     BillboardSchema,
     CategorySchema,
     CharacterLedgerSchema,
+    DateFilter,
+    ErrorSchema,
     LedgerDetailsResponse,
     LedgerDetailsSummary,
     LedgerResponse,
-    OwnerLedgerRequestInfo,
     OwnerSchema,
+    Section,
     UpdateStatusSchema,
 )
-from ledger.helpers.ledger_data import get_footer_text_class
+from ledger.helpers.billboard import BillboardSystem
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.characteraudit import (
     CharacterMiningLedger,
     CharacterOwner,
     CharacterWalletJournalEntry,
 )
-from ledger.models.ledger import CharacterBillboardEntry, CharacterLedgerEntry
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -51,165 +49,59 @@ class LedgerCharacterSchema(Schema):
     character: OwnerSchema
     ledger: CharacterLedgerSchema
     update_status: UpdateStatusSchema
-    actions: str = ""
 
 
 class CharacterLedgerResponse(LedgerResponse):
     """
     Schema for Character Ledger Response.
 
-    This schema represents the response structure for a character's ledger,
-    extending the base :class:`LedgerResponse` to include character-specific information.
-
     Attributes:
-        information (OwnerLedgerRequestInfo): Information about the ledger request.
         characters (list[LedgerCharacterSchema]): List of character ledger data.
     """
 
-    information: OwnerLedgerRequestInfo
     characters: list[LedgerCharacterSchema]
 
 
 class CharacterApiEndpoints:
     tags = ["Character"]
 
-    # pylint: disable=too-many-statements, function-redefined
-    # flake8: noqa: F811
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "character/{character_id}/date/{year}/",
-            response={200: CharacterLedgerResponse, 403: dict, 404: dict},
+            "character/{character_id}/ledger/",
+            response={
+                HTTPStatus.OK: CharacterLedgerResponse,
+                HTTPStatus.FORBIDDEN: ErrorSchema,
+                HTTPStatus.NOT_FOUND: ErrorSchema,
+            },
             tags=self.tags,
-        )
-        def get_character_ledger(request: WSGIRequest, character_id: int, year: int):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
-                request=request,
-                character_id=character_id,
-                year=year,
-            )
-
-        @api.get(
-            "character/{character_id}/date/{year}/{month}/",
-            response={200: CharacterLedgerResponse, 403: dict, 404: dict},
-            tags=self.tags,
+            summary="Get the ledger of a character and its alts",
         )
         def get_character_ledger(
-            request: WSGIRequest, character_id: int, year: int, month: int
+            request: WSGIRequest, character_id: int, filters: Query[DateFilter]
         ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
             return self._ledger_api_response(
-                request=request,
-                character_id=character_id,
-                year=year,
-                month=month,
+                request=request, character_id=character_id, filters=filters
             )
 
-        @api.get(
-            "character/{character_id}/date/{year}/{month}/{day}/",
-            response={200: CharacterLedgerResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_character_ledger(
-            request: WSGIRequest,
-            character_id: int,
-            year: int,
-            month: int,
-            day: int,
-        ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
-                request=request,
-                character_id=character_id,
-                year=year,
-                month=month,
-                day=day,
-            )
-
-    def _create_datatable_footer(
-        self,
-        characters: list[LedgerCharacterSchema],
-        request_info: OwnerLedgerRequestInfo,
-    ) -> OwnerLedgerRequestInfo:
-        """
-        Create the footer HTML for the Ledger datatable.
-
-        This Helper function creates the footer HTML for the Ledger datatable
-        by summing up the respective fields from the list of characters.
-
-        Args:
-            characters (list[LedgerCharacterSchema]): The list of character ledger data.
-
-        Returns:
-            str: The generated footer HTML.
-        """
-        total_bounty = sum(char.ledger.bounty for char in characters)
-        total_ess = sum(char.ledger.ess for char in characters)
-        total_mining = sum(char.ledger.mining for char in characters)
-        total_costs = sum(char.ledger.costs for char in characters)
-        total_miscellaneous = sum(char.ledger.miscellaneous for char in characters)
-        total_total = sum(char.ledger.total for char in characters)
-
-        # Generate Details Link
-        url = get_character_details_info_button(
-            character_id=request_info.owner_id,
-            request_info=request_info,
-        )
-
-        # Skip Footer if no Totals
-        if total_total == 0:
-            return ""
-
-        info_title = _("This amount is displayed for information only")
-        info_html = f"""
-            <i class="fa-regular fa-circle-question"
-                data-bs-tooltip="aa-ledger" data-bs-placement="top"
-                title="{info_title}"
-            >
-            </i>
-        """
-
-        footer_html = f"""
-            <tr>
-                <th class="border-top">{_("Summary")}</th>
-                <th class="border-top text-end {get_footer_text_class(total_bounty)}">{intcomma(value=int(total_bounty), use_l10n=True)} ISK</th>
-                <th class="border-top text-end {get_footer_text_class(total_ess)}">{intcomma(value=int(total_ess), use_l10n=True)} ISK</th>
-                <th class="border-top text-end {get_footer_text_class(total_mining, mining=True)}">{intcomma(value=int(total_mining), use_l10n=True)} ISK {info_html}</th>
-                <th class="border-top text-end {get_footer_text_class(total_miscellaneous)}">{intcomma(value=int(total_miscellaneous), use_l10n=True)} ISK</th>
-                <th class="border-top text-end {get_footer_text_class(total_costs)}">{intcomma(value=int(total_costs), use_l10n=True)} ISK</th>
-                <th class="border-start border-top text-end {get_footer_text_class(total_total)}">{intcomma(value=int(total_total), use_l10n=True)} ISK</th>
-                <th class="border-top">{url}</th>
-            </tr>
-        """
-        request_info.footer_html = footer_html
-        return request_info
-
-    # pylint: disable=too-many-locals
     def generate_character_data(
-        self, owner: CharacterOwner, request_info: OwnerLedgerRequestInfo
-    ) -> list[CharacterLedgerResponse]:
+        self, owner: CharacterOwner, filters: DateFilter
+    ) -> tuple[list[LedgerCharacterSchema], BillboardSchema]:
         """
-        Generate the ledger data for all alts of a character owner.
-
-        This Helper function generates the ledger data for all alts of a character owner
-        based on the provided date query.
+        Generate the ledger and billboard data for all alts of a character owner.
 
         Args:
             owner (CharacterOwner): The character owner object.
-            request_info (LedgerRequestInfo): The request information containing date and section details.
+            filters (DateFilter): The requested date range.
         Returns:
-            list[LedgerCharacterSchema]: A list of ledger responses for each character.
+            tuple[list[LedgerCharacterSchema], BillboardSchema]: Ledger rows and chart data.
         """
-        # Get All Alts for this Owner
         characters = CharacterOwner.objects.filter(
             eve_character__character_id__in=owner.alt_ids
         )
 
-        # Get Wallet and Mining Journal Entries
-        wallet_journal = (
+        wallet_journal = filters.filter(
             CharacterWalletJournalEntry.objects.filter(
-                character__eve_character__character_id__in=owner.alt_ids,
-                **request_info.to_date_query(),
+                character__eve_character__character_id__in=owner.alt_ids
             )
             # Exclude Zero Amount Entries
             .exclude(amount=Decimal("0.00"))
@@ -217,493 +109,239 @@ class CharacterApiEndpoints:
             .exclude(
                 Q(ref_type="player_donation")
                 & (Q(first_party__in=owner.alt_ids) & Q(second_party__in=owner.alt_ids))
-            ).order_by("-date")
-        )
-
-        mining_journal = CharacterMiningLedger.objects.filter(
-            character__eve_character__character_id__in=owner.alt_ids,
-            **request_info.to_date_query(),
+            )
         ).order_by("-date")
 
-        # Create Ledger Response for each Character
+        mining_journal = filters.filter(
+            CharacterMiningLedger.objects.filter(
+                character__eve_character__character_id__in=owner.alt_ids
+            )
+        ).order_by("-date")
+
         character_ledger_list: list[LedgerCharacterSchema] = []
         for character in characters:
-            # Get Journal Data
-            character_journal = wallet_journal.filter(
-                character=character,
-            )
-            # Get Mining Journal Data
-            character_mining_journal = mining_journal.filter(
-                character=character,
-            )
+            character_journal = wallet_journal.filter(character=character)
+            character_mining_journal = mining_journal.filter(character=character)
 
             # Skip if No Data for Character
             if not character_journal.exists() and not character_mining_journal.exists():
                 continue
 
-            # Check for Existing Ledger Entry
-            ledger_data = character.ledger_character.filter(
-                year=request_info.year,
-                month=request_info.month,
-                day=request_info.day,
-            ).first()
+            bounty = character_journal.aggregate_bounty()
+            ess = character_journal.aggregate_ess()
+            mining = character_mining_journal.aggregate_mining()
+            costs = character_journal.aggregate_costs()
+            miscellaneous = character_journal.aggregate_miscellaneous()
 
-            # If Ledger Entry Exists, Use it. Otherwise, Aggregate Data and Create/Update Ledger Entry.
-            if ledger_data is not None and ledger_data.is_final:
-                character_ledger_list.append(
-                    LedgerCharacterSchema(
-                        character=OwnerSchema(
-                            character_id=character.eve_character.character_id,
-                            character_name=character.eve_character.character_name,
-                            icon=character.get_portrait(size=32, as_html=True),
-                        ),
-                        ledger=CharacterLedgerSchema(
-                            bounty=ledger_data.bounty,
-                            ess=ledger_data.ess,
-                            mining=ledger_data.mining,
-                            costs=ledger_data.costs,
-                            miscellaneous=ledger_data.miscellaneous,
-                            total=sum(
-                                [
-                                    ledger_data.bounty,
-                                    ledger_data.ess,
-                                    ledger_data.mining,
-                                    ledger_data.costs,
-                                    ledger_data.miscellaneous,
-                                ]
-                            ),
-                        ),
-                        update_status=UpdateStatusSchema(
-                            status=owner.get_status,
-                        ),
-                        actions=get_character_details_info_button(
-                            character_id=character.eve_character.character_id,
-                            request_info=request_info,
-                            section="single",
-                        ),
-                    )
+            character_ledger_list.append(
+                LedgerCharacterSchema(
+                    character=OwnerSchema(
+                        character_id=character.eve_character.character_id,
+                        character_name=character.eve_character.character_name,
+                        icon=character.get_portrait(size=32),
+                    ),
+                    ledger=CharacterLedgerSchema(
+                        bounty=bounty,
+                        ess=ess,
+                        mining=mining,
+                        costs=costs,
+                        miscellaneous=miscellaneous,
+                        # Mining is shown for information only
+                        total=sum([bounty, ess, miscellaneous, costs]),
+                    ),
+                    update_status=UpdateStatusSchema(status=character.get_status),
                 )
-                continue
-
-            logger.debug(
-                "Aggregating data for character %s (%s)",
-                character.eve_character.character_name,
-                character.eve_character.character_id,
-            )
-            # Aggregate Data
-            character_bounty = character_journal.aggregate_bounty()
-            character_ess = character_journal.aggregate_ess()
-            character_mining = character_mining_journal.aggregate_mining()
-            character_costs = character_journal.aggregate_costs()
-            character_miscellaneous = character_journal.aggregate_miscellaneous()
-
-            # Update or Create Ledger Entry to Store Aggregated Data
-            CharacterLedgerEntry.objects.update_or_create(
-                owner=character,
-                year=request_info.year,
-                month=request_info.month,
-                day=request_info.day,
-                defaults={
-                    "name": character.eve_character.character_name,
-                    "bounty": character_bounty,
-                    "ess": character_ess,
-                    "mining": character_mining,
-                    "costs": character_costs,
-                    "miscellaneous": character_miscellaneous,
-                    "final_data": request_info.is_final_data,
-                },
             )
 
-            total = sum(
-                [
-                    character_bounty,
-                    character_ess,
-                    character_miscellaneous,
-                    character_costs,
-                ]
-            )
-
-            response_ledger = LedgerCharacterSchema(
-                character=OwnerSchema(
-                    character_id=character.eve_character.character_id,
-                    character_name=character.eve_character.character_name,
-                    icon=character.get_portrait(size=32, as_html=True),
-                ),
-                ledger=CharacterLedgerSchema(
-                    bounty=character_bounty,
-                    ess=character_ess,
-                    mining=character_mining,
-                    costs=character_costs,
-                    miscellaneous=character_miscellaneous,
-                    total=total,
-                ),
-                update_status=UpdateStatusSchema(
-                    status=owner.get_status,
-                ),
-                actions=get_character_details_info_button(
-                    character_id=character.eve_character.character_id,
-                    request_info=request_info,
-                    section="single",
-                ),
-            )
-
-            # Add Character Ledger to List
-            character_ledger_list.append(response_ledger)
-
-        # Check for Existing Billboard Entry
-        billboard_data = owner.ledger_character_billboard.filter(
-            year=request_info.year,
-            month=request_info.month,
-            day=request_info.day,
-        ).first()
-
-        # If No Billboard Data Exists or Existing Billboard Data is Not Final, Update or Create Billboard Entry for Owner
-        if billboard_data is None or not billboard_data.is_final:
-            logger.debug(
-                "Updating billboard entry for character %s (%s)",
-                owner.eve_character.character_name,
-                owner.eve_character.character_id,
-            )
-            CharacterBillboardEntry.objects.update_or_create_billboard_entry(
-                owner=owner,
-                request_info=request_info,
-                wallet_journal=wallet_journal,
-                mining_journal=mining_journal,
-                ledger_list=character_ledger_list,
-            )
-        return character_ledger_list
-
-    # pylint: disable=too-many-locals
-    def generate_billboard_data(
-        self,
-        owner: CharacterOwner,
-        request_info: OwnerLedgerRequestInfo,
-    ) -> BillboardSchema:
-        """
-        Generate the billboard data for the given character IDs.
-
-        This Helper function generates the billboard data for the given character IDs
-        based on the provided date query.
-
-        Returns:
-            LedgerBillboard: The generated billboard data.
-        """
-        # Get Billboard Entry for Owner
-        billboard = owner.ledger_character_billboard.filter(
-            year=request_info.year,
-            month=request_info.month,
-            day=request_info.day,
-        ).first()
-
-        response_billboard = BillboardSchema(
-            xy_chart=billboard.xy_billboard if billboard else None,
-            chord_chart=billboard.chord_billboard if billboard else None,
+        xy_chart, chord_chart = BillboardSystem().create_billboards(
+            filters=filters,
+            wallet_journal=wallet_journal,
+            ledger_list=character_ledger_list,
+            mining_journal=mining_journal,
         )
-        # Billboard Data Generation Logic Here
-        return response_billboard
+        return character_ledger_list, BillboardSchema(
+            xy_chart=xy_chart, chord_chart=chord_chart
+        )
 
-    # pylint: disable=too-many-positional-arguments
     def _ledger_api_response(
-        self,
-        request,
-        character_id: int,
-        year: int,
-        month: int = None,
-        day: int = None,
+        self, request, character_id: int, filters: DateFilter
     ) -> CharacterLedgerResponse | tuple[int, dict]:
-        """
-        Helper function to generate ledger response for various date parameters.
-
-        This function consolidates the common logic for generating the ledger response
-        based on the provided date parameters (year, month, day) and section.
-
-        Args:
-            request (WSGIRequest): The incoming request object.
-            character_id (int): The character ID.
-            year (int): The year for the ledger data.
-            month (int, optional): The month for the ledger data. Defaults to None.
-            day (int, optional): The day for the ledger data. Defaults to None.
-            section (str): The section type ('single' or 'summary').
-
-        Returns:
-            CharacterLedgerResponse | tuple[int, dict]: The ledger response or error tuple.
-        """
-
+        """Build the ledger response for a character and the given date."""
         perms, owner = get_characterowner_or_none(
             request=request, character_id=character_id
         )
 
         if owner is None:
-            return 404, {"error": _("Character not found in Ledger.")}
+            return HTTPStatus.NOT_FOUND, {"error": _("Character not found in Ledger.")}
 
         if perms is False:
-            return 403, {
+            return HTTPStatus.FORBIDDEN, {
                 "error": _("You do not have permission to view this character.")
             }
 
-        # Build Request Info
-        request_info = OwnerLedgerRequestInfo(
-            owner_id=owner.eve_character.character_id,
-            year=year,
-            month=month,
-            day=day,
+        character_ledger_list, billboard = self.generate_character_data(
+            owner=owner, filters=filters
         )
 
-        # Generate Character Ledger Data
-        character_ledger_list = self.generate_character_data(
-            owner=owner,
-            request_info=request_info,
-        )
-
-        # Generate Billboard Data
-        billboard = self.generate_billboard_data(
-            owner=owner,
-            request_info=request_info,
-        )
-
-        # Update Request Info with Available Data
-        self._create_datatable_footer(
-            characters=character_ledger_list, request_info=request_info
-        )
-
-        response_ledger = CharacterLedgerResponse(
+        return CharacterLedgerResponse(
             owner=OwnerSchema(
                 character_id=owner.eve_character.character_id,
                 character_name=owner.eve_character.character_name,
-                icon=owner.get_portrait(as_html=True),
+                icon=owner.get_portrait(),
             ),
-            information=request_info,
             characters=character_ledger_list,
             billboard=billboard,
-            actions=get_character_details_info_button(
-                character_id=owner.eve_character.character_id,
-                request_info=request_info,
+            years=get_available_years(
+                CharacterWalletJournalEntry.objects.filter(
+                    character__eve_character__character_id__in=owner.alt_ids
+                )
             ),
         )
 
-        return response_ledger
+
+# pylint: disable=too-many-locals
+def create_ledger_details(
+    journal: QuerySet,
+    filters: DateFilter,
+    section: Section,
+    mining: QuerySet | None = None,
+) -> LedgerDetailsResponse:
+    """
+    Aggregate a journal into per-category income and cost rows.
+
+    Shared by the character, corporation and alliance details endpoints.
+
+    Args:
+        journal (QuerySet): The wallet journal entries.
+        filters (DateFilter): The requested date range, used for the averages.
+        section (str): `summary` averages over a year, `single` over the selected days.
+        mining (QuerySet, optional): Mining entries, shown for information only.
+    Returns:
+        LedgerDetailsResponse: Category rows and totals. Empty if there is no data.
+    """
+    ref_types = RefTypeManager.get_all_categories()
+
+    avg = filters.day if filters.day else timezone.now().day
+    if section == "summary":
+        avg = 365
+
+    monthly_list: list[CategorySchema] = []
+    daily_list: list[CategorySchema] = []
+    hourly_list: list[CategorySchema] = []
+    summary = 0
+    for category in RefTypeManager.CategoryChoice:
+        category_ref_types = ref_types.get(category.value, [])
+        if not category_ref_types:
+            continue
+        for income_flag in (True, False):
+            kind_label = _("Income from") if income_flag else _("Cost from")
+            name = _("%(kind)s %(category)s") % {
+                "category": category.label,
+                "kind": kind_label,
+            }
+            amount = journal.aggregate_ref_type(
+                ref_type=category_ref_types, income=income_flag
+            )
+            if (income_flag and amount > 0) or (not income_flag and amount < 0):
+                monthly_list.append(
+                    CategorySchema(
+                        name=name,
+                        amount=amount,
+                        average=amount / avg / 30,
+                        average_tick=amount / avg / 30 / 20,
+                        ref_types=category_ref_types,
+                    )
+                )
+                daily_list.append(
+                    CategorySchema(
+                        name=name,
+                        amount=amount / avg,
+                        average=amount / avg / 30,
+                        average_tick=amount / avg / 20,
+                        ref_types=category_ref_types,
+                    )
+                )
+                hourly_list.append(
+                    CategorySchema(
+                        name=name,
+                        amount=amount / avg / 24,
+                        average=amount / avg / 24 / 30,
+                        average_tick=amount / avg / 24 / 20,
+                        ref_types=category_ref_types,
+                    )
+                )
+                summary += amount
+
+    if mining is not None:
+        mining_income = mining.aggregate_mining()
+        if mining_income > 0:
+            for rows, divisor in (
+                (monthly_list, avg * 30),
+                (daily_list, avg),
+                (hourly_list, avg * 24),
+            ):
+                rows.append(
+                    CategorySchema(
+                        name=_("Mining Income"),
+                        amount=mining_income,
+                        average=mining_income / divisor,
+                        average_tick=mining_income / divisor / 20,
+                        ref_types=["mining"],
+                    )
+                )
+
+    return LedgerDetailsResponse(
+        summary=monthly_list,
+        daily=daily_list,
+        hourly=hourly_list,
+        total=LedgerDetailsSummary(
+            summary=summary,
+            daily=summary / avg,
+            hourly=summary / avg / 24,
+        ),
+    )
 
 
 class CharacterDetailsApiEndpoints:
     tags = ["Character Details"]
 
-    # pylint: disable=too-many-statements, function-redefined
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "character/{character_id}/date/{year}/section/{section}/view/details/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
+            "character/{character_id}/details/",
+            response={
+                HTTPStatus.OK: LedgerDetailsResponse,
+                HTTPStatus.FORBIDDEN: ErrorSchema,
+                HTTPStatus.NOT_FOUND: ErrorSchema,
+            },
             tags=self.tags,
-        )
-        def get_character_ledger_details(
-            request: WSGIRequest, character_id: int, year: int, section: str
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                character_id=character_id,
-                year=year,
-                section=section,
-            )
-
-        @api.get(
-            "character/{character_id}/date/{year}/{month}/section/{section}/view/details/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_character_ledger_details(
-            request: WSGIRequest, character_id: int, year: int, month: int, section: str
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                character_id=character_id,
-                year=year,
-                month=month,
-                section=section,
-            )
-
-        @api.get(
-            "character/{character_id}/date/{year}/{month}/{day}/section/{section}/view/details/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
+            summary="Get the income and cost breakdown of a character",
         )
         def get_character_ledger_details(
             request: WSGIRequest,
             character_id: int,
-            year: int,
-            month: int,
-            day: int,
-            section: str,
+            filters: Query[DateFilter],
+            section: Section = "summary",
         ):
             return self._ledger_details_api_response(
                 request=request,
                 character_id=character_id,
-                year=year,
-                month=month,
-                day=day,
+                filters=filters,
                 section=section,
             )
 
-    def _create_datatable_footer(self, value: float) -> str:
-        """Create the footer HTML for the datatable."""
-        footer_html = f"""
-            <tr>
-                <th>{_('Summary')}</th>
-                <th class="text-end {get_footer_text_class(value)}">{intcomma(value=int(value), use_l10n=True)} ISK</th>
-                <th></th>
-            </tr>
-        """
-        return footer_html
-
-    # pylint: disable=too-many-locals
-    def _create_ledger_details(
-        self,
-        journal: QuerySet[CharacterWalletJournalEntry],
-        mining: QuerySet[CharacterMiningLedger],
-        request_info: OwnerLedgerRequestInfo,
-    ) -> LedgerDetailsResponse:
-        """
-        Generate the detailed ledger data for a character.
-        This Helper function generates the detailed ledger data for a character
-        based on the provided date query.
-
-        Args:
-            journal (QuerySet): The wallet journal entries.
-            mining (QuerySet): The mining ledger entries. Defaults to None.
-            request_info (LedgerRequestInfo): The request information containing date and section details.
-        Returns:
-            LedgerDetailsResponse: The generated ledger details response.
-        """
-        ref_types = RefTypeManager.get_all_categories()
-
-        avg = request_info.day if request_info.day else timezone.now().day
-        if request_info.section == "summary":
-            avg = 365
-
-        monthly_list = []
-        daily_list = []
-        hourly_list = []
-        summary = 0
-        # Income/Cost Ref Types
-        for category in RefTypeManager.CategoryChoice:
-            category_ref_types = ref_types.get(category.value, [])
-            if not category_ref_types:
-                continue
-            for __, income_flag in (("income", True), ("cost", False)):
-                kind_label = _("Income from") if income_flag else _("Cost from")
-                name = _("%(kind)s %(category)s") % {
-                    "category": category.label,
-                    "kind": kind_label,
-                }
-                kwargs = {"ref_type": category_ref_types, "income": income_flag}
-                amount = journal.aggregate_ref_type(**kwargs)
-                if (income_flag and amount > 0) or (not income_flag and amount < 0):
-                    monthly = CategorySchema(
-                        name=name,
-                        amount=amount,
-                        average=amount / avg / 30,
-                        average_tick=amount / avg / 30 / 20,
-                        ref_types=get_ref_type_details_popover_button(
-                            ref_types=category_ref_types
-                        ),
-                    )
-
-                    daily = CategorySchema(
-                        name=name,
-                        amount=amount / avg,
-                        average=amount / avg / 30,
-                        average_tick=amount / avg / 20,
-                        ref_types=get_ref_type_details_popover_button(
-                            ref_types=category_ref_types
-                        ),
-                    )
-
-                    hourly = CategorySchema(
-                        name=name,
-                        amount=amount / avg / 24,
-                        average=amount / avg / 24 / 30,
-                        average_tick=amount / avg / 24 / 20,
-                        ref_types=get_ref_type_details_popover_button(
-                            ref_types=category_ref_types
-                        ),
-                    )
-                    # Add Amounts
-                    summary += amount
-                    monthly_list.append(monthly)
-                    daily_list.append(daily)
-                    hourly_list.append(hourly)
-
-        # Mining Income from Mining Ledger Journal (Only as Information not counted in Summary)
-        mining_income = mining.aggregate_mining()
-        if mining_income > 0:
-            monthly_mining = CategorySchema(
-                name=_("Mining Income"),
-                amount=mining_income,
-                average=mining_income / avg / 30,
-                average_tick=mining_income / avg / 30 / 20,
-                ref_types=get_ref_type_details_popover_button(
-                    ref_types=["mining"],
-                ),
-            )
-
-            daily_mining = CategorySchema(
-                name=_("Mining Income"),
-                amount=mining_income,
-                average=mining_income / avg,
-                average_tick=mining_income / avg / 20,
-                ref_types=get_ref_type_details_popover_button(
-                    ref_types=["mining"],
-                ),
-            )
-
-            hourly_mining = CategorySchema(
-                name=_("Mining Income"),
-                amount=mining_income,
-                average=mining_income / avg / 24,
-                average_tick=mining_income / avg / 24 / 20,
-                ref_types=get_ref_type_details_popover_button(
-                    ref_types=["mining"],
-                ),
-            )
-            monthly_list.append(monthly_mining)
-            daily_list.append(daily_mining)
-            hourly_list.append(hourly_mining)
-
-        if summary == 0:
-            return None
-
-        return LedgerDetailsResponse(
-            summary=monthly_list,
-            daily=daily_list,
-            hourly=hourly_list,
-            total=LedgerDetailsSummary(
-                summary=self._create_datatable_footer(summary),
-                daily=self._create_datatable_footer(
-                    summary / avg,
-                ),
-                hourly=self._create_datatable_footer(
-                    summary / avg / 24,
-                ),
-            ),
-        )
-
     def create_character_details(
-        self,
-        owner: CharacterOwner,
-        request_info: OwnerLedgerRequestInfo,
-    ) -> dict:
-        """
-        Create the character amounts for the Information View.
-        """
-        # Determine Character IDs based on Section
+        self, owner: CharacterOwner, filters: DateFilter, section: Section
+    ) -> LedgerDetailsResponse:
+        """Create the category breakdown for a character or all of its alts."""
         char_ids = (
             owner.alt_ids
-            if request_info.section == "summary"
+            if section == "summary"
             else [owner.eve_character.character_id]
         )
 
-        wallet_journal = (
+        wallet_journal = filters.filter(
             CharacterWalletJournalEntry.objects.filter(
-                character__eve_character__character_id__in=char_ids,
-                **request_info.to_date_query(),
+                character__eve_character__character_id__in=char_ids
             )
             # Exclude Zero Amount Entries
             .exclude(amount=Decimal("0.00"))
@@ -711,68 +349,42 @@ class CharacterDetailsApiEndpoints:
             .exclude(
                 Q(ref_type="player_donation")
                 & (Q(first_party__in=owner.alt_ids) & Q(second_party__in=owner.alt_ids))
-            ).order_by("-date")
+            )
+        ).order_by("-date")
+
+        mining_journal = filters.filter(
+            CharacterMiningLedger.objects.filter(
+                character__eve_character__character_id__in=char_ids
+            )
         )
 
-        mining_journal = CharacterMiningLedger.objects.filter(
-            character__eve_character__character_id__in=char_ids,
-            **request_info.to_date_query(),
-        )
-
-        response_ledger_details: LedgerDetailsResponse = self._create_ledger_details(
+        return create_ledger_details(
             journal=wallet_journal,
             mining=mining_journal,
-            request_info=request_info,
+            filters=filters,
+            section=section,
         )
-        return response_ledger_details
 
-    # pylint: disable=too-many-positional-arguments
     def _ledger_details_api_response(
         self,
         request: WSGIRequest,
         character_id: int,
-        year: int,
-        month: int = None,
-        day: int = None,
-        section: str = "summary",
-    ):
-        """
-        Helper function to generate ledger details response for various date parameters.
-
-        This function consolidates the common logic for generating the ledger details response
-        based on the provided date parameters character_id, (year, month, day) and section.
-
-        Args:
-            request (WSGIRequest): The incoming request object.
-            character_id (int): The character ID.
-            year (int): The year for the ledger data.
-            month (int, optional): The month for the ledger data. Defaults to None.
-            day (int, optional): The day for the ledger data. Defaults to None.
-            section (str): The section type ('single' or 'summary').
-        Returns:
-            LedgerDetailsResponse | tuple[int, dict]: The ledger details response or error tuple.
-        """
+        filters: DateFilter,
+        section: Section,
+    ) -> LedgerDetailsResponse | tuple[int, dict]:
+        """Build the details response for a character and the given date."""
         perms, owner = get_characterowner_or_none(
             request=request, character_id=character_id
         )
 
         if owner is None:
-            return 404, {"error": _("Character not found in Ledger.")}
+            return HTTPStatus.NOT_FOUND, {"error": _("Character not found in Ledger.")}
 
         if perms is False:
-            return 403, {
+            return HTTPStatus.FORBIDDEN, {
                 "error": _("You do not have permission to view this character.")
             }
 
-        request_info = OwnerLedgerRequestInfo(
-            owner_id=owner.eve_character.character_id,
-            year=year,
-            month=month,
-            day=day,
-            section=section,
-        )
-
         return self.create_character_details(
-            owner=owner,
-            request_info=request_info,
+            owner=owner, filters=filters, section=section
         )

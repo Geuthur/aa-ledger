@@ -1,15 +1,14 @@
 # Standard Library
 from collections import defaultdict
 from decimal import Decimal
+from http import HTTPStatus
 
 # Third Party
-from ninja import NinjaAPI, Schema
+from ninja import NinjaAPI, Query, Schema
 
 # Django
-from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import Q, QuerySet
-from django.utils import timezone
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
 # Alliance Auth
@@ -18,35 +17,33 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
 from ledger import __title__
+from ledger.api.character import create_ledger_details
 from ledger.api.helpers.core import (
+    get_available_years,
     get_corporationowner_or_none,
 )
-from ledger.api.helpers.icons import (
-    get_corporation_details_info_button,
-    get_corporation_ledger_popover_button,
-    get_ref_type_details_popover_button,
-)
 from ledger.api.schema import (
+    AltSchema,
     BillboardSchema,
-    CategorySchema,
-    CorporationLedgerRequestInfo,
+    CorporationLedgerFilter,
+    DivisionSchema,
     EntitySchema,
+    ErrorSchema,
     LedgerDetailsResponse,
-    LedgerDetailsSummary,
     LedgerResponse,
     LedgerSchema,
     OwnerSchema,
+    Section,
 )
 from ledger.constants import NPC_ENTITIES
+from ledger.helpers.billboard import BillboardSystem
 from ledger.helpers.eveonline import get_character_portrait_url
-from ledger.helpers.ledger_data import get_footer_text_class
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.corporationaudit import (
     CorporationOwner,
     CorporationWalletJournalEntry,
 )
 from ledger.models.general import EveEntity
-from ledger.models.ledger import CorporationBillboardEntry
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -55,196 +52,48 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 class LedgerEntitySchema(Schema):
     entity: EntitySchema
     ledger: LedgerSchema
-    actions: str = ""
 
 
 class CorporationLedgerResponse(LedgerResponse):
     """
     Schema for Corporation Ledger Response.
 
-    This schema represents the response structure for corporation ledger data,
-    extending the base :class:`LedgerResponse` to include corporation-specific ledger data.
-
     Attributes:
-        information (CorporationLedgerRequestInfo): The request information for the corporation ledger.
         entities (list[LedgerEntitySchema]): The list of ledger entities.
-
+        divisions (list[DivisionSchema]): The wallet divisions to choose from.
     """
 
-    information: CorporationLedgerRequestInfo
     entities: list[LedgerEntitySchema]
+    divisions: list[DivisionSchema] = []
 
 
 class CorporationApiEndpoints:
     tags = ["Corporation"]
 
-    # pylint: disable=too-many-statements, function-redefined, duplicate-code
-    # flake8: noqa: F811
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "corporation/{corporation_id}/division/{division_id}/date/{year}/",
-            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
+            "corporation/{corporation_id}/ledger/",
+            response={
+                HTTPStatus.OK: CorporationLedgerResponse,
+                HTTPStatus.FORBIDDEN: ErrorSchema,
+                HTTPStatus.NOT_FOUND: ErrorSchema,
+            },
             tags=self.tags,
-        )
-        def get_corporation_ledger(
-            request: WSGIRequest, corporation_id: int, division_id: int, year: int
-        ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                division_id=division_id,
-                year=year,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/division/{division_id}/date/{year}/{month}/",
-            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
-            tags=self.tags,
+            summary="Get the ledger of a corporation, optionally for one division",
         )
         def get_corporation_ledger(
             request: WSGIRequest,
             corporation_id: int,
-            division_id: int,
-            year: int,
-            month: int,
+            filters: Query[CorporationLedgerFilter],
         ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
             return self._ledger_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                division_id=division_id,
-                year=year,
-                month=month,
+                request=request, corporation_id=corporation_id, filters=filters
             )
-
-        @api.get(
-            "corporation/{corporation_id}/division/{division_id}/date/{year}/{month}/{day}/",
-            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger(
-            request: WSGIRequest,
-            corporation_id: int,
-            division_id: int,
-            year: int,
-            month: int,
-            day: int,
-        ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                division_id=division_id,
-                year=year,
-                month=month,
-                day=day,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/date/{year}/",
-            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger(
-            request: WSGIRequest, corporation_id: int, year: int
-        ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                year=year,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/date/{year}/{month}/",
-            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger(
-            request: WSGIRequest, corporation_id: int, year: int, month: int
-        ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                year=year,
-                month=month,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/date/{year}/{month}/{day}/",
-            response={200: CorporationLedgerResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger(
-            request: WSGIRequest,
-            corporation_id: int,
-            year: int,
-            month: int,
-            day: int,
-        ):
-            """Get the ledger for a character for a specific year. Admin Endpoint."""
-            return self._ledger_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                year=year,
-                month=month,
-                day=day,
-            )
-
-    # pylint: disable=duplicate-code
-    def _create_datatable_footer(
-        self,
-        entities: list[LedgerEntitySchema],
-        request_info: CorporationLedgerRequestInfo,
-    ) -> CorporationLedgerRequestInfo:
-        """
-        Create the footer HTML for the Ledger datatable.
-
-        This Helper function creates the footer HTML for the Ledger datatable
-        by summing up the respective fields from the list of entities.
-
-        Args:
-            entities (list[LedgerEntitySchema]): The list of entity ledger data.
-            request_info (CorporationLedgerRequestInfo): The request information object.
-        Returns:
-            str: The generated footer HTML.
-        """
-        total_bounty = sum(entity.ledger.bounty for entity in entities)
-        total_ess = sum(entity.ledger.ess for entity in entities)
-        total_costs = sum(entity.ledger.costs for entity in entities)
-        total_miscellaneous = sum(entity.ledger.miscellaneous for entity in entities)
-        total_total = sum(entity.ledger.total for entity in entities)
-
-        # Generate Details Link
-        url = get_corporation_details_info_button(
-            entity_id=request_info.owner_id,
-            request_info=request_info,
-        )
-
-        # Skip Footer if no Totals
-        if total_total == 0:
-            return ""
-
-        footer_html = f"""
-            <tr>
-                <th class="border-top">{_("Summary")}</th>
-                <th class="border-top text-end {get_footer_text_class(total_bounty)}">{intcomma(value=int(total_bounty), use_l10n=True)} ISK</th>
-                <th class="border-top text-end {get_footer_text_class(total_ess)}">{intcomma(value=int(total_ess), use_l10n=True)} ISK</th>
-                <th class="border-top text-end {get_footer_text_class(total_miscellaneous)}">{intcomma(value=int(total_miscellaneous), use_l10n=True)} ISK</th>
-                <th class="border-top text-end {get_footer_text_class(total_costs)}">{intcomma(value=int(total_costs), use_l10n=True)} ISK</th>
-                <th class="border-start border-top text-end {get_footer_text_class(total_total)}">{intcomma(value=int(total_total), use_l10n=True)} ISK</th>
-                <th class="border-top">{url}</th>
-            </tr>
-        """
-        request_info.footer_html = footer_html
-        return request_info
 
     def _sum_by_ref_types(
         self, entry_list: list[dict], ref_types: list[str], sign: str | None = None
     ) -> Decimal:
-        """Helper function to sum amounts in entry_list filtered by ref_types and sign.
+        """Sum amounts in entry_list filtered by ref_types and sign.
 
         Args:
             entry_list (list[dict]): List of ledger entry dicts.
@@ -264,161 +113,76 @@ class CorporationApiEndpoints:
                 total += amt
         return total
 
-    # pylint: disable=too-many-locals
     def _process_entity_entries(
         self,
-        owner: CorporationOwner,
         entity: EntitySchema,
-        request_info: CorporationLedgerRequestInfo,
         entries_by_entity: dict[int, list[dict]],
-        processed_entry_ids: set[int] | None = None,
+        processed_entry_ids: set[int],
     ) -> LedgerEntitySchema | None:
         """
-        Process the entity entries for the corporation owner.
+        Aggregate the journal entries of an entity (and its alts).
 
-        This Helper function processes the entity entries for the corporation
-        based on the provided date query.
+        Entries that were already assigned to an entity are skipped.
 
         Args:
-            owner (CorporationOwner): The corporation owner object.
-            entity (EntitySchema): The entity schema for which to process entries.
-            request_info (CorporationLedgerRequestInfo): The request information object.
+            entity (EntitySchema): The entity for which to process entries.
             entries_by_entity (dict[int, list[dict]]): The mapping of entity IDs to their ledger entries.
-            processed_entry_ids (set[int]|None): The set of already processed ledger entry IDs to avoid double-counting.
+            processed_entry_ids (set[int]): Already processed entry IDs, updated in place.
         Returns:
-            list[EntitySchema]: A list of entity schemas for each processed entity.
+            LedgerEntitySchema | None: The entity ledger or None if it has no entries.
         """
-        # Build combined entry list for primary entity and any alt_ids
-        combined_entries: list[dict] = []
-        combined_entries.extend(entries_by_entity.get(entity.entity_id, []))
-
-        # Initialize processed ids set if not provided
-        if processed_entry_ids is None:
-            processed_entry_ids = set()
-
-        # If this EntitySchema carries alt_ids (members), include those rows too
-        alt_ids = getattr(entity, "alt_ids", None) or []
-        for aid in alt_ids:
-            combined_entries.extend(entries_by_entity.get(aid, []))
-
-        # Filter out already processed entries
-        entry_list = [
-            r for r in combined_entries if r.get("entry_id") not in processed_entry_ids
-        ]
-
-        # Skip Entity if no Ledger Entries
-        if not entry_list:
-            return None
+        combined_entries: list[dict] = list(entries_by_entity.get(entity.entity_id, []))
+        for alt_id in entity.alt_ids:
+            combined_entries.extend(entries_by_entity.get(alt_id, []))
 
         # Deduplicate by entry_id (an entry may appear under multiple alt_ids)
-        unique: dict[int, dict] = {}
-        for r in entry_list:
-            unique[r["entry_id"]] = r
+        unique: dict[int, dict] = {
+            r["entry_id"]: r
+            for r in combined_entries
+            if r.get("entry_id") not in processed_entry_ids
+        }
 
-        # Collect Entry IDs to Mark as Processed
-        entry_ids = list(unique.keys())
+        # Skip Entity if no Ledger Entries
+        if not unique:
+            return None
+
         entry_list = list(unique.values())
 
-        ledger_data = owner.ledger_corporation.filter(
-            entity_id=entity.entity_id,
-            year=request_info.year,
-            month=request_info.month,
-            day=request_info.day,
-        ).first()
-
-        # If Ledger Entry Exists, Use it. Otherwise, Aggregate Data and Create/Update Ledger Entry.
-        if ledger_data is not None and ledger_data.is_final:
-            entity_bounty = ledger_data.bounty
-            entity_ess = ledger_data.ess
-            entity_costs = ledger_data.costs
-            entity_miscellaneous = ledger_data.miscellaneous
-        else:
-            logger.debug(
-                "Aggregating ledger data for entity %s (%s)",
-                entity.entity_name,
-                entity.entity_id,
-            )
-            # Aggregate Data using in-memory rows
-            entity_bounty = self._sum_by_ref_types(
-                entry_list, RefTypeManager.BOUNTY_PRIZES
-            )
-            entity_ess = self._sum_by_ref_types(entry_list, RefTypeManager.ESS_TRANSFER)
-            entity_costs = self._sum_by_ref_types(
-                entry_list, RefTypeManager.ledger_ref_types(), sign="negative"
-            )
-            entity_miscellaneous = self._sum_by_ref_types(
-                entry_list, RefTypeManager.ledger_ref_types(), sign="positive"
-            )
-
-            owner.ledger_corporation.update_or_create(
-                entity_id=entity.entity_id,
-                year=request_info.year,
-                month=request_info.month,
-                day=request_info.day,
-                defaults={
-                    "name": entity.entity_name,
-                    "owner": owner,
-                    "bounty": entity_bounty,
-                    "ess": entity_ess,
-                    "costs": entity_costs,
-                    "miscellaneous": entity_miscellaneous,
-                    "final_data": request_info.is_final_data,
-                },
-            )
-
-        total = sum(
-            [
-                entity_bounty,
-                entity_ess,
-                entity_miscellaneous,
-                entity_costs,
-            ]
+        bounty = self._sum_by_ref_types(entry_list, RefTypeManager.BOUNTY_PRIZES)
+        ess = self._sum_by_ref_types(entry_list, RefTypeManager.ESS_TRANSFER)
+        costs = self._sum_by_ref_types(
+            entry_list, RefTypeManager.ledger_ref_types(), sign="negative"
+        )
+        miscellaneous = self._sum_by_ref_types(
+            entry_list, RefTypeManager.ledger_ref_types(), sign="positive"
         )
 
-        response_entity = LedgerEntitySchema(
+        # Mark these entries as processed so they won't be used again
+        processed_entry_ids.update(unique.keys())
+        return LedgerEntitySchema(
             entity=entity,
             ledger=LedgerSchema(
-                bounty=entity_bounty,
-                ess=entity_ess,
-                costs=entity_costs,
-                miscellaneous=entity_miscellaneous,
-                total=total,
-            ),
-            actions=get_corporation_details_info_button(
-                entity_id=entity.entity_id, request_info=request_info, section="single"
+                bounty=bounty,
+                ess=ess,
+                costs=costs,
+                miscellaneous=miscellaneous,
+                total=sum([bounty, ess, miscellaneous, costs]),
             ),
         )
-        # Mark these entries as processed so they won't be used again
-        processed_entry_ids.update(entry_ids)
-        return response_entity
 
-    # pylint: disable=too-many-positional-arguments
     def process_member_ledger_data(
         self,
-        owner: CorporationOwner,
         entity_ids: set[int],
-        request_info: CorporationLedgerRequestInfo,
         entries_by_entity: dict[int, list[dict]],
         processed_entry_ids: set[int],
         entity_ledger_list: list[LedgerEntitySchema],
-    ) -> list[EntitySchema]:
+    ) -> list[int]:
         """
-        Process the ledger data for auth member entities.
+        Process the ledger data for auth member entities (main character + alts).
 
-        This Helper function processes the ledger data for auth member entities
-        based on the provided date query.
-
-        Args:
-            owner (CorporationOwner): The owner of the corporation.
-            entity_ids (set[int]): The set of entity IDs to process.
-            request_info (CorporationLedgerRequestInfo): The request information object.
-            entries_by_entity (dict[int, list[dict]]): The mapping of entity IDs to their ledger entries.
-            processed_entry_ids (set[int]): The set of already processed ledger entry IDs.
-            entity_ledger_list (list[LedgerEntitySchema]): The list to append processed ledger data to.
         Returns:
-            list[int]: A list of processed entity IDs.
+            list[int]: The character IDs that belong to an auth member.
         """
-
         accounts = UserProfile.objects.filter(
             main_character__isnull=False,
         ).order_by(
@@ -428,147 +192,112 @@ class CorporationApiEndpoints:
         auth_entity_ids = []
         for account in accounts:
             alts = account.user.character_ownerships.all()
-            existings_alts = alts.filter(
+            existing_alts = alts.filter(
                 character__character_id__in=entity_ids.intersection(
                     alts.values_list("character__character_id", flat=True)
                 )
-            )
-            alt_ids = list(
-                existings_alts.values_list("character__character_id", flat=True)
-            )
+            ).select_related("character")
+            alt_characters = [alt.character for alt in existing_alts]
 
             # Skip if no characters in Corporation
-            if not alt_ids:
+            if not alt_characters:
                 continue
 
+            alt_ids = [char.character_id for char in alt_characters]
             response_ledger = self._process_entity_entries(
-                owner=owner,
                 entity=EntitySchema(
                     entity_id=account.main_character.character_id,
                     entity_name=account.main_character.character_name,
                     alt_ids=alt_ids,
+                    alts=[
+                        AltSchema(
+                            character_id=char.character_id,
+                            character_name=char.character_name,
+                            icon=get_character_portrait_url(
+                                character_id=char.character_id,
+                                character_name=char.character_name,
+                                size=32,
+                            ),
+                        )
+                        for char in alt_characters
+                    ],
                     icon=get_character_portrait_url(
                         character_id=account.main_character.character_id,
                         character_name=account.main_character.character_name,
                         size=32,
-                        as_html=True,
                     ),
-                    popover=get_corporation_ledger_popover_button(alts=existings_alts),
                 ),
-                request_info=request_info,
                 entries_by_entity=entries_by_entity,
                 processed_entry_ids=processed_entry_ids,
             )
             auth_entity_ids.extend(alt_ids)
-            if response_ledger is None:
-                continue
-            # Add Entity Ledger to List
-            entity_ledger_list.append(response_ledger)
+            if response_ledger is not None:
+                entity_ledger_list.append(response_ledger)
         return auth_entity_ids
 
-    # pylint: disable=too-many-positional-arguments
     def _process_ledger_data(
         self,
-        owner: CorporationOwner,
         entities: list[EveEntity],
-        request_info: CorporationLedgerRequestInfo,
         entries_by_entity: dict[int, list[dict]],
         processed_entry_ids: set[int],
         entity_ledger_list: list[LedgerEntitySchema],
     ) -> list[LedgerEntitySchema]:
-        """
-        Process the ledger data for the given entity IDs.
-
-        This Helper function processes the ledger data for the given entity IDs
-        based on the provided date query.
-
-        Args:
-            owner (CorporationOwner): The corporation owner object.
-            entities (list[EveEntity]): The list of entities to process.
-            request_info (CorporationLedgerRequestInfo): The request information object.
-            entries_by_entity (dict[int, list[dict]]): The mapping of entity IDs to their ledger entries.
-            processed_entry_ids (set[int]): The set of already processed ledger entry IDs.
-            entity_ledger_list (list[LedgerEntitySchema]): The list to append processed ledger data to.
-        Returns:
-            list[LedgerEntitySchema]: A list of ledger responses for each entity.
-        """
+        """Process the ledger data for the given entities."""
         for entity in entities:
             response_ledger = self._process_entity_entries(
-                owner=owner,
                 entity=EntitySchema(
                     entity_id=entity.eve_id,
                     entity_name=entity.name,
-                    icon=entity.get_portrait(size=32, as_html=True),
+                    icon=entity.get_portrait(size=32),
                 ),
-                request_info=request_info,
                 entries_by_entity=entries_by_entity,
                 processed_entry_ids=processed_entry_ids,
             )
-            if response_ledger is None:
-                continue
-            # Add Entity Ledger to List
-            entity_ledger_list.append(response_ledger)
+            if response_ledger is not None:
+                entity_ledger_list.append(response_ledger)
 
         return entity_ledger_list
 
-    # pylint: disable=too-many-locals
     def generate_entity_data(
-        self, owner: CorporationOwner, request_info: CorporationLedgerRequestInfo
-    ) -> list[CorporationLedgerResponse]:
+        self, owner: CorporationOwner, filters: CorporationLedgerFilter
+    ) -> tuple[list[LedgerEntitySchema], BillboardSchema]:
         """
-        Generate the ledger data for a corporation owner.
-
-        This Helper function generates the ledger data for a entity
-        based on the provided date query.
+        Generate the ledger and billboard data for a corporation owner.
 
         Args:
             owner (CorporationOwner): The corporation owner object.
-            request_info (CorporationLedgerRequestInfo): The request information object.
+            filters (CorporationLedgerFilter): The requested date range and division.
         Returns:
-            list[CorporationLedgerResponse]: A list of ledger responses for each entity.
+            tuple[list[LedgerEntitySchema], BillboardSchema]: Ledger rows and chart data.
         """
-        # Get Corporation Wallet Journal Entries
-        corp_journal = (
-            CorporationWalletJournalEntry.objects.filter(
-                division__corporation=owner,
-                **request_info.to_date_query(),
-                **request_info.to_division_query(),
-            )
+        corp_journal = filters.filter(
+            CorporationWalletJournalEntry.objects.filter(division__corporation=owner)
             # Exclude Zero Amount Entries
             .exclude(amount=Decimal("0.00"))
             # Exclude Internal Transfers
             .exclude(
                 first_party_id=owner.eve_corporation.corporation_id,
                 second_party_id=owner.eve_corporation.corporation_id,
-            ).order_by("-date")
-        )
-
-        corp_journal_values = corp_journal.values(
-            "entry_id",
-            "amount",
-            "ref_type",
-            "first_party_id",
-            "second_party_id",
-            "date",
-        )
-
-        # Check for Existing Billboard Entry
-        billboard = owner.ledger_corporation_billboard.filter(
-            year=request_info.year,
-            month=request_info.month,
-            day=request_info.day,
-        ).first()
+            )
+        ).order_by("-date")
 
         # Skip Corporation if no Ledger Entries
         if not corp_journal.exists():
-            return []
+            return [], BillboardSchema()
 
         entity_ids = set()
         entity_ledger_list: list[LedgerEntitySchema] = []
         processed_entry_ids: set[int] = set()
         entries_by_entity: dict[int, list[dict]] = defaultdict(list)
 
-        for row in corp_journal_values:
+        for row in corp_journal.values(
+            "entry_id",
+            "amount",
+            "ref_type",
+            "first_party_id",
+            "second_party_id",
+            "date",
+        ):
             a = row.get("first_party_id")
             b = row.get("second_party_id")
             if a:
@@ -582,441 +311,123 @@ class CorporationApiEndpoints:
 
         # Process Auth Entities (Members) First
         auth_entity_ids = self.process_member_ledger_data(
-            owner=owner,
             entity_ids=entity_ids,
-            request_info=request_info,
             entries_by_entity=entries_by_entity,
             processed_entry_ids=processed_entry_ids,
             entity_ledger_list=entity_ledger_list,
         )
 
-        # Process Remaining Entities
+        # Remaining Entities without Auth Entities, NPCs and the Corporation itself
         entities = (
             EveEntity.objects.filter(eve_id__in=entity_ids)
-            # Exclude Auth Entities
             .exclude(eve_id__in=auth_entity_ids)
-            # Exclude NPC Entities
             .exclude(eve_id__in=NPC_ENTITIES)
-            # Exclude Corporation Itself
-            .exclude(eve_id=owner.eve_corporation.corporation_id).order_by("name")
+            .exclude(eve_id=owner.eve_corporation.corporation_id)
+            .order_by("name")
         )
-
-        # Process NPC Entities Last
+        # NPC Entities Last
         npc_entities = EveEntity.objects.filter(eve_id__in=NPC_ENTITIES).order_by(
             "name"
         )
 
-        # Process each Entity
-        self._process_ledger_data(
-            owner=owner,
-            entities=list(entities),
-            request_info=request_info,
-            entries_by_entity=entries_by_entity,
-            processed_entry_ids=processed_entry_ids,
-            entity_ledger_list=entity_ledger_list,
-        )
-
-        # Process NPC Entities
-        self._process_ledger_data(
-            owner=owner,
-            entities=list(npc_entities),
-            request_info=request_info,
-            entries_by_entity=entries_by_entity,
-            processed_entry_ids=processed_entry_ids,
-            entity_ledger_list=entity_ledger_list,
-        )
-
-        # If No Billboard Data Exists or Existing Billboard Data is Not Final, Update or Create Billboard Entry for Owner
-        if billboard is None or not billboard.is_final:
-            logger.debug(
-                "Updating billboard entry for corporation %s (%s)",
-                owner.eve_corporation.corporation_name,
-                owner.eve_corporation.corporation_id,
+        for entity_group in (list(entities), list(npc_entities)):
+            self._process_ledger_data(
+                entities=entity_group,
+                entries_by_entity=entries_by_entity,
+                processed_entry_ids=processed_entry_ids,
+                entity_ledger_list=entity_ledger_list,
             )
-            CorporationBillboardEntry.objects.update_or_create_billboard_entry(
-                owner=owner,
-                request_info=request_info,
-                wallet_journal=corp_journal,
-                ledger_list=entity_ledger_list,
-            )
-        return entity_ledger_list
 
-    def generate_billboard_data(
-        self,
-        owner: CorporationOwner,
-        request_info: CorporationLedgerRequestInfo,
-    ) -> BillboardSchema:
-        """
-        Generate the billboard data for the corporation ledger.
-
-        This Helper function generates the billboard data for the corporation
-        based on the provided character ledger data.
-
-        Args:
-            owner (CorporationOwner): The corporation owner object.
-            request_info (CorporationLedgerRequestInfo): The request information object.
-        Returns:
-            BillboardSchema: The generated billboard data.
-        """
-        # Get Billboard Entry for Owner
-        billboard = owner.ledger_corporation_billboard.filter(
-            year=request_info.year,
-            month=request_info.month,
-            day=request_info.day,
-        ).first()
-
-        # If Billboard Data Still Doesn't Exist, Return Empty Billboard Schema
-        if billboard is None:
-            return BillboardSchema()
-
-        response_billboard = BillboardSchema(
-            xy_chart=billboard.xy_billboard, chord_chart=billboard.chord_billboard
+        xy_chart, chord_chart = BillboardSystem().create_billboards(
+            filters=filters,
+            wallet_journal=corp_journal,
+            ledger_list=entity_ledger_list,
         )
-        return response_billboard
+        return entity_ledger_list, BillboardSchema(
+            xy_chart=xy_chart, chord_chart=chord_chart
+        )
 
-    # pylint: disable=too-many-positional-arguments, duplicate-code
     def _ledger_api_response(
-        self,
-        request,
-        corporation_id: int,
-        year: int,
-        division_id: int = None,
-        month: int = None,
-        day: int = None,
+        self, request, corporation_id: int, filters: CorporationLedgerFilter
     ) -> CorporationLedgerResponse | tuple[int, dict]:
-        """
-        Helper function to generate ledger response for various date parameters.
-
-        This function consolidates the common logic for generating the ledger response
-        based on the provided date parameters (year, month, day).
-
-        Args:
-            request (WSGIRequest): The incoming request object.
-            corporation_id (int): The corporation ID.
-            year (int): The year for the ledger data.
-            division_id (int, optional): The division ID for the ledger data. Defaults to None.
-            month (int, optional): The month for the ledger data. Defaults to None.
-            day (int, optional): The day for the ledger data. Defaults to None.
-        Returns:
-            CorporationLedgerResponse | tuple[int, dict]: The ledger response or error tuple.
-        """
+        """Build the ledger response for a corporation and the given date."""
         perms, owner = get_corporationowner_or_none(
             request=request, corporation_id=corporation_id
         )
 
         if owner is None:
-            return 404, {"error": _("Corporation not found in Ledger.")}
+            return HTTPStatus.NOT_FOUND, {
+                "error": _("Corporation not found in Ledger.")
+            }
 
         if perms is False:
-            return 403, {
+            return HTTPStatus.FORBIDDEN, {
                 "error": _("You do not have permission to view this corporation.")
             }
 
-        # Build Request Info
-        request_info = CorporationLedgerRequestInfo(
-            owner=owner,
-            owner_id=owner.eve_corporation.corporation_id,
-            division_id=division_id,
-            year=year,
-            month=month,
-            day=day,
+        entity_ledger_list, billboard = self.generate_entity_data(
+            owner=owner, filters=filters
         )
 
-        # Generate Entity Ledger Data
-        entity_ledger_list = self.generate_entity_data(
-            owner=owner,
-            request_info=request_info,
-        )
-
-        # Generate Billboard Data
-        billboard = self.generate_billboard_data(
-            owner=owner,
-            request_info=request_info,
-        )
-
-        # Update Request Info with Available Data
-        self._create_datatable_footer(
-            entities=entity_ledger_list, request_info=request_info
-        )
-
-        response_ledger = CorporationLedgerResponse(
+        return CorporationLedgerResponse(
             owner=OwnerSchema(
                 character_id=owner.eve_corporation.corporation_id,
                 character_name=owner.eve_corporation.corporation_name,
-                icon=owner.get_portrait(as_html=True),
+                icon=owner.get_portrait(),
             ),
-            information=request_info,
             entities=entity_ledger_list,
             billboard=billboard,
-            actions=get_corporation_details_info_button(
-                entity_id=owner.eve_corporation.corporation_id,
-                request_info=request_info,
+            years=get_available_years(
+                CorporationWalletJournalEntry.objects.filter(
+                    division__corporation=owner
+                )
             ),
+            divisions=[
+                DivisionSchema(
+                    division_id=division.division_id, name=division.name or ""
+                )
+                for division in owner.ledger_corporation_division.order_by(
+                    "division_id"
+                )
+            ],
         )
-
-        return response_ledger
 
 
 class CorporationDetailsApiEndpoints:
     tags = ["Corporation Details"]
 
-    # pylint: disable=too-many-statements, function-redefined, too-many-arguments
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "corporation/{corporation_id}/division/{division_id}/date/{year}/section/{section}/view/details/{entity_id}/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
+            "corporation/{corporation_id}/details/",
+            response={
+                HTTPStatus.OK: LedgerDetailsResponse,
+                HTTPStatus.FORBIDDEN: ErrorSchema,
+                HTTPStatus.NOT_FOUND: ErrorSchema,
+            },
             tags=self.tags,
+            summary="Get the income and cost breakdown of a corporation entity",
         )
         def get_corporation_ledger_details(
             request: WSGIRequest,
             corporation_id: int,
-            division_id: int,
-            year: int,
-            section: str,
             entity_id: int,
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                division_id=division_id,
-                entity_id=entity_id,
-                year=year,
-                section=section,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/division/{division_id}/date/{year}/{month}/section/{section}/view/details/{entity_id}/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        # pylint: disable=too-many-positional-arguments
-        def get_corporation_ledger_details(
-            request: WSGIRequest,
-            corporation_id: int,
-            division_id: int,
-            year: int,
-            month: int,
-            section: str,
-            entity_id: int,
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                division_id=division_id,
-                entity_id=entity_id,
-                year=year,
-                month=month,
-                section=section,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/division/{division_id}/date/{year}/{month}/{day}/section/{section}/view/details/{entity_id}/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        # pylint: disable=too-many-positional-arguments
-        def get_corporation_ledger_details(
-            request: WSGIRequest,
-            corporation_id: int,
-            division_id: int,
-            year: int,
-            month: int,
-            day: int,
-            section: str,
-            entity_id: int,
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                division_id=division_id,
-                entity_id=entity_id,
-                year=year,
-                month=month,
-                day=day,
-                section=section,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/date/{year}/section/{section}/view/details/{entity_id}/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger_details(
-            request: WSGIRequest,
-            corporation_id: int,
-            year: int,
-            section: str,
-            entity_id: int,
+            filters: Query[CorporationLedgerFilter],
+            section: Section = "summary",
         ):
             return self._ledger_details_api_response(
                 request=request,
                 corporation_id=corporation_id,
                 entity_id=entity_id,
-                year=year,
+                filters=filters,
                 section=section,
             )
-
-        @api.get(
-            "corporation/{corporation_id}/date/{year}/{month}/section/{section}/view/details/{entity_id}/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def get_corporation_ledger_details(
-            request: WSGIRequest,
-            corporation_id: int,
-            year: int,
-            month: int,
-            section: str,
-            entity_id: int,
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                entity_id=entity_id,
-                year=year,
-                month=month,
-                section=section,
-            )
-
-        @api.get(
-            "corporation/{corporation_id}/date/{year}/{month}/{day}/section/{section}/view/details/{entity_id}/",
-            response={200: LedgerDetailsResponse, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        # pylint: disable=too-many-positional-arguments
-        def get_corporation_ledger_details(
-            request: WSGIRequest,
-            corporation_id: int,
-            year: int,
-            month: int,
-            day: int,
-            section: str,
-            entity_id: int,
-        ):
-            return self._ledger_details_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                entity_id=entity_id,
-                year=year,
-                month=month,
-                day=day,
-                section=section,
-            )
-
-    # pylint: disable=duplicate-code
-    def _create_datatable_footer(self, value: float) -> str:
-        """Create the footer HTML for the datatable."""
-        footer_html = f"""
-            <tr>
-                <th>{_('Summary')}</th>
-                <th class="text-end {get_footer_text_class(value)}">{intcomma(value=int(value), use_l10n=True)} ISK</th>
-                <th></th>
-            </tr>
-        """
-        return footer_html
-
-    # pylint: disable=too-many-locals
-    def _create_ledger_details(
-        self,
-        journal: QuerySet[CorporationWalletJournalEntry],
-        request_info: CorporationLedgerRequestInfo,
-    ) -> LedgerDetailsResponse:
-        """
-        Generate the detailed ledger data for a character.
-        This Helper function generates the detailed ledger data for a character
-        based on the provided date query.
-
-        Args:
-            journal (QuerySet): The wallet journal entries.
-            request_info (CorporationLedgerRequestInfo): The request information containing date and section details.
-        Returns:
-            LedgerDetailsResponse: The generated ledger details response.
-        """
-        ref_types = RefTypeManager.get_all_categories()
-
-        avg = request_info.day if request_info.day else timezone.now().day
-        if request_info.section == "summary":
-            avg = 365
-
-        monthly_list = []
-        daily_list = []
-        hourly_list = []
-        summary = 0
-        # Income/Cost Ref Types
-        for category in RefTypeManager.CategoryChoice:
-            category_ref_types = ref_types.get(category.value, [])
-            if not category_ref_types:
-                continue
-            for __, income_flag in (("income", True), ("cost", False)):
-                kind_label = _("Income from") if income_flag else _("Cost from")
-                name = _("%(kind)s %(category)s") % {
-                    "category": category.label,
-                    "kind": kind_label,
-                }
-                kwargs = {"ref_type": category_ref_types, "income": income_flag}
-                amount = journal.aggregate_ref_type(**kwargs)
-                if (income_flag and amount > 0) or (not income_flag and amount < 0):
-                    monthly = CategorySchema(
-                        name=name,
-                        amount=amount,
-                        average=amount / avg / 30,
-                        average_tick=amount / avg / 30 / 20,
-                        ref_types=get_ref_type_details_popover_button(
-                            ref_types=category_ref_types
-                        ),
-                    )
-
-                    daily = CategorySchema(
-                        name=name,
-                        amount=amount / avg,
-                        average=amount / avg / 30,
-                        average_tick=amount / avg / 20,
-                        ref_types=get_ref_type_details_popover_button(
-                            ref_types=category_ref_types
-                        ),
-                    )
-
-                    hourly = CategorySchema(
-                        name=name,
-                        amount=amount / avg / 24,
-                        average=amount / avg / 24 / 30,
-                        average_tick=amount / avg / 24 / 20,
-                        ref_types=get_ref_type_details_popover_button(
-                            ref_types=category_ref_types
-                        ),
-                    )
-                    # Add Amounts
-                    summary += amount
-                    monthly_list.append(monthly)
-                    daily_list.append(daily)
-                    hourly_list.append(hourly)
-
-        if summary == 0:
-            return None
-
-        return LedgerDetailsResponse(
-            summary=monthly_list,
-            daily=daily_list,
-            hourly=hourly_list,
-            total=LedgerDetailsSummary(
-                summary=self._create_datatable_footer(summary),
-                daily=self._create_datatable_footer(
-                    summary / avg,
-                ),
-                hourly=self._create_datatable_footer(
-                    summary / avg / 24,
-                ),
-            ),
-        )
 
     def _check_auth_account(
         self,
         owner: CorporationOwner,
         entity_id: int,
     ) -> list[int] | None:
-        """
-        Check if the entity_id belongs to a auth account of the corporation.
-        """
+        """Return the alt IDs if the entity_id belongs to an auth account."""
         for member in owner.auth_accounts:
             alt_ids = list(
                 member.user.character_ownerships.all().values_list(
@@ -1031,32 +442,25 @@ class CorporationDetailsApiEndpoints:
         self,
         owner: CorporationOwner,
         entity_id: int,
-        request_info: CorporationLedgerRequestInfo,
-    ) -> dict:
-        """
-        Create the entity amounts for the Information View.
-        """
+        filters: CorporationLedgerFilter,
+        section: Section,
+    ) -> LedgerDetailsResponse:
+        """Create the category breakdown for an entity of the corporation."""
         # Check if Entity is a Member
         alt_ids = self._check_auth_account(owner=owner, entity_id=entity_id)
 
-        # Build Entity Query
         entity_query = Q(first_party_id=entity_id) | Q(second_party_id=entity_id)
         if alt_ids is not None:
-            # If Member, query all alt_ids
             entity_query = Q(first_party_id__in=alt_ids) | Q(
                 second_party_id__in=alt_ids
             )
         elif entity_id == owner.eve_corporation.corporation_id:
-            # If Corporation itself query all entries
+            # Corporation itself includes all entries
             entity_query = Q()
 
-        # Get Wallet Journal Entries
-        wallet_journal = (
+        wallet_journal = filters.filter(
             CorporationWalletJournalEntry.objects.filter(
-                entity_query,
-                division__corporation=owner,
-                **request_info.to_date_query(),
-                **request_info.to_division_query(),
+                entity_query, division__corporation=owner
             )
             # Exclude Zero Amount Entries
             .exclude(amount=Decimal("0.00"))
@@ -1067,18 +471,16 @@ class CorporationDetailsApiEndpoints:
             )
         )
 
-        # If Member, Exclude Corporation Contracts (will count in Corporation itself)
+        # Corporation contracts count for the corporation itself
         if alt_ids is not None:
             wallet_journal = wallet_journal.exclude(
                 ref_type="contract_price_payment_corp",
                 second_party_id__in=alt_ids,
             )
 
-        response_ledger_details: LedgerDetailsResponse = self._create_ledger_details(
-            journal=wallet_journal,
-            request_info=request_info,
+        return create_ledger_details(
+            journal=wallet_journal, filters=filters, section=section
         )
-        return response_ledger_details
 
     # pylint: disable=too-many-arguments, too-many-positional-arguments
     def _ledger_details_api_response(
@@ -1086,54 +488,27 @@ class CorporationDetailsApiEndpoints:
         request: WSGIRequest,
         corporation_id: int,
         entity_id: int,
-        year: int,
-        month: int = None,
-        day: int = None,
-        division_id: int = None,
-        section: str = "summary",
-    ):
-        """
-        Helper function to generate ledger details response for various date parameters.
-
-        This function consolidates the common logic for generating the ledger details response
-        based on the provided date parameters character_id, (year, month, day) and section.
-
-        Args:
-            request (WSGIRequest): The incoming request object.
-            corporation_id (int): The corporation ID.
-            entity_id (int): The entity ID.
-            year (int): The year for the ledger data.
-            month (int, optional): The month for the ledger data. Defaults to None.
-            day (int, optional): The day for the ledger data. Defaults to None.
-            division_id (int, optional): The division ID for the ledger data. Defaults to None.
-            section (str): The section type ('single' or 'summary').
-        Returns:
-            LedgerDetailsResponse | tuple[int, dict]: The ledger details response or error tuple.
-        """
+        filters: CorporationLedgerFilter,
+        section: Section,
+    ) -> LedgerDetailsResponse | tuple[int, dict]:
+        """Build the details response for a corporation entity and the given date."""
         perms, owner = get_corporationowner_or_none(
             request=request, corporation_id=corporation_id
         )
 
         if owner is None:
-            return 404, {"error": _("Corporation not found in Ledger.")}
-
-        if perms is False:
-            return 403, {
-                "error": _("You do not have permission to view this corporation.")
+            return HTTPStatus.NOT_FOUND, {
+                "error": _("Corporation not found in Ledger.")
             }
 
-        request_info = CorporationLedgerRequestInfo(
-            owner_id=owner.eve_corporation.corporation_id,
-            entity_id=entity_id,
-            division_id=division_id,
-            year=year,
-            month=month,
-            day=day,
-            section=section,
-        )
-
+        if perms is False:
+            return HTTPStatus.FORBIDDEN, {
+                "error": _("You do not have permission to view this corporation.")
+            }
+        # pylint: disable=duplicate-code
         return self.create_entity_details(
             owner=owner,
             entity_id=entity_id,
-            request_info=request_info,
+            filters=filters,
+            section=section,
         )

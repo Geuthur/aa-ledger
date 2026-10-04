@@ -1,0 +1,121 @@
+/* Controls of the ledger pages in the look of the AA framework (see aa-skillfarm). */
+
+/* ═══ HEADER ═══════════════════════════════════════════════════════════════ */
+.lg-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 16px;
+    margin-bottom: 16px;
+}
+
+.lg-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ═══ SELECT ═══════════════════════════════════════════════════════════════ */
+.lg-select {
+    background-color: #27272a;
+    border: 1px solid #3f3f46;
+    color: #e4e4e7;
+    font-size: var(--aa-font-size-sm);
+    border-radius: 6px;
+    padding: 6px 12px;
+    outline: none;
+    cursor: pointer;
+    color-scheme: dark;
+    transition: border-color 150ms ease;
+}
+
+.lg-select:focus {
+    border-color: var(--aa-blue-focus);
+}
+
+.lg-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ═══ BUTTONS ══════════════════════════════════════════════════════════════ */
+.lg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: var(--aa-font-size-sm);
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.lg-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.lg-btn-primary {
+    background-color: var(--aa-blue-active);
+    color: var(--aa-text-primary);
+}
+
+.lg-btn-primary:hover:not(:disabled) {
+    background-color: #1d4ed8;
+    color: var(--aa-text-primary);
+}
+
+.lg-btn-secondary {
+    background-color: #27272a;
+    color: var(--aa-text-secondary);
+    border-color: #3f3f46;
+}
+
+.lg-btn-secondary:hover:not(:disabled) {
+    background-color: #3f3f46;
+    color: #ffffff;
+}
+
+.lg-btn-success {
+    background-color: var(--aa-color-emerald-dark);
+    color: #ffffff;
+    border-color: var(--aa-color-emerald);
+}
+
+.lg-btn-success:hover:not(:disabled) {
+    background-color: var(--aa-color-emerald);
+    color: #000000;
+}
+
+.lg-btn-danger {
+    background-color: var(--aa-color-rose-dark);
+    color: var(--aa-text-rose-light);
+    border-color: var(--aa-border-rose);
+}
+
+.lg-btn-danger:hover:not(:disabled) {
+    background-color: var(--aa-color-red);
+    color: #ffffff;
+}
+
+.lg-btn-sm {
+    padding: 4px 10px;
+    font-size: var(--aa-font-size-xs);
+}
+
+/* ═══ ENTRY CARDS (administration) ═════════════════════════════════════════ */
+.lg-entry {
+    width: 200px;
+    text-align: center;
+}
+
+.lg-entry-missing {
+    opacity: 0.55;
+    border-color: var(--aa-border-rose);
+}

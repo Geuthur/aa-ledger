@@ -38,23 +38,12 @@ from ledger.providers import AppLogger, esi
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
-if TYPE_CHECKING:
-    # AA Ledger
-    from ledger.models.ledger import CorporationBillboardEntry
-
 
 class CorporationOwner(models.Model):
     """A model to store corporation information."""
 
     if TYPE_CHECKING:
-        # AA Ledger
-        # pylint: disable=import-outside-toplevel
-        from ledger.managers.ledger_manager import BillboardEntryManager
-        from ledger.models.ledger import CorporationLedgerEntry
-
-        ledger_corporation: models.QuerySet["CorporationLedgerEntry"]
         ledger_corporation_update_status: models.QuerySet["CorporationUpdateStatus"]
-        ledger_corporation_billboard: BillboardEntryManager
 
     objects: CorporationAuditManager = CorporationAuditManager()
 
@@ -237,6 +226,7 @@ class CorporationWalletJournalEntry(WalletJournalEntry):
             models.Index(fields=["ref_type"]),
             models.Index(fields=["first_party"]),
             models.Index(fields=["second_party"]),
+            models.Index(fields=["division", "date"]),
         )
         default_permissions = ()
 

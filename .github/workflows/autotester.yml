@@ -46,9 +46,43 @@ jobs:
       - name: Run Pre Commit Checks
         uses: pre-commit/action@v3.0.1
 
+  # Run Frontend Checks
+  frontend:
+    name: React (Lint, Tests & Build)
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: React Lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: React Unit Tests
+        working-directory: frontend
+        run: npm test
+
+      - name: React Build Check
+        working-directory: frontend
+        run: npm run build
+
   # Run Test Coverage
   test-coverage:
-    needs: [pre-commit]
+    needs: [pre-commit, frontend]
     name: AA Latest (Python ${{ matrix.python-version }} with ${{ matrix.database }})
     runs-on: ubuntu-latest
 

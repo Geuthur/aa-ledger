@@ -1,0 +1,100 @@
+{% extends 'allianceauth/base-bs5.html' %}
+
+{% block content %}
+    <div class="aa-ledger">
+        <div class="aa-ledger-body">
+                <div id="aa-ledger-root" lang="{{ LANGUAGE_CODE }}">
+                    <!-- React Data -->
+                    <div
+                        id="error-spinner"
+                        class="d-none justify-content-center align-items-center gap-2"
+                        role="alert"
+                    >
+                        <span class="br-shake text-danger fs-1" aria-hidden="true">
+                            <i class="fa fa-exclamation-triangle"></i>
+                        </span>
+                        <span class="fs-4">Error loading page</span>
+                    </div>
+
+                    <div
+                        id="loading-spinner"
+                        class="d-flex justify-content-center align-items-center gap-2"
+                        role="status"
+                    >
+                        <span
+                            class="spinner-border flex-shrink-0"
+                            style="width: 3rem; height: 3rem;"
+                            aria-hidden="true"
+                        ></span>
+                        <span class="fs-4">Loading...</span>
+                    </div>
+                </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extra_css %}
+{% endblock extra_css %}
+
+{% block extra_javascript %}
+    <script type="module">
+        const BASE_URL = '/static/{{ app_name }}/';
+        const manifestUrl = `${BASE_URL}manifest.json?version={{ version }}`;
+
+        const errorSpinner = document.querySelector('#error-spinner');
+        const loadingSpinner = document.querySelector('#loading-spinner');
+
+        function showLoadingError() {
+            errorSpinner.classList.remove('d-none');
+            errorSpinner.classList.add('d-flex');
+
+            loadingSpinner.classList.remove('d-flex');
+            loadingSpinner.classList.add('d-none');
+        }
+
+        function loadCSS(cssFiles) {
+            cssFiles.forEach(function (cssFile) {
+                const link = document.createElement('link');
+
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = BASE_URL + cssFile;
+
+                document.head.appendChild(link);
+            });
+        }
+
+        function loadReactScript(scriptFile) {
+            const script = document.createElement('script');
+
+            script.type = 'module';
+            script.src = BASE_URL + scriptFile;
+
+            script.addEventListener('error', showLoadingError);
+            document.head.appendChild(script);
+        }
+
+        fetch(manifestUrl, { cache: 'no-store' })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Manifest konnte nicht geladen werden');
+                }
+
+                return response.json();
+            })
+            .then(function (manifest) {
+                const entry = manifest['index.html'];
+
+                if (!entry || !entry.file) {
+                    throw new Error('React-Entry im Manifest fehlt');
+                }
+
+                loadCSS(entry.css || []);
+                loadReactScript(entry.file);
+            })
+            .catch(function (error) {
+                console.error('React konnte nicht geladen werden:', error);
+                showLoadingError();
+            });
+    </script>
+{% endblock extra_javascript %}
