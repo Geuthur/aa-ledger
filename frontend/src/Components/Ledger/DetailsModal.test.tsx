@@ -98,4 +98,23 @@ describe("DetailsModal", () => {
       "No matching reference types",
     );
   });
+
+  it("switches periods when clicking the period buttons", async () => {
+    // Test Data
+    renderModal();
+    await screen.findByText("Income from Contract");
+
+    // Test Action
+    fireEvent.click(screen.getByRole("button", { name: "Daily" }));
+
+    // Expected Result
+    expect(screen.queryByText("Income from Contract")).not.toBeInTheDocument();
+    expect(screen.getByText("No data for the selected period")).toBeInTheDocument();
+
+    // Test Action
+    fireEvent.click(screen.getByRole("button", { name: "Summary" }));
+
+    // Expected Result
+    expect(screen.getByText("Income from Contract")).toBeInTheDocument();
+  });
 });
