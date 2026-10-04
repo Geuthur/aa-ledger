@@ -8,7 +8,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Bell, BellOff, Info } from "lucide-react";
 import { parseAsBoolean, parseAsInteger, useQueryState, useQueryStates } from "nuqs";
-import { Form, ProgressBar } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import { fetchPlanets, togglePlanetNotification } from "@/Api/ApiCalls";
@@ -16,6 +16,7 @@ import { queryKeys } from "@/Api/query";
 import type { PlanetaryDetails } from "@/Api/schema";
 import ErrorLoader from "@/Components/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Loader/FetchingLoader";
+import ExtractorProgress from "@/Components/Planetary/ExtractorProgress";
 import PlanetModal from "@/Components/Planetary/PlanetModal";
 import BaseSectionHeader from "@/Components/Sections/BaseHeader";
 import { BaseTable } from "@/Components/Tables/BaseTable";
@@ -104,12 +105,7 @@ function Planetary() {
             row.original.progress === null || row.original.progress === undefined ? (
               <span className="text-muted">{t("No active extractors")}</span>
             ) : (
-              <ProgressBar
-                now={row.original.progress}
-                label={`${row.original.progress}%`}
-                striped
-                variant="warning"
-              />
+              <ExtractorProgress progress={row.original.progress} />
             ),
         }),
         columnHelper.accessor((row) => row.planet.last_update ?? "", {

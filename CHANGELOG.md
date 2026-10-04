@@ -37,6 +37,9 @@ Section Order:
 - React frontend: ledger pages for characters, corporations and alliances, planetary ledger, overviews, administration and settings. Year, month, day, division, details modal and planet modal are kept in the URL with `nuqs`, so views are shareable.
 - `UserSettings` model (`disable_notifications`) with `GET|PUT settings/`
 - Chord diagram (`d3-chord`) for the distribution of the ledger categories
+- Chord diagram: nodes can be hidden in a legend and show the flows with their share
+- Corporation ledger: modal with the characters of a member and their contribution (`members` in the ledger response)
+- Animated extractor progress bar in the planetary ledger
 
 ### Fixed
 

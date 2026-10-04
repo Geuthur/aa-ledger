@@ -22,6 +22,7 @@ export type CorporationLedgerResponse = components["schemas"]["CorporationLedger
 export type AllianceLedgerResponse = components["schemas"]["AllianceLedgerResponse"];
 export type LedgerSchema = components["schemas"]["LedgerSchema"];
 export type AltSchema = components["schemas"]["AltSchema"];
+export type AltLedgerSchema = components["schemas"]["AltLedgerSchema"];
 export type CharacterLedgerSchema = components["schemas"]["CharacterLedgerSchema"];
 export type UpdateStatusSchema = components["schemas"]["UpdateStatusSchema"];
 export type DivisionSchema = components["schemas"]["DivisionSchema"];

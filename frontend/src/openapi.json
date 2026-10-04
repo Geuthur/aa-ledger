@@ -2858,6 +2858,40 @@
         "title": "CorporationLedgerFilter",
         "type": "object"
       },
+      "AltLedgerSchema": {
+        "description": "Contribution of one alt character to the ledger of its entity.",
+        "properties": {
+          "character_id": {
+            "title": "Character Id",
+            "type": "integer"
+          },
+          "character_name": {
+            "title": "Character Name",
+            "type": "string"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "ledger": {
+            "$ref": "#/components/schemas/LedgerSchema"
+          }
+        },
+        "required": [
+          "character_id",
+          "character_name",
+          "ledger"
+        ],
+        "title": "AltLedgerSchema",
+        "type": "object"
+      },
       "CorporationLedgerResponse": {
         "description": "Schema for Corporation Ledger Response.\n\nAttributes:\n    entities (list[LedgerEntitySchema]): The list of ledger entities.\n    divisions (list[DivisionSchema]): The wallet divisions to choose from.",
         "properties": {
@@ -2971,6 +3005,14 @@
           },
           "ledger": {
             "$ref": "#/components/schemas/LedgerSchema"
+          },
+          "members": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AltLedgerSchema"
+            },
+            "title": "Members",
+            "type": "array"
           }
         },
         "required": [

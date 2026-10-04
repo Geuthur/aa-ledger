@@ -196,6 +196,12 @@ class LedgerSchema(Schema):
     total: float = 0.00
 
 
+class AltLedgerSchema(AltSchema):
+    """Contribution of one alt character to the ledger of its entity."""
+
+    ledger: LedgerSchema
+
+
 class CharacterLedgerSchema(LedgerSchema):
     """
     Schema for Character Ledger extending LedgerSchema.

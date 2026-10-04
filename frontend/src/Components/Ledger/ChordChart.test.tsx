@@ -132,4 +132,56 @@ describe("ChordChart", () => {
     // Expected Result
     expect(await screen.findByRole("tooltip")).toHaveTextContent("Alice → Bounty: 100 ISK");
   });
+
+  it("removes a node and its flows when it is hidden in the legend", () => {
+    // Test Data
+    const { container } = render(<ChordChart billboard={billboard} />);
+    expect(ribbons(container)).toHaveLength(2);
+
+    // Test Action
+    fireEvent.click(screen.getByRole("button", { name: "Hide Alice" }));
+
+    // Expected Result
+    expect(ribbons(container)).toHaveLength(1);
+    expect(screen.queryByText("Alice", { selector: "text" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Show Alice" })).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("shows all nodes again", () => {
+    // Test Data
+    const { container } = render(<ChordChart billboard={billboard} />);
+    fireEvent.click(screen.getByRole("button", { name: "Hide Alice" }));
+
+    // Test Action
+    fireEvent.click(screen.getByRole("button", { name: "Show all" }));
+
+    // Expected Result
+    expect(ribbons(container)).toHaveLength(2);
+    expect(screen.queryByRole("button", { name: "Show all" })).not.toBeInTheDocument();
+  });
+
+  it("lists the flows of a node with their share", () => {
+    // Test Data
+    render(<ChordChart billboard={billboard} />);
+
+    // Test Action
+    fireEvent.click(screen.getByRole("button", { name: "Details for Bounty" }));
+
+    // Expected Result
+    const details = screen.getByRole("region", { name: "Details for Bounty" });
+    expect(details).toHaveTextContent("← Alice");
+    expect(details).toHaveTextContent("100 ISK");
+    expect(details).toHaveTextContent("100.0%");
+  });
+
+  it("opens the details when an arc is clicked", () => {
+    // Test Data
+    render(<ChordChart billboard={billboard} />);
+
+    // Test Action
+    fireEvent.click(screen.getByText("Bob", { selector: "text" }).parentElement as Element);
+
+    // Expected Result
+    expect(screen.getByRole("region", { name: "Details for Bob" })).toHaveTextContent("→ ESS");
+  });
 });

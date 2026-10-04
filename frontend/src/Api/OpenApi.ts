@@ -949,6 +949,19 @@ export interface components {
             division_id?: number | null;
         };
         /**
+         * AltLedgerSchema
+         * @description Contribution of one alt character to the ledger of its entity.
+         */
+        AltLedgerSchema: {
+            /** Character Id */
+            character_id: number;
+            /** Character Name */
+            character_name: string;
+            /** Icon */
+            icon?: string | null;
+            ledger: components["schemas"]["LedgerSchema"];
+        };
+        /**
          * CorporationLedgerResponse
          * @description Schema for Corporation Ledger Response.
          *
@@ -1015,6 +1028,11 @@ export interface components {
         LedgerEntitySchema: {
             entity: components["schemas"]["EntitySchema"];
             ledger: components["schemas"]["LedgerSchema"];
+            /**
+             * Members
+             * @default []
+             */
+            members: components["schemas"]["AltLedgerSchema"][];
         };
         /**
          * LedgerSchema

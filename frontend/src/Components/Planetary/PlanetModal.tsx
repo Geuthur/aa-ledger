@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Modal, ProgressBar } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import { fetchPlanetDetails } from "@/Api/ApiCalls";
@@ -13,6 +13,7 @@ import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import ErrorLoader from "@/Components/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Loader/FetchingLoader";
+import ExtractorProgress from "@/Components/Planetary/ExtractorProgress";
 import { BaseTable } from "@/Components/Tables/BaseTable";
 import { formatDate, formatNumber } from "@/Components/Tables/BaseTable/tableHelper";
 
@@ -72,9 +73,7 @@ function PlanetModal({ ownerId, planetId, onHide }: PlanetModalProps) {
         }),
         extractorColumn.accessor("progress", {
           header: t("Progress"),
-          cell: ({ getValue }) => (
-            <ProgressBar now={getValue()} label={`${getValue()}%`} striped variant="warning" />
-          ),
+          cell: ({ getValue }) => <ExtractorProgress progress={getValue()} />,
         }),
       ] as ColumnDef<Extractor, unknown>[],
     [t],

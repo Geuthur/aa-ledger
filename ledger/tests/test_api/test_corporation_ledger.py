@@ -6,12 +6,17 @@ from django.db import connection
 from django.urls import reverse
 from django.utils import timezone
 
+# Alliance Auth (External Libs)
+from evesde_factory.allianceauth import EveCharacterFactory
+from evesde_factory.utils import add_character_to_user
+
 # AA Ledger
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.factory import (
     CorporationJournalFactory,
     CorporationOwnerFactory,
     DivisionFactory,
+    EveEntityFactory,
 )
 
 
@@ -147,3 +152,59 @@ class TestCorporationLedgerApi(LedgerTestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(response.json()["summary"], [])
         self.assertEqual(response.json()["total"]["summary"], 0)
+
+
+class TestCorporationLedgerMembers(LedgerTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.audit = CorporationOwnerFactory(user=cls.manage_user)
+        division = DivisionFactory(corporation=cls.audit, division_id=1)
+        cls.main = cls.manage_user.profile.main_character
+        cls.alt = EveCharacterFactory()
+        add_character_to_user(cls.manage_user, cls.alt)
+        date = timezone.now().replace(
+            year=2016, month=10, day=29, hour=0, minute=0, second=0, microsecond=0
+        )
+        # Create both parties first, the factory otherwise takes the next free ID.
+        parties = {
+            character: EveEntityFactory(
+                eve_id=character.character_id,
+                name=character.character_name,
+                category="character",
+            )
+            for character in (cls.main, cls.alt)
+        }
+        for character, amount in ((cls.main, 1000), (cls.alt, 300)):
+            CorporationJournalFactory(
+                division=division,
+                amount=amount,
+                date=date,
+                ref_type="bounty_prizes",
+                first_party=parties[character],
+            )
+        cls.url = (
+            f"{reverse('ledger:index')}api/corporation/"
+            f"{cls.audit.eve_corporation.corporation_id}/ledger/"
+            "?year=2016&month=10&day=29"
+        )
+
+    def test_get_ledger_should_return_the_contribution_of_every_character(self):
+        # Test Data
+        self.client.force_login(self.manage_user)
+
+        # Test Action
+        response = self.client.get(self.url)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        entity = response.json()["entities"][0]
+        self.assertEqual(entity["ledger"]["bounty"], 1300)
+        bounty = {
+            member["character_id"]: member["ledger"]["bounty"]
+            for member in entity["members"]
+        }
+        self.assertEqual(
+            bounty,
+            {self.main.character_id: 1000, self.alt.character_id: 300},
+        )

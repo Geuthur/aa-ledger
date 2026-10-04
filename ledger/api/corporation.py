@@ -23,6 +23,7 @@ from ledger.api.helpers.core import (
     get_corporationowner_or_none,
 )
 from ledger.api.schema import (
+    AltLedgerSchema,
     AltSchema,
     BillboardSchema,
     CorporationLedgerFilter,
@@ -52,6 +53,8 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 class LedgerEntitySchema(Schema):
     entity: EntitySchema
     ledger: LedgerSchema
+    # Contribution of each character of an auth member.
+    members: list[AltLedgerSchema] = []
 
 
 class CorporationLedgerResponse(LedgerResponse):
@@ -113,6 +116,54 @@ class CorporationApiEndpoints:
                 total += amt
         return total
 
+    def _ledger_from_entries(self, entry_list: list[dict]) -> LedgerSchema:
+        """Build the ledger summary of the given journal entries."""
+        bounty = self._sum_by_ref_types(entry_list, RefTypeManager.BOUNTY_PRIZES)
+        ess = self._sum_by_ref_types(entry_list, RefTypeManager.ESS_TRANSFER)
+        costs = self._sum_by_ref_types(
+            entry_list, RefTypeManager.ledger_ref_types(), sign="negative"
+        )
+        miscellaneous = self._sum_by_ref_types(
+            entry_list, RefTypeManager.ledger_ref_types(), sign="positive"
+        )
+        return LedgerSchema(
+            bounty=bounty,
+            ess=ess,
+            costs=costs,
+            miscellaneous=miscellaneous,
+            total=sum([bounty, ess, miscellaneous, costs]),
+        )
+
+    def _member_ledgers(
+        self,
+        entity: EntitySchema,
+        entries_by_entity: dict[int, list[dict]],
+        counted_entry_ids: set[int],
+    ) -> list[AltLedgerSchema]:
+        """Split the counted entries of an entity by character.
+
+        An entry between two characters of the entity is credited to the first one only,
+        so that the contributions add up to the entity ledger.
+        """
+        claimed: set[int] = set()
+        members = []
+        for alt in entity.alts:
+            alt_entries = [
+                r
+                for r in entries_by_entity.get(alt.character_id, [])
+                if r["entry_id"] in counted_entry_ids and r["entry_id"] not in claimed
+            ]
+            claimed.update(r["entry_id"] for r in alt_entries)
+            members.append(
+                AltLedgerSchema(
+                    character_id=alt.character_id,
+                    character_name=alt.character_name,
+                    icon=alt.icon,
+                    ledger=self._ledger_from_entries(alt_entries),
+                )
+            )
+        return members
+
     def _process_entity_entries(
         self,
         entity: EntitySchema,
@@ -147,28 +198,20 @@ class CorporationApiEndpoints:
             return None
 
         entry_list = list(unique.values())
-
-        bounty = self._sum_by_ref_types(entry_list, RefTypeManager.BOUNTY_PRIZES)
-        ess = self._sum_by_ref_types(entry_list, RefTypeManager.ESS_TRANSFER)
-        costs = self._sum_by_ref_types(
-            entry_list, RefTypeManager.ledger_ref_types(), sign="negative"
-        )
-        miscellaneous = self._sum_by_ref_types(
-            entry_list, RefTypeManager.ledger_ref_types(), sign="positive"
+        ledger = self._ledger_from_entries(entry_list)
+        members = (
+            self._member_ledgers(
+                entity=entity,
+                entries_by_entity=entries_by_entity,
+                counted_entry_ids=set(unique),
+            )
+            if entity.alts
+            else []
         )
 
         # Mark these entries as processed so they won't be used again
         processed_entry_ids.update(unique.keys())
-        return LedgerEntitySchema(
-            entity=entity,
-            ledger=LedgerSchema(
-                bounty=bounty,
-                ess=ess,
-                costs=costs,
-                miscellaneous=miscellaneous,
-                total=sum([bounty, ess, miscellaneous, costs]),
-            ),
-        )
+        return LedgerEntitySchema(entity=entity, ledger=ledger, members=members)
 
     def process_member_ledger_data(
         self,

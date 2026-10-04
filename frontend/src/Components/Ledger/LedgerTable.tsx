@@ -1,5 +1,5 @@
 // React
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 // Third Party
 import { createColumnHelper } from "@tanstack/react-table";
@@ -8,6 +8,7 @@ import { Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type { Section } from "@/Api/schema";
+import MembersModal from "@/Components/Ledger/MembersModal";
 import { BaseTable } from "@/Components/Tables/BaseTable";
 import { renderTooltip } from "@/Components/Tables/BaseTable/tableHelper";
 import { amountClass, formatIsk } from "@/Utils/ledger";
@@ -34,6 +35,7 @@ function LedgerTable({
   onDetails,
 }: LedgerTableProps) {
   const { t } = useTranslation();
+  const [membersRow, setMembersRow] = useState<LedgerRow | null>(null);
 
   const columns = useMemo(() => {
     const amountColumn = (key: "bounty" | "ess" | "miscellaneous" | "costs" | "total", header: string) =>
@@ -61,16 +63,24 @@ function LedgerTable({
         header: nameLabel,
         cell: ({ row }) => {
           const { icon, name, alts } = row.original;
-          const label = (
+          return (
             <span className="d-inline-flex align-items-center gap-2">
               {icon && <img src={icon} alt="" width={24} height={24} className="rounded-circle" />}
               {name}
-              {alts.length > 1 && <span className="badge bg-secondary">{alts.length}</span>}
+              {alts.length > 1 &&
+                renderTooltip(
+                  t("Show characters"),
+                  <button
+                    type="button"
+                    className="badge bg-secondary border-0"
+                    aria-label={t("Show characters of {{name}}", { name })}
+                    onClick={() => setMembersRow(row.original)}
+                  >
+                    {alts.length}
+                  </button>,
+                )}
             </span>
           );
-          return alts.length > 1
-            ? renderTooltip(alts.map((alt) => alt.character_name).join(", "), label)
-            : label;
         },
       }),
       amountColumn("bounty", t("Bounty")),
@@ -99,15 +109,18 @@ function LedgerTable({
   }, [t, nameLabel, showMining, onDetails]);
 
   return (
-    <BaseTable
-      columns={columns}
-      data={rows}
-      isFetching={isFetching}
-      isError={isError}
-      emptyText={t("No ledger entries for the selected period")}
-      initialState={{ sorting: [{ id: "total", desc: true }] }}
-      exportFileName="ledger.csv"
-    />
+    <>
+      <BaseTable
+        columns={columns}
+        data={rows}
+        isFetching={isFetching}
+        isError={isError}
+        emptyText={t("No ledger entries for the selected period")}
+        initialState={{ sorting: [{ id: "total", desc: true }] }}
+        exportFileName="ledger.csv"
+      />
+      <MembersModal row={membersRow} onHide={() => setMembersRow(null)} />
+    </>
   );
 }
 

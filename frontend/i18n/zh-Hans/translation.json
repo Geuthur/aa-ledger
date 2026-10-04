@@ -150,5 +150,14 @@
   "Planetary Overview": "Planetary Overview",
   "Install Time": "Install Time",
   "Expiry Time": "Expiry Time",
-  "Note: Planetary information is only recalculated when the colony is viewed through the client. Information will not update until this criteria is met.": "Note: Planetary information is only recalculated when the colony is viewed through the client. Information will not update until this criteria is met."
+  "Note: Planetary information is only recalculated when the colony is viewed through the client. Information will not update until this criteria is met.": "Note: Planetary information is only recalculated when the colony is viewed through the client. Information will not update until this criteria is met.",
+  "No flows to display": "No flows to display",
+  "Show {{name}}": "Show {{name}}",
+  "Hide {{name}}": "Hide {{name}}",
+  "Details for {{name}}": "Details for {{name}}",
+  "Show all": "Show all",
+  "Show characters": "Show characters",
+  "Show characters of {{name}}": "Show characters of {{name}}",
+  "Share": "Share",
+  "No characters": "No characters"
 }

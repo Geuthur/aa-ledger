@@ -1,5 +1,6 @@
 import type {
   AllianceLedgerResponse,
+  AltLedgerSchema,
   AltSchema,
   CharacterLedgerResponse,
   CorporationLedgerResponse,
@@ -13,6 +14,8 @@ export interface LedgerRow {
   name: string;
   icon?: string | null;
   alts: AltSchema[];
+  /** Contribution of every character of the entity. */
+  members?: AltLedgerSchema[];
   bounty: number;
   ess: number;
   /** Only characters mine; shown for information and not part of `total`. */
@@ -49,11 +52,12 @@ export function characterRows(response?: CharacterLedgerResponse): LedgerRow[] {
 }
 
 export function entityRows(response?: CorporationLedgerResponse): LedgerRow[] {
-  return (response?.entities ?? []).map(({ entity, ledger }) => ({
+  return (response?.entities ?? []).map(({ entity, ledger, members }) => ({
     id: entity.entity_id,
     name: entity.entity_name,
     icon: entity.icon,
     alts: entity.alts ?? [],
+    members: members ?? [],
     ...amounts(ledger),
   }));
 }
