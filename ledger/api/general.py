@@ -58,6 +58,8 @@ class GeneralApiEndpoints:
                     schema.MenuLink(name=_("Alliance Ledger"), link="/alliance/"),
                 ]
 
+            left_links.append(schema.MenuLink(name=_("Settings"), link="/settings/"))
+
             # The SSO flows are server-side views, so these are full page links
             add_links = [
                 schema.MenuLink(
@@ -80,10 +82,7 @@ class GeneralApiEndpoints:
                     ),
                 ]
 
-            right_links = [
-                *add_links,
-                schema.MenuLink(name=_("Settings"), link="/settings/"),
-            ]
+            right_links = [*add_links]
             if user.is_superuser:
                 right_links.append(
                     schema.MenuLink(name=_("Administration"), link="/admin/")
