@@ -24,7 +24,7 @@ import CorporationOverview from "@/Pages/CorporationOverview";
 import MainCharacterRedirect from "@/Pages/MainCharacterRedirect";
 import Planetary from "@/Pages/Planetary";
 import PlanetaryOverview from "@/Pages/PlanetaryOverview";
-import Settings from "@/Pages/Settings";
+import SettingsPage from "@/Pages/SettingsPage";
 
 const queryClient = new QueryClient();
 export const AppName = "aa-ledger";
@@ -82,7 +82,7 @@ function App() {
                   path="alliance/:allianceId/administration/"
                   element={<AllianceAdministration />}
                 />
-                <Route path="settings/" element={<Settings />} />
+                <Route path="settings/" element={<SettingsPage />} />
                 <Route path="admin/" element={<Admin />} />
                 <Route path="*" element={<ErrorPage />} />
               </Route>

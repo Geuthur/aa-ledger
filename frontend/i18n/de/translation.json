@@ -167,5 +167,14 @@
   "No matching reference types": "Keine passenden Referenztypen",
   "Total of the matches": "Summe der Treffer",
   "+{{number}} more": "+{{number}} weitere",
-  "Reference Type": "Referenztyp"
+  "Reference Type": "Referenztyp",
+  "Member Corp": "Mitglieds-Corp",
+  "Member": "Mitglied",
+  "Loading settings...": "Einstellungen werden geladen...",
+  "Failed to load settings. Please try refreshing the page.": "Einstellungen konnten nicht geladen werden. Bitte versuchen Sie, die Seite zu aktualisieren.",
+  "Settings": "Einstellungen",
+  "Manage your Ledger preferences.": "Verwalten Sie Ihre Ledger-Einstellungen.",
+  "Disable all notifications": "Alle Benachrichtigungen deaktivieren",
+  "When enabled, Ledger will not send notifications to your Alliance Auth or Discord account.": "Wenn aktiviert, sendet Ledger keine Benachrichtigungen an Ihr Alliance Auth- oder Discord-Konto.",
+  "Could not save this setting. Your previous preference was restored.": "Diese Einstellung konnte nicht gespeichert werden. Ihre vorherige Präferenz wurde wiederhergestellt."
 }

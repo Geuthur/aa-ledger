@@ -242,6 +242,17 @@
     -webkit-backdrop-filter: blur(12px);
 }
 
+.aa-panel-light {
+    border-radius: var(--aa-border-radius);
+    border: var(--aa-border-solid);
+    border-color: var(--aa-border-light);
+    background-color: var(--aa-color-light);
+    padding: 16px;
+    box-shadow: var(--aa-shadow);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
 @media (min-width: 640px) {
     .aa-panel-lg {
         padding: 24px;

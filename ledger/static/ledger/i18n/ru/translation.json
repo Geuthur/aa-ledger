@@ -169,5 +169,14 @@
   "No matching reference types": "No matching reference types",
   "Total of the matches": "Total of the matches",
   "+{{number}} more": "+{{number}} more",
-  "Reference Type": "Reference Type"
+  "Reference Type": "Reference Type",
+  "Member Corp": "Member Corp",
+  "Member": "Member",
+  "Loading settings...": "Loading settings...",
+  "Failed to load settings. Please try refreshing the page.": "Failed to load settings. Please try refreshing the page.",
+  "Settings": "Settings",
+  "Manage your Ledger preferences.": "Manage your Ledger preferences.",
+  "Disable all notifications": "Disable all notifications",
+  "When enabled, Ledger will not send notifications to your Alliance Auth or Discord account.": "When enabled, Ledger will not send notifications to your Alliance Auth or Discord account.",
+  "Could not save this setting. Your previous preference was restored.": "Could not save this setting. Your previous preference was restored."
 }
