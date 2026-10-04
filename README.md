@@ -1,4 +1,4 @@
-# Ledger module for AllianceAuth.<a name="aa-ledger"></a>
+# Ledger module for AllianceAuth.<a name="ledger-module-for-allianceauth"></a>
 
 ![Release](https://img.shields.io/pypi/v/aa-ledger?label=release)
 ![Licence](https://img.shields.io/github/license/geuthur/aa-ledger)
@@ -16,20 +16,24 @@ Character and Corporation PvE statistics, including detailed information on ESS,
 
 ______________________________________________________________________
 
-- [AA Ledger](#aa-ledger)
+<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
+
+- [Ledger module for AllianceAuth.](#ledger-module-for-allianceauth)
   - [Features](#features)
-  - [Upcoming](#upcoming)
-  - [Installation](#features)
-    - [Step 1 - Install the Package](#step1)
-    - [Step 2 - Configure Alliance Auth](#step2)
-    - [Step 3 - Add the Scheduled Tasks and Settings](#step3)
-    - [Step 4 - Migrate & Preload EVE SDE Data](#step4)
-      - [Step 4.1 - Migrate App and collect static](#step41)
-    - [Step 5 - Setting up Permissions](#step5)
-    - [Step 6 - (Optional) Settings](#step6)
   - [Highlights](#highlights)
+  - [Installation](#installation)
+    - [Step 1 - Install the Package](#step-1---install-the-package)
+    - [Step 2 - Configure Alliance Auth](#step-2---configure-alliance-auth)
+    - [Step 3 - Add the Scheduled Tasks](#step-3---add-the-scheduled-tasks)
+    - [Step 3.1 - (Optional) Add own Logger File](#step-31---optional-add-own-logger-file)
+    - [Step 4 - Migrate & Preload EVE SDE Data](#step-4---migrate--preload-eve-sde-data)
+    - [Step 4.1 - Migrate App and collect static](#step-41---migrate-app-and-collect-static)
+    - [Step 5 - Setting up Permissions](#step-5---setting-up-permissions)
+    - [Step 6 - (Optional) Settings](#step-6---optional-settings)
   - [Translations](#translations)
   - [Contributing](#contributing)
+
+<!-- mdformat-toc end -->
 
 ## Features<a name="features"></a>
 
@@ -66,11 +70,16 @@ ______________________________________________________________________
   - Switchable Notification for each Planet
   - Products Overview
 - Events Calender
-
-## Upcoming<a name="upcoming"></a>
-
 - Status Update System for each Section
 - Costs for Corporation Ledger
+
+## Highlights<a name="highlights"></a>
+
+![Image: character]
+![Image: corporation]
+![Image: corporation-details]
+![Image: planetary]
+![Image: planetary-details]
 
 ## Installation<a name="installation"></a>
 
@@ -78,7 +87,7 @@ ______________________________________________________________________
 > AA Ledger needs at least Alliance Auth v5
 > Please make sure to update your Alliance Auth before you install this APP
 
-### Step 1 - Install the Package<a name="step1"></a>
+### Step 1 - Install the Package<a name="step-1---install-the-package"></a>
 
 Make sure you're in your virtual environment (venv) of your Alliance Auth then install the pakage.
 
@@ -86,7 +95,7 @@ Make sure you're in your virtual environment (venv) of your Alliance Auth then i
 pip install aa-ledger
 ```
 
-### Step 2 - Configure Alliance Auth<a name="step2"></a>
+### Step 2 - Configure Alliance Auth<a name="step-2---configure-alliance-auth"></a>
 
 Configure your Alliance Auth settings (`local.py`) as follows:
 
@@ -102,7 +111,7 @@ INSTALLED_APPS = [
 INSTALLED_APPS = ["modeltranslation"] + INSTALLED_APPS
 ```
 
-### Step 3 - Add the Scheduled Tasks<a name="step3"></a>
+### Step 3 - Add the Scheduled Tasks<a name="step-3---add-the-scheduled-tasks"></a>
 
 To set up the Scheduled Tasks add following code to your `local.py`
 
@@ -133,7 +142,7 @@ if "eve_sde" in INSTALLED_APPS:
     }
 ```
 
-### Step 3.1 - (Optional) Add own Logger File
+### Step 3.1 - (Optional) Add own Logger File<a name="step-31---optional-add-own-logger-file"></a>
 
 To set up the Logger add following code to your `local.py`
 Ensure that you have writing permission in logs folder.
@@ -153,7 +162,7 @@ LOGGING["loggers"]["extensions.ledger"] = {
 }
 ```
 
-### Step 4 - Migrate & Preload EVE SDE Data<a name="step4"></a>
+### Step 4 - Migrate & Preload EVE SDE Data<a name="step-4---migrate--preload-eve-sde-data"></a>
 
 AA Ledger uses EVE SDE data to map IDs to names for EveTypes. You will need to preload some data from SDE once.
 
@@ -162,7 +171,7 @@ python manage.py migrate eve_sde
 python manage.py esde_load_sde
 ```
 
-### Step 4.1 - Migrate App and collect static<a name="step41">
+### Step 4.1 - Migrate App and collect static<a name="step-41---migrate-app-and-collect-static"></a>
 
 Migrate the app and collect static.
 
@@ -171,7 +180,7 @@ python manage.py migrate ledger
 python manage.py collectstatic --noinput
 ```
 
-### Step 5 - Setting up Permissions<a name="step5"></a>
+### Step 5 - Setting up Permissions<a name="step-5---setting-up-permissions"></a>
 
 With the Following IDs you can set up the permissions for the Ledger
 
@@ -189,7 +198,7 @@ With the Following IDs you can set up the permissions for the Ledger
 | `corp_audit_manager`       | Has Access to own Corporations             | Can see own Corporations.                              |
 | `corp_audit_admin_manager` | Has Access to all Corporations             | Can see all Corporations.                              |
 
-### Step 6 - (Optional) Settings<a name="step6"></a>
+### Step 6 - (Optional) Settings<a name="step-6---optional-settings"></a>
 
 The Following Settings can be setting up in the `local.py`
 
@@ -203,22 +212,19 @@ Advanced Settings: Stale Status for Each Section
 
 - LEDGER_STALE_TYPES = `{     "wallet_journal": 30,     "wallet_division": 30,     "mining_ledger": 30,     "planets": 30,     "planets_details": 30, }` - Defines the stale status duration (in minutes) for each section.
 
-## Highlights<a name="highlights"></a>
-
-![Ledger](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview1.png "Ledger")
-![Single Character Ledger](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview2.png "Single Character Ledger")
-![Details Modal](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview3.png "Details Modal")
-![Planetary Ledger](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview4.png "Planetary Ledger")
-![Factory Modal](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview5.png "Factory Modal")
-![Extractor Modal](https://raw.githubusercontent.com/geuthur/aa-ledger/master/ledger/docs/images/preview6.png "Extractor Modal")
-
 ## Translations<a name="translations"></a>
 
 [![Translations](https://weblate.geuthur.de/widget/allianceauth/aa-ledger/multi-auto.svg)](https://weblate.geuthur.de/engage/allianceauth/)
 
 Help us translate this app into your language or improve existing translations. Join our team!"
 
-## Contributing <a name="contributing"></a>
+## Contributing<a name="contributing"></a>
 
 You want to improve the project?
 Please ensure you read the [contribution guidelines](https://github.com/Geuthur/aa-ledger/blob/master/CONTRIBUTING.md)
+
+[image: character]: https://raw.githubusercontent.com/geuthur/aa-ledger/master/docs/images/character.png "Character Dashboard"
+[image: corporation]: https://raw.githubusercontent.com/geuthur/aa-ledger/master/docs/images/corporation.png "Corporation Dashboard"
+[image: corporation-details]: https://raw.githubusercontent.com/geuthur/aa-ledger/master/docs/images/corporation-details.png "Corporation Details"
+[image: planetary]: https://raw.githubusercontent.com/geuthur/aa-ledger/master/docs/images/planetary.png "Planetary Dashboard"
+[image: planetary-details]: https://raw.githubusercontent.com/geuthur/aa-ledger/master/docs/images/planetary-details.png "Planetary Details"
