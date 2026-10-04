@@ -11,23 +11,48 @@ export interface RefTypeBadgesProps {
   showAmounts?: boolean;
   /** Opens the list with all reference types, offered if there are more than the badges. */
   onShowAll: () => void;
+  /** Opens the character breakdown for a reference type. */
+  onSelectRefType?: (refType: RefTypeAmountSchema) => void;
 }
 
 /** One badge per reference type; the rest is reachable through the "more" button. */
-function RefTypeBadges({ refTypes, showAmounts = false, onShowAll }: RefTypeBadgesProps) {
+function RefTypeBadges({
+  refTypes,
+  showAmounts = false,
+  onShowAll,
+  onSelectRefType,
+}: RefTypeBadgesProps) {
   const { t } = useTranslation();
   const hidden = refTypes.length - MAX_REF_TYPE_BADGES;
 
   return (
     <span className="d-inline-flex flex-wrap gap-1">
-      {refTypes.slice(0, MAX_REF_TYPE_BADGES).map((item) => (
-        <span key={item.ref_type}>
-          <span className="badge bg-primary">
-            {formatRefType(item.ref_type)}
-            {showAmounts && `: ${formatIsk(item.amount ?? 0)}`}
+      {refTypes.slice(0, MAX_REF_TYPE_BADGES).map((item) => {
+        const hasCharacters = (item.characters ?? []).length > 0;
+        return (
+          <span key={item.ref_type}>
+            {hasCharacters && onSelectRefType ? (
+              <button
+                type="button"
+                className="badge bg-primary border-0"
+                style={{ cursor: "pointer" }}
+                onClick={() => onSelectRefType(item)}
+                title={t("View character breakdown for {{name}}", {
+                  name: formatRefType(item.ref_type),
+                })}
+              >
+                {formatRefType(item.ref_type)}
+                {showAmounts && `: ${formatIsk(item.amount ?? 0)}`}
+              </button>
+            ) : (
+              <span className="badge bg-primary">
+                {formatRefType(item.ref_type)}
+                {showAmounts && `: ${formatIsk(item.amount ?? 0)}`}
+              </span>
+            )}
           </span>
-        </span>
-      ))}
+        );
+      })}
       {hidden > 0 && (
         <button type="button" className="badge bg-primary border-0" onClick={onShowAll}>
           {t("+{{number}} more", { number: hidden })}

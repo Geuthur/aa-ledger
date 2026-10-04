@@ -5,7 +5,11 @@ import { describe, expect, it, vi } from "vitest";
 import RefTypeBadges from "@/Components/Ledger/RefTypeBadges";
 
 const refTypes = (count: number) =>
-  Array.from({ length: count }, (_, index) => ({ ref_type: `type_${index}`, amount: 100 - index }));
+  Array.from({ length: count }, (_, index) => ({
+    ref_type: `type_${index}`,
+    amount: 100 - index,
+    characters: [],
+  }));
 
 describe("RefTypeBadges", () => {
   it("shows a badge for every reference type up to ten", () => {
@@ -37,5 +41,22 @@ describe("RefTypeBadges", () => {
 
     // Expected Result
     expect(screen.getByText("Type 0: 100 ISK")).toBeInTheDocument();
+  });
+
+  it("calls onSelectRefType when clicking a badge with characters", () => {
+    // Test Data
+    const onSelectRefType = vi.fn();
+    const item = {
+      ref_type: "bounty_prizes",
+      amount: 1000,
+      characters: [{ character_id: 1, character_name: "Pilot Alpha", amount: 1000 }],
+    };
+
+    // Test Action
+    render(<RefTypeBadges refTypes={[item]} onShowAll={vi.fn()} onSelectRefType={onSelectRefType} />);
+    fireEvent.click(screen.getByRole("button", { name: "Bounty Prizes" }));
+
+    // Expected Result
+    expect(onSelectRefType).toHaveBeenCalledWith(item);
   });
 });

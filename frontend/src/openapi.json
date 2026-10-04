@@ -2343,6 +2343,41 @@
         "title": "CategorySchema",
         "type": "object"
       },
+      "CharacterRefTypeSchema": {
+        "description": "Amount that a character contributed to a reference type.",
+        "properties": {
+          "character_id": {
+            "title": "Character Id",
+            "type": "integer"
+          },
+          "character_name": {
+            "title": "Character Name",
+            "type": "string"
+          },
+          "amount": {
+            "default": 0.0,
+            "title": "Amount",
+            "type": "number"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          }
+        },
+        "required": [
+          "character_id",
+          "character_name"
+        ],
+        "title": "CharacterRefTypeSchema",
+        "type": "object"
+      },
       "LedgerDetailsResponse": {
         "description": "Flexible schema for detailed ledger categories.\n\nAttributes:\n    summary (CategorySchema): Summary of all categories.\n    daily (CategorySchema): Daily breakdown of categories.\n    hourly (CategorySchema): Hourly breakdown of categories.",
         "properties": {
@@ -2413,6 +2448,14 @@
             "default": 0.0,
             "title": "Amount",
             "type": "number"
+          },
+          "characters": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CharacterRefTypeSchema"
+            },
+            "title": "Characters",
+            "type": "array"
           }
         },
         "required": [

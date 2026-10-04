@@ -1,4 +1,5 @@
 # Standard Library
+from collections import defaultdict
 from decimal import Decimal
 from http import HTTPStatus
 
@@ -24,6 +25,7 @@ from ledger.api.schema import (
     BillboardSchema,
     CategorySchema,
     CharacterLedgerSchema,
+    CharacterRefTypeSchema,
     DateFilter,
     ErrorSchema,
     LedgerDetailsResponse,
@@ -35,7 +37,9 @@ from ledger.api.schema import (
     UpdateStatusSchema,
 )
 from ledger.helpers.billboard import BillboardSystem
+from ledger.helpers.eveonline import get_character_portrait_url
 from ledger.helpers.ref_type import RefTypeManager
+from ledger.models import EveEntity
 from ledger.models.characteraudit import (
     CharacterMiningLedger,
     CharacterOwner,
@@ -209,8 +213,48 @@ def _amounts_by_ref_type(journal: QuerySet, income: bool) -> dict[str, Decimal]:
     }
 
 
+def _character_amounts_by_ref_type(
+    journal: QuerySet, income: bool
+) -> dict[str, dict[tuple[int, str], Decimal]]:
+    """Sum the journal per reference type and character, counting either income or costs."""
+    if journal.model.__name__ != "CorporationWalletJournalEntry":
+        return {}
+
+    entries = journal.filter(amount__gt=0) if income else journal.filter(amount__lt=0)
+    char_amounts: dict[str, dict[tuple[int, str], Decimal]] = defaultdict(
+        lambda: defaultdict(Decimal)
+    )
+
+    first_party_rows = (
+        entries.filter(first_party__category=EveEntity.CATEGORY_CHARACTER)
+        .order_by()
+        .values("ref_type", "first_party_id", "first_party__name")
+        .annotate(total=Sum("amount"))
+    )
+    for row in first_party_rows:
+        char_amounts[row["ref_type"]][
+            (row["first_party_id"], row["first_party__name"])
+        ] += row["total"]
+
+    second_party_rows = (
+        entries.filter(second_party__category=EveEntity.CATEGORY_CHARACTER)
+        .exclude(first_party__category=EveEntity.CATEGORY_CHARACTER)
+        .order_by()
+        .values("ref_type", "second_party_id", "second_party__name")
+        .annotate(total=Sum("amount"))
+    )
+    for row in second_party_rows:
+        char_amounts[row["ref_type"]][
+            (row["second_party_id"], row["second_party__name"])
+        ] += row["total"]
+
+    return char_amounts
+
+
 def _category_rows(
-    categories: list[tuple[str, dict[str, Decimal]]],
+    categories: list[
+        tuple[str, dict[str, Decimal], dict[str, dict[tuple[int, str], Decimal]]]
+    ],
     amount_divisor: Decimal | int,
     average_divisor: Decimal | int,
     tick_divisor: Decimal | int,
@@ -223,11 +267,30 @@ def _category_rows(
             average=sum(ref_amounts.values()) / average_divisor,
             average_tick=sum(ref_amounts.values()) / tick_divisor,
             ref_types=[
-                RefTypeAmountSchema(ref_type=ref_type, amount=value / amount_divisor)
+                RefTypeAmountSchema(
+                    ref_type=ref_type,
+                    amount=value / amount_divisor,
+                    characters=[
+                        CharacterRefTypeSchema(
+                            character_id=char_id,
+                            character_name=char_name,
+                            amount=float(char_val / amount_divisor),
+                            icon=get_character_portrait_url(
+                                character_id=char_id,
+                                character_name=char_name,
+                                size=32,
+                            ),
+                        )
+                        for (char_id, char_name), char_val in sorted(
+                            cat_char_amounts.get(ref_type, {}).items(),
+                            key=lambda item: -abs(item[1]),
+                        )
+                    ],
+                )
                 for ref_type, value in ref_amounts.items()
             ],
         )
-        for name, ref_amounts in categories
+        for name, ref_amounts, cat_char_amounts in categories
     ]
 
 
@@ -260,7 +323,13 @@ def create_ledger_details(
     amounts = {
         flag: _amounts_by_ref_type(journal, income=flag) for flag in (True, False)
     }
-    categories: list[tuple[str, dict[str, Decimal]]] = []
+    char_amounts = {
+        flag: _character_amounts_by_ref_type(journal, income=flag)
+        for flag in (True, False)
+    }
+    categories: list[
+        tuple[str, dict[str, Decimal], dict[str, dict[tuple[int, str], Decimal]]]
+    ] = []
     for category in RefTypeManager.CategoryChoice:
         for income_flag in (True, False):
             kind_label = _("Income from") if income_flag else _("Cost from")
@@ -279,12 +348,16 @@ def create_ledger_details(
             ordered = dict(
                 sorted(category_amounts.items(), key=lambda item: -abs(item[1]))
             )
-            categories.append((name, ordered))
+            cat_char_amounts = {
+                ref_type: char_amounts[income_flag].get(ref_type, {})
+                for ref_type in ordered
+            }
+            categories.append((name, ordered, cat_char_amounts))
 
     monthly_list = _category_rows(categories, 1, avg * 30, avg * 30 * 20)
     daily_list = _category_rows(categories, avg, avg * 30, avg * 20)
     hourly_list = _category_rows(categories, avg * 24, avg * 24 * 30, avg * 24 * 20)
-    summary = sum(sum(ref_amounts.values()) for __, ref_amounts in categories)
+    summary = sum(sum(ref_amounts.values()) for __, ref_amounts, _ in categories)
 
     if mining is not None:
         mining_income = mining.aggregate_mining()

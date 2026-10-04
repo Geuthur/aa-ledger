@@ -11,8 +11,8 @@ const rows: CategorySchema[] = [
     average: 0,
     average_tick: 0,
     ref_types: [
-      { ref_type: "market_transaction", amount: 300 },
-      { ref_type: "brokers_fee", amount: 100 },
+      { ref_type: "market_transaction", amount: 300, characters: [] },
+      { ref_type: "brokers_fee", amount: 100, characters: [] },
     ],
   },
   {
@@ -20,14 +20,14 @@ const rows: CategorySchema[] = [
     amount: -40,
     average: 0,
     average_tick: 0,
-    ref_types: [{ ref_type: "market_transaction", amount: -40 }],
+    ref_types: [{ ref_type: "market_transaction", amount: -40, characters: [] }],
   },
   {
     name: "Income from Bounty",
     amount: 50,
     average: 0,
     average_tick: 0,
-    ref_types: [{ ref_type: "bounty_prizes", amount: 50 }],
+    ref_types: [{ ref_type: "bounty_prizes", amount: 50, characters: [] }],
   },
 ];
 
@@ -61,7 +61,7 @@ describe("refTypes", () => {
     const result = sumRefTypes(rows, "market_transaction");
 
     // Expected Result
-    expect(result).toEqual([{ ref_type: "market_transaction", amount: 260 }]);
+    expect(result).toEqual([{ ref_type: "market_transaction", amount: 260, characters: [] }]);
   });
 
   it("sumRefTypes sorts by the absolute amount", () => {

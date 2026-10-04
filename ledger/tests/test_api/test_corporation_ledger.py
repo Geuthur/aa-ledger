@@ -137,10 +137,10 @@ class TestCorporationLedgerApi(LedgerTestCase):
         data = response.json()
         self.assertEqual(data["total"]["summary"], 1000)
         self.assertEqual(data["summary"][0]["amount"], 1000)
-        self.assertEqual(
-            data["summary"][0]["ref_types"],
-            [{"ref_type": "bounty_prizes", "amount": 1000}],
-        )
+        ref_types = data["summary"][0]["ref_types"]
+        self.assertEqual(len(ref_types), 1)
+        self.assertEqual(ref_types[0]["ref_type"], "bounty_prizes")
+        self.assertEqual(ref_types[0]["amount"], 1000)
 
     def test_get_details_should_return_empty_response_without_data(self):
         # Test Data
@@ -193,8 +193,8 @@ class TestCorporationDetailsRefTypes(LedgerTestCase):
         self.assertEqual(
             income["ref_types"],
             [
-                {"ref_type": self.large, "amount": 300},
-                {"ref_type": self.small, "amount": 100},
+                {"ref_type": self.large, "amount": 300, "characters": []},
+                {"ref_type": self.small, "amount": 100, "characters": []},
             ],
         )
 
@@ -203,7 +203,10 @@ class TestCorporationDetailsRefTypes(LedgerTestCase):
         cost = self._rows()["cost"]
 
         # Expected Result
-        self.assertEqual(cost["ref_types"], [{"ref_type": self.small, "amount": -40}])
+        self.assertEqual(
+            cost["ref_types"],
+            [{"ref_type": self.small, "amount": -40, "characters": []}],
+        )
 
     def test_get_details_should_scale_ref_types_to_the_period(self):
         # Test Action
@@ -214,6 +217,59 @@ class TestCorporationDetailsRefTypes(LedgerTestCase):
             sum(item["amount"] for item in income["ref_types"]), income["amount"]
         )
         self.assertAlmostEqual(income["amount"], 400 / 29)
+
+
+class TestCorporationDetailsCharacterBreakdown(LedgerTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.audit = CorporationOwnerFactory(user=cls.manage_user)
+        cls.division = DivisionFactory(corporation=cls.audit, division_id=1)
+        cls.date = timezone.now().replace(
+            year=2016, month=10, day=29, hour=0, minute=0, second=0, microsecond=0
+        )
+        cls.ref_type = RefTypeManager.CONTRACT[0]
+        cls.char = EveCharacterFactory()
+        cls.char_entity = EveEntityFactory(
+            eve_id=cls.char.character_id,
+            name=cls.char.character_name,
+            category="character",
+        )
+        # Income from character (character is first_party)
+        CorporationJournalFactory(
+            division=cls.division,
+            amount=500,
+            date=cls.date,
+            ref_type=cls.ref_type,
+            first_party=cls.char_entity,
+        )
+        cls.url = (
+            f"{reverse('ledger:index')}api/corporation/"
+            f"{cls.audit.eve_corporation.corporation_id}/details/"
+            f"?year=2016&month=10&day=29&entity_id={cls.audit.eve_corporation.corporation_id}"
+            "&section=single"
+        )
+
+    def test_get_details_should_include_character_breakdown(self):
+        # Test Data
+        self.client.force_login(self.manage_user)
+
+        # Test Action
+        response = self.client.get(self.url)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        rows = response.json()["summary"]
+        income = rows[0]
+        ref = next(
+            item for item in income["ref_types"] if item["ref_type"] == self.ref_type
+        )
+        self.assertEqual(len(ref["characters"]), 1)
+        self.assertEqual(ref["characters"][0]["character_id"], self.char.character_id)
+        self.assertEqual(
+            ref["characters"][0]["character_name"], self.char.character_name
+        )
+        self.assertEqual(ref["characters"][0]["amount"], 500)
 
 
 class TestCorporationLedgerMembers(LedgerTestCase):

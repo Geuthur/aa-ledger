@@ -144,11 +144,21 @@ class EntitySchema(Schema):
     is_member: bool = False
 
 
+class CharacterRefTypeSchema(Schema):
+    """Amount that a character contributed to a reference type."""
+
+    character_id: int
+    character_name: str
+    amount: float = 0.00
+    icon: str | None = None
+
+
 class RefTypeAmountSchema(Schema):
     """Amount that a single reference type contributed to a category."""
 
     ref_type: str
     amount: float = 0.00
+    characters: list[CharacterRefTypeSchema] = []
 
 
 class CategorySchema(Schema):

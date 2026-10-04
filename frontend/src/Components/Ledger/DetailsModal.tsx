@@ -9,8 +9,9 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-import type { CategorySchema, LedgerDetailsResponse } from "@/Api/schema";
+import type { CategorySchema, LedgerDetailsResponse, RefTypeAmountSchema } from "@/Api/schema";
 import RefTypeBadges from "@/Components/Ledger/RefTypeBadges";
+import RefTypeCharactersModal from "@/Components/Ledger/RefTypeCharactersModal";
 import RefTypesModal from "@/Components/Ledger/RefTypesModal";
 import ErrorLoader from "@/Components/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Loader/FetchingLoader";
@@ -36,6 +37,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
     const [period, setPeriod] = useState<Period>("summary");
     const [search, setSearch] = useState("");
     const [refTypesOf, setRefTypesOf] = useState<CategorySchema | null>(null);
+    const [charactersOf, setCharactersOf] = useState<RefTypeAmountSchema | null>(null);
 
     const { data, isFetching, isError, error } = useQuery({
         queryKey,
@@ -78,6 +80,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                             refTypes={filterRefTypes(row.original.ref_types ?? [], search)}
                             showAmounts={search.trim() !== ""}
                             onShowAll={() => setRefTypesOf(row.original)}
+                            onSelectRefType={(refType) => setCharactersOf(refType)}
                         />
                     ),
                 }),
@@ -146,7 +149,20 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                                         <ul className="list-unstyled m-0">
                                             {matches.map((item) => (
                                                 <li key={item.ref_type} className="lg-chord-flow">
-                                                    <span className="flex-grow-1">{formatRefType(item.ref_type)}</span>
+                                                    {(item.characters ?? []).length > 0 ? (
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-link p-0 text-start text-decoration-none text-reset flex-grow-1"
+                                                            onClick={() => setCharactersOf(item)}
+                                                            title={t("View character breakdown for {{name}}", {
+                                                                name: formatRefType(item.ref_type),
+                                                            })}
+                                                        >
+                                                            {formatRefType(item.ref_type)}
+                                                        </button>
+                                                    ) : (
+                                                        <span className="flex-grow-1">{formatRefType(item.ref_type)}</span>
+                                                    )}
                                                     <span className={amountClass(item.amount)}>{formatIsk(item.amount)}</span>
                                                 </li>
                                             ))}
@@ -174,7 +190,16 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                     </div>
                 )}
             </Modal.Body>
-            <RefTypesModal category={refTypesOf} initialSearch={search} onHide={() => setRefTypesOf(null)} />
+            <RefTypesModal
+                category={refTypesOf}
+                initialSearch={search}
+                onHide={() => setRefTypesOf(null)}
+                onSelectRefType={(refType) => setCharactersOf(refType)}
+            />
+            <RefTypeCharactersModal
+                refType={charactersOf}
+                onHide={() => setCharactersOf(null)}
+            />
         </Modal>
     );
 }

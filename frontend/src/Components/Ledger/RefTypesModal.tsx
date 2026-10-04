@@ -20,10 +20,17 @@ export interface RefTypesModalProps {
   /** Search term the modal starts with, e.g. the one of the details modal. */
   initialSearch?: string;
   onHide: () => void;
+  /** Opens the character breakdown for a reference type. */
+  onSelectRefType?: (refType: RefTypeAmountSchema) => void;
 }
 
 /** All reference types of a category with their amount and share. */
-function RefTypesModal({ category, initialSearch = "", onHide }: RefTypesModalProps) {
+function RefTypesModal({
+  category,
+  initialSearch = "",
+  onHide,
+  onSelectRefType,
+}: RefTypesModalProps) {
   const { t } = useTranslation();
   const [search, setSearch] = useState(initialSearch);
 
@@ -40,6 +47,24 @@ function RefTypesModal({ category, initialSearch = "", onHide }: RefTypesModalPr
         columnHelper.accessor((item) => formatRefType(item.ref_type), {
           id: "ref_type",
           header: t("Reference Type"),
+          cell: ({ row: { original } }) => {
+            const hasCharacters = (original.characters ?? []).length > 0;
+            return hasCharacters && onSelectRefType ? (
+              <button
+                type="button"
+                className="badge bg-primary border-0"
+                style={{ cursor: "pointer" }}
+                onClick={() => onSelectRefType(original)}
+                title={t("View character breakdown for {{name}}", {
+                  name: formatRefType(original.ref_type),
+                })}
+              >
+                {formatRefType(original.ref_type)}
+              </button>
+            ) : (
+              formatRefType(original.ref_type)
+            );
+          },
         }),
         columnHelper.accessor((item) => item.amount ?? 0, {
           id: "amount",
@@ -59,7 +84,7 @@ function RefTypesModal({ category, initialSearch = "", onHide }: RefTypesModalPr
           ),
         }),
       ] as ColumnDef<RefTypeAmountSchema, unknown>[],
-    [t, categoryTotal],
+    [t, categoryTotal, onSelectRefType],
   );
 
   return (

@@ -14,7 +14,21 @@ const category = (name: string, refTypes: [string, number][]) => ({
   amount: refTypes.reduce((sum, [, amount]) => sum + amount, 0),
   average: 0,
   average_tick: 0,
-  ref_types: refTypes.map(([ref_type, amount]) => ({ ref_type, amount })),
+  ref_types: refTypes.map(([ref_type, amount]) => ({
+    ref_type,
+    amount,
+    characters:
+      ref_type === "market_transaction"
+        ? [
+            {
+              character_id: 101,
+              character_name: "Trader Alpha",
+              amount,
+              icon: "trader.png",
+            },
+          ]
+        : [],
+  })),
 });
 
 const many = Array.from({ length: 12 }, (_, index): [string, number] => [`type_${index}`, 100 - index]);
@@ -116,5 +130,19 @@ describe("DetailsModal", () => {
 
     // Expected Result
     expect(screen.getByText("Income from Contract")).toBeInTheDocument();
+  });
+
+  it("opens the character breakdown modal when clicking a reference type badge with characters", async () => {
+    // Test Data
+    renderModal();
+    const row = (await screen.findByText("Income from Market")).closest("tr") as HTMLElement;
+
+    // Test Action
+    fireEvent.click(within(row).getByRole("button", { name: "Market Transaction" }));
+
+    // Expected Result
+    const dialog = (await screen.findAllByRole("dialog")).at(-1) as HTMLElement;
+    expect(within(dialog).getByText("Trader Alpha")).toBeInTheDocument();
+    expect(within(dialog).getAllByText("300 ISK").length).toBeGreaterThan(0);
   });
 });

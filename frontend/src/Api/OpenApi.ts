@@ -764,6 +764,23 @@ export interface components {
             ref_types: components["schemas"]["RefTypeAmountSchema"][];
         };
         /**
+         * CharacterRefTypeSchema
+         * @description Amount that a character contributed to a reference type.
+         */
+        CharacterRefTypeSchema: {
+            /** Character Id */
+            character_id: number;
+            /** Character Name */
+            character_name: string;
+            /**
+             * Amount
+             * @default 0
+             */
+            amount: number;
+            /** Icon */
+            icon?: string | null;
+        };
+        /**
          * LedgerDetailsResponse
          * @description Flexible schema for detailed ledger categories.
          *
@@ -819,6 +836,11 @@ export interface components {
              * @default 0
              */
             amount: number;
+            /**
+             * Characters
+             * @default []
+             */
+            characters: components["schemas"]["CharacterRefTypeSchema"][];
         };
         /**
          * PlanetSelection
