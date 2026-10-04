@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 // Third Party
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Info } from "lucide-react";
+import { CircleHelp, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type { Section } from "@/Api/schema";
@@ -51,7 +51,20 @@ function LedgerTable({
 
     const miningColumn = columnHelper.accessor((row) => row.mining ?? 0, {
       id: "mining",
-      header: t("Mining"),
+      header: () => (
+        <span className="d-inline-flex align-items-center gap-1 justify-content-end">
+          {t("Mining")}
+          {renderTooltip(
+            t("This is only an informational value and is not included in calculations."),
+            <span
+              className="d-inline-flex align-items-center text-muted"
+              style={{ cursor: "help" }}
+            >
+              <CircleHelp size={14} />
+            </span>,
+          )}
+        </span>
+      ),
       meta: { align: "right" },
       cell: ({ getValue }) => (
         <span className={`text-end d-block ${amountClass(getValue(), true)}`}>

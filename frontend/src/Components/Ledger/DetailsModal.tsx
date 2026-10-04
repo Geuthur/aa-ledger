@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { QueryKey } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
+import { CircleHelp } from "lucide-react";
 import { Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
@@ -16,12 +17,18 @@ import RefTypesModal from "@/Components/Ledger/RefTypesModal";
 import ErrorLoader from "@/Components/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Loader/FetchingLoader";
 import { BaseTable } from "@/Components/Tables/BaseTable";
+import { renderTooltip } from "@/Components/Tables/BaseTable/tableHelper";
 import { amountClass, formatIsk } from "@/Utils/ledger";
 import { filterCategories, filterRefTypes, formatRefType, sumRefTypes } from "@/Utils/refTypes";
 
 type Period = "summary" | "daily" | "hourly";
 
 const columnHelper = createColumnHelper<CategorySchema>();
+
+const isMiningCategory = (category: CategorySchema) =>
+    (category.ref_types ?? []).some((r) => r.ref_type === "mining") ||
+    category.name.toLowerCase().includes("mining") ||
+    category.name.toLowerCase().includes("bergbau");
 
 export interface DetailsModalProps {
     /** Entity whose details are shown; `null` keeps the modal closed. */
@@ -48,15 +55,43 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
     const columns = useMemo(
         () =>
             [
-                columnHelper.accessor("name", { header: t("Category") }),
+                columnHelper.accessor("name", {
+                    header: t("Category"),
+                    cell: ({ getValue, row }) => {
+                        const name = getValue();
+                        const isMining = isMiningCategory(row.original);
+                        return (
+                            <span
+                                className={`d-inline-flex align-items-center gap-1 ${
+                                    isMining ? "lg-text-mining" : ""
+                                }`}
+                            >
+                                {name}
+                                {isMining &&
+                                    renderTooltip(
+                                        t("This is only an informational value and is not included in calculations."),
+                                        <span
+                                            className="d-inline-flex align-items-center"
+                                            style={{ cursor: "help" }}
+                                        >
+                                            <CircleHelp size={14} className="text-info" />
+                                        </span>,
+                                    )}
+                            </span>
+                        );
+                    },
+                }),
                 columnHelper.accessor("amount", {
                     header: t("Amount"),
                     meta: { align: "right" },
-                    cell: ({ getValue }) => (
-                        <span className={`text-end d-block ${amountClass(getValue())}`}>
-                            {formatIsk(getValue())}
-                        </span>
-                    ),
+                    cell: ({ getValue, row }) => {
+                        const isMining = isMiningCategory(row.original);
+                        return (
+                            <span className={`text-end d-block ${amountClass(getValue(), isMining)}`}>
+                                {formatIsk(getValue())}
+                            </span>
+                        );
+                    },
                 }),
                 columnHelper.accessor("average", {
                     header: t("Average"),
@@ -147,25 +182,33 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                                 ) : (
                                     <>
                                         <ul className="list-unstyled m-0">
-                                            {matches.map((item) => (
-                                                <li key={item.ref_type} className="lg-chord-flow">
-                                                    {(item.characters ?? []).length > 0 ? (
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-link p-0 text-start text-decoration-none text-reset flex-grow-1"
-                                                            onClick={() => setCharactersOf(item)}
-                                                            title={t("View character breakdown for {{name}}", {
-                                                                name: formatRefType(item.ref_type),
-                                                            })}
-                                                        >
-                                                            {formatRefType(item.ref_type)}
-                                                        </button>
-                                                    ) : (
-                                                        <span className="flex-grow-1">{formatRefType(item.ref_type)}</span>
-                                                    )}
-                                                    <span className={amountClass(item.amount)}>{formatIsk(item.amount)}</span>
-                                                </li>
-                                            ))}
+                                            {matches.map((item) => {
+                                                const isMining = item.ref_type === "mining";
+                                                return (
+                                                    <li
+                                                        key={item.ref_type}
+                                                        className={`lg-chord-flow ${isMining ? "lg-text-mining" : ""}`}
+                                                    >
+                                                        {(item.characters ?? []).length > 0 ? (
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-link p-0 text-start text-decoration-none text-reset flex-grow-1"
+                                                                onClick={() => setCharactersOf(item)}
+                                                                title={t("View character breakdown for {{name}}", {
+                                                                    name: formatRefType(item.ref_type),
+                                                                })}
+                                                            >
+                                                                {formatRefType(item.ref_type)}
+                                                            </button>
+                                                        ) : (
+                                                            <span className="flex-grow-1">{formatRefType(item.ref_type)}</span>
+                                                        )}
+                                                        <span className={amountClass(item.amount, isMining)}>
+                                                            {formatIsk(item.amount)}
+                                                        </span>
+                                                    </li>
+                                                );
+                                            })}
                                         </ul>
                                         <div className="d-flex justify-content-between fw-bold border-top mt-2 pt-2">
                                             <span>{t("Total of the matches")}</span>
@@ -180,6 +223,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                             data={rows}
                             emptyText={t("No data for the selected period")}
                             exportFileName="ledger-details.csv"
+                            getRowClassName={(row) => (isMiningCategory(row.original) ? "lg-table-row-mining" : "")}
                         />
                         <div className="d-flex justify-content-end gap-2 fw-bold mt-2">
                             <span>{t("Total")}</span>

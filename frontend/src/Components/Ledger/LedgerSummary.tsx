@@ -1,6 +1,7 @@
 // Third Party
 import {
   Boxes,
+  CircleHelp,
   Info,
   Pickaxe,
   Shield,
@@ -46,6 +47,9 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
             mining: true,
             icon: Pickaxe,
             color: "#fbbf24",
+            infoTooltip: t(
+              "This is only an informational value and is not included in calculations.",
+            ),
           },
         ]
       : []),
@@ -77,7 +81,20 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
           <Col key={item.label} xs={6} md>
             <div className="aa-panel lg-stat-card">
               <div className="lg-stat-header">
-                <span className="lg-stat-label">{item.label}</span>
+                <span className="lg-stat-label d-inline-flex align-items-center gap-1">
+                  {item.label}
+                  {"infoTooltip" in item && item.infoTooltip && (
+                    renderTooltip(
+                      item.infoTooltip,
+                      <span
+                        className="d-inline-flex align-items-center text-muted"
+                        style={{ cursor: "help" }}
+                      >
+                        <CircleHelp size={14} />
+                      </span>,
+                    )
+                  )}
+                </span>
                 <Icon className="lg-stat-icon" color={item.color} size={24} />
               </div>
               <span className={`lg-stat-value ${amountClass(item.value, "mining" in item)}`}>

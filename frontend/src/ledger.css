@@ -319,3 +319,23 @@
     font-weight: 600;
 }
 
+/* ═══ TABLE HIGHLIGHT FOR MINING ════════════════════════════════════════════ */
+.lg-table-row-mining {
+    background-color: rgba(56, 189, 248, 0.08) !important;
+    transition: background-color 150ms ease;
+}
+
+.lg-table-row-mining:hover {
+    background-color: rgba(56, 189, 248, 0.16) !important;
+}
+
+.lg-table-row-mining > td:first-child {
+    box-shadow: inset 4px 0 0 var(--aa-color-blue, #38bdf8);
+}
+
+.lg-text-mining {
+    color: var(--aa-color-blue, #38bdf8) !important;
+    font-weight: 600;
+}
+
+
