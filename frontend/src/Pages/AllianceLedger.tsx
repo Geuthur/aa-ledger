@@ -44,10 +44,10 @@ function AllianceLedger() {
       error={error}
       filterExtras={
         <>
-          <Link className="lg-btn lg-btn-secondary" to="/ledger/alliance/">
+          <Link className="aa-btn aa-btn-secondary" to="/ledger/alliance/">
             {t("Overview")}
           </Link>
-          <Link className="lg-btn lg-btn-secondary" to={`/ledger/alliance/${allianceId}/administration/`}>
+          <Link className="aa-btn aa-btn-secondary" to={`/ledger/alliance/${allianceId}/administration/`}>
             {t("Administration")}
           </Link>
         </>

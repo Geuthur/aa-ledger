@@ -80,9 +80,8 @@ function LedgerTable({
           const { icon, name, alts, is_member } = row.original;
           return (
             <span
-              className={`d-inline-flex align-items-center gap-2 ${
-                is_member ? "lg-text-member" : ""
-              }`}
+              className={`d-inline-flex align-items-center gap-2 ${is_member ? "lg-text-member" : ""
+                }`}
             >
               {icon && <img src={icon} alt="" width={24} height={24} className="rounded-circle" />}
               {name}
@@ -121,7 +120,7 @@ function LedgerTable({
             t("View Details"),
             <button
               type="button"
-              className="lg-btn lg-btn-primary lg-btn-sm"
+              className="aa-btn aa-btn-primary aa-btn-sm"
               aria-label={t("View Details")}
               onClick={() => onDetails(row.original.id, "single")}
             >

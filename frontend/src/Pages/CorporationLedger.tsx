@@ -59,11 +59,11 @@ function CorporationLedger() {
               </option>
             ))}
           </select>
-          <Link className="lg-btn lg-btn-secondary" to="/ledger/corporation/">
+          <Link className="aa-btn aa-btn-secondary" to="/ledger/corporation/">
             {t("Overview")}
           </Link>
           <Link
-            className="lg-btn lg-btn-secondary"
+            className="aa-btn aa-btn-secondary"
             to={`/ledger/corporation/${corporationId}/administration/`}
           >
             {t("Administration")}

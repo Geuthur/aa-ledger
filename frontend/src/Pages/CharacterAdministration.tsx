@@ -30,7 +30,7 @@ function CharacterAdministration() {
       ledgerPath={(ownerId) => `/ledger/character/${ownerId}/`}
       onDelete={deleteCharacter}
       headerAction={
-        <Link className="lg-btn lg-btn-secondary" to={`/ledger/character/${characterId}/`}>
+        <Link className="aa-btn aa-btn-secondary" to={`/ledger/character/${characterId}/`}>
           {t("View Ledger")}
         </Link>
       }

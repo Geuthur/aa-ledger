@@ -159,7 +159,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                                 <button
                                     key={key}
                                     type="button"
-                                    className={`lg-btn ${period === key ? "lg-btn-primary" : "lg-btn-secondary"}`}
+                                    className={`aa-btn ${period === key ? "aa-btn-primary" : "aa-btn-secondary"}`}
                                     onClick={() => setPeriod(key)}
                                 >
                                     {label}

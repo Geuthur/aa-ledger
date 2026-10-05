@@ -41,17 +41,17 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
     },
     ...(showMining
       ? [
-          {
-            label: t("Mining"),
-            value: totals.mining ?? 0,
-            mining: true,
-            icon: Pickaxe,
-            color: "#fbbf24",
-            infoTooltip: t(
-              "This is only an informational value and is not included in calculations.",
-            ),
-          },
-        ]
+        {
+          label: t("Mining"),
+          value: totals.mining ?? 0,
+          mining: true,
+          icon: Pickaxe,
+          color: "#fbbf24",
+          infoTooltip: t(
+            "This is only an informational value and is not included in calculations.",
+          ),
+        },
+      ]
       : []),
     {
       label: t("Miscellaneous"),
@@ -110,7 +110,7 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
             t("View Details"),
             <button
               type="button"
-              className="lg-btn lg-btn-primary"
+              className="aa-btn aa-btn-primary"
               aria-label={t("View Details")}
               onClick={onDetails}
             >

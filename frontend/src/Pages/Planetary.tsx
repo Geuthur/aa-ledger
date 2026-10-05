@@ -119,7 +119,7 @@ function Planetary() {
                 t("View Planet"),
                 <button
                   type="button"
-                  className="lg-btn lg-btn-primary lg-btn-sm"
+                  className="aa-btn aa-btn-primary aa-btn-sm"
                   aria-label={t("View Planet")}
                   onClick={() =>
                     setModal({ planet: row.original.id, owner: row.original.owner.character_id })
@@ -132,7 +132,7 @@ function Planetary() {
                 t("Toggle Notification"),
                 <button
                   type="button"
-                  className={`lg-btn lg-btn-sm ${row.original.alarm ? "lg-btn-success" : "lg-btn-secondary"}`}
+                  className={`aa-btn aa-btn-sm ${row.original.alarm ? "aa-btn-success" : "aa-btn-secondary"}`}
                   aria-label={t("Toggle Notification")}
                   disabled={toggle.isPending}
                   onClick={() =>
@@ -157,13 +157,13 @@ function Planetary() {
       <BaseSectionHeader name={t("Planetary Ledger")}>
         <button
           type="button"
-          className="lg-btn lg-btn-secondary"
+          className="aa-btn aa-btn-secondary"
           disabled={toggle.isPending}
           onClick={() => toggle.mutate({ ownerId: characterId })}
         >
           {t("Toggle all notifications")}
         </button>
-        <Link className="lg-btn lg-btn-secondary" to="/ledger/planetary/overview/">
+        <Link className="aa-btn aa-btn-secondary" to="/ledger/planetary/overview/">
           {t("Overview")}
         </Link>
       </BaseSectionHeader>

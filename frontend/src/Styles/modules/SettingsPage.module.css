@@ -13,7 +13,7 @@
 
 .title {
     margin: 0;
-    color: var(--aa-text-primary);
+    color: var(--aa-text-white);
     font-size: var(--aa-font-size-xl);
     font-weight: 700;
 }
@@ -39,7 +39,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: var(--aa-text-primary);
+    color: var(--aa-text-white);
     font-weight: 700;
 }
 

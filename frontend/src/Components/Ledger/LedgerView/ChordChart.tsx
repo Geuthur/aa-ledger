@@ -67,10 +67,10 @@ function ChordDiagram({ names, colors, chords, title, onSelect }: ChordDiagramPr
     arc<{ startAngle: number; endAngle: number }>()
       .innerRadius(INNER_RADIUS)
       .outerRadius(OUTER_RADIUS + (active?.kind === "group" && active.index === group.index ? HOVER_POP : 0))({
-      startAngle: group.startAngle,
-      // The arc sweeps out from its start angle while the diagram appears.
-      endAngle: group.startAngle + (group.endAngle - group.startAngle) * progress,
-    }) ?? undefined;
+        startAngle: group.startAngle,
+        // The arc sweeps out from its start angle while the diagram appears.
+        endAngle: group.startAngle + (group.endAngle - group.startAngle) * progress,
+      }) ?? undefined;
 
   const ribbonOpacity = (chord: Chord) => {
     if (active === null) return 0.7;
@@ -275,7 +275,7 @@ function ChordChart({ billboard, title }: ChordChartProps) {
           );
         })}
         {hidden.length > 0 && (
-          <button type="button" className="lg-btn lg-btn-secondary lg-btn-sm" onClick={() => setHidden([])}>
+          <button type="button" className="aa-btn aa-btn-secondary aa-btn-sm" onClick={() => setHidden([])}>
             {t("Show all")}
           </button>
         )}

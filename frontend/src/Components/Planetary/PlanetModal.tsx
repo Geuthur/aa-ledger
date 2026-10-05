@@ -185,7 +185,7 @@ function PlanetModal({ ownerId, planetId, onHide }: PlanetModalProps) {
         )}
       </Modal.Body>
       <Modal.Footer>
-        <button type="button" className="lg-btn lg-btn-secondary" onClick={onHide}>
+        <button type="button" className="aa-btn aa-btn-secondary" onClick={onHide}>
           {t("Close")}
         </button>
       </Modal.Footer>

@@ -54,7 +54,7 @@ function UpdateForm({ target, title, idLabel, forceRefresh, onQueued, onFailed }
         />
         <Form.Text muted>{t("Leave empty to update all")}</Form.Text>
       </Form.Group>
-      <button type="submit" className="lg-btn lg-btn-primary align-self-start" disabled={mutation.isPending}>
+      <button type="submit" className="aa-btn aa-btn-primary align-self-start" disabled={mutation.isPending}>
         {t("Queue Update")}
       </button>
     </Form>

@@ -38,10 +38,10 @@ function CharacterLedger() {
       error={error}
       filterExtras={
         <>
-          <Link className="lg-btn lg-btn-secondary" to="/ledger/character/">
+          <Link className="aa-btn aa-btn-primary" to="/ledger/character/">
             {t("Overview")}
           </Link>
-          <Link className="lg-btn lg-btn-secondary" to={`/ledger/character/${characterId}/administration/`}>
+          <Link className="aa-btn aa-btn-primary" to={`/ledger/character/${characterId}/administration/`}>
             {t("Administration")}
           </Link>
         </>

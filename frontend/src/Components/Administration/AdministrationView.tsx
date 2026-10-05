@@ -121,7 +121,7 @@ function AdministrationView({
                 { label: t("Total"), value: data.dashboard.auth_count, icon: Users, color: "#60a5fa" },
                 { label: t("Registered"), value: data.dashboard.active_count, icon: UserCheck, color: "#34d399" },
                 ...(data.dashboard.inactive_count !== null &&
-                data.dashboard.inactive_count !== undefined
+                  data.dashboard.inactive_count !== undefined
                   ? [{ label: t("Inactive"), value: data.dashboard.inactive_count, icon: UserMinus, color: "#fbbf24" }]
                   : []),
                 { label: t("Missing"), value: data.dashboard.missing_count, icon: UserX, color: "#fb7185" },
@@ -164,7 +164,7 @@ function AdministrationView({
                       renderTooltip(
                         t("View Ledger"),
                         <Link
-                          className="lg-btn lg-btn-success lg-btn-sm"
+                          className="aa-btn aa-btn-success aa-btn-sm"
                           to={ledgerPath(entry.owner_id)}
                           aria-label={t("View Ledger")}
                         >
@@ -176,7 +176,7 @@ function AdministrationView({
                         t("Delete"),
                         <button
                           type="button"
-                          className="lg-btn lg-btn-danger lg-btn-sm"
+                          className="aa-btn aa-btn-danger aa-btn-sm"
                           aria-label={t("Delete")}
                           onClick={() => setPending(entry)}
                         >
