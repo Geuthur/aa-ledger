@@ -31,6 +31,7 @@ Section Order:
 ### Added
 
 - Dev Make File
+- Makefile target `eve-compatibility-dates` to fetch latest EVE Online ESI compatibility date, update `__init__.py`, and download OpenAPI specification
 - Chart categories to BillboardSystem and update labels
 - Composite `(character|division, date)` indexes on wallet journal and mining ledger for direct aggregation
 - `BillboardSystem.create_billboards` to build charts directly from the journals

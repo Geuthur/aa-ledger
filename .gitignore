@@ -2,6 +2,7 @@
 .env
 .tox/
 .venv/
+.esi-compatibility-date
 node_modules/
 __pycache__
 
