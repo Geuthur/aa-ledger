@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 
 import { queueUpdate } from "@/Api/ApiCalls";
 import type { AdminUpdateRequest } from "@/Api/schema";
-import BaseSectionHeader from "@/Components/Sections/BaseHeader";
+import BaseSectionHeader from "@/Components/Base/BaseHeader";
 
 type Target = AdminUpdateRequest["target"];
 

@@ -13,11 +13,11 @@ import { Alert, Badge, Button, Col, Modal, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { AdminOwnerSchema, AdministrationResponse, AltSchema, MessageSchema } from "@/Api/schema";
-import ErrorLoader from "@/Components/Loader/ErrorLoader";
-import FetchingLoader from "@/Components/Loader/FetchingLoader";
-import BaseSectionHeader from "@/Components/Sections/BaseHeader";
-import { BaseTable } from "@/Components/Tables/BaseTable";
-import { renderTooltip } from "@/Components/Tables/BaseTable/tableHelper";
+import BaseSectionHeader from "@/Components/Base/BaseHeader";
+import { BaseTable } from "@/Components/Base/BaseTable";
+import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
+import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
+import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 
 const memberColumn = createColumnHelper<AltSchema>();
 

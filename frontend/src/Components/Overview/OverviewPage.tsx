@@ -6,10 +6,10 @@ import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
 
-import ErrorLoader from "@/Components/Loader/ErrorLoader";
-import FetchingLoader from "@/Components/Loader/FetchingLoader";
-import BaseSectionHeader from "@/Components/Sections/BaseHeader";
-import { BaseTable } from "@/Components/Tables/BaseTable";
+import BaseSectionHeader from "@/Components/Base/BaseHeader";
+import { BaseTable } from "@/Components/Base/BaseTable";
+import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
+import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 
 export interface OverviewItem {
   id: number;

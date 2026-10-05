@@ -11,11 +11,11 @@ import { useTranslation } from "react-i18next";
 import { fetchPlanetDetails } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
-import ErrorLoader from "@/Components/Loader/ErrorLoader";
-import FetchingLoader from "@/Components/Loader/FetchingLoader";
+import { BaseTable } from "@/Components/Base/BaseTable";
+import { formatDate, formatNumber } from "@/Components/Base/BaseTable/tableHelper";
+import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
+import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 import ExtractorProgress from "@/Components/Planetary/ExtractorProgress";
-import { BaseTable } from "@/Components/Tables/BaseTable";
-import { formatDate, formatNumber } from "@/Components/Tables/BaseTable/tableHelper";
 
 type Product = components["schemas"]["ProductSchema"];
 type Extractor = components["schemas"]["ExtractorSchema"];

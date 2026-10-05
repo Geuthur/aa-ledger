@@ -6,7 +6,7 @@ import type {
   CorporationLedgerResponse,
   LedgerSchema,
 } from "@/Api/schema";
-import { formatNumber } from "@/Components/Tables/BaseTable/tableHelper";
+import { formatNumber } from "@/Components/Base/BaseTable/tableHelper";
 
 /** A row of the ledger table, independent of the owner type. */
 export interface LedgerRow {

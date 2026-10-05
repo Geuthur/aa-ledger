@@ -48,6 +48,7 @@ Section Order:
 - Visual green highlight (`lg-table-row-member`, `lg-text-member`, `lg-badge-member`) for corporation members in Corporation Ledger and member corporations in Alliance Ledger
 - Character Administration: Single "View Ledger" button in header toolbar and removed per-card "View Ledger" button
 - Corporation Administration: Missing characters cards and member list status indicating characters not registered in Ledger
+- Tooltip in Members modal for the `Share` column header explaining net contribution with negative amounts (costs)
 
 ### Fixed
 
@@ -57,6 +58,10 @@ Section Order:
 
 ### Changed
 
+- Component directory structure: Grouped base components (`BaseTable`, `BaseModal`, `Loader`, `BaseHeader`) into `src/Components/Base/`
+- Component directory structure: Grouped sub-components of `LedgerView` (`LedgerTable`, `LedgerCharts`, `LedgerSummary`, `ChordChart`, `MembersModal`) into `src/Components/Ledger/LedgerView/` and sub-components of `DetailsModal` (`RefTypeBadges`, `RefTypeCharactersModal`, `RefTypesModal`) into `src/Components/Ledger/DetailsModal/`
+- Centralized CSS Modules: Moved all `*.module.css` files into `src/Styles/modules/`
+- Centralized Tests: Moved all frontend unit tests (`*.test.ts`, `*.test.tsx`) into dedicated `src/__tests__/` hierarchy
 - **Breaking:** The API is JSON-only and consolidated. Date and division filters moved from the path to query parameters:
   - `character|corporation|alliance/{id}/ledger/?year&month&day[&division_id]`
   - `character|corporation|alliance/{id}/details/?year&month&day&section[&entity_id&division_id]`

@@ -11,13 +11,13 @@ import { Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { CategorySchema, LedgerDetailsResponse, RefTypeAmountSchema } from "@/Api/schema";
-import RefTypeBadges from "@/Components/Ledger/RefTypeBadges";
-import RefTypeCharactersModal from "@/Components/Ledger/RefTypeCharactersModal";
-import RefTypesModal from "@/Components/Ledger/RefTypesModal";
-import ErrorLoader from "@/Components/Loader/ErrorLoader";
-import FetchingLoader from "@/Components/Loader/FetchingLoader";
-import { BaseTable } from "@/Components/Tables/BaseTable";
-import { renderTooltip } from "@/Components/Tables/BaseTable/tableHelper";
+import { BaseTable } from "@/Components/Base/BaseTable";
+import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
+import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
+import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
+import RefTypeBadges from "@/Components/Ledger/DetailsModal/RefTypeBadges";
+import RefTypeCharactersModal from "@/Components/Ledger/DetailsModal/RefTypeCharactersModal";
+import RefTypesModal from "@/Components/Ledger/DetailsModal/RefTypesModal";
 import { amountClass, formatIsk } from "@/Utils/ledger";
 import { filterCategories, filterRefTypes, formatRefType, sumRefTypes } from "@/Utils/refTypes";
 
@@ -62,9 +62,8 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                         const isMining = isMiningCategory(row.original);
                         return (
                             <span
-                                className={`d-inline-flex align-items-center gap-1 ${
-                                    isMining ? "lg-text-mining" : ""
-                                }`}
+                                className={`d-inline-flex align-items-center gap-1 ${isMining ? "lg-text-mining" : ""
+                                    }`}
                             >
                                 {name}
                                 {isMining &&

@@ -7,7 +7,7 @@ import { BellOff, Settings2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 // Styles
-import styles from "@/Pages/SettingsPage.module.css";
+import styles from "@/Styles/modules/SettingsPage.module.css";
 
 import { loadUserSettings, updateUserSettings } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";

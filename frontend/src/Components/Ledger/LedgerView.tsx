@@ -5,13 +5,13 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { BillboardSchema, Section } from "@/Api/schema";
+import BaseSectionHeader from "@/Components/Base/BaseHeader";
+import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
+import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 import DateFilterBar from "@/Components/Filters/DateFilterBar";
-import LedgerCharts from "@/Components/Ledger/LedgerCharts";
-import LedgerSummary from "@/Components/Ledger/LedgerSummary";
-import LedgerTable from "@/Components/Ledger/LedgerTable";
-import ErrorLoader from "@/Components/Loader/ErrorLoader";
-import FetchingLoader from "@/Components/Loader/FetchingLoader";
-import BaseSectionHeader from "@/Components/Sections/BaseHeader";
+import LedgerCharts from "@/Components/Ledger/LedgerView/LedgerCharts";
+import LedgerSummary from "@/Components/Ledger/LedgerView/LedgerSummary";
+import LedgerTable from "@/Components/Ledger/LedgerView/LedgerTable";
 import { sumRows } from "@/Utils/ledger";
 import type { LedgerRow } from "@/Utils/ledger";
 

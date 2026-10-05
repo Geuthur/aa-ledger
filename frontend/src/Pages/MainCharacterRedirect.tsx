@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next";
 
 import { loadUserData } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
-import ErrorLoader from "@/Components/Loader/ErrorLoader";
-import FetchingLoader from "@/Components/Loader/FetchingLoader";
+import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
+import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 
 export interface MainCharacterRedirectProps {
   /** Route of the main character, e.g. `character` for `/ledger/character/{id}/`. */

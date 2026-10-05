@@ -2,7 +2,7 @@
 import { useTranslation } from 'react-i18next';
 
 // Voices of War
-import { ErrorLoader } from '@/Components/Loader';
+import { ErrorLoader } from '@/Components/Base/Loader';
 export function ErrorPage() {
     const { t } = useTranslation();
     return (
