@@ -39,18 +39,21 @@ function LedgerCharts({ billboard }: LedgerChartsProps) {
     return null;
   }
 
+  const singleChart = (timeline.series.length > 0 && !hasChord) || (hasChord && timeline.series.length === 0);
+  const colClass = singleChart ? "col-12" : "col-12 col-xl-6";
+
   return (
-    <div className="row g-3">
+    <div className="row g-3 align-items-end">
       {timeline.series.length > 0 && (
-        <div className="col-12 col-xl-6">
-          <div className="aa-panel h-100">
+        <div className={colClass}>
+          <div className="aa-panel">
             <Chart options={timelineOptions} series={timeline.series} type="bar" height={380} />
           </div>
         </div>
       )}
       {hasChord && (
-        <div className="col-12 col-xl-6">
-          <div className="aa-panel h-100">
+        <div className={colClass}>
+          <div className="aa-panel">
             <ChordChart billboard={billboard?.chord_chart} title={t("Distribution")} />
           </div>
         </div>

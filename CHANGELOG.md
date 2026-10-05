@@ -60,6 +60,7 @@ Section Order:
 
 ### Changed
 
+- `LedgerCharts`: Vertically bottom-align charts (`align-items-end`) while keeping them side by side on desktop (`col-xl-6`) and taking full width (`col-12`) when only one chart is active.
 - Component directory structure: Grouped base components (`BaseTable`, `BaseModal`, `Loader`, `BaseHeader`) into `src/Components/Base/`
 - Component directory structure: Grouped sub-components of `LedgerView` (`LedgerTable`, `LedgerCharts`, `LedgerSummary`, `ChordChart`, `MembersModal`) into `src/Components/Ledger/LedgerView/` and sub-components of `DetailsModal` (`RefTypeBadges`, `RefTypeCharactersModal`, `RefTypesModal`) into `src/Components/Ledger/DetailsModal/`
 - Centralized CSS Modules: Moved all `*.module.css` files into `src/Styles/modules/`
