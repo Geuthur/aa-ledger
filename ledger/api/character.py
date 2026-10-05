@@ -5,14 +5,12 @@ from http import HTTPStatus
 
 # Third Party
 from ninja import NinjaAPI, Query, Schema
-from ninja.decorators import decorate_view
 
 # Django
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import Q, QuerySet, Sum
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.views.decorators.cache import cache_page
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
@@ -83,7 +81,6 @@ class CharacterApiEndpoints:
             tags=self.tags,
             summary="Get the ledger of a character and its alts",
         )
-        @decorate_view(cache_page(60 * 5))  # Cache for 5 minutes
         def get_character_ledger(
             request: WSGIRequest, character_id: int, filters: Query[DateFilter]
         ):
@@ -408,7 +405,6 @@ class CharacterDetailsApiEndpoints:
             tags=self.tags,
             summary="Get the income and cost breakdown of a character",
         )
-        @decorate_view(cache_page(60 * 5))  # Cache for 5 minutes
         def get_character_ledger_details(
             request: WSGIRequest,
             character_id: int,
