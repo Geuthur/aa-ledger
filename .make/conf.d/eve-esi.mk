@@ -46,10 +46,7 @@ get-compatibility-dates: check-python-venv check-myauth-path
 # Download ESI OpenAPI specification for the selected compatibility date
 .PHONY: generate-esi-openapi
 generate-esi-openapi: check-python-venv check-myauth-path get-compatibility-dates
-	@if [ ! -f .esi-compatibility-date ]; then \
-		$(MAKE) get-compatibility-dates; \
-	fi; \
-	DATE=$$(cat .esi-compatibility-date 2>/dev/null); \
+	@DATE=$$(cat .esi-compatibility-date 2>/dev/null); \
 	if [ -z "$$DATE" ]; then \
 		echo "$(TEXT_COLOR_RED)Error: No compatibility date specified in .esi-compatibility-date$(TEXT_RESET)"; \
 		exit 1; \
