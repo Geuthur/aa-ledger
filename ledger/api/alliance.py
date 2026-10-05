@@ -79,8 +79,48 @@ class AllianceApiEndpoints:
         def get_alliance_ledger(
             request: WSGIRequest, alliance_id: int, filters: Query[DateFilter]
         ):
-            return self._ledger_api_response(
-                request=request, alliance_id=alliance_id, filters=filters
+            perms, owner = get_alliance_or_none(
+                request=request, alliance_id=alliance_id
+            )
+
+            if owner is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Alliance not found in Ledger.")
+                }
+
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("You do not have permission to view this alliance.")
+                }
+
+            user_corp_ids: set[int] = set()
+            if request.user.is_authenticated:
+                user_corp_ids = set(
+                    CharacterOwnership.objects.filter(user=request.user).values_list(
+                        "character__corporation_id", flat=True
+                    )
+                )
+
+            corporation_ledger_list, billboard = self.generate_corporation_data(
+                owner=owner, filters=filters, user_corp_ids=user_corp_ids
+            )
+
+            return AllianceLedgerResponse(
+                owner=OwnerSchema(
+                    character_id=owner.alliance_id,
+                    character_name=owner.alliance_name,
+                    icon=get_alliance_logo_url(
+                        alliance_id=owner.alliance_id,
+                        alliance_name=owner.alliance_name,
+                    ),
+                ),
+                corporations=corporation_ledger_list,
+                billboard=billboard,
+                years=get_available_years(
+                    CorporationWalletJournalEntry.objects.filter(
+                        division__corporation__eve_corporation__alliance__alliance_id=owner.alliance_id
+                    )
+                ),
             )
 
     # pylint: disable=too-many-locals
@@ -171,50 +211,6 @@ class AllianceApiEndpoints:
             xy_chart=xy_chart, chord_chart=chord_chart
         )
 
-    def _ledger_api_response(
-        self, request, alliance_id: int, filters: DateFilter
-    ) -> AllianceLedgerResponse | tuple[int, dict]:
-        """Build the ledger response for an alliance and the given date."""
-        perms, owner = get_alliance_or_none(request=request, alliance_id=alliance_id)
-
-        if owner is None:
-            return HTTPStatus.NOT_FOUND, {"error": _("Alliance not found in Ledger.")}
-
-        if perms is False:
-            return HTTPStatus.FORBIDDEN, {
-                "error": _("You do not have permission to view this alliance.")
-            }
-
-        user_corp_ids: set[int] = set()
-        if request.user.is_authenticated:
-            user_corp_ids = set(
-                CharacterOwnership.objects.filter(user=request.user).values_list(
-                    "character__corporation_id", flat=True
-                )
-            )
-
-        corporation_ledger_list, billboard = self.generate_corporation_data(
-            owner=owner, filters=filters, user_corp_ids=user_corp_ids
-        )
-
-        return AllianceLedgerResponse(
-            owner=OwnerSchema(
-                character_id=owner.alliance_id,
-                character_name=owner.alliance_name,
-                icon=get_alliance_logo_url(
-                    alliance_id=owner.alliance_id,
-                    alliance_name=owner.alliance_name,
-                ),
-            ),
-            corporations=corporation_ledger_list,
-            billboard=billboard,
-            years=get_available_years(
-                CorporationWalletJournalEntry.objects.filter(
-                    division__corporation__eve_corporation__alliance__alliance_id=owner.alliance_id
-                )
-            ),
-        )
-
 
 class AllianceDetailsApiEndpoints:
     tags = ["Alliance Details"]
@@ -237,78 +233,49 @@ class AllianceDetailsApiEndpoints:
             filters: Query[DateFilter],
             section: Section = "summary",
         ):
-            return self._ledger_details_api_response(
-                request=request,
-                alliance_id=alliance_id,
-                entity_id=entity_id,
-                filters=filters,
-                section=section,
+            perms, owner = get_alliance_or_none(
+                request=request, alliance_id=alliance_id
             )
 
-    def create_entity_details(
-        self,
-        owner: EveAllianceInfo,
-        entity_id: int,
-        filters: DateFilter,
-        section: Section,
-    ) -> LedgerDetailsResponse:
-        """Create the category breakdown for the alliance or one of its corporations."""
-        if owner.alliance_id == entity_id:
-            corporation_ids = list(
-                CorporationOwner.objects.filter(
-                    eve_corporation__alliance__alliance_id=owner.alliance_id
-                ).values_list("eve_corporation__corporation_id", flat=True)
-            )
-            division_query = Q(
-                division__corporation__eve_corporation__alliance__alliance_id=owner.alliance_id
-            )
-            exclude_query = None
-            if corporation_ids:
-                exclude_query = Q(first_party_id__in=corporation_ids) & Q(
-                    second_party_id__in=corporation_ids
+            if owner is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Alliance not found in Ledger.")
+                }
+
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("You do not have permission to view this alliance.")
+                }
+
+            if owner.alliance_id == entity_id:
+                corporation_ids = list(
+                    CorporationOwner.objects.filter(
+                        eve_corporation__alliance__alliance_id=owner.alliance_id
+                    ).values_list("eve_corporation__corporation_id", flat=True)
                 )
-        else:
-            exclude_query = Q(first_party_id=entity_id, second_party_id=entity_id)
-            division_query = Q(
-                division__corporation__eve_corporation__corporation_id=entity_id
+                division_query = Q(
+                    division__corporation__eve_corporation__alliance__alliance_id=owner.alliance_id
+                )
+                exclude_query = None
+                if corporation_ids:
+                    exclude_query = Q(first_party_id__in=corporation_ids) & Q(
+                        second_party_id__in=corporation_ids
+                    )
+            else:
+                exclude_query = Q(first_party_id=entity_id, second_party_id=entity_id)
+                division_query = Q(
+                    division__corporation__eve_corporation__corporation_id=entity_id
+                )
+
+            wallet_journal = filters.filter(
+                CorporationWalletJournalEntry.objects.filter(division_query)
+                # Exclude Zero Amount Entries
+                .exclude(amount=Decimal("0.00"))
             )
 
-        wallet_journal = filters.filter(
-            CorporationWalletJournalEntry.objects.filter(division_query)
-            # Exclude Zero Amount Entries
-            .exclude(amount=Decimal("0.00"))
-        )
+            if exclude_query is not None:
+                wallet_journal = wallet_journal.exclude(exclude_query)
 
-        if exclude_query is not None:
-            wallet_journal = wallet_journal.exclude(exclude_query)
-
-        return create_ledger_details(
-            journal=wallet_journal, filters=filters, section=section
-        )
-
-    # pylint: disable=too-many-arguments, too-many-positional-arguments
-    def _ledger_details_api_response(
-        self,
-        request: WSGIRequest,
-        alliance_id: int,
-        entity_id: int,
-        filters: DateFilter,
-        section: Section,
-    ) -> LedgerDetailsResponse | tuple[int, dict]:
-        """Build the details response for an alliance entity and the given date."""
-        perms, owner = get_alliance_or_none(request=request, alliance_id=alliance_id)
-
-        if owner is None:
-            return HTTPStatus.NOT_FOUND, {"error": _("Alliance not found in Ledger.")}
-
-        if perms is False:
-            return HTTPStatus.FORBIDDEN, {
-                "error": _("You do not have permission to view this alliance.")
-            }
-
-        return self.create_entity_details(
-            owner=owner,
-            entity_id=entity_id,
-            filters=filters,
-            section=section,
-        )
+            return create_ledger_details(
+                journal=wallet_journal, filters=filters, section=section
+            )

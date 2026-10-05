@@ -84,8 +84,37 @@ class CharacterApiEndpoints:
         def get_character_ledger(
             request: WSGIRequest, character_id: int, filters: Query[DateFilter]
         ):
-            return self._ledger_api_response(
-                request=request, character_id=character_id, filters=filters
+            perms, owner = get_characterowner_or_none(
+                request=request, character_id=character_id
+            )
+
+            if owner is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Character not found in Ledger.")
+                }
+
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("You do not have permission to view this character.")
+                }
+
+            character_ledger_list, billboard = self.generate_character_data(
+                owner=owner, filters=filters
+            )
+
+            return CharacterLedgerResponse(
+                owner=OwnerSchema(
+                    character_id=owner.eve_character.character_id,
+                    character_name=owner.eve_character.character_name,
+                    icon=owner.get_portrait(),
+                ),
+                characters=character_ledger_list,
+                billboard=billboard,
+                years=get_available_years(
+                    CharacterWalletJournalEntry.objects.filter(
+                        character__eve_character__character_id__in=owner.alt_ids
+                    )
+                ),
             )
 
     def generate_character_data(
@@ -166,41 +195,6 @@ class CharacterApiEndpoints:
         )
         return character_ledger_list, BillboardSchema(
             xy_chart=xy_chart, chord_chart=chord_chart
-        )
-
-    def _ledger_api_response(
-        self, request, character_id: int, filters: DateFilter
-    ) -> CharacterLedgerResponse | tuple[int, dict]:
-        """Build the ledger response for a character and the given date."""
-        perms, owner = get_characterowner_or_none(
-            request=request, character_id=character_id
-        )
-
-        if owner is None:
-            return HTTPStatus.NOT_FOUND, {"error": _("Character not found in Ledger.")}
-
-        if perms is False:
-            return HTTPStatus.FORBIDDEN, {
-                "error": _("You do not have permission to view this character.")
-            }
-
-        character_ledger_list, billboard = self.generate_character_data(
-            owner=owner, filters=filters
-        )
-
-        return CharacterLedgerResponse(
-            owner=OwnerSchema(
-                character_id=owner.eve_character.character_id,
-                character_name=owner.eve_character.character_name,
-                icon=owner.get_portrait(),
-            ),
-            characters=character_ledger_list,
-            billboard=billboard,
-            years=get_available_years(
-                CharacterWalletJournalEntry.objects.filter(
-                    character__eve_character__character_id__in=owner.alt_ids
-                )
-            ),
         )
 
 
@@ -411,69 +405,51 @@ class CharacterDetailsApiEndpoints:
             filters: Query[DateFilter],
             section: Section = "summary",
         ):
-            return self._ledger_details_api_response(
-                request=request,
-                character_id=character_id,
+            perms, owner = get_characterowner_or_none(
+                request=request, character_id=character_id
+            )
+
+            if owner is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Character not found in Ledger.")
+                }
+
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("You do not have permission to view this character.")
+                }
+
+            char_ids = (
+                owner.alt_ids
+                if section == "summary"
+                else [owner.eve_character.character_id]
+            )
+
+            wallet_journal = filters.filter(
+                CharacterWalletJournalEntry.objects.filter(
+                    character__eve_character__character_id__in=char_ids
+                )
+                # Exclude Zero Amount Entries
+                .exclude(amount=Decimal("0.00"))
+                # Exclude Internal Donations between Alts
+                .exclude(
+                    Q(ref_type="player_donation")
+                    & (
+                        Q(first_party__in=owner.alt_ids)
+                        & Q(second_party__in=owner.alt_ids)
+                    )
+                )
+            ).order_by("-date")
+
+            mining_journal = filters.filter(
+                CharacterMiningLedger.objects.filter(
+                    character__eve_character__character_id__in=char_ids
+                )
+            )
+
+            return create_ledger_details(
+                journal=wallet_journal,
+                mining=mining_journal,
                 filters=filters,
                 section=section,
             )
-
-    def create_character_details(
-        self, owner: CharacterOwner, filters: DateFilter, section: Section
-    ) -> LedgerDetailsResponse:
-        """Create the category breakdown for a character or all of its alts."""
-        char_ids = (
-            owner.alt_ids
-            if section == "summary"
-            else [owner.eve_character.character_id]
-        )
-
-        wallet_journal = filters.filter(
-            CharacterWalletJournalEntry.objects.filter(
-                character__eve_character__character_id__in=char_ids
-            )
-            # Exclude Zero Amount Entries
-            .exclude(amount=Decimal("0.00"))
-            # Exclude Internal Donations between Alts
-            .exclude(
-                Q(ref_type="player_donation")
-                & (Q(first_party__in=owner.alt_ids) & Q(second_party__in=owner.alt_ids))
-            )
-        ).order_by("-date")
-
-        mining_journal = filters.filter(
-            CharacterMiningLedger.objects.filter(
-                character__eve_character__character_id__in=char_ids
-            )
-        )
-
-        return create_ledger_details(
-            journal=wallet_journal,
-            mining=mining_journal,
-            filters=filters,
-            section=section,
-        )
-
-    def _ledger_details_api_response(
-        self,
-        request: WSGIRequest,
-        character_id: int,
-        filters: DateFilter,
-        section: Section,
-    ) -> LedgerDetailsResponse | tuple[int, dict]:
-        """Build the details response for a character and the given date."""
-        perms, owner = get_characterowner_or_none(
-            request=request, character_id=character_id
-        )
-
-        if owner is None:
-            return HTTPStatus.NOT_FOUND, {"error": _("Character not found in Ledger.")}
-
-        if perms is False:
-            return HTTPStatus.FORBIDDEN, {
-                "error": _("You do not have permission to view this character.")
-            }
-
-        return self.create_character_details(
-            owner=owner, filters=filters, section=section
-        )

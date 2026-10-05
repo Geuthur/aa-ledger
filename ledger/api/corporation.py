@@ -90,8 +90,45 @@ class CorporationApiEndpoints:
             corporation_id: int,
             filters: Query[CorporationLedgerFilter],
         ):
-            return self._ledger_api_response(
-                request=request, corporation_id=corporation_id, filters=filters
+            perms, owner = get_corporationowner_or_none(
+                request=request, corporation_id=corporation_id
+            )
+
+            if owner is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Corporation not found in Ledger.")
+                }
+
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("You do not have permission to view this corporation.")
+                }
+
+            entity_ledger_list, billboard = self.generate_entity_data(
+                owner=owner, filters=filters
+            )
+
+            return CorporationLedgerResponse(
+                owner=OwnerSchema(
+                    character_id=owner.eve_corporation.corporation_id,
+                    character_name=owner.eve_corporation.corporation_name,
+                    icon=owner.get_portrait(),
+                ),
+                entities=entity_ledger_list,
+                billboard=billboard,
+                years=get_available_years(
+                    CorporationWalletJournalEntry.objects.filter(
+                        division__corporation=owner
+                    )
+                ),
+                divisions=[
+                    DivisionSchema(
+                        division_id=division.division_id, name=division.name or ""
+                    )
+                    for division in owner.ledger_corporation_division.order_by(
+                        "division_id"
+                    )
+                ],
             )
 
     def _sum_by_ref_types(
@@ -409,51 +446,6 @@ class CorporationApiEndpoints:
             xy_chart=xy_chart, chord_chart=chord_chart
         )
 
-    def _ledger_api_response(
-        self, request, corporation_id: int, filters: CorporationLedgerFilter
-    ) -> CorporationLedgerResponse | tuple[int, dict]:
-        """Build the ledger response for a corporation and the given date."""
-        perms, owner = get_corporationowner_or_none(
-            request=request, corporation_id=corporation_id
-        )
-
-        if owner is None:
-            return HTTPStatus.NOT_FOUND, {
-                "error": _("Corporation not found in Ledger.")
-            }
-
-        if perms is False:
-            return HTTPStatus.FORBIDDEN, {
-                "error": _("You do not have permission to view this corporation.")
-            }
-
-        entity_ledger_list, billboard = self.generate_entity_data(
-            owner=owner, filters=filters
-        )
-
-        return CorporationLedgerResponse(
-            owner=OwnerSchema(
-                character_id=owner.eve_corporation.corporation_id,
-                character_name=owner.eve_corporation.corporation_name,
-                icon=owner.get_portrait(),
-            ),
-            entities=entity_ledger_list,
-            billboard=billboard,
-            years=get_available_years(
-                CorporationWalletJournalEntry.objects.filter(
-                    division__corporation=owner
-                )
-            ),
-            divisions=[
-                DivisionSchema(
-                    division_id=division.division_id, name=division.name or ""
-                )
-                for division in owner.ledger_corporation_division.order_by(
-                    "division_id"
-                )
-            ],
-        )
-
 
 class CorporationDetailsApiEndpoints:
     tags = ["Corporation Details"]
@@ -476,12 +468,54 @@ class CorporationDetailsApiEndpoints:
             filters: Query[CorporationLedgerFilter],
             section: Section = "summary",
         ):
-            return self._ledger_details_api_response(
-                request=request,
-                corporation_id=corporation_id,
-                entity_id=entity_id,
-                filters=filters,
-                section=section,
+            perms, owner = get_corporationowner_or_none(
+                request=request, corporation_id=corporation_id
+            )
+
+            if owner is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Corporation not found in Ledger.")
+                }
+
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("You do not have permission to view this corporation.")
+                }
+
+            # Check if Entity is a Member
+            alt_ids = self._check_auth_account(owner=owner, entity_id=entity_id)
+
+            entity_query = Q(first_party_id=entity_id) | Q(second_party_id=entity_id)
+            if alt_ids is not None:
+                entity_query = Q(first_party_id__in=alt_ids) | Q(
+                    second_party_id__in=alt_ids
+                )
+            elif entity_id == owner.eve_corporation.corporation_id:
+                # Corporation itself includes all entries
+                entity_query = Q()
+
+            wallet_journal = filters.filter(
+                CorporationWalletJournalEntry.objects.filter(
+                    entity_query, division__corporation=owner
+                )
+                # Exclude Zero Amount Entries
+                .exclude(amount=Decimal("0.00"))
+                # Exclude Internal Transfers
+                .exclude(
+                    first_party_id=owner.eve_corporation.corporation_id,
+                    second_party_id=owner.eve_corporation.corporation_id,
+                )
+            )
+
+            # Corporation contracts count for the corporation itself
+            if alt_ids is not None:
+                wallet_journal = wallet_journal.exclude(
+                    ref_type="contract_price_payment_corp",
+                    second_party_id__in=alt_ids,
+                )
+
+            return create_ledger_details(
+                journal=wallet_journal, filters=filters, section=section
             )
 
     def _check_auth_account(
@@ -499,78 +533,3 @@ class CorporationDetailsApiEndpoints:
             if entity_id in alt_ids:
                 return alt_ids
         return None
-
-    def create_entity_details(
-        self,
-        owner: CorporationOwner,
-        entity_id: int,
-        filters: CorporationLedgerFilter,
-        section: Section,
-    ) -> LedgerDetailsResponse:
-        """Create the category breakdown for an entity of the corporation."""
-        # Check if Entity is a Member
-        alt_ids = self._check_auth_account(owner=owner, entity_id=entity_id)
-
-        entity_query = Q(first_party_id=entity_id) | Q(second_party_id=entity_id)
-        if alt_ids is not None:
-            entity_query = Q(first_party_id__in=alt_ids) | Q(
-                second_party_id__in=alt_ids
-            )
-        elif entity_id == owner.eve_corporation.corporation_id:
-            # Corporation itself includes all entries
-            entity_query = Q()
-
-        wallet_journal = filters.filter(
-            CorporationWalletJournalEntry.objects.filter(
-                entity_query, division__corporation=owner
-            )
-            # Exclude Zero Amount Entries
-            .exclude(amount=Decimal("0.00"))
-            # Exclude Internal Transfers
-            .exclude(
-                first_party_id=owner.eve_corporation.corporation_id,
-                second_party_id=owner.eve_corporation.corporation_id,
-            )
-        )
-
-        # Corporation contracts count for the corporation itself
-        if alt_ids is not None:
-            wallet_journal = wallet_journal.exclude(
-                ref_type="contract_price_payment_corp",
-                second_party_id__in=alt_ids,
-            )
-
-        return create_ledger_details(
-            journal=wallet_journal, filters=filters, section=section
-        )
-
-    # pylint: disable=too-many-arguments, too-many-positional-arguments
-    def _ledger_details_api_response(
-        self,
-        request: WSGIRequest,
-        corporation_id: int,
-        entity_id: int,
-        filters: CorporationLedgerFilter,
-        section: Section,
-    ) -> LedgerDetailsResponse | tuple[int, dict]:
-        """Build the details response for a corporation entity and the given date."""
-        perms, owner = get_corporationowner_or_none(
-            request=request, corporation_id=corporation_id
-        )
-
-        if owner is None:
-            return HTTPStatus.NOT_FOUND, {
-                "error": _("Corporation not found in Ledger.")
-            }
-
-        if perms is False:
-            return HTTPStatus.FORBIDDEN, {
-                "error": _("You do not have permission to view this corporation.")
-            }
-        # pylint: disable=duplicate-code
-        return self.create_entity_details(
-            owner=owner,
-            entity_id=entity_id,
-            filters=filters,
-            section=section,
-        )
