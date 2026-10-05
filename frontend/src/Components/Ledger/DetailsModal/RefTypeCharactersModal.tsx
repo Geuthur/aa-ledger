@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 // Third Party
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Modal } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { CharacterRefTypeSchema, RefTypeAmountSchema } from "@/Api/schema";
@@ -89,32 +89,34 @@ function RefTypeCharactersModal({ refType, onHide }: RefTypeCharactersModalProps
         <Modal.Title>{refType ? formatRefType(refType.ref_type) : ""}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {characterCount > 5 && (
-          <input
-            type="search"
-            className="lg-select lg-input mb-3 w-100"
-            placeholder={t("Search character")}
-            aria-label={t("Search character")}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
+        <div className="aa-panel">
+          {characterCount > 5 && (
+            <input
+              type="search"
+              className="lg-select lg-input mb-3 w-100"
+              placeholder={t("Search character")}
+              aria-label={t("Search character")}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          )}
+          <BaseTable
+            variant="vowra-light"
+            columns={columns}
+            data={rows}
+            emptyText={t("No characters")}
+            initialState={{ sorting: [{ id: "amount", desc: true }] }}
           />
-        )}
-        <BaseTable
-          variant="vowra-light"
-          columns={columns}
-          data={rows}
-          emptyText={t("No characters")}
-          initialState={{ sorting: [{ id: "amount", desc: true }] }}
-        />
-        <div className="d-flex justify-content-end gap-2 fw-bold mt-2">
-          <span>{t("Total")}</span>
-          <span className={amountClass(shownTotal)}>{formatIsk(shownTotal)}</span>
+          <div className="d-flex justify-content-end gap-2 fw-bold mt-2">
+            <span>{t("Total")}</span>
+            <span className={amountClass(shownTotal)}>{formatIsk(shownTotal)}</span>
+          </div>
         </div>
       </Modal.Body>
       <Modal.Footer>
-        <button type="button" className="lg-btn lg-btn-secondary" onClick={onHide}>
+        <Button variant="primary" onClick={onHide}>
           {t("Close")}
-        </button>
+        </Button>
       </Modal.Footer>
     </Modal>
   );

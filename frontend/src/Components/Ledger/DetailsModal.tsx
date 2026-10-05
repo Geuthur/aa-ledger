@@ -7,7 +7,7 @@ import type { QueryKey } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CircleHelp } from "lucide-react";
-import { Modal } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { CategorySchema, LedgerDetailsResponse, RefTypeAmountSchema } from "@/Api/schema";
@@ -175,7 +175,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                             onChange={(event) => setSearch(event.target.value)}
                         />
                         {search.trim() !== "" && (
-                            <div className="aa-panel lg-chord-details mb-3" role="region" aria-label={t("Matching reference types")}>
+                            <div className="aa-panel-light lg-chord-details mb-3" role="region" aria-label={t("Matching reference types")}>
                                 {matches.length === 0 ? (
                                     <span className="text-muted">{t("No matching reference types")}</span>
                                 ) : (
@@ -244,6 +244,11 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                 refType={charactersOf}
                 onHide={() => setCharactersOf(null)}
             />
+            <Modal.Footer>
+                <Button variant="primary" onClick={onHide}>
+                    {t("Close")}
+                </Button>
+            </Modal.Footer>
         </Modal>
     );
 }

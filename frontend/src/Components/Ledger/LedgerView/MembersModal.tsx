@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CircleHelp } from "lucide-react";
-import { Modal } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { AltLedgerSchema } from "@/Api/schema";
@@ -91,18 +91,20 @@ function MembersModal({ row, onHide }: MembersModalProps) {
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <BaseTable
-          variant="vowra-light"
-          columns={columns}
-          data={members}
-          emptyText={t("No characters")}
-          initialState={{ sorting: [{ id: "total", desc: true }] }}
-        />
+        <div className="aa-panel">
+          <BaseTable
+            variant="vowra-light"
+            columns={columns}
+            data={members}
+            emptyText={t("No characters")}
+            initialState={{ sorting: [{ id: "total", desc: true }] }}
+          />
+        </div>
       </Modal.Body>
       <Modal.Footer>
-        <button type="button" className="lg-btn lg-btn-secondary" onClick={onHide}>
+        <Button variant="primary" onClick={onHide}>
           {t("Close")}
-        </button>
+        </Button>
       </Modal.Footer>
     </Modal>
   );

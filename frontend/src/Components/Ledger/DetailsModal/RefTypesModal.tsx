@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 // Third Party
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Modal } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { CategorySchema, RefTypeAmountSchema } from "@/Api/schema";
@@ -100,30 +100,32 @@ function RefTypesModal({
         <Modal.Title>{category?.name}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <input
-          type="search"
-          className="lg-select lg-input mb-3 w-100"
-          placeholder={t("Search reference type")}
-          aria-label={t("Search reference type")}
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-        <BaseTable
-          variant="vowra-light"
-          columns={columns}
-          data={rows}
-          emptyText={t("No matching reference types")}
-          initialState={{ sorting: [{ id: "amount", desc: true }] }}
-        />
-        <div className="d-flex justify-content-end gap-2 fw-bold mt-2">
-          <span>{t("Total")}</span>
-          <span className={amountClass(shown)}>{formatIsk(shown)}</span>
+        <div className="aa-panel">
+          <input
+            type="search"
+            className="lg-select lg-input mb-3 w-100"
+            placeholder={t("Search reference type")}
+            aria-label={t("Search reference type")}
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+          <BaseTable
+            variant="vowra-light"
+            columns={columns}
+            data={rows}
+            emptyText={t("No matching reference types")}
+            initialState={{ sorting: [{ id: "amount", desc: true }] }}
+          />
+          <div className="d-flex justify-content-end gap-2 fw-bold mt-2">
+            <span>{t("Total")}</span>
+            <span className={amountClass(shown)}>{formatIsk(shown)}</span>
+          </div>
         </div>
       </Modal.Body>
       <Modal.Footer>
-        <button type="button" className="lg-btn lg-btn-secondary" onClick={onHide}>
+        <Button variant="primary" onClick={onHide}>
           {t("Close")}
-        </button>
+        </Button>
       </Modal.Footer>
     </Modal>
   );
