@@ -5,11 +5,13 @@ from http import HTTPStatus
 
 # Third Party
 from ninja import NinjaAPI, Query, Schema
+from ninja.decorators import decorate_view
 
 # Django
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import Q
 from django.utils.translation import gettext as _
+from django.views.decorators.cache import cache_page
 
 # Alliance Auth
 from allianceauth.authentication.models import UserProfile
@@ -85,6 +87,7 @@ class CorporationApiEndpoints:
             tags=self.tags,
             summary="Get the ledger of a corporation, optionally for one division",
         )
+        @decorate_view(cache_page(60 * 5))  # Cache for 5 minutes
         def get_corporation_ledger(
             request: WSGIRequest,
             corporation_id: int,
@@ -469,6 +472,7 @@ class CorporationDetailsApiEndpoints:
             tags=self.tags,
             summary="Get the income and cost breakdown of a corporation entity",
         )
+        @decorate_view(cache_page(60 * 5))  # Cache for 5 minutes
         def get_corporation_ledger_details(
             request: WSGIRequest,
             corporation_id: int,
