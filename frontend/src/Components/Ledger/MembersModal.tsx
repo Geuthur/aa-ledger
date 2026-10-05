@@ -4,11 +4,13 @@ import { useMemo } from "react";
 // Third Party
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
+import { CircleHelp } from "lucide-react";
 import { Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { AltLedgerSchema } from "@/Api/schema";
 import { BaseTable } from "@/Components/Tables/BaseTable";
+import { renderTooltip } from "@/Components/Tables/BaseTable/tableHelper";
 import { amountClass, formatIsk } from "@/Utils/ledger";
 import type { LedgerRow } from "@/Utils/ledger";
 
@@ -56,7 +58,22 @@ function MembersModal({ row, onHide }: MembersModalProps) {
       amountColumn("total", t("Total")),
       columnHelper.accessor((member) => (entityTotal ? (member.ledger.total ?? 0) / entityTotal : 0), {
         id: "share",
-        header: t("Share"),
+        header: () => (
+          <span className="d-inline-flex align-items-center gap-1 justify-content-end">
+            {t("Share")}
+            {renderTooltip(
+              t(
+                "Share of the total net amount. When negative amounts (costs) are involved, shares can exceed 100% or be negative, but always total 100%.",
+              ),
+              <span
+                className="d-inline-flex align-items-center text-muted"
+                style={{ cursor: "help" }}
+              >
+                <CircleHelp size={14} />
+              </span>,
+            )}
+          </span>
+        ),
         meta: { align: "right" },
         cell: ({ getValue }) => (
           <span className="text-end d-block">{entityTotal ? `${(getValue() * 100).toFixed(1)}%` : "-"}</span>

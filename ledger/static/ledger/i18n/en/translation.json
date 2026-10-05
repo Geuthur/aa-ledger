@@ -161,6 +161,7 @@
   "Show characters": "Show characters",
   "Show characters of {{name}}": "Show characters of {{name}}",
   "Share": "Share",
+  "Share of the total net amount. When negative amounts (costs) are involved, shares can exceed 100% or be negative, but always total 100%.": "Share of the total net amount. When negative amounts (costs) are involved, shares can exceed 100% or be negative, but always total 100%.",
   "No characters": "No characters",
   "Reference Types": "Reference Types",
   "Search reference type": "Search reference type",

@@ -63,4 +63,43 @@ describe("MembersModal", () => {
     // Expected Result
     expect(onHide).toHaveBeenCalled();
   });
+
+  it("computes net shares correctly when negative amounts are involved", () => {
+    // Test Data
+    const rowWithNegative: LedgerRow = {
+      id: 2,
+      name: "Pilot With Costs",
+      alts: [],
+      bounty: 3000,
+      ess: 0,
+      miscellaneous: 0,
+      costs: -1000,
+      total: 2000,
+      members: [
+        {
+          character_id: 1,
+          character_name: "Earner Pilot",
+          icon: null,
+          is_registered: true,
+          ledger: { bounty: 3000, ess: 0, miscellaneous: 0, costs: 0, total: 3000 },
+        },
+        {
+          character_id: 2,
+          character_name: "Spender Pilot",
+          icon: null,
+          is_registered: false,
+          ledger: { bounty: 0, ess: 0, miscellaneous: 0, costs: -1000, total: -1000 },
+        },
+      ],
+    };
+
+    // Test Action
+    renderModal(rowWithNegative);
+
+    // Expected Result
+    const earner = screen.getByRole("row", { name: /Earner Pilot/ });
+    const spender = screen.getByRole("row", { name: /Spender Pilot/ });
+    expect(within(earner).getByText("150.0%")).toBeInTheDocument();
+    expect(within(spender).getByText("-50.0%")).toBeInTheDocument();
+  });
 });
