@@ -114,7 +114,7 @@ def _extractors(details: CharacterPlanetDetails) -> list[ExtractorSchema]:
     return extractors
 
 
-class PlanetaryApiEndpoints:
+class ApiEndpoints:
     tags = ["CharacterPlanet"]
 
     def __init__(self, api: NinjaAPI):

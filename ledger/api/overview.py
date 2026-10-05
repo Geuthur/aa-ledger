@@ -42,7 +42,7 @@ def _main_character_overview(character_ids) -> list[schema.CharacterOverview]:
     ]
 
 
-class AdminApiEndpoints:
+class ApiEndpoints:
     tags = ["LedgerAdmin"]
 
     def __init__(self, api: NinjaAPI):

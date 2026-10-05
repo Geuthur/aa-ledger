@@ -67,7 +67,7 @@ class CharacterLedgerResponse(LedgerResponse):
     characters: list[LedgerCharacterSchema]
 
 
-class CharacterApiEndpoints:
+class ApiEndpoints:
     tags = ["Character"]
 
     def __init__(self, api: NinjaAPI):
@@ -385,7 +385,7 @@ def create_ledger_details(
     )
 
 
-class CharacterDetailsApiEndpoints:
+class DetailsApiEndpoints:
     tags = ["Character Details"]
 
     def __init__(self, api: NinjaAPI):

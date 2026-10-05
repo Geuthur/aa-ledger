@@ -62,7 +62,7 @@ class AllianceLedgerResponse(LedgerResponse):
     corporations: list[LedgerAllianceSchema]
 
 
-class AllianceApiEndpoints:
+class ApiEndpoints:
     tags = ["Alliance"]
 
     def __init__(self, api: NinjaAPI):
@@ -212,7 +212,7 @@ class AllianceApiEndpoints:
         )
 
 
-class AllianceDetailsApiEndpoints:
+class DetailsApiEndpoints:
     tags = ["Alliance Details"]
 
     def __init__(self, api: NinjaAPI):

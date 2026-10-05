@@ -22,7 +22,7 @@ from ledger.models.general import UserSettings
 ADMIN_TASK_PRIORITY = 7
 
 
-class GeneralApiEndpoints:
+class ApiEndpoints:
     tags = ["General"]
 
     def __init__(self, api: NinjaAPI):

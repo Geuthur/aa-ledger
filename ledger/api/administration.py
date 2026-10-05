@@ -45,7 +45,7 @@ def _character_icon(character_id: int, character_name: str) -> str:
     )
 
 
-class AdministrationApiEndpoints:
+class ApiEndpoints:
     """Registered owners of an account, corporation or alliance and their removal."""
 
     tags = ["Administration"]

@@ -71,7 +71,7 @@ class CorporationLedgerResponse(LedgerResponse):
     divisions: list[DivisionSchema] = []
 
 
-class CorporationApiEndpoints:
+class ApiEndpoints:
     tags = ["Corporation"]
 
     def __init__(self, api: NinjaAPI):
@@ -447,7 +447,7 @@ class CorporationApiEndpoints:
         )
 
 
-class CorporationDetailsApiEndpoints:
+class DetailsApiEndpoints:
     tags = ["Corporation Details"]
 
     def __init__(self, api: NinjaAPI):
