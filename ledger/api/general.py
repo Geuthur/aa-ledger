@@ -85,7 +85,7 @@ class ApiEndpoints:
             right_links = [*add_links]
             if user.is_superuser:
                 right_links.append(
-                    schema.MenuLink(name=_("Administration"), link="/admin/")
+                    schema.MenuLink(name=_("Superadmin"), link="/admin/")
                 )
 
             return schema.MenuSchema(left_links=left_links, right_links=right_links)
