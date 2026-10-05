@@ -218,6 +218,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                             </div>
                         )}
                         <BaseTable
+                            variant="vowra-light"
                             columns={columns}
                             data={rows}
                             emptyText={t("No data for the selected period")}

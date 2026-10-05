@@ -49,7 +49,7 @@ export interface BaseTableProps<TData, TValue = unknown> {
   columns: ColumnDef<TData, TValue>[];
   initialState?: InitialTableState;
   exportFileName?: string;
-  variant?: "bootstrap" | "vowra";
+  variant?: "bootstrap" | "vowra" | "vowra-light";
   emptyText?: string;
   className?: string;
   tableClassName?: string;
@@ -103,7 +103,8 @@ const BaseTable = <TData, TValue = unknown>({
   const fileName =
     exportFileName !== undefined ? exportFileName : `ExportedData_${location.pathname}`;
 
-  if (variant === "vowra") {
+  if (variant === "vowra" || variant === "vowra-light") {
+    const isLight = variant === "vowra-light";
     const totalCount = table.getPrePaginationRowModel().rows.length;
     const pageIndex = table.getState().pagination.pageIndex;
     const pageSize = table.getState().pagination.pageSize;
@@ -111,11 +112,11 @@ const BaseTable = <TData, TValue = unknown>({
 
     return (
       <div
-        className={`aa-table-shell ${className ?? ""}`}
+        className={`aa-table-shell ${isLight ? "aa-table-shell-light aa-table-light" : ""} ${className ?? ""}`}
       >
         <div className="aa-table-scroll">
           <table
-            className={`aa-table ${tableClassName ?? ""}`}
+            className={`aa-table ${isLight ? "aa-table-light" : ""} ${tableClassName ?? ""}`}
           >
             <thead className="aa-table-head">
               {table.getHeaderGroups().map((headerGroup) => (

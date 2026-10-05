@@ -151,6 +151,7 @@ function PlanetModal({ ownerId, planetId, onHide }: PlanetModalProps) {
           <div className="d-flex flex-column gap-3">
             <Section title={t("Extractors")}>
               <BaseTable
+                variant="vowra-light"
                 columns={extractorColumns}
                 data={data.extractors}
                 emptyText={t("No active extractors")}
@@ -159,6 +160,7 @@ function PlanetModal({ ownerId, planetId, onHide }: PlanetModalProps) {
             </Section>
             <Section title={t("Factories")}>
               <BaseTable
+                variant="vowra-light"
                 columns={factoryColumns}
                 data={data.factories}
                 emptyText={t("No factories")}
@@ -167,6 +169,7 @@ function PlanetModal({ ownerId, planetId, onHide }: PlanetModalProps) {
             </Section>
             <Section title={t("Storage")}>
               <BaseTable
+                variant="vowra-light"
                 columns={storageColumns}
                 data={data.storage}
                 emptyText={t("Nothing stored")}

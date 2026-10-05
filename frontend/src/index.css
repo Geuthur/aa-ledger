@@ -499,6 +499,93 @@
     font-weight: var(--aa-font-weight-bold);
 }
 
+/* ═══ TABLE (LIGHT / MODAL VARIANT) ═════════════════════════════════════════ */
+
+.aa-table-shell-light,
+.aa-table-shell.aa-table-light {
+    margin-top: 8px;
+    overflow: hidden;
+    border: 1px solid var(--aa-border-light);
+    border-radius: var(--aa-border-radius);
+    background-color: var(--aa-color-light);
+    box-shadow: var(--aa-shadow);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Seamless fit inside aa-panel (e.g. nested in modals) */
+.aa-panel > .aa-table-shell-light,
+.aa-panel > .aa-table-shell.aa-table-light,
+.aa-panel .aa-table-shell-light,
+.aa-panel .aa-table-shell.aa-table-light,
+.modal-body .aa-table-shell-light,
+.modal-body .aa-table-shell.aa-table-light {
+    margin-top: 0;
+    box-shadow: none;
+}
+
+.aa-table-shell-light .aa-table,
+.aa-table.aa-table-light {
+    color: var(--aa-text-primary);
+}
+
+.aa-table-shell-light .aa-table-head,
+.aa-table-shell.aa-table-light .aa-table-head,
+.aa-table-light .aa-table-head {
+    border-bottom: 1px solid var(--aa-border-light);
+    background-color: var(--aa-color-body-dark);
+    color: var(--aa-text-secondary);
+}
+
+.aa-table-shell-light .aa-table-body tr,
+.aa-table-shell.aa-table-light .aa-table-body tr,
+.aa-table-light .aa-table-body tr {
+    border-bottom: 1px solid color-mix(in srgb, var(--aa-color-body) 70%, transparent);
+}
+
+.aa-table-shell-light .aa-table-row-hover:hover,
+.aa-table-shell.aa-table-light .aa-table-row-hover:hover,
+.aa-table-light .aa-table-row-hover:hover {
+    background-color: color-mix(in srgb, var(--aa-color-white) 5%, var(--aa-color-light));
+}
+
+.aa-table-shell-light .aa-table-footer,
+.aa-table-shell.aa-table-light .aa-table-footer,
+.aa-table-light .aa-table-footer {
+    border-top: 1px solid var(--aa-border-light);
+    background-color: var(--aa-color-body-dark);
+    color: var(--aa-text-secondary);
+}
+
+.aa-table-shell-light .aa-table-select.form-select,
+.aa-table-shell.aa-table-light .aa-table-select.form-select,
+.aa-table-light .aa-table-select.form-select {
+    border-color: var(--aa-border-light);
+    background-color: var(--aa-color-body);
+    color: var(--aa-text-primary);
+}
+
+.aa-table-shell-light .aa-table-select.form-select:focus,
+.aa-table-shell.aa-table-light .aa-table-select.form-select:focus,
+.aa-table-light .aa-table-select.form-select:focus {
+    border-color: var(--aa-color-emerald);
+}
+
+.aa-table-shell-light .aa-table-page-button.btn,
+.aa-table-shell.aa-table-light .aa-table-page-button.btn,
+.aa-table-light .aa-table-page-button.btn {
+    border: 1px solid var(--aa-border-light);
+    background-color: var(--aa-color-body);
+    color: var(--aa-text-tertiary);
+}
+
+.aa-table-shell-light .aa-table-page-button.btn:hover:not(:disabled),
+.aa-table-shell.aa-table-light .aa-table-page-button.btn:hover:not(:disabled),
+.aa-table-light .aa-table-page-button.btn:hover:not(:disabled) {
+    background-color: var(--aa-color-light);
+    color: var(--aa-text-primary);
+}
+
 .aa-status-indicator {
     display: inline-flex;
     align-items: center;

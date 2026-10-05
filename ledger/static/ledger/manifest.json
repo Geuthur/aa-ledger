@@ -44,7 +44,7 @@
     "name": "rolldown-runtime"
   },
   "index.html": {
-    "file": "react/js/index-Ci6fGYlt.js",
+    "file": "react/js/index-DsrLFQ0t.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
@@ -57,7 +57,7 @@
       "_@chart-libs-Cp_PpU-F.js"
     ],
     "css": [
-      "react/css/index-BKmvNLpw.css"
+      "react/css/index-CS5L4Cd3.css"
     ]
   }
 }

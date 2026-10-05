@@ -100,6 +100,7 @@ function RefTypeCharactersModal({ refType, onHide }: RefTypeCharactersModalProps
           />
         )}
         <BaseTable
+          variant="vowra-light"
           columns={columns}
           data={rows}
           emptyText={t("No characters")}

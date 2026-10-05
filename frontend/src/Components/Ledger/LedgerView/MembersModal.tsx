@@ -92,6 +92,7 @@ function MembersModal({ row, onHide }: MembersModalProps) {
       </Modal.Header>
       <Modal.Body>
         <BaseTable
+          variant="vowra-light"
           columns={columns}
           data={members}
           emptyText={t("No characters")}

@@ -109,6 +109,7 @@ function RefTypesModal({
           onChange={(event) => setSearch(event.target.value)}
         />
         <BaseTable
+          variant="vowra-light"
           columns={columns}
           data={rows}
           emptyText={t("No matching reference types")}

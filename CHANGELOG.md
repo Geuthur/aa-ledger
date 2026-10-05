@@ -30,6 +30,7 @@ Section Order:
 
 ### Added
 
+- Light table styling `aa-table-light` and `variant="vowra-light"` for modals (`PlanetModal`, `MembersModal`, `DetailsModal`, `RefTypesModal`, and `RefTypeCharactersModal`) for clean visual contrast inside `aa-panel` containers.
 - Dev Make File
 - Makefile targets `get-compatibility-dates`, `generate-esi-openapi`, and `update-compatibility-date` to fetch, select, download, and update ESI compatibility dates and OpenAPI specifications
 - Chart categories to BillboardSystem and update labels
