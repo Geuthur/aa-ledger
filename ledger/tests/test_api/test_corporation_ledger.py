@@ -12,6 +12,7 @@ from evesde_factory.utils import add_character_to_user
 
 # AA Ledger
 from ledger.helpers.ref_type import RefTypeManager
+from ledger.models import EveEntity
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.factory import (
     CorporationJournalFactory,
@@ -168,9 +169,15 @@ class TestCorporationDetailsRefTypes(LedgerTestCase):
             year=2016, month=10, day=29, hour=0, minute=0, second=0, microsecond=0
         )
         cls.small, cls.large = RefTypeManager.CONTRACT[:2]
+        corp_entity = EveEntityFactory(category=EveEntity.CATEGORY_CORPORATION)
         for ref_type, amount in ((cls.small, 100), (cls.large, 300), (cls.small, -40)):
             CorporationJournalFactory(
-                division=division, amount=amount, date=date, ref_type=ref_type
+                division=division,
+                amount=amount,
+                date=date,
+                ref_type=ref_type,
+                first_party=corp_entity,
+                second_party=corp_entity,
             )
         cls.url = (
             f"{reverse('ledger:index')}api/corporation/"
@@ -235,6 +242,7 @@ class TestCorporationDetailsCharacterBreakdown(LedgerTestCase):
             name=cls.char.character_name,
             category="character",
         )
+        corp_entity = EveEntityFactory(category=EveEntity.CATEGORY_CORPORATION)
         # Income from character (character is first_party)
         CorporationJournalFactory(
             division=cls.division,
@@ -242,6 +250,7 @@ class TestCorporationDetailsCharacterBreakdown(LedgerTestCase):
             date=cls.date,
             ref_type=cls.ref_type,
             first_party=cls.char_entity,
+            second_party=corp_entity,
         )
         cls.url = (
             f"{reverse('ledger:index')}api/corporation/"
