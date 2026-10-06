@@ -5,10 +5,10 @@ import { useMemo } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CircleHelp } from "lucide-react";
-import { Button, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { AltLedgerSchema } from "@/Api/schema";
+import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import { amountClass, formatIsk } from "@/Utils/ledger";
@@ -83,30 +83,28 @@ function MembersModal({ row, onHide }: MembersModalProps) {
   }, [t, entityTotal]);
 
   return (
-    <Modal show={row !== null} onHide={onHide} size="xl" centered restoreFocus={false}>
-      <Modal.Header closeButton>
-        <Modal.Title className="d-flex align-items-center gap-2">
+    <BaseModal
+      show={row !== null}
+      onHide={onHide}
+      size={ModalSize.extraLarge}
+      titleClassName="d-flex align-items-center gap-2"
+      title={
+        <>
           {row?.icon && <img src={row.icon} alt="" width={32} height={32} className="rounded-circle" />}
           {row?.name}
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <div className="aa-panel">
-          <BaseTable
-            variant="vowra-light"
-            columns={columns}
-            data={members}
-            emptyText={t("No characters")}
-            initialState={{ sorting: [{ id: "total", desc: true }] }}
-          />
-        </div>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="primary" onClick={onHide}>
-          {t("Close")}
-        </Button>
-      </Modal.Footer>
-    </Modal>
+        </>
+      }
+    >
+      <div className="aa-panel">
+        <BaseTable
+          variant="vowra-light"
+          columns={columns}
+          data={members}
+          emptyText={t("No characters")}
+          initialState={{ sorting: [{ id: "total", desc: true }] }}
+        />
+      </div>
+    </BaseModal>
   );
 }
 

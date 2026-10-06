@@ -7,10 +7,10 @@ import type { QueryKey } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CircleHelp } from "lucide-react";
-import { Button, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { CategorySchema, LedgerDetailsResponse, RefTypeAmountSchema } from "@/Api/schema";
+import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
@@ -51,6 +51,12 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
         queryFn,
         enabled: entityId !== null,
     });
+
+    const [cachedData, setCachedData] = useState(data);
+    if (data && data !== cachedData) {
+        setCachedData(data);
+    }
+    const effectiveData = data ?? cachedData;
 
     const columns = useMemo(
         () =>
@@ -122,7 +128,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
         [t, search],
     );
 
-    const rows = useMemo(() => filterCategories(data?.[period] ?? [], search), [data, period, search]);
+    const rows = useMemo(() => filterCategories(effectiveData?.[period] ?? [], search), [effectiveData, period, search]);
     const matches = useMemo(() => sumRefTypes(rows, search), [rows, search]);
     const matchTotal = matches.reduce((sum, item) => sum + item.amount, 0);
 
@@ -133,18 +139,16 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
     ];
 
     return (
-        <Modal
+        <BaseModal
+            title={title}
             show={entityId !== null}
             onHide={onHide}
-            onExited={() => setSearch("")}
-            size="xl"
-            centered
-            restoreFocus={false}
+            onExited={() => {
+                setSearch("");
+                setCachedData(undefined);
+            }}
+            size={ModalSize.extraLarge}
         >
-            <Modal.Header closeButton>
-                <Modal.Title>{title}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
                 {isFetching && <FetchingLoader message={t("Loading...")} />}
                 {isError && (
                     <ErrorLoader
@@ -152,7 +156,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                         message={error instanceof Error ? error.message : t("Failed to load the details")}
                     />
                 )}
-                {!isFetching && !isError && data && (
+                {!isFetching && !isError && effectiveData && (
                     <div className="aa-panel">
                         <div className="d-flex gap-2" role="group">
                             {periods.map(({ key, label }) => (
@@ -227,29 +231,23 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                         />
                         <div className="d-flex justify-content-end gap-2 fw-bold mt-2">
                             <span>{t("Total")}</span>
-                            <span className={amountClass(data.total[period])}>
-                                {formatIsk(data.total[period])}
+                            <span className={amountClass(effectiveData.total[period])}>
+                                {formatIsk(effectiveData.total[period])}
                             </span>
                         </div>
                     </div>
                 )}
-            </Modal.Body>
-            <RefTypesModal
-                category={refTypesOf}
-                initialSearch={search}
-                onHide={() => setRefTypesOf(null)}
-                onSelectRefType={(refType) => setCharactersOf(refType)}
-            />
-            <RefTypeCharactersModal
-                refType={charactersOf}
-                onHide={() => setCharactersOf(null)}
-            />
-            <Modal.Footer>
-                <Button variant="primary" onClick={onHide}>
-                    {t("Close")}
-                </Button>
-            </Modal.Footer>
-        </Modal>
+                <RefTypesModal
+                    category={refTypesOf}
+                    initialSearch={search}
+                    onHide={() => setRefTypesOf(null)}
+                    onSelectRefType={(refType) => setCharactersOf(refType)}
+                />
+                <RefTypeCharactersModal
+                    refType={charactersOf}
+                    onHide={() => setCharactersOf(null)}
+                />
+        </BaseModal>
     );
 }
 

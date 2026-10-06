@@ -9,11 +9,12 @@ import type { QueryKey } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CheckCircle2, LogIn, Trash2, UserCheck, UserMinus, UserX, Users, XCircle } from "lucide-react";
-import { Alert, Badge, Button, Col, Modal, Row } from "react-bootstrap";
+import { Alert, Badge, Button, Col, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { AdminOwnerSchema, AdministrationResponse, AltSchema, MessageSchema } from "@/Api/schema";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
+import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
@@ -215,24 +216,28 @@ function AdministrationView({
         )}
       </section>
 
-      <Modal show={pending !== null} onHide={() => setPending(null)} centered restoreFocus={false}>
-        <Modal.Header closeButton>
-          <Modal.Title>{t("Delete {{entry}}", { entry: pending?.name ?? entryLabel })}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{t("Are you sure you want to delete this entry?")}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setPending(null)}>
-            {t("Cancel")}
-          </Button>
-          <Button
-            variant="danger"
-            disabled={remove.isPending}
-            onClick={() => pending && remove.mutate(pending.owner_id)}
-          >
-            {t("Delete")}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <BaseModal
+        title={t("Delete {{entry}}", { entry: pending?.name ?? entryLabel })}
+        show={pending !== null}
+        onHide={() => setPending(null)}
+        size={ModalSize.medium}
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setPending(null)}>
+              {t("Cancel")}
+            </Button>
+            <Button
+              variant="danger"
+              disabled={remove.isPending}
+              onClick={() => pending && remove.mutate(pending.owner_id)}
+            >
+              {t("Delete")}
+            </Button>
+          </>
+        }
+      >
+        {t("Are you sure you want to delete this entry?")}
+      </BaseModal>
     </main>
   );
 }

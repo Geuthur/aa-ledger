@@ -4,10 +4,10 @@ import { useMemo, useState } from "react";
 // Third Party
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Button, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { CategorySchema, RefTypeAmountSchema } from "@/Api/schema";
+import BaseModal from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import { amountClass, formatIsk } from "@/Utils/ledger";
 import { filterRefTypes, formatRefType } from "@/Utils/refTypes";
@@ -88,18 +88,12 @@ function RefTypesModal({
   );
 
   return (
-    <Modal
+    <BaseModal
+      title={category?.name}
       show={category !== null}
       onHide={onHide}
       onShow={() => setSearch(initialSearch)}
-      size="lg"
-      centered
-      restoreFocus={false}
     >
-      <Modal.Header closeButton>
-        <Modal.Title>{category?.name}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
         <div className="aa-panel">
           <input
             type="search"
@@ -121,13 +115,7 @@ function RefTypesModal({
             <span className={amountClass(shown)}>{formatIsk(shown)}</span>
           </div>
         </div>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="primary" onClick={onHide}>
-          {t("Close")}
-        </Button>
-      </Modal.Footer>
-    </Modal>
+    </BaseModal>
   );
 }
 
