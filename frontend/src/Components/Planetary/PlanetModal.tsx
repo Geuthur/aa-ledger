@@ -5,12 +5,12 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import { fetchPlanetDetails } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
+import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import { formatDate, formatNumber } from "@/Components/Base/BaseTable/tableHelper";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
@@ -134,17 +134,21 @@ function PlanetModal({ ownerId, planetId, onHide }: PlanetModalProps) {
   );
 
   return (
-    <Modal show={open} onHide={onHide} size="xl" centered restoreFocus={false}>
-      <Modal.Header closeButton>
-        <Modal.Title className="d-flex align-items-center gap-2">
+    <BaseModal
+      show={open}
+      onHide={onHide}
+      size={ModalSize.extraLarge}
+      titleClassName="d-flex align-items-center gap-2"
+      title={
+        <>
           {data?.planet.type.icon && (
             <img src={data.planet.type.icon} alt="" width={32} height={32} />
           )}
           {data ? data.planet.name : t("Planet")}
           {data && <small className="text-muted">{data.owner.character_name}</small>}
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
+        </>
+      }
+    >
         {isFetching && <FetchingLoader message={t("Loading...")} />}
         {error && <ErrorLoader title={t("Error")} message={error.message} />}
         {!isFetching && !error && data && (
@@ -183,13 +187,7 @@ function PlanetModal({ ownerId, planetId, onHide }: PlanetModalProps) {
             </span>
           </div>
         )}
-      </Modal.Body>
-      <Modal.Footer>
-        <button type="button" className="aa-btn aa-btn-secondary" onClick={onHide}>
-          {t("Close")}
-        </button>
-      </Modal.Footer>
-    </Modal>
+    </BaseModal>
   );
 }
 
