@@ -1,0 +1,135 @@
+.box {
+  background-color: var(--bs-body-bg);
+  width: 100%;
+}
+
+/* Deliberately no background/color/border/radius/font-size here - the
+   trigger is a real Bootstrap .form-control (via react-bootstrap's
+   Form.Control), so it inherits those from Bootstrap's own theming instead
+   of a hand-maintained copy that can drift out of sync. This only adds the
+   layout tweaks .form-control doesn't provide on its own: room for the
+   search/clear icon overlay, and the width-grow transition. */
+.searchinput {
+  width: 100%;
+  padding-right: 1.75rem;
+  transition: width 1s;
+  outline: none;
+}
+
+.radiowrapper {
+  width: 100px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input {
+    transition: none;
+  }
+}
+
+.searchinput::placeholder {
+  color: var(--bs-secondary-text-emphasis);
+}
+
+.searchinput:focus-visible,
+.searchbutton:focus-visible {
+  box-shadow: 0 0 0 0.25rem var(--bs-primary-border-subtle);
+}
+
+.searchwrapper {
+  position: relative;
+}
+
+.searchwrapperfrom {
+  position: relative;
+}
+
+.searchicon,
+.xicon {
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  right: 0.25rem;
+  top: 50%;
+  translate: 0 -50%;
+  color: var(--bs-secondary-text-emphasis);
+  opacity: 0;
+  rotate: 90deg;
+  pointer-events: none;
+  visibility: hidden;
+  border-radius: 0.25rem;
+  transition-behavior: allow-discrete;
+  transition-property: opacity, rotate, visibility;
+  transition-duration: 0.5s;
+}
+
+.searchwrapper:has(.searchinput:placeholder-shown) .searchicon,
+.searchwrapper:has(.searchinput:not(:placeholder-shown)) .xicon {
+  opacity: 1;
+  pointer-events: all;
+  rotate: 0deg;
+  visibility: visible;
+}
+
+.searchwrapperfrom[aria-describedby="popover-positioned-top"] > div > .dropdownicon {
+  rotate: 180deg !important;
+}
+
+.searchwrapper:has(button) button {
+  all: unset;
+  cursor: pointer;
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  right: 0.25rem;
+  top: 50%;
+  translate: 0 -50%;
+}
+
+/* clears the ‘X’ from Internet Explorer */
+.searchinput[type="search"]::-ms-clear,
+.searchinput[type="search"]::-ms-reveal {
+  appearance: none;
+  width: 0;
+  height: 0;
+}
+
+/* clears the ‘X’ from Chrome */
+.searchinput[type="search"]::-webkit-search-decoration,
+.searchinput[type="search"]::-webkit-search-cancel-button,
+.searchinput[type="search"]::-webkit-search-results-button,
+.searchinput[type="search"]::-webkit-search-results-decoration {
+  appearance: none;
+}
+
+.capitalisewords {
+  text-transform: capitalize;
+}
+
+.dropdown {
+  max-height: 250px !important;
+  overflow-y: auto;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  border: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+.dropdown :global(.dropdown-item) {
+  color: var(--bs-body-color);
+}
+
+.dropdown :global(.dropdown-item:hover),
+.dropdown :global(.dropdown-item:focus) {
+  background-color: var(--bs-dropdown-link-hover-bg, var(--bs-secondary-bg));
+  color: var(--bs-body-color);
+}
+
+/* Points Bootstrap's own popover variables at the app's body theme instead
+   of redeclaring background/border/arrow colors by hand - Popover's own CSS
+   already reads these tokens, this just repoints them. */
+.popover {
+  --bs-popover-bg: var(--bs-body-bg);
+  --bs-popover-border-color: var(--bs-border-color);
+  --bs-popover-header-bg: var(--bs-body-bg);
+  --bs-popover-header-color: var(--bs-body-color);
+  --bs-popover-body-color: var(--bs-body-color);
+}

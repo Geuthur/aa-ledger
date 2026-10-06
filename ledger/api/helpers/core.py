@@ -1,6 +1,7 @@
 # Django
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet
+from django.utils import timezone
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo
@@ -11,6 +12,14 @@ from ledger import __title__, models
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
+
+
+def get_available_years(journal: QuerySet) -> list[int]:
+    """Return the years with journal entries, newest first (current year if none)."""
+    years = list(
+        journal.values_list("date__year", flat=True).order_by("-date__year").distinct()
+    )
+    return years or [timezone.now().year]
 
 
 def get_characterowner_or_none(

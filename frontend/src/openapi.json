@@ -1,0 +1,3193 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Geuthur API",
+    "version": "0.5.0",
+    "description": ""
+  },
+  "paths": {
+    "/ledger/api/menu/": {
+      "get": {
+        "operationId": "ledger_api_general_get_menu",
+        "summary": "Get the navigation menu of the current user",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/user/": {
+      "get": {
+        "operationId": "ledger_api_general_get_user",
+        "summary": "Get the current user and permissions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserData"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/settings/": {
+      "get": {
+        "operationId": "ledger_api_general_get_user_settings",
+        "summary": "Get the settings of the current user",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSettingsSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "ledger_api_general_update_user_settings",
+        "summary": "Update the settings of the current user",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSettingsSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserSettingsUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/admin/update/": {
+      "post": {
+        "operationId": "ledger_api_general_queue_update",
+        "summary": "Queue an update for one or all characters/corporations",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/character/overview/": {
+      "get": {
+        "operationId": "ledger_api_admin_get_character_overview",
+        "summary": "Get all main characters visible to the user",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CharacterOverview"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "LedgerAdmin"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/planetary/overview/": {
+      "get": {
+        "operationId": "ledger_api_admin_get_planetary_overview",
+        "summary": "Get all main characters with planetary access",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CharacterOverview"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "LedgerAdmin"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/corporation/overview/": {
+      "get": {
+        "operationId": "ledger_api_admin_get_corporation_overview",
+        "summary": "Get all corporations visible to the user",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CorporationOverview"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "LedgerAdmin"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/alliance/overview/": {
+      "get": {
+        "operationId": "ledger_api_admin_get_alliance_overview",
+        "summary": "Get all alliances visible to the user",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AllianceOverview"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "LedgerAdmin"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/character/{character_id}/administration/": {
+      "get": {
+        "operationId": "ledger_api_administration_get_character_administration",
+        "summary": "Get the registered and missing characters of an account",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "character_id",
+            "schema": {
+              "title": "Character Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdministrationResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Administration"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/character/{character_id}/": {
+      "delete": {
+        "operationId": "ledger_api_administration_delete_character",
+        "summary": "Remove a character from the ledger",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "character_id",
+            "schema": {
+              "title": "Character Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Administration"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/corporation/{corporation_id}/administration/": {
+      "get": {
+        "operationId": "ledger_api_administration_get_corporation_administration",
+        "summary": "Get the registration and members of a corporation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "corporation_id",
+            "schema": {
+              "title": "Corporation Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdministrationResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Administration"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/corporation/{corporation_id}/": {
+      "delete": {
+        "operationId": "ledger_api_administration_delete_corporation",
+        "summary": "Remove a corporation from the ledger",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "corporation_id",
+            "schema": {
+              "title": "Corporation Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Administration"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/alliance/{alliance_id}/administration/": {
+      "get": {
+        "operationId": "ledger_api_administration_get_alliance_administration",
+        "summary": "Get the registered and missing corporations of an alliance",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "alliance_id",
+            "schema": {
+              "title": "Alliance Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdministrationResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Administration"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/character/{character_id}/ledger/": {
+      "get": {
+        "operationId": "ledger_api_character_get_character_ledger",
+        "summary": "Get the ledger of a character and its alts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "character_id",
+            "schema": {
+              "title": "Character Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "year",
+            "schema": {
+              "maximum": 2100,
+              "minimum": 2003,
+              "q": "date__year",
+              "title": "Year",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 12,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "date__month",
+              "title": "Month"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "day",
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 31,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "date__day",
+              "title": "Day"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterLedgerResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Character"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/character/{character_id}/details/": {
+      "get": {
+        "operationId": "ledger_api_character_get_character_ledger_details",
+        "summary": "Get the income and cost breakdown of a character",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "character_id",
+            "schema": {
+              "title": "Character Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "year",
+            "schema": {
+              "maximum": 2100,
+              "minimum": 2003,
+              "q": "date__year",
+              "title": "Year",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 12,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "date__month",
+              "title": "Month"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "day",
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 31,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "date__day",
+              "title": "Day"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "section",
+            "schema": {
+              "default": "summary",
+              "enum": [
+                "single",
+                "summary"
+              ],
+              "title": "Section",
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LedgerDetailsResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Character Details"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/character/{character_id}/planets/": {
+      "get": {
+        "operationId": "ledger_api_planetary_get_planetarydetails",
+        "summary": "Get the planets of a character, optionally including its alts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "character_id",
+            "schema": {
+              "title": "Character Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "planet_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "planet__id",
+              "title": "Planet Id"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PlanetaryDetails"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "CharacterPlanet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/character/{character_id}/planets/{planet_id}/": {
+      "get": {
+        "operationId": "ledger_api_planetary_get_planet_details",
+        "summary": "Get factories, storage and extractors of a planet",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "character_id",
+            "schema": {
+              "title": "Character Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "planet_id",
+            "schema": {
+              "title": "Planet Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanetDetailResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "CharacterPlanet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/character/{character_id}/planets/notification/": {
+      "post": {
+        "operationId": "ledger_api_planetary_toggle_planet_notification",
+        "summary": "Toggle the expiry notification of one or all planets",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "character_id",
+            "schema": {
+              "title": "Character Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "planet_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "planet__id",
+              "title": "Planet Id"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "CharacterPlanet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/corporation/{corporation_id}/ledger/": {
+      "get": {
+        "operationId": "ledger_api_corporation_get_corporation_ledger",
+        "summary": "Get the ledger of a corporation, optionally for one division",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "corporation_id",
+            "schema": {
+              "title": "Corporation Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "year",
+            "schema": {
+              "maximum": 2100,
+              "minimum": 2003,
+              "q": "date__year",
+              "title": "Year",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 12,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "date__month",
+              "title": "Month"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "day",
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 31,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "date__day",
+              "title": "Day"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "division_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "division__division_id",
+              "title": "Division Id"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorporationLedgerResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Corporation"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/corporation/{corporation_id}/details/": {
+      "get": {
+        "operationId": "ledger_api_corporation_get_corporation_ledger_details",
+        "summary": "Get the income and cost breakdown of a corporation entity",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "corporation_id",
+            "schema": {
+              "title": "Corporation Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "entity_id",
+            "schema": {
+              "title": "Entity Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "year",
+            "schema": {
+              "maximum": 2100,
+              "minimum": 2003,
+              "q": "date__year",
+              "title": "Year",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 12,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "date__month",
+              "title": "Month"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "day",
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 31,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "date__day",
+              "title": "Day"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "division_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "division__division_id",
+              "title": "Division Id"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "section",
+            "schema": {
+              "default": "summary",
+              "enum": [
+                "single",
+                "summary"
+              ],
+              "title": "Section",
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LedgerDetailsResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Corporation Details"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/alliance/{alliance_id}/ledger/": {
+      "get": {
+        "operationId": "ledger_api_alliance_get_alliance_ledger",
+        "summary": "Get the ledger of an alliance and its corporations",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "alliance_id",
+            "schema": {
+              "title": "Alliance Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "year",
+            "schema": {
+              "maximum": 2100,
+              "minimum": 2003,
+              "q": "date__year",
+              "title": "Year",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 12,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "date__month",
+              "title": "Month"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "day",
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 31,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "date__day",
+              "title": "Day"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllianceLedgerResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Alliance"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/alliance/{alliance_id}/details/": {
+      "get": {
+        "operationId": "ledger_api_alliance_get_alliance_ledger_details",
+        "summary": "Get the income and cost breakdown of an alliance entity",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "alliance_id",
+            "schema": {
+              "title": "Alliance Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "entity_id",
+            "schema": {
+              "title": "Entity Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "year",
+            "schema": {
+              "maximum": 2100,
+              "minimum": 2003,
+              "q": "date__year",
+              "title": "Year",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 12,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "date__month",
+              "title": "Month"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "day",
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 31,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "q": "date__day",
+              "title": "Day"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "section",
+            "schema": {
+              "default": "summary",
+              "enum": [
+                "single",
+                "summary"
+              ],
+              "title": "Section",
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LedgerDetailsResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Alliance Details"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MenuLink": {
+        "description": "A navigation link. `link` is relative to the app root unless `is_external` is set.",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "link": {
+            "title": "Link",
+            "type": "string"
+          },
+          "badge": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Badge"
+          },
+          "is_external": {
+            "default": false,
+            "title": "Is External",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "link"
+        ],
+        "title": "MenuLink",
+        "type": "object"
+      },
+      "MenuSchema": {
+        "properties": {
+          "left_links": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/MenuLink"
+            },
+            "title": "Left Links",
+            "type": "array"
+          },
+          "right_links": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/MenuLink"
+            },
+            "title": "Right Links",
+            "type": "array"
+          }
+        },
+        "title": "MenuSchema",
+        "type": "object"
+      },
+      "ErrorSchema": {
+        "description": "Schema for error responses.",
+        "properties": {
+          "error": {
+            "title": "Error",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ErrorSchema",
+        "type": "object"
+      },
+      "UserData": {
+        "description": "The current user, its main character and the permissions the UI depends on.",
+        "properties": {
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          },
+          "character_id": {
+            "default": 0,
+            "title": "Character Id",
+            "type": "integer"
+          },
+          "character_name": {
+            "default": "",
+            "title": "Character Name",
+            "type": "string"
+          },
+          "corporation_id": {
+            "default": 0,
+            "title": "Corporation Id",
+            "type": "integer"
+          },
+          "corporation_name": {
+            "default": "",
+            "title": "Corporation Name",
+            "type": "string"
+          },
+          "alliance_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alliance Id"
+          },
+          "alliance_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alliance Name"
+          },
+          "portrait": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Portrait"
+          },
+          "is_admin": {
+            "default": false,
+            "title": "Is Admin",
+            "type": "boolean"
+          },
+          "can_manage": {
+            "default": false,
+            "title": "Can Manage",
+            "type": "boolean"
+          },
+          "has_advanced_access": {
+            "default": false,
+            "title": "Has Advanced Access",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "user_id"
+        ],
+        "title": "UserData",
+        "type": "object"
+      },
+      "UserSettingsSchema": {
+        "description": "Notification settings of the current user.",
+        "properties": {
+          "disable_notifications": {
+            "title": "Disable Notifications",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "disable_notifications"
+        ],
+        "title": "UserSettingsSchema",
+        "type": "object"
+      },
+      "UserSettingsUpdateRequest": {
+        "description": "User-editable notification preferences.",
+        "properties": {
+          "disable_notifications": {
+            "title": "Disable Notifications",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "disable_notifications"
+        ],
+        "title": "UserSettingsUpdateRequest",
+        "type": "object"
+      },
+      "MessageSchema": {
+        "description": "Schema for simple success responses.",
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "MessageSchema",
+        "type": "object"
+      },
+      "AdminUpdateRequest": {
+        "description": "Request to queue an update. Without `eve_id` all owners of the target are updated.",
+        "properties": {
+          "target": {
+            "enum": [
+              "characters",
+              "corporations"
+            ],
+            "title": "Target",
+            "type": "string"
+          },
+          "eve_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eve Id"
+          },
+          "force_refresh": {
+            "default": false,
+            "title": "Force Refresh",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "target"
+        ],
+        "title": "AdminUpdateRequest",
+        "type": "object"
+      },
+      "CharacterOverview": {
+        "properties": {
+          "character_id": {
+            "title": "Character Id",
+            "type": "integer"
+          },
+          "character_name": {
+            "title": "Character Name",
+            "type": "string"
+          },
+          "corporation_id": {
+            "title": "Corporation Id",
+            "type": "integer"
+          },
+          "corporation_name": {
+            "title": "Corporation Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "character_id",
+          "character_name",
+          "corporation_id",
+          "corporation_name"
+        ],
+        "title": "CharacterOverview",
+        "type": "object"
+      },
+      "CorporationOverview": {
+        "properties": {
+          "corporation_id": {
+            "title": "Corporation Id",
+            "type": "integer"
+          },
+          "corporation_name": {
+            "title": "Corporation Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "corporation_id",
+          "corporation_name"
+        ],
+        "title": "CorporationOverview",
+        "type": "object"
+      },
+      "AllianceOverview": {
+        "properties": {
+          "alliance_id": {
+            "title": "Alliance Id",
+            "type": "integer"
+          },
+          "alliance_name": {
+            "title": "Alliance Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "alliance_id",
+          "alliance_name"
+        ],
+        "title": "AllianceOverview",
+        "type": "object"
+      },
+      "AdminOwnerSchema": {
+        "description": "A character, corporation or alliance in the administration lists.",
+        "properties": {
+          "owner_id": {
+            "title": "Owner Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          }
+        },
+        "required": [
+          "owner_id",
+          "name"
+        ],
+        "title": "AdminOwnerSchema",
+        "type": "object"
+      },
+      "AdministrationResponse": {
+        "description": "Everything the administration page of an account, corporation or alliance shows.\n\nAttributes:\n    owner: The account's main character, corporation or alliance.\n    dashboard: Registration statistics.\n    registered: Entries registered in the ledger.\n    missing: Entries that exist but are not registered.\n    members: Characters of a corporation that are known to Auth.",
+        "properties": {
+          "owner": {
+            "$ref": "#/components/schemas/OwnerSchema"
+          },
+          "dashboard": {
+            "$ref": "#/components/schemas/DashboardSchema"
+          },
+          "registered": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AdminOwnerSchema"
+            },
+            "title": "Registered",
+            "type": "array"
+          },
+          "missing": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AdminOwnerSchema"
+            },
+            "title": "Missing",
+            "type": "array"
+          },
+          "members": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AltSchema"
+            },
+            "title": "Members",
+            "type": "array"
+          }
+        },
+        "required": [
+          "owner",
+          "dashboard"
+        ],
+        "title": "AdministrationResponse",
+        "type": "object"
+      },
+      "AltSchema": {
+        "description": "Alt character that is included in an entity's ledger.",
+        "properties": {
+          "character_id": {
+            "title": "Character Id",
+            "type": "integer"
+          },
+          "character_name": {
+            "title": "Character Name",
+            "type": "string"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "is_registered": {
+            "default": false,
+            "title": "Is Registered",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "character_id",
+          "character_name"
+        ],
+        "title": "AltSchema",
+        "type": "object"
+      },
+      "DashboardSchema": {
+        "description": "Statistics shown on the administration dashboards.",
+        "properties": {
+          "auth_count": {
+            "title": "Auth Count",
+            "type": "integer"
+          },
+          "active_count": {
+            "title": "Active Count",
+            "type": "integer"
+          },
+          "inactive_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inactive Count"
+          },
+          "missing_count": {
+            "title": "Missing Count",
+            "type": "integer"
+          },
+          "issues": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Issues",
+            "type": "array"
+          }
+        },
+        "required": [
+          "auth_count",
+          "active_count",
+          "missing_count"
+        ],
+        "title": "DashboardSchema",
+        "type": "object"
+      },
+      "OwnerSchema": {
+        "description": "Schema for Character or Character Owner.\n\nAttributes:\n    character_id (int): The ID of the character.\n    character_name (str): The name of the character.\n    icon (str | None): The URL of the character's icon, if available.",
+        "properties": {
+          "character_id": {
+            "title": "Character Id",
+            "type": "integer"
+          },
+          "character_name": {
+            "title": "Character Name",
+            "type": "string"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          }
+        },
+        "required": [
+          "character_id",
+          "character_name"
+        ],
+        "title": "OwnerSchema",
+        "type": "object"
+      },
+      "DateFilter": {
+        "description": "Date query parameters shared by all ledger endpoints, applied to `date`.",
+        "properties": {
+          "year": {
+            "maximum": 2100,
+            "minimum": 2003,
+            "q": "date__year",
+            "title": "Year",
+            "type": "integer"
+          },
+          "month": {
+            "anyOf": [
+              {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "q": "date__month",
+            "title": "Month"
+          },
+          "day": {
+            "anyOf": [
+              {
+                "maximum": 31,
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "q": "date__day",
+            "title": "Day"
+          }
+        },
+        "required": [
+          "year"
+        ],
+        "title": "DateFilter",
+        "type": "object"
+      },
+      "BillboardData": {
+        "properties": {
+          "categories": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Categories",
+            "type": "array"
+          },
+          "series": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Series",
+            "type": "array"
+          }
+        },
+        "required": [
+          "categories",
+          "series"
+        ],
+        "title": "BillboardData",
+        "type": "object"
+      },
+      "BillboardSchema": {
+        "properties": {
+          "xy_chart": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BillboardData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "chord_chart": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BillboardData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "BillboardSchema",
+        "type": "object"
+      },
+      "CharacterLedgerResponse": {
+        "description": "Schema for Character Ledger Response.\n\nAttributes:\n    characters (list[LedgerCharacterSchema]): List of character ledger data.",
+        "properties": {
+          "owner": {
+            "$ref": "#/components/schemas/OwnerSchema"
+          },
+          "billboard": {
+            "$ref": "#/components/schemas/BillboardSchema"
+          },
+          "years": {
+            "default": [],
+            "items": {
+              "type": "integer"
+            },
+            "title": "Years",
+            "type": "array"
+          },
+          "characters": {
+            "items": {
+              "$ref": "#/components/schemas/LedgerCharacterSchema"
+            },
+            "title": "Characters",
+            "type": "array"
+          }
+        },
+        "required": [
+          "owner",
+          "billboard",
+          "characters"
+        ],
+        "title": "CharacterLedgerResponse",
+        "type": "object"
+      },
+      "CharacterLedgerSchema": {
+        "description": "Schema for Character Ledger extending LedgerSchema.\n\nSubclass of :class:`LedgerSchema`.\n\nAttributes:\n    mining (float): Amount related to mining activities.",
+        "properties": {
+          "bounty": {
+            "default": 0.0,
+            "title": "Bounty",
+            "type": "number"
+          },
+          "ess": {
+            "default": 0.0,
+            "title": "Ess",
+            "type": "number"
+          },
+          "costs": {
+            "default": 0.0,
+            "title": "Costs",
+            "type": "number"
+          },
+          "miscellaneous": {
+            "default": 0.0,
+            "title": "Miscellaneous",
+            "type": "number"
+          },
+          "total": {
+            "default": 0.0,
+            "title": "Total",
+            "type": "number"
+          },
+          "mining": {
+            "default": 0.0,
+            "title": "Mining",
+            "type": "number"
+          }
+        },
+        "title": "CharacterLedgerSchema",
+        "type": "object"
+      },
+      "LedgerCharacterSchema": {
+        "properties": {
+          "character": {
+            "$ref": "#/components/schemas/OwnerSchema"
+          },
+          "ledger": {
+            "$ref": "#/components/schemas/CharacterLedgerSchema"
+          },
+          "update_status": {
+            "$ref": "#/components/schemas/UpdateStatusSchema"
+          }
+        },
+        "required": [
+          "character",
+          "ledger",
+          "update_status"
+        ],
+        "title": "LedgerCharacterSchema",
+        "type": "object"
+      },
+      "UpdateStatusSchema": {
+        "properties": {
+          "last_update": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Update"
+          },
+          "last_run": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          }
+        },
+        "title": "UpdateStatusSchema",
+        "type": "object"
+      },
+      "CategorySchema": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "amount": {
+            "default": 0.0,
+            "title": "Amount",
+            "type": "number"
+          },
+          "average": {
+            "default": 0.0,
+            "title": "Average",
+            "type": "number"
+          },
+          "average_tick": {
+            "default": 0.0,
+            "title": "Average Tick",
+            "type": "number"
+          },
+          "ref_types": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RefTypeAmountSchema"
+            },
+            "title": "Ref Types",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "CategorySchema",
+        "type": "object"
+      },
+      "CharacterRefTypeSchema": {
+        "description": "Amount that a character contributed to a reference type.",
+        "properties": {
+          "character_id": {
+            "title": "Character Id",
+            "type": "integer"
+          },
+          "character_name": {
+            "title": "Character Name",
+            "type": "string"
+          },
+          "amount": {
+            "default": 0.0,
+            "title": "Amount",
+            "type": "number"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          }
+        },
+        "required": [
+          "character_id",
+          "character_name"
+        ],
+        "title": "CharacterRefTypeSchema",
+        "type": "object"
+      },
+      "LedgerDetailsResponse": {
+        "description": "Flexible schema for detailed ledger categories.\n\nAttributes:\n    summary (CategorySchema): Summary of all categories.\n    daily (CategorySchema): Daily breakdown of categories.\n    hourly (CategorySchema): Hourly breakdown of categories.",
+        "properties": {
+          "summary": {
+            "items": {
+              "$ref": "#/components/schemas/CategorySchema"
+            },
+            "title": "Summary",
+            "type": "array"
+          },
+          "daily": {
+            "items": {
+              "$ref": "#/components/schemas/CategorySchema"
+            },
+            "title": "Daily",
+            "type": "array"
+          },
+          "hourly": {
+            "items": {
+              "$ref": "#/components/schemas/CategorySchema"
+            },
+            "title": "Hourly",
+            "type": "array"
+          },
+          "total": {
+            "$ref": "#/components/schemas/LedgerDetailsSummary"
+          }
+        },
+        "required": [
+          "summary",
+          "daily",
+          "hourly",
+          "total"
+        ],
+        "title": "LedgerDetailsResponse",
+        "type": "object"
+      },
+      "LedgerDetailsSummary": {
+        "description": "Schema for the totals of ledger details.\n\nAttributes:\n    summary (float): Total of all categories.\n    daily (float): Daily average of all categories.\n    hourly (float): Hourly average of all categories.",
+        "properties": {
+          "summary": {
+            "default": 0.0,
+            "title": "Summary",
+            "type": "number"
+          },
+          "daily": {
+            "default": 0.0,
+            "title": "Daily",
+            "type": "number"
+          },
+          "hourly": {
+            "default": 0.0,
+            "title": "Hourly",
+            "type": "number"
+          }
+        },
+        "title": "LedgerDetailsSummary",
+        "type": "object"
+      },
+      "RefTypeAmountSchema": {
+        "description": "Amount that a single reference type contributed to a category.",
+        "properties": {
+          "ref_type": {
+            "title": "Ref Type",
+            "type": "string"
+          },
+          "amount": {
+            "default": 0.0,
+            "title": "Amount",
+            "type": "number"
+          },
+          "characters": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CharacterRefTypeSchema"
+            },
+            "title": "Characters",
+            "type": "array"
+          }
+        },
+        "required": [
+          "ref_type"
+        ],
+        "title": "RefTypeAmountSchema",
+        "type": "object"
+      },
+      "PlanetSelection": {
+        "description": "Selects one planet, or all planets of the character if omitted.",
+        "properties": {
+          "planet_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "q": "planet__id",
+            "title": "Planet Id"
+          }
+        },
+        "title": "PlanetSelection",
+        "type": "object"
+      },
+      "EveTypeSchema": {
+        "description": "Schema for EVE Online item types.\n\nAttributes:\n    id (int): The ID of the item type.\n    name (str): The name of the item type.\n    description (str | None): The description of the item type, if available.\n    group_id (int | None): The group ID of the item type, if available.\n    group_name (str | None): The group name of the item type, if available.\n    market_group_id (int | None): The market group ID of the item type, if available.\n    market_group_name (str | None): The market group name of the item type, if available.\n    icon (str | None): The URL of the item type's icon, if available.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Id"
+          },
+          "group_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Name"
+          },
+          "market_group_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Group Id"
+          },
+          "market_group_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Group Name"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "EveTypeSchema",
+        "type": "object"
+      },
+      "PlanetSchema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/EveTypeSchema"
+          },
+          "upgrade_level": {
+            "title": "Upgrade Level",
+            "type": "integer"
+          },
+          "num_pins": {
+            "title": "Num Pins",
+            "type": "integer"
+          },
+          "last_update": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Update"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "upgrade_level",
+          "num_pins"
+        ],
+        "title": "PlanetSchema",
+        "type": "object"
+      },
+      "PlanetaryDetails": {
+        "description": "A planet of a character. `id` is the identifier for the detail and notification endpoints.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/OwnerSchema"
+          },
+          "planet": {
+            "$ref": "#/components/schemas/PlanetSchema"
+          },
+          "expired": {
+            "title": "Expired",
+            "type": "boolean"
+          },
+          "alarm": {
+            "title": "Alarm",
+            "type": "boolean"
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Progress"
+          },
+          "factories": {
+            "items": {
+              "$ref": "#/components/schemas/ProduceSchema"
+            },
+            "title": "Factories",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "owner",
+          "planet",
+          "expired",
+          "alarm",
+          "factories"
+        ],
+        "title": "PlanetaryDetails",
+        "type": "object"
+      },
+      "ProduceSchema": {
+        "properties": {
+          "factory_name": {
+            "title": "Factory Name",
+            "type": "string"
+          },
+          "input_products": {
+            "items": {
+              "$ref": "#/components/schemas/ProductSchema"
+            },
+            "title": "Input Products",
+            "type": "array"
+          },
+          "output_product": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProductSchema"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "factory_name",
+          "input_products",
+          "is_active"
+        ],
+        "title": "ProduceSchema",
+        "type": "object"
+      },
+      "ProductSchema": {
+        "properties": {
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "item_name": {
+            "title": "Item Name",
+            "type": "string"
+          },
+          "item_quantity": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Quantity"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          }
+        },
+        "required": [
+          "item_id",
+          "item_name"
+        ],
+        "title": "ProductSchema",
+        "type": "object"
+      },
+      "ExtractorSchema": {
+        "properties": {
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "item_name": {
+            "title": "Item Name",
+            "type": "string"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "install_time": {
+            "title": "Install Time",
+            "type": "string"
+          },
+          "expiry_time": {
+            "title": "Expiry Time",
+            "type": "string"
+          },
+          "progress": {
+            "title": "Progress",
+            "type": "number"
+          }
+        },
+        "required": [
+          "item_id",
+          "item_name",
+          "install_time",
+          "expiry_time",
+          "progress"
+        ],
+        "title": "ExtractorSchema",
+        "type": "object"
+      },
+      "PlanetDetailResponse": {
+        "properties": {
+          "owner": {
+            "$ref": "#/components/schemas/OwnerSchema"
+          },
+          "planet": {
+            "$ref": "#/components/schemas/PlanetSchema"
+          },
+          "factories": {
+            "items": {
+              "$ref": "#/components/schemas/ProduceSchema"
+            },
+            "title": "Factories",
+            "type": "array"
+          },
+          "storage": {
+            "items": {
+              "$ref": "#/components/schemas/StorageSchema"
+            },
+            "title": "Storage",
+            "type": "array"
+          },
+          "extractors": {
+            "items": {
+              "$ref": "#/components/schemas/ExtractorSchema"
+            },
+            "title": "Extractors",
+            "type": "array"
+          }
+        },
+        "required": [
+          "owner",
+          "planet",
+          "factories",
+          "storage",
+          "extractors"
+        ],
+        "title": "PlanetDetailResponse",
+        "type": "object"
+      },
+      "StorageSchema": {
+        "properties": {
+          "factory_name": {
+            "title": "Factory Name",
+            "type": "string"
+          },
+          "product": {
+            "$ref": "#/components/schemas/ProductSchema"
+          }
+        },
+        "required": [
+          "factory_name",
+          "product"
+        ],
+        "title": "StorageSchema",
+        "type": "object"
+      },
+      "NotificationResponse": {
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "notification": {
+            "title": "Notification",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "message",
+          "notification"
+        ],
+        "title": "NotificationResponse",
+        "type": "object"
+      },
+      "CorporationLedgerFilter": {
+        "description": "Query parameters for corporation ledgers, optionally limited to one division.",
+        "properties": {
+          "year": {
+            "maximum": 2100,
+            "minimum": 2003,
+            "q": "date__year",
+            "title": "Year",
+            "type": "integer"
+          },
+          "month": {
+            "anyOf": [
+              {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "q": "date__month",
+            "title": "Month"
+          },
+          "day": {
+            "anyOf": [
+              {
+                "maximum": 31,
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "q": "date__day",
+            "title": "Day"
+          },
+          "division_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "q": "division__division_id",
+            "title": "Division Id"
+          }
+        },
+        "required": [
+          "year"
+        ],
+        "title": "CorporationLedgerFilter",
+        "type": "object"
+      },
+      "AltLedgerSchema": {
+        "description": "Contribution of one alt character to the ledger of its entity.",
+        "properties": {
+          "character_id": {
+            "title": "Character Id",
+            "type": "integer"
+          },
+          "character_name": {
+            "title": "Character Name",
+            "type": "string"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "is_registered": {
+            "default": false,
+            "title": "Is Registered",
+            "type": "boolean"
+          },
+          "ledger": {
+            "$ref": "#/components/schemas/LedgerSchema"
+          }
+        },
+        "required": [
+          "character_id",
+          "character_name",
+          "ledger"
+        ],
+        "title": "AltLedgerSchema",
+        "type": "object"
+      },
+      "CorporationLedgerResponse": {
+        "description": "Schema for Corporation Ledger Response.\n\nAttributes:\n    entities (list[LedgerEntitySchema]): The list of ledger entities.\n    divisions (list[DivisionSchema]): The wallet divisions to choose from.",
+        "properties": {
+          "owner": {
+            "$ref": "#/components/schemas/OwnerSchema"
+          },
+          "billboard": {
+            "$ref": "#/components/schemas/BillboardSchema"
+          },
+          "years": {
+            "default": [],
+            "items": {
+              "type": "integer"
+            },
+            "title": "Years",
+            "type": "array"
+          },
+          "entities": {
+            "items": {
+              "$ref": "#/components/schemas/LedgerEntitySchema"
+            },
+            "title": "Entities",
+            "type": "array"
+          },
+          "divisions": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/DivisionSchema"
+            },
+            "title": "Divisions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "owner",
+          "billboard",
+          "entities"
+        ],
+        "title": "CorporationLedgerResponse",
+        "type": "object"
+      },
+      "DivisionSchema": {
+        "description": "A wallet division of a corporation.",
+        "properties": {
+          "division_id": {
+            "title": "Division Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "division_id",
+          "name"
+        ],
+        "title": "DivisionSchema",
+        "type": "object"
+      },
+      "EntitySchema": {
+        "description": "Schema for Entity or Corporation Owner.\n\nAttributes:\n    entity_id (int): The ID of the entity.\n    entity_name (str): The name of the entity.\n    alt_ids (list[int]): The IDs of all characters included in the entity.\n    alts (list[AltSchema]): The alt characters included in the entity.\n    icon (str | None): The URL of the entity's icon, if available.",
+        "properties": {
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "integer"
+          },
+          "entity_name": {
+            "title": "Entity Name",
+            "type": "string"
+          },
+          "alt_ids": {
+            "default": [],
+            "items": {
+              "type": "integer"
+            },
+            "title": "Alt Ids",
+            "type": "array"
+          },
+          "alts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AltSchema"
+            },
+            "title": "Alts",
+            "type": "array"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "is_member": {
+            "default": false,
+            "title": "Is Member",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "entity_id",
+          "entity_name"
+        ],
+        "title": "EntitySchema",
+        "type": "object"
+      },
+      "LedgerEntitySchema": {
+        "properties": {
+          "entity": {
+            "$ref": "#/components/schemas/EntitySchema"
+          },
+          "ledger": {
+            "$ref": "#/components/schemas/LedgerSchema"
+          },
+          "members": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AltLedgerSchema"
+            },
+            "title": "Members",
+            "type": "array"
+          }
+        },
+        "required": [
+          "entity",
+          "ledger"
+        ],
+        "title": "LedgerEntitySchema",
+        "type": "object"
+      },
+      "LedgerSchema": {
+        "description": "Schema for Ledger Summary.\n\nAttributes:\n    bounty (float): Amount related to bounties.\n    ess (float): Amount related to ESS activities.\n    costs (float): Amount related to costs.\n    miscellaneous (float): Miscellaneous amount.\n    total (float): Total amount.",
+        "properties": {
+          "bounty": {
+            "default": 0.0,
+            "title": "Bounty",
+            "type": "number"
+          },
+          "ess": {
+            "default": 0.0,
+            "title": "Ess",
+            "type": "number"
+          },
+          "costs": {
+            "default": 0.0,
+            "title": "Costs",
+            "type": "number"
+          },
+          "miscellaneous": {
+            "default": 0.0,
+            "title": "Miscellaneous",
+            "type": "number"
+          },
+          "total": {
+            "default": 0.0,
+            "title": "Total",
+            "type": "number"
+          }
+        },
+        "title": "LedgerSchema",
+        "type": "object"
+      },
+      "AllianceLedgerResponse": {
+        "description": "Schema for Alliance Ledger API Response\n\nAttributes:\n    corporations (list[LedgerAllianceSchema]): A list of ledger entities associated with the alliance.",
+        "properties": {
+          "owner": {
+            "$ref": "#/components/schemas/OwnerSchema"
+          },
+          "billboard": {
+            "$ref": "#/components/schemas/BillboardSchema"
+          },
+          "years": {
+            "default": [],
+            "items": {
+              "type": "integer"
+            },
+            "title": "Years",
+            "type": "array"
+          },
+          "corporations": {
+            "items": {
+              "$ref": "#/components/schemas/LedgerAllianceSchema"
+            },
+            "title": "Corporations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "owner",
+          "billboard",
+          "corporations"
+        ],
+        "title": "AllianceLedgerResponse",
+        "type": "object"
+      },
+      "LedgerAllianceSchema": {
+        "properties": {
+          "corporation": {
+            "$ref": "#/components/schemas/EntitySchema"
+          },
+          "ledger": {
+            "$ref": "#/components/schemas/LedgerSchema"
+          },
+          "update_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UpdateStatusSchema"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "corporation",
+          "ledger"
+        ],
+        "title": "LedgerAllianceSchema",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "SessionAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "sessionid"
+      }
+    }
+  },
+  "servers": []
+}

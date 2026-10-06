@@ -22,7 +22,7 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 
 if TYPE_CHECKING:
     # AA Ledger
-    from ledger.api.schema import OwnerLedgerRequestInfo
+    from ledger.api.schema import DateFilter
 
 
 @dataclass
@@ -66,24 +66,22 @@ class BillboardSystem:
         MISCELLANEOUS_CHART = "Miscellaneous Chart", f"{_('Miscellaneous')} 🏦"
         COSTS_CHART = "Costs Chart", f"{_('Costs')} 🏦"
 
-    def _get_formatted_date(
-        self, date: datetime, request_info: "OwnerLedgerRequestInfo"
-    ) -> str:
+    def _get_formatted_date(self, date: datetime, filters: "DateFilter") -> str:
         """
         Get formatted date string based on the view type.
 
         Args:
             date (datetime): The date to be formatted.
-            request_info (OwnerLedgerRequestInfo): The request information containing view details.
+            filters (DateFilter): The requested date range.
 
         Returns:
             str: The formatted date string.
         """
-        if request_info.day is not None:
+        if filters.day is not None:
             return date.strftime("%Y-%m-%d %H:%M")
-        if request_info.month is not None:
+        if filters.month is not None:
             return date.strftime("%Y-%m-%d")
-        if request_info.year is not None:
+        if filters.year is not None:
             return date.strftime("%Y-%m")
         raise ValueError("Invalid view type. Use 'day', 'month', or 'year'.")
 
@@ -215,7 +213,7 @@ class BillboardSystem:
         return chord_billboard
 
     def create_timeline(
-        self, journal: QuerySet, request_info: "OwnerLedgerRequestInfo"
+        self, journal: QuerySet, filters: "DateFilter"
     ) -> QuerySet[dict]:
         """
 
@@ -232,11 +230,11 @@ class BillboardSystem:
         """
         qs = journal
 
-        if request_info.day is not None:
+        if filters.day is not None:
             qs = qs.annotate(period=TruncHour("date"))
-        elif request_info.month is not None:
+        elif filters.month is not None:
             qs = qs.annotate(period=TruncDay("date"))
-        elif request_info.year is not None:
+        elif filters.year is not None:
             qs = qs.annotate(period=TruncMonth("date"))
         else:
             raise ValueError("Invalid view type. Use 'day', 'month', or 'year'.")
@@ -294,7 +292,7 @@ class BillboardSystem:
     def create_xy_billboard(
         self,
         results: dict[datetime, dict[str, Decimal]],
-        request_info: "OwnerLedgerRequestInfo",
+        filters: "DateFilter",
     ) -> BillboardData | None:
         """
         Create XY Billboard Data
@@ -303,7 +301,7 @@ class BillboardSystem:
 
         Args:
             results (dict[datetime, dict[str, Decimal]]): The results data to be processed.
-            request_info (OwnerLedgerRequestInfo): The request information containing view details.
+            filters (DateFilter): The requested date range.
 
         Returns:
             BillboardData | None: The generated XY billboard data or None if no data.
@@ -319,7 +317,7 @@ class BillboardSystem:
 
             series.append(
                 {
-                    "date": self._get_formatted_date(date, request_info=request_info),
+                    "date": self._get_formatted_date(date, filters=filters),
                     **{k: int(v) for k, v in filtered_values.items()},
                 }
             )
@@ -344,3 +342,45 @@ class BillboardSystem:
             categories=categories,
             series=series,
         )
+
+    def create_billboards(
+        self,
+        filters: "DateFilter",
+        wallet_journal: QuerySet,
+        ledger_list: list,
+        mining_journal: QuerySet | None = None,
+    ) -> tuple[dict | None, dict | None]:
+        """
+        Build the XY and chord billboards directly from the journals.
+
+        Args:
+            filters (DateFilter): The requested date range.
+            wallet_journal (QuerySet): The wallet journal entries.
+            ledger_list (list): The ledger schemas used for the chord billboard.
+            mining_journal (QuerySet, optional): The mining journal entries.
+
+        Returns:
+            tuple[dict | None, dict | None]: XY and chord billboard, both None if either is empty.
+        """
+        wallet_timeline = (
+            self.create_timeline(journal=wallet_journal, filters=filters)
+            .annotate_bounty_income()
+            .annotate_ess_income()
+            .annotate_miscellaneous()
+        )
+        xy_results = self.create_or_update_results(wallet_timeline)
+
+        if mining_journal is not None and mining_journal.exists():
+            mining_timeline = self.create_timeline(
+                journal=mining_journal, filters=filters
+            ).annotate_mining(with_period=True)
+            xy_results = self.add_category_to_xy_billboard(
+                xy_results, category="mining", queryset=mining_timeline
+            )
+
+        xy_billboard = self.create_xy_billboard(results=xy_results, filters=filters)
+        chord_billboard = self.create_chord_billboard(ledger_list)
+
+        if not xy_billboard or not chord_billboard:
+            return None, None
+        return xy_billboard.asdict(), chord_billboard.asdict()

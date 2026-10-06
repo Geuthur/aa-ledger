@@ -16,7 +16,7 @@ from evesde_factory.utils import add_permission_to_user
 # AA Ledger
 from ledger.tests import LedgerTestCase
 
-MODULE_PATH = "ledger.views.alliance.add_ally"
+MODULE_PATH = "ledger.views"
 
 
 @patch(MODULE_PATH + ".messages")
@@ -48,10 +48,10 @@ class TestAddAllyView(LedgerTestCase):
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertEqual(response.url, reverse("ledger:alliance_overview"))
+        self.assertEqual(response.url, reverse("ledger:index") + "alliance/")
         self.assertEqual(mock_messages.info.call_count, 1)
 
-    @patch(MODULE_PATH + ".provider")
+    @patch(MODULE_PATH + ".open_api_provider")
     @patch(MODULE_PATH + ".EveAllianceInfo.objects.get_or_create")
     @patch(MODULE_PATH + ".EveAllianceInfo.objects.get")
     def test_add_ally_does_not_exist(
@@ -92,13 +92,13 @@ class TestAddAllyView(LedgerTestCase):
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertEqual(response.url, reverse("ledger:alliance_overview"))
+        self.assertEqual(response.url, reverse("ledger:index") + "alliance/")
         self.assertEqual(mock_messages.success.call_count, 1)
         mock_get.assert_called_once_with(alliance_id=alliance.id)
         mock_provider.get_alliance.assert_called_once_with(alliance.id)
         mock_get_or_create.assert_called_once()
 
-    @patch(MODULE_PATH + ".provider")
+    @patch(MODULE_PATH + ".open_api_provider")
     @patch(MODULE_PATH + ".EveAllianceInfo.objects.get_or_create")
     @patch(MODULE_PATH + ".EveAllianceInfo.objects.get")
     def test_add_ally_does_not_exist_object_not_found(
@@ -126,6 +126,6 @@ class TestAddAllyView(LedgerTestCase):
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertEqual(response.url, reverse("ledger:alliance_overview"))
+        self.assertEqual(response.url, reverse("ledger:index") + "alliance/")
         self.assertEqual(mock_messages.warning.call_count, 1)
         mock_get_or_create.assert_not_called()

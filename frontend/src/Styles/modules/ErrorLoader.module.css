@@ -1,0 +1,28 @@
+@keyframes br-shake {
+    0%,
+    100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+}
+
+.br-shake {
+    animation: br-shake 320ms ease-in-out 1;
+}
+
+.shake {
+    animation: br-shake 320ms ease-in-out infinite;
+}
+
+.flex-container-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-96 {
+    font-size: 96px;
+    color: #ff4d4f;
+}

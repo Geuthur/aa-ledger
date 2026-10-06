@@ -14,7 +14,7 @@ from evesde_factory.utils import add_permission_to_user
 from ledger.models.corporationaudit import CorporationOwner
 from ledger.tests import LedgerTestCase
 
-MODULE_PATH = "ledger.views.corporation.add_corp"
+MODULE_PATH = "ledger.views"
 
 
 @patch(MODULE_PATH + ".messages")
@@ -38,7 +38,7 @@ class TestAddCorpView(LedgerTestCase):
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertEqual(response.url, reverse("ledger:corporation_overview"))
+        self.assertEqual(response.url, reverse("ledger:index") + "corporation/")
         self.assertTrue(mock_tasks.update_corporation.apply_async.called)
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(

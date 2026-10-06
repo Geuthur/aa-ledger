@@ -57,16 +57,12 @@ class CharacterOwner(models.Model):
             CharacterPlanetManager,
             PlanetDetailsManager,
         )
-        from ledger.managers.ledger_manager import BillboardEntryManager
-        from ledger.models.ledger import CharacterLedgerEntry
 
-        ledger_character: models.QuerySet["CharacterLedgerEntry"]
         ledger_character_journal: CharacterWalletManager
         ledger_character_mining: CharacterMiningLedgerEntryManager
         ledger_character_planet: CharacterPlanetManager
         ledger_character_planet_details: PlanetDetailsManager
         ledger_update_status: models.QuerySet["CharacterUpdateStatus"]
-        ledger_character_billboard: BillboardEntryManager
 
     objects: CharacterAuditManager = CharacterAuditManager()
 
@@ -239,6 +235,7 @@ class CharacterWalletJournalEntry(WalletJournalEntry):
             models.Index(fields=["ref_type"]),
             models.Index(fields=["first_party"]),
             models.Index(fields=["second_party"]),
+            models.Index(fields=["character", "date"]),
         )
         default_permissions = ()
 
@@ -261,6 +258,7 @@ class CharacterMiningLedger(models.Model):
     objects: CharacterMiningLedgerEntryManager = CharacterMiningLedgerEntryManager()
 
     class Meta:
+        indexes = (models.Index(fields=["character", "date"]),)
         default_permissions = ()
 
     id = models.CharField(max_length=50, primary_key=True)

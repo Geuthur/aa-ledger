@@ -10,10 +10,9 @@ from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 # AA Ledger
+from ledger.tests import pook_httpx2
 from ledger.tests.testdata.factory import UserMainFactory
-from ledger.views.alliance.add_ally import add_ally
-from ledger.views.character.add_char import add_char
-from ledger.views.corporation.add_corp import add_corp
+from ledger.views import add_ally, add_char, add_corp
 
 
 class SocketAccessError(Exception):

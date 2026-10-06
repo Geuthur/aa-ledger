@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Any, NamedTuple
 
 # Django
+from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -52,6 +53,19 @@ class General(models.Model):
             ("advanced_access", "Can access Corporation and Alliance Ledger."),
             ("manage_access", "Can manage Ledger."),
         )
+
+
+class UserSettings(models.Model):
+    """Per-user preferences."""
+
+    class Meta:
+        default_permissions = ()
+
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="ledger_settings"
+    )
+
+    disable_notifications = models.BooleanField(default=False)
 
 
 # EvE Entity Model - Store all Chars, Corps, Allys

@@ -1,14 +1,103 @@
 # Standard Library
 from datetime import datetime
+from typing import Literal
 
 # Third Party
-from ninja import Schema
-
-# Django
-from django.utils import timezone
+from ninja import Field, FilterSchema, Schema
+from pydantic import model_validator
 
 # AA Ledger
 from ledger.helpers.billboard import BillboardData
+
+Section = Literal["single", "summary"]
+
+
+class ErrorSchema(Schema):
+    """Schema for error responses."""
+
+    error: str
+
+
+class MessageSchema(Schema):
+    """Schema for simple success responses."""
+
+    message: str
+
+
+class MenuLink(Schema):
+    """A navigation link. `link` is relative to the app root unless `is_external` is set."""
+
+    name: str
+    link: str
+    badge: int | None = None
+    is_external: bool = False
+
+
+class MenuSchema(Schema):
+    left_links: list[MenuLink] = []
+    right_links: list[MenuLink] = []
+
+
+class UserData(Schema):
+    """The current user, its main character and the permissions the UI depends on."""
+
+    user_id: int
+    character_id: int = 0
+    character_name: str = ""
+    corporation_id: int = 0
+    corporation_name: str = ""
+    alliance_id: int | None = None
+    alliance_name: str | None = None
+    portrait: str | None = None
+    is_admin: bool = False
+    can_manage: bool = False
+    has_advanced_access: bool = False
+
+
+class UserSettingsSchema(Schema):
+    """Notification settings of the current user."""
+
+    disable_notifications: bool
+
+
+class UserSettingsUpdateRequest(Schema):
+    """User-editable notification preferences."""
+
+    disable_notifications: bool
+
+
+class AdminUpdateRequest(Schema):
+    """Request to queue an update. Without `eve_id` all owners of the target are updated."""
+
+    target: Literal["characters", "corporations"]
+    eve_id: int | None = None
+    force_refresh: bool = False
+
+
+class DateFilter(FilterSchema):
+    """Date query parameters shared by all ledger endpoints, applied to `date`."""
+
+    year: int = Field(..., ge=2003, le=2100, q="date__year")
+    month: int | None = Field(None, ge=1, le=12, q="date__month")
+    day: int | None = Field(None, ge=1, le=31, q="date__day")
+
+    @model_validator(mode="after")
+    def _day_requires_month(self):
+        if self.day is not None and self.month is None:
+            raise ValueError("day requires month")
+        return self
+
+
+class CorporationLedgerFilter(DateFilter):
+    """Query parameters for corporation ledgers, optionally limited to one division."""
+
+    division_id: int | None = Field(None, q="division__division_id")
+
+
+class PlanetSelection(FilterSchema):
+    """Selects one planet, or all planets of the character if omitted."""
+
+    planet_id: int | None = Field(None, q="planet__id")
 
 
 class OwnerSchema(Schema):
@@ -26,6 +115,15 @@ class OwnerSchema(Schema):
     icon: str | None = None
 
 
+class AltSchema(Schema):
+    """Alt character that is included in an entity's ledger."""
+
+    character_id: int
+    character_name: str
+    icon: str | None = None
+    is_registered: bool = False
+
+
 class EntitySchema(Schema):
     """
     Schema for Entity or Corporation Owner.
@@ -33,14 +131,34 @@ class EntitySchema(Schema):
     Attributes:
         entity_id (int): The ID of the entity.
         entity_name (str): The name of the entity.
+        alt_ids (list[int]): The IDs of all characters included in the entity.
+        alts (list[AltSchema]): The alt characters included in the entity.
         icon (str | None): The URL of the entity's icon, if available.
     """
 
     entity_id: int
     entity_name: str
     alt_ids: list[int] = []
-    icon: str = ""
-    popover: str = ""
+    alts: list[AltSchema] = []
+    icon: str | None = None
+    is_member: bool = False
+
+
+class CharacterRefTypeSchema(Schema):
+    """Amount that a character contributed to a reference type."""
+
+    character_id: int
+    character_name: str
+    amount: float = 0.00
+    icon: str | None = None
+
+
+class RefTypeAmountSchema(Schema):
+    """Amount that a single reference type contributed to a category."""
+
+    ref_type: str
+    amount: float = 0.00
+    characters: list[CharacterRefTypeSchema] = []
 
 
 class CategorySchema(Schema):
@@ -48,7 +166,8 @@ class CategorySchema(Schema):
     amount: float = 0.00
     average: float = 0.00
     average_tick: float = 0.00
-    ref_types: str | None = None
+    # Only the reference types with entries, largest absolute amount first.
+    ref_types: list[RefTypeAmountSchema] = []
 
 
 class UpdateStatusSchema(Schema):
@@ -70,12 +189,11 @@ class LedgerResponse(Schema):
     Attributes:
         owner (OwnerSchema): The owner of the ledger.
         billboard (BillboardSchema): Billboard data.
-        actions (str, optional): HTML string for actions.
     """
 
     owner: OwnerSchema
     billboard: BillboardSchema
-    actions: str = ""
+    years: list[int] = []
 
 
 class LedgerSchema(Schema):
@@ -98,6 +216,12 @@ class LedgerSchema(Schema):
     total: float = 0.00
 
 
+class AltLedgerSchema(AltSchema):
+    """Contribution of one alt character to the ledger of its entity."""
+
+    ledger: LedgerSchema
+
+
 class CharacterLedgerSchema(LedgerSchema):
     """
     Schema for Character Ledger extending LedgerSchema.
@@ -111,91 +235,19 @@ class CharacterLedgerSchema(LedgerSchema):
     mining: float = 0.00
 
 
-class OwnerLedgerRequestInfo(Schema):
-    """Schema for Owner Ledger Request Information."""
-
-    owner_id: int
-    year: int
-    month: int | None = None
-    day: int | None = None
-    section: str = "summary"
-    dropdown_html: str | None = None
-    footer_html: str | None = None
-
-    def to_date_query(self) -> dict:
-        date_query = {"date__year": self.year}
-        if self.month is not None:
-            date_query["date__month"] = self.month
-        if self.day is not None:
-            date_query["date__day"] = self.day
-        return date_query
-
-    @property
-    def is_final_data(self) -> bool:
-        today = timezone.now().date()
-        return (
-            (self.year < today.year)
-            or (
-                self.year == today.year
-                and self.month is not None
-                and self.month < today.month
-            )
-            or (
-                self.year == today.year
-                and self.month == today.month
-                and self.day is not None
-                and self.day < today.day
-            )
-        )
-
-
-class CorporationLedgerRequestInfo(OwnerLedgerRequestInfo):
-    """
-    Schema for Corporation Ledger Request Information.
-
-    Subclass of :class:`OwnerLedgerRequestInfo`.
-
-    Attributes:
-        entity_id (int | None): The ID of the entity.
-        division_id (int | None): The ID of the division.
-    """
-
-    entity_id: int | None = None
-    division_id: int | None = None
-
-    def to_division_query(self) -> dict:
-        division_query = {}
-        if self.division_id is not None:
-            division_query["division__division_id"] = self.division_id
-        return division_query
-
-
-class AllianceLedgerRequestInfo(OwnerLedgerRequestInfo):
-    """
-    Schema for Alliance Ledger Request Information.
-
-    Subclass of :class:`OwnerLedgerRequestInfo`.
-
-    Attributes:
-        corporation_id (int | None): The ID of the corporation.
-    """
-
-    corporation_id: int | None = None
-
-
 class LedgerDetailsSummary(Schema):
     """
-    Schema for summary of ledger details.
+    Schema for the totals of ledger details.
 
     Attributes:
-        summary (str): Summary of all categories.
-        daily (str): Daily breakdown of categories.
-        hourly (str): Hourly breakdown of categories.
+        summary (float): Total of all categories.
+        daily (float): Daily average of all categories.
+        hourly (float): Hourly average of all categories.
     """
 
-    summary: str = ""
-    daily: str = ""
-    hourly: str = ""
+    summary: float = 0.00
+    daily: float = 0.00
+    hourly: float = 0.00
 
 
 class LedgerDetailsResponse(Schema):
@@ -213,16 +265,66 @@ class LedgerDetailsResponse(Schema):
     total: LedgerDetailsSummary
 
 
-class CharacterAdmin(Schema):
-    character: dict | None = None
+class DivisionSchema(Schema):
+    """A wallet division of a corporation."""
+
+    division_id: int
+    name: str
 
 
-class CorporationAdmin(Schema):
-    corporation: dict | None = None
+class CharacterOverview(Schema):
+    character_id: int
+    character_name: str
+    corporation_id: int
+    corporation_name: str
 
 
-class AllianceAdmin(Schema):
-    alliance: dict | None = None
+class CorporationOverview(Schema):
+    corporation_id: int
+    corporation_name: str
+
+
+class AllianceOverview(Schema):
+    alliance_id: int
+    alliance_name: str
+
+
+class DashboardSchema(Schema):
+    """Statistics shown on the administration dashboards."""
+
+    auth_count: int
+    active_count: int
+    inactive_count: int | None = None
+    missing_count: int
+    issues: list[str] = []
+
+
+class AdminOwnerSchema(Schema):
+    """A character, corporation or alliance in the administration lists."""
+
+    owner_id: int
+    name: str
+    icon: str | None = None
+    status: str | None = None
+
+
+class AdministrationResponse(Schema):
+    """
+    Everything the administration page of an account, corporation or alliance shows.
+
+    Attributes:
+        owner: The account's main character, corporation or alliance.
+        dashboard: Registration statistics.
+        registered: Entries registered in the ledger.
+        missing: Entries that exist but are not registered.
+        members: Characters of a corporation that are known to Auth.
+    """
+
+    owner: OwnerSchema
+    dashboard: DashboardSchema
+    registered: list[AdminOwnerSchema] = []
+    missing: list[AdminOwnerSchema] = []
+    members: list[AltSchema] = []
 
 
 class EveTypeSchema(Schema):
@@ -256,7 +358,7 @@ class PlanetSchema(Schema):
     type: EveTypeSchema
     upgrade_level: int
     num_pins: int
-    last_update: timezone.datetime
+    last_update: datetime | None = None
 
 
 class CharacterPlanet(Schema):
@@ -269,15 +371,10 @@ class CharacterPlanet(Schema):
     last_update: datetime | None = None
 
 
-class ProgressBarSchema(Schema):
-    percentage: str
-    html: str
-
-
 class ExtractorSchema(Schema):
     item_id: int
     item_name: str
     icon: str | None = None
     install_time: str
     expiry_time: str
-    progress: ProgressBarSchema
+    progress: float

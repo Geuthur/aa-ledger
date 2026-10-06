@@ -30,8 +30,27 @@ Section Order:
 
 ### Added
 
+- Light table styling `aa-table-light` and `variant="vowra-light"` for modals (`PlanetModal`, `MembersModal`, `DetailsModal`, `RefTypesModal`, and `RefTypeCharactersModal`) for clean visual contrast inside `aa-panel` containers.
 - Dev Make File
+- Makefile targets `get-compatibility-dates`, `generate-esi-openapi`, and `update-compatibility-date` to fetch, select, download, and update ESI compatibility dates and OpenAPI specifications
 - Chart categories to BillboardSystem and update labels
+- Composite `(character|division, date)` indexes on wallet journal and mining ledger for direct aggregation
+- `BillboardSystem.create_billboards` to build charts directly from the journals
+- React frontend: ledger pages for characters, corporations and alliances, planetary ledger, overviews, administration and settings. Year, month, day, division, details modal and planet modal are kept in the URL with `nuqs`, so views are shareable.
+- `UserSettings` model (`disable_notifications`) with `GET|PUT settings/`
+- Chord diagram (`d3-chord`) for the distribution of the ledger categories
+- Chord diagram: nodes can be hidden in a legend and show the flows with their share
+- Corporation ledger: modal with the characters of a member and their contribution (`members` in the ledger response)
+- Animated extractor progress bar in the planetary ledger
+- Details modal: a badge per reference type (max. 10, the rest in an extra modal) and a search by reference type that lists the amount of every match
+- Details modal: Character breakdown modal accessible by clicking on reference type badges in corporation and alliance ledger, displaying contributing characters with portraits, amounts, and shares
+- Details API: Character aggregation per reference type in corporation and alliance ledger details (`characters` in `RefTypeAmountSchema`)
+- Info tooltip next to Mining in summary cards, ledger table, and details modal clarifying that it is an informational value excluded from calculations
+- Lucide React icons for dashboard summary and statistics cards (e.g. `Skull` for Bounty, `Shield` for ESS, `Pickaxe` for Mining, etc.)
+- Visual green highlight (`lg-table-row-member`, `lg-text-member`, `lg-badge-member`) for corporation members in Corporation Ledger and member corporations in Alliance Ledger
+- Character Administration: Single "View Ledger" button in header toolbar and removed per-card "View Ledger" button
+- Corporation Administration: Missing characters cards and member list status indicating characters not registered in Ledger
+- Tooltip in Members modal for the `Share` column header explaining net contribution with negative amounts (costs)
 
 ### Fixed
 
@@ -41,6 +60,20 @@ Section Order:
 
 ### Changed
 
+- `LedgerCharts`: Vertically bottom-align charts (`align-items-end`) while keeping them side by side on desktop (`col-xl-6`) and taking full width (`col-12`) when only one chart is active.
+- Component directory structure: Grouped base components (`BaseTable`, `BaseModal`, `Loader`, `BaseHeader`) into `src/Components/Base/`
+- Component directory structure: Grouped sub-components of `LedgerView` (`LedgerTable`, `LedgerCharts`, `LedgerSummary`, `ChordChart`, `MembersModal`) into `src/Components/Ledger/LedgerView/` and sub-components of `DetailsModal` (`RefTypeBadges`, `RefTypeCharactersModal`, `RefTypesModal`) into `src/Components/Ledger/DetailsModal/`
+- Centralized CSS Modules: Moved all `*.module.css` files into `src/Styles/modules/`
+- Centralized Tests: Moved all frontend unit tests (`*.test.ts`, `*.test.tsx`) into dedicated `src/__tests__/` hierarchy
+- **Breaking:** The API is JSON-only and consolidated. Date and division filters moved from the path to query parameters:
+  - `character|corporation|alliance/{id}/ledger/?year&month&day[&division_id]`
+  - `character|corporation|alliance/{id}/details/?year&month&day&section[&entity_id&division_id]`
+  - `character/{id}/planets/[?planet_id]`, `character/{id}/planets/{planet_id}/` (factories, storage and extractors in one response) and `POST character/{id}/planets/notification/[?planet_id]` (toggles across all characters/alts of the owner)
+  - `{character|corporation|alliance}/overview/` return plain lists, `{character|corporation|alliance}/{id}/dashboard/` return counts
+  - Added `menu/`, `user/` and `POST admin/update/`
+- **Breaking:** Responses no longer contain HTML (footers, action buttons, icons, popovers, progress bars). Icons are URLs, flags are booleans, `ref_types` is a list of `{ref_type, amount}` (only the types with entries, largest first) and details totals are numbers.
+- **Breaking:** Errors use a single `{"error": "..."}` schema, invalid dates return `422`.
+- Ledger responses include the selectable `years` (and `divisions` for corporations).
 - pin `allianceauth` Dependency to `>=5.2`
 - Modernized Tests
 - DataTable v2 now uses the AAv5 import
@@ -52,6 +85,10 @@ Section Order:
 
 - `django-esi` dependency is already required for AAv5.
 - Unnecessary properties in `CharacterOwner` & `CorporationOwner` Model
+- Cache layer: `CharacterLedgerEntry`, `CorporationLedgerEntry`, `AllianceLedgerEntry`, `CharacterBillboardEntry`, `CorporationBillboardEntry`, `AllianceBillboardEntry` models, `BillboardEntryManager` and `is_final_data`. Ledger and chart data is now always aggregated directly from the journals. Migration `0007` drops the tables.
+- `get_footer_text_class`, the HTML button helpers of the API (`api/helpers/icons.py`) and the `FactorySchema`/`ProgressBarSchema` API schemas.
+- **Breaking:** Server-rendered UI. All Django templates except the React shell, the ledger, planetary, overview and administration views, `forms.py` and the `ledger` template tags were removed. The ESI SSO views `character/add/`, `corporation/add/` and `alliance/add/` stay, every other route is served by the React app.
+- **Breaking:** The `character/{id}/delete/` and `corporation/{id}/delete/` POST views, replaced by `DELETE character/{id}/` and `DELETE corporation/{id}/`. The `*/dashboard/` endpoints were replaced by `*/administration/`.
 
 ## [3.0.2] - 14.07.2026
 
