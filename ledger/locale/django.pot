@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Ledger\n"
 "Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-ledger/\n"
-"POT-Creation-Date: 2026-10-04 03:19+0200\n"
+"POT-Creation-Date: 2026-10-06 23:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,74 +39,74 @@ msgstr ""
 msgid "Started force update for {count} character(s). Updates will run in the background."
 msgstr ""
 
-#: ledger/api/administration.py:66 ledger/api/administration.py:138
-#: ledger/api/general.py:213 ledger/api/planetary.py:141
-#: ledger/api/planetary.py:181 ledger/api/planetary.py:216
+#: ledger/api/administration.py:65 ledger/api/administration.py:137
+#: ledger/api/general.py:210 ledger/api/planetary.py:139
+#: ledger/api/planetary.py:179 ledger/api/planetary.py:216
 msgid "Character not found."
 msgstr ""
 
-#: ledger/api/administration.py:68 ledger/api/administration.py:140
-#: ledger/api/administration.py:160 ledger/api/administration.py:226
-#: ledger/api/administration.py:246 ledger/api/general.py:41
-#: ledger/api/general.py:106 ledger/api/general.py:145
-#: ledger/api/general.py:165 ledger/api/general.py:186
-#: ledger/api/planetary.py:143 ledger/api/planetary.py:183
+#: ledger/api/administration.py:67 ledger/api/administration.py:139
+#: ledger/api/administration.py:159 ledger/api/administration.py:249
+#: ledger/api/administration.py:269 ledger/api/general.py:41
+#: ledger/api/general.py:105 ledger/api/general.py:144
+#: ledger/api/general.py:164 ledger/api/general.py:185
+#: ledger/api/planetary.py:141 ledger/api/planetary.py:181
 #: ledger/api/planetary.py:218
 msgid "Permission Denied."
 msgstr ""
 
-#: ledger/api/administration.py:145 ledger/api/administration.py:231
+#: ledger/api/administration.py:144 ledger/api/administration.py:254
 #, python-format
 msgid "%(name)s successfully deleted"
 msgstr ""
 
-#: ledger/api/administration.py:158 ledger/api/administration.py:224
-#: ledger/api/general.py:229
+#: ledger/api/administration.py:157 ledger/api/administration.py:247
+#: ledger/api/general.py:226
 msgid "Corporation not found."
 msgstr ""
 
-#: ledger/api/administration.py:244
+#: ledger/api/administration.py:267
 msgid "Alliance not found."
 msgstr ""
 
-#: ledger/api/alliance.py:175 ledger/api/alliance.py:288
+#: ledger/api/alliance.py:88 ledger/api/alliance.py:242
 msgid "Alliance not found in Ledger."
 msgstr ""
 
-#: ledger/api/alliance.py:179 ledger/api/alliance.py:292
+#: ledger/api/alliance.py:93 ledger/api/alliance.py:247
 msgid "You do not have permission to view this alliance."
 msgstr ""
 
-#: ledger/api/character.py:175 ledger/api/character.py:378
+#: ledger/api/character.py:93 ledger/api/character.py:414
 msgid "Character not found in Ledger."
 msgstr ""
 
-#: ledger/api/character.py:179 ledger/api/character.py:382
+#: ledger/api/character.py:98 ledger/api/character.py:419
 msgid "You do not have permission to view this character."
 msgstr ""
 
-#: ledger/api/character.py:236
+#: ledger/api/character.py:329
 msgid "Income from"
 msgstr ""
 
-#: ledger/api/character.py:236
+#: ledger/api/character.py:329
 msgid "Cost from"
 msgstr ""
 
-#: ledger/api/character.py:237
+#: ledger/api/character.py:337
 #, python-format
 msgid "%(kind)s %(category)s"
 msgstr ""
 
-#: ledger/api/character.py:284
+#: ledger/api/character.py:366
 msgid "Mining Income"
 msgstr ""
 
-#: ledger/api/corporation.py:360 ledger/api/corporation.py:497
+#: ledger/api/corporation.py:99 ledger/api/corporation.py:477
 msgid "Corporation not found in Ledger."
 msgstr ""
 
-#: ledger/api/corporation.py:365 ledger/api/corporation.py:502
+#: ledger/api/corporation.py:104 ledger/api/corporation.py:482
 msgid "You do not have permission to view this corporation."
 msgstr ""
 
@@ -126,39 +126,39 @@ msgstr ""
 msgid "Alliance Ledger"
 msgstr ""
 
-#: ledger/api/general.py:64
-msgid "Add Character"
-msgstr ""
-
-#: ledger/api/general.py:72
-msgid "Add Corporation"
-msgstr ""
-
-#: ledger/api/general.py:77
-msgid "Add Alliance"
-msgstr ""
-
-#: ledger/api/general.py:85
+#: ledger/api/general.py:61
 msgid "Settings"
 msgstr ""
 
-#: ledger/api/general.py:89
-msgid "Administration"
+#: ledger/api/general.py:66
+msgid "Add Character"
 msgstr ""
 
-#: ledger/api/general.py:208
+#: ledger/api/general.py:74
+msgid "Add Corporation"
+msgstr ""
+
+#: ledger/api/general.py:79
+msgid "Add Alliance"
+msgstr ""
+
+#: ledger/api/general.py:88
+msgid "Superadmin"
+msgstr ""
+
+#: ledger/api/general.py:206
 msgid "Queued Update All Characters"
 msgstr ""
 
-#: ledger/api/general.py:218
+#: ledger/api/general.py:215
 msgid "Queued Update for Character"
 msgstr ""
 
-#: ledger/api/general.py:225
+#: ledger/api/general.py:222
 msgid "Queued Update All Corporations"
 msgstr ""
 
-#: ledger/api/general.py:234
+#: ledger/api/general.py:231
 msgid "Queued Update for Corporation"
 msgstr ""
 
@@ -167,184 +167,12 @@ msgstr ""
 msgid "No facility"
 msgstr ""
 
-#: ledger/api/planetary.py:190 ledger/api/planetary.py:225
+#: ledger/api/planetary.py:190 ledger/api/planetary.py:227
 msgid "Planet not found."
 msgstr ""
 
-#: ledger/api/planetary.py:235
+#: ledger/api/planetary.py:243
 msgid "Notification toggled successfully."
-msgstr ""
-
-#: ledger/constants.py:31
-msgid "January"
-msgstr ""
-
-#: ledger/constants.py:32
-msgid "February"
-msgstr ""
-
-#: ledger/constants.py:33
-msgid "March"
-msgstr ""
-
-#: ledger/constants.py:34
-msgid "April"
-msgstr ""
-
-#: ledger/constants.py:35
-msgid "May"
-msgstr ""
-
-#: ledger/constants.py:36
-msgid "June"
-msgstr ""
-
-#: ledger/constants.py:37
-msgid "July"
-msgstr ""
-
-#: ledger/constants.py:38
-msgid "August"
-msgstr ""
-
-#: ledger/constants.py:39
-msgid "September"
-msgstr ""
-
-#: ledger/constants.py:40
-msgid "October"
-msgstr ""
-
-#: ledger/constants.py:41
-msgid "November"
-msgstr ""
-
-#: ledger/constants.py:42
-msgid "December"
-msgstr ""
-
-#: ledger/constants.py:46
-msgid "1"
-msgstr ""
-
-#: ledger/constants.py:47
-msgid "2"
-msgstr ""
-
-#: ledger/constants.py:48
-msgid "3"
-msgstr ""
-
-#: ledger/constants.py:49
-msgid "4"
-msgstr ""
-
-#: ledger/constants.py:50
-msgid "5"
-msgstr ""
-
-#: ledger/constants.py:51
-msgid "6"
-msgstr ""
-
-#: ledger/constants.py:52
-msgid "7"
-msgstr ""
-
-#: ledger/constants.py:53
-msgid "8"
-msgstr ""
-
-#: ledger/constants.py:54
-msgid "9"
-msgstr ""
-
-#: ledger/constants.py:55
-msgid "10"
-msgstr ""
-
-#: ledger/constants.py:56
-msgid "11"
-msgstr ""
-
-#: ledger/constants.py:57
-msgid "12"
-msgstr ""
-
-#: ledger/constants.py:58
-msgid "13"
-msgstr ""
-
-#: ledger/constants.py:59
-msgid "14"
-msgstr ""
-
-#: ledger/constants.py:60
-msgid "15"
-msgstr ""
-
-#: ledger/constants.py:61
-msgid "16"
-msgstr ""
-
-#: ledger/constants.py:62
-msgid "17"
-msgstr ""
-
-#: ledger/constants.py:63
-msgid "18"
-msgstr ""
-
-#: ledger/constants.py:64
-msgid "19"
-msgstr ""
-
-#: ledger/constants.py:65
-msgid "20"
-msgstr ""
-
-#: ledger/constants.py:66
-msgid "21"
-msgstr ""
-
-#: ledger/constants.py:67
-msgid "22"
-msgstr ""
-
-#: ledger/constants.py:68
-msgid "23"
-msgstr ""
-
-#: ledger/constants.py:69
-msgid "24"
-msgstr ""
-
-#: ledger/constants.py:70
-msgid "25"
-msgstr ""
-
-#: ledger/constants.py:71
-msgid "26"
-msgstr ""
-
-#: ledger/constants.py:72
-msgid "27"
-msgstr ""
-
-#: ledger/constants.py:73
-msgid "28"
-msgstr ""
-
-#: ledger/constants.py:74
-msgid "29"
-msgstr ""
-
-#: ledger/constants.py:75
-msgid "30"
-msgstr ""
-
-#: ledger/constants.py:76
-msgid "31"
 msgstr ""
 
 #: ledger/helpers/billboard.py:56 ledger/helpers/ref_type.py:190
@@ -563,27 +391,27 @@ msgstr ""
 msgid "Corporation"
 msgstr ""
 
-#: ledger/views/alliance/add_ally.py:43
-#, python-brace-format
-msgid "{alliance_name} is already in the Ledger System"
-msgstr ""
-
-#: ledger/views/alliance/add_ally.py:69
-#, python-brace-format
-msgid "{alliance_name} successfully added to Ledger"
-msgstr ""
-
-#: ledger/views/alliance/add_ally.py:74
-#, python-brace-format
-msgid "Failed to fetch Alliance data for {alliance_name}"
-msgstr ""
-
-#: ledger/views/character/add_char.py:40
+#: ledger/views.py:52
 #, python-brace-format
 msgid "{character_name} successfully added/updated to Ledger"
 msgstr ""
 
-#: ledger/views/corporation/add_corp.py:51
+#: ledger/views.py:84
 #, python-brace-format
 msgid "{corporation_name} successfully added/updated to Ledger"
+msgstr ""
+
+#: ledger/views.py:99
+#, python-brace-format
+msgid "{alliance_name} is already in the Ledger System"
+msgstr ""
+
+#: ledger/views.py:125
+#, python-brace-format
+msgid "{alliance_name} successfully added to Ledger"
+msgstr ""
+
+#: ledger/views.py:130
+#, python-brace-format
+msgid "Failed to fetch Alliance data for {alliance_name}"
 msgstr ""
