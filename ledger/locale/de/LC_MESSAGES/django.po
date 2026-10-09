@@ -6,10 +6,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: AA Ledger\n"
-"Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-ledger/issues\n"
-"POT-Creation-Date: 2026-02-05 12:37+0100\n"
-"PO-Revision-Date: 2026-02-05 12:17+0000\n"
-"Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
+"Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-"
+"ledger/\n"
+"POT-Creation-Date: 2026-10-06 23:04+0200\n"
+"PO-Revision-Date: 2026-10-09 14:45+0000\n"
+"Last-Translator: Geuthur <devgeuthur@gmail.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "ledger/de/>\n"
 "Language: de\n"
@@ -44,14 +45,33 @@ msgstr ""
 "Die erzwungene Aktualisierung für {count} Charaktere wurde gestartet. Die "
 "Aktualisierungen werden im Hintergrund ausgeführt."
 
-msgid "Please re-register characters with issues"
-msgstr "Bitte registriere betroffene Charaktere erneut"
+msgid "Character not found."
+msgstr ""
+
+msgid "Permission Denied."
+msgstr "Zugriff verweigert."
+
+#, python-format
+msgid "%(name)s successfully deleted"
+msgstr ""
+
+msgid "Corporation not found."
+msgstr ""
+
+msgid "Alliance not found."
+msgstr "Allianz wurde nicht gefunden."
 
 msgid "Alliance not found in Ledger."
 msgstr "Allianz wurde nicht im Ledger gefunden."
 
 msgid "You do not have permission to view this alliance."
 msgstr "Sie haben keine Berechtigung, diese Allianz anzuzeigen."
+
+msgid "Character not found in Ledger."
+msgstr "Charakter nicht im Ledger gefunden."
+
+msgid "You do not have permission to view this character."
+msgstr "Sie haben keine Berechtigung, diesen Charakter anzuzeigen."
 
 msgid "Income from"
 msgstr "Einkünfte aus"
@@ -63,15 +83,6 @@ msgstr "Ausgaben von"
 msgid "%(kind)s %(category)s"
 msgstr "%(kind)s %(category)s"
 
-msgid "This amount is displayed for information only"
-msgstr "Dieser Betrag dient nur als Information"
-
-msgid "Character not found in Ledger."
-msgstr "Charakter nicht im Ledger gefunden."
-
-msgid "You do not have permission to view this character."
-msgstr "Sie haben keine Berechtigung, diesen Charakter anzuzeigen."
-
 msgid "Mining Income"
 msgstr "Einkünfte aus Bergbau"
 
@@ -81,182 +92,53 @@ msgstr "Corporation wurde nicht im Ledger gefunden."
 msgid "You do not have permission to view this corporation."
 msgstr "Sie haben keine Berechtigung, diese Corporation anzuzeigen."
 
-msgid "View Factory"
-msgstr "Fabrik anzeigen"
+msgid "Character Ledger"
+msgstr "Charakter Ledger"
 
-msgid "View Extractor"
-msgstr "Ansicht Extraktor"
+msgid "Planetary Ledger"
+msgstr "Planitarischer Ledger"
 
-msgid "Toggle Notification"
-msgstr "Benachrichtigung umschalten"
+msgid "Corporation Ledger"
+msgstr "Corporation-Ledger"
 
-msgid "View Details"
-msgstr "Zeige Details"
+msgid "Alliance Ledger"
+msgstr "Allianz Ledger"
 
-msgid "Included Reference Types"
-msgstr "Enthaltene Referenztypen"
+msgid "Settings"
+msgstr ""
 
-msgid "Included Alt Characters"
-msgstr "Enthaltene Alt-Charaktere"
+msgid "Add Character"
+msgstr "Charakter hinzufügen"
+
+msgid "Add Corporation"
+msgstr "Corporation hinzufügen"
+
+msgid "Add Alliance"
+msgstr "Allianz hinzufügen"
+
+msgid "Superadmin"
+msgstr ""
+
+msgid "Queued Update All Characters"
+msgstr "Aktualisiere alle Charaktere wurde in Warteschlange eingereiht"
+
+msgid "Queued Update for Character"
+msgstr ""
+
+msgid "Queued Update All Corporations"
+msgstr "Aktualisiere alle Corporationen wurde in Warteschlange eingereiht"
+
+msgid "Queued Update for Corporation"
+msgstr ""
 
 msgid "No facility"
 msgstr "Keine Anlage"
-
-msgid "Active"
-msgstr "Aktiv"
-
-msgid "No active extractors"
-msgstr "Keine aktiven Extraktoren"
-
-msgid "Permission Denied"
-msgstr "Zugriff verweigert"
-
-msgid "Permission Denied."
-msgstr "Zugriff verweigert."
 
 msgid "Planet not found."
 msgstr "Planet nicht gefunden."
 
 msgid "Notification toggled successfully."
 msgstr "Benachrichtigung erfolgreich umgeschaltet."
-
-msgid "January"
-msgstr "Januar"
-
-msgid "February"
-msgstr "Februar"
-
-msgid "March"
-msgstr "März"
-
-msgid "April"
-msgstr "April"
-
-msgid "May"
-msgstr "Mai"
-
-msgid "June"
-msgstr "Juni"
-
-msgid "July"
-msgstr "Juli"
-
-msgid "August"
-msgstr "August"
-
-msgid "September"
-msgstr "September"
-
-msgid "October"
-msgstr "Oktober"
-
-msgid "November"
-msgstr "November"
-
-msgid "December"
-msgstr "Dezember"
-
-msgid "1"
-msgstr "1"
-
-msgid "2"
-msgstr "2"
-
-msgid "3"
-msgstr "3"
-
-msgid "4"
-msgstr "4"
-
-msgid "5"
-msgstr "5"
-
-msgid "6"
-msgstr "6"
-
-msgid "7"
-msgstr "7"
-
-msgid "8"
-msgstr "8"
-
-msgid "9"
-msgstr "9"
-
-msgid "10"
-msgstr "10"
-
-msgid "11"
-msgstr "11"
-
-msgid "12"
-msgstr "12"
-
-msgid "13"
-msgstr "13"
-
-msgid "14"
-msgstr "14"
-
-msgid "15"
-msgstr "15"
-
-msgid "16"
-msgstr "16"
-
-msgid "17"
-msgstr "17"
-
-msgid "18"
-msgstr "18"
-
-msgid "19"
-msgstr "19"
-
-msgid "20"
-msgstr "20"
-
-msgid "21"
-msgstr "21"
-
-msgid "22"
-msgstr "22"
-
-msgid "23"
-msgstr "23"
-
-msgid "24"
-msgstr "24"
-
-msgid "25"
-msgstr "25"
-
-msgid "26"
-msgstr "26"
-
-msgid "27"
-msgstr "27"
-
-msgid "28"
-msgstr "28"
-
-msgid "29"
-msgstr "29"
-
-msgid "30"
-msgstr "30"
-
-msgid "31"
-msgstr "31"
-
-msgid "All Months"
-msgstr "Alle Monate"
-
-msgid "All Days"
-msgstr "Alle Tage"
-
-msgid "All Divisions"
-msgstr "Alle Abteilungen"
 
 msgid "Bounty"
 msgstr "Kopfgeld"
@@ -412,347 +294,19 @@ msgstr "%(charname)s auf %(planetname)s"
 msgid "Planetary Extractor Heads Expired"
 msgstr "Planetare Extraktor-Köpfe abgelaufen"
 
-msgid "Ledger"
-msgstr "Ledger"
-
-msgid "Day"
-msgstr "Tag"
-
-msgid "Month"
-msgstr "Monat"
-
-msgid "Internal Server Error"
-msgstr "Interner Server Fehler"
-
-msgid "Cancel"
-msgstr "Abbrechen"
-
-msgid "Confirm"
-msgstr "Bestätigen"
-
-msgid "Close"
-msgstr "Schließen"
-
-msgid "Accept Delete Alliance request"
-msgstr "Anfrage zur Löschung der Allianz akzeptieren"
-
-msgid "Are you sure you want to delete this alliance?"
-msgstr "Möchten Sie diese Allianz wirklich löschen?"
-
-msgid "Accept Delete Character request"
-msgstr "Anfrage zum Löschen eines Charakters akzeptieren"
-
-msgid "Are you sure you want to delete this character?"
-msgstr "Möchten Sie diesen Charakter wirklich löschen?"
-
-msgid "Accept Delete Corporation request"
-msgstr "Anfrage von Löschen Corporation akzeptieren"
-
-msgid "Are you sure you want to delete this corporation?"
-msgstr "Sind Sie sicher, dass Sie diese Corporation löschen möchten?"
-
-msgid "Accept Toggle Notification request"
-msgstr "Anfrage Benachrichtigung Umschalten akzeptieren"
-
-msgid "Are you sure you want to toggle notification for this planet?"
-msgstr ""
-"Möchten Sie wirklich die Benachrichtigungen für diesen Planeten deaktivieren?"
-
-msgid "Alliance Ledger Details"
-msgstr "Allianz Ledger Details"
-
-msgid "Character Ledger Details"
-msgstr "Charakter Ledger Details"
-
-msgid "Corporation Ledger Details"
-msgstr "Corporation Ledger Details"
-
-msgid "Factory"
-msgstr "Fabrik"
-
-msgid ""
-"Note: Planetary information is only recalculated when the colony is viewed "
-"through the client. Information will not update until this criteria is met."
-msgstr ""
-"Hinweis: Die Planeteninformationen werden nur neu berechnet, wenn die "
-"Kolonie über den Client betrachtet wird. Die Informationen werden nicht "
-"aktualisiert, bis dieses Kriterium erfüllt ist."
-
-msgid "Add Character"
-msgstr "Charakter hinzufügen"
-
-msgid "Add Corporation"
-msgstr "Corporation hinzufügen"
-
-msgid "Add Alliance"
-msgstr "Allianz hinzufügen"
-
-msgid "Admin"
-msgstr "Admin"
-
-msgid "Character Ledger"
-msgstr "Charakter Ledger"
-
-msgid "Planetary Ledger"
-msgstr "Planetary Ledger"
-
-msgid "Corporation Ledger"
-msgstr "Corporation Ledger"
-
-msgid "Alliance Ledger"
-msgstr "Allianz Ledger"
-
-msgid "Alliance not found."
-msgstr "Allianz wurde nicht gefunden."
-
-msgid "Alliance"
-msgstr "Allianz"
-
-msgid "View Alliance Ledger"
-msgstr "Zeige Allianz Ledger"
-
-msgid "No Corporations found."
-msgstr "Keine Corporationen gefunden."
-
-msgid "View Corporation Ledger"
-msgstr "Zeige Corporation Ledger"
-
-msgid "Corporation is not registered in Ledger."
-msgstr "Corporation ist nicht im Ledger registriert."
-
-msgid "Dashboard"
-msgstr "Dashboard"
-
-msgid "Status:"
-msgstr "Status:"
-
-msgid "Characters with Issues:"
-msgstr "Charaktere mit Problemen:"
-
-msgid "Information:"
-msgstr "Information:"
-
-msgid "Auth Corporations:"
-msgstr "Auth Corporationen:"
-
-msgid "Active Corporations:"
-msgstr "Aktive Corporationen:"
-
-msgid "Missing Corporations:"
-msgstr "Fehlende Corporationen:"
-
-msgid "Diagram"
-msgstr "Diagramm"
-
-msgid "Chord"
-msgstr "Chord"
-
-msgid "Summary"
-msgstr "Zusammenfassung"
-
-msgid "Daily"
-msgstr "Täglich"
-
-msgid "Hourly"
-msgstr "Stündlich"
-
-msgid "Entity"
-msgstr "Entität"
-
-msgid "Bounty Amount"
-msgstr "Kopfgeld Betrag"
-
-msgid "ESS Amount"
-msgstr "ESS Betrag"
-
-msgid "Misc. Amount"
-msgstr "Verschiedenes Betrag"
-
-msgid "Total"
-msgstr "Gesamt"
-
-msgid "Section"
-msgstr "Abschnitt"
-
-msgid "Amount"
-msgstr "Betrag"
-
-msgid "Ref Types"
-msgstr "Referenz typen"
-
-msgid "No Characters found."
-msgstr "Keine Charaktere gefunden."
-
-msgid "Delete Character"
-msgstr "Lösche Charakter"
-
-msgid "Are you sure to Delete this Character?"
-msgstr "Bist du sicher den Character zu löschen?"
-
-msgid "Character is not registered in Ledger."
-msgstr "Character ist nicht im Ledger registriert."
-
-msgid "Auth Characters:"
-msgstr "Auth Charaktere:"
-
-msgid "Active Characters:"
-msgstr "Aktive Charaktere:"
-
-msgid "Inactive Characters:"
-msgstr "Inaktive Charaktere:"
-
-msgid "Missing Characters:"
-msgstr "Fehlende Charaktere:"
-
 msgid "Character"
 msgstr "Charakter"
-
-msgid "Mining Amount"
-msgstr "Bergbau Betrag"
-
-msgid "Extractors"
-msgstr "Extraktoren"
-
-msgid "Product"
-msgstr "Produkt"
-
-msgid "Install Time"
-msgstr "Installationszeit"
-
-msgid "Expiry Time"
-msgstr "Ablaufzeit"
-
-msgid "Progress"
-msgstr "Fortschritt"
-
-msgid "Factories"
-msgstr "Fabriken"
-
-msgid "Facility"
-msgstr "Anlage"
-
-msgid "Input"
-msgstr "Eingabe"
-
-msgid "Output"
-msgstr "Ausgabe"
-
-msgid "Planet"
-msgstr "Planet"
-
-msgid "Upgrade Level"
-msgstr "Upgrade Stufe"
-
-msgid "Products"
-msgstr "Produkte"
-
-msgid "Extractor"
-msgstr "Extraktor"
-
-msgid "Status"
-msgstr "Status"
-
-msgid "Last Updated"
-msgstr "Letztes Update"
-
-msgid "Actions"
-msgstr "Aktionen"
-
-msgid "Storage"
-msgstr "Lager"
-
-msgid "Product Name"
-msgstr "Produkt Name"
-
-msgid "No Corporation found."
-msgstr "Keine Corporationen gefunden."
 
 msgid "Corporation"
 msgstr "Corporation"
 
-msgid "Delete Corporation"
-msgstr "Corporation Löschen"
+#, python-brace-format
+msgid "{character_name} successfully added/updated to Ledger"
+msgstr "{character_name} erfolgreich zum Ledger hinzugefügt/aktualisiert"
 
-msgid "Are you sure to Delete this Corporation?"
-msgstr "Möchten Sie den Character wirklich löschen?"
-
-msgid "Characters"
-msgstr "Charaktere"
-
-msgid "Corporation Characters:"
-msgstr "Corporation Charaktere:"
-
-msgid "Export Table to CSV"
-msgstr "Tabelle als CSV exportieren"
-
-msgid "Administration"
-msgstr "Verwaltung"
-
-msgid "Mark all tasks as Force Refresh"
-msgstr "Erzwinge Aktualisierung für alle markierten Tasks"
-
-msgid "Clear all Cache"
-msgstr "Gesamten Cache löschen"
-
-msgid "Update Character Updates"
-msgstr "Aktualisiere Charakter Updates"
-
-msgid "Character ID (optional)"
-msgstr "Charakter-ID (optional)"
-
-msgid "Enter Character ID"
-msgstr "Character-ID eingeben"
-
-msgid "Leave empty to update all characters"
-msgstr "Leer lassen, um alle Charaktere zu aktualisieren"
-
-msgid "Update Corporation Updates"
-msgstr "Aktualisiere Corporation Updates"
-
-msgid "Corporation ID (optional)"
-msgstr "Corporation-ID (optional)"
-
-msgid "Enter Corporation ID"
-msgstr "Corporation-ID eingeben"
-
-msgid "Leave empty to update all corporations"
-msgstr "Leer lassen, um alle corporations zu aktualisieren"
-
-msgid "Submit"
-msgstr "Senden"
-
-msgid "Corporations"
-msgstr "Corporationen"
-
-msgid "Account Overview"
-msgstr "Account Übersicht"
-
-msgid "Alliance Overview"
-msgstr "Allianz Übersicht"
-
-msgid "Show"
-msgstr "Zeige"
-
-msgid "Planetary Overview"
-msgstr "Planetary Übersicht"
-
-msgid "Planetary Details"
-msgstr "Planetendetails"
-
-msgid "Are you sure to Switch Notification"
-msgstr "Sind Sie sicher, dass Sie die Benachrichtigung umschalten wollen"
-
-msgid "Switch Notification"
-msgstr "Schalte Notifikation um"
-
-msgid "Notification Activated"
-msgstr "Benachrichtigung aktiviert"
-
-msgid "Notification Deactivated"
-msgstr "Benachrichtigung deaktiviert"
-
-msgid "Corporation Overview"
-msgstr "Corporation Übersicht"
+#, python-brace-format
+msgid "{corporation_name} successfully added/updated to Ledger"
+msgstr "{corporation_name} erfolgreich zum Ledger hinzugefügt/aktualisiert"
 
 #, python-brace-format
 msgid "{alliance_name} is already in the Ledger System"
@@ -766,56 +320,527 @@ msgstr "{alliance_name} erfolgreich zum Ledger hinzugefügt"
 msgid "Failed to fetch Alliance data for {alliance_name}"
 msgstr "Fehler beim Abrufen der Allianz-Daten für {alliance_name}"
 
+#~ msgid "Please re-register characters with issues"
+#~ msgstr "Bitte registriere betroffene Charaktere erneut"
+
+#~ msgid "This amount is displayed for information only"
+#~ msgstr "Dieser Betrag dient nur als Information"
+
+#~ msgid "View Factory"
+#~ msgstr "Fabrik anzeigen"
+
+#~ msgid "View Extractor"
+#~ msgstr "Ansicht Extraktor"
+
+#~ msgid "Toggle Notification"
+#~ msgstr "Benachrichtigung umschalten"
+
+#~ msgid "View Details"
+#~ msgstr "Zeige Details"
+
+#~ msgid "Included Reference Types"
+#~ msgstr "Enthaltene Referenztypen"
+
+#~ msgid "Included Alt Characters"
+#~ msgstr "Enthaltene Alt-Charaktere"
+
+#~ msgid "Active"
+#~ msgstr "Aktiv"
+
+#~ msgid "No active extractors"
+#~ msgstr "Keine aktiven Extraktoren"
+
+#~ msgid "Permission Denied"
+#~ msgstr "Zugriff verweigert"
+
+#~ msgid "January"
+#~ msgstr "Januar"
+
+#~ msgid "February"
+#~ msgstr "Februar"
+
+#~ msgid "March"
+#~ msgstr "März"
+
+#~ msgid "April"
+#~ msgstr "April"
+
+#~ msgid "May"
+#~ msgstr "Mai"
+
+#~ msgid "June"
+#~ msgstr "Juni"
+
+#~ msgid "July"
+#~ msgstr "Juli"
+
+#~ msgid "August"
+#~ msgstr "August"
+
+#~ msgid "September"
+#~ msgstr "September"
+
+#~ msgid "October"
+#~ msgstr "Oktober"
+
+#~ msgid "November"
+#~ msgstr "November"
+
+#~ msgid "December"
+#~ msgstr "Dezember"
+
+#~ msgid "1"
+#~ msgstr "1"
+
+#~ msgid "2"
+#~ msgstr "2"
+
+#~ msgid "3"
+#~ msgstr "3"
+
+#~ msgid "4"
+#~ msgstr "4"
+
+#~ msgid "5"
+#~ msgstr "5"
+
+#~ msgid "6"
+#~ msgstr "6"
+
+#~ msgid "7"
+#~ msgstr "7"
+
+#~ msgid "8"
+#~ msgstr "8"
+
+#~ msgid "9"
+#~ msgstr "9"
+
+#~ msgid "10"
+#~ msgstr "10"
+
+#~ msgid "11"
+#~ msgstr "11"
+
+#~ msgid "12"
+#~ msgstr "12"
+
+#~ msgid "13"
+#~ msgstr "13"
+
+#~ msgid "14"
+#~ msgstr "14"
+
+#~ msgid "15"
+#~ msgstr "15"
+
+#~ msgid "16"
+#~ msgstr "16"
+
+#~ msgid "17"
+#~ msgstr "17"
+
+#~ msgid "18"
+#~ msgstr "18"
+
+#~ msgid "19"
+#~ msgstr "19"
+
+#~ msgid "20"
+#~ msgstr "20"
+
+#~ msgid "21"
+#~ msgstr "21"
+
+#~ msgid "22"
+#~ msgstr "22"
+
+#~ msgid "23"
+#~ msgstr "23"
+
+#~ msgid "24"
+#~ msgstr "24"
+
+#~ msgid "25"
+#~ msgstr "25"
+
+#~ msgid "26"
+#~ msgstr "26"
+
+#~ msgid "27"
+#~ msgstr "27"
+
+#~ msgid "28"
+#~ msgstr "28"
+
+#~ msgid "29"
+#~ msgstr "29"
+
+#~ msgid "30"
+#~ msgstr "30"
+
+#~ msgid "31"
+#~ msgstr "31"
+
+#~ msgid "All Months"
+#~ msgstr "Alle Monate"
+
+#~ msgid "All Days"
+#~ msgstr "Alle Tage"
+
+#~ msgid "All Divisions"
+#~ msgstr "Alle Abteilungen"
+
+#~ msgid "Ledger"
+#~ msgstr "Ledger"
+
+#~ msgid "Day"
+#~ msgstr "Tag"
+
+#~ msgid "Month"
+#~ msgstr "Monat"
+
+#~ msgid "Internal Server Error"
+#~ msgstr "Interner Server Fehler"
+
+#~ msgid "Cancel"
+#~ msgstr "Abbrechen"
+
+#~ msgid "Confirm"
+#~ msgstr "Bestätigen"
+
+#~ msgid "Close"
+#~ msgstr "Schließen"
+
+#~ msgid "Accept Delete Alliance request"
+#~ msgstr "Anfrage zur Löschung der Allianz akzeptieren"
+
+#~ msgid "Are you sure you want to delete this alliance?"
+#~ msgstr "Möchten Sie diese Allianz wirklich löschen?"
+
+#~ msgid "Accept Delete Character request"
+#~ msgstr "Anfrage zum Löschen eines Charakters akzeptieren"
+
+#~ msgid "Are you sure you want to delete this character?"
+#~ msgstr "Möchten Sie diesen Charakter wirklich löschen?"
+
+#~ msgid "Accept Delete Corporation request"
+#~ msgstr "Anfrage von Löschen Corporation akzeptieren"
+
+#~ msgid "Are you sure you want to delete this corporation?"
+#~ msgstr "Sind Sie sicher, dass Sie diese Corporation löschen möchten?"
+
+#~ msgid "Accept Toggle Notification request"
+#~ msgstr "Anfrage Benachrichtigung Umschalten akzeptieren"
+
+#~ msgid "Are you sure you want to toggle notification for this planet?"
+#~ msgstr ""
+#~ "Möchten Sie wirklich die Benachrichtigungen für diesen Planeten "
+#~ "deaktivieren?"
+
+#~ msgid "Alliance Ledger Details"
+#~ msgstr "Allianz Ledger Details"
+
+#~ msgid "Character Ledger Details"
+#~ msgstr "Charakter Ledger Details"
+
+#~ msgid "Corporation Ledger Details"
+#~ msgstr "Corporation Ledger Details"
+
+#~ msgid "Factory"
+#~ msgstr "Fabrik"
+
+#~ msgid ""
+#~ "Note: Planetary information is only recalculated when the colony is "
+#~ "viewed through the client. Information will not update until this "
+#~ "criteria is met."
+#~ msgstr ""
+#~ "Hinweis: Die Planeteninformationen werden nur neu berechnet, wenn die "
+#~ "Kolonie über den Client betrachtet wird. Die Informationen werden nicht "
+#~ "aktualisiert, bis dieses Kriterium erfüllt ist."
+
+#~ msgid "Admin"
+#~ msgstr "Admin"
+
+#~ msgid "Alliance"
+#~ msgstr "Allianz"
+
+#~ msgid "View Alliance Ledger"
+#~ msgstr "Zeige Allianz Ledger"
+
+#~ msgid "No Corporations found."
+#~ msgstr "Keine Corporationen gefunden."
+
+#~ msgid "View Corporation Ledger"
+#~ msgstr "Zeige Corporation Ledger"
+
+#~ msgid "Corporation is not registered in Ledger."
+#~ msgstr "Corporation ist nicht im Ledger registriert."
+
+#~ msgid "Dashboard"
+#~ msgstr "Dashboard"
+
+#~ msgid "Status:"
+#~ msgstr "Status:"
+
+#~ msgid "Characters with Issues:"
+#~ msgstr "Charaktere mit Problemen:"
+
+#~ msgid "Information:"
+#~ msgstr "Information:"
+
+#~ msgid "Auth Corporations:"
+#~ msgstr "Auth Corporationen:"
+
+#~ msgid "Active Corporations:"
+#~ msgstr "Aktive Corporationen:"
+
+#~ msgid "Missing Corporations:"
+#~ msgstr "Fehlende Corporationen:"
+
+#~ msgid "Diagram"
+#~ msgstr "Diagramm"
+
+#~ msgid "Chord"
+#~ msgstr "Chord"
+
+#~ msgid "Summary"
+#~ msgstr "Zusammenfassung"
+
+#~ msgid "Daily"
+#~ msgstr "Täglich"
+
+#~ msgid "Hourly"
+#~ msgstr "Stündlich"
+
+#~ msgid "Entity"
+#~ msgstr "Entität"
+
+#~ msgid "Bounty Amount"
+#~ msgstr "Kopfgeld Betrag"
+
+#~ msgid "ESS Amount"
+#~ msgstr "ESS Betrag"
+
+#~ msgid "Misc. Amount"
+#~ msgstr "Verschiedenes Betrag"
+
+#~ msgid "Total"
+#~ msgstr "Gesamt"
+
+#~ msgid "Section"
+#~ msgstr "Abschnitt"
+
+#~ msgid "Amount"
+#~ msgstr "Betrag"
+
+#~ msgid "Ref Types"
+#~ msgstr "Referenz typen"
+
+#~ msgid "No Characters found."
+#~ msgstr "Keine Charaktere gefunden."
+
+#~ msgid "Delete Character"
+#~ msgstr "Lösche Charakter"
+
+#~ msgid "Are you sure to Delete this Character?"
+#~ msgstr "Bist du sicher den Character zu löschen?"
+
+#~ msgid "Character is not registered in Ledger."
+#~ msgstr "Character ist nicht im Ledger registriert."
+
+#~ msgid "Auth Characters:"
+#~ msgstr "Auth Charaktere:"
+
+#~ msgid "Active Characters:"
+#~ msgstr "Aktive Charaktere:"
+
+#~ msgid "Inactive Characters:"
+#~ msgstr "Inaktive Charaktere:"
+
+#~ msgid "Missing Characters:"
+#~ msgstr "Fehlende Charaktere:"
+
+#~ msgid "Mining Amount"
+#~ msgstr "Bergbau Betrag"
+
+#~ msgid "Extractors"
+#~ msgstr "Extraktoren"
+
+#~ msgid "Product"
+#~ msgstr "Produkt"
+
+#~ msgid "Install Time"
+#~ msgstr "Installationszeit"
+
+#~ msgid "Expiry Time"
+#~ msgstr "Ablaufzeit"
+
+#~ msgid "Progress"
+#~ msgstr "Fortschritt"
+
+#~ msgid "Factories"
+#~ msgstr "Fabriken"
+
+#~ msgid "Facility"
+#~ msgstr "Anlage"
+
+#~ msgid "Input"
+#~ msgstr "Eingabe"
+
+#~ msgid "Output"
+#~ msgstr "Ausgabe"
+
+#~ msgid "Planet"
+#~ msgstr "Planet"
+
+#~ msgid "Upgrade Level"
+#~ msgstr "Upgrade Stufe"
+
+#~ msgid "Products"
+#~ msgstr "Produkte"
+
+#~ msgid "Extractor"
+#~ msgstr "Extraktor"
+
+#~ msgid "Status"
+#~ msgstr "Status"
+
+#~ msgid "Last Updated"
+#~ msgstr "Letztes Update"
+
+#~ msgid "Actions"
+#~ msgstr "Aktionen"
+
+#~ msgid "Storage"
+#~ msgstr "Lager"
+
+#~ msgid "Product Name"
+#~ msgstr "Produkt Name"
+
+#~ msgid "No Corporation found."
+#~ msgstr "Keine Corporationen gefunden."
+
+#~ msgid "Delete Corporation"
+#~ msgstr "Corporation Löschen"
+
+#~ msgid "Are you sure to Delete this Corporation?"
+#~ msgstr "Möchten Sie den Character wirklich löschen?"
+
+#~ msgid "Characters"
+#~ msgstr "Charaktere"
+
+#~ msgid "Corporation Characters:"
+#~ msgstr "Corporation Charaktere:"
+
+#~ msgid "Export Table to CSV"
+#~ msgstr "Tabelle als CSV exportieren"
+
+#~ msgid "Administration"
+#~ msgstr "Verwaltung"
+
+#~ msgid "Mark all tasks as Force Refresh"
+#~ msgstr "Erzwinge Aktualisierung für alle markierten Tasks"
+
+#~ msgid "Clear all Cache"
+#~ msgstr "Gesamten Cache löschen"
+
+#~ msgid "Update Character Updates"
+#~ msgstr "Aktualisiere Charakter Updates"
+
+#~ msgid "Character ID (optional)"
+#~ msgstr "Charakter-ID (optional)"
+
+#~ msgid "Enter Character ID"
+#~ msgstr "Character-ID eingeben"
+
+#~ msgid "Leave empty to update all characters"
+#~ msgstr "Leer lassen, um alle Charaktere zu aktualisieren"
+
+#~ msgid "Update Corporation Updates"
+#~ msgstr "Aktualisiere Corporation Updates"
+
+#~ msgid "Corporation ID (optional)"
+#~ msgstr "Corporation-ID (optional)"
+
+#~ msgid "Enter Corporation ID"
+#~ msgstr "Corporation-ID eingeben"
+
+#~ msgid "Leave empty to update all corporations"
+#~ msgstr "Leer lassen, um alle corporations zu aktualisieren"
+
+#~ msgid "Submit"
+#~ msgstr "Senden"
+
+#~ msgid "Corporations"
+#~ msgstr "Corporationen"
+
+#~ msgid "Account Overview"
+#~ msgstr "Account Übersicht"
+
+#~ msgid "Alliance Overview"
+#~ msgstr "Allianz Übersicht"
+
+#~ msgid "Show"
+#~ msgstr "Zeige"
+
+#~ msgid "Planetary Overview"
+#~ msgstr "Planetary Übersicht"
+
+#~ msgid "Planetary Details"
+#~ msgstr "Planetendetails"
+
+#~ msgid "Are you sure to Switch Notification"
+#~ msgstr "Sind Sie sicher, dass Sie die Benachrichtigung umschalten wollen"
+
+#~ msgid "Switch Notification"
+#~ msgstr "Schalte Notifikation um"
+
+#~ msgid "Notification Activated"
+#~ msgstr "Benachrichtigung aktiviert"
+
+#~ msgid "Notification Deactivated"
+#~ msgstr "Benachrichtigung deaktiviert"
+
+#~ msgid "Corporation Overview"
+#~ msgstr "Corporation Übersicht"
+
+#~ msgid "Character not found"
+#~ msgstr "Charakter nicht gefunden"
+
 #, python-brace-format
-msgid "{character_name} successfully added/updated to Ledger"
-msgstr "{character_name} erfolgreich zum Ledger hinzugefügt/aktualisiert"
+#~ msgid "{audit.eve_character.character_name} successfully deleted"
+#~ msgstr "{audit.eve_character.character_name} erfolgreich gelöscht"
 
-msgid "Character not found"
-msgstr "Charakter nicht gefunden"
-
-#, python-brace-format
-msgid "{audit.eve_character.character_name} successfully deleted"
-msgstr "{audit.eve_character.character_name} erfolgreich gelöscht"
+#~ msgid "Corporation not found"
+#~ msgstr "Corporation wurde nicht gefunden"
 
 #, python-brace-format
-msgid "{corporation_name} successfully added/updated to Ledger"
-msgstr "{corporation_name} erfolgreich zum Ledger hinzugefügt/aktualisiert"
+#~ msgid "{audit.eve_corporation.corporation_name} successfully deleted"
+#~ msgstr "{audit.eve_corporation.corporation_name} erfolgreich gelöscht"
 
-msgid "Corporation not found"
-msgstr "Corporation wurde nicht gefunden"
-
-#, python-brace-format
-msgid "{audit.eve_corporation.corporation_name} successfully deleted"
-msgstr "{audit.eve_corporation.corporation_name} erfolgreich gelöscht"
-
-msgid "You do not have permission to access this page."
-msgstr "Du hast keine Berechtigung diese Seite zu sehen."
+#~ msgid "You do not have permission to access this page."
+#~ msgstr "Du hast keine Berechtigung diese Seite zu sehen."
 
 #, python-brace-format
-msgid "Queued Update for Character: {character_name}"
-msgstr "Aktualisierung für Charakter in Warteschlange: {character_name}"
+#~ msgid "Queued Update for Character: {character_name}"
+#~ msgstr "Aktualisierung für Charakter in Warteschlange: {character_name}"
 
 #, python-brace-format
-msgid "Character with ID {character_id} not found"
-msgstr "Charakter mit ID {character_id} nicht gefunden"
-
-msgid "Queued Update All Characters"
-msgstr "Aktualisiere alle Charaktere wurde in Warteschlange eingereiht"
+#~ msgid "Character with ID {character_id} not found"
+#~ msgstr "Charakter mit ID {character_id} nicht gefunden"
 
 #, python-brace-format
-msgid "Queued Update for Corporation: {corporation_name}"
-msgstr ""
-"Aktualisierung für Corporation in der Warteschlange: {corporation_name}"
+#~ msgid "Queued Update for Corporation: {corporation_name}"
+#~ msgstr ""
+#~ "Aktualisierung für Corporation in der Warteschlange: {corporation_name}"
 
 #, python-brace-format
-msgid "Corporation with ID {corporation_id} not found"
-msgstr "Corporation mit ID {corporation_id} nicht gefunden"
+#~ msgid "Corporation with ID {corporation_id} not found"
+#~ msgstr "Corporation mit ID {corporation_id} nicht gefunden"
 
-msgid "Queued Update All Corporations"
-msgstr "Aktualisiere alle Corporationen wurde in Warteschlange eingereiht"
-
-msgid "Queued Clear All Cache"
-msgstr "In der Warteschlange Alle Cache löschen"
+#~ msgid "Queued Clear All Cache"
+#~ msgstr "In der Warteschlange Alle Cache löschen"
 
 #~ msgid "Bounty Income"
 #~ msgstr "Einkünfte aus Kopfgeld"
