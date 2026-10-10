@@ -30,12 +30,14 @@ Section Order:
 
 ### Added
 
+- **`UpdateManagerMixin`**: Added `UpdateManagerMixin` to streamline model-level update management for `CharacterOwner` and `CorporationOwner` with standardized `owner` status models.
 - **User-Grouped Character Updates**: `update_subset_characters` and new `update_user_characters` task now group active characters by user, updating mains and alts together in the same run to ensure cross-character data consistency.
 - **Alt Character Cascading**: Adding or forcing an update on a character cascades to other active characters belonging to the same user (`update_alts=True`).
 - **Character Administration Last Sync & Manual Update**: Added last synchronization display (formatted date and relative time) on the account overview and individual registered character cards. Added a manual update trigger button in the character administration header with a configurable cooldown (`LEDGER_MANUAL_UPDATE_COOLDOWN`, default: 300 seconds) and a live countdown timer.
 
 ### Changed
 
+- **Modular Update Manager**: Encapsulated section discovery (`get_sections_to_update`) and execution (`execute_section`) inside `UpdateManager` with standardized `owner` queries, removing boilerplate orchestration and dynamic reflection methods (`_get_owner_field_name`, `_owner_filter`).
 - **Update Manager & Direct Execution**: Replaced Celery subtask chaining and retry context managers with direct, sequential section updates in `update_character` and `update_corporation`.
 - **Cache Stale Thresholds**: Updated `LEDGER_STALE_TYPES` to align with CCP ESI cache policies (Wallet Journal: 60 minutes, Mining: 10 minutes, Planets: 10 minutes).
 - **Update Freshness Tracking**: Freshness checks in `need_update()` now evaluate `last_run_finished_at` rather than `last_update_finished_at`, preventing redundant polling when ESI returns HTTP 304 (Not Modified).

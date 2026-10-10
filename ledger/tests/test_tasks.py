@@ -16,6 +16,10 @@ from ledger.models import CharacterOwner
 from ledger.models.characteraudit import CharacterUpdateStatus
 from ledger.models.corporationaudit import CorporationUpdateStatus
 from ledger.models.general import UpdateSectionResult
+from ledger.models.helpers.update_manager import (
+    CharacterUpdateSection,
+    CorporationUpdateSection,
+)
 from ledger.tasks import (
     _update_character_section,
     _update_corporation_section,
@@ -143,28 +147,17 @@ class TestTasks(LedgerTestCase):
             error_message="",
             data="Dummy Data",
         )
-        update_status = CorporationUpdateStatus.objects.filter(
+        CorporationUpdateStatus.objects.filter(
             owner=owner, section="wallet_journal"
         ).first()
 
         mock_corp_owner_get.return_value = owner
         mock_update_manager = MagicMock()
         mock_update_manager_property.return_value = mock_update_manager
-        mock_update_manager.perform_update_status.return_value = dummy_result
-
-        def _mock_update_section_log(section, result):
-            CorporationUpdateStatusFactory(
-                owner=owner,
-                section=section,
-                has_token_error=result.has_token_error,
-                is_success=not result.has_token_error,
-                error_message=result.error_message,
-            )
-
-        mock_update_manager.update_section_log.side_effect = _mock_update_section_log
+        mock_update_manager.execute_section.return_value = dummy_result
 
         # Test Action
-        _update_corporation_section(
+        res = _update_corporation_section(
             task=MagicMock(),
             eve_id=owner.eve_id,
             section="wallet_journal",
@@ -172,12 +165,10 @@ class TestTasks(LedgerTestCase):
         )
 
         # Expected Results
-        new_update_status = CorporationUpdateStatus.objects.get(
-            owner=owner, section="wallet_journal"
+        self.assertEqual(res, dummy_result)
+        mock_update_manager.execute_section.assert_called_once_with(
+            CorporationUpdateSection.WALLET_JOURNAL, force_refresh=False
         )
-        self.assertEqual(update_status, None)
-        self.assertEqual(new_update_status.has_token_error, False)
-        self.assertEqual(new_update_status.is_success, True)
 
     @patch(TASKS_PATH + ".logger")
     @patch(TASKS_PATH + ".update_char_wallet_journal")
@@ -249,28 +240,15 @@ class TestTasks(LedgerTestCase):
             error_message="",
             data="Dummy Data",
         )
-        update_status = CharacterUpdateStatus.objects.filter(
-            owner=owner, section=""
-        ).first()
+        CharacterUpdateStatus.objects.filter(owner=owner, section="").first()
 
         mock_owner_get.return_value = owner
         mock_update_manager = MagicMock()
         mock_update_manager_property.return_value = mock_update_manager
-        mock_update_manager.perform_update_status.return_value = dummy_result
-
-        def _mock_update_section_log(section, result):
-            CharacterUpdateStatusFactory(
-                owner=owner,
-                section=section,
-                has_token_error=result.has_token_error,
-                is_success=not result.has_token_error,
-                error_message=result.error_message,
-            )
-
-        mock_update_manager.update_section_log.side_effect = _mock_update_section_log
+        mock_update_manager.execute_section.return_value = dummy_result
 
         # Test Action
-        _update_character_section(
+        res = _update_character_section(
             task=MagicMock(),
             eve_id=owner.eve_id,
             section="wallet_journal",
@@ -278,12 +256,10 @@ class TestTasks(LedgerTestCase):
         )
 
         # Expected Results
-        new_update_status = CharacterUpdateStatus.objects.get(
-            owner=owner, section="wallet_journal"
+        self.assertEqual(res, dummy_result)
+        mock_update_manager.execute_section.assert_called_once_with(
+            CharacterUpdateSection.WALLET_JOURNAL, force_refresh=False
         )
-        self.assertEqual(update_status, None)
-        self.assertEqual(new_update_status.has_token_error, False)
-        self.assertEqual(new_update_status.is_success, True)
 
     @patch(TASKS_PATH + ".update_character")
     @patch(TASKS_PATH + ".CharacterMiningLedger.update_evemarket_price")

@@ -1,9 +1,5 @@
 """App Tasks"""
 
-# Standard Library
-import inspect
-from collections.abc import Callable
-
 # Third Party
 from celery import Task, shared_task
 
@@ -271,27 +267,13 @@ def update_character(
         format(character.eve_character.character_name),
     )
 
-    if force_refresh:
-        # Reset Token Error if we are forcing a refresh
-        character.update_manager.reset_has_token_error()
+    sections = character.get_sections_to_update(force_refresh=force_refresh)
 
-    needs_update = character.update_manager.calc_update_needed()
-
-    if not needs_update and not force_refresh:
+    if not sections:
         logger.info("No updates needed for %s", character.eve_character.character_name)
     else:
-        sections = CharacterUpdateSection.get_sections()
         runs = 0
         for section in sections:
-            # Skip sections that are not in the needs_update list
-            if not force_refresh and not needs_update.for_section(section):
-                logger.debug(
-                    "No updates needed for %s (%s)",
-                    character.eve_character.character_name,
-                    section,
-                )
-                continue
-
             task_name = f"update_char_{section}"
             task = globals().get(task_name)
             if task:
@@ -399,19 +381,7 @@ def _update_character_section(
         "Updating %s for %s", section.label, character.eve_character.character_name
     )
 
-    character.update_manager.reset_update_status(section)
-
-    method: Callable = getattr(character, section.method_name)
-    method_signature = inspect.signature(method)
-
-    if "force_refresh" in method_signature.parameters:
-        kwargs = {"force_refresh": force_refresh}
-    else:
-        kwargs = {}
-
-    result = character.update_manager.perform_update_status(section, method, **kwargs)
-    character.update_manager.update_section_log(section, result)
-    return result
+    return character.execute_section(section, force_refresh=force_refresh)
 
 
 # Corporation Audit - Tasks
@@ -482,30 +452,16 @@ def update_corporation(
         format(corporation.eve_corporation.corporation_name),
     )
 
-    if force_refresh:
-        # Reset Token Error if we are forcing a refresh
-        corporation.update_manager.reset_has_token_error()
+    sections = corporation.get_sections_to_update(force_refresh=force_refresh)
 
-    needs_update = corporation.update_manager.calc_update_needed()
-
-    if not needs_update and not force_refresh:
+    if not sections:
         logger.info(
             "No updates needed for %s", corporation.eve_corporation.corporation_name
         )
         return False
 
-    sections = CorporationUpdateSection.get_sections()
     runs = 0
     for section in sections:
-        # Skip sections that are not in the needs_update list
-        if not force_refresh and not needs_update.for_section(section):
-            logger.debug(
-                "No updates needed for %s (%s)",
-                corporation.eve_corporation.corporation_name,
-                section,
-            )
-            continue
-
         task_name = f"update_corp_{section}"
         task = globals().get(task_name)
         if task:
@@ -576,16 +532,4 @@ def _update_corporation_section(
         corporation.eve_corporation.corporation_name,
     )
 
-    corporation.update_manager.reset_update_status(section)
-
-    method: Callable = getattr(corporation, section.method_name)
-    method_signature = inspect.signature(method)
-
-    if "force_refresh" in method_signature.parameters:
-        kwargs = {"force_refresh": force_refresh}
-    else:
-        kwargs = {}
-
-    result = corporation.update_manager.perform_update_status(section, method, **kwargs)
-    corporation.update_manager.update_section_log(section, result)
-    return result
+    return corporation.execute_section(section, force_refresh=force_refresh)
