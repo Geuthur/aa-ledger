@@ -15,6 +15,7 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Ledger
 from ledger import __title__
 from ledger.constants import DISCORD_EMBED_COLOR_MAP
+from ledger.models import UserSettings
 from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -112,6 +113,13 @@ def send_user_notification(
         logger.warning(
             "User with ID %s does not exist. Notification not sent.", user_id
         )
+        return
+
+    user_pk = getattr(user, "pk", user_id)
+    if UserSettings.objects.filter(
+        user_id=user_pk, disable_notifications=True
+    ).exists():
+        logger.info("Notifications are disabled for user %s; skipping delivery.", user)
         return
 
     getattr(notify, level)(user=user, title=title, message=message)
