@@ -8,7 +8,6 @@ from typing import Any
 from aiopenapi3 import RequestError
 
 # Django
-from django.apps import apps
 from django.db import models
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -477,11 +476,7 @@ class UpdateManagerMixin:
     def update_manager(self) -> UpdateManager:
         """Return the initialized UpdateManager instance for this owner."""
         if not hasattr(self, "_update_manager"):
-            status_model = self.update_status_model
-            if isinstance(status_model, str):
-                status_model = apps.get_model(self._meta.app_label, status_model)
-
-            if self.update_section_class is None or status_model is None:
+            if self.update_section_class is None or self.update_status_model is None:
                 raise AttributeError(
                     f"{self.__class__.__name__} must define 'update_section_class' "
                     "and 'update_status_model' to use UpdateManagerMixin."
@@ -489,7 +484,7 @@ class UpdateManagerMixin:
             self._update_manager = UpdateManager(
                 owner=self,
                 update_section=self.update_section_class,
-                update_status=status_model,
+                update_status=self.update_status_model,
             )
         return self._update_manager
 
