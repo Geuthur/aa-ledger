@@ -45,7 +45,11 @@ def add_char(request, token):
         },
     )[0]
     tasks.update_character.apply_async(
-        kwargs={"eve_id": char.eve_character.character_id, "force_refresh": True},
+        kwargs={
+            "eve_id": char.eve_character.character_id,
+            "force_refresh": True,
+            "update_alts": False,
+        },
         priority=6,
     )
 

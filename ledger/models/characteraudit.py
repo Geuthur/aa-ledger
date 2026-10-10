@@ -12,6 +12,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
+from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveCharacter, Token
 from allianceauth.services.hooks import get_extension_logger
 
@@ -143,7 +144,7 @@ class CharacterOwner(models.Model):
         return self.character_ownership is None
 
     @cached_property
-    def character_ownership(self) -> bool:
+    def character_ownership(self) -> CharacterOwnership | None:
         """
         Return the character ownership object of this character.
         """

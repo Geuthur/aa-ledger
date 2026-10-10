@@ -29,7 +29,7 @@ def _add_character_charaudit(request, token):
         },
     )[0]
     update_character.apply_async(
-        args=[character.pk], kwargs={"force_refresh": True}, priority=6
+        args=[character.eve_id], kwargs={"force_refresh": True}, priority=6
     )
 
 
@@ -51,7 +51,7 @@ def _add_character_corp(request, token):
         },
     )[0]
     update_corporation.apply_async(
-        args=[corp.pk], kwargs={"force_refresh": True}, priority=6
+        args=[corp.eve_id], kwargs={"force_refresh": True}, priority=6
     )
 
 

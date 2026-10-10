@@ -2,25 +2,10 @@
 
 # Standard Library
 import logging
-import random
-from contextlib import contextmanager
-from http import HTTPStatus
 from pathlib import Path
-
-# Third Party
-from aiopenapi3 import RequestError
-from celery import Task
-
-# Django
-from django.utils import timezone
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
-from esi.exceptions import (
-    ESIBucketLimitException,
-    ESIErrorLimitException,
-    HTTPServerError,
-)
 from esi.openapi_clients import ESIClientProvider
 
 # AA Ledger
@@ -32,7 +17,6 @@ from ledger import (
     __title__,
     __version__,
 )
-from ledger.errors import DownTimeError
 
 spec_file = Path(__file__).parent / f"openapi_{__esi_compatibility_date__}.json"
 esi = ESIClientProvider(
@@ -84,67 +68,3 @@ class AppLogger(logging.LoggerAdapter):
 
 
 logger = AppLogger(my_logger=get_extension_logger(__name__), prefix=__title__)
-
-
-@contextmanager
-def retry_task_on_esi_error(task: Task):
-    """Retry Task when a ESI error occurs.
-
-    Taken from the `allianceauth-app-utils` package.
-    Credits to: Erik Kalkoken
-
-    Retries on:
-    - Error limits reached (ESIErrorLimitException)
-    - Rate limit errors (ESIBucketLimitException)
-    - HTTPError with status codes 502, 503, 504 (server errors)
-    - Request errors (RequestError)
-    - Daily downtime (11:00 - 11:15 UTC)
-
-    :param task: Celery Task instance
-    :return: Context manager that retries the task on ESI errors.
-
-    """
-
-    def retry(exc: Exception, retry_after: float, issue: str):
-        backoff_jitter = int(random.uniform(2, 5) ** task.request.retries)
-        countdown = retry_after + backoff_jitter
-        if not isinstance(exc, DownTimeError):
-            logger.warning(
-                "ESI Error encountered: %s. Retrying after %.2f seconds. Issue: %s",
-                str(exc),
-                countdown,
-                issue,
-            )
-        raise task.retry(countdown=countdown, exc=exc)
-
-    def daily_downtime():
-        """Checks if the current time is within ESI's daily downtime window (11:00 - 11:15 UTC)."""
-        is_downtime = (
-            timezone.now().time() >= timezone.datetime.strptime("11:00", "%H:%M").time()
-            and timezone.now().time()
-            <= timezone.datetime.strptime("11:15", "%H:%M").time()
-        )
-        if not is_downtime:
-            return False
-        return True
-
-    try:
-        if daily_downtime():
-            raise DownTimeError("ESI is in daily downtime")
-        yield
-    except ESIErrorLimitException as exc:
-        retry(exc, exc.reset, "ESI Error Limit Reached")
-    except ESIBucketLimitException as exc:
-        retry(exc, exc.reset, f"ESI Bucket Limit Reached for {exc.bucket}")
-    except HTTPServerError as exc:
-        if exc.status_code in [
-            HTTPStatus.BAD_GATEWAY,
-            HTTPStatus.SERVICE_UNAVAILABLE,
-            HTTPStatus.GATEWAY_TIMEOUT,
-        ]:
-            retry(exc, DOWNTIME_TIMER, f"ESI seems to be down (HTTP {exc.status_code})")
-        raise exc
-    except RequestError as exc:
-        retry(exc, DOWNTIME_TIMER, "Request Error")
-    except DownTimeError as exc:
-        retry(exc, DOWNTIME_TIMER, "Downtime Error")

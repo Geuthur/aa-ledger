@@ -7,7 +7,12 @@ from unittest.mock import MagicMock, PropertyMock, patch
 from django.test import override_settings
 from django.utils import timezone
 
+# Alliance Auth (External Libs)
+from evesde_factory.allianceauth import EveCharacterFactory
+from evesde_factory.utils import add_character_to_user
+
 # AA Ledger
+from ledger.models import CharacterOwner
 from ledger.models.characteraudit import CharacterUpdateStatus
 from ledger.models.corporationaudit import CorporationUpdateStatus
 from ledger.models.general import UpdateSectionResult
@@ -18,6 +23,8 @@ from ledger.tasks import (
     update_all_corporations,
     update_character,
     update_corporation,
+    update_subset_characters,
+    update_user_characters,
 )
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.factory import (
@@ -25,6 +32,7 @@ from ledger.tests.testdata.factory import (
     CharacterUpdateStatusFactory,
     CorporationOwnerFactory,
     CorporationUpdateStatusFactory,
+    UserMainFactory,
 )
 
 TASKS_PATH = "ledger.tasks"
@@ -276,3 +284,120 @@ class TestTasks(LedgerTestCase):
         self.assertEqual(update_status, None)
         self.assertEqual(new_update_status.has_token_error, False)
         self.assertEqual(new_update_status.is_success, True)
+
+    @patch(TASKS_PATH + ".update_character")
+    @patch(TASKS_PATH + ".CharacterMiningLedger.update_evemarket_price")
+    def test_update_subset_characters_should_group_by_user(
+        self, mock_price: MagicMock, mock_update_character: MagicMock
+    ):
+        """Test that update_subset_characters groups characters by user and queues all alts together."""
+        # Test Data
+        user_1 = UserMainFactory()
+        main_1 = CharacterOwnerFactory(user=user_1)
+        alt_1_char = EveCharacterFactory()
+        add_character_to_user(
+            user=user_1,
+            character=alt_1_char,
+            is_main=False,
+            scopes=CharacterOwner.get_esi_scopes(),
+        )
+        alt_1 = CharacterOwnerFactory(
+            eve_character=alt_1_char,
+            character_name=alt_1_char.character_name,
+        )
+
+        user_2 = UserMainFactory()
+        main_2 = CharacterOwnerFactory(user=user_2)
+
+        # Test Action
+        update_subset_characters(subset=1, min_runs=1, max_runs=10, force_refresh=True)
+
+        # Expected Result
+        queued_ids = [
+            call.kwargs["args"][0]
+            for call in mock_update_character.apply_async.call_args_list
+        ]
+        self.assertIn(main_1.eve_id, queued_ids)
+        self.assertIn(alt_1.eve_id, queued_ids)
+        self.assertIn(main_2.eve_id, queued_ids)
+
+    @patch(TASKS_PATH + ".update_character")
+    def test_update_user_characters_should_queue_all_active_characters(
+        self, mock_update_character: MagicMock
+    ):
+        """Test that update_user_characters queues all active characters for a specific user."""
+        # Test Data
+        user = UserMainFactory()
+        main = CharacterOwnerFactory(user=user)
+        alt_char = EveCharacterFactory()
+        add_character_to_user(
+            user=user,
+            character=alt_char,
+            is_main=False,
+            scopes=CharacterOwner.get_esi_scopes(),
+        )
+        alt = CharacterOwnerFactory(
+            eve_character=alt_char,
+            character_name=alt_char.character_name,
+            active=True,
+        )
+        inactive_char = EveCharacterFactory()
+        add_character_to_user(
+            user=user,
+            character=inactive_char,
+            is_main=False,
+            scopes=CharacterOwner.get_esi_scopes(),
+        )
+        CharacterOwnerFactory(
+            eve_character=inactive_char,
+            character_name=inactive_char.character_name,
+            active=False,
+        )
+
+        # Test Action
+        update_user_characters(user_id=user.id, force_refresh=True)
+
+        # Expected Result
+        queued_ids = [
+            call.kwargs["args"][0]
+            for call in mock_update_character.apply_async.call_args_list
+        ]
+        self.assertIn(main.eve_id, queued_ids)
+        self.assertIn(alt.eve_id, queued_ids)
+        self.assertEqual(len(queued_ids), 2)
+
+    @patch(TASKS_PATH + ".update_char_wallet_journal")
+    @patch(TASKS_PATH + ".update_character.apply_async")
+    @patch(
+        TASKS_PATH + ".CharacterUpdateSection.get_sections",
+        lambda: ["wallet_journal"],
+    )
+    def test_update_character_with_update_alts_should_queue_alts(
+        self, mock_apply_async: MagicMock, mock_update_wallet_journal: MagicMock
+    ):
+        """Test that update_character queues active alts when update_alts=True."""
+        # Test Data
+        user = UserMainFactory()
+        main = CharacterOwnerFactory(user=user)
+        alt_char = EveCharacterFactory()
+        add_character_to_user(
+            user=user,
+            character=alt_char,
+            is_main=False,
+            scopes=CharacterOwner.get_esi_scopes(),
+        )
+        alt = CharacterOwnerFactory(
+            eve_character=alt_char,
+            character_name=alt_char.character_name,
+            active=True,
+        )
+
+        # Test Action
+        update_character(eve_id=main.eve_id, force_refresh=True, update_alts=True)
+
+        # Expected Result
+        mock_apply_async.assert_called_once_with(
+            args=[alt.eve_id],
+            kwargs={"force_refresh": True, "update_alts": False},
+            priority=7,
+        )

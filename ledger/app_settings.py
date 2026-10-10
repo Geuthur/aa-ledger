@@ -15,12 +15,12 @@ LEDGER_STALE_TYPES = getattr(
     settings,
     "LEDGER_STALE_TYPES",
     {
-        "wallet_journal": 30,
-        "wallet_division_names": 30,
-        "wallet_division": 30,
-        "mining_ledger": 30,
-        "planets": 30,
-        "planets_details": 30,
+        "wallet_journal": 60,
+        "wallet_division_names": 60,
+        "wallet_division": 60,
+        "mining_ledger": 10,
+        "planets": 10,
+        "planets_details": 10,
     },
 )
 

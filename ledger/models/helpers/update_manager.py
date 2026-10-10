@@ -1,5 +1,9 @@
 # Standard Library
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Union
+
+# Third Party
+from aiopenapi3 import RequestError
 
 # Django
 from django.db import models
@@ -9,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
+from esi.errors import TokenError
 from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
 
 # AA Ledger
@@ -193,9 +198,6 @@ class UpdateManager:
             force_refresh (bool): Whether to force a refresh of the data.
         Returns:
             UpdateSectionResult: The result of the update operation.
-        Raises:
-            HTTPClientError: If there is a client error during the fetch.
-            HTTPNotModified: If the data has not been modified.
         """
         section = self.update_section(section)
         try:
@@ -203,31 +205,66 @@ class UpdateManager:
             logger.debug(
                 "%s: Update has changed, section: %s", self.owner, section.label
             )
+            return UpdateSectionResult(
+                is_changed=True,
+                is_updated=True,
+                data=data,
+            )
         except HTTPNotModified:
             logger.debug(
-                "%s: Update has not changed, section: %s", self.owner, section.label
-            )
-            return UpdateSectionResult(is_changed=False, is_updated=False)
-        except HTTPClientError as exc:
-            error_message = f"{type(exc).__name__}: {str(exc)}"
-            logger.error(
-                "%s: %s: Update has Client Error: %s %s",
+                "%s: Update has not changed (HTTP 304), section: %s",
                 self.owner,
                 section.label,
-                error_message,
-                exc.status_code,
             )
             return UpdateSectionResult(
                 is_changed=False,
                 is_updated=False,
-                has_token_error=True,
+                has_token_error=False,
+                error_message="",
+            )
+        except (HTTPServerError, RequestError) as exc:
+            error_message = f"{type(exc).__name__}: {str(exc)}"
+            logger.debug(
+                "%s: %s: ESI server error / timeout: %s",
+                self.owner,
+                section.label,
+                error_message,
+            )
+            return UpdateSectionResult(
+                is_changed=False,
+                is_updated=False,
+                has_token_error=False,
                 error_message=error_message,
             )
-        return UpdateSectionResult(
-            is_changed=True,
-            is_updated=True,
-            data=data,
-        )
+        except HTTPClientError as exc:
+            error_message = f"{type(exc).__name__} ({exc.status_code}): {str(exc)}"
+            is_token_problem = exc.status_code in [
+                HTTPStatus.UNAUTHORIZED,
+                HTTPStatus.FORBIDDEN,
+                HTTPStatus.NOT_FOUND,
+            ]
+            if is_token_problem:
+                logger.warning(
+                    "%s: %s: Update has Token Error: %s %s",
+                    self.owner,
+                    section.label,
+                    error_message,
+                    exc.status_code,
+                )
+            else:
+                logger.debug(
+                    "%s: %s: Update has Client Error: %s %s",
+                    self.owner,
+                    section.label,
+                    error_message,
+                    exc.status_code,
+                )
+            return UpdateSectionResult(
+                is_changed=False,
+                is_updated=False,
+                has_token_error=is_token_problem,
+                error_message=error_message,
+            )
 
     def update_section_log(
         self, section: models.TextChoices, result: UpdateSectionResult
@@ -241,7 +278,7 @@ class UpdateManager:
             None
         """
         error_message = result.error_message if result.error_message else ""
-        is_success = not result.has_token_error
+        is_success = not result.has_token_error and not bool(error_message)
         defaults = {
             "is_success": is_success,
             "error_message": error_message,
@@ -271,16 +308,39 @@ class UpdateManager:
             *args: Positional arguments for the method.
             **kwargs: Keyword arguments for the method.
         Returns:
-            Any: The result of the method call.
-        Raises:
-            HTTPServerError: If there is a server error during the method call.
-            Exception: Reraises any exception encountered during the method call.
+            UpdateSectionResult: The result of the method call.
         """
         try:
             result = method(*args, **kwargs)
-        except HTTPServerError as exc:
-            raise exc
-        except Exception as exc:
+        except (HTTPServerError, RequestError) as exc:
+            error_message = f"{type(exc).__name__}: {str(exc)}"
+            logger.debug(
+                "%s: %s: ESI server error / timeout: %s",
+                self.owner,
+                section.label,
+                error_message,
+            )
+            return UpdateSectionResult(
+                is_changed=False,
+                is_updated=False,
+                has_token_error=False,
+                error_message=error_message,
+            )
+        except TokenError as exc:
+            error_message = f"{type(exc).__name__}: {str(exc)}"
+            logger.warning(
+                "%s: %s: Update has Token Error: %s",
+                self.owner,
+                section.label,
+                error_message,
+            )
+            return UpdateSectionResult(
+                is_changed=False,
+                is_updated=False,
+                has_token_error=True,
+                error_message=error_message,
+            )
+        except Exception as exc:  # pylint: disable=broad-exception-caught
             error_message = f"{type(exc).__name__}: {str(exc)}"
             logger.error(
                 "%s: %s: Error during update status: %s",
@@ -288,15 +348,16 @@ class UpdateManager:
                 section.label,
                 error_message,
             )
-            self.update_status.objects.update_or_create(
-                owner=self.owner,
-                section=section,
-                defaults={
-                    "is_success": False,
-                    "error_message": error_message,
-                    "has_token_error": False,
-                    "last_update_at": timezone.now(),
-                },
+            # pylint: disable=no-member
+            is_token_problem = isinstance(exc, HTTPClientError) and exc.status_code in [
+                HTTPStatus.UNAUTHORIZED,
+                HTTPStatus.FORBIDDEN,
+                HTTPStatus.NOT_FOUND,
+            ]
+            return UpdateSectionResult(
+                is_changed=False,
+                is_updated=False,
+                has_token_error=is_token_problem,
+                error_message=error_message,
             )
-            raise exc
         return result

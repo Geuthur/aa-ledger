@@ -154,7 +154,7 @@ class CorporationAuditAdmin(admin.ModelAdmin):
         count = 0
         for corporation_audit in queryset:
             update_corporation.delay(
-                corporation_pk=corporation_audit.pk, force_refresh=True
+                eve_id=corporation_audit.eve_id, force_refresh=True
             )
             count += 1
 
@@ -297,7 +297,7 @@ class CharacterAuditAdmin(admin.ModelAdmin):
         """Force update of selected characters."""
         count = 0
         for character_audit in queryset:
-            update_character.delay(character_pk=character_audit.pk, force_refresh=True)
+            update_character.delay(eve_id=character_audit.eve_id, force_refresh=True)
             count += 1
 
         messages.success(
