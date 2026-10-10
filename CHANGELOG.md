@@ -32,6 +32,7 @@ Section Order:
 
 - **User-Grouped Character Updates**: `update_subset_characters` and new `update_user_characters` task now group active characters by user, updating mains and alts together in the same run to ensure cross-character data consistency.
 - **Alt Character Cascading**: Adding or forcing an update on a character cascades to other active characters belonging to the same user (`update_alts=True`).
+- **Character Administration Last Sync & Manual Update**: Added last synchronization display (formatted date and relative time) on the account overview and individual registered character cards. Added a manual update trigger button in the character administration header with a configurable cooldown (`LEDGER_MANUAL_UPDATE_COOLDOWN`, default: 300 seconds) and a live countdown timer.
 
 ### Changed
 

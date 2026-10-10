@@ -221,7 +221,7 @@
     },
     "/ledger/api/character/overview/": {
       "get": {
-        "operationId": "ledger_api_admin_get_character_overview",
+        "operationId": "ledger_api_overview_get_character_overview",
         "summary": "Get all main characters visible to the user",
         "parameters": [],
         "responses": {
@@ -252,7 +252,7 @@
     },
     "/ledger/api/planetary/overview/": {
       "get": {
-        "operationId": "ledger_api_admin_get_planetary_overview",
+        "operationId": "ledger_api_overview_get_planetary_overview",
         "summary": "Get all main characters with planetary access",
         "parameters": [],
         "responses": {
@@ -283,7 +283,7 @@
     },
     "/ledger/api/corporation/overview/": {
       "get": {
-        "operationId": "ledger_api_admin_get_corporation_overview",
+        "operationId": "ledger_api_overview_get_corporation_overview",
         "summary": "Get all corporations visible to the user",
         "parameters": [],
         "responses": {
@@ -314,7 +314,7 @@
     },
     "/ledger/api/alliance/overview/": {
       "get": {
-        "operationId": "ledger_api_admin_get_alliance_overview",
+        "operationId": "ledger_api_overview_get_alliance_overview",
         "summary": "Get all alliances visible to the user",
         "parameters": [],
         "responses": {
@@ -388,6 +388,83 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Administration"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/character/{character_id}/update/": {
+      "post": {
+        "operationId": "ledger_api_administration_trigger_character_update",
+        "summary": "Queue an update for all characters of the user owning this character",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "character_id",
+            "schema": {
+              "title": "Character Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -438,6 +515,16 @@
           },
           "404": {
             "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": {
               "application/json": {
                 "schema": {
@@ -502,6 +589,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -559,6 +656,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -609,6 +716,16 @@
           },
           "404": {
             "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": {
               "application/json": {
                 "schema": {
@@ -1910,6 +2027,18 @@
               }
             ],
             "title": "Status"
+          },
+          "last_sync": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync"
           }
         },
         "required": [
@@ -1920,7 +2049,7 @@
         "type": "object"
       },
       "AdministrationResponse": {
-        "description": "Everything the administration page of an account, corporation or alliance shows.\n\nAttributes:\n    owner: The account's main character, corporation or alliance.\n    dashboard: Registration statistics.\n    registered: Entries registered in the ledger.\n    missing: Entries that exist but are not registered.\n    members: Characters of a corporation that are known to Auth.",
+        "description": "Everything the administration page of an account, corporation or alliance shows.\n\nAttributes:\n    owner: The account's main character, corporation or alliance.\n    dashboard: Registration statistics.\n    registered: Entries registered in the ledger.\n    missing: Entries that exist but are not registered.\n    members: Characters of a corporation that are known to Auth.\n    last_sync: The timestamp of the most recent synchronization.\n    can_update: Whether the user can trigger a manual update.\n    cooldown_seconds: Remaining seconds until next manual update is allowed.",
         "properties": {
           "owner": {
             "$ref": "#/components/schemas/OwnerSchema"
@@ -1951,6 +2080,28 @@
             },
             "title": "Members",
             "type": "array"
+          },
+          "last_sync": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync"
+          },
+          "can_update": {
+            "default": false,
+            "title": "Can Update",
+            "type": "boolean"
+          },
+          "cooldown_seconds": {
+            "default": 0,
+            "title": "Cooldown Seconds",
+            "type": "integer"
           }
         },
         "required": [

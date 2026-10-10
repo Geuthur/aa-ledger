@@ -35,3 +35,6 @@ LEDGER_PRICE_PERCENTAGE = getattr(settings, "LEDGER_PRICE_PERCENTAGE", 0.9)
 # Can be increased for better performance if your MySQL max_allowed_packet setting
 # is configured higher (default is usually 16-64MB).
 LEDGER_BULK_BATCH_SIZE = getattr(settings, "LEDGER_BULK_BATCH_SIZE", 500)
+
+# Cooldown in seconds between manual character updates triggered from the frontend
+LEDGER_MANUAL_UPDATE_COOLDOWN = getattr(settings, "LEDGER_MANUAL_UPDATE_COOLDOWN", 300)

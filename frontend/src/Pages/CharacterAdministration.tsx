@@ -5,7 +5,11 @@ import { Link, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
-import { deleteCharacter, fetchCharacterAdministration } from "@/Api/ApiCalls";
+import {
+  deleteCharacter,
+  fetchCharacterAdministration,
+  triggerCharacterUpdate,
+} from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
 import AdministrationView from "@/Components/Administration/AdministrationView";
 
@@ -29,6 +33,7 @@ function CharacterAdministration() {
       queryKey={queryKey}
       ledgerPath={(ownerId) => `/ledger/character/${ownerId}/`}
       onDelete={deleteCharacter}
+      onUpdate={() => triggerCharacterUpdate(characterId)}
       headerAction={
         <Link className="aa-btn aa-btn-secondary" to={`/ledger/character/${characterId}/`}>
           {t("View Ledger")}
