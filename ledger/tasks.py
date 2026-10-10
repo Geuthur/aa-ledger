@@ -5,9 +5,10 @@ import inspect
 from collections.abc import Callable
 
 # Third Party
-from celery import Task, chain, shared_task
+from celery import Task, shared_task
 
 # Django
+from django.contrib.auth.models import User
 from django.db.models import Min
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -27,7 +28,7 @@ from ledger.models.helpers.update_manager import (
     CorporationUpdateSection,
 )
 from ledger.models.planetary import CharacterPlanetDetails
-from ledger.providers import AppLogger, retry_task_on_esi_error
+from ledger.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
@@ -121,6 +122,39 @@ def check_planetary_alarms(runs: int = 0):
     logger.info("Queued %s Planetary Alarms.", runs)
 
 
+@shared_task(**TASK_DEFAULTS_BIND_ONCE)
+def update_user_characters(
+    self: Task, user_id: int, force_refresh: bool = False
+) -> int:
+    """Update all active characters belonging to a specific user.
+
+    Args:
+        user_id (int): Django User ID whose characters should be updated
+        force_refresh (bool): Whether to force a refresh of all sections
+
+    Returns:
+        int: Number of character updates initiated
+    """
+    char_ids = list(
+        CharacterOwner.objects.filter(
+            eve_character__character_ownership__user_id=user_id, active=True
+        ).values_list("eve_character__character_id", flat=True)
+    )
+    priority = (
+        self.request.delivery_info.get("priority", 7)
+        if hasattr(self, "request") and self.request and self.request.delivery_info
+        else 7
+    )
+    for eve_id in char_ids:
+        update_character.apply_async(
+            args=[eve_id],
+            kwargs={"force_refresh": force_refresh, "update_alts": False},
+            priority=priority,
+        )
+    logger.debug("Queued %s characters for user ID %s", len(char_ids), user_id)
+    return len(char_ids)
+
+
 @shared_task(**TASK_DEFAULTS_ONCE)
 def update_all_characters(runs: int = 0, force_refresh=False):
     """Update all characters"""
@@ -132,7 +166,8 @@ def update_all_characters(runs: int = 0, force_refresh=False):
     characters = CharacterOwner.objects.select_related("eve_character").filter(active=1)
     for character in characters:
         update_character.apply_async(
-            args=[character.eve_id], kwargs={"force_refresh": force_refresh}
+            args=[character.eve_id],
+            kwargs={"force_refresh": force_refresh, "update_alts": False},
         )
         runs = runs + 1
     logger.debug("Queued %s Character Audit Tasks", runs)
@@ -140,7 +175,7 @@ def update_all_characters(runs: int = 0, force_refresh=False):
 
 @shared_task(**TASK_DEFAULTS_ONCE)
 def update_subset_characters(subset=2, min_runs=50, max_runs=500, force_refresh=False):
-    """Update a batch of characters to prevent overload ESI"""
+    """Update a batch of characters to prevent overload ESI, grouping by user."""
     # Disable characters with no owner
     CharacterOwner.objects.disable_characters_with_no_owner()
     # Update EveMarketPrice
@@ -148,42 +183,81 @@ def update_subset_characters(subset=2, min_runs=50, max_runs=500, force_refresh=
 
     # Calculate number of characters to update
     total_characters = CharacterOwner.objects.filter(active=1).count()
-    characters_count = min(max(total_characters // subset, min_runs), total_characters)
+    if total_characters == 0:
+        return
 
-    # Limit the number of characters to update to prevent overload ESI
+    characters_count = min(max(total_characters // subset, min_runs), total_characters)
     characters_count = min(characters_count, max_runs)
 
-    # Annotate characters with the oldest `last_run_finished` across all update sections
-    characters = (
-        CharacterOwner.objects.filter(active=1)
-        .annotate(oldest_update=Min("ledger_update_status__last_run_finished_at"))
+    # Annotate users with the oldest `last_run_finished_at` across all active character update sections
+    users = (
+        User.objects.filter(
+            character_ownerships__character__ledger_character__active=True
+        )
+        .annotate(
+            oldest_update=Min(
+                "character_ownerships__character__ledger_character__ledger_update_status__last_run_finished_at"
+            )
+        )
         .order_by("oldest_update")
-        .distinct()[:characters_count]
+        .distinct()
     )
 
-    for character in characters:
-        update_character.apply_async(
-            args=[character.eve_id], kwargs={"force_refresh": force_refresh}
+    queued_chars = 0
+    for user in users:
+        user_char_ids = list(
+            CharacterOwner.objects.filter(
+                eve_character__character_ownership__user=user, active=True
+            ).values_list("eve_character__character_id", flat=True)
         )
-    logger.debug("Queued %s Character Audit Tasks", len(characters))
+        for eve_id in user_char_ids:
+            update_character.apply_async(
+                args=[eve_id],
+                kwargs={"force_refresh": force_refresh, "update_alts": False},
+            )
+            queued_chars += 1
+        if queued_chars >= characters_count:
+            break
+
+    # If there are any characters not mapped to a user, pick up remaining by oldest update
+    if queued_chars < characters_count:
+        other_chars = (
+            CharacterOwner.objects.filter(active=1)
+            .annotate(oldest_update=Min("ledger_update_status__last_run_finished_at"))
+            .order_by("oldest_update")
+            .distinct()[: characters_count - queued_chars]
+        )
+        for char in other_chars:
+            update_character.apply_async(
+                args=[char.eve_id],
+                kwargs={"force_refresh": force_refresh, "update_alts": False},
+            )
+            queued_chars += 1
+
+    logger.debug("Queued %s Character Audit Tasks", queued_chars)
 
 
 @shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
 def update_character(
-    self: Task, eve_id: int, force_refresh=False
+    self: Task, eve_id: int, force_refresh: bool = False, update_alts: bool = False
 ) -> bool:  # pylint: disable=unused-argument
     """Update a character owner
 
     Args:
         eve_id (int): Eve ID of the CharacterOwner to update
         force_refresh (bool): Whether to force a refresh of all sections
+        update_alts (bool): Whether to also update other active characters of this user
 
     Returns:
         True if the task was successful, False otherwise
     """
-    character = CharacterOwner.objects.prefetch_related("ledger_update_status").get(
-        eve_character__character_id=eve_id
-    )
+    try:
+        character = CharacterOwner.objects.prefetch_related("ledger_update_status").get(
+            eve_character__character_id=eve_id
+        )
+    except CharacterOwner.DoesNotExist:
+        logger.warning("CharacterOwner for eve_id %s not found.", eve_id)
+        return False
 
     if character.is_orphan:
         logger.info(
@@ -191,9 +265,6 @@ def update_character(
             character,
         )
         return False
-
-    que = []
-    priority = 7
 
     logger.debug(
         "Processing Audit Updates for %s",
@@ -208,34 +279,66 @@ def update_character(
 
     if not needs_update and not force_refresh:
         logger.info("No updates needed for %s", character.eve_character.character_name)
-        return False
+    else:
+        sections = CharacterUpdateSection.get_sections()
+        runs = 0
+        for section in sections:
+            # Skip sections that are not in the needs_update list
+            if not force_refresh and not needs_update.for_section(section):
+                logger.debug(
+                    "No updates needed for %s (%s)",
+                    character.eve_character.character_name,
+                    section,
+                )
+                continue
 
-    sections = CharacterUpdateSection.get_sections()
+            task_name = f"update_char_{section}"
+            task = globals().get(task_name)
+            if task:
+                task(eve_id=character.eve_id, force_refresh=force_refresh)
+            else:
+                _update_character_section(
+                    task=self,
+                    eve_id=character.eve_id,
+                    section=section,
+                    force_refresh=force_refresh,
+                )
+            runs += 1
 
-    for section in sections:
-        # Skip sections that are not in the needs_update list
-        if not force_refresh and not needs_update.for_section(section):
-            logger.debug(
-                "No updates needed for %s (%s)",
-                character.eve_character.character_name,
-                section,
-            )
-            continue
-
-        task_name = f"update_char_{section}"
-        task = globals().get(task_name)
-        que.append(
-            task.si(character.eve_id, force_refresh=force_refresh).set(
-                priority=priority
-            )
+        logger.debug(
+            "Queued %s Audit Updates for %s",
+            runs,
+            character.eve_character.character_name,
         )
 
-    chain(que).apply_async()
-    logger.debug(
-        "Queued %s Audit Updates for %s",
-        len(que),
-        character.eve_character.character_name,
-    )
+    if update_alts:
+        user = (
+            character.character_ownership.user
+            if character.character_ownership
+            else None
+        )
+        if user:
+            alts = (
+                CharacterOwner.objects.filter(
+                    eve_character__character_ownership__user=user, active=True
+                )
+                .exclude(eve_character__character_id=eve_id)
+                .values_list("eve_character__character_id", flat=True)
+            )
+            priority = (
+                self.request.delivery_info.get("priority", 7)
+                if hasattr(self, "request")
+                and self.request
+                and self.request.delivery_info
+                else 7
+            )
+            for alt_eve_id in alts:
+                update_character.apply_async(
+                    args=[alt_eve_id],
+                    kwargs={"force_refresh": force_refresh, "update_alts": False},
+                    priority=priority,
+                )
+
     return True
 
 
@@ -286,7 +389,12 @@ def _update_character_section(
 ):
     """Update a specific section of the character audit."""
     section = CharacterUpdateSection(section)
-    character = CharacterOwner.objects.get(eve_character__character_id=eve_id)
+    try:
+        character = CharacterOwner.objects.get(eve_character__character_id=eve_id)
+    except CharacterOwner.DoesNotExist:
+        logger.warning("CharacterOwner for eve_id %s not found.", eve_id)
+        return None
+
     logger.debug(
         "Updating %s for %s", section.label, character.eve_character.character_name
     )
@@ -301,11 +409,9 @@ def _update_character_section(
     else:
         kwargs = {}
 
-    with retry_task_on_esi_error(task):
-        result = character.update_manager.perform_update_status(
-            section, method, **kwargs
-        )
+    result = character.update_manager.perform_update_status(section, method, **kwargs)
     character.update_manager.update_section_log(section, result)
+    return result
 
 
 # Corporation Audit - Tasks
@@ -363,12 +469,13 @@ def update_corporation(
     Returns:
         True if the task was successful, False otherwise
     """
-    corporation = CorporationOwner.objects.prefetch_related(
-        "ledger_corporation_update_status"
-    ).get(eve_corporation__corporation_id=eve_id)
-
-    que = []
-    priority = 7
+    try:
+        corporation = CorporationOwner.objects.prefetch_related(
+            "ledger_corporation_update_status"
+        ).get(eve_corporation__corporation_id=eve_id)
+    except CorporationOwner.DoesNotExist:
+        logger.warning("CorporationOwner with eve_id %s not found.", eve_id)
+        return False
 
     logger.debug(
         "Processing Audit Updates for %s",
@@ -388,7 +495,7 @@ def update_corporation(
         return False
 
     sections = CorporationUpdateSection.get_sections()
-
+    runs = 0
     for section in sections:
         # Skip sections that are not in the needs_update list
         if not force_refresh and not needs_update.for_section(section):
@@ -401,16 +508,20 @@ def update_corporation(
 
         task_name = f"update_corp_{section}"
         task = globals().get(task_name)
-        que.append(
-            task.si(corporation.eve_id, force_refresh=force_refresh).set(
-                priority=priority
+        if task:
+            task(eve_id=corporation.eve_id, force_refresh=force_refresh)
+        else:
+            _update_corporation_section(
+                task=self,
+                eve_id=corporation.eve_id,
+                section=section,
+                force_refresh=force_refresh,
             )
-        )
+        runs += 1
 
-    chain(que).apply_async()
     logger.debug(
         "Queued %s Audit Updates for %s",
-        len(que),
+        runs,
         corporation.eve_corporation.corporation_name,
     )
     return True
@@ -449,9 +560,16 @@ def update_corp_wallet_journal(self: Task, eve_id: int, force_refresh: bool):
 def _update_corporation_section(
     task: Task, eve_id: int, section: str, force_refresh: bool
 ):
-    """Update a specific section of the character audit."""
+    """Update a specific section of the corporation audit."""
     section = CorporationUpdateSection(section)
-    corporation = CorporationOwner.objects.get(eve_corporation__corporation_id=eve_id)
+    try:
+        corporation = CorporationOwner.objects.get(
+            eve_corporation__corporation_id=eve_id
+        )
+    except CorporationOwner.DoesNotExist:
+        logger.warning("CorporationOwner for eve_id %s not found.", eve_id)
+        return None
+
     logger.debug(
         "Updating %s for %s",
         section.label,
@@ -468,9 +586,6 @@ def _update_corporation_section(
     else:
         kwargs = {}
 
-    with retry_task_on_esi_error(task):
-        result = corporation.update_manager.perform_update_status(
-            section, method, **kwargs
-        )
-
+    result = corporation.update_manager.perform_update_status(section, method, **kwargs)
     corporation.update_manager.update_section_log(section, result)
+    return result

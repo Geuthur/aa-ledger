@@ -306,6 +306,7 @@ class AdminOwnerSchema(Schema):
     name: str
     icon: str | None = None
     status: str | None = None
+    last_sync: datetime | None = None
 
 
 class AdministrationResponse(Schema):
@@ -318,6 +319,9 @@ class AdministrationResponse(Schema):
         registered: Entries registered in the ledger.
         missing: Entries that exist but are not registered.
         members: Characters of a corporation that are known to Auth.
+        last_sync: The timestamp of the most recent synchronization.
+        can_update: Whether the user can trigger a manual update.
+        cooldown_seconds: Remaining seconds until next manual update is allowed.
     """
 
     owner: OwnerSchema
@@ -325,6 +329,9 @@ class AdministrationResponse(Schema):
     registered: list[AdminOwnerSchema] = []
     missing: list[AdminOwnerSchema] = []
     members: list[AltSchema] = []
+    last_sync: datetime | None = None
+    can_update: bool = False
+    cooldown_seconds: int = 0
 
 
 class EveTypeSchema(Schema):

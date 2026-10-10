@@ -1,5 +1,5 @@
 // React
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 
@@ -8,15 +8,15 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { QueryKey } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { CheckCircle2, LogIn, Trash2, UserCheck, UserMinus, UserX, Users, XCircle } from "lucide-react";
-import { Alert, Badge, Button, Col, Row } from "react-bootstrap";
+import { CheckCircle2, Clock, LogIn, RotateCw, Trash2, UserCheck, UserMinus, UserX, Users, XCircle } from "lucide-react";
+import { Alert, Badge, Button, Col, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { AdminOwnerSchema, AdministrationResponse, AltSchema, MessageSchema } from "@/Api/schema";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
+import { formatDate, formatRelativeTime, renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 
@@ -36,6 +36,8 @@ export interface AdministrationViewProps {
   ledgerPath: (ownerId: number) => string;
   /** Removes an entry; omit if entries cannot be removed on this page. */
   onDelete?: (ownerId: number) => Promise<MessageSchema>;
+  /** Trigger manual update of entries; returns MessageSchema on success */
+  onUpdate?: () => Promise<MessageSchema>;
   /** Optional custom action element in the header. */
   headerAction?: ReactNode;
   /** Whether to show "View Ledger" button on each card (default: true). */
@@ -52,6 +54,7 @@ function AdministrationView({
   queryKey,
   ledgerPath,
   onDelete,
+  onUpdate,
   headerAction,
   showCardLedger = true,
 }: AdministrationViewProps) {
@@ -61,6 +64,23 @@ function AdministrationView({
   const [message, setMessage] = useState<{ variant: "success" | "danger"; text: string } | null>(
     null,
   );
+  const [prevCooldownProp, setPrevCooldownProp] = useState<number | undefined>(
+    data?.cooldown_seconds,
+  );
+  const [cooldown, setCooldown] = useState<number>(data?.cooldown_seconds ?? 0);
+
+  if (data?.cooldown_seconds !== prevCooldownProp) {
+    setPrevCooldownProp(data?.cooldown_seconds);
+    setCooldown(data?.cooldown_seconds ?? 0);
+  }
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const remove = useMutation({
     mutationFn: (ownerId: number) => (onDelete ? onDelete(ownerId) : Promise.reject()),
@@ -71,6 +91,21 @@ function AdministrationView({
     onError: (failure: Error) => setMessage({ variant: "danger", text: failure.message }),
     onSettled: () => setPending(null),
   });
+
+  const update = useMutation({
+    mutationFn: () => (onUpdate ? onUpdate() : Promise.reject()),
+    onSuccess: (result) => {
+      setMessage({ variant: "success", text: result.message });
+      return queryClient.invalidateQueries({ queryKey });
+    },
+    onError: (failure: Error) => setMessage({ variant: "danger", text: failure.message }),
+  });
+
+  const formatCooldown = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
   const memberColumns = [
     memberColumn.accessor("character_name", {
@@ -104,7 +139,52 @@ function AdministrationView({
   return (
     <main>
       <BaseSectionHeader name={data ? `${title} - ${data.owner.character_name}` : title}>
-        {headerAction}
+        <div className="d-flex align-items-center gap-2 flex-wrap">
+          {data?.last_sync ? (
+            <div
+              className="d-flex align-items-center gap-1 text-muted small me-2"
+              title={formatDate(data.last_sync)}
+            >
+              <Clock size={14} />
+              <span>{t("Last Sync")}:</span>
+              <strong className="text-light">
+                {formatRelativeTime(data.last_sync)}
+              </strong>
+            </div>
+          ) : onUpdate && data ? (
+            <div className="d-flex align-items-center gap-1 text-muted small me-2">
+              <Clock size={14} />
+              <span>{t("Last Sync")}:</span>
+              <strong className="text-light">{t("Never")}</strong>
+            </div>
+          ) : null}
+          {onUpdate && (
+            <Button
+              className="aa-btn aa-btn-primary d-inline-flex align-items-center gap-1"
+              disabled={
+                update.isPending ||
+                cooldown > 0 ||
+                (data ? !data.can_update && cooldown === 0 : false)
+              }
+              onClick={() => update.mutate()}
+              aria-label={t("Update")}
+            >
+              {update.isPending ? (
+                <Spinner animation="border" size="sm" role="status" aria-hidden="true" />
+              ) : (
+                <RotateCw size={14} />
+              )}
+              <span>
+                {update.isPending
+                  ? t("Updating...")
+                  : cooldown > 0
+                    ? `${t("Update")} (${formatCooldown(cooldown)})`
+                    : t("Update")}
+              </span>
+            </Button>
+          )}
+          {headerAction}
+        </div>
       </BaseSectionHeader>
       <section className="mt-3 d-flex flex-column gap-3">
         {isLoading && <FetchingLoader message={t("Loading...")} />}
@@ -160,6 +240,15 @@ function AdministrationView({
                     {entry.status && <span className="badge bg-secondary">{entry.status}</span>}
                   </div>
                   <img src={entry.icon ?? ""} alt="" width={96} height={96} className="rounded" />
+                  {entry.last_sync !== undefined && (
+                    <div
+                      className="small text-muted d-flex align-items-center gap-1"
+                      title={entry.last_sync ? formatDate(entry.last_sync) : undefined}
+                    >
+                      <Clock size={12} />
+                      <span>{entry.last_sync ? formatRelativeTime(entry.last_sync) : t("Never")}</span>
+                    </div>
+                  )}
                   <div className="d-flex justify-content-center gap-2">
                     {showCardLedger &&
                       renderTooltip(

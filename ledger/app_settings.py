@@ -15,12 +15,12 @@ LEDGER_STALE_TYPES = getattr(
     settings,
     "LEDGER_STALE_TYPES",
     {
-        "wallet_journal": 30,
-        "wallet_division_names": 30,
-        "wallet_division": 30,
-        "mining_ledger": 30,
-        "planets": 30,
-        "planets_details": 30,
+        "wallet_journal": 60,
+        "wallet_division_names": 60,
+        "wallet_division": 60,
+        "mining_ledger": 10,
+        "planets": 10,
+        "planets_details": 10,
     },
 )
 
@@ -35,3 +35,6 @@ LEDGER_PRICE_PERCENTAGE = getattr(settings, "LEDGER_PRICE_PERCENTAGE", 0.9)
 # Can be increased for better performance if your MySQL max_allowed_packet setting
 # is configured higher (default is usually 16-64MB).
 LEDGER_BULK_BATCH_SIZE = getattr(settings, "LEDGER_BULK_BATCH_SIZE", 500)
+
+# Cooldown in seconds between manual character updates triggered from the frontend
+LEDGER_MANUAL_UPDATE_COOLDOWN = getattr(settings, "LEDGER_MANUAL_UPDATE_COOLDOWN", 300)

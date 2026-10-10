@@ -28,6 +28,24 @@ Section Order:
 
 <!-- Your changes go here -->
 
+### Added
+
+- **User-Grouped Character Updates**: `update_subset_characters` and new `update_user_characters` task now group active characters by user, updating mains and alts together in the same run to ensure cross-character data consistency.
+- **Alt Character Cascading**: Adding or forcing an update on a character cascades to other active characters belonging to the same user (`update_alts=True`).
+- **Character Administration Last Sync & Manual Update**: Added last synchronization display (formatted date and relative time) on the account overview and individual registered character cards. Added a manual update trigger button in the character administration header with a configurable cooldown (`LEDGER_MANUAL_UPDATE_COOLDOWN`, default: 300 seconds) and a live countdown timer.
+
+### Changed
+
+- **Update Manager & Direct Execution**: Replaced Celery subtask chaining and retry context managers with direct, sequential section updates in `update_character` and `update_corporation`.
+- **Cache Stale Thresholds**: Updated `LEDGER_STALE_TYPES` to align with CCP ESI cache policies (Wallet Journal: 60 minutes, Mining: 10 minutes, Planets: 10 minutes).
+- **Update Freshness Tracking**: Freshness checks in `need_update()` now evaluate `last_run_finished_at` rather than `last_update_finished_at`, preventing redundant polling when ESI returns HTTP 304 (Not Modified).
+- **Token Error Classification**: Token error status (`has_token_error=True`) is now strictly reserved for genuine authentication and permission issues (HTTP 401, 403, 404, or `TokenError`), preventing server errors (5xx) or HTTP 304 from setting a token error.
+- **Reduced Log Verbosity for Transient ESI Errors**: ESI server errors (e.g. HTTP 504 Gateway Timeout, 502, 503) and network request timeouts (`RequestError`) during downtime or Tranquility cluster hiccups are now logged at `DEBUG` level instead of `WARNING` or `ERROR`.
+
+### Fixed
+
+- **Admin & Charlink Parameter Handling**: Fixed bug in `admin.py` and `charlink_hook.py` where database primary keys were passed to update tasks instead of EVE IDs.
+
 ## [4.0.0] - 2026-10-06
 
 > [!IMPORTANT]

@@ -264,6 +264,17 @@ export async function fetchCharacterAdministration(
   return data;
 }
 
+export async function triggerCharacterUpdate(characterId: number): Promise<MessageSchema> {
+  const { data, error } = await apiClient.POST(
+    `${API_BASE}/character/{character_id}/update/`,
+    { params: { path: { character_id: characterId } } },
+  );
+  if (error || !data) {
+    throw new Error(errorMessage(error, "Failed to update characters"));
+  }
+  return data;
+}
+
 export async function fetchCorporationAdministration(
   corporationId: number,
 ): Promise<AdministrationResponse> {

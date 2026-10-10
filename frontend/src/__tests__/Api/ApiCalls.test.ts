@@ -13,6 +13,7 @@ import {
   loadUserSettings,
   queueUpdate,
   togglePlanetNotification,
+  triggerCharacterUpdate,
   updateUserSettings,
 } from "@/Api/ApiCalls";
 
@@ -186,6 +187,20 @@ describe("Planetary and administration API client functions", () => {
     // Expected Result
     expect(apiClient.POST).toHaveBeenCalledWith("/ledger/api/admin/update/", {
       body: { target: "characters", force_refresh: true },
+    });
+  });
+
+  it("triggerCharacterUpdate posts the character update request", async () => {
+    // Test Data
+    vi.spyOn(apiClient, "POST").mockResolvedValueOnce(ok({ message: "Update queued" }));
+
+    // Test Action
+    const result = await triggerCharacterUpdate(42);
+
+    // Expected Result
+    expect(result).toEqual({ message: "Update queued" });
+    expect(apiClient.POST).toHaveBeenCalledWith("/ledger/api/character/{character_id}/update/", {
+      params: { path: { character_id: 42 } },
     });
   });
 });

@@ -209,7 +209,11 @@ class ApiEndpoints:
             ).exists():
                 return HTTPStatus.NOT_FOUND, {"error": _("Character not found.")}
             tasks.update_character.apply_async(
-                kwargs={"eve_id": eve_id, "force_refresh": force_refresh},
+                kwargs={
+                    "eve_id": eve_id,
+                    "force_refresh": force_refresh,
+                    "update_alts": True,
+                },
                 priority=ADMIN_TASK_PRIORITY,
             )
             return schema.MessageSchema(message=_("Queued Update for Character"))
