@@ -40,7 +40,7 @@ from ledger.models.general import (
 )
 from ledger.models.helpers.update_manager import (
     CharacterUpdateSection,
-    UpdateManager,
+    UpdateManagerMixin,
     UpdateStatus,
 )
 from ledger.providers import AppLogger
@@ -48,8 +48,11 @@ from ledger.providers import AppLogger
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
-class CharacterOwner(models.Model):
+class CharacterOwner(UpdateManagerMixin, models.Model):
     """A model to store character information."""
+
+    update_section_class = CharacterUpdateSection
+    update_status_model = "CharacterUpdateStatus"
 
     if TYPE_CHECKING:
         # AA Ledger
@@ -152,15 +155,6 @@ class CharacterOwner(models.Model):
             return self.eve_character.character_ownership
         except ObjectDoesNotExist:
             return None
-
-    @property
-    def update_manager(self):
-        """Return the Update Manager helper for this owner."""
-        return UpdateManager(
-            owner=self,
-            update_section=CharacterUpdateSection,
-            update_status=CharacterUpdateStatus,
-        )
 
     @property
     def update_status(self) -> models.QuerySet["CharacterUpdateStatus"]:
@@ -330,3 +324,6 @@ class CharacterUpdateStatus(UpdateStatusBaseModel):
 
     class Meta:
         default_permissions = ()
+
+
+CharacterOwner.update_status_model = CharacterUpdateStatus

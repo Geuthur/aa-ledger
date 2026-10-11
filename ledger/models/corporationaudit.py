@@ -31,7 +31,7 @@ from ledger.models.general import (
 )
 from ledger.models.helpers.update_manager import (
     CorporationUpdateSection,
-    UpdateManager,
+    UpdateManagerMixin,
     UpdateStatus,
 )
 from ledger.providers import AppLogger, esi
@@ -39,8 +39,11 @@ from ledger.providers import AppLogger, esi
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
-class CorporationOwner(models.Model):
+class CorporationOwner(UpdateManagerMixin, models.Model):
     """A model to store corporation information."""
+
+    update_section_class = CorporationUpdateSection
+    update_status_model = "CorporationUpdateStatus"
 
     if TYPE_CHECKING:
         ledger_corporation_update_status: models.QuerySet["CorporationUpdateStatus"]
@@ -154,15 +157,6 @@ class CorporationOwner(models.Model):
             "user__profile__main_character__character_name",
         )
 
-    @property
-    def update_manager(self):
-        """Return the Update Manager helper for this corporation."""
-        return UpdateManager(
-            owner=self,
-            update_section=CorporationUpdateSection,
-            update_status=CorporationUpdateStatus,
-        )
-
     def get_portrait(self, size: int = 64, as_html: bool = False) -> str:
         """
         Get the corporation portrait URL.
@@ -259,3 +253,6 @@ class CorporationUpdateStatus(UpdateStatusBaseModel):
 
     def __str__(self) -> str:
         return f"{self.owner} - {self.section} - {self.is_success}"
+
+
+CorporationOwner.update_status_model = CorporationUpdateStatus

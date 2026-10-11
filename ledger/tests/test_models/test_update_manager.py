@@ -252,3 +252,67 @@ class TestUpdateManager(LedgerTestCase):
         self.assertFalse(status.has_token_error)
         self.assertEqual(status.error_message, "")
         self.assertIsNotNone(status.last_run_finished_at)
+
+    def test_get_sections_to_update_force_refresh_should_return_all(self):
+        """Test that force_refresh=True resets token errors and returns all sections."""
+        # Test Data
+        CharacterUpdateStatusFactory(
+            owner=self.owner,
+            section=CharacterUpdateSection.WALLET_JOURNAL,
+            has_token_error=True,
+        )
+
+        # Test Action
+        sections = self.manager.get_sections_to_update(force_refresh=True)
+
+        # Expected Result
+        self.assertEqual(sections, CharacterUpdateSection.get_sections())
+        status = CharacterUpdateStatus.objects.get(
+            owner=self.owner, section=CharacterUpdateSection.WALLET_JOURNAL
+        )
+        self.assertFalse(status.has_token_error)
+
+    def test_get_sections_to_update_when_needed_should_return_stale_sections(self):
+        """Test that get_sections_to_update returns sections needing update."""
+        # Test Data
+        CharacterUpdateStatus.objects.filter(owner=self.owner).delete()
+
+        # Test Action
+        sections = self.manager.get_sections_to_update(force_refresh=False)
+
+        # Expected Result
+        self.assertEqual(len(sections), len(CharacterUpdateSection.get_sections()))
+
+    def test_execute_section_should_call_owner_method_and_log_success(self):
+        """Test that execute_section runs owner method and records update status."""
+        # Test Data
+        expected_result = UpdateSectionResult(
+            is_changed=True,
+            is_updated=True,
+            has_token_error=False,
+            error_message="",
+            data={"test": "data"},
+        )
+        self.owner.update_wallet_journal = MagicMock(return_value=expected_result)
+
+        # Test Action
+        result = self.manager.execute_section(
+            CharacterUpdateSection.WALLET_JOURNAL, force_refresh=True
+        )
+
+        # Expected Result
+        self.assertEqual(result, expected_result)
+        self.owner.update_wallet_journal.assert_called_once()
+        status = CharacterUpdateStatus.objects.get(
+            owner=self.owner, section=CharacterUpdateSection.WALLET_JOURNAL
+        )
+        self.assertTrue(status.is_success)
+        self.assertFalse(status.has_token_error)
+
+    def test_mixin_provides_update_manager_and_shortcuts(self):
+        """Test that UpdateManagerMixin provides update_manager and shortcut methods."""
+        # Test Data & Action & Expected Result
+        self.assertIsNotNone(self.owner.update_manager)
+        self.assertEqual(self.owner.update_manager.owner, self.owner)
+        sections = self.owner.get_sections_to_update(force_refresh=True)
+        self.assertEqual(sections, CharacterUpdateSection.get_sections())
