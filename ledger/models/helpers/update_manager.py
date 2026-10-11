@@ -258,7 +258,6 @@ class UpdateManager:
             is_token_problem = exc.status_code in [
                 HTTPStatus.UNAUTHORIZED,
                 HTTPStatus.FORBIDDEN,
-                HTTPStatus.NOT_FOUND,
             ]
             if is_token_problem:
                 logger.warning(
