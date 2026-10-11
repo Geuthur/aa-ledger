@@ -28,6 +28,8 @@ Section Order:
 
 <!-- Your changes go here -->
 
+## [4.0.2] - 2026-10-11
+
 ## [4.0.1] - 2026-10-11
 
 ### Added
@@ -1567,5 +1569,6 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 [3.0.2]: https://github.com/Geuthur/aa-ledger/compare/v3.0.1...v3.0.2 "3.0.2"
 [4.0.0]: https://github.com/Geuthur/aa-ledger/compare/v3.0.2...v4.0.0 "v4.0.0"
 [4.0.1]: https://github.com/Geuthur/aa-ledger/compare/v4.0.0...v4.0.1 "v4.0.1"
-[in development]: https://github.com/Geuthur/aa-ledger/compare/v4.0.1...HEAD "In Development"
+[4.0.2]: https://github.com/Geuthur/aa-ledger/compare/v4.0.1...v4.0.2 "v4.0.2"
+[in development]: https://github.com/Geuthur/aa-ledger/compare/v4.0.2...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-ledger/issues "report any issues"
