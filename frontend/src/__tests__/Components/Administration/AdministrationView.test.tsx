@@ -130,4 +130,27 @@ describe("AdministrationView", () => {
     // Expected Result
     expect(screen.queryByText("Last Sync:")).not.toBeInTheDocument();
   });
+
+  it("applies error pulsating style to entries with errors", () => {
+    // Test Action
+    renderView({
+      customData: {
+        ...data,
+        dashboard: { ...data.dashboard, issues: ["Bob"] },
+        registered: [
+          { owner_id: 1, name: "Alice", icon: "a.png", status: "ok", last_sync: "2026-10-10T10:00:00Z" },
+          { owner_id: 2, name: "Bob", icon: "b.png", status: "error", last_sync: "2026-10-10T10:00:00Z" },
+          { owner_id: 3, name: "Charlie", icon: "c.png", status: "token_error", last_sync: "2026-10-10T10:00:00Z" },
+        ],
+      },
+    });
+
+    // Expected Result
+    const bobCard = screen.getByText("Bob").closest(".lg-entry");
+    expect(bobCard).toHaveClass("lg-entry-error");
+
+    const charlieCard = screen.getByText("Charlie").closest(".lg-entry");
+    expect(charlieCard).toHaveClass("lg-entry-warning");
+  });
 });
+

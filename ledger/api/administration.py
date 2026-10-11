@@ -302,6 +302,11 @@ class ApiEndpoints:
                 latest=Max("last_run_finished_at")
             )["latest"]
 
+            has_corp_errors = owner.ledger_corporation_update_status.filter(
+                is_success=False
+            ).exists()
+            issues = [corporation.corporation_name] if has_corp_errors else []
+
             return schema.AdministrationResponse(
                 owner=schema.OwnerSchema(
                     character_id=corporation.corporation_id,
@@ -316,6 +321,7 @@ class ApiEndpoints:
                     auth_count=auth_count,
                     active_count=len(members),
                     missing_count=auth_count - len(members),
+                    issues=issues,
                 ),
                 registered=[
                     schema.AdminOwnerSchema(
@@ -413,6 +419,14 @@ class ApiEndpoints:
             auth_count = all_corporations.count()
             active_count = corporations.count()
 
+            issues = [
+                corp.eve_corporation.corporation_name
+                for corp in corporations
+                if corp.ledger_corporation_update_status.filter(
+                    is_success=False
+                ).exists()
+            ]
+
             return schema.AdministrationResponse(
                 owner=schema.OwnerSchema(
                     character_id=alliance.alliance_id,
@@ -427,6 +441,7 @@ class ApiEndpoints:
                     auth_count=auth_count,
                     active_count=active_count,
                     missing_count=auth_count - active_count,
+                    issues=issues,
                 ),
                 registered=[
                     schema.AdminOwnerSchema(

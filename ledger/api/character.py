@@ -102,6 +102,15 @@ class ApiEndpoints:
                 owner=owner, filters=filters
             )
 
+            characters = CharacterOwner.objects.filter(
+                eve_character__character_id__in=owner.alt_ids
+            ).select_related("eve_character")
+            issues = [
+                char.eve_character.character_name
+                for char in characters
+                if char.ledger_update_status.filter(is_success=False).exists()
+            ]
+
             return CharacterLedgerResponse(
                 owner=OwnerSchema(
                     character_id=owner.eve_character.character_id,
@@ -115,6 +124,8 @@ class ApiEndpoints:
                         character__eve_character__character_id__in=owner.alt_ids
                     )
                 ),
+                has_errors=len(issues) > 0,
+                issues=issues,
             )
 
     def generate_character_data(

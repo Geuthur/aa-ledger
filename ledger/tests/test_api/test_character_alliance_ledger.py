@@ -57,6 +57,27 @@ class TestCharacterLedgerApi(LedgerTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
+    def test_get_ledger_should_report_has_errors_when_update_status_failed(self):
+        # Test Data
+        self.client.force_login(self.user)
+        # AA Ledger
+        from ledger.tests.testdata.factory import CharacterUpdateStatusFactory
+
+        CharacterUpdateStatusFactory(
+            owner=self.owner,
+            is_success=False,
+            section="wallet_journal",
+        )
+
+        # Test Action
+        response = self.client.get(self.url)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        data = response.json()
+        self.assertTrue(data["has_errors"])
+        self.assertIn(self.owner.eve_character.character_name, data["issues"])
+
 
 class TestAllianceLedgerApi(LedgerTestCase):
     @classmethod

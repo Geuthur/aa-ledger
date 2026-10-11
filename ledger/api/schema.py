@@ -189,11 +189,15 @@ class LedgerResponse(Schema):
     Attributes:
         owner (OwnerSchema): The owner of the ledger.
         billboard (BillboardSchema): Billboard data.
+        has_errors (bool): Whether any registered entity has update/ESI errors.
+        issues (list[str]): Names of entities with update/ESI issues.
     """
 
     owner: OwnerSchema
     billboard: BillboardSchema
     years: list[int] = []
+    has_errors: bool = False
+    issues: list[str] = []
 
 
 class LedgerSchema(Schema):
