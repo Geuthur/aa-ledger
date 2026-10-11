@@ -2333,6 +2333,19 @@
             "title": "Years",
             "type": "array"
           },
+          "has_errors": {
+            "default": false,
+            "title": "Has Errors",
+            "type": "boolean"
+          },
+          "issues": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
           "characters": {
             "items": {
               "$ref": "#/components/schemas/LedgerCharacterSchema"
@@ -3122,6 +3135,19 @@
             "title": "Years",
             "type": "array"
           },
+          "has_errors": {
+            "default": false,
+            "title": "Has Errors",
+            "type": "boolean"
+          },
+          "issues": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
           "entities": {
             "items": {
               "$ref": "#/components/schemas/LedgerEntitySchema"
@@ -3287,6 +3313,19 @@
               "type": "integer"
             },
             "title": "Years",
+            "type": "array"
+          },
+          "has_errors": {
+            "default": false,
+            "title": "Has Errors",
+            "type": "boolean"
+          },
+          "issues": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Issues",
             "type": "array"
           },
           "corporations": {

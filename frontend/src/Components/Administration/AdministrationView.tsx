@@ -230,26 +230,71 @@ function AdministrationView({
             )}
 
             <div className="d-flex flex-wrap gap-3">
-              {data.registered.map((entry) => (
-                <div
-                  key={entry.owner_id}
-                  className="aa-panel lg-entry d-flex flex-column align-items-center gap-2"
-                >
-                  <div className="fw-bold">
-                    {entry.name}{" "}
-                    {entry.status && <span className="badge bg-secondary">{entry.status}</span>}
-                  </div>
-                  <img src={entry.icon ?? ""} alt="" width={96} height={96} className="rounded" />
-                  {entry.last_sync !== undefined && (
-                    <div
-                      className="small text-muted d-flex align-items-center gap-1"
-                      title={entry.last_sync ? formatDate(entry.last_sync) : undefined}
-                    >
-                      <Clock size={12} />
-                      <span>{entry.last_sync ? formatRelativeTime(entry.last_sync) : t("Never")}</span>
+              {data.registered.map((entry) => {
+                const normStatus = entry.status?.toLowerCase();
+                const isError = normStatus === "error" || Boolean(data.dashboard.issues?.includes(entry.name));
+                const isTokenError = normStatus === "token_error";
+                const isOk = normStatus === "ok";
+                const hasProblem = isError || isTokenError;
+
+                const cardClass = isError
+                  ? "lg-entry-error"
+                  : isTokenError
+                    ? "lg-entry-warning"
+                    : "";
+
+                return (
+                  <div
+                    key={entry.owner_id}
+                    className={`aa-panel lg-entry d-flex flex-column align-items-center gap-2 ${cardClass}`}
+                  >
+                    <div className="fw-bold d-flex flex-column align-items-center gap-1">
+                      <span>{entry.name}</span>
+                      {entry.status && (
+                        <span
+                          className={`badge d-inline-flex align-items-center gap-1 ${
+                            isError
+                              ? "bg-danger"
+                              : isTokenError
+                                ? "bg-warning text-dark"
+                                : isOk
+                                  ? "bg-success"
+                                  : "bg-secondary"
+                          }`}
+                        >
+                          {hasProblem && (
+                            <span className="aa-pending-dot-container me-1">
+                              <span
+                                className={
+                                  isError
+                                    ? "aa-danger-dot-ping"
+                                    : "aa-pending-dot-ping"
+                                }
+                              />
+                              <span
+                                className={
+                                  isError
+                                    ? "aa-danger-dot-core"
+                                    : "aa-pending-dot-core"
+                                }
+                              />
+                            </span>
+                          )}
+                          {entry.status}
+                        </span>
+                      )}
                     </div>
-                  )}
-                  <div className="d-flex justify-content-center gap-2">
+                    <img src={entry.icon ?? ""} alt="" width={96} height={96} className="rounded" />
+                    {entry.last_sync !== undefined && (
+                      <div
+                        className="small text-muted d-flex align-items-center gap-1"
+                        title={entry.last_sync ? formatDate(entry.last_sync) : undefined}
+                      >
+                        <Clock size={12} />
+                        <span>{entry.last_sync ? formatRelativeTime(entry.last_sync) : t("Never")}</span>
+                      </div>
+                    )}
+                    <div className="d-flex justify-content-center gap-2">
                     {showCardLedger &&
                       renderTooltip(
                         t("View Ledger"),
@@ -275,7 +320,9 @@ function AdministrationView({
                       )}
                   </div>
                 </div>
-              ))}
+              );
+            })}
+
               {data.missing.map((entry) => (
                 <div
                   key={entry.owner_id}

@@ -28,12 +28,15 @@ Section Order:
 
 <!-- Your changes go here -->
 
+## [4.0.1] - 2026-10-11
+
 ### Added
 
 - **`UpdateManagerMixin`**: Added `UpdateManagerMixin` to streamline model-level update management for `CharacterOwner` and `CorporationOwner` with standardized `owner` status models.
 - **User-Grouped Character Updates**: `update_subset_characters` and new `update_user_characters` task now group active characters by user, updating mains and alts together in the same run to ensure cross-character data consistency.
 - **Alt Character Cascading**: Adding or forcing an update on a character cascades to other active characters belonging to the same user (`update_alts=True`).
 - **Character Administration Last Sync & Manual Update**: Added last synchronization display (formatted date and relative time) on the account overview and individual registered character cards. Added a manual update trigger button in the character administration header with a configurable cooldown (`LEDGER_MANUAL_UPDATE_COOLDOWN`, default: 300 seconds) and a live countdown timer.
+- **Pulsating Administration Button & Error Highlighting**: Added animated glowing pulse and status ping indicators to the "Administration" button across Character, Corporation, and Alliance ledgers when ESI or update errors are detected (`has_errors` / `issues`). In the administration view, registered character and corporation cards with errors or token errors now feature animated glowing borders (`lg-entry-error`, `lg-entry-warning`) and status badges with pulsing pinging indicators.
 
 ### Changed
 
@@ -47,6 +50,7 @@ Section Order:
 ### Fixed
 
 - **Admin & Charlink Parameter Handling**: Fixed bug in `admin.py` and `charlink_hook.py` where database primary keys were passed to update tasks instead of EVE IDs.
+- **Unintended token error**: Fixed an issue where Client errors (e.g. 404 Not Found) were incorrectly flagged as token errors.
 
 ## [4.0.0] - 2026-10-06
 
@@ -1562,5 +1566,6 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 [3.0.1]: https://github.com/Geuthur/aa-ledger/compare/v3.0.0...v3.0.1 "3.0.1"
 [3.0.2]: https://github.com/Geuthur/aa-ledger/compare/v3.0.1...v3.0.2 "3.0.2"
 [4.0.0]: https://github.com/Geuthur/aa-ledger/compare/v3.0.2...v4.0.0 "v4.0.0"
-[in development]: https://github.com/Geuthur/aa-ledger/compare/v4.0.0...HEAD "In Development"
+[4.0.1]: https://github.com/Geuthur/aa-ledger/compare/v4.0.0...v4.0.1 "v4.0.1"
+[in development]: https://github.com/Geuthur/aa-ledger/compare/v4.0.1...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-ledger/issues "report any issues"

@@ -63,9 +63,19 @@ function CorporationLedger() {
             {t("Overview")}
           </Link>
           <Link
-            className="aa-btn aa-btn-secondary"
+            className={`aa-btn ${
+              data?.has_errors
+                ? "aa-btn-warning aa-btn-pulse"
+                : "aa-btn-secondary"
+            }`}
             to={`/ledger/corporation/${corporationId}/administration/`}
           >
+            {data?.has_errors && (
+              <span className="aa-pending-dot-container me-1">
+                <span className="aa-pending-dot-ping" />
+                <span className="aa-pending-dot-core" />
+              </span>
+            )}
             {t("Administration")}
           </Link>
         </>

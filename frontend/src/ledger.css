@@ -177,11 +177,22 @@
 .lg-entry {
     width: 200px;
     text-align: center;
+    transition: all 150ms ease;
 }
 
 .lg-entry-missing {
     opacity: 0.55;
     border-color: var(--aa-border-rose);
+}
+
+.lg-entry-error {
+    border-color: var(--aa-border-rose) !important;
+    animation: aa-danger-glow 2s infinite ease-in-out;
+}
+
+.lg-entry-warning {
+    border-color: var(--aa-border-amber) !important;
+    animation: aa-pending-glow 2s infinite ease-in-out;
 }
 
 /* ═══ STAT CARDS / DASHBOARD ═══════════════════════════════════════════════ */

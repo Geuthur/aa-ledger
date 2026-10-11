@@ -124,4 +124,27 @@ describe("CharacterLedger", () => {
     );
     expect(await screen.findAllByText("Income from Bounty")).not.toHaveLength(0);
   });
+
+  it("renders pulsating administration button when has_errors is true", async () => {
+    // Test Data
+    const errorLedger = {
+      ...ledger,
+      has_errors: true,
+      issues: ["Alice"],
+    };
+    vi.mocked(ApiCalls.fetchCharacterLedger).mockResolvedValue(errorLedger as never);
+
+    // Test Action
+    renderPage();
+
+    // Expected Result
+    expect(await screen.findByText("Character Ledger - Alice")).toBeInTheDocument();
+    await waitFor(() => {
+      const adminLink = screen.getByRole("link", { name: /Administration/i });
+      expect(adminLink).toHaveClass("aa-btn-pulse");
+      expect(adminLink).toHaveClass("aa-btn-warning");
+    });
+  });
 });
+
+

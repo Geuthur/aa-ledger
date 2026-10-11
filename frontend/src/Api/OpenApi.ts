@@ -711,6 +711,16 @@ export interface components {
              * @default []
              */
             years: number[];
+            /**
+             * Has Errors
+             * @default false
+             */
+            has_errors: boolean;
+            /**
+             * Issues
+             * @default []
+             */
+            issues: string[];
             /** Characters */
             characters: components["schemas"]["LedgerCharacterSchema"][];
         };
@@ -1056,6 +1066,16 @@ export interface components {
              * @default []
              */
             years: number[];
+            /**
+             * Has Errors
+             * @default false
+             */
+            has_errors: boolean;
+            /**
+             * Issues
+             * @default []
+             */
+            issues: string[];
             /** Entities */
             entities: components["schemas"]["LedgerEntitySchema"][];
             /**
@@ -1171,6 +1191,16 @@ export interface components {
              * @default []
              */
             years: number[];
+            /**
+             * Has Errors
+             * @default false
+             */
+            has_errors: boolean;
+            /**
+             * Issues
+             * @default []
+             */
+            issues: string[];
             /** Corporations */
             corporations: components["schemas"]["LedgerAllianceSchema"][];
         };

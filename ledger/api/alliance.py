@@ -105,6 +105,17 @@ class ApiEndpoints:
                 owner=owner, filters=filters, user_corp_ids=user_corp_ids
             )
 
+            alliance_corps = CorporationOwner.objects.filter(
+                eve_corporation__alliance__alliance_id=owner.alliance_id
+            ).select_related("eve_corporation")
+            issues = [
+                corp.eve_corporation.corporation_name
+                for corp in alliance_corps
+                if corp.ledger_corporation_update_status.filter(
+                    is_success=False
+                ).exists()
+            ]
+
             return AllianceLedgerResponse(
                 owner=OwnerSchema(
                     character_id=owner.alliance_id,
@@ -121,6 +132,8 @@ class ApiEndpoints:
                         division__corporation__eve_corporation__alliance__alliance_id=owner.alliance_id
                     )
                 ),
+                has_errors=len(issues) > 0,
+                issues=issues,
             )
 
     # pylint: disable=too-many-locals

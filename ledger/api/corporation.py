@@ -108,6 +108,11 @@ class ApiEndpoints:
                 owner=owner, filters=filters
             )
 
+            has_corp_errors = owner.ledger_corporation_update_status.filter(
+                is_success=False
+            ).exists()
+            issues = [owner.eve_corporation.corporation_name] if has_corp_errors else []
+
             return CorporationLedgerResponse(
                 owner=OwnerSchema(
                     character_id=owner.eve_corporation.corporation_id,
@@ -129,6 +134,8 @@ class ApiEndpoints:
                         "division_id"
                     )
                 ],
+                has_errors=has_corp_errors,
+                issues=issues,
             )
 
     def _sum_by_ref_types(
