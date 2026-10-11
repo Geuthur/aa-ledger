@@ -569,6 +569,33 @@ export interface components {
             status?: string | null;
             /** Last Sync */
             last_sync?: string | null;
+            /** Error Message */
+            error_message?: string | null;
+            /** Sections */
+            sections?: components["schemas"]["AdminOwnerSectionSchema"][] | null;
+        };
+        /**
+         * AdminOwnerSectionSchema
+         * @description Status of an individual update section.
+         */
+        AdminOwnerSectionSchema: {
+            /** Section */
+            section: string;
+            /** Section Name */
+            section_name: string;
+            /** Is Success */
+            is_success?: boolean | null;
+            /**
+             * Has Token Error
+             * @default false
+             */
+            has_token_error: boolean;
+            /** Error Message */
+            error_message?: string | null;
+            /** Last Run At */
+            last_run_at?: string | null;
+            /** Last Run Finished At */
+            last_run_finished_at?: string | null;
         };
         /**
          * AdministrationResponse

@@ -26,7 +26,9 @@ Section Order:
 ### Removed
 -->
 
-<!-- Your changes go here -->
+### Changed
+
+- **Administration Card Styling & Update Sections**: Modernized the character, corporation, and alliance administration cards with a responsive grid layout (`auto-fill`), circular portrait headers, dedicated error banners, detailed listing of individual update sections (e.g. Wallet Journal, Mining Ledger, Planets) with color-coded status dots (`OK`, `Failed`, `Token Error`, `Pending`), structured status badge rows with pulsing indicators for errors/issues, last synchronization timestamp, and aligned action buttons.
 
 ## [4.0.2] - 2026-10-11
 

@@ -303,6 +303,18 @@ class DashboardSchema(Schema):
     issues: list[str] = []
 
 
+class AdminOwnerSectionSchema(Schema):
+    """Status of an individual update section."""
+
+    section: str
+    section_name: str
+    is_success: bool | None = None
+    has_token_error: bool = False
+    error_message: str | None = None
+    last_run_at: datetime | None = None
+    last_run_finished_at: datetime | None = None
+
+
 class AdminOwnerSchema(Schema):
     """A character, corporation or alliance in the administration lists."""
 
@@ -311,6 +323,8 @@ class AdminOwnerSchema(Schema):
     icon: str | None = None
     status: str | None = None
     last_sync: datetime | None = None
+    error_message: str | None = None
+    sections: list[AdminOwnerSectionSchema] | None = None
 
 
 class AdministrationResponse(Schema):

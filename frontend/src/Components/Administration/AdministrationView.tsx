@@ -8,7 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { QueryKey } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { CheckCircle2, Clock, LogIn, RotateCw, Trash2, UserCheck, UserMinus, UserX, Users, XCircle } from "lucide-react";
+import { AlertCircle, AlertTriangle, CheckCircle2, Clock, LogIn, RotateCw, Trash2, UserCheck, UserMinus, UserX, Users, XCircle } from "lucide-react";
 import { Alert, Badge, Button, Col, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
@@ -229,7 +229,7 @@ function AdministrationView({
               </Alert>
             )}
 
-            <div className="d-flex flex-wrap gap-3">
+            <div className="lg-entries-grid">
               {data.registered.map((entry) => {
                 const normStatus = entry.status?.toLowerCase();
                 const isError = normStatus === "error" || Boolean(data.dashboard.issues?.includes(entry.name));
@@ -243,27 +243,85 @@ function AdministrationView({
                     ? "lg-entry-warning"
                     : "";
 
+                let badgeClass = "lg-badge-secondary";
+                let StatusIcon = AlertCircle;
+                let statusLabel = entry.status ?? t("Unknown");
+
+                if (isOk) {
+                  badgeClass = "lg-badge-ok";
+                  StatusIcon = CheckCircle2;
+                  statusLabel = t("OK");
+                } else if (isError) {
+                  badgeClass = "lg-badge-error";
+                  StatusIcon = AlertCircle;
+                  statusLabel = t("Error");
+                } else if (isTokenError) {
+                  badgeClass = "lg-badge-token-error";
+                  StatusIcon = AlertTriangle;
+                  statusLabel = t("Token Error");
+                }
+
                 return (
                   <div
                     key={entry.owner_id}
-                    className={`aa-panel lg-entry d-flex flex-column align-items-center gap-2 ${cardClass}`}
+                    className={`aa-panel lg-entry ${cardClass}`}
                   >
-                    <div className="fw-bold d-flex flex-column align-items-center gap-1">
-                      <span>{entry.name}</span>
+                    <div className="lg-entry-header">
+                      {entry.icon && (
+                        <img
+                          src={entry.icon}
+                          alt={entry.name}
+                          className="lg-entry-icon"
+                        />
+                      )}
+                      <div className="lg-entry-info">
+                        <h4 className="lg-entry-name">{entry.name}</h4>
+                      </div>
+                    </div>
+
+                    {entry.error_message && (
+                      <div className="lg-error-banner" role="alert">
+                        {entry.error_message}
+                      </div>
+                    )}
+
+                    {entry.sections && entry.sections.length > 0 && (
+                      <div className="lg-sections-list">
+                        {entry.sections.map((sec) => {
+                          let dotClass = "lg-dot-muted";
+                          if (sec.is_success === true) dotClass = "lg-dot-ok";
+                          else if (sec.is_success === false) dotClass = "lg-dot-error";
+                          else if (sec.has_token_error) dotClass = "lg-dot-warning";
+
+                          return (
+                            <div key={sec.section} className="lg-section-item">
+                              <span className="d-inline-flex align-items-center gap-2">
+                                <span
+                                  className={`lg-section-dot ${dotClass}`}
+                                  aria-hidden="true"
+                                />
+                                <span>{sec.section_name}</span>
+                              </span>
+                              <span>
+                                {sec.has_token_error
+                                  ? t("Token Error")
+                                  : sec.is_success === true
+                                    ? t("OK")
+                                    : sec.is_success === false
+                                      ? t("Failed")
+                                      : t("Pending")}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    <div className="lg-entry-badge-row">
                       {entry.status && (
-                        <span
-                          className={`badge d-inline-flex align-items-center gap-1 ${
-                            isError
-                              ? "bg-danger"
-                              : isTokenError
-                                ? "bg-warning text-dark"
-                                : isOk
-                                  ? "bg-success"
-                                  : "bg-secondary"
-                          }`}
-                        >
+                        <span className={`lg-status-badge ${badgeClass}`}>
                           {hasProblem && (
-                            <span className="aa-pending-dot-container me-1">
+                            <span className="aa-pending-dot-container me-1" aria-hidden="true">
                               <span
                                 className={
                                   isError
@@ -280,57 +338,71 @@ function AdministrationView({
                               />
                             </span>
                           )}
-                          {entry.status}
+                          <StatusIcon size={12} aria-hidden="true" />
+                          <span>{statusLabel}</span>
+                        </span>
+                      )}
+
+                      {entry.last_sync !== undefined && (
+                        <span
+                          className="lg-entry-last-sync"
+                          title={entry.last_sync ? formatDate(entry.last_sync) : undefined}
+                        >
+                          <Clock size={12} aria-hidden="true" />
+                          <span>{entry.last_sync ? formatRelativeTime(entry.last_sync) : t("Never")}</span>
                         </span>
                       )}
                     </div>
-                    <img src={entry.icon ?? ""} alt="" width={96} height={96} className="rounded" />
-                    {entry.last_sync !== undefined && (
-                      <div
-                        className="small text-muted d-flex align-items-center gap-1"
-                        title={entry.last_sync ? formatDate(entry.last_sync) : undefined}
-                      >
-                        <Clock size={12} />
-                        <span>{entry.last_sync ? formatRelativeTime(entry.last_sync) : t("Never")}</span>
+
+                    {(showCardLedger || onDelete) && (
+                      <div className="lg-entry-actions">
+                        {showCardLedger &&
+                          renderTooltip(
+                            t("View Ledger"),
+                            <Link
+                              className="aa-btn aa-btn-success aa-btn-sm"
+                              to={ledgerPath(entry.owner_id)}
+                              aria-label={t("View Ledger")}
+                            >
+                              <LogIn size={14} />
+                            </Link>,
+                          )}
+                        {onDelete &&
+                          renderTooltip(
+                            t("Delete"),
+                            <button
+                              type="button"
+                              className="aa-btn aa-btn-danger aa-btn-sm"
+                              aria-label={t("Delete")}
+                              onClick={() => setPending(entry)}
+                            >
+                              <Trash2 size={14} />
+                            </button>,
+                          )}
                       </div>
                     )}
-                    <div className="d-flex justify-content-center gap-2">
-                    {showCardLedger &&
-                      renderTooltip(
-                        t("View Ledger"),
-                        <Link
-                          className="aa-btn aa-btn-success aa-btn-sm"
-                          to={ledgerPath(entry.owner_id)}
-                          aria-label={t("View Ledger")}
-                        >
-                          <LogIn size={14} />
-                        </Link>,
-                      )}
-                    {onDelete &&
-                      renderTooltip(
-                        t("Delete"),
-                        <button
-                          type="button"
-                          className="aa-btn aa-btn-danger aa-btn-sm"
-                          aria-label={t("Delete")}
-                          onClick={() => setPending(entry)}
-                        >
-                          <Trash2 size={14} />
-                        </button>,
-                      )}
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
 
               {data.missing.map((entry) => (
                 <div
                   key={entry.owner_id}
-                  className="aa-panel lg-entry lg-entry-missing d-flex flex-column align-items-center gap-2"
+                  className="aa-panel lg-entry lg-entry-missing"
                 >
-                  <div className="fw-bold">{entry.name}</div>
-                  <img src={entry.icon ?? ""} alt="" width={96} height={96} className="rounded" />
-                  <div className="small">
+                  <div className="lg-entry-header">
+                    {entry.icon && (
+                      <img
+                        src={entry.icon}
+                        alt={entry.name}
+                        className="lg-entry-icon"
+                      />
+                    )}
+                    <div className="lg-entry-info">
+                      <h4 className="lg-entry-name">{entry.name}</h4>
+                    </div>
+                  </div>
+                  <div className="small text-muted">
                     {t("{{entry}} is not registered in Ledger.", { entry: missingLabel ?? entryLabel })}
                   </div>
                 </div>

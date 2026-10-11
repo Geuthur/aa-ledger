@@ -35,6 +35,10 @@ from ledger.helpers.eveonline import (
 )
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
+from ledger.models.helpers.update_manager import (
+    CharacterUpdateSection,
+    CorporationUpdateSection,
+)
 from ledger.providers import AppLogger
 from ledger.tasks import update_user_characters
 
@@ -51,6 +55,43 @@ def _character_icon(character_id: int, character_name: str) -> str:
     return get_character_portrait_url(
         character_id=character_id, character_name=character_name, size=64
     )
+
+
+def _build_sections(
+    update_statuses, section_choices_class
+) -> tuple[list[schema.AdminOwnerSectionSchema], str | None]:
+    status_map = {s.section: s for s in update_statuses}
+    section_list: list[schema.AdminOwnerSectionSchema] = []
+    latest_error: str | None = None
+    for sec in section_choices_class:
+        st_obj = status_map.get(sec.value)
+        if st_obj:
+            if st_obj.error_message and not latest_error:
+                latest_error = st_obj.error_message
+            section_list.append(
+                schema.AdminOwnerSectionSchema(
+                    section=sec.value,
+                    section_name=str(sec.label),
+                    is_success=st_obj.is_success,
+                    has_token_error=st_obj.has_token_error,
+                    error_message=st_obj.error_message or None,
+                    last_run_at=st_obj.last_run_at,
+                    last_run_finished_at=st_obj.last_run_finished_at,
+                )
+            )
+        else:
+            section_list.append(
+                schema.AdminOwnerSectionSchema(
+                    section=sec.value,
+                    section_name=str(sec.label),
+                    is_success=None,
+                    has_token_error=False,
+                    error_message=None,
+                    last_run_at=None,
+                    last_run_finished_at=None,
+                )
+            )
+    return section_list, latest_error
 
 
 class ApiEndpoints:
@@ -80,6 +121,7 @@ class ApiEndpoints:
                     eve_character__character_id__in=owner.alt_ids
                 )
                 .select_related("eve_character")
+                .prefetch_related("ledger_update_status")
                 .annotate(last_sync=Max("ledger_update_status__last_run_finished_at"))
                 .order_by("eve_character__character_name")
             )
@@ -130,6 +172,26 @@ class ApiEndpoints:
                 can_update = True
                 cooldown_seconds = 0
 
+            registered_list = []
+            for char in characters:
+                sections, error_message = _build_sections(
+                    char.ledger_update_status.all(), CharacterUpdateSection
+                )
+                registered_list.append(
+                    schema.AdminOwnerSchema(
+                        owner_id=char.eve_character.character_id,
+                        name=char.eve_character.character_name,
+                        icon=_character_icon(
+                            char.eve_character.character_id,
+                            char.eve_character.character_name,
+                        ),
+                        status=char.get_status,
+                        last_sync=char.last_sync,
+                        error_message=error_message,
+                        sections=sections,
+                    )
+                )
+
             return schema.AdministrationResponse(
                 owner=schema.OwnerSchema(
                     character_id=character_id,
@@ -145,19 +207,7 @@ class ApiEndpoints:
                     missing_count=auth_count - len(characters),
                     issues=issues,
                 ),
-                registered=[
-                    schema.AdminOwnerSchema(
-                        owner_id=char.eve_character.character_id,
-                        name=char.eve_character.character_name,
-                        icon=_character_icon(
-                            char.eve_character.character_id,
-                            char.eve_character.character_name,
-                        ),
-                        status=char.get_status,
-                        last_sync=char.last_sync,
-                    )
-                    for char in characters
-                ],
+                registered=registered_list,
                 missing=[
                     schema.AdminOwnerSchema(
                         owner_id=char.character_id,
@@ -307,6 +357,10 @@ class ApiEndpoints:
             ).exists()
             issues = [corporation.corporation_name] if has_corp_errors else []
 
+            corp_sections, corp_error_message = _build_sections(
+                owner.ledger_corporation_update_status.all(), CorporationUpdateSection
+            )
+
             return schema.AdministrationResponse(
                 owner=schema.OwnerSchema(
                     character_id=corporation.corporation_id,
@@ -334,6 +388,8 @@ class ApiEndpoints:
                         ),
                         status=owner.get_status,
                         last_sync=corp_last_sync,
+                        error_message=corp_error_message,
+                        sections=corp_sections,
                     )
                 ],
                 last_sync=corp_last_sync,
@@ -401,9 +457,13 @@ class ApiEndpoints:
             if corps_qs is None:
                 corporations = CorporationOwner.objects.none()
             else:
-                corporations = corps_qs.select_related("eve_corporation").annotate(
-                    last_sync=Max(
-                        "ledger_corporation_update_status__last_run_finished_at"
+                corporations = (
+                    corps_qs.select_related("eve_corporation")
+                    .prefetch_related("ledger_corporation_update_status")
+                    .annotate(
+                        last_sync=Max(
+                            "ledger_corporation_update_status__last_run_finished_at"
+                        )
                     )
                 )
             all_corporations = EveCorporationInfo.objects.filter(
@@ -427,6 +487,28 @@ class ApiEndpoints:
                 ).exists()
             ]
 
+            registered_corps = []
+            for corp in corporations.order_by("eve_corporation__corporation_name"):
+                c_sections, c_error = _build_sections(
+                    corp.ledger_corporation_update_status.all(),
+                    CorporationUpdateSection,
+                )
+                registered_corps.append(
+                    schema.AdminOwnerSchema(
+                        owner_id=corp.eve_corporation.corporation_id,
+                        name=corp.eve_corporation.corporation_name,
+                        icon=get_corporation_logo_url(
+                            corporation_id=corp.eve_corporation.corporation_id,
+                            corporation_name=corp.eve_corporation.corporation_name,
+                            size=64,
+                        ),
+                        status=corp.get_status,
+                        last_sync=corp.last_sync,
+                        error_message=c_error,
+                        sections=c_sections,
+                    )
+                )
+
             return schema.AdministrationResponse(
                 owner=schema.OwnerSchema(
                     character_id=alliance.alliance_id,
@@ -443,22 +525,7 @@ class ApiEndpoints:
                     missing_count=auth_count - active_count,
                     issues=issues,
                 ),
-                registered=[
-                    schema.AdminOwnerSchema(
-                        owner_id=corporation.eve_corporation.corporation_id,
-                        name=corporation.eve_corporation.corporation_name,
-                        icon=get_corporation_logo_url(
-                            corporation_id=corporation.eve_corporation.corporation_id,
-                            corporation_name=corporation.eve_corporation.corporation_name,
-                            size=64,
-                        ),
-                        status=corporation.get_status,
-                        last_sync=getattr(corporation, "last_sync", None),
-                    )
-                    for corporation in corporations.order_by(
-                        "eve_corporation__corporation_name"
-                    )
-                ],
+                registered=registered_corps,
                 missing=[
                     schema.AdminOwnerSchema(
                         owner_id=corporation.corporation_id,
