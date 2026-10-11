@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Ledger\n"
 "Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-ledger/\n"
-"POT-Creation-Date: 2026-10-11 20:25+0200\n"
+"POT-Creation-Date: 2026-10-11 20:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,7 +48,7 @@ msgstr ""
 
 #: ledger/api/administration.py:76 ledger/api/administration.py:186
 #: ledger/api/administration.py:255 ledger/api/administration.py:275
-#: ledger/api/administration.py:379 ledger/api/administration.py:399
+#: ledger/api/administration.py:377 ledger/api/administration.py:397
 #: ledger/api/general.py:41 ledger/api/general.py:105 ledger/api/general.py:144
 #: ledger/api/general.py:164 ledger/api/general.py:185
 #: ledger/api/planetary.py:141 ledger/api/planetary.py:181
@@ -65,25 +65,25 @@ msgstr ""
 msgid "Character update initiated successfully."
 msgstr ""
 
-#: ledger/api/administration.py:260 ledger/api/administration.py:384
+#: ledger/api/administration.py:260 ledger/api/administration.py:382
 #, python-format
 msgid "%(name)s successfully deleted"
 msgstr ""
 
-#: ledger/api/administration.py:273 ledger/api/administration.py:377
+#: ledger/api/administration.py:273 ledger/api/administration.py:375
 #: ledger/api/general.py:230
 msgid "Corporation not found."
 msgstr ""
 
-#: ledger/api/administration.py:397
+#: ledger/api/administration.py:395
 msgid "Alliance not found."
 msgstr ""
 
-#: ledger/api/alliance.py:88 ledger/api/alliance.py:253
+#: ledger/api/alliance.py:88 ledger/api/alliance.py:255
 msgid "Alliance not found in Ledger."
 msgstr ""
 
-#: ledger/api/alliance.py:93 ledger/api/alliance.py:258
+#: ledger/api/alliance.py:93 ledger/api/alliance.py:260
 msgid "You do not have permission to view this alliance."
 msgstr ""
 
@@ -112,11 +112,11 @@ msgstr ""
 msgid "Mining Income"
 msgstr ""
 
-#: ledger/api/corporation.py:99 ledger/api/corporation.py:486
+#: ledger/api/corporation.py:99 ledger/api/corporation.py:484
 msgid "Corporation not found in Ledger."
 msgstr ""
 
-#: ledger/api/corporation.py:104 ledger/api/corporation.py:491
+#: ledger/api/corporation.py:104 ledger/api/corporation.py:489
 msgid "You do not have permission to view this corporation."
 msgstr ""
 
