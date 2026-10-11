@@ -174,24 +174,185 @@
 }
 
 /* ═══ ENTRY CARDS (administration) ═════════════════════════════════════════ */
+.lg-entries-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    width: 100%;
+}
+
 .lg-entry {
-    width: 200px;
-    text-align: center;
-    transition: all 150ms ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    border-radius: var(--aa-border-radius);
+    border: 1px solid var(--aa-border-light);
+    background-color: var(--aa-color-body);
+    transition: transform 150ms ease, border-color 150ms ease;
+    text-align: left;
+    width: auto;
+}
+
+.lg-entry:hover {
+    transform: translateY(-2px);
+    border-color: var(--aa-border);
+}
+
+.lg-entry-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.lg-entry-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--aa-border-light);
+}
+
+.lg-entry-info {
+    min-width: 0;
+    flex-grow: 1;
+}
+
+.lg-entry-name {
+    margin: 0;
+    font-size: var(--aa-font-size-md);
+    font-weight: 700;
+    color: var(--aa-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lg-entry-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--aa-border-light);
+}
+
+.lg-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: 9999px;
+    font-size: var(--aa-font-size-xs);
+    font-weight: 700;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.lg-badge-ok {
+    background-color: color-mix(in srgb, var(--aa-color-emerald) 20%, transparent);
+    color: var(--aa-color-emerald-light);
+    border: 1px solid var(--aa-color-emerald);
+}
+
+.lg-badge-error {
+    background-color: color-mix(in srgb, var(--aa-color-rose) 20%, transparent);
+    color: var(--aa-color-rose-light);
+    border: 1px solid var(--aa-color-rose);
+}
+
+.lg-badge-token-error {
+    background-color: color-mix(in srgb, var(--aa-color-amber) 20%, transparent);
+    color: var(--aa-color-amber-light);
+    border: 1px solid var(--aa-color-amber);
+}
+
+.lg-badge-secondary {
+    background-color: color-mix(in srgb, var(--aa-color-secondary) 20%, transparent);
+    color: var(--aa-text-muted);
+    border: 1px solid var(--aa-color-secondary);
+}
+
+.lg-entry-last-sync {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--aa-font-size-xs);
+    color: var(--aa-text-secondary);
+    font-family: var(--font-mono);
+}
+
+.lg-error-banner {
+    padding: 6px 10px;
+    border-radius: 6px;
+    background-color: color-mix(in srgb, var(--aa-color-rose) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--aa-color-rose) 30%, transparent);
+    color: var(--aa-color-rose-light);
+    font-size: var(--aa-font-size-xs);
+    word-break: break-word;
+}
+
+.lg-sections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.lg-section-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--aa-font-size-xs);
+    color: var(--aa-text-secondary);
+}
+
+.lg-section-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.lg-dot-ok {
+    background-color: var(--aa-color-emerald);
+}
+
+.lg-dot-error {
+    background-color: var(--aa-color-rose);
+}
+
+.lg-dot-warning {
+    background-color: var(--aa-color-amber);
+}
+
+.lg-dot-muted {
+    background-color: var(--aa-color-secondary);
+}
+
+.lg-entry-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
 }
 
 .lg-entry-missing {
-    opacity: 0.55;
+    opacity: 0.65;
     border-color: var(--aa-border-rose);
 }
 
 .lg-entry-error {
-    border-color: var(--aa-border-rose) !important;
+    border-color: var(--aa-color-rose) !important;
+    box-shadow: 0 0 12px -2px rgba(244, 63, 94, 0.35);
     animation: aa-danger-glow 2s infinite ease-in-out;
 }
 
 .lg-entry-warning {
-    border-color: var(--aa-border-amber) !important;
+    border-color: var(--aa-color-amber) !important;
+    box-shadow: 0 0 12px -2px rgba(245, 158, 11, 0.35);
     animation: aa-pending-glow 2s infinite ease-in-out;
 }
 

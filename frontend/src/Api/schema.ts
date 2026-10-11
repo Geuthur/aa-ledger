@@ -14,6 +14,7 @@ export type AllianceOverview = components["schemas"]["AllianceOverview"];
 export type DashboardSchema = components["schemas"]["DashboardSchema"];
 export type AdministrationResponse = components["schemas"]["AdministrationResponse"];
 export type AdminOwnerSchema = components["schemas"]["AdminOwnerSchema"];
+export type AdminOwnerSectionSchema = components["schemas"]["AdminOwnerSectionSchema"];
 
 export type BillboardData = components["schemas"]["BillboardData"];
 export type BillboardSchema = components["schemas"]["BillboardSchema"];

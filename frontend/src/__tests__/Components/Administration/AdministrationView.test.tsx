@@ -12,7 +12,7 @@ import AdministrationView from "@/Components/Administration/AdministrationView";
 const data = {
   owner: { character_id: 1, character_name: "Alice", icon: "a.png" },
   dashboard: { auth_count: 3, active_count: 1, inactive_count: 0, missing_count: 2, issues: ["Alice"] },
-  registered: [{ owner_id: 1, name: "Alice", icon: "a.png", status: "ok", last_sync: "2026-10-10T10:00:00Z" }],
+  registered: [{ owner_id: 1, name: "Alice", icon: "a.png", status: "ok", last_sync: "2026-10-10T10:00:00Z", sections: [] }],
   missing: [{ owner_id: 2, name: "Alice Alt", icon: "b.png" }],
   members: [],
   last_sync: "2026-10-10T10:00:00Z",
@@ -138,9 +138,9 @@ describe("AdministrationView", () => {
         ...data,
         dashboard: { ...data.dashboard, issues: ["Bob"] },
         registered: [
-          { owner_id: 1, name: "Alice", icon: "a.png", status: "ok", last_sync: "2026-10-10T10:00:00Z" },
-          { owner_id: 2, name: "Bob", icon: "b.png", status: "error", last_sync: "2026-10-10T10:00:00Z" },
-          { owner_id: 3, name: "Charlie", icon: "c.png", status: "token_error", last_sync: "2026-10-10T10:00:00Z" },
+          { owner_id: 1, name: "Alice", icon: "a.png", status: "ok", last_sync: "2026-10-10T10:00:00Z", sections: [] },
+          { owner_id: 2, name: "Bob", icon: "b.png", status: "error", last_sync: "2026-10-10T10:00:00Z", sections: [] },
+          { owner_id: 3, name: "Charlie", icon: "c.png", status: "token_error", last_sync: "2026-10-10T10:00:00Z", sections: [] },
         ],
       },
     });
@@ -151,6 +151,55 @@ describe("AdministrationView", () => {
 
     const charlieCard = screen.getByText("Charlie").closest(".lg-entry");
     expect(charlieCard).toHaveClass("lg-entry-warning");
+  });
+
+  it("renders individual update sections and error banner when present", () => {
+    // Test Data
+    const customData = {
+      ...data,
+      registered: [
+        {
+          owner_id: 1,
+          name: "Alice",
+          icon: "a.png",
+          status: "error",
+          last_sync: "2026-10-10T10:00:00Z",
+          error_message: "ESI connection timed out",
+          sections: [
+            {
+              section: "wallet_journal",
+              section_name: "Wallet Journal",
+              is_success: true,
+              has_token_error: false,
+            },
+            {
+              section: "mining_ledger",
+              section_name: "Mining Ledger",
+              is_success: false,
+              has_token_error: false,
+              error_message: "ESI connection timed out",
+            },
+            {
+              section: "planets",
+              section_name: "Planets",
+              is_success: null,
+              has_token_error: false,
+            },
+          ],
+        },
+      ],
+    };
+
+    // Test Action
+    renderView({ customData });
+
+    // Expected Result
+    expect(screen.getByText("ESI connection timed out")).toBeInTheDocument();
+    expect(screen.getByText("Wallet Journal")).toBeInTheDocument();
+    expect(screen.getByText("Mining Ledger")).toBeInTheDocument();
+    expect(screen.getByText("Planets")).toBeInTheDocument();
+    expect(screen.getByText("Failed")).toBeInTheDocument();
+    expect(screen.getByText("Pending")).toBeInTheDocument();
   });
 });
 

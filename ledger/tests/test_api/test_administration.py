@@ -324,3 +324,41 @@ class TestDeleteApi(LedgerTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertTrue(CorporationOwner.objects.filter(pk=audit.pk).exists())
+
+    def test_character_administration_should_include_update_sections_and_error_message(
+        self,
+    ):
+        # Test Data
+        owner = CharacterOwnerFactory(user=self.user)
+        CharacterUpdateStatusFactory(
+            owner=owner,
+            section=CharacterUpdateSection.WALLET_JOURNAL,
+            is_success=True,
+            has_token_error=False,
+        )
+        CharacterUpdateStatusFactory(
+            owner=owner,
+            section=CharacterUpdateSection.MINING_LEDGER,
+            is_success=False,
+            has_token_error=False,
+            error_message="ESI timeout error",
+        )
+        self.client.force_login(self.user)
+
+        # Test Action
+        response = self.client.get(
+            f"{self.api}/character/{owner.eve_id}/administration/"
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        data = response.json()
+        registered_char = data["registered"][0]
+        self.assertEqual(registered_char["error_message"], "ESI timeout error")
+        self.assertTrue(len(registered_char["sections"]) >= 2)
+        sections_map = {s["section"]: s for s in registered_char["sections"]}
+        self.assertTrue(sections_map["wallet_journal"]["is_success"])
+        self.assertFalse(sections_map["mining_ledger"]["is_success"])
+        self.assertEqual(
+            sections_map["mining_ledger"]["error_message"], "ESI timeout error"
+        )
