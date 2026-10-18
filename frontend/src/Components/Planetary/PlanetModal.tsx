@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
+import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import { fetchPlanetDetails } from "@/Api/ApiCalls";
@@ -34,10 +35,12 @@ const ProductLabel = ({ product }: { product: Pick<Product, "item_name" | "icon"
 );
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <section className="aa-panel d-flex flex-column gap-2">
-    <h5 className="aa-section-title mb-0">{title}</h5>
-    {children}
-  </section>
+  <Card className="aa-panel">
+    <Card.Body className="d-flex flex-column gap-2 p-0">
+      <h5 className="aa-section-title mb-0">{title}</h5>
+      {children}
+    </Card.Body>
+  </Card>
 );
 
 export interface PlanetModalProps {

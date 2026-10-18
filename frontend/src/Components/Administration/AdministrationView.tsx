@@ -9,7 +9,7 @@ import type { QueryKey } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { AlertCircle, AlertTriangle, CheckCircle2, Clock, LogIn, RotateCw, Trash2, UserCheck, UserMinus, UserX, Users, XCircle } from "lucide-react";
-import { Alert, Badge, Button, Col, Row, Spinner } from "react-bootstrap";
+import { Alert, Badge, Button, Card, Col, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { AdminOwnerSchema, AdministrationResponse, AltSchema, MessageSchema } from "@/Api/schema";
@@ -137,7 +137,7 @@ function AdministrationView({
   ] as ColumnDef<AltSchema, unknown>[];
 
   return (
-    <main>
+    <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={data ? `${title} - ${data.owner.character_name}` : title}>
         <div className="d-flex align-items-center gap-2 flex-wrap">
           {data?.last_sync ? (
@@ -186,7 +186,7 @@ function AdministrationView({
           {headerAction}
         </div>
       </BaseSectionHeader>
-      <section className="mt-3 d-flex flex-column gap-3">
+      <Card.Body className="mt-3 d-flex flex-column gap-3 p-0">
         {isLoading && <FetchingLoader message={t("Loading...")} />}
         {error && <ErrorLoader title={t("Error")} message={error.message} />}
         {message && (
@@ -422,7 +422,7 @@ function AdministrationView({
             )}
           </>
         )}
-      </section>
+      </Card.Body>
 
       <BaseModal
         title={t("Delete {{entry}}", { entry: pending?.name ?? entryLabel })}
@@ -446,7 +446,7 @@ function AdministrationView({
       >
         {t("Are you sure you want to delete this entry?")}
       </BaseModal>
-    </main>
+    </Card>
   );
 }
 

@@ -2,6 +2,7 @@
 import type { ReactNode } from "react";
 
 // Third Party
+import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { BillboardSchema, Section } from "@/Api/schema";
@@ -53,12 +54,12 @@ function LedgerView({
   const { t } = useTranslation();
 
   return (
-    <main>
+    <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={title}>
         <DateFilterBar years={years}>{filterExtras}</DateFilterBar>
       </BaseSectionHeader>
 
-      <section className="mt-3 d-flex flex-column gap-3">
+      <Card.Body className="mt-3 d-flex flex-column gap-3 p-0">
         {isLoading && <FetchingLoader message={t("Loading ledger...")} />}
         {error && (
           <ErrorLoader title={t("Error")} message={error.message || t("Failed to load the ledger")} />
@@ -76,9 +77,9 @@ function LedgerView({
             />
           </>
         )}
-      </section>
+      </Card.Body>
       {children}
-    </main>
+    </Card>
   );
 }
 
