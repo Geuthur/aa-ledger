@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Ledger\n"
 "Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-ledger/\n"
-"POT-Creation-Date: 2026-10-11 20:38+0200\n"
+"POT-Creation-Date: 2026-10-18 20:37+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,16 +39,16 @@ msgstr ""
 msgid "Started force update for {count} character(s). Updates will run in the background."
 msgstr ""
 
-#: ledger/api/administration.py:74 ledger/api/administration.py:184
-#: ledger/api/administration.py:253 ledger/api/general.py:210
+#: ledger/api/administration.py:115 ledger/api/administration.py:234
+#: ledger/api/administration.py:303 ledger/api/general.py:210
 #: ledger/api/planetary.py:139 ledger/api/planetary.py:179
 #: ledger/api/planetary.py:216
 msgid "Character not found."
 msgstr ""
 
-#: ledger/api/administration.py:76 ledger/api/administration.py:186
-#: ledger/api/administration.py:255 ledger/api/administration.py:275
-#: ledger/api/administration.py:377 ledger/api/administration.py:397
+#: ledger/api/administration.py:117 ledger/api/administration.py:236
+#: ledger/api/administration.py:305 ledger/api/administration.py:325
+#: ledger/api/administration.py:433 ledger/api/administration.py:453
 #: ledger/api/general.py:41 ledger/api/general.py:105 ledger/api/general.py:144
 #: ledger/api/general.py:164 ledger/api/general.py:185
 #: ledger/api/planetary.py:141 ledger/api/planetary.py:181
@@ -56,26 +56,26 @@ msgstr ""
 msgid "Permission Denied."
 msgstr ""
 
-#: ledger/api/administration.py:226
+#: ledger/api/administration.py:276
 #, python-format
 msgid "Update is on cooldown. Please wait %(seconds)d seconds."
 msgstr ""
 
-#: ledger/api/administration.py:240
+#: ledger/api/administration.py:290
 msgid "Character update initiated successfully."
 msgstr ""
 
-#: ledger/api/administration.py:260 ledger/api/administration.py:382
+#: ledger/api/administration.py:310 ledger/api/administration.py:438
 #, python-format
 msgid "%(name)s successfully deleted"
 msgstr ""
 
-#: ledger/api/administration.py:273 ledger/api/administration.py:375
+#: ledger/api/administration.py:323 ledger/api/administration.py:431
 #: ledger/api/general.py:230
 msgid "Corporation not found."
 msgstr ""
 
-#: ledger/api/administration.py:395
+#: ledger/api/administration.py:451
 msgid "Alliance not found."
 msgstr ""
 
@@ -303,76 +303,76 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:33
+#: ledger/models/helpers/update_manager.py:42
 msgid "Disabled"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:34
+#: ledger/models/helpers/update_manager.py:43
 msgid "Token Error"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:35
+#: ledger/models/helpers/update_manager.py:44
 msgid "Error"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:36
+#: ledger/models/helpers/update_manager.py:45
 msgid "OK"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:37
+#: ledger/models/helpers/update_manager.py:46
 msgid "Incomplete"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:38
+#: ledger/models/helpers/update_manager.py:47
 msgid "In Progress"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:72
+#: ledger/models/helpers/update_manager.py:81
 msgid "Update is disabled"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:73
+#: ledger/models/helpers/update_manager.py:82
 msgid "One section has a token error during update"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:74
+#: ledger/models/helpers/update_manager.py:83
 msgid "One or more sections have not been updated"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:75
+#: ledger/models/helpers/update_manager.py:84
 msgid "Update is in progress"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:76
+#: ledger/models/helpers/update_manager.py:85
 msgid "An error occurred during update"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:77
+#: ledger/models/helpers/update_manager.py:86
 msgid "Updates completed successfully"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:83
-#: ledger/models/helpers/update_manager.py:102
+#: ledger/models/helpers/update_manager.py:92
+#: ledger/models/helpers/update_manager.py:111
 msgid "Wallet Journal"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:84
+#: ledger/models/helpers/update_manager.py:93
 msgid "Mining Ledger"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:85
+#: ledger/models/helpers/update_manager.py:94
 msgid "Planets"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:86
+#: ledger/models/helpers/update_manager.py:95
 msgid "Planets Details"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:100
+#: ledger/models/helpers/update_manager.py:109
 msgid "Divisions Names"
 msgstr ""
 
-#: ledger/models/helpers/update_manager.py:101
+#: ledger/models/helpers/update_manager.py:110
 msgid "Divisions"
 msgstr ""
 
