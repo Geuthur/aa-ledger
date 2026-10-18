@@ -28,6 +28,8 @@ Section Order:
 
 <!-- Your changes go here -->
 
+## [4.0.3] - 2026-10-18
+
 ### Changed
 
 - **Alliance Auth Flatly & Darkly Theme Compatibility**: Updated CSS design tokens and theme-specific overrides (`html[data-theme="flatly"]`, `html[data-theme="darkly"]`) in `index.css` and `ledger.css` for full theme compatibility with light and dark themes. Modernized inputs, dropdowns, table shells, and status indicators.
@@ -1576,5 +1578,6 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 [4.0.0]: https://github.com/Geuthur/aa-ledger/compare/v3.0.2...v4.0.0 "v4.0.0"
 [4.0.1]: https://github.com/Geuthur/aa-ledger/compare/v4.0.0...v4.0.1 "v4.0.1"
 [4.0.2]: https://github.com/Geuthur/aa-ledger/compare/v4.0.1...v4.0.2 "v4.0.2"
-[in development]: https://github.com/Geuthur/aa-ledger/compare/v4.0.2...HEAD "In Development"
+[4.0.3]: https://github.com/Geuthur/aa-ledger/compare/v4.0.2...v4.0.3 "v4.0.3"
+[in development]: https://github.com/Geuthur/aa-ledger/compare/v4.0.3...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-ledger/issues "report any issues"
