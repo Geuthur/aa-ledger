@@ -3,7 +3,7 @@ import { useState } from "react";
 
 // Third Party
 import { useMutation } from "@tanstack/react-query";
-import { Alert, Form } from "react-bootstrap";
+import { Alert, Card, Form } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import { queueUpdate } from "@/Api/ApiCalls";
@@ -69,9 +69,9 @@ function Admin() {
   );
 
   return (
-    <main>
+    <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={t("Administration")} />
-      <section className="mt-3 d-flex flex-column gap-3">
+      <Card.Body className="mt-3 d-flex flex-column gap-3 p-0">
         {message && (
           <Alert variant={message.variant} onClose={() => setMessage(null)} dismissible>
             {message.text}
@@ -106,8 +106,8 @@ function Admin() {
             />
           </div>
         </div>
-      </section>
-    </main>
+      </Card.Body>
+    </Card>
   );
 }
 

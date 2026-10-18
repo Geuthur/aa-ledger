@@ -4,6 +4,7 @@ import { Link } from "react-router";
 // Third Party
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
+import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
@@ -58,9 +59,9 @@ function OverviewPage({
   ] as ColumnDef<OverviewItem, unknown>[];
 
   return (
-    <main>
+    <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={title} />
-      <section className="mt-3">
+      <Card.Body className="p-0 mt-3">
         {isLoading && <FetchingLoader message={t("Loading...")} />}
         {error && <ErrorLoader title={t("Error")} message={error.message} />}
         {!isLoading && !error && (
@@ -72,8 +73,8 @@ function OverviewPage({
             exportFileName="overview.csv"
           />
         )}
-      </section>
-    </main>
+      </Card.Body>
+    </Card>
   );
 }
 

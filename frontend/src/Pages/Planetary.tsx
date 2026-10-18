@@ -8,6 +8,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Bell, BellOff, Info } from "lucide-react";
 import { parseAsInteger, useQueryStates } from "nuqs";
+import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import { fetchPlanets, togglePlanetNotification } from "@/Api/ApiCalls";
@@ -153,7 +154,7 @@ function Planetary() {
   );
 
   return (
-    <main>
+    <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={t("Planetary Ledger")}>
         <button
           type="button"
@@ -168,7 +169,7 @@ function Planetary() {
         </Link>
       </BaseSectionHeader>
 
-      <section className="mt-3">
+      <Card.Body className="mt-3 p-0">
         {isLoading && <FetchingLoader message={t("Loading planets...")} />}
         {error && <ErrorLoader title={t("Error")} message={error.message} />}
         {!isLoading && !error && (
@@ -179,14 +180,14 @@ function Planetary() {
             exportFileName="planets.csv"
           />
         )}
-      </section>
+      </Card.Body>
 
       <PlanetModal
         ownerId={modal.owner}
         planetId={modal.planet}
         onHide={() => setModal({ planet: null, owner: null })}
       />
-    </main>
+    </Card>
   );
 }
 

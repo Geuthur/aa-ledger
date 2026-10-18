@@ -4,6 +4,7 @@ import React from "react";
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BellOff, Settings2 } from "lucide-react";
+import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // Styles
@@ -50,53 +51,59 @@ export const SettingsPage: React.FC = () => {
 
   if (isError || !data) {
     return (
-      <div className={`aa-panel ${styles["error"]}`} role="alert">
-        {t("Failed to load settings. Please try refreshing the page.")}
-      </div>
+      <Card className="bg-secondary text-light border-0 shadow-sm" role="alert">
+        <Card.Body className={styles["error"]}>
+          {t("Failed to load settings. Please try refreshing the page.")}
+        </Card.Body>
+      </Card>
     );
   }
 
   return (
-    <main className={`aa-panel-light ${styles["page"]}`}>
-      <header className={styles["header"]}>
-        <Settings2 size={24} aria-hidden="true" />
-        <div>
-          <h1 className={styles["title"]}>{t("Settings")}</h1>
-          <p className={styles["description"]}>{t("Manage your Ledger preferences.")}</p>
-        </div>
-      </header>
-
-      <section className={`aa-panel ${styles["setting-row"]}`}>
-        <div className={styles["setting-copy"]}>
-          <div className={styles["setting-title"]}>
-            <BellOff size={18} aria-hidden="true" />
-            <label htmlFor="disable-notifications">{t("Disable all notifications")}</label>
+    <Card className={`${styles["page"]} border-0`}>
+      <Card.Body className="bg-dark">
+        <Card.Header className={styles["header"] + " bg-secondary"}>
+          <Settings2 size={24} aria-hidden="true" />
+          <div>
+            <h1 className={styles["title"]}>{t("Settings")}</h1>
+            <p className={styles["description"]}>{t("Manage your Ledger preferences.")}</p>
           </div>
-          <p className={styles["setting-description"]}>
-            {t("When enabled, Ledger will not send notifications to your Alliance Auth or Discord account.")}
-          </p>
-          {updateMutation.isError && (
-            <p className={styles["error-message"]} role="alert">
-              {t("Could not save this setting. Your previous preference was restored.")}
-            </p>
-          )}
-          {updateMutation.isPending && (
-            <p className={styles["save-status"]} role="status">{t("Saving...")}</p>
-          )}
-        </div>
-        <input
-          id="disable-notifications"
-          className={styles["switch"]}
-          type="checkbox"
-          role="switch"
-          checked={data.disable_notifications}
-          disabled={updateMutation.isPending}
-          onChange={(event) =>
-            updateMutation.mutate({ disable_notifications: event.currentTarget.checked })
-          }
-        />
-      </section>
-    </main>
+        </Card.Header>
+
+        <Card className="bg-secondary text-light border-0 shadow-sm mb-4">
+          <Card.Body className={styles["setting-row"]}>
+            <div className={styles["setting-copy"]}>
+              <div className={styles["setting-title"]}>
+                <BellOff size={18} aria-hidden="true" />
+                <label htmlFor="disable-notifications">{t("Disable all notifications")}</label>
+              </div>
+              <p className={styles["setting-description"]}>
+                {t("When enabled, Ledger will not send notifications to your Alliance Auth or Discord account.")}
+              </p>
+              {updateMutation.isError && (
+                <p className={styles["error-message"]} role="alert">
+                  {t("Could not save this setting. Your previous preference was restored.")}
+                </p>
+              )}
+              {updateMutation.isPending && (
+                <p className={styles["save-status"]} role="status">{t("Saving...")}</p>
+              )}
+            </div>
+            <input
+              id="disable-notifications"
+              className={styles["switch"]}
+              type="checkbox"
+              role="switch"
+              checked={data.disable_notifications}
+              disabled={updateMutation.isPending}
+              onChange={(event) =>
+                updateMutation.mutate({ disable_notifications: event.currentTarget.checked })
+              }
+            />
+          </Card.Body>
+        </Card>
+      </Card.Body>
+    </Card>
   );
 };
 
