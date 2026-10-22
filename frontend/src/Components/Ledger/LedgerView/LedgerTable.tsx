@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CircleHelp, Info } from "lucide-react";
+import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { Section } from "@/Api/schema";
@@ -118,14 +119,15 @@ function LedgerTable({
         cell: ({ row }) =>
           renderTooltip(
             t("View Details"),
-            <button
+            <Button
               type="button"
-              className="aa-btn aa-btn-primary aa-btn-sm"
+              variant="primary"
+              size="sm"
               aria-label={t("View Details")}
               onClick={() => onDetails(row.original.id, "single")}
             >
               <Info size={14} />
-            </button>,
+            </Button>,
           ),
       }),
     ] as ColumnDef<LedgerRow, unknown>[];

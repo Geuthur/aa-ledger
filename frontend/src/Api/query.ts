@@ -5,6 +5,10 @@ export const queryKeys = {
   Menu: ["Menu"] as const,
   User: ["User"] as const,
   UserSettings: ["UserSettings"] as const,
+  SettingsOwners: ["SettingsOwners"] as const,
+  SettingsUnregistered: (ownerType: string, ownerId: number) =>
+    ["SettingsUnregistered", ownerType, ownerId] as const,
+  Overview: ["Overview"] as const,
 
   CharacterOverview: ["CharacterOverview"] as const,
   PlanetaryOverview: ["PlanetaryOverview"] as const,
@@ -37,10 +41,8 @@ export const queryKeys = {
   PlanetDetails: (characterId: number, planetId: number) =>
     ["PlanetDetails", characterId, planetId] as const,
 
-  CharacterAdministration: (characterId: number) =>
-    ["CharacterAdministration", characterId] as const,
-  CorporationAdministration: (corporationId: number) =>
-    ["CorporationAdministration", corporationId] as const,
-  AllianceAdministration: (allianceId: number) =>
-    ["AllianceAdministration", allianceId] as const,
+
+  SuperuserOwners: ["SuperuserOwners"] as const,
+  SuperuserOwnerInspect: (ownerType: string, ownerId: number) =>
+    ["SuperuserOwnerInspect", ownerType, ownerId] as const,
 };

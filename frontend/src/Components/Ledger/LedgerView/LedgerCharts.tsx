@@ -4,6 +4,7 @@ import { useMemo } from "react";
 // Third Party
 import type { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
+import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { BillboardSchema } from "@/Api/schema";
@@ -46,16 +47,16 @@ function LedgerCharts({ billboard }: LedgerChartsProps) {
     <div className="row g-3 align-items-end">
       {timeline.series.length > 0 && (
         <div className={colClass}>
-          <div className="aa-panel">
+          <Card className="bg-dark border-secondary p-3 shadow-sm">
             <Chart options={timelineOptions} series={timeline.series} type="bar" height={380} />
-          </div>
+          </Card>
         </div>
       )}
       {hasChord && (
         <div className={colClass}>
-          <div className="aa-panel">
+          <Card className="bg-dark border-secondary p-3 shadow-sm">
             <ChordChart billboard={billboard?.chord_chart} title={t("Distribution")} />
-          </div>
+          </Card>
         </div>
       )}
     </div>

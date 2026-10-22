@@ -20,13 +20,13 @@ from esi.decorators import token_required
 
 # AA Ledger
 from ledger import __app_name__, __version__, tasks
-from ledger.models import CharacterOwner, CorporationOwner
+from ledger.models import CharacterOwner, CorporationOwner, General
 from ledger.models.general import EveEntity
 from ledger.providers import logger
 
 
 @login_required
-@permission_required("ledger.basic_access")
+@permission_required(General.get_perm(General.Permission.BASIC_ACCESS))
 def react_base(request: WSGIRequest):
     """Serve the React app; routing and permissions of the pages are handled by the API."""
     context = {"version": __version__, "app_name": __app_name__}
@@ -35,7 +35,7 @@ def react_base(request: WSGIRequest):
 
 @login_required
 @token_required(scopes=CharacterOwner.get_esi_scopes())
-@permission_required("ledger.basic_access")
+@permission_required(General.get_perm(General.Permission.BASIC_ACCESS))
 def add_char(request, token):
     char = CharacterOwner.objects.update_or_create(
         eve_character=EveCharacter.objects.get_character_by_id(token.character_id),
@@ -62,7 +62,7 @@ def add_char(request, token):
 
 @login_required
 @token_required(scopes=CorporationOwner.get_esi_scopes())
-@permission_required(["ledger.manage_access"])
+@permission_required(General.get_perm(General.Permission.MANAGE_ACCESS))
 def add_corp(request, token) -> HttpResponse:
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
     eve_corp = EveCorporationInfo.objects.get_or_create(
@@ -94,7 +94,7 @@ def add_corp(request, token) -> HttpResponse:
 
 @login_required
 @token_required(scopes=["publicData"])
-@permission_required(["ledger.manage_access"])
+@permission_required(General.get_perm(General.Permission.MANAGE_ACCESS))
 def add_ally(request, token) -> HttpResponse:
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
     try:

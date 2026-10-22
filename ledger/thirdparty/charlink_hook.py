@@ -11,12 +11,11 @@ from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 
 # AA Ledger
 from ledger.app_settings import LEDGER_APP_NAME
-from ledger.models.characteraudit import CharacterOwner
-from ledger.models.corporationaudit import CorporationOwner
+from ledger.models import CharacterOwner, CorporationOwner, General
 from ledger.tasks import update_character, update_corporation
 
 _corp_perms = [
-    "ledger.manage_access",
+    General.get_perm(General.Permission.MANAGE_ACCESS),
 ]
 
 
@@ -71,7 +70,8 @@ def _is_character_added_corp(character: EveCharacter):
 
 def _users_with_perms_charaudit():
     permission = Permission.objects.get(
-        content_type__app_label="ledger", codename="basic_access"
+        content_type__app_label="ledger",
+        codename=str(General.Permission.BASIC_ACCESS),
     )
     # Use Alliance Auth's User model to get users with the permission, including those in groups and superusers (Fix Issue with Proxy Model)
     user_model = permission.user_set.model
@@ -141,7 +141,9 @@ app_import = AppImport(
             field_label=_("Character") + " " + LEDGER_APP_NAME,
             add_character=_add_character_charaudit,
             scopes=CharacterOwner.get_esi_scopes(),
-            check_permissions=lambda user: user.has_perm("ledger.basic_access"),
+            check_permissions=lambda user: General.has_perm(
+                user, General.Permission.BASIC_ACCESS
+            ),
             is_character_added=_is_character_added_charaudit,
             is_character_added_annotation=Exists(
                 CharacterOwner.objects.filter(eve_character_id=OuterRef("pk"))

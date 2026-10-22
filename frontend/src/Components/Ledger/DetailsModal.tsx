@@ -7,6 +7,7 @@ import type { QueryKey } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CircleHelp } from "lucide-react";
+import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { CategorySchema, LedgerDetailsResponse, RefTypeAmountSchema } from "@/Api/schema";
@@ -149,104 +150,102 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
             }}
             size={ModalSize.extraLarge}
         >
-                {isFetching && <FetchingLoader message={t("Loading...")} />}
-                {isError && (
-                    <ErrorLoader
-                        title={t("Error")}
-                        message={error instanceof Error ? error.message : t("Failed to load the details")}
-                    />
-                )}
-                {!isFetching && !isError && effectiveData && (
-                    <div className="aa-panel">
-                        <div className="d-flex gap-2" role="group">
-                            {periods.map(({ key, label }) => (
-                                <button
-                                    key={key}
-                                    type="button"
-                                    className={`aa-btn ${period === key ? "aa-btn-primary" : "aa-btn-secondary"}`}
-                                    onClick={() => setPeriod(key)}
-                                >
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
-                        <input
-                            type="search"
-                            className="lg-select lg-input w-100 my-3"
-                            placeholder={t("Search reference type")}
-                            aria-label={t("Search reference type")}
-                            value={search}
-                            onChange={(event) => setSearch(event.target.value)}
-                        />
-                        {search.trim() !== "" && (
-                            <div className="aa-panel-light lg-chord-details mb-3" role="region" aria-label={t("Matching reference types")}>
-                                {matches.length === 0 ? (
-                                    <span className="text-muted">{t("No matching reference types")}</span>
-                                ) : (
-                                    <>
-                                        <ul className="list-unstyled m-0">
-                                            {matches.map((item) => {
-                                                const isMining = item.ref_type === "mining";
-                                                return (
-                                                    <li
-                                                        key={item.ref_type}
-                                                        className={`lg-chord-flow ${isMining ? "lg-text-mining" : ""}`}
-                                                    >
-                                                        {(item.characters ?? []).length > 0 ? (
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-link p-0 text-start text-decoration-none text-reset flex-grow-1"
-                                                                onClick={() => setCharactersOf(item)}
-                                                                title={t("View character breakdown for {{name}}", {
-                                                                    name: formatRefType(item.ref_type),
-                                                                })}
-                                                            >
-                                                                {formatRefType(item.ref_type)}
-                                                            </button>
-                                                        ) : (
-                                                            <span className="flex-grow-1">{formatRefType(item.ref_type)}</span>
-                                                        )}
-                                                        <span className={amountClass(item.amount, isMining)}>
-                                                            {formatIsk(item.amount)}
-                                                        </span>
-                                                    </li>
-                                                );
-                                            })}
-                                        </ul>
-                                        <div className="d-flex justify-content-between fw-bold border-top mt-2 pt-2">
-                                            <span>{t("Total of the matches")}</span>
-                                            <span className={amountClass(matchTotal)}>{formatIsk(matchTotal)}</span>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        )}
-                        <BaseTable
-                            variant="vowra-light"
-                            columns={columns}
-                            data={rows}
-                            emptyText={t("No data for the selected period")}
-                            exportFileName="ledger-details.csv"
-                            getRowClassName={(row) => (isMiningCategory(row.original) ? "lg-table-row-mining" : "")}
-                        />
-                        <div className="d-flex justify-content-end gap-2 fw-bold mt-2">
-                            <span>{t("Total")}</span>
-                            <span className={amountClass(effectiveData.total[period])}>
-                                {formatIsk(effectiveData.total[period])}
-                            </span>
-                        </div>
+            {isFetching && <FetchingLoader message={t("Loading...")} />}
+            {isError && (
+                <ErrorLoader
+                    title={t("Error")}
+                    message={error instanceof Error ? error.message : t("Failed to load the details")}
+                />
+            )}
+            {!isFetching && !isError && effectiveData && (
+                <div>
+                    <div className="d-flex gap-2" role="group">
+                        {periods.map(({ key, label }) => (
+                            <Button
+                                key={key}
+                                variant={period === key ? "primary" : "secondary"}
+                                onClick={() => setPeriod(key)}
+                            >
+                                {label}
+                            </Button>
+                        ))}
                     </div>
-                )}
-                <RefTypesModal
-                    category={refTypesOf}
-                    initialSearch={search}
-                    onHide={() => setRefTypesOf(null)}
-                    onSelectRefType={(refType) => setCharactersOf(refType)}
-                />
-                <RefTypeCharactersModal
-                    refType={charactersOf}
-                    onHide={() => setCharactersOf(null)}
-                />
+                    <input
+                        type="search"
+                        className="lg-select lg-input w-100 my-3"
+                        placeholder={t("Search reference type")}
+                        aria-label={t("Search reference type")}
+                        value={search}
+                        onChange={(event) => setSearch(event.target.value)}
+                    />
+                    {search.trim() !== "" && (
+                        <div className="lg-chord-details mb-3" role="region" aria-label={t("Matching reference types")}>
+                            {matches.length === 0 ? (
+                                <span className="text-muted">{t("No matching reference types")}</span>
+                            ) : (
+                                <>
+                                    <ul className="list-unstyled m-0">
+                                        {matches.map((item) => {
+                                            const isMining = item.ref_type === "mining";
+                                            return (
+                                                <li
+                                                    key={item.ref_type}
+                                                    className={`lg-chord-flow ${isMining ? "lg-text-mining" : ""}`}
+                                                >
+                                                    {(item.characters ?? []).length > 0 ? (
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-link p-0 text-start text-decoration-none text-reset flex-grow-1"
+                                                            onClick={() => setCharactersOf(item)}
+                                                            title={t("View character breakdown for {{name}}", {
+                                                                name: formatRefType(item.ref_type),
+                                                            })}
+                                                        >
+                                                            {formatRefType(item.ref_type)}
+                                                        </button>
+                                                    ) : (
+                                                        <span className="flex-grow-1">{formatRefType(item.ref_type)}</span>
+                                                    )}
+                                                    <span className={amountClass(item.amount, isMining)}>
+                                                        {formatIsk(item.amount)}
+                                                    </span>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                    <div className="d-flex justify-content-between fw-bold border-top mt-2 pt-2">
+                                        <span>{t("Total of the matches")}</span>
+                                        <span className={amountClass(matchTotal)}>{formatIsk(matchTotal)}</span>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    )}
+                    <BaseTable
+                        columns={columns}
+                        data={rows}
+                        emptyText={t("No data for the selected period")}
+                        exportFileName="ledger-details.csv"
+                        getRowClassName={(row) => (isMiningCategory(row.original) ? "lg-table-row-mining" : "")}
+                    />
+                    <div className="d-flex justify-content-end gap-2 fw-bold mt-2">
+                        <span>{t("Total")}</span>
+                        <span className={amountClass(effectiveData.total[period])}>
+                            {formatIsk(effectiveData.total[period])}
+                        </span>
+                    </div>
+                </div>
+            )}
+            <RefTypesModal
+                category={refTypesOf}
+                initialSearch={search}
+                onHide={() => setRefTypesOf(null)}
+                onSelectRefType={(refType) => setCharactersOf(refType)}
+            />
+            <RefTypeCharactersModal
+                refType={charactersOf}
+                onHide={() => setCharactersOf(null)}
+            />
         </BaseModal>
     );
 }

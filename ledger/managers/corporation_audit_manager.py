@@ -11,6 +11,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
 from ledger import __title__
+from ledger.models.general import General
 from ledger.models.helpers.update_manager import CorporationUpdateSection, UpdateStatus
 from ledger.providers import AppLogger
 
@@ -31,7 +32,7 @@ class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
             )
             return self
 
-        if user.has_perm("ledger.corp_audit_admin_manager"):
+        if General.has_perm(user, General.Permission.CORP_AUDIT_ADMIN_MANAGER):
             logger.debug("Returning all corps for Corp Audit Admin %s.", user)
             return self
 
@@ -40,7 +41,7 @@ class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
             assert char
             queries = []
 
-            if user.has_perm("ledger.advanced_access"):
+            if General.has_perm(user, General.Permission.ADVANCED_ACCESS):
                 # If the user has advanced access, return all corps from their characters
                 corp_ids = char.character_ownership.user.character_ownerships.all().values_list(
                     "character__corporation_id", flat=True
@@ -69,7 +70,7 @@ class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
             )
             return self
 
-        if user.has_perm("ledger.corp_audit_admin_manager"):
+        if General.has_perm(user, General.Permission.CORP_AUDIT_ADMIN_MANAGER):
             logger.debug("Returning all corps for Corp Audit Admin %s.", user)
             return self
 
@@ -78,7 +79,7 @@ class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
             assert char
             queries = []
 
-            if user.has_perm("ledger.corp_audit_manager"):
+            if General.has_perm(user, General.Permission.CORP_AUDIT_MANAGER):
                 # If the user has corp management access, return all corps from their characters
                 corp_ids = char.character_ownership.user.character_ownerships.all().values_list(
                     "character__corporation_id", flat=True

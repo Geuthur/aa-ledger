@@ -95,9 +95,8 @@ function MembersModal({ row, onHide }: MembersModalProps) {
         </>
       }
     >
-      <div className="aa-panel">
+      <div>
         <BaseTable
-          variant="vowra-light"
           columns={columns}
           data={members}
           emptyText={t("No characters")}

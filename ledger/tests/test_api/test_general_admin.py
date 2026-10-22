@@ -3,9 +3,14 @@ from http import HTTPStatus
 from unittest.mock import patch
 
 # Django
+from django.core.cache import cache
 from django.urls import reverse
 
+# Alliance Auth (External Libs)
+from evesde_factory.allianceauth import EveCharacterFactory, EveCorporationInfoFactory
+
 # AA Ledger
+from ledger.models.characteraudit import CharacterOwner
 from ledger.tests import LedgerTestCase
 from ledger.tests.testdata.factory import CharacterOwnerFactory, CorporationOwnerFactory
 
@@ -18,6 +23,10 @@ class TestGeneralApi(LedgerTestCase):
         super().setUpClass()
         cls.api = f"{reverse('ledger:index')}api"
 
+    def setUp(self):
+        super().setUp()
+        cache.clear()
+
     def test_get_menu_should_hide_advanced_links_without_permission(self):
         # Test Data
         self.client.force_login(self.user)
@@ -28,7 +37,7 @@ class TestGeneralApi(LedgerTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
         links = [link["link"] for link in response.json()["left_links"]]
-        self.assertEqual(links, ["/", "/planetary/", "/settings/"])
+        self.assertEqual(links, ["/", "/character/", "/settings/"])
         right_links = [link["link"] for link in response.json()["right_links"]]
         self.assertEqual(right_links, [reverse("ledger:add_char")])
 
@@ -44,12 +53,11 @@ class TestGeneralApi(LedgerTestCase):
         # Expected Result
         data = response.json()
         links = [link["link"] for link in data["left_links"]]
-        self.assertIn("/corporation/", links)
-        self.assertIn("/alliance/", links)
+        self.assertEqual(links, ["/", "/character/", "/settings/"])
         right_links = [link["link"] for link in data["right_links"]]
         self.assertIn(reverse("ledger:add_corp"), right_links)
         self.assertIn(reverse("ledger:add_ally"), right_links)
-        self.assertEqual(data["right_links"][-1]["link"], "/admin/")
+        self.assertEqual(data["right_links"][-1]["link"], "/superuser/")
 
     def test_get_menu_should_return_403_without_basic_access(self):
         # Test Data
@@ -174,6 +182,184 @@ class TestGeneralApi(LedgerTestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTrue(response.json()["disable_notifications"])
         self.assertTrue(self.user.ledger_settings.disable_notifications)
+
+    def test_get_settings_owners_should_return_registered_and_missing(self):
+        # Test Data
+        CharacterOwner.objects.get_or_create(
+            eve_character=self.user.profile.main_character,
+            defaults={
+                "character_name": self.user.profile.main_character.character_name
+            },
+        )
+        self.client.force_login(self.user)
+
+        # Test Action
+        response = self.client.get(f"{self.api}/settings/owners/")
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        data = response.json()
+        self.assertIn("registered", data)
+        self.assertIn("missing", data)
+        self.assertTrue(len(data["registered"]) >= 1)
+
+    @patch("ledger.api.general.update_user_characters.apply_async")
+    def test_trigger_update_all_settings_owners_should_queue_task(self, mock_task):
+        # Test Data
+        self.client.force_login(self.user)
+
+        # Test Action
+        response = self.client.post(f"{self.api}/settings/owners/update-all/")
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(mock_task.called)
+
+    @patch("ledger.api.general.update_character.apply_async")
+    def test_trigger_settings_owner_update_should_queue_single_task(self, mock_task):
+        # Test Data
+        char_owner, _ = CharacterOwner.objects.get_or_create(
+            eve_character=self.user.profile.main_character,
+            defaults={
+                "character_name": self.user.profile.main_character.character_name
+            },
+        )
+        self.client.force_login(self.user)
+
+        # Test Action
+        response = self.client.post(
+            f"{self.api}/settings/owners/character/{char_owner.eve_id}/update/"
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(mock_task.called)
+
+    def test_delete_settings_owner_should_delete_character(self):
+        # Test Data
+        char_owner, _ = CharacterOwner.objects.get_or_create(
+            eve_character=self.user.profile.main_character,
+            defaults={
+                "character_name": self.user.profile.main_character.character_name
+            },
+        )
+        char_id = char_owner.eve_id
+        self.client.force_login(self.user)
+
+        # Test Action
+        response = self.client.delete(
+            f"{self.api}/settings/owners/character/{char_id}/"
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertFalse(
+            CharacterOwner.objects.filter(eve_character__character_id=char_id).exists()
+        )
+
+    def test_get_settings_owners_should_include_alliance_of_manageable_corporation(
+        self,
+    ):
+        # Test Data
+        owner = CorporationOwnerFactory(user=self.manage_user)
+        alliance_id = owner.eve_corporation.alliance.alliance_id
+        self.client.force_login(self.manage_user)
+
+        # Test Action
+        response = self.client.get(f"{self.api}/settings/owners/")
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        alliances = [
+            o for o in response.json()["registered"] if o["owner_type"] == "alliance"
+        ]
+        self.assertEqual([a["id"] for a in alliances], [alliance_id])
+
+    def test_get_settings_owner_unregistered_should_list_unregistered_corp_members(
+        self,
+    ):
+        # Test Data
+        owner = CorporationOwnerFactory(user=self.manage_user)
+        registered = EveCharacterFactory(corporation=owner.eve_corporation)
+        unregistered = EveCharacterFactory(corporation=owner.eve_corporation)
+        CharacterOwnerFactory(
+            user__main_character__character=registered,
+        )
+        self.client.force_login(self.manage_user)
+
+        # Test Action
+        response = self.client.get(
+            f"{self.api}/settings/owners/corporation/{owner.eve_id}/unregistered/"
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        data = response.json()
+        ids = [item["id"] for item in data["items"]]
+        self.assertEqual(data["owner_type"], "corporation")
+        self.assertIn(unregistered.character_id, ids)
+        self.assertNotIn(registered.character_id, ids)
+
+    def test_get_settings_owner_unregistered_should_list_unregistered_alliance_corps(
+        self,
+    ):
+        # Test Data
+        owner = CorporationOwnerFactory(user=self.manage_user)
+        unregistered = EveCorporationInfoFactory(
+            alliance=owner.eve_corporation.alliance
+        )
+        self.client.force_login(self.manage_user)
+
+        # Test Action
+        response = self.client.get(
+            f"{self.api}/settings/owners/alliance/"
+            f"{owner.eve_corporation.alliance.alliance_id}/unregistered/"
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        items = response.json()["items"]
+        ids = [item["id"] for item in items]
+        self.assertIn(unregistered.corporation_id, ids)
+        self.assertNotIn(owner.eve_id, ids)
+        self.assertTrue(all(item["owner_type"] == "corporation" for item in items))
+
+    def test_get_settings_owner_unregistered_should_return_403_without_manage_access(
+        self,
+    ):
+        # Test Data
+        owner = CorporationOwnerFactory(user=self.manage_user)
+        self.client.force_login(self.user)
+
+        # Test Action
+        response = self.client.get(
+            f"{self.api}/settings/owners/corporation/{owner.eve_id}/unregistered/"
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_get_settings_owner_unregistered_should_return_404_for_unknown_owner(
+        self,
+    ):
+        # Test Data
+        self.client.force_login(self.manage_user)
+
+        # Test Action
+        corp_response = self.client.get(
+            f"{self.api}/settings/owners/corporation/1/unregistered/"
+        )
+        ally_response = self.client.get(
+            f"{self.api}/settings/owners/alliance/1/unregistered/"
+        )
+        type_response = self.client.get(
+            f"{self.api}/settings/owners/character/1/unregistered/"
+        )
+
+        # Expected Result
+        self.assertEqual(corp_response.status_code, HTTPStatus.NOT_FOUND)
+        self.assertEqual(ally_response.status_code, HTTPStatus.NOT_FOUND)
+        self.assertEqual(type_response.status_code, HTTPStatus.NOT_FOUND)
 
 
 class TestAdminApi(LedgerTestCase):

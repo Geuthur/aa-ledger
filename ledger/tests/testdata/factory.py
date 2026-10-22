@@ -28,6 +28,7 @@ from ledger.models import (
     CorporationWalletJournalEntry,
     EveEntity,
     EveMarketPrice,
+    General,
 )
 from ledger.models.characteraudit import CharacterUpdateStatus
 from ledger.models.helpers.update_manager import (
@@ -39,7 +40,7 @@ from ledger.models.helpers.update_manager import (
 class UserMainFactory(UserFactory):
     """Generate a User object with a main character and default permissions for Ledger."""
 
-    permissions__ = ["ledger.basic_access"]
+    permissions__ = [General.get_perm(General.Permission.BASIC_ACCESS)]
 
     @factory.post_generation
     def main_character(obj, create, _, **kwargs):

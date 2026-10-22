@@ -26,7 +26,49 @@ Section Order:
 ### Removed
 -->
 
-<!-- Your changes go here -->
+### Added
+
+- Standardized `SuperuserPage` (`/superuser/`) with KPI metrics, sync issue indicators, collapsible task administration panel, and owner audit inspection.
+- Alt management modal (`SuperuserAltsModal`) with bulk refresh action and corporation tickers.
+- Card-based `OverviewPage` with entity search, type filtering, and direct navigation links.
+- Unified `SettingsPage` components (`BaseUserSettingsCard`, `BaseOwnerSettingsSection`) for managing registered characters, corporations, and alts.
+- Backend API endpoints for settings owners (`settings/owners/`), superuser owners (`superuser/owners/`), and single-owner updates.
+- Pulsing notification badge (`aa-menu-badge-pulse`) on navigation links indicating active sync or token errors.
+- Unit test suite for `BaseTable` verifying rendering, sorting, filtering, and pagination.
+- Type filter (All / Character / Corporation / Alliance) and name search for owners on the `SettingsPage` (`OwnerFilterBar`).
+- "Unregistered" modal on `SettingsPage` corporation and alliance cards listing characters or corporations not registered in Ledger (`settings/owners/{owner_type}/{owner_id}/unregistered/`); alliance cards are now shown in settings owners.
+- Alliance support in `SuperuserPage` (`SuperuserOwnersTable` & `SuperuserInspectionView`) with direct inspection into `AllianceLedger`, alliance filtering, and unregistered member corporations modal.
+- Unregistered member trigger button (`{count} Unregistered`) on corporation and alliance owners in `SuperuserOwnersTable`.
+
+### Changed
+
+- Centralized all application permissions and permission evaluation logic into `General` (`General.Permission(models.TextChoices)` and helper methods `has_perm`, `has_any_perm`, `has_management_access`, `has_admin_management_access`, `get_perm`).
+- Modularized `ledger/api/superuser.py` by extracting business logic and owner/inspection builders into `ledger/api/helpers/superuser.py`, reducing controller size from >600 lines to under 190 lines and eliminating N+1 queries.
+- Filtered `SuperuserPage` alliance owners (`superuser/owners/`) to strictly include only alliances that have at least one corporation registered in audit.
+- Isolated `SettingsPage` (`settings/owners/`) and its bulk update trigger to strictly include only the current user's own characters and personally added corporations, rather than permissions-based `manage_to` owners.
+- Extended `settings/owners/{owner_type}/{owner_id}/unregistered/` to allow inspection by superusers and managers across all manageable corporations and alliances.
+
+### Removed
+
+- Removed separate `ledger/permissions.py` file in favor of native Django choices and methods on `General`.
+
+### Fixed
+
+- Fixed missing return statement and import grouping in `BaseTableToolbar`.
+- Fixed character update endpoint to respect `force_refresh=False`.
+
+### Changed
+
+- Unified `BaseTable` into a single `aa-table` architecture with integrated `BaseTableHeader`, Lucide sort icons, and streamlined footer controls.
+- Overhauled table column filters (`BaseTableFilter`) with compact dark-themed inputs and Lucide icons.
+- Migrated frontend components and modals to native Bootstrap 5.3 utilities scoped to `.aa-react`.
+- Consolidated navigation structure to Overview, My Characters, Settings, and Superuser (`ShieldAlert`).
+- Enabled management access in Superuser API and navigation menu using `manage_to` for granular character and corporation access control.
+
+### Removed
+
+- Removed legacy `AdministrationView` and redundant table-based overview routes.
+- Deprecated custom CSS panel, card, and layout utility classes in favor of Bootstrap 5.3.
 
 ## [4.0.3] - 2026-10-18
 

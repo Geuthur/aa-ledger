@@ -11,12 +11,17 @@ import type {
   CorporationOverview,
   DateFilterParams,
   LedgerDetailsResponse,
+  LedgerOverviewResponse,
   MenuSchema,
   MessageSchema,
   NotificationResponse,
   PlanetDetailResponse,
   PlanetaryDetails,
   Section,
+  SettingsOwnersResponse,
+  SettingsUnregisteredResponse,
+  SuperuserOwnerSchema,
+  SuperuserOwnerUpdateRequest,
   UserData,
   UserSettingsSchema,
   UserSettingsUpdateRequest,
@@ -71,6 +76,14 @@ export async function updateUserSettings(
 }
 
 // -- Overviews
+
+export async function fetchOverview(): Promise<LedgerOverviewResponse> {
+  const { data, error } = await apiClient.GET(`${API_BASE}/overview/`);
+  if (error || !data) {
+    throw new Error(errorMessage(error, "Failed to load overview"));
+  }
+  return data;
+}
 
 export async function fetchCharacterOverview(): Promise<CharacterOverview[]> {
   const { data, error } = await apiClient.GET(`${API_BASE}/character/overview/`);
@@ -251,76 +264,6 @@ export async function togglePlanetNotification(
 
 // -- Administration
 
-export async function fetchCharacterAdministration(
-  characterId: number,
-): Promise<AdministrationResponse> {
-  const { data, error } = await apiClient.GET(
-    `${API_BASE}/character/{character_id}/administration/`,
-    { params: { path: { character_id: characterId } } },
-  );
-  if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load the administration"));
-  }
-  return data;
-}
-
-export async function triggerCharacterUpdate(characterId: number): Promise<MessageSchema> {
-  const { data, error } = await apiClient.POST(
-    `${API_BASE}/character/{character_id}/update/`,
-    { params: { path: { character_id: characterId } } },
-  );
-  if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to update characters"));
-  }
-  return data;
-}
-
-export async function fetchCorporationAdministration(
-  corporationId: number,
-): Promise<AdministrationResponse> {
-  const { data, error } = await apiClient.GET(
-    `${API_BASE}/corporation/{corporation_id}/administration/`,
-    { params: { path: { corporation_id: corporationId } } },
-  );
-  if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load the administration"));
-  }
-  return data;
-}
-
-export async function fetchAllianceAdministration(
-  allianceId: number,
-): Promise<AdministrationResponse> {
-  const { data, error } = await apiClient.GET(
-    `${API_BASE}/alliance/{alliance_id}/administration/`,
-    { params: { path: { alliance_id: allianceId } } },
-  );
-  if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load the administration"));
-  }
-  return data;
-}
-
-export async function deleteCharacter(characterId: number): Promise<MessageSchema> {
-  const { data, error } = await apiClient.DELETE(`${API_BASE}/character/{character_id}/`, {
-    params: { path: { character_id: characterId } },
-  });
-  if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to delete the character"));
-  }
-  return data;
-}
-
-export async function deleteCorporation(corporationId: number): Promise<MessageSchema> {
-  const { data, error } = await apiClient.DELETE(`${API_BASE}/corporation/{corporation_id}/`, {
-    params: { path: { corporation_id: corporationId } },
-  });
-  if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to delete the corporation"));
-  }
-  return data;
-}
-
 export async function queueUpdate(request: AdminUpdateRequest): Promise<MessageSchema> {
   const { data, error } = await apiClient.POST(`${API_BASE}/admin/update/`, {
     body: request,
@@ -330,3 +273,122 @@ export async function queueUpdate(request: AdminUpdateRequest): Promise<MessageS
   }
   return data;
 }
+
+export async function loadSuperuserOwners(): Promise<SuperuserOwnerSchema[]> {
+  const { data, error } = await apiClient.GET(`${API_BASE}/superuser/owners/`);
+  if (error || !data) {
+    throw new Error(errorMessage(error, "Failed to load superuser owners"));
+  }
+  return data;
+}
+
+export async function triggerSuperuserOwnerUpdate(
+  ownerType: "character" | "corporation",
+  ownerId: number,
+  request: SuperuserOwnerUpdateRequest = { force_refresh: false },
+): Promise<MessageSchema> {
+  const { data, error } = await apiClient.POST(
+    `${API_BASE}/superuser/owners/{owner_type}/{owner_id}/update/`,
+    {
+      params: { path: { owner_type: ownerType, owner_id: ownerId } },
+      body: request,
+    },
+  );
+  if (error || !data) {
+    throw new Error(errorMessage(error, "Failed to trigger owner update"));
+  }
+  return data;
+}
+
+export async function deleteSuperuserOwner(
+  ownerType: "character" | "corporation",
+  ownerId: number,
+): Promise<MessageSchema> {
+  const { data, error } = await apiClient.DELETE(
+    `${API_BASE}/superuser/owners/{owner_type}/{owner_id}/`,
+    {
+      params: { path: { owner_type: ownerType, owner_id: ownerId } },
+    },
+  );
+  if (error || !data) {
+    throw new Error(errorMessage(error, "Failed to delete owner"));
+  }
+  return data;
+}
+
+export async function loadSuperuserOwnerInspect(
+  ownerType: "character" | "corporation",
+  ownerId: number,
+): Promise<AdministrationResponse> {
+  const { data, error } = await apiClient.GET(
+    `${API_BASE}/superuser/owners/{owner_type}/{owner_id}/inspect/`,
+    {
+      params: { path: { owner_type: ownerType, owner_id: ownerId } },
+    },
+  );
+  if (error || !data) {
+    throw new Error(errorMessage(error, "Failed to inspect owner"));
+  }
+  return data;
+}
+
+// -- Settings Owners
+
+export async function loadSettingsOwners(): Promise<SettingsOwnersResponse> {
+  const { data, error } = await apiClient.GET(`${API_BASE}/settings/owners/`);
+  if (error || !data) {
+    throw new Error(errorMessage(error, "Failed to load settings owners"));
+  }
+  return data;
+}
+
+export async function triggerUpdateAllSettingsOwners(): Promise<MessageSchema> {
+  const { data, error } = await apiClient.POST(`${API_BASE}/settings/owners/update-all/`);
+  if (error || !data) {
+    throw new Error(errorMessage(error, "Failed to trigger update all"));
+  }
+  return data;
+}
+
+export async function triggerSettingsOwnerUpdate(
+  ownerType: string,
+  ownerId: number,
+): Promise<MessageSchema> {
+  const { data, error } = await apiClient.POST(
+    `${API_BASE}/settings/owners/{owner_type}/{owner_id}/update/`,
+    { params: { path: { owner_type: ownerType, owner_id: ownerId } } },
+  );
+  if (error || !data) {
+    throw new Error(errorMessage(error, "Failed to update owner"));
+  }
+  return data;
+}
+
+export async function loadSettingsUnregistered(
+  ownerType: string,
+  ownerId: number,
+): Promise<SettingsUnregisteredResponse> {
+  const { data, error } = await apiClient.GET(
+    `${API_BASE}/settings/owners/{owner_type}/{owner_id}/unregistered/`,
+    { params: { path: { owner_type: ownerType, owner_id: ownerId } } },
+  );
+  if (error || !data) {
+    throw new Error(errorMessage(error, "Failed to load unregistered entries"));
+  }
+  return data;
+}
+
+export async function deleteSettingsOwner(
+  ownerType: string,
+  ownerId: number,
+): Promise<MessageSchema> {
+  const { data, error } = await apiClient.DELETE(
+    `${API_BASE}/settings/owners/{owner_type}/{owner_id}/`,
+    { params: { path: { owner_type: ownerType, owner_id: ownerId } } },
+  );
+  if (error || !data) {
+    throw new Error(errorMessage(error, "Failed to delete owner"));
+  }
+  return data;
+}
+

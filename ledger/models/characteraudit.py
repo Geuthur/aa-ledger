@@ -72,10 +72,6 @@ class CharacterOwner(UpdateManagerMixin, models.Model):
 
     class Meta:
         default_permissions = ()
-        permissions = (
-            ("char_audit_manager", "Has access to all characters for own Corp"),
-            ("char_audit_admin_manager", "Has access to all characters"),
-        )
 
     id = models.AutoField(primary_key=True)
 
@@ -120,6 +116,9 @@ class CharacterOwner(UpdateManagerMixin, models.Model):
         """Get the status of this character."""
         if self.active is False:
             return UpdateStatus.DISABLED
+
+        if hasattr(self, "total_update_status"):
+            return UpdateStatus(self.total_update_status)
 
         qs = CharacterOwner.objects.filter(pk=self.pk).annotate_total_update_status()
         total_update_status = list(qs.values_list("total_update_status", flat=True))[0]

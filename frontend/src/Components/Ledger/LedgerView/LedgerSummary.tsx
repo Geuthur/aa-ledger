@@ -9,7 +9,7 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
-import { Col, Row } from "react-bootstrap";
+import { Button, Card, Col, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
@@ -79,28 +79,30 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
         const Icon = item.icon;
         return (
           <Col key={item.label} xs={6} md>
-            <div className="aa-panel lg-stat-card">
-              <div className="lg-stat-header">
-                <span className="lg-stat-label d-inline-flex align-items-center gap-1">
-                  {item.label}
-                  {"infoTooltip" in item && item.infoTooltip && (
-                    renderTooltip(
-                      item.infoTooltip,
-                      <span
-                        className="d-inline-flex align-items-center text-muted"
-                        style={{ cursor: "help" }}
-                      >
-                        <CircleHelp size={14} />
-                      </span>,
-                    )
-                  )}
+            <Card className="bg-dark border-secondary h-100 shadow-sm">
+              <Card.Body className="p-3 d-flex flex-column justify-content-between">
+                <div className="d-flex justify-content-between align-items-start mb-2 gap-2">
+                  <span className="small fw-semibold text-uppercase d-inline-flex align-items-center gap-1">
+                    {item.label}
+                    {"infoTooltip" in item && item.infoTooltip && (
+                      renderTooltip(
+                        item.infoTooltip,
+                        <span
+                          className="d-inline-flex align-items-center text-muted"
+                          style={{ cursor: "help" }}
+                        >
+                          <CircleHelp size={14} />
+                        </span>,
+                      )
+                    )}
+                  </span>
+                  <Icon color={item.color} size={24} className="flex-shrink-0" />
+                </div>
+                <span className={`h5 mb-0 fw-bold ${amountClass(item.value, "mining" in item)}`}>
+                  {formatIsk(item.value)}
                 </span>
-                <Icon className="lg-stat-icon" color={item.color} size={24} />
-              </div>
-              <span className={`lg-stat-value ${amountClass(item.value, "mining" in item)}`}>
-                {formatIsk(item.value)}
-              </span>
-            </div>
+              </Card.Body>
+            </Card>
           </Col>
         );
       })}
@@ -108,14 +110,13 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
         <Col xs="auto" className="d-flex align-items-center">
           {renderTooltip(
             t("View Details"),
-            <button
-              type="button"
-              className="aa-btn aa-btn-primary"
-              aria-label={t("View Details")}
+            <Button
+              variant="primary"
               onClick={onDetails}
+              aria-label={t("View Details")}
             >
               <Info size={16} />
-            </button>,
+            </Button>,
           )}
         </Col>
       )}

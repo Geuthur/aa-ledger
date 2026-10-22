@@ -79,6 +79,7 @@ describe("CharacterLedger", () => {
     // Expected Result
     expect(await screen.findAllByText(/800 ISK/)).not.toHaveLength(0);
     expect(screen.getByText("Alice", { selector: "td span" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/ledger/");
   });
 
   it("shows the API error", async () => {
@@ -125,14 +126,9 @@ describe("CharacterLedger", () => {
     expect(await screen.findAllByText("Income from Bounty")).not.toHaveLength(0);
   });
 
-  it("renders pulsating administration button when has_errors is true", async () => {
+  it("renders overview link when character ledger is loaded", async () => {
     // Test Data
-    const errorLedger = {
-      ...ledger,
-      has_errors: true,
-      issues: ["Alice"],
-    };
-    vi.mocked(ApiCalls.fetchCharacterLedger).mockResolvedValue(errorLedger as never);
+    vi.mocked(ApiCalls.fetchCharacterLedger).mockResolvedValue(ledger as never);
 
     // Test Action
     renderPage();
@@ -140,9 +136,9 @@ describe("CharacterLedger", () => {
     // Expected Result
     expect(await screen.findByText("Character Ledger - Alice")).toBeInTheDocument();
     await waitFor(() => {
-      const adminLink = screen.getByRole("link", { name: /Administration/i });
-      expect(adminLink).toHaveClass("aa-btn-pulse");
-      expect(adminLink).toHaveClass("aa-btn-warning");
+      const overviewLink = screen.getByRole("link", { name: /Overview/i });
+      expect(overviewLink).toBeInTheDocument();
+      expect(overviewLink).toHaveAttribute("href", "/ledger/");
     });
   });
 });

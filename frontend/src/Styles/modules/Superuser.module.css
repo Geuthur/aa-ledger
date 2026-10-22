@@ -1,0 +1,21 @@
+.searchContainer {
+  max-width: 300px;
+  width: 100%;
+}
+
+.avatarFallback {
+  width: 32px;
+  height: 32px;
+}
+
+.errorMessage {
+  max-width: 200px;
+}
+
+.dropdownMenu {
+  z-index: 1060;
+}
+
+.cursorPointer {
+  cursor: pointer;
+}

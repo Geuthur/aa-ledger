@@ -9,10 +9,10 @@ import type { BillboardSchema, Section } from "@/Api/schema";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
-import DateFilterBar from "@/Components/Filters/DateFilterBar";
 import LedgerCharts from "@/Components/Ledger/LedgerView/LedgerCharts";
 import LedgerSummary from "@/Components/Ledger/LedgerView/LedgerSummary";
 import LedgerTable from "@/Components/Ledger/LedgerView/LedgerTable";
+import DateFilterBar from "@/Components/Ledger/Utils/DateFilterBar";
 import { sumRows } from "@/Utils/ledger";
 import type { LedgerRow } from "@/Utils/ledger";
 
@@ -54,31 +54,33 @@ function LedgerView({
   const { t } = useTranslation();
 
   return (
-    <Card className="border-0 bg-transparent">
-      <BaseSectionHeader name={title}>
-        <DateFilterBar years={years}>{filterExtras}</DateFilterBar>
-      </BaseSectionHeader>
+    <Card className="border-0 bg-dark-body">
+      <Card.Body>
+        <BaseSectionHeader name={title}>
+          <DateFilterBar years={years}>{filterExtras}</DateFilterBar>
+        </BaseSectionHeader>
 
-      <Card.Body className="mt-3 d-flex flex-column gap-3 p-0">
-        {isLoading && <FetchingLoader message={t("Loading ledger...")} />}
-        {error && (
-          <ErrorLoader title={t("Error")} message={error.message || t("Failed to load the ledger")} />
-        )}
-        {!isLoading && !error && (
-          <>
-            <LedgerSummary totals={sumRows(rows)} showMining={showMining} onDetails={onOwnerDetails} />
-            <LedgerCharts billboard={billboard} />
-            <LedgerTable
-              rows={rows}
-              nameLabel={nameLabel}
-              showMining={showMining}
-              isFetching={isFetching}
-              onDetails={onDetails}
-            />
-          </>
-        )}
+        <Card.Body className="mt-3 d-flex flex-column gap-3 p-0">
+          {isLoading && <FetchingLoader message={t("Loading ledger...")} />}
+          {error && (
+            <ErrorLoader title={t("Error")} message={error.message || t("Failed to load the ledger")} />
+          )}
+          {!isLoading && !error && (
+            <>
+              <LedgerSummary totals={sumRows(rows)} showMining={showMining} onDetails={onOwnerDetails} />
+              <LedgerCharts billboard={billboard} />
+              <LedgerTable
+                rows={rows}
+                nameLabel={nameLabel}
+                showMining={showMining}
+                isFetching={isFetching}
+                onDetails={onDetails}
+              />
+            </>
+          )}
+        </Card.Body>
+        {children}
       </Card.Body>
-      {children}
     </Card>
   );
 }

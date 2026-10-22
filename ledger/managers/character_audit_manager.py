@@ -6,11 +6,13 @@ from django.db import models
 from django.db.models import Case, Count, Q, Value, When
 
 # Alliance Auth
+from allianceauth.authentication.models import User
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
 from ledger import __title__
+from ledger.models.general import General
 from ledger.models.helpers.update_manager import CharacterUpdateSection, UpdateStatus
 from ledger.providers import AppLogger
 
@@ -23,13 +25,13 @@ if TYPE_CHECKING:
 
 class CharacterAuditQuerySet(models.QuerySet["CharacterAuditContext"]):
     # pylint: disable=duplicate-code
-    def visible_to(self, user):
+    def visible_to(self, user: User):
         # superusers get all visible
         if user.is_superuser:
             logger.debug("Returning all characters for superuser %s.", user)
             return self
 
-        if user.has_perm("ledger.char_audit_admin_manager"):
+        if General.has_perm(user, General.Permission.CHAR_AUDIT_ADMIN_MANAGER):
             logger.debug("Returning all characters for %s.", user)
             return self
 
@@ -38,7 +40,7 @@ class CharacterAuditQuerySet(models.QuerySet["CharacterAuditContext"]):
             assert char
             queries = [models.Q(eve_character__character_ownership__user=user)]
 
-            if user.has_perm("ledger.char_audit_manager"):
+            if General.has_perm(user, General.Permission.CHAR_AUDIT_MANAGER):
                 queries.append(
                     models.Q(eve_character__corporation_id=char.corporation_id)
                 )
@@ -46,6 +48,43 @@ class CharacterAuditQuerySet(models.QuerySet["CharacterAuditContext"]):
             logger.debug(
                 "%s queries for user %s visible chracters.", len(queries), user
             )
+
+            query = queries.pop()
+            for q in queries:
+                query |= q
+            return self.filter(query)
+        except AssertionError:
+            logger.debug("User %s has no main character. Nothing visible.", user)
+            return self.none()
+
+    def manage_to(self, user: User):
+        """Return all characters that the user can manage."""
+        if user.is_superuser:
+            logger.debug(
+                "Returning all characters for superuser %s.",
+                user,
+            )
+            return self
+
+        if General.has_perm(user, General.Permission.CHAR_AUDIT_ADMIN_MANAGER):
+            logger.debug("Returning all characters for Char Audit Admin %s.", user)
+            return self
+
+        try:
+            char = user.profile.main_character
+            assert char
+            queries = []
+
+            if General.has_perm(user, General.Permission.CHAR_AUDIT_MANAGER):
+                # If the user has char management access, return all chars for own Corp
+                queries.append(
+                    models.Q(eve_character__corporation_id=char.corporation_id)
+                )
+
+            logger.debug("%s queries for User %s.", len(queries), user)
+
+            if len(queries) == 0:
+                return self.none()
 
             query = queries.pop()
             for q in queries:
@@ -173,7 +212,7 @@ class CharacterAuditManager(models.Manager["CharacterAuditContext"]):
             logger.debug("Returning all characters for superuser %s.", user)
             return qs.all()
 
-        if user.has_perm("ledger.char_audit_admin_manager"):
+        if General.has_perm(user, General.Permission.CHAR_AUDIT_ADMIN_MANAGER):
             logger.debug("Returning all characters for %s.", user)
             return qs.all()
 
@@ -182,7 +221,7 @@ class CharacterAuditManager(models.Manager["CharacterAuditContext"]):
             assert char
             queries = [models.Q(character_ownership__user=user)]
 
-            if user.has_perm("ledger.char_audit_manager"):
+            if General.has_perm(user, General.Permission.CHAR_AUDIT_MANAGER):
                 queries.append(models.Q(corporation_id=char.corporation_id))
 
             logger.debug(
@@ -199,3 +238,6 @@ class CharacterAuditManager(models.Manager["CharacterAuditContext"]):
 
     def visible_to(self, user):
         return self.get_queryset().visible_to(user)
+
+    def manage_to(self, user):
+        return self.get_queryset().manage_to(user)
