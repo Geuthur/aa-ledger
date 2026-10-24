@@ -13,10 +13,10 @@ import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { formatDate, formatNumber } from "@/Components/Base/BaseTable/tableHelper";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 import ExtractorProgress from "@/Components/Planetary/ExtractorProgress";
+import { formatDate, formatNumber } from "@/Utils/format";
 
 type Product = components["schemas"]["ProductSchema"];
 type Extractor = components["schemas"]["ExtractorSchema"];
@@ -35,9 +35,9 @@ const ProductLabel = ({ product }: { product: Pick<Product, "item_name" | "icon"
 );
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <Card className="aa-panel">
-    <Card.Body className="d-flex flex-column gap-2 p-0">
-      <h5 className="aa-section-title mb-0">{title}</h5>
+  <Card className="bg-dark border-secondary mb-3 shadow-sm">
+    <Card.Body className="d-flex flex-column gap-2 p-3">
+      <h5 className="mb-0">{title}</h5>
       {children}
     </Card.Body>
   </Card>
@@ -152,44 +152,41 @@ function PlanetModal({ ownerId, planetId, onHide }: PlanetModalProps) {
         </>
       }
     >
-        {isFetching && <FetchingLoader message={t("Loading...")} />}
-        {error && <ErrorLoader title={t("Error")} message={error.message} />}
-        {!isFetching && !error && data && (
-          <div className="d-flex flex-column gap-3">
-            <Section title={t("Extractors")}>
-              <BaseTable
-                variant="vowra-light"
-                columns={extractorColumns}
-                data={data.extractors}
-                emptyText={t("No active extractors")}
-                pageSizeOptions={[10, 25]}
-              />
-            </Section>
-            <Section title={t("Factories")}>
-              <BaseTable
-                variant="vowra-light"
-                columns={factoryColumns}
-                data={data.factories}
-                emptyText={t("No factories")}
-                pageSizeOptions={[10, 25]}
-              />
-            </Section>
-            <Section title={t("Storage")}>
-              <BaseTable
-                variant="vowra-light"
-                columns={storageColumns}
-                data={data.storage}
-                emptyText={t("Nothing stored")}
-                pageSizeOptions={[10, 25]}
-              />
-            </Section>
-            <span className="text-muted small">
-              {t(
-                "Note: Planetary information is only recalculated when the colony is viewed through the client. Information will not update until this criteria is met.",
-              )}
-            </span>
-          </div>
-        )}
+      {isFetching && <FetchingLoader message={t("Loading…")} />}
+      {error && <ErrorLoader title={t("Error")} message={error.message} />}
+      {!isFetching && !error && data && (
+        <div className="d-flex flex-column gap-3">
+          <Section title={t("Extractors")}>
+            <BaseTable
+              columns={extractorColumns}
+              data={data.extractors}
+              emptyText={t("No active extractors")}
+              pageSizeOptions={[10, 25]}
+            />
+          </Section>
+          <Section title={t("Factories")}>
+            <BaseTable
+              columns={factoryColumns}
+              data={data.factories}
+              emptyText={t("No factories")}
+              pageSizeOptions={[10, 25]}
+            />
+          </Section>
+          <Section title={t("Storage")}>
+            <BaseTable
+              columns={storageColumns}
+              data={data.storage}
+              emptyText={t("Nothing stored")}
+              pageSizeOptions={[10, 25]}
+            />
+          </Section>
+          <span className="text-muted small">
+            {t(
+              "Note: Planetary information is only recalculated when the colony is viewed through the client. Information will not update until this criteria is met.",
+            )}
+          </span>
+        </div>
+      )}
     </BaseModal>
   );
 }

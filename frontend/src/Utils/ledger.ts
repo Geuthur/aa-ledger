@@ -6,7 +6,6 @@ import type {
   CorporationLedgerResponse,
   LedgerSchema,
 } from "@/Api/schema";
-import { formatNumber } from "@/Components/Base/BaseTable/tableHelper";
 
 /** A row of the ledger table, independent of the owner type. */
 export interface LedgerRow {
@@ -100,8 +99,4 @@ export function amountClass(value: number, mining = false): string {
   if (value === 0) return "";
   if (mining) return "text-info";
   return value > 0 ? "text-success" : "text-danger";
-}
-
-export function formatIsk(value: number): string {
-  return `${formatNumber(Math.round(value), undefined, { maximumFractionDigits: 0 })} ISK`;
 }

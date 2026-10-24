@@ -4,13 +4,14 @@ import { useMemo } from "react";
 // Third Party
 import type { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
+import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { BillboardSchema } from "@/Api/schema";
 import ChordChart from "@/Components/Ledger/LedgerView/ChordChart";
 import { buildTimelineChart } from "@/Utils/billboard";
-import { formatNumber } from "@/Utils/eveOnline";
-import { formatIsk } from "@/Utils/ledger";
+import { formatCompactNumber } from "@/Utils/format";
+import { formatIsk } from "@/Utils/format";
 
 export interface LedgerChartsProps {
   billboard?: BillboardSchema;
@@ -26,7 +27,7 @@ function LedgerCharts({ billboard }: LedgerChartsProps) {
       chart: { type: "bar", stacked: true, toolbar: { show: false }, background: "transparent" },
       title: { text: t("Income over time") },
       xaxis: { categories: timeline.categories },
-      yaxis: { labels: { formatter: (value: number) => formatNumber(value, "") } },
+      yaxis: { labels: { formatter: (value: number) => formatCompactNumber(value) } },
       tooltip: { y: { formatter: (value: number) => formatIsk(value) } },
       dataLabels: { enabled: false },
       theme: { mode: "dark" },
@@ -46,16 +47,16 @@ function LedgerCharts({ billboard }: LedgerChartsProps) {
     <div className="row g-3 align-items-end">
       {timeline.series.length > 0 && (
         <div className={colClass}>
-          <div className="aa-panel">
+          <Card className="bg-dark border-secondary p-3 shadow-sm">
             <Chart options={timelineOptions} series={timeline.series} type="bar" height={380} />
-          </div>
+          </Card>
         </div>
       )}
       {hasChord && (
         <div className={colClass}>
-          <div className="aa-panel">
+          <Card className="bg-dark border-secondary p-3 shadow-sm">
             <ChordChart billboard={billboard?.chord_chart} title={t("Distribution")} />
-          </div>
+          </Card>
         </div>
       )}
     </div>

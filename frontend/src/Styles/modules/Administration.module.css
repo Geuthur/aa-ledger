@@ -1,0 +1,21 @@
+.searchContainer {
+  max-width: 300px;
+  width: 100%;
+}
+
+.avatarFallback {
+  width: 32px;
+  height: 32px;
+}
+
+.statusBadgeClickable {
+  cursor: pointer;
+}
+
+.dropdownMenu {
+  z-index: 1060;
+}
+
+.cursorPointer {
+  cursor: pointer;
+}

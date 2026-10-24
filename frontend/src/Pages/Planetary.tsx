@@ -8,7 +8,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Bell, BellOff, Info } from "lucide-react";
 import { parseAsInteger, useQueryStates } from "nuqs";
-import { Card } from "react-bootstrap";
+import { Button, Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import { fetchPlanets, togglePlanetNotification } from "@/Api/ApiCalls";
@@ -16,11 +16,12 @@ import { queryKeys } from "@/Api/query";
 import type { PlanetaryDetails } from "@/Api/schema";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { formatRelativeTime, renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 import ExtractorProgress from "@/Components/Planetary/ExtractorProgress";
 import PlanetModal from "@/Components/Planetary/PlanetModal";
+import { renderTooltip } from "@/Utils/bootsTrap";
+import { formatRelativeTime } from "@/Utils/format";
 
 const columnHelper = createColumnHelper<PlanetaryDetails>();
 
@@ -118,22 +119,22 @@ function Planetary() {
             <span className="d-inline-flex gap-1">
               {renderTooltip(
                 t("View Planet"),
-                <button
-                  type="button"
-                  className="aa-btn aa-btn-primary aa-btn-sm"
+                <Button
+                  variant="primary"
+                  size="sm"
                   aria-label={t("View Planet")}
                   onClick={() =>
                     setModal({ planet: row.original.id, owner: row.original.owner.character_id })
                   }
                 >
                   <Info size={14} />
-                </button>,
+                </Button>,
               )}
               {renderTooltip(
                 t("Toggle Notification"),
-                <button
-                  type="button"
-                  className={`aa-btn aa-btn-sm ${row.original.alarm ? "aa-btn-success" : "aa-btn-secondary"}`}
+                <Button
+                  variant={row.original.alarm ? "success" : "secondary"}
+                  size="sm"
                   aria-label={t("Toggle Notification")}
                   disabled={toggle.isPending}
                   onClick={() =>
@@ -144,7 +145,7 @@ function Planetary() {
                   }
                 >
                   {row.original.alarm ? <Bell size={14} /> : <BellOff size={14} />}
-                </button>,
+                </Button>,
               )}
             </span>
           ),
@@ -154,39 +155,41 @@ function Planetary() {
   );
 
   return (
-    <Card className="border-0 bg-transparent">
-      <BaseSectionHeader name={t("Planetary Ledger")}>
-        <button
-          type="button"
-          className="aa-btn aa-btn-secondary"
-          disabled={toggle.isPending}
-          onClick={() => toggle.mutate({ ownerId: characterId })}
-        >
-          {t("Toggle all notifications")}
-        </button>
-        <Link className="aa-btn aa-btn-secondary" to="/ledger/planetary/overview/">
-          {t("Overview")}
-        </Link>
-      </BaseSectionHeader>
+    <Card className="border-0 bg-dark-body">
+      <Card.Body>
+        <BaseSectionHeader name={t("Planetary Ledger")}>
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={toggle.isPending}
+            onClick={() => toggle.mutate({ ownerId: characterId })}
+          >
+            {t("Toggle all notifications")}
+          </Button>
+          <Link className="btn btn-secondary" to="/ledger/">
+            {t("Overview")}
+          </Link>
+        </BaseSectionHeader>
 
-      <Card.Body className="mt-3 p-0">
-        {isLoading && <FetchingLoader message={t("Loading planets...")} />}
-        {error && <ErrorLoader title={t("Error")} message={error.message} />}
-        {!isLoading && !error && (
-          <BaseTable
-            columns={columns}
-            data={data ?? []}
-            emptyText={t("No planets found")}
-            exportFileName="planets.csv"
-          />
-        )}
+        <Card.Body className="mt-3 p-0">
+          {isLoading && <FetchingLoader message={t("Loading planets…")} />}
+          {error && <ErrorLoader title={t("Error")} message={error.message} />}
+          {!isLoading && !error && (
+            <BaseTable
+              columns={columns}
+              data={data ?? []}
+              emptyText={t("No planets found")}
+              exportFileName="planets.csv"
+            />
+          )}
+        </Card.Body>
+
+        <PlanetModal
+          ownerId={modal.owner}
+          planetId={modal.planet}
+          onHide={() => setModal({ planet: null, owner: null })}
+        />
       </Card.Body>
-
-      <PlanetModal
-        ownerId={modal.owner}
-        planetId={modal.planet}
-        onHide={() => setModal({ planet: null, owner: null })}
-      />
     </Card>
   );
 }

@@ -86,6 +86,7 @@ function ModalShell({
       backdrop={backdrop}
       restoreFocus={restoreFocus}
       dialogClassName={className}
+      contentClassName="aa-react"
     >
       <Modal.Header closeButton={closeButton}>
         <Modal.Title className={titleClassName}>{displayedTitle}</Modal.Title>
@@ -207,7 +208,7 @@ function ConfirmModal({
         disabled={isPending}
         onClick={handleApprove}
       >
-        {isPending ? t("Loading...") : confirmText || effectiveData.buttonText || t("Confirm")}
+        {isPending ? t("Loading…") : confirmText || effectiveData.buttonText || t("Confirm")}
       </Button>
       <Button variant={closeVariant} onClick={handleClose}>
         {closeText ?? t("Close")}

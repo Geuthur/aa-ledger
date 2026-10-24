@@ -72,10 +72,6 @@ class CharacterOwner(UpdateManagerMixin, models.Model):
 
     class Meta:
         default_permissions = ()
-        permissions = (
-            ("char_audit_manager", "Has access to all characters for own Corp"),
-            ("char_audit_admin_manager", "Has access to all characters"),
-        )
 
     id = models.AutoField(primary_key=True)
 
@@ -121,13 +117,18 @@ class CharacterOwner(UpdateManagerMixin, models.Model):
         if self.active is False:
             return UpdateStatus.DISABLED
 
+        if hasattr(self, "total_update_status"):
+            return UpdateStatus(self.total_update_status)
+
         qs = CharacterOwner.objects.filter(pk=self.pk).annotate_total_update_status()
         total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
         return UpdateStatus(total_update_status)
 
     @cached_property
-    def alt_ids(self) -> models.QuerySet[EveCharacter]:
+    def alt_ids(self) -> models.QuerySet[EveCharacter] | models.Q:
         """Get all alt IDs for this Owner."""
+        if self.is_orphan:  # pylint: disable=using-constant-test
+            return models.Q(id__in=[self.eve_character.character_id])
         alt_ids = (
             EveCharacter.objects.filter(
                 character_ownership__user=self.eve_character.character_ownership.user

@@ -2,6 +2,13 @@
 from django.test import TestCase
 from django.utils import timezone
 
+# Alliance Auth
+from allianceauth.authentication.models import CharacterOwnership
+from allianceauth.eveonline.models import Token
+
+# Alliance Auth (External Libs)
+from evesde_factory.utils import add_new_token
+
 # AA Ledger
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.helpers.update_manager import CharacterUpdateSection, UpdateStatus
@@ -19,6 +26,15 @@ class TestCharacterAuditManager(LedgerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.audit = CharacterOwnerFactory(user=cls.user)
+
+    def setUp(self):
+        super().setUp()
+        # LedgerTestCase preloads tokens with all scopes; strip the scopes but keep
+        # the tokens, deleting them would also delete the character ownership
+        for token in Token.objects.filter(
+            character_id=self.user_character.character_id
+        ):
+            token.scopes.clear()
 
     def test_disable_characters_with_no_ownership_should_disable(self):
         """
@@ -50,6 +66,83 @@ class TestCharacterAuditManager(LedgerTestCase):
         # Expected Result
         self.assertEqual(CharacterOwner.objects.disable_characters_with_no_owner(), 1)
         self.assertFalse(CharacterOwner.objects.get(pk=self.audit.pk).active)
+
+    def test_enable_characters_with_owner_should_enable_with_valid_token(self):
+        # Test Data
+        CharacterOwner.objects.filter(pk=self.audit.pk).update(active=False)
+        add_new_token(
+            user=self.user,
+            character=self.user_character,
+            scopes=CharacterOwner.get_esi_scopes(),
+        )
+
+        # Test Action
+        result = CharacterOwner.objects.enable_characters_with_owner()
+
+        # Expected Result
+        self.assertEqual(result, 1)
+        self.assertTrue(CharacterOwner.objects.get(pk=self.audit.pk).active)
+
+    def test_enable_characters_with_owner_should_not_enable_without_token(self):
+        # Test Data
+        CharacterOwner.objects.filter(pk=self.audit.pk).update(active=False)
+
+        # Test Action
+        result = CharacterOwner.objects.enable_characters_with_owner()
+
+        # Expected Result
+        self.assertEqual(result, 0)
+        self.assertFalse(CharacterOwner.objects.get(pk=self.audit.pk).active)
+
+    def test_enable_characters_with_owner_should_not_enable_with_missing_scopes(self):
+        # Test Data
+        CharacterOwner.objects.filter(pk=self.audit.pk).update(active=False)
+        add_new_token(
+            user=self.user,
+            character=self.user_character,
+            scopes=CharacterOwner.get_esi_scopes()[:1],
+        )
+
+        # Test Action
+        result = CharacterOwner.objects.enable_characters_with_owner()
+
+        # Expected Result
+        self.assertEqual(result, 0)
+        self.assertFalse(CharacterOwner.objects.get(pk=self.audit.pk).active)
+
+    def test_enable_characters_with_owner_should_not_enable_without_owner(self):
+        # Test Data
+        CharacterOwner.objects.filter(pk=self.audit.pk).update(active=False)
+        add_new_token(
+            user=self.user,
+            character=self.user_character,
+            scopes=CharacterOwner.get_esi_scopes(),
+        )
+        CharacterOwnership.objects.filter(
+            character__character_id=self.user_character.character_id
+        ).delete()
+
+        # Test Action
+        result = CharacterOwner.objects.enable_characters_with_owner()
+
+        # Expected Result
+        self.assertEqual(result, 0)
+        self.assertFalse(CharacterOwner.objects.get(pk=self.audit.pk).active)
+
+    def test_enable_characters_with_owner_should_ignore_active_characters(self):
+        # Test Data
+        add_new_token(
+            user=self.user,
+            character=self.user_character,
+            scopes=CharacterOwner.get_esi_scopes(),
+        )
+
+        # Test Action
+        result = CharacterOwner.objects.enable_characters_with_owner()
+
+        # Expected Result
+        self.assertEqual(result, 0)
+        self.assertTrue(CharacterOwner.objects.get(pk=self.audit.pk).active)
 
 
 class TestCharacterAnnotateTotalUpdateStatus(LedgerTestCase):

@@ -10,6 +10,7 @@ from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 # AA Ledger
+from ledger.models.general import General
 from ledger.tests import pook_httpx2
 from ledger.tests.testdata.factory import UserMainFactory
 from ledger.views import add_ally, add_char, add_corp
@@ -118,20 +119,20 @@ class LedgerTestCase(NoSocketsTestCase):
         # User with Manage Own Corporation Access - Corporation 2001 - Alliance 3001
         cls.manage_own_user = UserMainFactory(
             permissions__=[
-                "ledger.basic_access",
-                "ledger.advanced_access",
-                "ledger.corp_audit_manager",
-                "ledger.manage_access",
+                General.get_perm(General.Permission.BASIC_ACCESS),
+                General.get_perm(General.Permission.ADVANCED_ACCESS),
+                General.get_perm(General.Permission.CORP_AUDIT_MANAGER),
+                General.get_perm(General.Permission.MANAGE_ACCESS),
             ]
         )
         cls.manage_own_character = cls.manage_own_user.profile.main_character
         # User with Manage Corporations Access - Corporation 2001 - Alliance 3001
         cls.manage_user = UserMainFactory(
             permissions__=[
-                "ledger.basic_access",
-                "ledger.advanced_access",
-                "ledger.corp_audit_admin_manager",
-                "ledger.manage_access",
+                General.get_perm(General.Permission.BASIC_ACCESS),
+                General.get_perm(General.Permission.ADVANCED_ACCESS),
+                General.get_perm(General.Permission.CORP_AUDIT_ADMIN_MANAGER),
+                General.get_perm(General.Permission.MANAGE_ACCESS),
             ]
         )
         cls.manage_character = cls.manage_user.profile.main_character
@@ -169,3 +170,6 @@ class LedgerTestCase(NoSocketsTestCase):
         session_middleware.process_request(request)
         message_middleware = MessageMiddleware(Mock())
         message_middleware.process_request(request)
+
+
+AuthTestCase = LedgerTestCase

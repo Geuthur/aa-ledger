@@ -162,6 +162,298 @@
         ]
       }
     },
+    "/ledger/api/settings/owners/": {
+      "get": {
+        "operationId": "ledger_api_general_get_settings_owners",
+        "summary": "Get all owners manageable by the user for Settings",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsOwnersResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/settings/owners/{owner_type}/{owner_id}/unregistered/": {
+      "get": {
+        "operationId": "ledger_api_general_get_settings_owner_unregistered",
+        "summary": "List members or corporations that are not registered in Ledger",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_type",
+            "schema": {
+              "title": "Owner Type",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsUnregisteredResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/settings/owners/update-all/": {
+      "post": {
+        "operationId": "ledger_api_general_trigger_update_all_settings_owners",
+        "summary": "Trigger update for all user-owned characters and user-added corporations",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/settings/owners/{owner_type}/{owner_id}/update/": {
+      "post": {
+        "operationId": "ledger_api_general_trigger_settings_owner_update",
+        "summary": "Trigger update for a single owner from settings",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_type",
+            "schema": {
+              "title": "Owner Type",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/settings/owners/{owner_type}/{owner_id}/": {
+      "delete": {
+        "operationId": "ledger_api_general_delete_settings_owner",
+        "summary": "Delete an owner from settings",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_type",
+            "schema": {
+              "title": "Owner Type",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
     "/ledger/api/admin/update/": {
       "post": {
         "operationId": "ledger_api_general_queue_update",
@@ -212,6 +504,43 @@
           },
           "required": true
         },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/ledger/api/overview/": {
+      "get": {
+        "operationId": "ledger_api_overview_get_overview",
+        "summary": "Get unified overview of all owners (characters, corporations, alliances) visible to user",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LedgerOverviewResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "LedgerAdmin"
+        ],
         "security": [
           {
             "SessionAuth": []
@@ -343,54 +672,28 @@
         ]
       }
     },
-    "/ledger/api/character/{character_id}/administration/": {
+    "/ledger/api/administration/owners/": {
       "get": {
-        "operationId": "ledger_api_administration_get_character_administration",
-        "summary": "Get the registered and missing characters of an account",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "character_id",
-            "schema": {
-              "title": "Character Id",
-              "type": "integer"
-            },
-            "required": true
-          }
-        ],
+        "operationId": "ledger_api_administration_get_administration_owners",
+        "summary": "List all character and corporation owners for administration",
+        "parameters": [],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AdministrationResponse"
+                  "items": {
+                    "$ref": "#/components/schemas/AdministrationOwnerSchema"
+                  },
+                  "title": "Response",
+                  "type": "array"
                 }
               }
             }
           },
           "403": {
             "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too Many Requests",
             "content": {
               "application/json": {
                 "schema": {
@@ -410,16 +713,29 @@
         ]
       }
     },
-    "/ledger/api/character/{character_id}/update/": {
+    "/ledger/api/administration/owners/{owner_type}/{owner_id}/update/": {
       "post": {
-        "operationId": "ledger_api_administration_trigger_character_update",
-        "summary": "Queue an update for all characters of the user owning this character",
+        "operationId": "ledger_api_administration_trigger_administration_owner_update",
+        "summary": "Queue update for a character or corporation owner",
         "parameters": [
           {
             "in": "path",
-            "name": "character_id",
+            "name": "owner_type",
             "schema": {
-              "title": "Character Id",
+              "enum": [
+                "character",
+                "corporation"
+              ],
+              "title": "Owner Type",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
               "type": "integer"
             },
             "required": true
@@ -455,21 +771,21 @@
                 }
               }
             }
-          },
-          "429": {
-            "description": "Too Many Requests",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
           }
         },
         "tags": [
           "Administration"
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdministrationOwnerUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "security": [
           {
             "SessionAuth": []
@@ -477,16 +793,29 @@
         ]
       }
     },
-    "/ledger/api/character/{character_id}/": {
+    "/ledger/api/administration/owners/{owner_type}/{owner_id}/": {
       "delete": {
-        "operationId": "ledger_api_administration_delete_character",
-        "summary": "Remove a character from the ledger",
+        "operationId": "ledger_api_administration_delete_administration_owner",
+        "summary": "Delete a character or corporation owner from ledger",
         "parameters": [
           {
             "in": "path",
-            "name": "character_id",
+            "name": "owner_type",
             "schema": {
-              "title": "Character Id",
+              "enum": [
+                "character",
+                "corporation"
+              ],
+              "title": "Owner Type",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
               "type": "integer"
             },
             "required": true
@@ -522,16 +851,6 @@
                 }
               }
             }
-          },
-          "429": {
-            "description": "Too Many Requests",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
           }
         },
         "tags": [
@@ -544,16 +863,29 @@
         ]
       }
     },
-    "/ledger/api/corporation/{corporation_id}/administration/": {
+    "/ledger/api/administration/owners/{owner_type}/{owner_id}/inspect/": {
       "get": {
-        "operationId": "ledger_api_administration_get_corporation_administration",
-        "summary": "Get the registration and members of a corporation",
+        "operationId": "ledger_api_administration_inspect_administration_owner",
+        "summary": "Inspect an owner administration view",
         "parameters": [
           {
             "in": "path",
-            "name": "corporation_id",
+            "name": "owner_type",
             "schema": {
-              "title": "Corporation Id",
+              "enum": [
+                "character",
+                "corporation"
+              ],
+              "title": "Owner Type",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
               "type": "integer"
             },
             "required": true
@@ -582,150 +914,6 @@
           },
           "404": {
             "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too Many Requests",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Administration"
-        ],
-        "security": [
-          {
-            "SessionAuth": []
-          }
-        ]
-      }
-    },
-    "/ledger/api/corporation/{corporation_id}/": {
-      "delete": {
-        "operationId": "ledger_api_administration_delete_corporation",
-        "summary": "Remove a corporation from the ledger",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "corporation_id",
-            "schema": {
-              "title": "Corporation Id",
-              "type": "integer"
-            },
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageSchema"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too Many Requests",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Administration"
-        ],
-        "security": [
-          {
-            "SessionAuth": []
-          }
-        ]
-      }
-    },
-    "/ledger/api/alliance/{alliance_id}/administration/": {
-      "get": {
-        "operationId": "ledger_api_administration_get_alliance_administration",
-        "summary": "Get the registered and missing corporations of an alliance",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "alliance_id",
-            "schema": {
-              "title": "Alliance Id",
-              "type": "integer"
-            },
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdministrationResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too Many Requests",
             "content": {
               "application/json": {
                 "schema": {
@@ -1728,6 +1916,11 @@
             "default": false,
             "title": "Is External",
             "type": "boolean"
+          },
+          "has_errors": {
+            "default": false,
+            "title": "Has Errors",
+            "type": "boolean"
           }
         },
         "required": [
@@ -1833,9 +2026,9 @@
             ],
             "title": "Portrait"
           },
-          "is_admin": {
+          "is_superuser": {
             "default": false,
-            "title": "Is Admin",
+            "title": "Is Superuser",
             "type": "boolean"
           },
           "can_manage": {
@@ -1881,6 +2074,279 @@
           "disable_notifications"
         ],
         "title": "UserSettingsUpdateRequest",
+        "type": "object"
+      },
+      "SettingsMissingOwnerSchema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "owner_type": {
+            "default": "character",
+            "enum": [
+              "character",
+              "corporation",
+              "alliance"
+            ],
+            "title": "Owner Type",
+            "type": "string"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subtitle"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "SettingsMissingOwnerSchema",
+        "type": "object"
+      },
+      "SettingsOwnerSchema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "owner_type": {
+            "enum": [
+              "character",
+              "corporation",
+              "alliance"
+            ],
+            "title": "Owner Type",
+            "type": "string"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subtitle"
+          },
+          "status": {
+            "default": "ok",
+            "title": "Status",
+            "type": "string"
+          },
+          "has_error": {
+            "default": false,
+            "title": "Has Error",
+            "type": "boolean"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "last_sync": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync"
+          },
+          "sections": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SettingsOwnerSectionSchema"
+            },
+            "title": "Sections",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "owner_type"
+        ],
+        "title": "SettingsOwnerSchema",
+        "type": "object"
+      },
+      "SettingsOwnerSectionSchema": {
+        "properties": {
+          "section": {
+            "title": "Section",
+            "type": "string"
+          },
+          "section_name": {
+            "title": "Section Name",
+            "type": "string"
+          },
+          "is_success": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Success"
+          },
+          "has_token_error": {
+            "default": false,
+            "title": "Has Token Error",
+            "type": "boolean"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "last_run_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run At"
+          },
+          "last_run_finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run Finished At"
+          }
+        },
+        "required": [
+          "section",
+          "section_name"
+        ],
+        "title": "SettingsOwnerSectionSchema",
+        "type": "object"
+      },
+      "SettingsOwnersResponse": {
+        "properties": {
+          "registered": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SettingsOwnerSchema"
+            },
+            "title": "Registered",
+            "type": "array"
+          },
+          "missing": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SettingsMissingOwnerSchema"
+            },
+            "title": "Missing",
+            "type": "array"
+          },
+          "can_update": {
+            "default": true,
+            "title": "Can Update",
+            "type": "boolean"
+          },
+          "cooldown_seconds": {
+            "default": 0,
+            "title": "Cooldown Seconds",
+            "type": "integer"
+          }
+        },
+        "title": "SettingsOwnersResponse",
+        "type": "object"
+      },
+      "SettingsUnregisteredResponse": {
+        "description": "Members (corporation) or corporations (alliance) that are not registered in Ledger.",
+        "properties": {
+          "owner_type": {
+            "enum": [
+              "corporation",
+              "alliance"
+            ],
+            "title": "Owner Type",
+            "type": "string"
+          },
+          "owner_id": {
+            "title": "Owner Id",
+            "type": "integer"
+          },
+          "items": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SettingsMissingOwnerSchema"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "owner_type",
+          "owner_id"
+        ],
+        "title": "SettingsUnregisteredResponse",
         "type": "object"
       },
       "MessageSchema": {
@@ -1929,6 +2395,97 @@
           "target"
         ],
         "title": "AdminUpdateRequest",
+        "type": "object"
+      },
+      "LedgerOverviewOwnerSchema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "character",
+              "corporation",
+              "alliance"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "type_display": {
+            "title": "Type Display",
+            "type": "string"
+          },
+          "portrait_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Portrait Url"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subtitle"
+          },
+          "active": {
+            "default": true,
+            "title": "Active",
+            "type": "boolean"
+          },
+          "has_planetary": {
+            "default": false,
+            "title": "Has Planetary",
+            "type": "boolean"
+          },
+          "can_manage": {
+            "default": false,
+            "title": "Can Manage",
+            "type": "boolean"
+          },
+          "has_errors": {
+            "default": false,
+            "title": "Has Errors",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "type_display"
+        ],
+        "title": "LedgerOverviewOwnerSchema",
+        "type": "object"
+      },
+      "LedgerOverviewResponse": {
+        "properties": {
+          "owners": {
+            "items": {
+              "$ref": "#/components/schemas/LedgerOverviewOwnerSchema"
+            },
+            "title": "Owners",
+            "type": "array"
+          }
+        },
+        "required": [
+          "owners"
+        ],
+        "title": "LedgerOverviewResponse",
         "type": "object"
       },
       "CharacterOverview": {
@@ -1993,6 +2550,194 @@
           "alliance_name"
         ],
         "title": "AllianceOverview",
+        "type": "object"
+      },
+      "AdministrationOwnerSchema": {
+        "description": "Schema for the administration owners overview in aa-ledger.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "owner_id": {
+            "title": "Owner Id",
+            "type": "integer"
+          },
+          "owner_type": {
+            "enum": [
+              "character",
+              "corporation",
+              "alliance"
+            ],
+            "title": "Owner Type",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "user_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Name"
+          },
+          "status": {
+            "default": "ok",
+            "title": "Status",
+            "type": "string"
+          },
+          "is_active": {
+            "default": true,
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "last_sync": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "alts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AltSchema"
+            },
+            "title": "Alts",
+            "type": "array"
+          },
+          "unregistered_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unregistered Count"
+          }
+        },
+        "required": [
+          "id",
+          "owner_id",
+          "owner_type",
+          "name"
+        ],
+        "title": "AdministrationOwnerSchema",
+        "type": "object"
+      },
+      "AltSchema": {
+        "description": "Alt character that is included in an entity's ledger.",
+        "properties": {
+          "character_id": {
+            "title": "Character Id",
+            "type": "integer"
+          },
+          "character_name": {
+            "title": "Character Name",
+            "type": "string"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "is_registered": {
+            "default": false,
+            "title": "Is Registered",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "character_id",
+          "character_name"
+        ],
+        "title": "AltSchema",
+        "type": "object"
+      },
+      "AdministrationOwnerUpdateRequest": {
+        "description": "Request to update a single owner.",
+        "properties": {
+          "force_refresh": {
+            "default": false,
+            "title": "Force Refresh",
+            "type": "boolean"
+          }
+        },
+        "title": "AdministrationOwnerUpdateRequest",
         "type": "object"
       },
       "AdminOwnerSchema": {
@@ -2204,41 +2949,6 @@
           "dashboard"
         ],
         "title": "AdministrationResponse",
-        "type": "object"
-      },
-      "AltSchema": {
-        "description": "Alt character that is included in an entity's ledger.",
-        "properties": {
-          "character_id": {
-            "title": "Character Id",
-            "type": "integer"
-          },
-          "character_name": {
-            "title": "Character Name",
-            "type": "string"
-          },
-          "icon": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Icon"
-          },
-          "is_registered": {
-            "default": false,
-            "title": "Is Registered",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "character_id",
-          "character_name"
-        ],
-        "title": "AltSchema",
         "type": "object"
       },
       "DashboardSchema": {
@@ -3195,6 +3905,17 @@
               }
             ],
             "title": "Icon"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
           },
           "is_registered": {
             "default": false,

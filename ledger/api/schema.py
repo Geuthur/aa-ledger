@@ -31,6 +31,53 @@ class MenuLink(Schema):
     link: str
     badge: int | None = None
     is_external: bool = False
+    has_errors: bool = False
+
+
+class SettingsOwnerSectionSchema(Schema):
+    section: str
+    section_name: str
+    is_success: bool | None = None
+    has_token_error: bool = False
+    error_message: str | None = None
+    last_run_at: datetime | None = None
+    last_run_finished_at: datetime | None = None
+
+
+class SettingsOwnerSchema(Schema):
+    id: int
+    name: str
+    owner_type: Literal["character", "corporation", "alliance"]
+    avatar_url: str | None = None
+    subtitle: str | None = None
+    status: str = "ok"
+    has_error: bool = False
+    error_message: str | None = None
+    last_sync: datetime | None = None
+    sections: list[SettingsOwnerSectionSchema] = []
+
+
+class SettingsMissingOwnerSchema(Schema):
+    id: int
+    name: str
+    owner_type: Literal["character", "corporation", "alliance"] = "character"
+    avatar_url: str | None = None
+    subtitle: str | None = None
+
+
+class SettingsOwnersResponse(Schema):
+    registered: list[SettingsOwnerSchema] = []
+    missing: list[SettingsMissingOwnerSchema] = []
+    can_update: bool = True
+    cooldown_seconds: int = 0
+
+
+class SettingsUnregisteredResponse(Schema):
+    """Members (corporation) or corporations (alliance) that are not registered in Ledger."""
+
+    owner_type: Literal["corporation", "alliance"]
+    owner_id: int
+    items: list[SettingsMissingOwnerSchema] = []
 
 
 class MenuSchema(Schema):
@@ -49,7 +96,7 @@ class UserData(Schema):
     alliance_id: int | None = None
     alliance_name: str | None = None
     portrait: str | None = None
-    is_admin: bool = False
+    is_superuser: bool = False
     can_manage: bool = False
     has_advanced_access: bool = False
 
@@ -121,6 +168,7 @@ class AltSchema(Schema):
     character_id: int
     character_name: str
     icon: str | None = None
+    ticker: str | None = None
     is_registered: bool = False
 
 
@@ -293,6 +341,23 @@ class AllianceOverview(Schema):
     alliance_name: str
 
 
+class LedgerOverviewOwnerSchema(Schema):
+    id: int
+    name: str
+    type: Literal["character", "corporation", "alliance"]
+    type_display: str
+    portrait_url: str | None = None
+    subtitle: str | None = None
+    active: bool = True
+    has_planetary: bool = False
+    can_manage: bool = False
+    has_errors: bool = False
+
+
+class LedgerOverviewResponse(Schema):
+    owners: list[LedgerOverviewOwnerSchema]
+
+
 class DashboardSchema(Schema):
     """Statistics shown on the administration dashboards."""
 
@@ -403,3 +468,28 @@ class ExtractorSchema(Schema):
     install_time: str
     expiry_time: str
     progress: float
+
+
+class AdministrationOwnerSchema(Schema):
+    """Schema for the administration owners overview in aa-ledger."""
+
+    id: int
+    owner_id: int
+    owner_type: Literal["character", "corporation", "alliance"]
+    name: str
+    icon: str | None = None
+    ticker: str | None = None
+    user_id: int | None = None
+    user_name: str | None = None
+    status: str = "ok"
+    is_active: bool = True
+    last_sync: datetime | None = None
+    error_message: str | None = None
+    alts: list[AltSchema] = []
+    unregistered_count: int | None = None
+
+
+class AdministrationOwnerUpdateRequest(Schema):
+    """Request to update a single owner."""
+
+    force_refresh: bool = False

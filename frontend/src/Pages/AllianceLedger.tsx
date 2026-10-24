@@ -3,6 +3,8 @@ import { Link, useParams } from "react-router";
 
 // Third Party
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import { fetchAllianceDetails, fetchAllianceLedger, loadUserData } from "@/Api/ApiCalls";
@@ -13,9 +15,15 @@ import { useDateFilter } from "@/Hooks/useDateFilter";
 import { useDetailsState } from "@/Hooks/useLedgerState";
 import { corporationRows } from "@/Utils/ledger";
 
-function AllianceLedger() {
+export interface AllianceLedgerProps {
+  allianceIdOverride?: number;
+  onBack?: () => void;
+}
+
+function AllianceLedger({ allianceIdOverride, onBack }: AllianceLedgerProps = {}) {
   const { t } = useTranslation();
-  const allianceId = Number(useParams().allianceId);
+  const params = useParams();
+  const allianceId = allianceIdOverride ?? Number(params.allianceId);
   const { filters } = useDateFilter();
   const { entityId, section, openDetails, closeDetails } = useDetailsState();
 
@@ -28,6 +36,7 @@ function AllianceLedger() {
     queryKey: queryKeys.AllianceLedger(allianceId, filters),
     queryFn: () => fetchAllianceLedger(allianceId, filters),
     placeholderData: keepPreviousData,
+    enabled: Boolean(allianceId),
   });
 
   return (
@@ -43,27 +52,22 @@ function AllianceLedger() {
       isFetching={isFetching}
       error={error}
       filterExtras={
-        <>
-          <Link className="aa-btn aa-btn-secondary" to="/ledger/alliance/">
+        onBack ? (
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onBack}
+            className="d-flex align-items-center gap-1"
+            data-testid="back-to-administration-btn"
+          >
+            <ArrowLeft size={16} />
+            {t("Back to Administration Overview")}
+          </Button>
+        ) : (
+          <Link className="btn btn-secondary" to="/ledger/">
             {t("Overview")}
           </Link>
-          <Link
-            className={`aa-btn ${
-              data?.has_errors
-                ? "aa-btn-warning aa-btn-pulse"
-                : "aa-btn-secondary"
-            }`}
-            to={`/ledger/alliance/${allianceId}/administration/`}
-          >
-            {data?.has_errors && (
-              <span className="aa-pending-dot-container me-1">
-                <span className="aa-pending-dot-ping" />
-                <span className="aa-pending-dot-core" />
-              </span>
-            )}
-            {t("Administration")}
-          </Link>
-        </>
+        )
       }
       onDetails={openDetails}
       onOwnerDetails={() => openDetails(allianceId, "summary")}
