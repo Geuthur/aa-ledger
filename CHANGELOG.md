@@ -40,18 +40,6 @@ Section Order:
 - Alliance support in `SuperuserPage` (`SuperuserOwnersTable` & `SuperuserInspectionView`) with direct inspection into `AllianceLedger`, alliance filtering, and unregistered member corporations modal.
 - Unregistered member trigger button (`{count} Unregistered`) on corporation and alliance owners in `SuperuserOwnersTable`.
 
-### Changed
-
-- Centralized all application permissions and permission evaluation logic into `General` (`General.Permission(models.TextChoices)` and helper methods `has_perm`, `has_any_perm`, `has_management_access`, `has_admin_management_access`, `get_perm`).
-- Modularized `ledger/api/superuser.py` by extracting business logic and owner/inspection builders into `ledger/api/helpers/superuser.py`, reducing controller size from >600 lines to under 190 lines and eliminating N+1 queries.
-- Filtered `SuperuserPage` alliance owners (`superuser/owners/`) to strictly include only alliances that have at least one corporation registered in audit.
-- Isolated `SettingsPage` (`settings/owners/`) and its bulk update trigger to strictly include only the current user's own characters and personally added corporations, rather than permissions-based `manage_to` owners.
-- Extended `settings/owners/{owner_type}/{owner_id}/unregistered/` to allow inspection by superusers and managers across all manageable corporations and alliances.
-
-### Removed
-
-- Removed separate `ledger/permissions.py` file in favor of native Django choices and methods on `General`.
-
 ### Fixed
 
 - Fixed missing return statement and import grouping in `BaseTableToolbar`.
@@ -59,6 +47,11 @@ Section Order:
 
 ### Changed
 
+- Centralized all application permissions and permission evaluation logic into `General` (`General.Permission(models.TextChoices)` and helper methods `has_perm`, `has_any_perm`, `has_management_access`, `has_admin_management_access`, `get_perm`).
+- Modularized `ledger/api/superuser.py` by extracting business logic and owner/inspection builders into `ledger/api/helpers/superuser.py`, reducing controller size from >600 lines to under 190 lines and eliminating N+1 queries.
+- Filtered `SuperuserPage` alliance owners (`superuser/owners/`) to strictly include only alliances that have at least one corporation registered in audit.
+- Isolated `SettingsPage` (`settings/owners/`) and its bulk update trigger to strictly include only the current user's own characters and personally added corporations, rather than permissions-based `manage_to` owners.
+- Extended `settings/owners/{owner_type}/{owner_id}/unregistered/` to allow inspection by superusers and managers across all manageable corporations and alliances.
 - Unified `BaseTable` into a single `aa-table` architecture with integrated `BaseTableHeader`, Lucide sort icons, and streamlined footer controls.
 - Overhauled table column filters (`BaseTableFilter`) with compact dark-themed inputs and Lucide icons.
 - Migrated frontend components and modals to native Bootstrap 5.3 utilities scoped to `.aa-react`.
