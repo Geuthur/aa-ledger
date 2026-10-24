@@ -207,7 +207,7 @@ export const SettingsPage: React.FC = () => {
         return (
             <div className="aa-loader-container">
                 <span className="spinner-border" />
-                <span>{t("Loading settings...")}</span>
+                <span>{t("Loading settings…")}</span>
             </div>
         );
     }

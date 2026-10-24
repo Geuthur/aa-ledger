@@ -76,7 +76,7 @@ describe("BaseUserSettingsCard", () => {
     );
 
     // Expected Result
-    expect(screen.getByText("Saving...")).toBeInTheDocument();
+    expect(screen.getByText("Saving…")).toBeInTheDocument();
     expect(screen.getByRole("switch")).toBeDisabled();
   });
 });

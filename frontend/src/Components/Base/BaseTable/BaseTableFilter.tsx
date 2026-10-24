@@ -97,7 +97,7 @@ export const NumberFilter = <TData,>({ column }: { column: Column<TData, unknown
           className={Styles.searchinput}
           readOnly={true}
           type="text"
-          placeholder={t("Range...")}
+          placeholder={t("Range…")}
           value={
             hasValue
               ? `${fromToNumber?.[0] || "Min"} → ${fromToNumber?.[1] || "Max"}`
@@ -204,7 +204,7 @@ export const TextFilter = <TData,>({ column }: { column: Column<TData, unknown> 
         size="sm"
         className={Styles.searchinput}
         type="text"
-        placeholder={t("Filter...")}
+        placeholder={t("Filter…")}
         value={value}
         onChange={(event) => {
           column.setFilterValue(event.target.value ? event.target.value : "");
@@ -289,7 +289,7 @@ export const SelectFilter = <TData,>({ column }: { column: Column<TData, unknown
           size="sm"
           className={Styles.searchinput}
           type="text"
-          placeholder={t("Filter...")}
+          placeholder={t("Filter…")}
           value={
             typeof currentFilterValue === "undefined"
               ? ""

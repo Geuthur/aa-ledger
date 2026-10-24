@@ -208,7 +208,7 @@ function ConfirmModal({
         disabled={isPending}
         onClick={handleApprove}
       >
-        {isPending ? t("Loading...") : confirmText || effectiveData.buttonText || t("Confirm")}
+        {isPending ? t("Loading…") : confirmText || effectiveData.buttonText || t("Confirm")}
       </Button>
       <Button variant={closeVariant} onClick={handleClose}>
         {closeText ?? t("Close")}

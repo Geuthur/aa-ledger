@@ -253,7 +253,7 @@ describe("AdministrationPage in aa-ledger", () => {
     await screen.findByText("John Doe");
     expect(screen.getByText("Mega Corp")).toBeInTheDocument();
 
-    const searchInput = screen.getByPlaceholderText("Search owners...");
+    const searchInput = screen.getByPlaceholderText("Search owners…");
     await user.type(searchInput, "Jane Alt");
 
     // Expected Result - Only John Doe should remain

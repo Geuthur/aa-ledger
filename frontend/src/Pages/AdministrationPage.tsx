@@ -317,7 +317,7 @@ export const AdministrationPage: React.FC = () => {
           <div className={styles.searchContainer}>
             <Form.Control
               type="search"
-              placeholder={t("Search owners...")}
+              placeholder={t("Search owners…")}
               size="sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

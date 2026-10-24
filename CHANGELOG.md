@@ -48,6 +48,7 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] Use the typographic ellipsis (`…`) instead of three dots in loading texts and placeholders; the translation keys changed accordingly.
 - Centralized all application permissions and permission evaluation logic into `General` (`General.Permission(models.TextChoices)` and helper methods `has_perm`, `has_any_perm`, `has_management_access`, `has_admin_management_access`, `get_perm`).
 - Modularized `ledger/api/administration.py` by extracting business logic and owner/inspection builders into `ledger/api/helpers/administration.py`, reducing controller size from >600 lines to under 190 lines and eliminating N+1 queries.
 - Filtered `AdministrationPage` alliance owners (`administration/owners/`) to strictly include only alliances that have at least one corporation registered in audit.

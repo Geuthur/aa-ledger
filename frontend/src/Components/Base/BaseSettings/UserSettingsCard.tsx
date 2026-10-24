@@ -54,7 +54,7 @@ export const BaseUserSettingsCard: React.FC<BaseUserSettingsCardProps> = ({
           )}
           {isPending && (
             <p className={styles["save-status"]} role="status">
-              {t("Saving...")}
+              {t("Saving…")}
             </p>
           )}
         </div>

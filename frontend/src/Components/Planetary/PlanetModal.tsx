@@ -152,7 +152,7 @@ function PlanetModal({ ownerId, planetId, onHide }: PlanetModalProps) {
         </>
       }
     >
-      {isFetching && <FetchingLoader message={t("Loading...")} />}
+      {isFetching && <FetchingLoader message={t("Loading…")} />}
       {error && <ErrorLoader title={t("Error")} message={error.message} />}
       {!isFetching && !error && data && (
         <div className="d-flex flex-column gap-3">

@@ -359,7 +359,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
   return (
     <>
       <Card className="mt-3 border-0">
-        {isLoading && <FetchingLoader message={t("Loading owners...")} />}
+        {isLoading && <FetchingLoader message={t("Loading owners…")} />}
         {isError && <ErrorLoader title={t("Error")} message={t("Failed to load owners")} />}
         {!isLoading && !isError && (
           <BaseTable

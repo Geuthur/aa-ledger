@@ -65,7 +65,7 @@ export function OwnerFilterBar({
         <Form.Control
           type="search"
           value={search}
-          placeholder={searchPlaceholder ?? t("Search owners...")}
+          placeholder={searchPlaceholder ?? t("Search owners…")}
           aria-label={t("Search owners")}
           onChange={(e) => onSearchChange(e.target.value)}
         />

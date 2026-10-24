@@ -150,7 +150,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
             }}
             size={ModalSize.extraLarge}
         >
-            {isFetching && <FetchingLoader message={t("Loading...")} />}
+            {isFetching && <FetchingLoader message={t("Loading…")} />}
             {isError && (
                 <ErrorLoader
                     title={t("Error")}

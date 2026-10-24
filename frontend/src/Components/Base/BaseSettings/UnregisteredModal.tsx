@@ -63,7 +63,7 @@ export function UnregisteredModal({
       {isLoading && (
         <div className="aa-loader-container">
           <span className="spinner-border" />
-          <span>{t("Loading...")}</span>
+          <span>{t("Loading…")}</span>
         </div>
       )}
 
@@ -86,7 +86,7 @@ export function UnregisteredModal({
             <Form.Control
               type="search"
               value={search}
-              placeholder={t("Search owners...")}
+              placeholder={t("Search owners…")}
               aria-label={t("Search owners")}
               onChange={(e) => setSearch(e.target.value)}
             />

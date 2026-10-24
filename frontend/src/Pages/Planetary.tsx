@@ -171,7 +171,7 @@ function Planetary() {
         </BaseSectionHeader>
 
         <Card.Body className="mt-3 p-0">
-          {isLoading && <FetchingLoader message={t("Loading planets...")} />}
+          {isLoading && <FetchingLoader message={t("Loading planets…")} />}
           {error && <ErrorLoader title={t("Error")} message={error.message} />}
           {!isLoading && !error && (
             <BaseTable

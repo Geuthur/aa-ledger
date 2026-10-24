@@ -61,7 +61,7 @@ function LedgerView({
         </BaseSectionHeader>
 
         <Card.Body className="mt-3 d-flex flex-column gap-3 p-0">
-          {isLoading && <FetchingLoader message={t("Loading ledger...")} />}
+          {isLoading && <FetchingLoader message={t("Loading ledger…")} />}
           {error && (
             <ErrorLoader title={t("Error")} message={error.message || t("Failed to load the ledger")} />
           )}
