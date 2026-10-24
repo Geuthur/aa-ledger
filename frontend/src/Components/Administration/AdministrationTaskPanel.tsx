@@ -13,9 +13,9 @@ import { Button, Card, Col, Form, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // Styles
-import styles from "@/Styles/modules/Superuser.module.css";
+import styles from "@/Styles/modules/Administration.module.css";
 
-export interface SuperuserTaskPanelProps {
+export interface AdministrationTaskPanelProps {
   showTaskPanel: boolean;
   onToggleTaskPanel: () => void;
   forceRefreshGlobal: boolean;
@@ -24,7 +24,7 @@ export interface SuperuserTaskPanelProps {
   onUpdateTarget: (target: "characters" | "corporations") => void;
 }
 
-export const SuperuserTaskPanel: React.FC<SuperuserTaskPanelProps> = ({
+export const AdministrationTaskPanel: React.FC<AdministrationTaskPanelProps> = ({
   showTaskPanel,
   onToggleTaskPanel,
   forceRefreshGlobal,
@@ -137,4 +137,4 @@ export const SuperuserTaskPanel: React.FC<SuperuserTaskPanelProps> = ({
   );
 };
 
-export default SuperuserTaskPanel;
+export default AdministrationTaskPanel;

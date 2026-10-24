@@ -7,7 +7,7 @@ from django.db.models import Case, Count, Q, Value, When
 
 # Alliance Auth
 from allianceauth.authentication.models import User
-from allianceauth.eveonline.models import EveCharacter
+from allianceauth.eveonline.models import EveCharacter, Token
 from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
@@ -26,11 +26,6 @@ if TYPE_CHECKING:
 class CharacterAuditQuerySet(models.QuerySet["CharacterAuditContext"]):
     # pylint: disable=duplicate-code
     def visible_to(self, user: User):
-        # superusers get all visible
-        if user.is_superuser:
-            logger.debug("Returning all characters for superuser %s.", user)
-            return self
-
         if General.has_perm(user, General.Permission.CHAR_AUDIT_ADMIN_MANAGER):
             logger.debug("Returning all characters for %s.", user)
             return self
@@ -59,13 +54,6 @@ class CharacterAuditQuerySet(models.QuerySet["CharacterAuditContext"]):
 
     def manage_to(self, user: User):
         """Return all characters that the user can manage."""
-        if user.is_superuser:
-            logger.debug(
-                "Returning all characters for superuser %s.",
-                user,
-            )
-            return self
-
         if General.has_perm(user, General.Permission.CHAR_AUDIT_ADMIN_MANAGER):
             logger.debug("Returning all characters for Char Audit Admin %s.", user)
             return self
@@ -191,6 +179,41 @@ class CharacterAuditQuerySet(models.QuerySet["CharacterAuditContext"]):
             return len(orphans)
         return 0
 
+    def enable_characters_with_owner(self) -> int:
+        """Enable disabled characters which have an owner again and a valid token.
+
+        Return count of enabled characters.
+        """
+        candidates = self.filter(
+            eve_character__character_ownership__isnull=False, active=False
+        ).select_related("eve_character")
+        candidate_ids = {c.eve_character.character_id for c in candidates}
+        if not candidate_ids:
+            return 0
+
+        valid_ids = set(
+            Token.objects.filter(character_id__in=candidate_ids)
+            .require_scopes(self.model.get_esi_scopes())
+            .require_valid()
+            .values_list("character_id", flat=True)
+        )
+        to_enable = self.filter(eve_character__character_id__in=valid_ids, active=False)
+        names = list(
+            to_enable.values_list("eve_character__character_name", flat=True).order_by(
+                "eve_character__character_name"
+            )
+        )
+        if not names:
+            return 0
+
+        to_enable.update(active=True)
+        logger.info(
+            "Enabled %d characters which have an owner and a valid token again: %s",
+            len(names),
+            ", ".join(names),
+        )
+        return len(names)
+
 
 class CharacterAuditManager(models.Manager["CharacterAuditContext"]):
     def get_queryset(self):
@@ -205,13 +228,12 @@ class CharacterAuditManager(models.Manager["CharacterAuditContext"]):
     def disable_characters_with_no_owner(self) -> int:
         return self.get_queryset().disable_characters_with_no_owner()
 
+    def enable_characters_with_owner(self) -> int:
+        return self.get_queryset().enable_characters_with_owner()
+
     @staticmethod
     def visible_eve_characters(user):
         qs = EveCharacter.objects.get_queryset()
-        if user.is_superuser:
-            logger.debug("Returning all characters for superuser %s.", user)
-            return qs.all()
-
         if General.has_perm(user, General.Permission.CHAR_AUDIT_ADMIN_MANAGER):
             logger.debug("Returning all characters for %s.", user)
             return qs.all()

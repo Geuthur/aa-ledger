@@ -15,10 +15,10 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Ledger
 from ledger import __title__, tasks
 from ledger.api import schema
-from ledger.api.helpers.superuser import (
+from ledger.api.helpers.administration import (
+    build_administration_owners_list,
     build_character_inspection_response,
     build_corporation_inspection_response,
-    build_superuser_owners_list,
 )
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
@@ -31,26 +31,26 @@ ADMIN_TASK_PRIORITY = 7
 
 
 class ApiEndpoints:
-    tags = ["Superuser"]
+    tags = ["Administration"]
 
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "superuser/owners/",
+            "administration/owners/",
             response={
-                HTTPStatus.OK: list[schema.SuperuserOwnerSchema],
+                HTTPStatus.OK: list[schema.AdministrationOwnerSchema],
                 HTTPStatus.FORBIDDEN: schema.ErrorSchema,
             },
             tags=self.tags,
-            summary="List all character and corporation owners for superuser administration",
+            summary="List all character and corporation owners for administration",
         )
-        def get_superuser_owners(request: WSGIRequest):
+        def get_administration_owners(request: WSGIRequest):
             if not General.has_management_access(request.user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
-            return build_superuser_owners_list(request.user)
+            return build_administration_owners_list(request.user)
 
         @api.post(
-            "superuser/owners/{str:owner_type}/{int:owner_id}/update/",
+            "administration/owners/{str:owner_type}/{int:owner_id}/update/",
             response={
                 HTTPStatus.OK: schema.MessageSchema,
                 HTTPStatus.FORBIDDEN: schema.ErrorSchema,
@@ -59,14 +59,21 @@ class ApiEndpoints:
             tags=self.tags,
             summary="Queue update for a character or corporation owner",
         )
-        def trigger_superuser_owner_update(
+        # pylint: disable=too-many-return-statements
+        def trigger_administration_owner_update(
             request: WSGIRequest,
             owner_type: Literal["character", "corporation"],
             owner_id: int,
-            payload: schema.SuperuserOwnerUpdateRequest,
+            payload: schema.AdministrationOwnerUpdateRequest,
         ):
             if not General.has_management_access(request.user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+
+            # Bypassing the ESI cache is reserved for superusers
+            if payload.force_refresh and not request.user.is_superuser:
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("Only superusers can bypass the cache.")
+                }
 
             if owner_type == "character":
                 owner = (
@@ -116,7 +123,7 @@ class ApiEndpoints:
             return HTTPStatus.NOT_FOUND, {"error": _("Invalid owner type.")}
 
         @api.delete(
-            "superuser/owners/{str:owner_type}/{int:owner_id}/",
+            "administration/owners/{str:owner_type}/{int:owner_id}/",
             response={
                 HTTPStatus.OK: schema.MessageSchema,
                 HTTPStatus.FORBIDDEN: schema.ErrorSchema,
@@ -125,7 +132,7 @@ class ApiEndpoints:
             tags=self.tags,
             summary="Delete a character or corporation owner from ledger",
         )
-        def delete_superuser_owner(
+        def delete_administration_owner(
             request: WSGIRequest,
             owner_type: Literal["character", "corporation"],
             owner_id: int,
@@ -168,16 +175,16 @@ class ApiEndpoints:
             return HTTPStatus.NOT_FOUND, {"error": _("Invalid owner type.")}
 
         @api.get(
-            "superuser/owners/{str:owner_type}/{int:owner_id}/inspect/",
+            "administration/owners/{str:owner_type}/{int:owner_id}/inspect/",
             response={
                 HTTPStatus.OK: schema.AdministrationResponse,
                 HTTPStatus.FORBIDDEN: schema.ErrorSchema,
                 HTTPStatus.NOT_FOUND: schema.ErrorSchema,
             },
             tags=self.tags,
-            summary="Inspect an owner administration view for superuser",
+            summary="Inspect an owner administration view",
         )
-        def inspect_superuser_owner(
+        def inspect_administration_owner(
             request: WSGIRequest,
             owner_type: Literal["character", "corporation"],
             owner_id: int,

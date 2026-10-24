@@ -1,4 +1,4 @@
-"""Superuser API Helpers and Data Builders."""
+"""Administration API Helpers and Data Builders."""
 
 # Standard Library
 from http import HTTPStatus
@@ -31,7 +31,9 @@ from ledger.models.helpers.update_manager import (
 )
 
 
-def build_superuser_character_owners(user: Any) -> list[schema.SuperuserOwnerSchema]:
+def build_administration_character_owners(
+    user: Any,
+) -> list[schema.AdministrationOwnerSchema]:
     """Build owner schemas for characters manageable by the user."""
     char_owners = (
         CharacterOwner.objects.manage_to(user)
@@ -57,7 +59,7 @@ def build_superuser_character_owners(user: Any) -> list[schema.SuperuserOwnerSch
         .order_by("eve_character__character_name")
     )
 
-    owners_list: list[schema.SuperuserOwnerSchema] = []
+    owners_list: list[schema.AdministrationOwnerSchema] = []
     for char_owner in char_owners:
         eve_char = char_owner.eve_character
         user_id = None
@@ -84,7 +86,7 @@ def build_superuser_character_owners(user: Any) -> list[schema.SuperuserOwnerSch
         )[1]
 
         owners_list.append(
-            schema.SuperuserOwnerSchema(
+            schema.AdministrationOwnerSchema(
                 id=char_owner.id,
                 owner_id=eve_char.character_id,
                 owner_type="character",
@@ -103,9 +105,9 @@ def build_superuser_character_owners(user: Any) -> list[schema.SuperuserOwnerSch
     return owners_list
 
 
-def build_superuser_corporation_owners(
+def build_administration_corporation_owners(
     user: Any,
-) -> tuple[list[schema.SuperuserOwnerSchema], list[CorporationOwner]]:
+) -> tuple[list[schema.AdministrationOwnerSchema], list[CorporationOwner]]:
     """Build owner schemas for corporations manageable by the user."""
     corp_owners = list(
         CorporationOwner.objects.manage_to(user)
@@ -131,7 +133,7 @@ def build_superuser_corporation_owners(
         .values_list("corporation_id", "total")
     )
 
-    owners_list: list[schema.SuperuserOwnerSchema] = []
+    owners_list: list[schema.AdministrationOwnerSchema] = []
     for corp_owner in corp_owners:
         eve_corp = corp_owner.eve_corporation
         error_message = _build_sections(
@@ -140,7 +142,7 @@ def build_superuser_corporation_owners(
         )[1]
 
         owners_list.append(
-            schema.SuperuserOwnerSchema(
+            schema.AdministrationOwnerSchema(
                 id=corp_owner.id,
                 owner_id=eve_corp.corporation_id,
                 owner_type="corporation",
@@ -165,9 +167,9 @@ def build_superuser_corporation_owners(
     return owners_list, corp_owners
 
 
-def build_superuser_alliance_owners(
+def build_administration_alliance_owners(
     corp_owners: list[CorporationOwner],
-) -> list[schema.SuperuserOwnerSchema]:
+) -> list[schema.AdministrationOwnerSchema]:
     """Build owner schemas for alliances visible to the user (only alliances with a corporation in audit)."""
     all_alliance_ids = {
         corp.eve_corporation.alliance.alliance_id
@@ -206,10 +208,10 @@ def build_superuser_alliance_owners(
         alliance_id__in=all_alliance_ids
     ).order_by("alliance_name")
 
-    owners_list: list[schema.SuperuserOwnerSchema] = []
+    owners_list: list[schema.AdministrationOwnerSchema] = []
     for alliance in alliances:
         owners_list.append(
-            schema.SuperuserOwnerSchema(
+            schema.AdministrationOwnerSchema(
                 id=alliance.alliance_id,
                 owner_id=alliance.alliance_id,
                 owner_type="alliance",
@@ -230,11 +232,13 @@ def build_superuser_alliance_owners(
     return owners_list
 
 
-def build_superuser_owners_list(user: Any) -> list[schema.SuperuserOwnerSchema]:
-    """Return unified list of character, corporation, and alliance owners for superuser administration."""
-    char_owners = build_superuser_character_owners(user)
-    corp_owners, raw_corp_owners = build_superuser_corporation_owners(user)
-    alliance_owners = build_superuser_alliance_owners(raw_corp_owners)
+def build_administration_owners_list(
+    user: Any,
+) -> list[schema.AdministrationOwnerSchema]:
+    """Return unified list of character, corporation, and alliance owners for administration."""
+    char_owners = build_administration_character_owners(user)
+    corp_owners, raw_corp_owners = build_administration_corporation_owners(user)
+    alliance_owners = build_administration_alliance_owners(raw_corp_owners)
 
     return [*char_owners, *corp_owners, *alliance_owners]
 

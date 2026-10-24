@@ -42,7 +42,7 @@ export const queryKeys = {
     ["PlanetDetails", characterId, planetId] as const,
 
 
-  SuperuserOwners: ["SuperuserOwners"] as const,
-  SuperuserOwnerInspect: (ownerType: string, ownerId: number) =>
-    ["SuperuserOwnerInspect", ownerType, ownerId] as const,
+  AdministrationOwners: ["AdministrationOwners"] as const,
+  AdministrationOwnerInspect: (ownerType: string, ownerId: number) =>
+    ["AdministrationOwnerInspect", ownerType, ownerId] as const,
 };

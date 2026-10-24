@@ -4,13 +4,13 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 // AA Ledger
-import { SuperuserTaskPanel } from "@/Components/Superuser/SuperuserTaskPanel";
+import { AdministrationTaskPanel } from "@/Components/Administration/AdministrationTaskPanel";
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-describe("SuperuserTaskPanel", () => {
+describe("AdministrationTaskPanel", () => {
   it("should toggle panel open and trigger action callbacks", async () => {
     // Test Data
     const user = userEvent.setup();
@@ -20,7 +20,7 @@ describe("SuperuserTaskPanel", () => {
 
     // Test Action
     const { rerender } = render(
-      <SuperuserTaskPanel
+      <AdministrationTaskPanel
         showTaskPanel={false}
         onToggleTaskPanel={onToggleTaskPanel}
         forceRefreshGlobal={false}
@@ -40,7 +40,7 @@ describe("SuperuserTaskPanel", () => {
 
     // Test Action - rerender open
     rerender(
-      <SuperuserTaskPanel
+      <AdministrationTaskPanel
         showTaskPanel={true}
         onToggleTaskPanel={onToggleTaskPanel}
         forceRefreshGlobal={false}
@@ -75,7 +75,7 @@ describe("SuperuserTaskPanel", () => {
 
     // Test Action
     render(
-      <SuperuserTaskPanel
+      <AdministrationTaskPanel
         showTaskPanel={true}
         onToggleTaskPanel={onToggleTaskPanel}
         forceRefreshGlobal={true}

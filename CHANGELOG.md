@@ -28,17 +28,18 @@ Section Order:
 
 ### Added
 
-- Standardized `SuperuserPage` (`/superuser/`) with KPI metrics, sync issue indicators, collapsible task administration panel, and owner audit inspection.
-- Alt management modal (`SuperuserAltsModal`) with bulk refresh action and corporation tickers.
+- Standardized `AdministrationPage` (`/administration/`) with KPI metrics, sync issue indicators, collapsible task administration panel, and owner audit inspection.
+- Alt management modal (`AdministrationAltsModal`) with bulk refresh action and corporation tickers.
 - Card-based `OverviewPage` with entity search, type filtering, and direct navigation links.
 - Unified `SettingsPage` components (`BaseUserSettingsCard`, `BaseOwnerSettingsSection`) for managing registered characters, corporations, and alts.
-- Backend API endpoints for settings owners (`settings/owners/`), superuser owners (`superuser/owners/`), and single-owner updates.
+- Backend API endpoints for settings owners (`settings/owners/`), administration owners (`administration/owners/`), and single-owner updates.
 - Pulsing notification badge (`aa-menu-badge-pulse`) on navigation links indicating active sync or token errors.
 - Unit test suite for `BaseTable` verifying rendering, sorting, filtering, and pagination.
 - Type filter (All / Character / Corporation / Alliance) and name search for owners on the `SettingsPage` (`OwnerFilterBar`).
 - "Unregistered" modal on `SettingsPage` corporation and alliance cards listing characters or corporations not registered in Ledger (`settings/owners/{owner_type}/{owner_id}/unregistered/`); alliance cards are now shown in settings owners.
-- Alliance support in `SuperuserPage` (`SuperuserOwnersTable` & `SuperuserInspectionView`) with direct inspection into `AllianceLedger`, alliance filtering, and unregistered member corporations modal.
-- Unregistered member trigger button (`{count} Unregistered`) on corporation and alliance owners in `SuperuserOwnersTable`.
+- Alliance support in `AdministrationPage` (`AdministrationOwnersTable` & `AdministrationInspectionView`) with direct inspection into `AllianceLedger`, alliance filtering, and unregistered member corporations modal.
+- Unregistered member trigger button (`{count} Unregistered`) on corporation and alliance owners in `AdministrationOwnersTable`.
+- `CharacterOwner.objects.enable_characters_with_owner()` re-enables disabled characters that have an owner again and a valid token with all required scopes; it runs in `update_all_characters` and `update_subset_characters` right after `disable_characters_with_no_owner()`.
 
 ### Fixed
 
@@ -48,15 +49,19 @@ Section Order:
 ### Changed
 
 - Centralized all application permissions and permission evaluation logic into `General` (`General.Permission(models.TextChoices)` and helper methods `has_perm`, `has_any_perm`, `has_management_access`, `has_admin_management_access`, `get_perm`).
-- Modularized `ledger/api/superuser.py` by extracting business logic and owner/inspection builders into `ledger/api/helpers/superuser.py`, reducing controller size from >600 lines to under 190 lines and eliminating N+1 queries.
-- Filtered `SuperuserPage` alliance owners (`superuser/owners/`) to strictly include only alliances that have at least one corporation registered in audit.
+- Modularized `ledger/api/administration.py` by extracting business logic and owner/inspection builders into `ledger/api/helpers/administration.py`, reducing controller size from >600 lines to under 190 lines and eliminating N+1 queries.
+- Filtered `AdministrationPage` alliance owners (`administration/owners/`) to strictly include only alliances that have at least one corporation registered in audit.
 - Isolated `SettingsPage` (`settings/owners/`) and its bulk update trigger to strictly include only the current user's own characters and personally added corporations, rather than permissions-based `manage_to` owners.
 - Extended `settings/owners/{owner_type}/{owner_id}/unregistered/` to allow inspection by superusers and managers across all manageable corporations and alliances.
 - Unified `BaseTable` into a single `aa-table` architecture with integrated `BaseTableHeader`, Lucide sort icons, and streamlined footer controls.
 - Overhauled table column filters (`BaseTableFilter`) with compact dark-themed inputs and Lucide icons.
 - Migrated frontend components and modals to native Bootstrap 5.3 utilities scoped to `.aa-react`.
-- Consolidated navigation structure to Overview, My Characters, Settings, and Superuser (`ShieldAlert`).
-- Enabled management access in Superuser API and navigation menu using `manage_to` for granular character and corporation access control.
+- Moved the owner error message in `AdministrationOwnersTable` out of the status column: the status badge is now clickable (keyboard accessible) when an error or `token_error` exists and opens the new `AdministrationErrorModal` with the full message.
+- Consolidated navigation structure to Overview, My Characters, Settings, and Administration (`ShieldAlert`).
+- Enabled management access in Administration API and navigation menu using `manage_to` for granular character and corporation access control.
+- Renamed the "Superuser" area to "Administration": menu entry, page (`/administration/`, old `/superuser/` route redirects), API endpoints (`administration/owners/...`), schemas (`AdministrationOwnerSchema`, `AdministrationOwnerUpdateRequest`), components, query keys and translations. `UserData.is_admin` is now `is_superuser`.
+- Replaced the remaining `is_superuser` checks in `General.has_delete_access` and the character/corporation audit managers with the permission system (`General.has_perm`); superusers keep full access.
+- Restricted cache bypass (`force_refresh`) for single-owner updates in the Administration view to superusers. Other managers receive `403 Forbidden`; the force refresh option is hidden for them in the UI. Global updates stay superuser-only.
 
 ### Removed
 

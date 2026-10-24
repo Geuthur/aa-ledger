@@ -243,15 +243,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ledger/api/superuser/owners/": {
+    "/ledger/api/administration/owners/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List all character and corporation owners for superuser administration */
-        get: operations["ledger_api_superuser_get_superuser_owners"];
+        /** List all character and corporation owners for administration */
+        get: operations["ledger_api_administration_get_administration_owners"];
         put?: never;
         post?: never;
         delete?: never;
@@ -260,7 +260,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ledger/api/superuser/owners/{owner_type}/{owner_id}/update/": {
+    "/ledger/api/administration/owners/{owner_type}/{owner_id}/update/": {
         parameters: {
             query?: never;
             header?: never;
@@ -270,14 +270,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Queue update for a character or corporation owner */
-        post: operations["ledger_api_superuser_trigger_superuser_owner_update"];
+        post: operations["ledger_api_administration_trigger_administration_owner_update"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/ledger/api/superuser/owners/{owner_type}/{owner_id}/": {
+    "/ledger/api/administration/owners/{owner_type}/{owner_id}/": {
         parameters: {
             query?: never;
             header?: never;
@@ -288,21 +288,21 @@ export interface paths {
         put?: never;
         post?: never;
         /** Delete a character or corporation owner from ledger */
-        delete: operations["ledger_api_superuser_delete_superuser_owner"];
+        delete: operations["ledger_api_administration_delete_administration_owner"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/ledger/api/superuser/owners/{owner_type}/{owner_id}/inspect/": {
+    "/ledger/api/administration/owners/{owner_type}/{owner_id}/inspect/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Inspect an owner administration view for superuser */
-        get: operations["ledger_api_superuser_inspect_superuser_owner"];
+        /** Inspect an owner administration view */
+        get: operations["ledger_api_administration_inspect_administration_owner"];
         put?: never;
         post?: never;
         delete?: never;
@@ -545,10 +545,10 @@ export interface components {
             /** Portrait */
             portrait?: string | null;
             /**
-             * Is Admin
+             * Is Superuser
              * @default false
              */
-            is_admin: boolean;
+            is_superuser: boolean;
             /**
              * Can Manage
              * @default false
@@ -784,29 +784,10 @@ export interface components {
             alliance_name: string;
         };
         /**
-         * AltSchema
-         * @description Alt character that is included in an entity's ledger.
+         * AdministrationOwnerSchema
+         * @description Schema for the administration owners overview in aa-ledger.
          */
-        AltSchema: {
-            /** Character Id */
-            character_id: number;
-            /** Character Name */
-            character_name: string;
-            /** Icon */
-            icon?: string | null;
-            /** Ticker */
-            ticker?: string | null;
-            /**
-             * Is Registered
-             * @default false
-             */
-            is_registered: boolean;
-        };
-        /**
-         * SuperuserOwnerSchema
-         * @description Schema for superuser owners overview in aa-ledger.
-         */
-        SuperuserOwnerSchema: {
+        AdministrationOwnerSchema: {
             /** Id */
             id: number;
             /** Owner Id */
@@ -849,10 +830,29 @@ export interface components {
             unregistered_count?: number | null;
         };
         /**
-         * SuperuserOwnerUpdateRequest
+         * AltSchema
+         * @description Alt character that is included in an entity's ledger.
+         */
+        AltSchema: {
+            /** Character Id */
+            character_id: number;
+            /** Character Name */
+            character_name: string;
+            /** Icon */
+            icon?: string | null;
+            /** Ticker */
+            ticker?: string | null;
+            /**
+             * Is Registered
+             * @default false
+             */
+            is_registered: boolean;
+        };
+        /**
+         * AdministrationOwnerUpdateRequest
          * @description Request to update a single owner.
          */
-        SuperuserOwnerUpdateRequest: {
+        AdministrationOwnerUpdateRequest: {
             /**
              * Force Refresh
              * @default false
@@ -2006,7 +2006,7 @@ export interface operations {
             };
         };
     };
-    ledger_api_superuser_get_superuser_owners: {
+    ledger_api_administration_get_administration_owners: {
         parameters: {
             query?: never;
             header?: never;
@@ -2021,7 +2021,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SuperuserOwnerSchema"][];
+                    "application/json": components["schemas"]["AdministrationOwnerSchema"][];
                 };
             };
             /** @description Forbidden */
@@ -2035,7 +2035,7 @@ export interface operations {
             };
         };
     };
-    ledger_api_superuser_trigger_superuser_owner_update: {
+    ledger_api_administration_trigger_administration_owner_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -2047,7 +2047,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SuperuserOwnerUpdateRequest"];
+                "application/json": components["schemas"]["AdministrationOwnerUpdateRequest"];
             };
         };
         responses: {
@@ -2080,7 +2080,7 @@ export interface operations {
             };
         };
     };
-    ledger_api_superuser_delete_superuser_owner: {
+    ledger_api_administration_delete_administration_owner: {
         parameters: {
             query?: never;
             header?: never;
@@ -2121,7 +2121,7 @@ export interface operations {
             };
         };
     };
-    ledger_api_superuser_inspect_superuser_owner: {
+    ledger_api_administration_inspect_administration_owner: {
         parameters: {
             query?: never;
             header?: never;

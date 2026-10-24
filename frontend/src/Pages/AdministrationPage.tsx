@@ -21,26 +21,26 @@ import {
 import { useTranslation } from "react-i18next";
 
 // Styles
-import styles from "@/Styles/modules/Superuser.module.css";
+import styles from "@/Styles/modules/Administration.module.css";
 
 // AA Ledger
 import {
-  deleteSuperuserOwner,
-  loadSuperuserOwners,
+  deleteAdministrationOwner,
+  loadAdministrationOwners,
   loadUserData,
   queueUpdate,
-  triggerSuperuserOwnerUpdate,
+  triggerAdministrationOwnerUpdate,
 } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
-import type { SuperuserOwnerSchema } from "@/Api/schema";
+import type { AdministrationOwnerSchema } from "@/Api/schema";
 import {
-  SuperuserInspectionView,
-  SuperuserKpiCards,
-  SuperuserOwnersTable,
-  SuperuserTaskPanel,
-} from "@/Components/Superuser";
+  AdministrationInspectionView,
+  AdministrationKpiCards,
+  AdministrationOwnersTable,
+  AdministrationTaskPanel,
+} from "@/Components/Administration";
 
-export const SuperuserPage: React.FC = () => {
+export const AdministrationPage: React.FC = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
@@ -66,7 +66,7 @@ export const SuperuserPage: React.FC = () => {
   } | null>(null);
 
   // Delete Modal State
-  const [ownerToDelete, setOwnerToDelete] = useState<SuperuserOwnerSchema | null>(null);
+  const [ownerToDelete, setOwnerToDelete] = useState<AdministrationOwnerSchema | null>(null);
 
   // Queries
   const {
@@ -74,15 +74,15 @@ export const SuperuserPage: React.FC = () => {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: queryKeys.SuperuserOwners,
-    queryFn: loadSuperuserOwners,
+    queryKey: queryKeys.AdministrationOwners,
+    queryFn: loadAdministrationOwners,
   });
 
   const { data: userData } = useQuery({
     queryKey: queryKeys.User,
     queryFn: loadUserData,
   });
-  const isSuperuser = userData?.user.is_admin ?? false;
+  const isSuperuser = userData?.user.is_superuser ?? false;
 
   // Single Owner Update Mutation
   const singleUpdateMutation = useMutation({
@@ -95,7 +95,7 @@ export const SuperuserPage: React.FC = () => {
       ownerId: number;
       forceRefresh: boolean;
     }) =>
-      triggerSuperuserOwnerUpdate(ownerType, ownerId, {
+      triggerAdministrationOwnerUpdate(ownerType, ownerId, {
         force_refresh: forceRefresh,
       }),
     onMutate: ({ ownerType, ownerId }) => {
@@ -103,7 +103,7 @@ export const SuperuserPage: React.FC = () => {
     },
     onSuccess: (data) => {
       setTaskFeedback({ variant: "success", message: data.message });
-      queryClient.invalidateQueries({ queryKey: queryKeys.SuperuserOwners });
+      queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
     },
     onError: (err: Error) => {
       setTaskFeedback({ variant: "danger", message: err.message });
@@ -129,7 +129,7 @@ export const SuperuserPage: React.FC = () => {
       }),
     onSuccess: (data) => {
       setTaskFeedback({ variant: "success", message: data.message });
-      queryClient.invalidateQueries({ queryKey: queryKeys.SuperuserOwners });
+      queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
     },
     onError: (err: Error) => {
       setTaskFeedback({ variant: "danger", message: err.message });
@@ -144,11 +144,11 @@ export const SuperuserPage: React.FC = () => {
     }: {
       ownerType: "character" | "corporation";
       ownerId: number;
-    }) => deleteSuperuserOwner(ownerType, ownerId),
+    }) => deleteAdministrationOwner(ownerType, ownerId),
     onSuccess: (data) => {
       setTaskFeedback({ variant: "success", message: data.message });
       setOwnerToDelete(null);
-      queryClient.invalidateQueries({ queryKey: queryKeys.SuperuserOwners });
+      queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
     },
     onError: (err: Error) => {
       setTaskFeedback({ variant: "danger", message: err.message });
@@ -214,13 +214,13 @@ export const SuperuserPage: React.FC = () => {
               <ShieldAlert size={28} />
             </div>
             <div>
-              <h1 className="h3 mb-1 fw-bold">{t("Superuser Administration")}</h1>
+              <h1 className="h3 mb-1 fw-bold">{t("Administration")}</h1>
               <p className="mb-0 small text-muted">
                 {t("System-wide transaction ledger management, synchronization tasks, and owner audits.")}
               </p>
             </div>
           </header>
-          <SuperuserInspectionView
+          <AdministrationInspectionView
             ownerType={validOwnerType}
             ownerId={inspectOwnerId}
             onBack={() => {
@@ -241,7 +241,7 @@ export const SuperuserPage: React.FC = () => {
             <ShieldAlert size={28} />
           </div>
           <div>
-            <h1 className="h3 mb-1 fw-bold">{t("Superuser Administration")}</h1>
+            <h1 className="h3 mb-1 fw-bold">{t("Administration")}</h1>
             <p className="mb-0 small text-muted">
               {t("System-wide transaction ledger management, synchronization tasks, and owner audits.")}
             </p>
@@ -260,11 +260,11 @@ export const SuperuserPage: React.FC = () => {
         )}
 
         {/* Global Statistics Cards */}
-        <SuperuserKpiCards metrics={metrics} />
+        <AdministrationKpiCards metrics={metrics} />
 
         {/* Global Task Update Panel (Collapsible) - Only for Superusers */}
         {isSuperuser && (
-          <SuperuserTaskPanel
+          <AdministrationTaskPanel
             showTaskPanel={showTaskPanel}
             onToggleTaskPanel={() => setShowTaskPanel((prev) => !prev)}
             forceRefreshGlobal={forceRefreshGlobal}
@@ -328,11 +328,12 @@ export const SuperuserPage: React.FC = () => {
         </div>
 
         {/* Owners Table */}
-        <SuperuserOwnersTable
+        <AdministrationOwnersTable
           owners={filteredOwners}
           isLoading={isLoading}
           isError={isError}
           updatingKey={updatingKey}
+          isSuperuser={isSuperuser}
           onInspect={(owner) => {
             setInspectOwnerType(owner.owner_type);
             setInspectOwnerId(owner.owner_id);
@@ -400,4 +401,4 @@ export const SuperuserPage: React.FC = () => {
   );
 };
 
-export default SuperuserPage;
+export default AdministrationPage;

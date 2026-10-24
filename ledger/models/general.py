@@ -80,8 +80,6 @@ class General(models.Model):
         codename = perm.value if isinstance(perm, cls.Permission) else perm
         return f"ledger.{codename}"
 
-    get = get_perm
-
     @classmethod
     def has_perm(cls, user: Any, perm: "str | General.Permission") -> bool:
         """Check if user has permission."""
@@ -123,8 +121,6 @@ class General(models.Model):
     ) -> bool:
         if not user or not getattr(user, "is_authenticated", False):
             return False
-        if getattr(user, "is_superuser", False):
-            return True
         if owner_type == "character":
             return cls.has_perm(user, cls.Permission.CHAR_AUDIT_ADMIN_MANAGER)
         if owner_type == "corporation":

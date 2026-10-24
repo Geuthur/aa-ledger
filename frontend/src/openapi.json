@@ -672,10 +672,10 @@
         ]
       }
     },
-    "/ledger/api/superuser/owners/": {
+    "/ledger/api/administration/owners/": {
       "get": {
-        "operationId": "ledger_api_superuser_get_superuser_owners",
-        "summary": "List all character and corporation owners for superuser administration",
+        "operationId": "ledger_api_administration_get_administration_owners",
+        "summary": "List all character and corporation owners for administration",
         "parameters": [],
         "responses": {
           "200": {
@@ -684,7 +684,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/SuperuserOwnerSchema"
+                    "$ref": "#/components/schemas/AdministrationOwnerSchema"
                   },
                   "title": "Response",
                   "type": "array"
@@ -704,7 +704,7 @@
           }
         },
         "tags": [
-          "Superuser"
+          "Administration"
         ],
         "security": [
           {
@@ -713,9 +713,9 @@
         ]
       }
     },
-    "/ledger/api/superuser/owners/{owner_type}/{owner_id}/update/": {
+    "/ledger/api/administration/owners/{owner_type}/{owner_id}/update/": {
       "post": {
-        "operationId": "ledger_api_superuser_trigger_superuser_owner_update",
+        "operationId": "ledger_api_administration_trigger_administration_owner_update",
         "summary": "Queue update for a character or corporation owner",
         "parameters": [
           {
@@ -774,13 +774,13 @@
           }
         },
         "tags": [
-          "Superuser"
+          "Administration"
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SuperuserOwnerUpdateRequest"
+                "$ref": "#/components/schemas/AdministrationOwnerUpdateRequest"
               }
             }
           },
@@ -793,9 +793,9 @@
         ]
       }
     },
-    "/ledger/api/superuser/owners/{owner_type}/{owner_id}/": {
+    "/ledger/api/administration/owners/{owner_type}/{owner_id}/": {
       "delete": {
-        "operationId": "ledger_api_superuser_delete_superuser_owner",
+        "operationId": "ledger_api_administration_delete_administration_owner",
         "summary": "Delete a character or corporation owner from ledger",
         "parameters": [
           {
@@ -854,7 +854,7 @@
           }
         },
         "tags": [
-          "Superuser"
+          "Administration"
         ],
         "security": [
           {
@@ -863,10 +863,10 @@
         ]
       }
     },
-    "/ledger/api/superuser/owners/{owner_type}/{owner_id}/inspect/": {
+    "/ledger/api/administration/owners/{owner_type}/{owner_id}/inspect/": {
       "get": {
-        "operationId": "ledger_api_superuser_inspect_superuser_owner",
-        "summary": "Inspect an owner administration view for superuser",
+        "operationId": "ledger_api_administration_inspect_administration_owner",
+        "summary": "Inspect an owner administration view",
         "parameters": [
           {
             "in": "path",
@@ -924,7 +924,7 @@
           }
         },
         "tags": [
-          "Superuser"
+          "Administration"
         ],
         "security": [
           {
@@ -2026,9 +2026,9 @@
             ],
             "title": "Portrait"
           },
-          "is_admin": {
+          "is_superuser": {
             "default": false,
-            "title": "Is Admin",
+            "title": "Is Superuser",
             "type": "boolean"
           },
           "can_manage": {
@@ -2552,54 +2552,8 @@
         "title": "AllianceOverview",
         "type": "object"
       },
-      "AltSchema": {
-        "description": "Alt character that is included in an entity's ledger.",
-        "properties": {
-          "character_id": {
-            "title": "Character Id",
-            "type": "integer"
-          },
-          "character_name": {
-            "title": "Character Name",
-            "type": "string"
-          },
-          "icon": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Icon"
-          },
-          "ticker": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ticker"
-          },
-          "is_registered": {
-            "default": false,
-            "title": "Is Registered",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "character_id",
-          "character_name"
-        ],
-        "title": "AltSchema",
-        "type": "object"
-      },
-      "SuperuserOwnerSchema": {
-        "description": "Schema for superuser owners overview in aa-ledger.",
+      "AdministrationOwnerSchema": {
+        "description": "Schema for the administration owners overview in aa-ledger.",
         "properties": {
           "id": {
             "title": "Id",
@@ -2725,10 +2679,56 @@
           "owner_type",
           "name"
         ],
-        "title": "SuperuserOwnerSchema",
+        "title": "AdministrationOwnerSchema",
         "type": "object"
       },
-      "SuperuserOwnerUpdateRequest": {
+      "AltSchema": {
+        "description": "Alt character that is included in an entity's ledger.",
+        "properties": {
+          "character_id": {
+            "title": "Character Id",
+            "type": "integer"
+          },
+          "character_name": {
+            "title": "Character Name",
+            "type": "string"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "is_registered": {
+            "default": false,
+            "title": "Is Registered",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "character_id",
+          "character_name"
+        ],
+        "title": "AltSchema",
+        "type": "object"
+      },
+      "AdministrationOwnerUpdateRequest": {
         "description": "Request to update a single owner.",
         "properties": {
           "force_refresh": {
@@ -2737,7 +2737,7 @@
             "type": "boolean"
           }
         },
-        "title": "SuperuserOwnerUpdateRequest",
+        "title": "AdministrationOwnerUpdateRequest",
         "type": "object"
       },
       "AdminOwnerSchema": {

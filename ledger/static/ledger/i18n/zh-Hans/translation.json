@@ -230,7 +230,6 @@
   "Loading owners...": "Loading owners...",
   "Failed to load owners": "Failed to load owners",
   "No Owners found.": "No Owners found.",
-  "Back to Superuser Overview": "Back to Superuser Overview",
   "Ledger Overview": "Ledger Overview",
   "Owners": "Owners",
   "Search characters, corporations & alliances...": "Search characters, corporations & alliances...",
@@ -248,7 +247,6 @@
   "Owner removed successfully.": "Owner removed successfully.",
   "Failed to delete owner.": "Failed to delete owner.",
   "No owners found.": "No owners found.",
-  "Superuser Administration": "Superuser Administration",
   "System-wide transaction ledger management, synchronization tasks, and owner audits.": "System-wide transaction ledger management, synchronization tasks, and owner audits.",
   "Total Owners": "Total Owners",
   "Sync Issues": "Sync Issues",
@@ -287,5 +285,10 @@
   "Corporations of this alliance that are not registered in Ledger.": "Corporations of this alliance that are not registered in Ledger.",
   "Characters of this corporation that are not registered in Ledger.": "Characters of this corporation that are not registered in Ledger.",
   "Failed to load unregistered entries.": "Failed to load unregistered entries.",
-  "Everything is registered.": "Everything is registered."
+  "Everything is registered.": "Everything is registered.",
+  "Back to Administration Overview": "Back to Administration Overview",
+  "The ESI token is invalid or expired. Re-add the character or corporation.": "The ESI token is invalid or expired. Re-add the character or corporation.",
+  "No error message available.": "No error message available.",
+  "Error details of {{name}}": "Error details of {{name}}",
+  "Show error details of {{name}}": "Show error details of {{name}}"
 }

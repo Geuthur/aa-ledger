@@ -96,7 +96,7 @@ class UserData(Schema):
     alliance_id: int | None = None
     alliance_name: str | None = None
     portrait: str | None = None
-    is_admin: bool = False
+    is_superuser: bool = False
     can_manage: bool = False
     has_advanced_access: bool = False
 
@@ -470,8 +470,8 @@ class ExtractorSchema(Schema):
     progress: float
 
 
-class SuperuserOwnerSchema(Schema):
-    """Schema for superuser owners overview in aa-ledger."""
+class AdministrationOwnerSchema(Schema):
+    """Schema for the administration owners overview in aa-ledger."""
 
     id: int
     owner_id: int
@@ -489,7 +489,7 @@ class SuperuserOwnerSchema(Schema):
     unregistered_count: int | None = None
 
 
-class SuperuserOwnerUpdateRequest(Schema):
+class AdministrationOwnerUpdateRequest(Schema):
     """Request to update a single owner."""
 
     force_refresh: bool = False

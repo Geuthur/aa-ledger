@@ -8,6 +8,7 @@ import { NuqsAdapter } from "nuqs/adapters/react-router/v8";
 
 import { ProjectName } from "@/constants";
 import { ErrorPage } from "@/Pages/404";
+import AdministrationPage from "@/Pages/AdministrationPage";
 import AllianceLedger from "@/Pages/AllianceLedger";
 import AuthBase from "@/Pages/Base";
 import CharacterLedger from "@/Pages/CharacterLedger";
@@ -16,7 +17,6 @@ import MainCharacterRedirect from "@/Pages/MainCharacterRedirect";
 import OverviewPage from "@/Pages/OverviewPage";
 import Planetary from "@/Pages/Planetary";
 import SettingsPage from "@/Pages/SettingsPage";
-import SuperuserPage from "@/Pages/SuperuserPage";
 
 const queryClient = new QueryClient();
 
@@ -40,8 +40,9 @@ function Routing() {
                 <Route path="alliance/" element={<Navigate to={`/${ProjectName}/`} replace />} />
                 <Route path="alliance/:allianceId/" element={<AllianceLedger />} />
                 <Route path="settings/" element={<SettingsPage />} />
-                <Route path="superuser/" element={<SuperuserPage />} />
-                <Route path="admin/" element={<Navigate to={`/${ProjectName}/superuser/`} replace />} />
+                <Route path="administration/" element={<AdministrationPage />} />
+                <Route path="superuser/" element={<Navigate to={`/${ProjectName}/administration/`} replace />} />
+                <Route path="admin/" element={<Navigate to={`/${ProjectName}/administration/`} replace />} />
                 <Route path="*" element={<ErrorPage />} />
               </Route>
               <Route path="*" element={<Navigate to={`/${ProjectName}/`} replace />} />

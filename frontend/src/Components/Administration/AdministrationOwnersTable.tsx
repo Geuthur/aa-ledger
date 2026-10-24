@@ -10,41 +10,45 @@ import { Badge, Button, ButtonGroup, Card, Dropdown, Spinner } from "react-boots
 import { useTranslation } from "react-i18next";
 
 // Styles
-import styles from "@/Styles/modules/Superuser.module.css";
+import styles from "@/Styles/modules/Administration.module.css";
 
 // AA Ledger
 import { loadSettingsUnregistered } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
-import type { SuperuserOwnerSchema } from "@/Api/schema";
+import type { AdministrationOwnerSchema } from "@/Api/schema";
+import { AdministrationAltsModal } from "@/Components/Administration/AdministrationAltsModal";
+import { AdministrationErrorModal } from "@/Components/Administration/AdministrationErrorModal";
 import { UnregisteredModal } from "@/Components/Base/BaseSettings";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import { formatRelativeTime, renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
-import { SuperuserAltsModal } from "@/Components/Superuser/SuperuserAltsModal";
 
-interface SuperuserOwnersTableProps {
-  owners?: SuperuserOwnerSchema[];
+interface AdministrationOwnersTableProps {
+  owners?: AdministrationOwnerSchema[];
   isLoading: boolean;
   isError: boolean;
   updatingKey: string | null;
-  onInspect: (owner: SuperuserOwnerSchema) => void;
+  isSuperuser?: boolean;
+  onInspect: (owner: AdministrationOwnerSchema) => void;
   onTriggerUpdate: (ownerType: "character" | "corporation", ownerId: number, forceRefresh: boolean) => void;
-  onDelete: (owner: SuperuserOwnerSchema) => void;
+  onDelete: (owner: AdministrationOwnerSchema) => void;
 }
 
-export const SuperuserOwnersTable: React.FC<SuperuserOwnersTableProps> = ({
+export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps> = ({
   owners,
   isLoading,
   isError,
   updatingKey,
+  isSuperuser = false,
   onInspect,
   onTriggerUpdate,
   onDelete,
 }) => {
   const { t } = useTranslation();
-  const [selectedAltsOwner, setSelectedAltsOwner] = useState<SuperuserOwnerSchema | null>(null);
-  const [selectedUnregisteredOwner, setSelectedUnregisteredOwner] = useState<SuperuserOwnerSchema | null>(null);
+  const [selectedAltsOwner, setSelectedAltsOwner] = useState<AdministrationOwnerSchema | null>(null);
+  const [selectedErrorOwner, setSelectedErrorOwner] = useState<AdministrationOwnerSchema | null>(null);
+  const [selectedUnregisteredOwner, setSelectedUnregisteredOwner] = useState<AdministrationOwnerSchema | null>(null);
 
   const {
     data: unregisteredData,
@@ -65,8 +69,8 @@ export const SuperuserOwnersTable: React.FC<SuperuserOwnersTableProps> = ({
     enabled: Boolean(selectedUnregisteredOwner),
   });
 
-  const columns = useMemo<ColumnDef<SuperuserOwnerSchema, unknown>[]>(() => {
-    const columnHelper = createColumnHelper<SuperuserOwnerSchema>();
+  const columns = useMemo<ColumnDef<AdministrationOwnerSchema, unknown>[]>(() => {
+    const columnHelper = createColumnHelper<AdministrationOwnerSchema>();
 
     return [
       columnHelper.display({
@@ -185,17 +189,33 @@ export const SuperuserOwnersTable: React.FC<SuperuserOwnersTableProps> = ({
           else if (owner.status === "token_error" || owner.error_message) badgeVariant = "danger";
           else if (owner.status === "warning") badgeVariant = "warning";
 
+          const statusLabel = owner.status || (owner.is_active ? "OK" : "Disabled");
+          const hasError = Boolean(owner.error_message) || owner.status === "token_error";
+
+          if (!hasError) {
+            return <Badge bg={badgeVariant}>{statusLabel}</Badge>;
+          }
+
+          const openError = () => setSelectedErrorOwner(owner);
+
           return (
-            <div>
-              <Badge bg={badgeVariant}>
-                {owner.status || (owner.is_active ? "OK" : "Disabled")}
-              </Badge>
-              {owner.error_message && (
-                <div className={`text-danger small mt-1 ${styles.errorMessage}`}>
-                  {owner.error_message}
-                </div>
-              )}
-            </div>
+            <Badge
+              bg={badgeVariant}
+              role="button"
+              tabIndex={0}
+              aria-label={t("Show error details of {{name}}", { name: owner.name })}
+              className={styles.statusBadgeClickable}
+              onClick={openError}
+              onKeyDown={(event: React.KeyboardEvent) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  openError();
+                }
+              }}
+              data-testid={`error-badge-${owner.owner_type}-${owner.owner_id}`}
+            >
+              {statusLabel}
+            </Badge>
           );
         },
       }),
@@ -304,12 +324,14 @@ export const SuperuserOwnersTable: React.FC<SuperuserOwnersTableProps> = ({
                     <RefreshCw size={14} className="me-2 text-primary" />
                     {t("Normal Update")}
                   </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={() => onTriggerUpdate(targetOwnerType, owner.owner_id, true)}
-                  >
-                    <RefreshCw size={14} className="me-2 text-warning" />
-                    {t("Force Refresh (Bypass Cache)")}
-                  </Dropdown.Item>
+                  {isSuperuser && (
+                    <Dropdown.Item
+                      onClick={() => onTriggerUpdate(targetOwnerType, owner.owner_id, true)}
+                    >
+                      <RefreshCw size={14} className="me-2 text-warning" />
+                      {t("Force Refresh (Bypass Cache)")}
+                    </Dropdown.Item>
+                  )}
                 </Dropdown.Menu>
               </Dropdown>
 
@@ -332,7 +354,7 @@ export const SuperuserOwnersTable: React.FC<SuperuserOwnersTableProps> = ({
         },
       }),
     ];
-  }, [t, updatingKey, onInspect, onTriggerUpdate, onDelete]);
+  }, [t, updatingKey, isSuperuser, onInspect, onTriggerUpdate, onDelete]);
 
   return (
     <>
@@ -344,16 +366,25 @@ export const SuperuserOwnersTable: React.FC<SuperuserOwnersTableProps> = ({
             columns={columns}
             data={owners ?? []}
             emptyText={t("No Owners found.")}
-            exportFileName="superuser_owners.csv"
+            exportFileName="administration_owners.csv"
           />
         )}
       </Card>
 
-      <SuperuserAltsModal
+      <AdministrationAltsModal
         owner={selectedAltsOwner}
         updatingKey={updatingKey}
+        isSuperuser={isSuperuser}
         onHide={() => setSelectedAltsOwner(null)}
         onTriggerUpdate={onTriggerUpdate}
+      />
+
+      <AdministrationErrorModal
+        show={selectedErrorOwner !== null}
+        onHide={() => setSelectedErrorOwner(null)}
+        ownerName={selectedErrorOwner?.name ?? ""}
+        status={selectedErrorOwner?.status ?? ""}
+        errorMessage={selectedErrorOwner?.error_message}
       />
 
       <UnregisteredModal

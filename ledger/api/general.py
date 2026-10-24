@@ -142,13 +142,13 @@ class ApiEndpoints:
 
             right_links = [*add_links]
             can_manage_ledger = (
-                user.is_superuser
+                General.has_admin_management_access(user)
                 or CharacterOwner.objects.manage_to(user).exists()
                 or CorporationOwner.objects.manage_to(user).exists()
             )
             if can_manage_ledger:
                 right_links.append(
-                    schema.MenuLink(name=_("Superuser"), link="/superuser/")
+                    schema.MenuLink(name=_("Administration"), link="/administration/")
                 )
 
             return schema.MenuSchema(left_links=left_links, right_links=right_links)
@@ -171,7 +171,7 @@ class ApiEndpoints:
             if main_character is None:
                 return schema.UserData(
                     user_id=user.id,
-                    is_admin=user.is_superuser,
+                    is_superuser=user.is_superuser,
                     can_manage=General.has_perm(user, General.Permission.MANAGE_ACCESS),
                     has_advanced_access=General.has_perm(
                         user, General.Permission.ADVANCED_ACCESS
@@ -190,7 +190,7 @@ class ApiEndpoints:
                     character_id=main_character.character_id,
                     character_name=main_character.character_name,
                 ),
-                is_admin=user.is_superuser,
+                is_superuser=user.is_superuser,
                 can_manage=General.has_perm(user, General.Permission.MANAGE_ACCESS),
                 has_advanced_access=General.has_perm(
                     user, General.Permission.ADVANCED_ACCESS

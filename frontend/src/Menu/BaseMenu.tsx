@@ -26,7 +26,7 @@ export interface ToPath {
     toPath: (link: string) => string;
 }
 
-export const SuperuserMenuItem = ({ link, toPath }: { link: MenuLinkItem } & ToPath) => {
+export const AdministrationMenuItem = ({ link, toPath }: { link: MenuLinkItem } & ToPath) => {
     const { t } = useTranslation();
     const path = useLocation();
     const hit = path.pathname.endsWith(link.link ?? "");
@@ -40,7 +40,7 @@ export const SuperuserMenuItem = ({ link, toPath }: { link: MenuLinkItem } & ToP
                 key={link.name}
                 active={hit}
                 className="aa-nav-danger d-flex align-items-center gap-1"
-                data-testid="superuser-nav-link"
+                data-testid="administration-nav-link"
             >
                 <ShieldAlert size={15} className="text-danger flex-shrink-0" />
                 <span>{t(link.name)}</span>
@@ -72,13 +72,13 @@ export const MenuItem = ({ link, toPath }: { link: MenuLinkItem } & ToPath) => {
         );
     }
 
-    const isSuperuserLink = Boolean(
-        link.link?.replace(/^\/+|\/+$/g, "") === "superuser" ||
-        link.name.toLowerCase() === "superuser"
+    const isAdministrationLink = Boolean(
+        link.link?.replace(/^\/+|\/+$/g, "") === "administration" ||
+        link.name.toLowerCase() === "administration"
     );
 
-    if (isSuperuserLink) {
-        return <SuperuserMenuItem link={link} toPath={toPath} />;
+    if (isAdministrationLink) {
+        return <AdministrationMenuItem link={link} toPath={toPath} />;
     }
 
     const target = toPath(link.link ?? "");

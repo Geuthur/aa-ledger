@@ -6,7 +6,7 @@ import { AlertTriangle, Building2, Shield, User } from "lucide-react";
 import { Card, Col, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-export interface SuperuserMetrics {
+export interface AdministrationMetrics {
   total: number;
   characters: number;
   corporations: number;
@@ -14,11 +14,11 @@ export interface SuperuserMetrics {
   issues: number;
 }
 
-export interface SuperuserKpiCardsProps {
-  metrics: SuperuserMetrics;
+export interface AdministrationKpiCardsProps {
+  metrics: AdministrationMetrics;
 }
 
-export const SuperuserKpiCards: React.FC<SuperuserKpiCardsProps> = ({ metrics }) => {
+export const AdministrationKpiCards: React.FC<AdministrationKpiCardsProps> = ({ metrics }) => {
   const { t } = useTranslation();
 
   return (
@@ -92,4 +92,4 @@ export const SuperuserKpiCards: React.FC<SuperuserKpiCardsProps> = ({ metrics })
   );
 };
 
-export default SuperuserKpiCards;
+export default AdministrationKpiCards;

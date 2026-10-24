@@ -25,13 +25,6 @@ if TYPE_CHECKING:
 class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
     def visible_to(self, user: User):
         """Returns a queryset of all corps visible to the user."""
-        if user.is_superuser:
-            logger.debug(
-                "Returning all corps for superuser %s.",
-                user,
-            )
-            return self
-
         if General.has_perm(user, General.Permission.CORP_AUDIT_ADMIN_MANAGER):
             logger.debug("Returning all corps for Corp Audit Admin %s.", user)
             return self
@@ -63,13 +56,6 @@ class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
 
     def manage_to(self, user: User):
         """Return all corps that the user can manage."""
-        if user.is_superuser:
-            logger.debug(
-                "Returning all corps for superuser %s.",
-                user,
-            )
-            return self
-
         if General.has_perm(user, General.Permission.CORP_AUDIT_ADMIN_MANAGER):
             logger.debug("Returning all corps for Corp Audit Admin %s.", user)
             return self

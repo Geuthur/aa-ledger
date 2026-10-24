@@ -20,8 +20,8 @@ import type {
   Section,
   SettingsOwnersResponse,
   SettingsUnregisteredResponse,
-  SuperuserOwnerSchema,
-  SuperuserOwnerUpdateRequest,
+  AdministrationOwnerSchema,
+  AdministrationOwnerUpdateRequest,
   UserData,
   UserSettingsSchema,
   UserSettingsUpdateRequest,
@@ -274,21 +274,21 @@ export async function queueUpdate(request: AdminUpdateRequest): Promise<MessageS
   return data;
 }
 
-export async function loadSuperuserOwners(): Promise<SuperuserOwnerSchema[]> {
-  const { data, error } = await apiClient.GET(`${API_BASE}/superuser/owners/`);
+export async function loadAdministrationOwners(): Promise<AdministrationOwnerSchema[]> {
+  const { data, error } = await apiClient.GET(`${API_BASE}/administration/owners/`);
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load superuser owners"));
+    throw new Error(errorMessage(error, "Failed to load administration owners"));
   }
   return data;
 }
 
-export async function triggerSuperuserOwnerUpdate(
+export async function triggerAdministrationOwnerUpdate(
   ownerType: "character" | "corporation",
   ownerId: number,
-  request: SuperuserOwnerUpdateRequest = { force_refresh: false },
+  request: AdministrationOwnerUpdateRequest = { force_refresh: false },
 ): Promise<MessageSchema> {
   const { data, error } = await apiClient.POST(
-    `${API_BASE}/superuser/owners/{owner_type}/{owner_id}/update/`,
+    `${API_BASE}/administration/owners/{owner_type}/{owner_id}/update/`,
     {
       params: { path: { owner_type: ownerType, owner_id: ownerId } },
       body: request,
@@ -300,12 +300,12 @@ export async function triggerSuperuserOwnerUpdate(
   return data;
 }
 
-export async function deleteSuperuserOwner(
+export async function deleteAdministrationOwner(
   ownerType: "character" | "corporation",
   ownerId: number,
 ): Promise<MessageSchema> {
   const { data, error } = await apiClient.DELETE(
-    `${API_BASE}/superuser/owners/{owner_type}/{owner_id}/`,
+    `${API_BASE}/administration/owners/{owner_type}/{owner_id}/`,
     {
       params: { path: { owner_type: ownerType, owner_id: ownerId } },
     },
@@ -316,12 +316,12 @@ export async function deleteSuperuserOwner(
   return data;
 }
 
-export async function loadSuperuserOwnerInspect(
+export async function loadAdministrationOwnerInspect(
   ownerType: "character" | "corporation",
   ownerId: number,
 ): Promise<AdministrationResponse> {
   const { data, error } = await apiClient.GET(
-    `${API_BASE}/superuser/owners/{owner_type}/{owner_id}/inspect/`,
+    `${API_BASE}/administration/owners/{owner_type}/{owner_id}/inspect/`,
     {
       params: { path: { owner_type: ownerType, owner_id: ownerId } },
     },

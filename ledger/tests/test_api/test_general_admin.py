@@ -57,7 +57,7 @@ class TestGeneralApi(LedgerTestCase):
         right_links = [link["link"] for link in data["right_links"]]
         self.assertIn(reverse("ledger:add_corp"), right_links)
         self.assertIn(reverse("ledger:add_ally"), right_links)
-        self.assertEqual(data["right_links"][-1]["link"], "/superuser/")
+        self.assertEqual(data["right_links"][-1]["link"], "/administration/")
 
     def test_get_menu_should_return_403_without_basic_access(self):
         # Test Data
@@ -85,7 +85,7 @@ class TestGeneralApi(LedgerTestCase):
         self.assertEqual(data["character_id"], self.manage_character.character_id)
         self.assertTrue(data["can_manage"])
         self.assertTrue(data["has_advanced_access"])
-        self.assertFalse(data["is_admin"])
+        self.assertFalse(data["is_superuser"])
 
     @patch(TASKS_PATH)
     def test_queue_update_should_queue_all_characters(self, mock_tasks):

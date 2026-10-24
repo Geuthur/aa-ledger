@@ -6,13 +6,13 @@ import AllianceLedger from "@/Pages/AllianceLedger";
 import CharacterLedger from "@/Pages/CharacterLedger";
 import CorporationLedger from "@/Pages/CorporationLedger";
 
-interface SuperuserInspectionViewProps {
+interface AdministrationInspectionViewProps {
   ownerType: "character" | "corporation" | "alliance";
   ownerId: number;
   onBack: () => void;
 }
 
-export const SuperuserInspectionView: React.FC<SuperuserInspectionViewProps> = ({
+export const AdministrationInspectionView: React.FC<AdministrationInspectionViewProps> = ({
   ownerType,
   ownerId,
   onBack,

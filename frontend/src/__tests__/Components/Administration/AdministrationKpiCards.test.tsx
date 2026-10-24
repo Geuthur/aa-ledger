@@ -4,18 +4,18 @@ import { describe, expect, it, vi } from "vitest";
 
 // AA Ledger
 import {
-  SuperuserKpiCards,
-  type SuperuserMetrics,
-} from "@/Components/Superuser/SuperuserKpiCards";
+  AdministrationKpiCards,
+  type AdministrationMetrics,
+} from "@/Components/Administration/AdministrationKpiCards";
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-describe("SuperuserKpiCards", () => {
+describe("AdministrationKpiCards", () => {
   it("should render metric values correctly when no sync issues exist", () => {
     // Test Data
-    const metrics: SuperuserMetrics = {
+    const metrics: AdministrationMetrics = {
       total: 42,
       characters: 30,
       corporations: 12,
@@ -23,7 +23,7 @@ describe("SuperuserKpiCards", () => {
     };
 
     // Test Action
-    render(<SuperuserKpiCards metrics={metrics} />);
+    render(<AdministrationKpiCards metrics={metrics} />);
 
     // Expected Result
     expect(screen.getByText("Total Owners")).toBeInTheDocument();
@@ -39,7 +39,7 @@ describe("SuperuserKpiCards", () => {
 
   it("should highlight sync issues with text-danger when issues > 0", () => {
     // Test Data
-    const metrics: SuperuserMetrics = {
+    const metrics: AdministrationMetrics = {
       total: 10,
       characters: 8,
       corporations: 2,
@@ -47,7 +47,7 @@ describe("SuperuserKpiCards", () => {
     };
 
     // Test Action
-    render(<SuperuserKpiCards metrics={metrics} />);
+    render(<AdministrationKpiCards metrics={metrics} />);
 
     // Expected Result
     const issueElement = screen.getByText("3");

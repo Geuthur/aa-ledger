@@ -8,8 +8,8 @@
   height: 32px;
 }
 
-.errorMessage {
-  max-width: 200px;
+.statusBadgeClickable {
+  cursor: pointer;
 }
 
 .dropdownMenu {

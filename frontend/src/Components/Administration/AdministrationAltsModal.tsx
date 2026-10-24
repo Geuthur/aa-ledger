@@ -9,16 +9,17 @@ import { Button, ButtonGroup, Dropdown, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // Styles
-import styles from "@/Styles/modules/Superuser.module.css";
+import styles from "@/Styles/modules/Administration.module.css";
 
 // AA Ledger
-import type { AltSchema, SuperuserOwnerSchema } from "@/Api/schema";
+import type { AltSchema, AdministrationOwnerSchema } from "@/Api/schema";
 import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
 
-export interface SuperuserAltsModalProps {
-  owner: SuperuserOwnerSchema | null;
+export interface AdministrationAltsModalProps {
+  owner: AdministrationOwnerSchema | null;
   updatingKey: string | null;
+  isSuperuser?: boolean;
   onHide: () => void;
   onTriggerUpdate: (
     ownerType: "character" | "corporation",
@@ -27,9 +28,10 @@ export interface SuperuserAltsModalProps {
   ) => void;
 }
 
-export const SuperuserAltsModal: React.FC<SuperuserAltsModalProps> = ({
+export const AdministrationAltsModal: React.FC<AdministrationAltsModalProps> = ({
   owner,
   updatingKey,
+  isSuperuser = false,
   onHide,
   onTriggerUpdate,
 }) => {
@@ -164,14 +166,16 @@ export const SuperuserAltsModal: React.FC<SuperuserAltsModalProps> = ({
                   <RefreshCw size={14} className="me-2 text-primary" />
                   {t("Normal Update")}
                 </Dropdown.Item>
-                <Dropdown.Item
-                  onClick={() =>
-                    onTriggerUpdate("character", owner.owner_id, true)
-                  }
-                >
-                  <RefreshCw size={14} className="me-2 text-warning" />
-                  {t("Force Refresh (Bypass Cache)")}
-                </Dropdown.Item>
+                {isSuperuser && (
+                  <Dropdown.Item
+                    onClick={() =>
+                      onTriggerUpdate("character", owner.owner_id, true)
+                    }
+                  >
+                    <RefreshCw size={14} className="me-2 text-warning" />
+                    {t("Force Refresh (Bypass Cache)")}
+                  </Dropdown.Item>
+                )}
               </Dropdown.Menu>
             </Dropdown>
           )}
@@ -188,4 +192,4 @@ export const SuperuserAltsModal: React.FC<SuperuserAltsModalProps> = ({
   );
 };
 
-export default SuperuserAltsModal;
+export default AdministrationAltsModal;

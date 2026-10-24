@@ -173,3 +173,41 @@ class TestGeneralPermissions(AuthTestCase):
 
         # Expected Result
         self.assertFalse(result)
+
+    def test_has_delete_access_should_return_true_for_superuser(self):
+        # Test Data
+        user = self.superuser
+
+        # Test Action
+        char_result = General.has_delete_access("character", user)
+        corp_result = General.has_delete_access("corporation", user)
+
+        # Expected Result
+        self.assertTrue(char_result)
+        self.assertTrue(corp_result)
+
+    def test_has_delete_access_should_follow_admin_manager_permissions(self):
+        # Test Data
+        user = UserMainFactory(
+            permissions__=[
+                General.get_perm(General.Permission.CHAR_AUDIT_ADMIN_MANAGER)
+            ]
+        )
+
+        # Test Action
+        char_result = General.has_delete_access("character", user)
+        corp_result = General.has_delete_access("corporation", user)
+
+        # Expected Result
+        self.assertTrue(char_result)
+        self.assertFalse(corp_result)
+
+    def test_has_delete_access_should_return_false_for_anonymous_user(self):
+        # Test Data
+        anon = AnonymousUser()
+
+        # Test Action
+        result = General.has_delete_access("character", anon)
+
+        # Expected Result
+        self.assertFalse(result)

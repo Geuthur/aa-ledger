@@ -125,8 +125,10 @@ class CharacterOwner(UpdateManagerMixin, models.Model):
         return UpdateStatus(total_update_status)
 
     @cached_property
-    def alt_ids(self) -> models.QuerySet[EveCharacter]:
+    def alt_ids(self) -> models.QuerySet[EveCharacter] | models.Q:
         """Get all alt IDs for this Owner."""
+        if self.is_orphan:  # pylint: disable=using-constant-test
+            return models.Q(id__in=[self.eve_character.character_id])
         alt_ids = (
             EveCharacter.objects.filter(
                 character_ownership__user=self.eve_character.character_ownership.user

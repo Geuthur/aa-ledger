@@ -58,10 +58,10 @@ function AllianceLedger({ allianceIdOverride, onBack }: AllianceLedgerProps = {}
             size="sm"
             onClick={onBack}
             className="d-flex align-items-center gap-1"
-            data-testid="back-to-superuser-btn"
+            data-testid="back-to-administration-btn"
           >
             <ArrowLeft size={16} />
-            {t("Back to Superuser Overview")}
+            {t("Back to Administration Overview")}
           </Button>
         ) : (
           <Link className="btn btn-secondary" to="/ledger/">

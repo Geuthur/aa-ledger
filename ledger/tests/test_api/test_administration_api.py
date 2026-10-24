@@ -25,30 +25,30 @@ from ledger.tests.testdata.factory import (
 )
 
 
-class TestSuperuserApi(LedgerTestCase):
+class TestAdministrationApi(LedgerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.api = f"{reverse('ledger:index')}api"
 
-    def test_get_superuser_owners_should_return_403_for_regular_user(self):
+    def test_get_administration_owners_should_return_403_for_regular_user(self):
         # Test Data
         self.client.force_login(self.user)
 
         # Test Action
-        response = self.client.get(f"{self.api}/superuser/owners/")
+        response = self.client.get(f"{self.api}/administration/owners/")
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
-    def test_get_superuser_owners_should_return_all_owners_for_superuser(self):
+    def test_get_administration_owners_should_return_all_owners_for_superuser(self):
         # Test Data
         self.client.force_login(self.superuser)
         char_owner = CharacterOwnerFactory()
         corp_owner = CorporationOwnerFactory()
 
         # Test Action
-        response = self.client.get(f"{self.api}/superuser/owners/")
+        response = self.client.get(f"{self.api}/administration/owners/")
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -57,7 +57,7 @@ class TestSuperuserApi(LedgerTestCase):
         self.assertIn(char_owner.eve_character.character_id, owner_ids)
         self.assertIn(corp_owner.eve_corporation.corporation_id, owner_ids)
 
-    def test_get_superuser_owners_should_only_return_main_character(self):
+    def test_get_administration_owners_should_only_return_main_character(self):
         # Test Data
         self.client.force_login(self.superuser)
         user = UserMainFactory()
@@ -67,7 +67,7 @@ class TestSuperuserApi(LedgerTestCase):
         CharacterOwnerFactory(user=user, eve_character=alt_char)
 
         # Test Action
-        response = self.client.get(f"{self.api}/superuser/owners/")
+        response = self.client.get(f"{self.api}/administration/owners/")
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -76,7 +76,7 @@ class TestSuperuserApi(LedgerTestCase):
         self.assertIn(main_owner.eve_character.character_id, owner_ids)
         self.assertNotIn(alt_char.character_id, owner_ids)
 
-    @patch("ledger.api.superuser.tasks.update_character.apply_async")
+    @patch("ledger.api.administration.tasks.update_character.apply_async")
     def test_trigger_update_character_should_queue_task(self, mock_task):
         # Test Data
         self.client.force_login(self.superuser)
@@ -84,7 +84,7 @@ class TestSuperuserApi(LedgerTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/superuser/owners/character/{char_owner.eve_character.character_id}/update/",
+            f"{self.api}/administration/owners/character/{char_owner.eve_character.character_id}/update/",
             data={"force_refresh": True},
             content_type="application/json",
         )
@@ -93,7 +93,7 @@ class TestSuperuserApi(LedgerTestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTrue(mock_task.called)
 
-    @patch("ledger.api.superuser.tasks.update_corporation.apply_async")
+    @patch("ledger.api.administration.tasks.update_corporation.apply_async")
     def test_trigger_update_corporation_should_queue_task(self, mock_task):
         # Test Data
         self.client.force_login(self.superuser)
@@ -101,7 +101,79 @@ class TestSuperuserApi(LedgerTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/superuser/owners/corporation/{corp_owner.eve_corporation.corporation_id}/update/",
+            f"{self.api}/administration/owners/corporation/{corp_owner.eve_corporation.corporation_id}/update/",
+            data={"force_refresh": False},
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(mock_task.called)
+
+    @patch("ledger.api.administration.tasks.update_character.apply_async")
+    def test_trigger_update_character_should_return_403_on_force_refresh_without_superuser(
+        self, mock_task
+    ):
+        # Test Data
+        admin_user = UserMainFactory(
+            permissions__=[
+                General.get_perm(General.Permission.CHAR_AUDIT_ADMIN_MANAGER)
+            ]
+        )
+        self.client.force_login(admin_user)
+        char_owner = CharacterOwnerFactory()
+
+        # Test Action
+        response = self.client.post(
+            f"{self.api}/administration/owners/character/{char_owner.eve_character.character_id}/update/",
+            data={"force_refresh": True},
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+        mock_task.assert_not_called()
+
+    @patch("ledger.api.administration.tasks.update_corporation.apply_async")
+    def test_trigger_update_corporation_should_return_403_on_force_refresh_without_superuser(
+        self, mock_task
+    ):
+        # Test Data
+        admin_user = UserMainFactory(
+            permissions__=[
+                General.get_perm(General.Permission.CORP_AUDIT_ADMIN_MANAGER)
+            ]
+        )
+        self.client.force_login(admin_user)
+        corp_owner = CorporationOwnerFactory()
+
+        # Test Action
+        response = self.client.post(
+            f"{self.api}/administration/owners/corporation/{corp_owner.eve_corporation.corporation_id}/update/",
+            data={"force_refresh": True},
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+        mock_task.assert_not_called()
+
+    @patch("ledger.api.administration.tasks.update_character.apply_async")
+    def test_trigger_update_character_should_queue_task_without_force_refresh_for_admin_manager(
+        self, mock_task
+    ):
+        # Test Data
+        admin_user = UserMainFactory(
+            permissions__=[
+                General.get_perm(General.Permission.CHAR_AUDIT_ADMIN_MANAGER)
+            ]
+        )
+        self.client.force_login(admin_user)
+        char_owner = CharacterOwnerFactory()
+
+        # Test Action
+        response = self.client.post(
+            f"{self.api}/administration/owners/character/{char_owner.eve_character.character_id}/update/",
             data={"force_refresh": False},
             content_type="application/json",
         )
@@ -116,7 +188,7 @@ class TestSuperuserApi(LedgerTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/superuser/owners/character/99999999/update/",
+            f"{self.api}/administration/owners/character/99999999/update/",
             data={"force_refresh": False},
             content_type="application/json",
         )
@@ -132,7 +204,7 @@ class TestSuperuserApi(LedgerTestCase):
 
         # Test Action
         response = self.client.delete(
-            f"{self.api}/superuser/owners/character/{char_id}/"
+            f"{self.api}/administration/owners/character/{char_id}/"
         )
 
         # Expected Result
@@ -149,7 +221,7 @@ class TestSuperuserApi(LedgerTestCase):
 
         # Test Action
         response = self.client.delete(
-            f"{self.api}/superuser/owners/corporation/{corp_id}/"
+            f"{self.api}/administration/owners/corporation/{corp_id}/"
         )
 
         # Expected Result
@@ -168,7 +240,7 @@ class TestSuperuserApi(LedgerTestCase):
 
         # Test Action
         response = self.client.get(
-            f"{self.api}/superuser/owners/character/{char_id}/inspect/"
+            f"{self.api}/administration/owners/character/{char_id}/inspect/"
         )
 
         # Expected Result
@@ -186,7 +258,7 @@ class TestSuperuserApi(LedgerTestCase):
 
         # Test Action
         response = self.client.get(
-            f"{self.api}/superuser/owners/corporation/{corp_id}/inspect/"
+            f"{self.api}/administration/owners/corporation/{corp_id}/inspect/"
         )
 
         # Expected Result
@@ -196,7 +268,7 @@ class TestSuperuserApi(LedgerTestCase):
         self.assertIn("registered", data)
         self.assertEqual(data["owner"]["character_id"], corp_id)
 
-    def test_get_superuser_owners_should_return_only_own_corporations_for_corp_audit_manager(
+    def test_get_administration_owners_should_return_only_own_corporations_for_corp_audit_manager(
         self,
     ):
         # Test Data
@@ -205,7 +277,7 @@ class TestSuperuserApi(LedgerTestCase):
         other_corp = CorporationOwnerFactory()
 
         # Test Action
-        response = self.client.get(f"{self.api}/superuser/owners/")
+        response = self.client.get(f"{self.api}/administration/owners/")
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -214,7 +286,7 @@ class TestSuperuserApi(LedgerTestCase):
         self.assertIn(own_corp.eve_corporation.corporation_id, owner_ids)
         self.assertNotIn(other_corp.eve_corporation.corporation_id, owner_ids)
 
-    def test_get_superuser_owners_should_return_only_own_corp_characters_for_char_audit_manager(
+    def test_get_administration_owners_should_return_only_own_corp_characters_for_char_audit_manager(
         self,
     ):
         # Test Data
@@ -235,7 +307,7 @@ class TestSuperuserApi(LedgerTestCase):
         self.client.force_login(char_manager_user)
 
         # Test Action
-        response = self.client.get(f"{self.api}/superuser/owners/")
+        response = self.client.get(f"{self.api}/administration/owners/")
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -252,7 +324,7 @@ class TestSuperuserApi(LedgerTestCase):
 
         # Test Action
         response = self.client.delete(
-            f"{self.api}/superuser/owners/corporation/{own_corp.eve_corporation.corporation_id}/"
+            f"{self.api}/administration/owners/corporation/{own_corp.eve_corporation.corporation_id}/"
         )
 
         # Expected Result
@@ -267,13 +339,13 @@ class TestSuperuserApi(LedgerTestCase):
 
         # Test Action
         response = self.client.get(
-            f"{self.api}/superuser/owners/corporation/{other_corp.eve_corporation.corporation_id}/inspect/"
+            f"{self.api}/administration/owners/corporation/{other_corp.eve_corporation.corporation_id}/inspect/"
         )
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
-    def test_get_superuser_owners_should_include_alliances_and_unregistered_counts(
+    def test_get_administration_owners_should_include_alliances_and_unregistered_counts(
         self,
     ):
         # Test Data
@@ -288,7 +360,7 @@ class TestSuperuserApi(LedgerTestCase):
         EveCorporationInfoFactory(alliance=alliance)
 
         # Test Action
-        response = self.client.get(f"{self.api}/superuser/owners/")
+        response = self.client.get(f"{self.api}/administration/owners/")
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)

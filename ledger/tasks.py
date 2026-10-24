@@ -156,6 +156,8 @@ def update_all_characters(runs: int = 0, force_refresh=False):
     """Update all characters"""
     # Disable characters with no owner
     CharacterOwner.objects.disable_characters_with_no_owner()
+    # Enable characters which have an owner and a valid token again
+    CharacterOwner.objects.enable_characters_with_owner()
     # Update EveMarketPrice
     CharacterMiningLedger.update_evemarket_price()
 
@@ -174,6 +176,8 @@ def update_subset_characters(subset=2, min_runs=50, max_runs=500, force_refresh=
     """Update a batch of characters to prevent overload ESI, grouping by user."""
     # Disable characters with no owner
     CharacterOwner.objects.disable_characters_with_no_owner()
+    # Enable characters which have an owner and a valid token again
+    CharacterOwner.objects.enable_characters_with_owner()
     # Update EveMarketPrice
     CharacterMiningLedger.update_evemarket_price()
 

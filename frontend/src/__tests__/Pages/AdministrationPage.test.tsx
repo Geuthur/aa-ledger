@@ -10,8 +10,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA Ledger
 import * as ApiCalls from "@/Api/ApiCalls";
-import type { SuperuserOwnerSchema } from "@/Api/schema";
-import SuperuserPage from "@/Pages/SuperuserPage";
+import type { AdministrationOwnerSchema } from "@/Api/schema";
+import AdministrationPage from "@/Pages/AdministrationPage";
 
 vi.mock("react-apexcharts", () => ({ default: () => <div data-testid="chart" /> }));
 
@@ -19,11 +19,11 @@ vi.mock("@/Api/ApiCalls", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/Api/ApiCalls")>();
   return {
     ...actual,
-    loadSuperuserOwners: vi.fn(),
+    loadAdministrationOwners: vi.fn(),
     loadUserData: vi.fn(),
-    triggerSuperuserOwnerUpdate: vi.fn(),
-    deleteSuperuserOwner: vi.fn(),
-    loadSuperuserOwnerInspect: vi.fn(),
+    triggerAdministrationOwnerUpdate: vi.fn(),
+    deleteAdministrationOwner: vi.fn(),
+    loadAdministrationOwnerInspect: vi.fn(),
     loadSettingsUnregistered: vi.fn(),
     fetchCharacterLedger: vi.fn(),
     fetchCorporationLedger: vi.fn(),
@@ -32,7 +32,7 @@ vi.mock("@/Api/ApiCalls", async (importOriginal) => {
   };
 });
 
-const mockOwners: SuperuserOwnerSchema[] = [
+const mockOwners: AdministrationOwnerSchema[] = [
   {
     id: 1,
     owner_id: 1001,
@@ -87,14 +87,14 @@ const renderPage = () => {
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
         <NuqsTestingAdapter hasMemory>
-          <SuperuserPage />
+          <AdministrationPage />
         </NuqsTestingAdapter>
       </MemoryRouter>
     </QueryClientProvider>
   );
 };
 
-describe("SuperuserPage in aa-ledger", () => {
+describe("AdministrationPage in aa-ledger", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(ApiCalls.loadUserData).mockResolvedValue({
@@ -104,22 +104,22 @@ describe("SuperuserPage in aa-ledger", () => {
         character_name: "Test User",
         corporation_id: 2001,
         corporation_name: "Test Corp",
-        is_admin: true,
+        is_superuser: true,
         can_manage: true,
         has_advanced_access: true,
       },
     });
   });
 
-  it("renders superuser administration page with metrics and table", async () => {
+  it("renders administration page with metrics and table", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadSuperuserOwners).mockResolvedValue(mockOwners);
+    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
 
     // Test Action
     renderPage();
 
     // Expected Result
-    expect(await screen.findByText("Superuser Administration")).toBeInTheDocument();
+    expect(await screen.findByText("Administration")).toBeInTheDocument();
     expect(await screen.findByText("John Doe")).toBeInTheDocument();
     expect(await screen.findByText("Mega Corp")).toBeInTheDocument();
     expect(screen.getByText("Total Owners")).toBeInTheDocument();
@@ -128,8 +128,8 @@ describe("SuperuserPage in aa-ledger", () => {
   it("triggers update for a specific owner", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadSuperuserOwners).mockResolvedValue(mockOwners);
-    vi.mocked(ApiCalls.triggerSuperuserOwnerUpdate).mockResolvedValue({
+    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(ApiCalls.triggerAdministrationOwnerUpdate).mockResolvedValue({
       message: "Queued update for John Doe",
     });
     renderPage();
@@ -141,7 +141,7 @@ describe("SuperuserPage in aa-ledger", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.triggerSuperuserOwnerUpdate).toHaveBeenCalledWith(
+      expect(ApiCalls.triggerAdministrationOwnerUpdate).toHaveBeenCalledWith(
         "character",
         1001,
         { force_refresh: false }
@@ -153,8 +153,8 @@ describe("SuperuserPage in aa-ledger", () => {
   it("deletes an owner via confirmation modal", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadSuperuserOwners).mockResolvedValue(mockOwners);
-    vi.mocked(ApiCalls.deleteSuperuserOwner).mockResolvedValue({
+    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(ApiCalls.deleteAdministrationOwner).mockResolvedValue({
       message: "John Doe successfully deleted",
     });
     renderPage();
@@ -170,7 +170,7 @@ describe("SuperuserPage in aa-ledger", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.deleteSuperuserOwner).toHaveBeenCalledWith("character", 1001);
+      expect(ApiCalls.deleteAdministrationOwner).toHaveBeenCalledWith("character", 1001);
     });
     expect(await screen.findByTestId("task-feedback-message")).toHaveTextContent("John Doe successfully deleted");
   });
@@ -190,7 +190,7 @@ describe("SuperuserPage in aa-ledger", () => {
         },
       ],
     };
-    vi.mocked(ApiCalls.loadSuperuserOwners).mockResolvedValue(mockOwners);
+    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
     vi.mocked(ApiCalls.fetchCharacterLedger).mockResolvedValue(mockCharacterLedger as never);
     renderPage();
 
@@ -201,12 +201,12 @@ describe("SuperuserPage in aa-ledger", () => {
 
     // Expected Result
     expect(
-      await screen.findByTestId("back-to-superuser-btn")
+      await screen.findByTestId("back-to-administration-btn")
     ).toBeInTheDocument();
     expect(ApiCalls.fetchCharacterLedger).toHaveBeenCalledWith(1001, expect.any(Object));
 
     // Test Action - Back button
-    const backBtn = screen.getByTestId("back-to-superuser-btn");
+    const backBtn = screen.getByTestId("back-to-administration-btn");
     await user.click(backBtn);
 
     // Expected Result
@@ -216,7 +216,7 @@ describe("SuperuserPage in aa-ledger", () => {
   it("queues global update all characters", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadSuperuserOwners).mockResolvedValue(mockOwners);
+    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
     vi.mocked(ApiCalls.queueUpdate).mockResolvedValue({
       message: "Queued Update All Characters",
     });
@@ -246,7 +246,7 @@ describe("SuperuserPage in aa-ledger", () => {
   it("filters table when searching by alt character name and opens alts modal", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadSuperuserOwners).mockResolvedValue(mockOwners);
+    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
     renderPage();
 
     // Test Action - Search by alt name
@@ -275,8 +275,8 @@ describe("SuperuserPage in aa-ledger", () => {
   it("triggers update all alts from the modal", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadSuperuserOwners).mockResolvedValue(mockOwners);
-    vi.mocked(ApiCalls.triggerSuperuserOwnerUpdate).mockResolvedValue({
+    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(ApiCalls.triggerAdministrationOwnerUpdate).mockResolvedValue({
       message: "Queued update for John Doe",
     });
     renderPage();
@@ -293,7 +293,7 @@ describe("SuperuserPage in aa-ledger", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.triggerSuperuserOwnerUpdate).toHaveBeenCalledWith(
+      expect(ApiCalls.triggerAdministrationOwnerUpdate).toHaveBeenCalledWith(
         "character",
         1001,
         { force_refresh: false }
@@ -310,25 +310,67 @@ describe("SuperuserPage in aa-ledger", () => {
         character_name: "Non Admin",
         corporation_id: 2002,
         corporation_name: "Other Corp",
-        is_admin: false,
+        is_superuser: false,
         can_manage: true,
         has_advanced_access: false,
       },
     });
-    vi.mocked(ApiCalls.loadSuperuserOwners).mockResolvedValue(mockOwners);
+    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
 
     // Test Action
     renderPage();
 
     // Expected Result
-    await screen.findByText("Superuser Administration");
+    await screen.findByText("Administration");
     expect(screen.queryByTestId("toggle-task-panel")).not.toBeInTheDocument();
+  });
+
+  it("offers force refresh in the update menu for superusers", async () => {
+    // Test Data
+    const user = userEvent.setup();
+    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    renderPage();
+    await screen.findByText("John Doe");
+
+    // Test Action
+    await user.click(screen.getAllByRole("button", { name: "More update options" })[0]);
+
+    // Expected Result
+    expect(await screen.findByText("Normal Update")).toBeInTheDocument();
+    expect(screen.getByText("Force Refresh (Bypass Cache)")).toBeInTheDocument();
+  });
+
+  it("hides force refresh in the update menu for non-superuser", async () => {
+    // Test Data
+    const user = userEvent.setup();
+    vi.mocked(ApiCalls.loadUserData).mockResolvedValue({
+      user: {
+        user_id: 2,
+        character_id: 1002,
+        character_name: "Non Admin",
+        corporation_id: 2002,
+        corporation_name: "Other Corp",
+        is_superuser: false,
+        can_manage: true,
+        has_advanced_access: false,
+      },
+    });
+    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    renderPage();
+    await screen.findByText("John Doe");
+
+    // Test Action
+    await user.click(screen.getAllByRole("button", { name: "More update options" })[0]);
+
+    // Expected Result
+    expect(await screen.findByText("Normal Update")).toBeInTheDocument();
+    expect(screen.queryByText("Force Refresh (Bypass Cache)")).not.toBeInTheDocument();
   });
 
   it("renders alliance owner with inspect button and unregistered button, but no update or delete", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadSuperuserOwners).mockResolvedValue(mockOwners);
+    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
 
     // Test Action
     renderPage();
@@ -342,13 +384,13 @@ describe("SuperuserPage in aa-ledger", () => {
 
     // Clicking inspect navigates to inspection view
     await user.click(screen.getByTestId("inspect-btn-alliance-3001"));
-    expect(await screen.findByTestId("back-to-superuser-btn")).toBeInTheDocument();
+    expect(await screen.findByTestId("back-to-administration-btn")).toBeInTheDocument();
   });
 
   it("opens unregistered modal when clicking unregistered button on corporation or alliance", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadSuperuserOwners).mockResolvedValue(mockOwners);
+    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
     vi.mocked(ApiCalls.loadSettingsUnregistered).mockResolvedValue({
       owner_type: "corporation",
       owner_id: 2001,
