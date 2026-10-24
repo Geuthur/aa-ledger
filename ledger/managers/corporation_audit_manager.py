@@ -113,9 +113,10 @@ class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
             .annotate(
                 num_sections_failed=Count(
                     "ledger_corporation_update_status",
-                    filter=Q(
-                        ledger_corporation_update_status__section__in=sections,
-                        ledger_corporation_update_status__is_success=False,
+                    filter=Q(ledger_corporation_update_status__section__in=sections)
+                    & (
+                        Q(ledger_corporation_update_status__is_success=False)
+                        | Q(ledger_corporation_update_status__has_token_error=True)
                     ),
                 )
             )

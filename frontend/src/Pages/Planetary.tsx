@@ -16,11 +16,12 @@ import { queryKeys } from "@/Api/query";
 import type { PlanetaryDetails } from "@/Api/schema";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { formatRelativeTime, renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 import ExtractorProgress from "@/Components/Planetary/ExtractorProgress";
 import PlanetModal from "@/Components/Planetary/PlanetModal";
+import { renderTooltip } from "@/Utils/bootsTrap";
+import { formatRelativeTime } from "@/Utils/format";
 
 const columnHelper = createColumnHelper<PlanetaryDetails>();
 

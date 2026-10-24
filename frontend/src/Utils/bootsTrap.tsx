@@ -32,7 +32,7 @@ export function renderTooltip(
             placement="auto"
             trigger={["hover", "focus"]}
             overlay={
-                <Tooltip id="vowra" className={styles["tooltip-z-index"]}>
+                <Tooltip id="vowra" className={`${styles["tooltip-z-index"]} ${styles["tooltip-fixed"]}`}>
                     {message}
                 </Tooltip>
             }

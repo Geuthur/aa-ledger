@@ -20,9 +20,10 @@ import { AdministrationAltsModal } from "@/Components/Administration/Administrat
 import { AdministrationErrorModal } from "@/Components/Administration/AdministrationErrorModal";
 import { UnregisteredModal } from "@/Components/Base/BaseSettings";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { formatRelativeTime, renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
+import { renderTooltip } from "@/Utils/bootsTrap";
+import { formatRelativeTime } from "@/Utils/format";
 
 interface AdministrationOwnersTableProps {
   owners?: AdministrationOwnerSchema[];

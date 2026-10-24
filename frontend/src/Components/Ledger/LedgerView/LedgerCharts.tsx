@@ -10,8 +10,8 @@ import { useTranslation } from "react-i18next";
 import type { BillboardSchema } from "@/Api/schema";
 import ChordChart from "@/Components/Ledger/LedgerView/ChordChart";
 import { buildTimelineChart } from "@/Utils/billboard";
-import { formatNumber } from "@/Utils/eveOnline";
-import { formatIsk } from "@/Utils/ledger";
+import { formatCompactNumber } from "@/Utils/format";
+import { formatIsk } from "@/Utils/format";
 
 export interface LedgerChartsProps {
   billboard?: BillboardSchema;
@@ -27,7 +27,7 @@ function LedgerCharts({ billboard }: LedgerChartsProps) {
       chart: { type: "bar", stacked: true, toolbar: { show: false }, background: "transparent" },
       title: { text: t("Income over time") },
       xaxis: { categories: timeline.categories },
-      yaxis: { labels: { formatter: (value: number) => formatNumber(value, "") } },
+      yaxis: { labels: { formatter: (value: number) => formatCompactNumber(value) } },
       tooltip: { y: { formatter: (value: number) => formatIsk(value) } },
       dataLabels: { enabled: false },
       theme: { mode: "dark" },

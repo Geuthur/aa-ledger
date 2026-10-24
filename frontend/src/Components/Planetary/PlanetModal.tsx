@@ -13,10 +13,10 @@ import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { formatDate, formatNumber } from "@/Components/Base/BaseTable/tableHelper";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 import ExtractorProgress from "@/Components/Planetary/ExtractorProgress";
+import { formatDate, formatNumber } from "@/Utils/format";
 
 type Product = components["schemas"]["ProductSchema"];
 type Extractor = components["schemas"]["ExtractorSchema"];

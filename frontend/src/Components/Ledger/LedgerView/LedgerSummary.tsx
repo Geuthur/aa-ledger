@@ -12,8 +12,9 @@ import {
 import { Button, Card, Col, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
-import { amountClass, formatIsk } from "@/Utils/ledger";
+import { renderTooltip } from "@/Utils/bootsTrap";
+import { formatIsk } from "@/Utils/format";
+import { amountClass } from "@/Utils/ledger";
 import type { LedgerTotals } from "@/Utils/ledger";
 
 export interface LedgerSummaryProps {

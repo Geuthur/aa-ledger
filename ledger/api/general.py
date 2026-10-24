@@ -7,7 +7,7 @@ from ninja import NinjaAPI
 
 # Django
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import Max, Sum
+from django.db.models import Max
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -18,7 +18,6 @@ from allianceauth.eveonline.models import (
     EveCharacter,
     EveCorporationInfo,
 )
-from esi.models import Token
 
 # AA Ledger
 from ledger import tasks
@@ -28,6 +27,8 @@ from ledger.api.helpers.core import (
     _character_icon,
     get_characterowner_or_none,
     get_manage_corporation,
+    get_user_added_corporation_ids,
+    get_user_issue_count,
 )
 from ledger.helpers.eveonline import (
     get_alliance_logo_url,
@@ -50,35 +51,6 @@ from ledger.tasks import (
 ADMIN_TASK_PRIORITY = 7
 
 
-def _get_user_added_corporation_ids(user) -> list[int]:
-    """Return list of corporation IDs the user has personally added or owns."""
-    if not user.is_authenticated:
-        return []
-
-    # Corps where user has an ESI token with corp audit scopes
-    corp_scoped_chars = (
-        Token.objects.filter(user=user)
-        .require_scopes(CorporationOwner.get_esi_scopes())
-        .values_list("character_id", flat=True)
-    )
-    corp_ids = set(
-        EveCharacter.objects.filter(character_id__in=corp_scoped_chars).values_list(
-            "corporation_id", flat=True
-        )
-    )
-
-    # Corps where user has owned characters with tokens
-    user_token_chars = Token.objects.filter(user=user).values_list(
-        "character_id", flat=True
-    )
-    owned_corps = user.character_ownerships.filter(
-        character__character_id__in=user_token_chars
-    ).values_list("character__corporation_id", flat=True)
-    corp_ids.update(owned_corps)
-
-    return list(corp_ids)
-
-
 class ApiEndpoints:
     tags = ["General"]
 
@@ -98,14 +70,8 @@ class ApiEndpoints:
             if not General.has_perm(user, General.Permission.BASIC_ACCESS):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
-            issues = (
-                CharacterOwner.objects.annotate_total_update_status_user(user=user)
-                .aggregate(total_failed=Sum("num_sections_failed"))
-                .get("total_failed")
-            ) or 0
-            has_owner_errors = False
-            if issues > 0:
-                has_owner_errors = True
+            issues = get_user_issue_count(user)
+            has_owner_errors = issues > 0
 
             left_links = [
                 schema.MenuLink(name=_("Overview"), link="/"),
@@ -314,7 +280,7 @@ class ApiEndpoints:
                 )
 
             # 2. Corporations: only those the user personally added
-            user_corp_ids = _get_user_added_corporation_ids(user)
+            user_corp_ids = get_user_added_corporation_ids(user)
             corps = (
                 CorporationOwner.objects.filter(
                     eve_corporation__corporation_id__in=user_corp_ids
@@ -537,7 +503,7 @@ class ApiEndpoints:
             )
 
             # Update only user's personally added corps (not via manage_to)
-            user_corp_ids = _get_user_added_corporation_ids(user)
+            user_corp_ids = get_user_added_corporation_ids(user)
             corps = CorporationOwner.objects.filter(
                 eve_corporation__corporation_id__in=user_corp_ids
             )

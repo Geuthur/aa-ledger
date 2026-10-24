@@ -5,7 +5,7 @@ import { MemoryRouter } from "react-router";
 import { createColumnHelper } from "@tanstack/react-table";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import BaseTable from "@/Components/Base/BaseTable/BaseTable";
 
@@ -138,5 +138,51 @@ describe("BaseTable", () => {
     // Expected Result: Page 2 shows next 10
     expect(screen.getByText("Pilot 15")).toBeInTheDocument();
     expect(screen.queryByText("Pilot 1")).not.toBeInTheDocument();
+  });
+
+  it("test_row_click_should_call_on_row_click_with_row", async () => {
+    // Test Data
+    const user = userEvent.setup();
+    const onRowClick = vi.fn();
+    renderTable({ onRowClick });
+
+    // Test Action
+    await user.click(screen.getByText("Bob"));
+
+    // Expected Result
+    expect(onRowClick).toHaveBeenCalledTimes(1);
+    expect(onRowClick.mock.calls[0][0].original).toEqual(testData[1]);
+  });
+
+  it("test_row_selection_should_report_selected_rows_by_row_id", async () => {
+    // Test Data
+    const user = userEvent.setup();
+    const onRowSelectionChange = vi.fn();
+    const selectColumn = columnHelper.display({
+      id: "select",
+      cell: ({ row }) => (
+        <input
+          type="checkbox"
+          aria-label={`select-${row.original.id}`}
+          checked={row.getIsSelected()}
+          onChange={row.getToggleSelectedHandler()}
+        />
+      ),
+    });
+    renderTable({
+      columns: [selectColumn, ...testColumns] as typeof testColumns,
+      getRowId: (row) => String(row.id),
+      rowSelection: {},
+      onRowSelectionChange,
+      enableRowSelection: true,
+    });
+
+    // Test Action
+    await user.click(screen.getByLabelText("select-2"));
+
+    // Expected Result
+    expect(onRowSelectionChange).toHaveBeenCalledTimes(1);
+    const updater = onRowSelectionChange.mock.calls[0][0];
+    expect(typeof updater === "function" ? updater({}) : updater).toEqual({ "2": true });
   });
 });

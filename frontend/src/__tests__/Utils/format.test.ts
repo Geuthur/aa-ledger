@@ -1,15 +1,17 @@
 // Third Party
 import { describe, expect, it } from 'vitest';
 
+// AA Example
 import {
+    formatCompactNumber,
     formatDate,
     formatEta,
+    formatIsk,
     formatNumber,
     formatRelativeTime,
-    renderHtml,
-} from '@/Components/Base/BaseTable/tableHelper';
+} from '@/Utils/format';
 
-describe('tableHelper functions', () => {
+describe('format utils', () => {
     describe('formatDate', () => {
         it('returns "N/A" for null, undefined or empty string', () => {
             expect(formatDate(null)).toBe('N/A');
@@ -32,28 +34,38 @@ describe('tableHelper functions', () => {
     });
 
     describe('formatRelativeTime', () => {
-        it('returns "N/A" for falsy or invalid values', () => {
+        it('should return N/A for null, undefined or invalid date', () => {
+            // Test Data & Test Action & Expected Result
             expect(formatRelativeTime(null)).toBe('N/A');
             expect(formatRelativeTime(undefined)).toBe('N/A');
             expect(formatRelativeTime('invalid-date')).toBe('N/A');
         });
 
-        it('formats a past date relative to now', () => {
-            const twoHoursAgo = new Date(Date.now() - 2 * 3600 * 1000);
-            const formatted = formatRelativeTime(twoHoursAgo);
+        it('should format past date into relative time string', () => {
+            // Test Data
+            const pastDate = new Date(Date.now() - 3600 * 1000);
+
+            // Test Action
+            const formatted = formatRelativeTime(pastDate);
+
+            // Expected Result
             expect(formatted).not.toBe('N/A');
-            // e.g. "2 hours ago" or "vor 2 Stunden"
             expect(formatted.length).toBeGreaterThan(0);
         });
 
-        it('formats a future date relative to now', () => {
-            const inThirtyMinutes = new Date(Date.now() + 30 * 60 * 1000);
-            const formatted = formatRelativeTime(inThirtyMinutes);
+        it('should format future date into relative time string', () => {
+            // Test Data
+            const futureDate = new Date(Date.now() + 1800 * 1000);
+
+            // Test Action
+            const formatted = formatRelativeTime(futureDate);
+
+            // Expected Result
             expect(formatted).not.toBe('N/A');
-            // e.g. "in 30 minutes" or "in 30 Minuten"
             expect(formatted.length).toBeGreaterThan(0);
         });
     });
+
 
     describe('formatEta', () => {
         it('returns "N/A" for missing or invalid dates', () => {
@@ -92,11 +104,73 @@ describe('tableHelper functions', () => {
         });
     });
 
-    describe('renderHtml', () => {
-        it('returns a React element with dangerouslySetInnerHTML', () => {
-            const element = renderHtml('<strong>Test</strong>');
-            expect(element).toBeDefined();
-            expect(element.props.dangerouslySetInnerHTML).toEqual({ __html: '<strong>Test</strong>' });
+    describe('formatCompactNumber', () => {
+        it('should format billions with B suffix', () => {
+            // Test Data
+            const value = 2_500_000_000;
+
+            // Test Action
+            const formatted = formatCompactNumber(value, 'ISK');
+
+            // Expected Result
+            expect(formatted).toBe('2.50B ISK');
+        });
+
+        it('should format millions with M suffix', () => {
+            // Test Data
+            const value = 12_400_000;
+
+            // Test Action
+            const formatted = formatCompactNumber(value, 'ISK');
+
+            // Expected Result
+            expect(formatted).toBe('12.4M ISK');
+        });
+
+        it('should format thousands with K suffix', () => {
+            // Test Data
+            const value = 5_200;
+
+            // Test Action
+            const formatted = formatCompactNumber(value, 'ISK');
+
+            // Expected Result
+            expect(formatted).toBe('5.2K ISK');
+        });
+
+        it('should format small numbers using standard number format', () => {
+            // Test Data
+            const value = 42;
+
+            // Test Action
+            const formatted = formatCompactNumber(value, 'ISK', 'en-US');
+
+            // Expected Result
+            expect(formatted).toBe('42 ISK');
+        });
+
+        it('should format without unit when no unit is given', () => {
+            // Test Data
+            const value = 1_500_000;
+
+            // Test Action
+            const formatted = formatCompactNumber(value);
+
+            // Expected Result
+            expect(formatted).toBe('1.5M');
+        });
+    });
+
+    describe('formatIsk', () => {
+        it('should round to whole ISK and append the unit', () => {
+            // Test Data
+            const value = 1234567.89;
+
+            // Test Action
+            const formatted = formatIsk(value);
+
+            // Expected Result
+            expect(formatted).toBe('1,234,568 ISK');
         });
     });
 });

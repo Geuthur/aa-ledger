@@ -1,5 +1,4 @@
 // Third Party
-import i18n from 'i18next';
 import { ExternalLink } from 'lucide-react';
 
 import { renderTooltip } from '@/Utils/bootsTrap';
@@ -75,68 +74,6 @@ export const formatEveTime = (date: Date = new Date()): string => {
 };
 
 /**
- * Helper function for localized number formatting
- * @param value The number to format
- * @param unit Optional unit suffix (defaults to 'ISK')
- * @param locale Optional locale string (defaults to the current i18n language)
- * @param options Optional Intl.NumberFormatOptions for custom formatting
- */
-export function formatNumber(
-    value: number,
-    unit: string = "ISK",
-    locale?: string,
-    options?: Intl.NumberFormatOptions
-) {
-    const effectiveLocale = locale || i18n.language || "de";
-    const suffix = unit ? ` ${unit}` : "";
-    if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(2)}B${suffix}`;
-    if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M${suffix}`;
-    if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K${suffix}`;
-    const formatted = new Intl.NumberFormat(effectiveLocale, options).format(value);
-    return unit ? `${formatted}${suffix}` : formatted;
-}
-
-
-/**
- * Formats a date relative to now (e.g. "in 15 Minuten", "vor 2 Stunden", "gestern")
- * using the native browser API Intl.RelativeTimeFormat.
- *
- * @param value The date string, timestamp or Date object to format
- * @returns Formatted relative time or "N/A" if value is missing/invalid
- */
-export function formatRelativeTime(value?: string | Date | null): string {
-    if (!value) {
-        return "N/A";
-    }
-
-    const date = value instanceof Date ? value : new Date(value);
-    if (isNaN(date.getTime())) {
-        return "N/A";
-    }
-
-    const diffInSeconds = Math.round((date.getTime() - Date.now()) / 1000);
-
-    // Define intervals in seconds
-    const intervals = [
-        { unit: 'year', seconds: 31536000 },
-        { unit: 'month', seconds: 2592000 },
-        { unit: 'day', seconds: 86400 },
-        { unit: 'hour', seconds: 3600 },
-        { unit: 'minute', seconds: 60 },
-        { unit: 'second', seconds: 1 },
-    ] as const;
-
-    const interval = intervals.find((i) => Math.abs(diffInSeconds) >= i.seconds) ?? intervals[intervals.length - 1];
-    const count = Math.round(diffInSeconds / interval.seconds);
-
-    const locale = i18n.language || "de";
-    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
-
-    return rtf.format(count, interval.unit);
-}
-
-
-/**
  * Generates a link to a specific killmail on zKillboard.
  * @param id The ID of the killmail
  * @param name The display name for the link
@@ -172,6 +109,6 @@ export function zKillboardLink({
  */
 export function renderCharacterPortrait(characterId: number, size: number = 32): React.ReactNode {
     return (
-        <img src={`https://images.evetech.net/characters/${characterId}/portrait?size=${size}`} className="rounded"/>
+        <img src={characterImageUrl(characterId, size)} className="rounded"/>
     );
 }

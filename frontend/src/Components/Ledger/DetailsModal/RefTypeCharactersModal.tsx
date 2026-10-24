@@ -9,7 +9,8 @@ import { useTranslation } from "react-i18next";
 import type { CharacterRefTypeSchema, RefTypeAmountSchema } from "@/Api/schema";
 import BaseModal from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { amountClass, formatIsk } from "@/Utils/ledger";
+import { formatIsk } from "@/Utils/format";
+import { amountClass } from "@/Utils/ledger";
 import { formatRefType } from "@/Utils/refTypes";
 
 const columnHelper = createColumnHelper<CharacterRefTypeSchema>();

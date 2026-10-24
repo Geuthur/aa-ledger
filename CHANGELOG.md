@@ -40,15 +40,21 @@ Section Order:
 - Alliance support in `AdministrationPage` (`AdministrationOwnersTable` & `AdministrationInspectionView`) with direct inspection into `AllianceLedger`, alliance filtering, and unregistered member corporations modal.
 - Unregistered member trigger button (`{count} Unregistered`) on corporation and alliance owners in `AdministrationOwnersTable`.
 - `CharacterOwner.objects.enable_characters_with_owner()` re-enables disabled characters that have an owner again and a valid token with all required scopes; it runs in `update_all_characters` and `update_subset_characters` right after `disable_characters_with_no_owner()`.
+- Added optional `rowSelection`, `onRowSelectionChange`, `enableRowSelection`, `getRowId` and `onRowClick` props to `BaseTable` so all plugins can share one table implementation.
 
 ### Fixed
 
 - Fixed missing return statement and import grouping in `BaseTableToolbar`.
+- [FIX] The issue badge on the `Settings` navigation item now also counts failed update sections (e.g. token errors) of corporations the user has added, not only of the user's own characters; the counting lives in `get_user_issue_count`.
+- [FIX] Update sections with `has_token_error` set are now counted as failed even if `is_success` is still true, so the `Settings` badge matches the "Token Error" status shown in Settings.
 - Fixed character update endpoint to respect `force_refresh=False`.
+- Fixed the `import-headings` ESLint rule duplicating comments above the first import on every `--fix` pass, which could grow a file exponentially; added a unit test (`eslint-rules/import-headings.test.mjs`).
 
 ### Changed
 
 - [CHANGE] Use the typographic ellipsis (`…`) instead of three dots in loading texts and placeholders; the translation keys changed accordingly.
+- [CHANGE] Removed the pulsing dot fallback from the `Settings` navigation item; only the issue count badge pulses (`aa-menu-badge-pulse`).
+- [CHANGE] The `Settings` issue badge is red (`bg-danger`) instead of yellow, consistent with the other plugins.
 - Centralized all application permissions and permission evaluation logic into `General` (`General.Permission(models.TextChoices)` and helper methods `has_perm`, `has_any_perm`, `has_management_access`, `has_admin_management_access`, `get_perm`).
 - Modularized `ledger/api/administration.py` by extracting business logic and owner/inspection builders into `ledger/api/helpers/administration.py`, reducing controller size from >600 lines to under 190 lines and eliminating N+1 queries.
 - Filtered `AdministrationPage` alliance owners (`administration/owners/`) to strictly include only alliances that have at least one corporation registered in audit.
@@ -63,6 +69,7 @@ Section Order:
 - Renamed the "Superuser" area to "Administration": menu entry, page (`/administration/`, old `/superuser/` route redirects), API endpoints (`administration/owners/...`), schemas (`AdministrationOwnerSchema`, `AdministrationOwnerUpdateRequest`), components, query keys and translations. `UserData.is_admin` is now `is_superuser`.
 - Replaced the remaining `is_superuser` checks in `General.has_delete_access` and the character/corporation audit managers with the permission system (`General.has_perm`); superusers keep full access.
 - Restricted cache bypass (`force_refresh`) for single-owner updates in the Administration view to superusers. Other managers receive `403 Forbidden`; the force refresh option is hidden for them in the UI. Global updates stay superuser-only.
+- Consolidated the frontend formatting helpers in `Utils/format.ts` (`formatNumber`, `formatCompactNumber`, `formatIsk`, `formatDate`, `formatRelativeTime`, `formatEta`) with a single `en` locale fallback; `renderTooltip` now lives only in `Utils/bootsTrap.tsx` and `renderHtml` in `Utils/general.tsx`.
 
 ### Removed
 

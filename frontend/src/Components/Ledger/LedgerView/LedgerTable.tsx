@@ -10,9 +10,10 @@ import { useTranslation } from "react-i18next";
 
 import type { Section } from "@/Api/schema";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import MembersModal from "@/Components/Ledger/LedgerView/MembersModal";
-import { amountClass, formatIsk } from "@/Utils/ledger";
+import { renderTooltip } from "@/Utils/bootsTrap";
+import { formatIsk } from "@/Utils/format";
+import { amountClass } from "@/Utils/ledger";
 import type { LedgerRow } from "@/Utils/ledger";
 
 const columnHelper = createColumnHelper<LedgerRow>();

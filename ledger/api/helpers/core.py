@@ -1,11 +1,12 @@
 # Django
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Sum
 from django.utils import timezone
 
 # Alliance Auth
-from allianceauth.eveonline.models import EveAllianceInfo
+from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
 from allianceauth.services.hooks import get_extension_logger
+from esi.models import Token
 
 # AA Ledger
 from ledger import __title__, models
@@ -194,3 +195,53 @@ def _build_sections(
                 )
             )
     return section_list, latest_error
+
+
+def get_user_added_corporation_ids(user) -> list[int]:
+    """Return list of corporation IDs the user has personally added or owns."""
+    if not user.is_authenticated:
+        return []
+
+    # Corps where user has an ESI token with corp audit scopes
+    corp_scoped_chars = (
+        Token.objects.filter(user=user)
+        .require_scopes(models.CorporationOwner.get_esi_scopes())
+        .values_list("character_id", flat=True)
+    )
+    corp_ids = set(
+        EveCharacter.objects.filter(character_id__in=corp_scoped_chars).values_list(
+            "corporation_id", flat=True
+        )
+    )
+
+    # Corps where user has owned characters with tokens
+    user_token_chars = Token.objects.filter(user=user).values_list(
+        "character_id", flat=True
+    )
+    owned_corps = user.character_ownerships.filter(
+        character__character_id__in=user_token_chars
+    ).values_list("character__corporation_id", flat=True)
+    corp_ids.update(owned_corps)
+
+    return list(corp_ids)
+
+
+def get_user_issue_count(user) -> int:
+    """
+    Return the number of failed update sections of the user's own characters
+    and of the corporations the user has personally added (as shown in Settings).
+    """
+    characters = (
+        models.CharacterOwner.objects.annotate_total_update_status_user(user=user)
+        .aggregate(total_failed=Sum("num_sections_failed"))
+        .get("total_failed")
+    ) or 0
+    corporations = (
+        models.CorporationOwner.objects.filter(
+            eve_corporation__corporation_id__in=get_user_added_corporation_ids(user)
+        )
+        .annotate_total_update_status()
+        .aggregate(total_failed=Sum("num_sections_failed"))
+        .get("total_failed")
+    ) or 0
+    return characters + corporations

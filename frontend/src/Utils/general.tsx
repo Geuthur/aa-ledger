@@ -1,3 +1,5 @@
+import { itemImageUrl, shipImageUrl } from "@/Utils/eveOnline";
+
 /**
  * render a Link with given URL and text optional children
  * @param url The URL to link to
@@ -30,13 +32,21 @@ export const renderLink = ({
 export const renderShipImage = (shipId: number, shipName: string, className?: string) => {
     return (
         <img
-            src={`https://images.evetech.net/types/${shipId}/render?size=128`}
+            src={shipImageUrl(shipId, 128)}
             alt={shipName}
             className={`${className ?? ''}`}
             loading="lazy"
             onError={(e) => {
-                (e.target as HTMLImageElement).src = `https://images.evetech.net/types/${shipId}/icon?size=64`;
+                (e.target as HTMLImageElement).src = itemImageUrl(shipId, 64);
             }}
         />
     );
 };
+
+/**
+ * Helper function for rendering pre-rendered HTML safely in React components
+ * @param value The HTML string to render
+ */
+export function renderHtml(value: string) {
+    return <span dangerouslySetInnerHTML={{ __html: value }} />;
+}

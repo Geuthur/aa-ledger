@@ -10,7 +10,8 @@ import { useTranslation } from "react-i18next";
 import tableStyles from "@/Styles/modules/BaseTable.module.css";
 import pageStyles from "@/Styles/modules/BaseTablePages.module.css";
 
-import { exportToCSV, renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
+import { exportToCSV } from "@/Components/Base/BaseTable/tableHelper";
+import { renderTooltip } from "@/Utils/bootsTrap";
 
 export interface TablePagesProps<TData> {
   table: TanStackTable<TData>;

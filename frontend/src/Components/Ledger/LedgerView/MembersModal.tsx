@@ -10,8 +10,9 @@ import { useTranslation } from "react-i18next";
 import type { AltLedgerSchema } from "@/Api/schema";
 import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
-import { amountClass, formatIsk } from "@/Utils/ledger";
+import { renderTooltip } from "@/Utils/bootsTrap";
+import { formatIsk } from "@/Utils/format";
+import { amountClass } from "@/Utils/ledger";
 import type { LedgerRow } from "@/Utils/ledger";
 
 const columnHelper = createColumnHelper<AltLedgerSchema>();

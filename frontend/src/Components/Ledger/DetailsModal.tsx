@@ -13,13 +13,14 @@ import { useTranslation } from "react-i18next";
 import type { CategorySchema, LedgerDetailsResponse, RefTypeAmountSchema } from "@/Api/schema";
 import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 import RefTypeBadges from "@/Components/Ledger/DetailsModal/RefTypeBadges";
 import RefTypeCharactersModal from "@/Components/Ledger/DetailsModal/RefTypeCharactersModal";
 import RefTypesModal from "@/Components/Ledger/DetailsModal/RefTypesModal";
-import { amountClass, formatIsk } from "@/Utils/ledger";
+import { renderTooltip } from "@/Utils/bootsTrap";
+import { formatIsk } from "@/Utils/format";
+import { amountClass } from "@/Utils/ledger";
 import { filterCategories, filterRefTypes, formatRefType, sumRefTypes } from "@/Utils/refTypes";
 
 type Period = "summary" | "daily" | "hourly";

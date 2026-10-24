@@ -11,8 +11,13 @@ from evesde_factory.allianceauth import EveCharacterFactory, EveCorporationInfoF
 
 # AA Ledger
 from ledger.models.characteraudit import CharacterOwner
+from ledger.models.helpers.update_manager import CorporationUpdateSection
 from ledger.tests import LedgerTestCase
-from ledger.tests.testdata.factory import CharacterOwnerFactory, CorporationOwnerFactory
+from ledger.tests.testdata.factory import (
+    CharacterOwnerFactory,
+    CorporationOwnerFactory,
+    CorporationUpdateStatusFactory,
+)
 
 TASKS_PATH = "ledger.api.general.tasks"
 
@@ -71,6 +76,68 @@ class TestGeneralApi(LedgerTestCase):
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_get_menu_should_show_issue_badge_for_corporation_token_error(self):
+        # Test Data
+        owner = CorporationOwnerFactory(user=self.manage_user)
+        CorporationUpdateStatusFactory(
+            owner=owner,
+            section=CorporationUpdateSection.get_sections()[0],
+            is_success=False,
+            has_token_error=True,
+        )
+        self.client.force_login(self.manage_user)
+
+        # Test Action
+        response = self.client.get(f"{self.api}/menu/")
+
+        # Expected Result
+        settings_link = next(
+            link
+            for link in response.json()["left_links"]
+            if link["link"] == "/settings/"
+        )
+        self.assertEqual(settings_link["badge"], 1)
+        self.assertTrue(settings_link["has_errors"])
+
+    def test_get_menu_should_count_token_error_flag_without_failed_section(self):
+        # Test Data
+        owner = CorporationOwnerFactory(user=self.manage_user)
+        CorporationUpdateStatusFactory(
+            owner=owner,
+            section=CorporationUpdateSection.get_sections()[0],
+            is_success=True,
+            has_token_error=True,
+        )
+        self.client.force_login(self.manage_user)
+
+        # Test Action
+        response = self.client.get(f"{self.api}/menu/")
+
+        # Expected Result
+        settings_link = next(
+            link
+            for link in response.json()["left_links"]
+            if link["link"] == "/settings/"
+        )
+        self.assertEqual(settings_link["badge"], 1)
+
+    def test_get_menu_should_hide_issue_badge_without_errors(self):
+        # Test Data
+        CorporationOwnerFactory(user=self.manage_user)
+        self.client.force_login(self.manage_user)
+
+        # Test Action
+        response = self.client.get(f"{self.api}/menu/")
+
+        # Expected Result
+        settings_link = next(
+            link
+            for link in response.json()["left_links"]
+            if link["link"] == "/settings/"
+        )
+        self.assertIsNone(settings_link["badge"])
+        self.assertFalse(settings_link["has_errors"])
 
     def test_get_user_should_return_main_character_and_permissions(self):
         # Test Data

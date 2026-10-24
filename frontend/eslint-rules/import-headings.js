@@ -65,8 +65,10 @@ export default {
         const unclassified = [];
 
         for (const imp of importNodes) {
-          // Check comments before this import
-          const commentsBefore = sourceCode.getCommentsBefore(imp);
+          // Comments before the first import lie outside the replaced range and stay where
+          // they are. Re-emitting them here would duplicate them on every fix pass.
+          const commentsBefore =
+            imp === firstImport ? [] : sourceCode.getCommentsBefore(imp);
           const customComments = [];
 
           for (const c of commentsBefore) {

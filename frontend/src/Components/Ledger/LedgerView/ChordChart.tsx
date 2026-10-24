@@ -11,10 +11,10 @@ import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { BillboardData } from "@/Api/schema";
-import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import { useAnimationProgress, prefersReducedMotion } from "@/Hooks/useAnimationProgress";
 import { buildChordMatrix } from "@/Utils/billboard";
-import { formatIsk } from "@/Utils/ledger";
+import { renderTooltip } from "@/Utils/bootsTrap";
+import { formatIsk } from "@/Utils/format";
 
 const SIZE = 560;
 const LABEL_SPACE = 110;

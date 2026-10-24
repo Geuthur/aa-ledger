@@ -5,8 +5,6 @@ import { describe, expect, it } from 'vitest';
 import {
     characterImageUrl,
     formatEveTime,
-    formatNumber,
-    formatRelativeTime,
     getSecColor,
     shipImageUrl,
 } from '@/Utils/eveOnline';
@@ -107,96 +105,6 @@ describe('eveOnline utils', () => {
 
             // Expected Result
             expect(formatted).toBe('14:05:09 EVE');
-        });
-    });
-
-    describe('formatNumber', () => {
-        it('should format billions with B suffix', () => {
-            // Test Data
-            const value = 2_500_000_000;
-
-            // Test Action
-            const formatted = formatNumber(value, 'ISK');
-
-            // Expected Result
-            expect(formatted).toBe('2.50B ISK');
-        });
-
-        it('should format millions with M suffix', () => {
-            // Test Data
-            const value = 12_400_000;
-
-            // Test Action
-            const formatted = formatNumber(value, 'ISK');
-
-            // Expected Result
-            expect(formatted).toBe('12.4M ISK');
-        });
-
-        it('should format thousands with K suffix', () => {
-            // Test Data
-            const value = 5_200;
-
-            // Test Action
-            const formatted = formatNumber(value, 'ISK');
-
-            // Expected Result
-            expect(formatted).toBe('5.2K ISK');
-        });
-
-        it('should format small numbers using standard number format', () => {
-            // Test Data
-            const value = 42;
-
-            // Test Action
-            const formatted = formatNumber(value, 'ISK', 'en-US');
-
-            // Expected Result
-            expect(formatted).toBe('42 ISK');
-        });
-
-        it('should format without unit when unit is empty string', () => {
-            // Test Data
-            const value = 1_500_000;
-
-            // Test Action
-            const formatted = formatNumber(value, '');
-
-            // Expected Result
-            expect(formatted).toBe('1.5M');
-        });
-    });
-
-    describe('formatRelativeTime', () => {
-        it('should return N/A for null, undefined or invalid date', () => {
-            // Test Data & Test Action & Expected Result
-            expect(formatRelativeTime(null)).toBe('N/A');
-            expect(formatRelativeTime(undefined)).toBe('N/A');
-            expect(formatRelativeTime('invalid-date')).toBe('N/A');
-        });
-
-        it('should format past date into relative time string', () => {
-            // Test Data
-            const pastDate = new Date(Date.now() - 3600 * 1000);
-
-            // Test Action
-            const formatted = formatRelativeTime(pastDate);
-
-            // Expected Result
-            expect(formatted).not.toBe('N/A');
-            expect(formatted.length).toBeGreaterThan(0);
-        });
-
-        it('should format future date into relative time string', () => {
-            // Test Data
-            const futureDate = new Date(Date.now() + 1800 * 1000);
-
-            // Test Action
-            const formatted = formatRelativeTime(futureDate);
-
-            // Expected Result
-            expect(formatted).not.toBe('N/A');
-            expect(formatted.length).toBeGreaterThan(0);
         });
     });
 });
