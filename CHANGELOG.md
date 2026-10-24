@@ -63,6 +63,8 @@ Section Order:
 - Removed legacy `AdministrationView` and redundant table-based overview routes.
 - Deprecated custom CSS panel, card, and layout utility classes in favor of Bootstrap 5.3.
 
+<!-- Your changes go here -->
+
 ## [4.0.3] - 2026-10-18
 
 ### Changed
