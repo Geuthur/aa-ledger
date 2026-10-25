@@ -2,7 +2,6 @@
 import React, { useMemo, useState } from "react";
 
 // Third Party
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ShieldAlert,
   Trash2,
@@ -24,14 +23,6 @@ import { useTranslation } from "react-i18next";
 import styles from "@/Styles/modules/Administration.module.css";
 
 // AA Ledger
-import {
-  deleteAdministrationOwner,
-  loadAdministrationOwners,
-  loadUserData,
-  queueUpdate,
-  triggerAdministrationOwnerUpdate,
-} from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
 import type { AdministrationOwnerSchema } from "@/Api/schema";
 import {
   AdministrationInspectionView,
@@ -39,10 +30,14 @@ import {
   AdministrationOwnersTable,
   AdministrationTaskPanel,
 } from "@/Components/Administration";
+import {
+  useAdministrationActions,
+  useAdministrationOwners,
+  useIsSuperuser,
+} from "@/Components/Administration/Hooks";
 
 export const AdministrationPage: React.FC = () => {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
 
   // URL State via nuqs for browser Back / Forward history
   const [inspectOwnerId, setInspectOwnerId] = useQueryState(
@@ -59,101 +54,14 @@ export const AdministrationPage: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<"all" | "character" | "corporation" | "alliance" | "issues">("all");
   const [showTaskPanel, setShowTaskPanel] = useState(false);
   const [forceRefreshGlobal, setForceRefreshGlobal] = useState(false);
-  const [updatingKey, setUpdatingKey] = useState<string | null>(null);
-  const [taskFeedback, setTaskFeedback] = useState<{
-    variant: "success" | "danger";
-    message: string;
-  } | null>(null);
 
   // Delete Modal State
   const [ownerToDelete, setOwnerToDelete] = useState<AdministrationOwnerSchema | null>(null);
 
-  // Queries
-  const {
-    data: owners,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: queryKeys.AdministrationOwners,
-    queryFn: loadAdministrationOwners,
-  });
-
-  const { data: userData } = useQuery({
-    queryKey: queryKeys.User,
-    queryFn: loadUserData,
-  });
-  const isSuperuser = userData?.user.is_superuser ?? false;
-
-  // Single Owner Update Mutation
-  const singleUpdateMutation = useMutation({
-    mutationFn: ({
-      ownerType,
-      ownerId,
-      forceRefresh,
-    }: {
-      ownerType: "character" | "corporation";
-      ownerId: number;
-      forceRefresh: boolean;
-    }) =>
-      triggerAdministrationOwnerUpdate(ownerType, ownerId, {
-        force_refresh: forceRefresh,
-      }),
-    onMutate: ({ ownerType, ownerId }) => {
-      setUpdatingKey(`${ownerType}-${ownerId}`);
-    },
-    onSuccess: (data) => {
-      setTaskFeedback({ variant: "success", message: data.message });
-      queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
-    },
-    onError: (err: Error) => {
-      setTaskFeedback({ variant: "danger", message: err.message });
-    },
-    onSettled: () => {
-      setUpdatingKey(null);
-    },
-  });
-
-  // Global Queue Update Mutation (All Characters or All Corporations)
-  const globalQueueMutation = useMutation({
-    mutationFn: ({
-      target,
-      forceRefresh,
-    }: {
-      target: "characters" | "corporations";
-      forceRefresh: boolean;
-    }) =>
-      queueUpdate({
-        target,
-        eve_id: null,
-        force_refresh: forceRefresh,
-      }),
-    onSuccess: (data) => {
-      setTaskFeedback({ variant: "success", message: data.message });
-      queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
-    },
-    onError: (err: Error) => {
-      setTaskFeedback({ variant: "danger", message: err.message });
-    },
-  });
-
-  // Delete Mutation
-  const deleteMutation = useMutation({
-    mutationFn: ({
-      ownerType,
-      ownerId,
-    }: {
-      ownerType: "character" | "corporation";
-      ownerId: number;
-    }) => deleteAdministrationOwner(ownerType, ownerId),
-    onSuccess: (data) => {
-      setTaskFeedback({ variant: "success", message: data.message });
-      setOwnerToDelete(null);
-      queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
-    },
-    onError: (err: Error) => {
-      setTaskFeedback({ variant: "danger", message: err.message });
-    },
-  });
+  // Data and actions
+  const { data: owners, isLoading, isError } = useAdministrationOwners();
+  const isSuperuser = useIsSuperuser();
+  const actions = useAdministrationActions(() => setOwnerToDelete(null));
 
   // Metrics
   const metrics = useMemo(() => {
@@ -249,13 +157,13 @@ export const AdministrationPage: React.FC = () => {
         </header>
 
         {/* Feedback alert */}
-        {taskFeedback && (
+        {actions.taskFeedback && (
           <Alert
-            variant={taskFeedback.variant}
+            variant={actions.taskFeedback.variant}
             dismissible
-            onClose={() => setTaskFeedback(null)}
+            onClose={actions.clearTaskFeedback}
           >
-            <span data-testid="task-feedback-message">{taskFeedback.message}</span>
+            <span data-testid="task-feedback-message">{actions.taskFeedback.message}</span>
           </Alert>
         )}
 
@@ -269,9 +177,9 @@ export const AdministrationPage: React.FC = () => {
             onToggleTaskPanel={() => setShowTaskPanel((prev) => !prev)}
             forceRefreshGlobal={forceRefreshGlobal}
             onToggleForceRefresh={setForceRefreshGlobal}
-            isPending={globalQueueMutation.isPending}
+            isPending={actions.isQueuing}
             onUpdateTarget={(target) =>
-              globalQueueMutation.mutate({
+              actions.queueUpdate({
                 target,
                 forceRefresh: forceRefreshGlobal,
               })
@@ -332,14 +240,14 @@ export const AdministrationPage: React.FC = () => {
           owners={filteredOwners}
           isLoading={isLoading}
           isError={isError}
-          updatingKey={updatingKey}
+          updatingKey={actions.updatingKey}
           isSuperuser={isSuperuser}
           onInspect={(owner) => {
             setInspectOwnerType(owner.owner_type);
             setInspectOwnerId(owner.owner_id);
           }}
           onTriggerUpdate={(ownerType, ownerId, forceRefresh) => {
-            singleUpdateMutation.mutate({ ownerType, ownerId, forceRefresh });
+            actions.triggerUpdate({ ownerType, ownerId, forceRefresh });
           }}
           onDelete={(owner) => setOwnerToDelete(owner)}
         />
@@ -370,16 +278,16 @@ export const AdministrationPage: React.FC = () => {
             <Button
               variant="secondary"
               onClick={() => setOwnerToDelete(null)}
-              disabled={deleteMutation.isPending}
+              disabled={actions.isDeleting}
             >
               {t("Cancel")}
             </Button>
             <Button
               variant="danger"
-              disabled={deleteMutation.isPending}
+              disabled={actions.isDeleting}
               onClick={() => {
                 if (ownerToDelete && ownerToDelete.owner_type !== "alliance") {
-                  deleteMutation.mutate({
+                  actions.deleteOwner({
                     ownerType: ownerToDelete.owner_type,
                     ownerId: ownerToDelete.owner_id,
                   });
@@ -387,7 +295,7 @@ export const AdministrationPage: React.FC = () => {
               }}
               data-testid="confirm-delete-btn"
             >
-              {deleteMutation.isPending ? (
+              {actions.isDeleting ? (
                 <Spinner size="sm" animation="border" className="me-1" />
               ) : (
                 <Trash2 size={14} className="me-1" />
