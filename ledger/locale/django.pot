@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Ledger\n"
 "Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-ledger/\n"
-"POT-Creation-Date: 2026-10-18 20:37+0200\n"
+"POT-Creation-Date: 2026-10-25 13:07+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,44 +39,55 @@ msgstr ""
 msgid "Started force update for {count} character(s). Updates will run in the background."
 msgstr ""
 
-#: ledger/api/administration.py:115 ledger/api/administration.py:234
-#: ledger/api/administration.py:303 ledger/api/general.py:210
-#: ledger/api/planetary.py:139 ledger/api/planetary.py:179
-#: ledger/api/planetary.py:216
-msgid "Character not found."
-msgstr ""
-
-#: ledger/api/administration.py:117 ledger/api/administration.py:236
-#: ledger/api/administration.py:305 ledger/api/administration.py:325
-#: ledger/api/administration.py:433 ledger/api/administration.py:453
-#: ledger/api/general.py:41 ledger/api/general.py:105 ledger/api/general.py:144
-#: ledger/api/general.py:164 ledger/api/general.py:185
+#: ledger/api/administration.py:48 ledger/api/administration.py:70
+#: ledger/api/administration.py:141 ledger/api/administration.py:193
+#: ledger/api/general.py:71 ledger/api/general.py:134 ledger/api/general.py:177
+#: ledger/api/general.py:197 ledger/api/general.py:219
+#: ledger/api/general.py:401 ledger/api/general.py:417
+#: ledger/api/general.py:455 ledger/api/general.py:498
+#: ledger/api/general.py:535 ledger/api/general.py:542
+#: ledger/api/general.py:558 ledger/api/general.py:582
+#: ledger/api/general.py:589 ledger/api/general.py:604
+#: ledger/api/general.py:626 ledger/api/overview.py:68
 #: ledger/api/planetary.py:141 ledger/api/planetary.py:181
 #: ledger/api/planetary.py:218
 msgid "Permission Denied."
 msgstr ""
 
-#: ledger/api/administration.py:276
+#: ledger/api/administration.py:75
+msgid "Only superusers can bypass the cache."
+msgstr ""
+
+#: ledger/api/administration.py:86 ledger/api/administration.py:151
+#: ledger/api/general.py:540 ledger/api/general.py:587
+#: ledger/api/general.py:651 ledger/api/helpers/administration.py:257
+#: ledger/api/planetary.py:139 ledger/api/planetary.py:179
+#: ledger/api/planetary.py:216
+msgid "Character not found."
+msgstr ""
+
+#: ledger/api/administration.py:97 ledger/api/administration.py:119
 #, python-format
-msgid "Update is on cooldown. Please wait %(seconds)d seconds."
+msgid "Queued update for %(name)s"
 msgstr ""
 
-#: ledger/api/administration.py:290
-msgid "Character update initiated successfully."
-msgstr ""
-
-#: ledger/api/administration.py:310 ledger/api/administration.py:438
-#, python-format
-msgid "%(name)s successfully deleted"
-msgstr ""
-
-#: ledger/api/administration.py:323 ledger/api/administration.py:431
-#: ledger/api/general.py:230
+#: ledger/api/administration.py:109 ledger/api/administration.py:167
+#: ledger/api/general.py:408 ledger/api/general.py:414
+#: ledger/api/general.py:554 ledger/api/general.py:600
+#: ledger/api/general.py:671 ledger/api/helpers/administration.py:347
 msgid "Corporation not found."
 msgstr ""
 
-#: ledger/api/administration.py:451
-msgid "Alliance not found."
+#: ledger/api/administration.py:123 ledger/api/administration.py:175
+#: ledger/api/administration.py:201 ledger/api/general.py:483
+#: ledger/api/general.py:566 ledger/api/general.py:612
+msgid "Invalid owner type."
+msgstr ""
+
+#: ledger/api/administration.py:156 ledger/api/administration.py:172
+#: ledger/api/general.py:594 ledger/api/general.py:609
+#, python-format
+msgid "%(name)s successfully deleted"
 msgstr ""
 
 #: ledger/api/alliance.py:88 ledger/api/alliance.py:255
@@ -120,61 +131,81 @@ msgstr ""
 msgid "You do not have permission to view this corporation."
 msgstr ""
 
-#: ledger/api/general.py:51
-msgid "Character Ledger"
+#: ledger/api/general.py:77
+msgid "Overview"
 msgstr ""
 
-#: ledger/api/general.py:53
-msgid "Planetary Ledger"
+#: ledger/api/general.py:78
+msgid "My Characters"
 msgstr ""
 
-#: ledger/api/general.py:57
-msgid "Corporation Ledger"
-msgstr ""
-
-#: ledger/api/general.py:58
-msgid "Alliance Ledger"
-msgstr ""
-
-#: ledger/api/general.py:61
+#: ledger/api/general.py:80
 msgid "Settings"
 msgstr ""
 
-#: ledger/api/general.py:66
+#: ledger/api/general.py:90
 msgid "Add Character"
 msgstr ""
 
-#: ledger/api/general.py:74
+#: ledger/api/general.py:98
 msgid "Add Corporation"
 msgstr ""
 
-#: ledger/api/general.py:79
+#: ledger/api/general.py:103
 msgid "Add Alliance"
 msgstr ""
 
-#: ledger/api/general.py:88
-msgid "Superadmin"
+#: ledger/api/general.py:117
+msgid "Administration"
 msgstr ""
 
-#: ledger/api/general.py:206
+#: ledger/api/general.py:445
+msgid "Alliance not found."
+msgstr ""
+
+#: ledger/api/general.py:516
+msgid "Update task queued for all owners."
+msgstr ""
+
+#: ledger/api/general.py:548
+msgid "Character update initiated successfully."
+msgstr ""
+
+#: ledger/api/general.py:563
+msgid "Corporation update initiated successfully."
+msgstr ""
+
+#: ledger/api/general.py:647
 msgid "Queued Update All Characters"
 msgstr ""
 
-#: ledger/api/general.py:219
+#: ledger/api/general.py:660
 msgid "Queued Update for Character"
 msgstr ""
 
-#: ledger/api/general.py:226
+#: ledger/api/general.py:667
 msgid "Queued Update All Corporations"
 msgstr ""
 
-#: ledger/api/general.py:235
+#: ledger/api/general.py:676
 msgid "Queued Update for Corporation"
 msgstr ""
 
 #: ledger/api/helpers/planetary_helper.py:77
 #: ledger/api/helpers/planetary_helper.py:110
 msgid "No facility"
+msgstr ""
+
+#: ledger/api/overview.py:104 ledger/thirdparty/charlink_hook.py:141
+msgid "Character"
+msgstr ""
+
+#: ledger/api/overview.py:134 ledger/thirdparty/charlink_hook.py:156
+msgid "Corporation"
+msgstr ""
+
+#: ledger/api/overview.py:162
+msgid "Alliance"
 msgstr ""
 
 #: ledger/api/planetary.py:190 ledger/api/planetary.py:227
@@ -291,15 +322,43 @@ msgstr ""
 msgid "Master Wallet"
 msgstr ""
 
-#: ledger/models/general.py:91
+#: ledger/models/general.py:45
+msgid "Can access this app, Ledger."
+msgstr ""
+
+#: ledger/models/general.py:48
+msgid "Can access Corporation and Alliance Ledger."
+msgstr ""
+
+#: ledger/models/general.py:50
+msgid "Can manage Ledger."
+msgstr ""
+
+#: ledger/models/general.py:53
+msgid "Has access to all characters for own Corp."
+msgstr ""
+
+#: ledger/models/general.py:57
+msgid "Has access to all characters."
+msgstr ""
+
+#: ledger/models/general.py:61
+msgid "Has Access to own Corporations."
+msgstr ""
+
+#: ledger/models/general.py:65
+msgid "Has access to all Corporations."
+msgstr ""
+
+#: ledger/models/general.py:164
 msgid "ID"
 msgstr ""
 
-#: ledger/models/general.py:94
+#: ledger/models/general.py:167
 msgid "Category"
 msgstr ""
 
-#: ledger/models/general.py:96
+#: ledger/models/general.py:169
 msgid "Name"
 msgstr ""
 
@@ -391,14 +450,6 @@ msgstr ""
 
 #: ledger/tasks.py:101
 msgid "Planetary Extractor Heads Expired"
-msgstr ""
-
-#: ledger/thirdparty/charlink_hook.py:141
-msgid "Character"
-msgstr ""
-
-#: ledger/thirdparty/charlink_hook.py:154
-msgid "Corporation"
 msgstr ""
 
 #: ledger/views.py:56

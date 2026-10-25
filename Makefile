@@ -94,7 +94,7 @@ graph-models: check-python-venv check-myauth-path
 # Prepare a new release
 # Update the graph of the models, translation files and the version in the package
 .PHONY: prepare-release
-prepare-release: pot graph-models
+prepare-release: pot
 	@echo "Preparing a release…"
 	@read -p "New Version Number: " new_version; \
 	previous_version=$$(grep -E '^\[[0-9]+(\.[0-9]+){0,2}\]:' CHANGELOG.md | sed -E 's/^\[([0-9]+(\.[0-9]+){0,2})\]:.*/\1/' | sort -V | awk -v current="$$new_version" '$$0 != current { previous=$$0 } END { print previous }'); \

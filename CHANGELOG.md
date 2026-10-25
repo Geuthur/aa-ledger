@@ -26,6 +26,10 @@ Section Order:
 ### Removed
 -->
 
+<!-- Your changes go here -->
+
+## [4.1.0] - 2026-10-25
+
 ### Added
 
 - Standardized `AdministrationPage` (`/administration/`) with KPI metrics, sync issue indicators, collapsible task administration panel, and owner audit inspection.
@@ -77,8 +81,6 @@ Section Order:
 
 - Removed legacy `AdministrationView` and redundant table-based overview routes.
 - Deprecated custom CSS panel, card, and layout utility classes in favor of Bootstrap 5.3.
-
-<!-- Your changes go here -->
 
 ## [4.0.3] - 2026-10-18
 
@@ -1631,5 +1633,6 @@ https://github.com/geuthur/aa-ledger/compare/v0.4.0...v0.4.1
 [4.0.1]: https://github.com/Geuthur/aa-ledger/compare/v4.0.0...v4.0.1 "v4.0.1"
 [4.0.2]: https://github.com/Geuthur/aa-ledger/compare/v4.0.1...v4.0.2 "v4.0.2"
 [4.0.3]: https://github.com/Geuthur/aa-ledger/compare/v4.0.2...v4.0.3 "v4.0.3"
-[in development]: https://github.com/Geuthur/aa-ledger/compare/v4.0.3...HEAD "In Development"
+[4.1.0]: https://github.com/Geuthur/aa-ledger/compare/v4.0.3...v4.1.0 "v4.1.0"
+[in development]: https://github.com/Geuthur/aa-ledger/compare/v4.1.0...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-ledger/issues "report any issues"
