@@ -6,19 +6,18 @@ import { useQuery } from "@tanstack/react-query";
 import type { QueryKey } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { CircleHelp } from "lucide-react";
 import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { CategorySchema, LedgerDetailsResponse, RefTypeAmountSchema } from "@/Api/schema";
 import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { HelpTooltip } from "@/Components/Base/HelpTooltip";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 import RefTypeBadges from "@/Components/Ledger/DetailsModal/RefTypeBadges";
 import RefTypeCharactersModal from "@/Components/Ledger/DetailsModal/RefTypeCharactersModal";
 import RefTypesModal from "@/Components/Ledger/DetailsModal/RefTypesModal";
-import { renderTooltip } from "@/Utils/bootsTrap";
 import { formatIsk } from "@/Utils/format";
 import { amountClass } from "@/Utils/ledger";
 import { filterCategories, filterRefTypes, formatRefType, sumRefTypes } from "@/Utils/refTypes";
@@ -75,14 +74,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                             >
                                 {name}
                                 {isMining &&
-                                    renderTooltip(
-                                        t("This is only an informational value and is not included in calculations."),
-                                        <span
-                                            className="d-inline-flex align-items-center cursor-help"
-                                        >
-                                            <CircleHelp size={14} className="text-info" />
-                                        </span>,
-                                    )}
+                                    <HelpTooltip text={t("This is only an informational value and is not included in calculations.")} className="text-info" />}
                             </span>
                         );
                     },

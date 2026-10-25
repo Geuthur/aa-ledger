@@ -4,12 +4,13 @@ import { useMemo, useState } from "react";
 // Third Party
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { CircleHelp, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { Section } from "@/Api/schema";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { HelpTooltip } from "@/Components/Base/HelpTooltip";
 import MembersModal from "@/Components/Ledger/LedgerView/MembersModal";
 import { renderTooltip } from "@/Utils/bootsTrap";
 import { formatIsk } from "@/Utils/format";
@@ -56,14 +57,7 @@ function LedgerTable({
       header: () => (
         <span className="d-inline-flex align-items-center gap-1 justify-content-end">
           {t("Mining")}
-          {renderTooltip(
-            t("This is only an informational value and is not included in calculations."),
-            <span
-              className="d-inline-flex align-items-center text-muted cursor-help"
-            >
-              <CircleHelp size={14} />
-            </span>,
-          )}
+          <HelpTooltip text={t("This is only an informational value and is not included in calculations.")} />
         </span>
       ),
       meta: { align: "right" },

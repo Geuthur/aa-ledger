@@ -4,13 +4,12 @@ import { useMemo } from "react";
 // Third Party
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { CircleHelp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type { AltLedgerSchema } from "@/Api/schema";
 import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { renderTooltip } from "@/Utils/bootsTrap";
+import { HelpTooltip } from "@/Components/Base/HelpTooltip";
 import { formatIsk } from "@/Utils/format";
 import { amountClass } from "@/Utils/ledger";
 import type { LedgerRow } from "@/Utils/ledger";
@@ -62,16 +61,11 @@ function MembersModal({ row, onHide }: MembersModalProps) {
         header: () => (
           <span className="d-inline-flex align-items-center gap-1 justify-content-end">
             {t("Share")}
-            {renderTooltip(
-              t(
+            <HelpTooltip
+              text={t(
                 "Share of the total net amount. When negative amounts (costs) are involved, shares can exceed 100% or be negative, but always total 100%.",
-              ),
-              <span
-                className="d-inline-flex align-items-center text-muted cursor-help"
-              >
-                <CircleHelp size={14} />
-              </span>,
-            )}
+              )}
+            />
           </span>
         ),
         meta: { align: "right" },

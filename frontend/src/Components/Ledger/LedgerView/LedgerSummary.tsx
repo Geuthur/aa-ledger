@@ -1,7 +1,6 @@
 // Third Party
 import {
   Boxes,
-  CircleHelp,
   Info,
   Pickaxe,
   Shield,
@@ -12,6 +11,7 @@ import {
 import { Button, Card, Col, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
+import { HelpTooltip } from "@/Components/Base/HelpTooltip";
 import { renderTooltip } from "@/Utils/bootsTrap";
 import { formatIsk } from "@/Utils/format";
 import { amountClass } from "@/Utils/ledger";
@@ -85,16 +85,7 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
                 <div className="d-flex justify-content-between align-items-start mb-2 gap-2">
                   <span className="small fw-semibold text-uppercase d-inline-flex align-items-center gap-1">
                     {item.label}
-                    {"infoTooltip" in item && item.infoTooltip && (
-                      renderTooltip(
-                        item.infoTooltip,
-                        <span
-                          className="d-inline-flex align-items-center text-muted cursor-help"
-                        >
-                          <CircleHelp size={14} />
-                        </span>,
-                      )
-                    )}
+                    {"infoTooltip" in item && item.infoTooltip && <HelpTooltip text={item.infoTooltip} />}
                   </span>
                   <Icon size={24} className={`flex-shrink-0 ${item.iconClass}`} />
                 </div>

@@ -5,7 +5,7 @@ import React, { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Building2, Eye, RefreshCw, Shield, Trash2, User } from "lucide-react";
+import { Eye, RefreshCw, Trash2 } from "lucide-react";
 import { Badge, Button, ButtonGroup, Card, Dropdown, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
@@ -22,6 +22,7 @@ import { UnregisteredModal } from "@/Components/Base/BaseSettings";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
+import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { renderTooltip } from "@/Utils/bootsTrap";
 import { formatRelativeTime } from "@/Utils/format";
 
@@ -81,25 +82,13 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
         enableSorting: false,
         cell: ({ row }) => {
           const owner = row.original;
-          return owner.icon ? (
-            <img
+          return (
+            <OwnerPortrait
               src={owner.icon}
-              alt=""
-              width={32}
-              height={32}
-              className={owner.owner_type === "character" ? "rounded" : "rounded-circle"}
-              loading="lazy"
+              type={owner.owner_type}
+              size="sm"
+              shape={owner.owner_type === "character" ? "rounded" : "circle"}
             />
-          ) : (
-            <div className={`p-1 bg-secondary rounded text-center ${styles.avatarFallback}`}>
-              {owner.owner_type === "alliance" ? (
-                <Shield size={16} />
-              ) : owner.owner_type === "corporation" ? (
-                <Building2 size={16} />
-              ) : (
-                <User size={16} />
-              )}
-            </div>
           );
         },
       }),

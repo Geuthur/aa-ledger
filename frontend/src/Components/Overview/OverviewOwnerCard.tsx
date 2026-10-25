@@ -3,12 +3,13 @@ import type React from "react";
 import { Link } from "react-router-dom";
 
 // Third Party
-import { BookOpen, Building2, Globe, Shield, User } from "lucide-react";
+import { BookOpen, Globe } from "lucide-react";
 import { Badge, Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA Ledger
 import type { LedgerOverviewOwnerSchema } from "@/Api/schema";
+import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 
 export interface OverviewOwnerCardProps {
   owner: LedgerOverviewOwnerSchema;
@@ -27,19 +28,6 @@ const getTypeBadgeVariant = (type: string) => {
   }
 };
 
-const getOwnerIcon = (type: string) => {
-  switch (type) {
-    case "character":
-      return <User size={24} />;
-    case "corporation":
-      return <Building2 size={24} />;
-    case "alliance":
-      return <Shield size={24} />;
-    default:
-      return <User size={24} />;
-  }
-};
-
 export const OverviewOwnerCard: React.FC<OverviewOwnerCardProps> = ({ owner }) => {
   const { t } = useTranslation();
 
@@ -48,22 +36,12 @@ export const OverviewOwnerCard: React.FC<OverviewOwnerCardProps> = ({ owner }) =
       <Card.Body className="d-flex flex-column justify-content-between p-3 bg-body rounded">
         <div>
           <div className="d-flex align-items-center gap-3 mb-3">
-            {owner.portrait_url ? (
-              <img
-                src={owner.portrait_url}
-                alt={owner.name}
-                width={48}
-                height={48}
-                className="rounded-circle border border-secondary"
-              />
-            ) : (
-              <div
-                className="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-light"
-                style={{ width: 48, height: 48 }}
-              >
-                {getOwnerIcon(owner.type)}
-              </div>
-            )}
+            <OwnerPortrait
+              src={owner.portrait_url}
+              alt={owner.name}
+              type={owner.type}
+              bordered
+            />
             <div className="overflow-hidden">
               <h5 className="mb-0 text-truncate text-light">{owner.name}</h5>
               {owner.subtitle && (
