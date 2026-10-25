@@ -1,2 +1,2 @@
-export * from "./OwnerTypeFilter";
-export * from "./OverviewOwnerCard";
+export * from "@/Components/Overview/OwnerTypeFilter";
+export * from "@/Components/Overview/OverviewOwnerCard";

@@ -6,7 +6,11 @@ import { useTranslation } from "react-i18next";
 // Styles
 import styles from "@/Styles/modules/BaseTableForm.module.css";
 
-export function BaseTableForm<TData>({ table }: { table: TanStackTable<TData> }) {
+export interface BaseTableFormProps<TData> {
+    table: TanStackTable<TData>;
+}
+
+export function BaseTableForm<TData>({ table }: BaseTableFormProps<TData>) {
     const { t } = useTranslation();
     return (
         <div className="d-flex align-items-center ms-2">
