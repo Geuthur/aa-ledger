@@ -8,9 +8,10 @@ msgstr ""
 "Project-Id-Version: AA Ledger\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-ledger/issues\n"
 "POT-Creation-Date: 2026-02-05 12:37+0100\n"
-"PO-Revision-Date: 2026-02-05 12:17+0000\n"
-"Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
-"Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-ledger/de/>\n"
+"PO-Revision-Date: 2026-10-25 10:29+0000\n"
+"Last-Translator: Geuthur <devgeuthur@gmail.com>\n"
+"Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
+"ledger/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -36,7 +37,7 @@ msgid "Started force update for {count} character(s). Updates will run in the ba
 msgstr "Die erzwungene Aktualisierung für {count} Charaktere wurde gestartet. Die Aktualisierungen werden im Hintergrund ausgeführt."
 
 msgid "Please re-register characters with issues"
-msgstr "Bitte registriere betroffene Charaktere erneut"
+msgstr "Bitte registrieren Sie betroffene Charaktere erneut"
 
 msgid "Alliance not found in Ledger."
 msgstr "Allianz wurde nicht im Ledger gefunden."
@@ -340,7 +341,7 @@ msgid "Name"
 msgstr "Name"
 
 msgid "Disabled"
-msgstr "deaktiviert"
+msgstr "Deaktiviert"
 
 msgid "Token Error"
 msgstr "token Fehler"
@@ -458,7 +459,7 @@ msgid "Character Ledger Details"
 msgstr "Charakter Ledger Details"
 
 msgid "Corporation Ledger Details"
-msgstr "Corporation Ledger Details"
+msgstr "Corporation-Ledger-Details"
 
 msgid "Factory"
 msgstr "Fabrik"
@@ -482,10 +483,10 @@ msgid "Character Ledger"
 msgstr "Charakter Ledger"
 
 msgid "Planetary Ledger"
-msgstr "Planetary Ledger"
+msgstr "Planetares Ledger"
 
 msgid "Corporation Ledger"
-msgstr "Corporation Ledger"
+msgstr "Corporation-Ledger"
 
 msgid "Alliance Ledger"
 msgstr "Allianz Ledger"
@@ -575,7 +576,7 @@ msgid "Delete Character"
 msgstr "Lösche Charakter"
 
 msgid "Are you sure to Delete this Character?"
-msgstr "Bist du sicher den Character zu löschen?"
+msgstr "Sind Sie sicher, dass Sie den Character löschen möchten?"
 
 msgid "Character is not registered in Ledger."
 msgstr "Character ist nicht im Ledger registriert."
@@ -722,7 +723,7 @@ msgid "Show"
 msgstr "Zeige"
 
 msgid "Planetary Overview"
-msgstr "Planetary Übersicht"
+msgstr "Planetare Übersicht"
 
 msgid "Planetary Details"
 msgstr "Planetendetails"
@@ -740,7 +741,7 @@ msgid "Notification Deactivated"
 msgstr "Benachrichtigung deaktiviert"
 
 msgid "Corporation Overview"
-msgstr "Corporation Übersicht"
+msgstr "Corporation-Übersicht"
 
 #, python-brace-format
 msgid "{alliance_name} is already in the Ledger System"
@@ -777,7 +778,7 @@ msgid "{audit.eve_corporation.corporation_name} successfully deleted"
 msgstr "{audit.eve_corporation.corporation_name} erfolgreich gelöscht"
 
 msgid "You do not have permission to access this page."
-msgstr "Du hast keine Berechtigung diese Seite zu sehen."
+msgstr "Sie haben keine Berechtigung, diese Seite zu sehen."
 
 #, python-brace-format
 msgid "Queued Update for Character: {character_name}"
@@ -805,33 +806,34 @@ msgid "Queued Clear All Cache"
 msgstr "In der Warteschlange Alle Cache löschen"
 
 msgid "Character not found."
-msgstr ""
+msgstr "Charakter nicht gefunden."
 
 #, python-format
 msgid "Update is on cooldown. Please wait %(seconds)d seconds."
 msgstr ""
+"Das Update befindet sich im Cooldown. Bitte warten Sie %(seconds)d Sekunden."
 
 msgid "Character update initiated successfully."
-msgstr ""
+msgstr "Charakter-Update erfolgreich gestartet."
 
 #, python-format
 msgid "%(name)s successfully deleted"
-msgstr ""
+msgstr "%(name)s erfolgreich gelöscht"
 
 msgid "Corporation not found."
-msgstr ""
+msgstr "Corporation nicht gefunden."
 
 msgid "Settings"
 msgstr "Einstellungen"
 
 msgid "Superadmin"
-msgstr ""
+msgstr "Superadmin"
 
 msgid "Queued Update for Character"
-msgstr ""
+msgstr "Update für Charakter eingereiht"
 
 msgid "Queued Update for Corporation"
-msgstr ""
+msgstr "Update für Corporation eingereiht"
 
 #~ msgid "Bounty Income"
 #~ msgstr "Einkünfte aus Kopfgeld"
