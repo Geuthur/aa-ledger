@@ -1,10 +1,13 @@
 // Third Party
 import { Search } from "lucide-react";
-import { Button, ButtonGroup, Form, InputGroup } from "react-bootstrap";
+import { Form, InputGroup } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // Styles
 import styles from "@/Components/Base/BaseSettings/Settings.module.css";
+
+import { FilterButtonGroup } from "@/Components/Base/FilterButtonGroup";
+import type { FilterOption } from "@/Components/Base/FilterButtonGroup";
 
 export type OwnerTypeFilter = "all" | "character" | "corporation" | "alliance";
 
@@ -31,32 +34,25 @@ export function OwnerFilterBar({
 }: OwnerFilterBarProps) {
   const { t } = useTranslation();
 
-  const options: { value: OwnerTypeFilter; label: string }[] = [
-    { value: "all", label: t("All") },
-    { value: "character", label: t("Characters") },
-    { value: "corporation", label: t("Corporations") },
-    { value: "alliance", label: t("Alliances") },
+  const options: FilterOption<OwnerTypeFilter>[] = [
+    { value: "all", label: t("All"), count: counts.all },
+    { value: "character", label: t("Characters"), count: counts.character },
+    { value: "corporation", label: t("Corporations"), count: counts.corporation },
+    { value: "alliance", label: t("Alliances"), count: counts.alliance },
   ];
 
   const visibleOptions = options.filter(
-    (o) => o.value === "all" || counts[o.value] > 0 || o.value === typeFilter,
+    (o) => o.value === "all" || (o.count ?? 0) > 0 || o.value === typeFilter,
   );
 
   return (
     <div className={styles["filter-bar"]}>
-      <ButtonGroup className="border border-black" aria-label={t("Filter by owner type")}>
-        {visibleOptions.map((o) => (
-          <Button
-            key={o.value}
-            size="sm"
-            variant={typeFilter === o.value ? "primary" : "secondary"}
-            aria-pressed={typeFilter === o.value}
-            onClick={() => onTypeChange(o.value)}
-          >
-            {o.label} ({counts[o.value]})
-          </Button>
-        ))}
-      </ButtonGroup>
+      <FilterButtonGroup
+        options={visibleOptions}
+        value={typeFilter}
+        onChange={onTypeChange}
+        ariaLabel={t("Filter by owner type")}
+      />
 
       <InputGroup size="sm" className={styles["filter-search"]}>
         <InputGroup.Text>

@@ -9,9 +9,7 @@ import {
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import {
   Alert,
-  Badge,
   Button,
-  ButtonGroup,
   Card,
   Form,
   Modal,
@@ -35,6 +33,9 @@ import {
   useAdministrationOwners,
   useIsSuperuser,
 } from "@/Components/Administration/Hooks";
+import { FilterButtonGroup } from "@/Components/Base/FilterButtonGroup";
+
+type AdministrationTypeFilter = "all" | "character" | "corporation" | "alliance" | "issues";
 
 export const AdministrationPage: React.FC = () => {
   const { t } = useTranslation();
@@ -51,7 +52,7 @@ export const AdministrationPage: React.FC = () => {
 
   // Local UI State
   const [searchTerm, setSearchTerm] = useState("");
-  const [typeFilter, setTypeFilter] = useState<"all" | "character" | "corporation" | "alliance" | "issues">("all");
+  const [typeFilter, setTypeFilter] = useState<AdministrationTypeFilter>("all");
   const [showTaskPanel, setShowTaskPanel] = useState(false);
   const [forceRefreshGlobal, setForceRefreshGlobal] = useState(false);
 
@@ -189,38 +190,18 @@ export const AdministrationPage: React.FC = () => {
 
         {/* Filters and Search Bar */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mt-4 mb-2">
-          <ButtonGroup size="sm">
-            <Button
-              variant={typeFilter === "all" ? "primary" : "secondary"}
-              onClick={() => setTypeFilter("all")}
-            >
-              {t("All")} <Badge bg="secondary" className="ms-1">{metrics.total}</Badge>
-            </Button>
-            <Button
-              variant={typeFilter === "character" ? "primary" : "secondary"}
-              onClick={() => setTypeFilter("character")}
-            >
-              {t("Characters")} <Badge bg="secondary" className="ms-1">{metrics.characters}</Badge>
-            </Button>
-            <Button
-              variant={typeFilter === "corporation" ? "primary" : "secondary"}
-              onClick={() => setTypeFilter("corporation")}
-            >
-              {t("Corporations")} <Badge bg="secondary" className="ms-1">{metrics.corporations}</Badge>
-            </Button>
-            <Button
-              variant={typeFilter === "alliance" ? "primary" : "secondary"}
-              onClick={() => setTypeFilter("alliance")}
-            >
-              {t("Alliances")} <Badge bg="secondary" className="ms-1">{metrics.alliances}</Badge>
-            </Button>
-            <Button
-              variant={typeFilter === "issues" ? "primary" : "secondary"}
-              onClick={() => setTypeFilter("issues")}
-            >
-              {t("Issues")} <Badge bg="secondary" className="ms-1">{metrics.issues}</Badge>
-            </Button>
-          </ButtonGroup>
+          <FilterButtonGroup<AdministrationTypeFilter>
+            options={[
+              { value: "all", label: t("All"), count: metrics.total },
+              { value: "character", label: t("Characters"), count: metrics.characters },
+              { value: "corporation", label: t("Corporations"), count: metrics.corporations },
+              { value: "alliance", label: t("Alliances"), count: metrics.alliances },
+              { value: "issues", label: t("Issues"), count: metrics.issues },
+            ]}
+            value={typeFilter}
+            onChange={setTypeFilter}
+            ariaLabel={t("Filter owners by type")}
+          />
 
           <div className={styles.searchContainer}>
             <Form.Control

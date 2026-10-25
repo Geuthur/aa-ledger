@@ -1,6 +1,8 @@
 // Third Party
 import { Building2, Shield, User, Users } from "lucide-react";
-import { Button, ButtonGroup } from "react-bootstrap";
+
+// AA Ledger
+import { FilterButtonGroup } from "@/Components/Base/FilterButtonGroup";
 
 export interface OwnerTypeFilterProps {
   ownerType: string;
@@ -21,22 +23,12 @@ export function OwnerTypeFilter({
   ];
 
   return (
-    <ButtonGroup size="sm" aria-label={t("Filter owners by type")} className="border border-black">
-      {options.map((opt) => {
-        const isActive = ownerType === opt.value;
-        return (
-          <Button
-            key={opt.value}
-            variant={isActive ? "primary" : "secondary"}
-            className="d-inline-flex align-items-center gap-1"
-            onClick={() => setOwnerType(opt.value)}
-          >
-            {opt.icon}
-            <span>{opt.label}</span>
-          </Button>
-        );
-      })}
-    </ButtonGroup>
+    <FilterButtonGroup
+      options={options}
+      value={ownerType}
+      onChange={setOwnerType}
+      ariaLabel={t("Filter owners by type")}
+    />
   );
 }
 
