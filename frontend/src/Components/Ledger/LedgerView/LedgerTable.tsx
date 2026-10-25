@@ -59,8 +59,7 @@ function LedgerTable({
           {renderTooltip(
             t("This is only an informational value and is not included in calculations."),
             <span
-              className="d-inline-flex align-items-center text-muted"
-              style={{ cursor: "help" }}
+              className="d-inline-flex align-items-center text-muted cursor-help"
             >
               <CircleHelp size={14} />
             </span>,

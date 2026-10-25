@@ -67,8 +67,7 @@ function MembersModal({ row, onHide }: MembersModalProps) {
                 "Share of the total net amount. When negative amounts (costs) are involved, shares can exceed 100% or be negative, but always total 100%.",
               ),
               <span
-                className="d-inline-flex align-items-center text-muted"
-                style={{ cursor: "help" }}
+                className="d-inline-flex align-items-center text-muted cursor-help"
               >
                 <CircleHelp size={14} />
               </span>,

@@ -119,8 +119,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
                   <Button
                     variant="secondary"
                     size="sm"
-                    className="py-0 px-2 text-decoration-none"
-                    style={{ fontSize: "0.75rem", lineHeight: 1 }}
+                    className={`py-0 px-2 lh-1 text-decoration-none ${styles.compactButton}`}
                     onClick={() => setSelectedAltsOwner(owner)}
                     data-testid={`alts-btn-${owner.owner_type}-${owner.owner_id}`}
                   >
@@ -131,8 +130,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
                   <Button
                     variant="warning"
                     size="sm"
-                    className="py-0 px-2 text-decoration-none"
-                    style={{ fontSize: "0.75rem", lineHeight: 1 }}
+                    className={`py-0 px-2 lh-1 text-decoration-none ${styles.compactButton}`}
                     onClick={() => setSelectedUnregisteredOwner(owner)}
                     data-testid={`unregistered-btn-${owner.owner_type}-${owner.owner_id}`}
                   >

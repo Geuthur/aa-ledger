@@ -32,13 +32,13 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
       label: t("Bounty"),
       value: totals.bounty,
       icon: Skull,
-      color: "#f43f5e",
+      iconClass: "text-danger",
     },
     {
       label: t("ESS"),
       value: totals.ess,
       icon: Shield,
-      color: "#38bdf8",
+      iconClass: "text-info",
     },
     ...(showMining
       ? [
@@ -47,7 +47,7 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
           value: totals.mining ?? 0,
           mining: true,
           icon: Pickaxe,
-          color: "#fbbf24",
+          iconClass: "text-warning",
           infoTooltip: t(
             "This is only an informational value and is not included in calculations.",
           ),
@@ -58,19 +58,19 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
       label: t("Miscellaneous"),
       value: totals.miscellaneous,
       icon: Boxes,
-      color: "#c084fc",
+      iconClass: "text-primary",
     },
     {
       label: t("Costs"),
       value: totals.costs,
       icon: TrendingDown,
-      color: "#fb7185",
+      iconClass: "text-danger",
     },
     {
       label: t("Total"),
       value: totals.total,
       icon: TrendingUp,
-      color: totals.total >= 0 ? "#34d399" : "#fb7185",
+      iconClass: totals.total >= 0 ? "text-success" : "text-danger",
     },
   ];
 
@@ -89,15 +89,14 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
                       renderTooltip(
                         item.infoTooltip,
                         <span
-                          className="d-inline-flex align-items-center text-muted"
-                          style={{ cursor: "help" }}
+                          className="d-inline-flex align-items-center text-muted cursor-help"
                         >
                           <CircleHelp size={14} />
                         </span>,
                       )
                     )}
                   </span>
-                  <Icon color={item.color} size={24} className="flex-shrink-0" />
+                  <Icon size={24} className={`flex-shrink-0 ${item.iconClass}`} />
                 </div>
                 <span className={`h5 mb-0 fw-bold ${amountClass(item.value, "mining" in item)}`}>
                   {formatIsk(item.value)}

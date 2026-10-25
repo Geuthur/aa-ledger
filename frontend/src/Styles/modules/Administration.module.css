@@ -19,3 +19,7 @@
 .cursorPointer {
   cursor: pointer;
 }
+
+.compactButton {
+  font-size: 0.75rem;
+}

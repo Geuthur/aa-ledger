@@ -552,3 +552,9 @@ html[data-bs-theme="dark"] {
     color: #ff4545 !important;
     border-bottom: 2px solid #ef4444;
 }
+
+/* ═══ UTILITIES ═══════════════════════════════════════════════════════════════ */
+
+.cursor-help {
+    cursor: help;
+}

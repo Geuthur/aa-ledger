@@ -50,7 +50,7 @@ export function OverviewPage() {
         <div className="bg-dark card-body rounded">
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
             <div className="d-flex flex-wrap align-items-center gap-2 m-2">
-              <InputGroup style={{ maxWidth: 360 }}>
+              <InputGroup className="lg-overview-search">
                 <InputGroup.Text className="bg-body border-secondary text-secondary">
                   <Search size={16} />
                 </InputGroup.Text>

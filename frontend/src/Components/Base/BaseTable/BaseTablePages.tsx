@@ -12,6 +12,7 @@ import pageStyles from "@/Styles/modules/BaseTablePages.module.css";
 
 import { exportToCSV } from "@/Components/Base/BaseTable/tableHelper";
 import { renderTooltip } from "@/Utils/bootsTrap";
+import { formatDate } from "@/Utils/format";
 
 export interface TablePagesProps<TData> {
   table: TanStackTable<TData>;
@@ -51,7 +52,7 @@ const BasePages = <TData,>({
           )
         ) : (
           renderTooltip(
-            t("Data Loaded: {{date}}", { date: new Date().toLocaleString() }),
+            t("Data Loaded: {{date}}", { date: formatDate(new Date().toISOString()) }),
             <Button size="sm" variant="primary">
               <i className="far fa-check-circle"></i>
             </Button>

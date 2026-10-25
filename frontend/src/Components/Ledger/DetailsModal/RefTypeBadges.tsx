@@ -35,7 +35,6 @@ function RefTypeBadges({
               <button
                 type="button"
                 className="badge bg-primary border-0"
-                style={{ cursor: "pointer" }}
                 onClick={() => onSelectRefType(item)}
                 title={t("View character breakdown for {{name}}", {
                   name: formatRefType(item.ref_type),

@@ -78,8 +78,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                                     renderTooltip(
                                         t("This is only an informational value and is not included in calculations."),
                                         <span
-                                            className="d-inline-flex align-items-center"
-                                            style={{ cursor: "help" }}
+                                            className="d-inline-flex align-items-center cursor-help"
                                         >
                                             <CircleHelp size={14} className="text-info" />
                                         </span>,
