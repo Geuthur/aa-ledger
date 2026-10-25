@@ -35,6 +35,7 @@ exclude: |
     locale/ |
     static/(.*)/libs/ |
     static/(.*)/react/ |
+    static/(.*)/manifest.json |
     docs/
   )
 

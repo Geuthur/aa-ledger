@@ -127,6 +127,24 @@
     background: rgba(255, 255, 255, 0.08);
 }
 
+.lg-chord-svg {
+    max-height: 460px;
+}
+
+.lg-chord-ribbon {
+    transition: fill-opacity 200ms ease;
+    cursor: pointer;
+}
+
+.lg-chord-group {
+    transition: opacity 200ms ease;
+    cursor: pointer;
+}
+
+.lg-overview-search {
+    max-width: 360px;
+}
+
 .lg-chord-dot {
     display: inline-block;
     flex: none;

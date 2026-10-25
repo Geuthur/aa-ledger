@@ -12,6 +12,7 @@ import styles from "@/Components/Base/BaseSettings/Settings.module.css";
 // AA Base
 import { BaseModal } from "@/Components/Base/BaseModal";
 import type { BaseMissingOwner } from "@/Components/Base/BaseSettings/types";
+import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 
 export interface UnregisteredModalProps {
   show: boolean;
@@ -106,13 +107,13 @@ export function UnregisteredModal({
                   className="d-flex align-items-center gap-3"
                 >
                   {item.avatar_url && (
-                    <img
+                    <OwnerPortrait
                       src={item.avatar_url}
                       alt={item.name}
-                      width={32}
-                      height={32}
-                      className={`${styles["portrait"]} ${item.owner_type === "corporation" ? styles["portrait-corp"] : ""}`}
-                      style={{ width: 32, height: 32 }}
+                      type={item.owner_type}
+                      size="sm"
+                      shape={item.owner_type === "corporation" ? "rounded" : "circle"}
+                      bordered
                     />
                   )}
                   <div className="min-w-0">

@@ -2,7 +2,6 @@
 import React, { useMemo, useState } from "react";
 
 // Third Party
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ShieldAlert,
   Trash2,
@@ -10,9 +9,7 @@ import {
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import {
   Alert,
-  Badge,
   Button,
-  ButtonGroup,
   Card,
   Form,
   Modal,
@@ -24,14 +21,6 @@ import { useTranslation } from "react-i18next";
 import styles from "@/Styles/modules/Administration.module.css";
 
 // AA Ledger
-import {
-  deleteAdministrationOwner,
-  loadAdministrationOwners,
-  loadUserData,
-  queueUpdate,
-  triggerAdministrationOwnerUpdate,
-} from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
 import type { AdministrationOwnerSchema } from "@/Api/schema";
 import {
   AdministrationInspectionView,
@@ -39,10 +28,17 @@ import {
   AdministrationOwnersTable,
   AdministrationTaskPanel,
 } from "@/Components/Administration";
+import {
+  useAdministrationActions,
+  useAdministrationOwners,
+  useIsSuperuser,
+} from "@/Components/Administration/Hooks";
+import { FilterButtonGroup } from "@/Components/Base/FilterButtonGroup";
+
+type AdministrationTypeFilter = "all" | "character" | "corporation" | "alliance" | "issues";
 
 export const AdministrationPage: React.FC = () => {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
 
   // URL State via nuqs for browser Back / Forward history
   const [inspectOwnerId, setInspectOwnerId] = useQueryState(
@@ -56,104 +52,17 @@ export const AdministrationPage: React.FC = () => {
 
   // Local UI State
   const [searchTerm, setSearchTerm] = useState("");
-  const [typeFilter, setTypeFilter] = useState<"all" | "character" | "corporation" | "alliance" | "issues">("all");
+  const [typeFilter, setTypeFilter] = useState<AdministrationTypeFilter>("all");
   const [showTaskPanel, setShowTaskPanel] = useState(false);
   const [forceRefreshGlobal, setForceRefreshGlobal] = useState(false);
-  const [updatingKey, setUpdatingKey] = useState<string | null>(null);
-  const [taskFeedback, setTaskFeedback] = useState<{
-    variant: "success" | "danger";
-    message: string;
-  } | null>(null);
 
   // Delete Modal State
   const [ownerToDelete, setOwnerToDelete] = useState<AdministrationOwnerSchema | null>(null);
 
-  // Queries
-  const {
-    data: owners,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: queryKeys.AdministrationOwners,
-    queryFn: loadAdministrationOwners,
-  });
-
-  const { data: userData } = useQuery({
-    queryKey: queryKeys.User,
-    queryFn: loadUserData,
-  });
-  const isSuperuser = userData?.user.is_superuser ?? false;
-
-  // Single Owner Update Mutation
-  const singleUpdateMutation = useMutation({
-    mutationFn: ({
-      ownerType,
-      ownerId,
-      forceRefresh,
-    }: {
-      ownerType: "character" | "corporation";
-      ownerId: number;
-      forceRefresh: boolean;
-    }) =>
-      triggerAdministrationOwnerUpdate(ownerType, ownerId, {
-        force_refresh: forceRefresh,
-      }),
-    onMutate: ({ ownerType, ownerId }) => {
-      setUpdatingKey(`${ownerType}-${ownerId}`);
-    },
-    onSuccess: (data) => {
-      setTaskFeedback({ variant: "success", message: data.message });
-      queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
-    },
-    onError: (err: Error) => {
-      setTaskFeedback({ variant: "danger", message: err.message });
-    },
-    onSettled: () => {
-      setUpdatingKey(null);
-    },
-  });
-
-  // Global Queue Update Mutation (All Characters or All Corporations)
-  const globalQueueMutation = useMutation({
-    mutationFn: ({
-      target,
-      forceRefresh,
-    }: {
-      target: "characters" | "corporations";
-      forceRefresh: boolean;
-    }) =>
-      queueUpdate({
-        target,
-        eve_id: null,
-        force_refresh: forceRefresh,
-      }),
-    onSuccess: (data) => {
-      setTaskFeedback({ variant: "success", message: data.message });
-      queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
-    },
-    onError: (err: Error) => {
-      setTaskFeedback({ variant: "danger", message: err.message });
-    },
-  });
-
-  // Delete Mutation
-  const deleteMutation = useMutation({
-    mutationFn: ({
-      ownerType,
-      ownerId,
-    }: {
-      ownerType: "character" | "corporation";
-      ownerId: number;
-    }) => deleteAdministrationOwner(ownerType, ownerId),
-    onSuccess: (data) => {
-      setTaskFeedback({ variant: "success", message: data.message });
-      setOwnerToDelete(null);
-      queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
-    },
-    onError: (err: Error) => {
-      setTaskFeedback({ variant: "danger", message: err.message });
-    },
-  });
+  // Data and actions
+  const { data: owners, isLoading, isError } = useAdministrationOwners();
+  const isSuperuser = useIsSuperuser();
+  const actions = useAdministrationActions(() => setOwnerToDelete(null));
 
   // Metrics
   const metrics = useMemo(() => {
@@ -249,13 +158,13 @@ export const AdministrationPage: React.FC = () => {
         </header>
 
         {/* Feedback alert */}
-        {taskFeedback && (
+        {actions.taskFeedback && (
           <Alert
-            variant={taskFeedback.variant}
+            variant={actions.taskFeedback.variant}
             dismissible
-            onClose={() => setTaskFeedback(null)}
+            onClose={actions.clearTaskFeedback}
           >
-            <span data-testid="task-feedback-message">{taskFeedback.message}</span>
+            <span data-testid="task-feedback-message">{actions.taskFeedback.message}</span>
           </Alert>
         )}
 
@@ -269,9 +178,9 @@ export const AdministrationPage: React.FC = () => {
             onToggleTaskPanel={() => setShowTaskPanel((prev) => !prev)}
             forceRefreshGlobal={forceRefreshGlobal}
             onToggleForceRefresh={setForceRefreshGlobal}
-            isPending={globalQueueMutation.isPending}
+            isPending={actions.isQueuing}
             onUpdateTarget={(target) =>
-              globalQueueMutation.mutate({
+              actions.queueUpdate({
                 target,
                 forceRefresh: forceRefreshGlobal,
               })
@@ -281,38 +190,18 @@ export const AdministrationPage: React.FC = () => {
 
         {/* Filters and Search Bar */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mt-4 mb-2">
-          <ButtonGroup size="sm">
-            <Button
-              variant={typeFilter === "all" ? "primary" : "secondary"}
-              onClick={() => setTypeFilter("all")}
-            >
-              {t("All")} <Badge bg="secondary" className="ms-1">{metrics.total}</Badge>
-            </Button>
-            <Button
-              variant={typeFilter === "character" ? "primary" : "secondary"}
-              onClick={() => setTypeFilter("character")}
-            >
-              {t("Characters")} <Badge bg="secondary" className="ms-1">{metrics.characters}</Badge>
-            </Button>
-            <Button
-              variant={typeFilter === "corporation" ? "primary" : "secondary"}
-              onClick={() => setTypeFilter("corporation")}
-            >
-              {t("Corporations")} <Badge bg="secondary" className="ms-1">{metrics.corporations}</Badge>
-            </Button>
-            <Button
-              variant={typeFilter === "alliance" ? "primary" : "secondary"}
-              onClick={() => setTypeFilter("alliance")}
-            >
-              {t("Alliances")} <Badge bg="secondary" className="ms-1">{metrics.alliances}</Badge>
-            </Button>
-            <Button
-              variant={typeFilter === "issues" ? "primary" : "secondary"}
-              onClick={() => setTypeFilter("issues")}
-            >
-              {t("Issues")} <Badge bg="secondary" className="ms-1">{metrics.issues}</Badge>
-            </Button>
-          </ButtonGroup>
+          <FilterButtonGroup<AdministrationTypeFilter>
+            options={[
+              { value: "all", label: t("All"), count: metrics.total },
+              { value: "character", label: t("Characters"), count: metrics.characters },
+              { value: "corporation", label: t("Corporations"), count: metrics.corporations },
+              { value: "alliance", label: t("Alliances"), count: metrics.alliances },
+              { value: "issues", label: t("Issues"), count: metrics.issues },
+            ]}
+            value={typeFilter}
+            onChange={setTypeFilter}
+            ariaLabel={t("Filter owners by type")}
+          />
 
           <div className={styles.searchContainer}>
             <Form.Control
@@ -332,14 +221,14 @@ export const AdministrationPage: React.FC = () => {
           owners={filteredOwners}
           isLoading={isLoading}
           isError={isError}
-          updatingKey={updatingKey}
+          updatingKey={actions.updatingKey}
           isSuperuser={isSuperuser}
           onInspect={(owner) => {
             setInspectOwnerType(owner.owner_type);
             setInspectOwnerId(owner.owner_id);
           }}
           onTriggerUpdate={(ownerType, ownerId, forceRefresh) => {
-            singleUpdateMutation.mutate({ ownerType, ownerId, forceRefresh });
+            actions.triggerUpdate({ ownerType, ownerId, forceRefresh });
           }}
           onDelete={(owner) => setOwnerToDelete(owner)}
         />
@@ -370,16 +259,16 @@ export const AdministrationPage: React.FC = () => {
             <Button
               variant="secondary"
               onClick={() => setOwnerToDelete(null)}
-              disabled={deleteMutation.isPending}
+              disabled={actions.isDeleting}
             >
               {t("Cancel")}
             </Button>
             <Button
               variant="danger"
-              disabled={deleteMutation.isPending}
+              disabled={actions.isDeleting}
               onClick={() => {
                 if (ownerToDelete && ownerToDelete.owner_type !== "alliance") {
-                  deleteMutation.mutate({
+                  actions.deleteOwner({
                     ownerType: ownerToDelete.owner_type,
                     ownerId: ownerToDelete.owner_id,
                   });
@@ -387,7 +276,7 @@ export const AdministrationPage: React.FC = () => {
               }}
               data-testid="confirm-delete-btn"
             >
-              {deleteMutation.isPending ? (
+              {actions.isDeleting ? (
                 <Spinner size="sm" animation="border" className="me-1" />
               ) : (
                 <Trash2 size={14} className="me-1" />

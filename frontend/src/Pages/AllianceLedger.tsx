@@ -1,18 +1,18 @@
 // React
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 // Third Party
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-import { fetchAllianceDetails, fetchAllianceLedger, loadUserData } from "@/Api/ApiCalls";
+import { fetchAllianceDetails } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
 import DetailsModal from "@/Components/Ledger/DetailsModal";
+import { useAllianceLedger } from "@/Components/Ledger/Hooks";
+import LedgerNavButton from "@/Components/Ledger/LedgerNavButton";
 import LedgerView from "@/Components/Ledger/LedgerView";
 import { useDateFilter } from "@/Hooks/useDateFilter";
 import { useDetailsState } from "@/Hooks/useLedgerState";
+import { useUserData } from "@/Hooks/useUserData";
 import { corporationRows } from "@/Utils/ledger";
 
 export interface AllianceLedgerProps {
@@ -27,17 +27,8 @@ function AllianceLedger({ allianceIdOverride, onBack }: AllianceLedgerProps = {}
   const { filters } = useDateFilter();
   const { entityId, section, openDetails, closeDetails } = useDetailsState();
 
-  const { data: userData } = useQuery({
-    queryKey: queryKeys.User,
-    queryFn: loadUserData,
-  });
-
-  const { data, isLoading, isFetching, error } = useQuery({
-    queryKey: queryKeys.AllianceLedger(allianceId, filters),
-    queryFn: () => fetchAllianceLedger(allianceId, filters),
-    placeholderData: keepPreviousData,
-    enabled: Boolean(allianceId),
-  });
+  const { data: userData } = useUserData();
+  const { data, isLoading, isFetching, error } = useAllianceLedger(allianceId, filters);
 
   return (
     <LedgerView
@@ -51,24 +42,7 @@ function AllianceLedger({ allianceIdOverride, onBack }: AllianceLedgerProps = {}
       isLoading={isLoading}
       isFetching={isFetching}
       error={error}
-      filterExtras={
-        onBack ? (
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onBack}
-            className="d-flex align-items-center gap-1"
-            data-testid="back-to-administration-btn"
-          >
-            <ArrowLeft size={16} />
-            {t("Back to Administration Overview")}
-          </Button>
-        ) : (
-          <Link className="btn btn-secondary" to="/ledger/">
-            {t("Overview")}
-          </Link>
-        )
-      }
+      filterExtras={<LedgerNavButton onBack={onBack} />}
       onDetails={openDetails}
       onOwnerDetails={() => openDetails(allianceId, "summary")}
     >

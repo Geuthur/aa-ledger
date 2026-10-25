@@ -104,8 +104,7 @@ function ChordDiagram({ names, colors, chords, title, onSelect }: ChordDiagramPr
         viewBox={`${-SIZE / 2} ${-SIZE / 2} ${SIZE} ${SIZE}`}
         role="img"
         aria-label={title}
-        className="w-100"
-        style={{ maxHeight: 460 }}
+        className="w-100 lg-chord-svg"
         onMouseLeave={() => setActive(null)}
       >
         <g>
@@ -117,7 +116,7 @@ function ChordDiagram({ names, colors, chords, title, onSelect }: ChordDiagramPr
                   d={ribbonPath(chord)}
                   fill={colors[chord.source.index]}
                   fillOpacity={ribbonOpacity(chord) * progress}
-                  style={{ transition: "fill-opacity 200ms ease", cursor: "pointer" }}
+                  className="lg-chord-ribbon"
                   onMouseEnter={() => setActive({ kind: "ribbon", key: ribbonKey(chord) })}
                 />,
               )}
@@ -151,7 +150,7 @@ function ChordDiagram({ names, colors, chords, title, onSelect }: ChordDiagramPr
             <g
               key={group.index}
               opacity={groupOpacity(group)}
-              style={{ transition: "opacity 200ms ease", cursor: "pointer" }}
+              className="lg-chord-group"
               onMouseEnter={() => setActive({ kind: "group", index: group.index })}
               onClick={() => onSelect(group.index)}
             >

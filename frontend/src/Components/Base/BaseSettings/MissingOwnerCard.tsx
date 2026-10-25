@@ -2,15 +2,16 @@
 import React from "react";
 
 // Third Party
-import { AlertCircle, Plus, User } from "lucide-react";
+import { AlertCircle, Plus } from "lucide-react";
 import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // Styles
-// AA Base
 import styles from "@/Components/Base/BaseSettings/Settings.module.css";
 
 import type { BaseMissingOwner, MissingOwnerCardProps } from "@/Components/Base/BaseSettings/types";
+// AA Base
+import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 
 /** Card for an entity (e.g. an alt) that belongs to the user but is not registered in the app. */
 export const MissingOwnerCard: React.FC<MissingOwnerCardProps<BaseMissingOwner>> = ({
@@ -24,15 +25,7 @@ export const MissingOwnerCard: React.FC<MissingOwnerCardProps<BaseMissingOwner>>
   return (
     <article className={`${styles["char-card"]} ${styles["missing-card"]} opacity-50`}>
       <div className={styles["char-header"]}>
-        {missing.avatar_url ? (
-          <img src={missing.avatar_url} alt={missing.name} className={styles["portrait"]} />
-        ) : (
-          <div
-            className={`${styles["portrait"]} d-flex align-items-center justify-content-center bg-secondary text-light`}
-          >
-            <User size={24} />
-          </div>
-        )}
+        <OwnerPortrait src={missing.avatar_url} alt={missing.name} bordered />
         <div className={styles["char-info"]}>
           <div className="d-flex align-items-center justify-content-between gap-2">
             <h3 className={styles["char-name"]}>{missing.name}</h3>

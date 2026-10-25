@@ -14,6 +14,7 @@ function ExtractorProgress({ progress }: ExtractorProgressProps) {
         aria-valuemax={100}
         aria-valuenow={percent}
       >
+        {/* Inline style: width is a runtime value */}
         <div className="lg-progress-fill" style={{ width: `${percent}%` }} />
       </div>
       <div className="lg-progress-label">{percent.toFixed(1)}%</div>

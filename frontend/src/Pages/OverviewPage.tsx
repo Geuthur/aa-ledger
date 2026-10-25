@@ -2,26 +2,21 @@
 import { useMemo, useState } from "react";
 
 // Third Party
-import { useQuery } from "@tanstack/react-query";
 import { Search, Shield } from "lucide-react";
 import { Badge, Card, Col, Form, InputGroup, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA Ledger
-import { fetchOverview } from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { OverviewOwnerCard, OwnerTypeFilter } from "@/Components/Overview";
+import { useOverview } from "@/Components/Overview/Hooks";
 
 export function OverviewPage() {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [ownerType, setOwnerType] = useState("all");
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: queryKeys.Overview,
-    queryFn: fetchOverview,
-  });
+  const { data, isLoading, isError, error } = useOverview();
 
   const filteredOwners = useMemo(() => {
     if (!data?.owners) return [];
@@ -50,7 +45,7 @@ export function OverviewPage() {
         <div className="bg-dark card-body rounded">
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
             <div className="d-flex flex-wrap align-items-center gap-2 m-2">
-              <InputGroup style={{ maxWidth: 360 }}>
+              <InputGroup className="lg-overview-search">
                 <InputGroup.Text className="bg-body border-secondary text-secondary">
                   <Search size={16} />
                 </InputGroup.Text>

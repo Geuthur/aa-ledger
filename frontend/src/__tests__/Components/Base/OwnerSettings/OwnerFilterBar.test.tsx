@@ -23,8 +23,8 @@ describe("OwnerFilterBar", () => {
     render(<OwnerFilterBar {...props} />);
 
     // Expected Result
-    expect(screen.getByRole("button", { name: /All \(3\)/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Characters \(2\)/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /All 3/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Characters 2/ })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Alliances/ })).not.toBeInTheDocument();
   });
 

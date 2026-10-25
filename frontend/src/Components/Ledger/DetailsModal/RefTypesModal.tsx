@@ -54,7 +54,6 @@ function RefTypesModal({
               <button
                 type="button"
                 className="badge bg-primary border-0"
-                style={{ cursor: "pointer" }}
                 onClick={() => onSelectRefType(original)}
                 title={t("View character breakdown for {{name}}", {
                   name: formatRefType(original.ref_type),

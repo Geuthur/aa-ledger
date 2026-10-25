@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 // Third Party
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { RefreshCw, User } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { Button, ButtonGroup, Dropdown, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
@@ -15,6 +15,7 @@ import styles from "@/Styles/modules/Administration.module.css";
 import type { AltSchema, AdministrationOwnerSchema } from "@/Api/schema";
 import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 
 export interface AdministrationAltsModalProps {
   owner: AdministrationOwnerSchema | null;
@@ -52,22 +53,7 @@ export const AdministrationAltsModal: React.FC<AdministrationAltsModalProps> = (
         enableSorting: false,
         cell: ({ row }) => {
           const alt = row.original;
-          return alt.icon ? (
-            <img
-              src={alt.icon}
-              alt=""
-              width={28}
-              height={28}
-              className="rounded-circle"
-              loading="lazy"
-            />
-          ) : (
-            <div
-              className={`p-1 bg-secondary rounded text-center ${styles.avatarFallback}`}
-            >
-              <User size={14} />
-            </div>
-          );
+          return <OwnerPortrait src={alt.icon} size="sm" />;
         },
       }),
 

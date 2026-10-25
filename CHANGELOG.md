@@ -26,6 +26,18 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- Reusable frontend components `OwnerPortrait`, `HelpTooltip`, `FilterButtonGroup` and `LedgerNavButton`, replacing several inline copies.
+- Frontend hooks per area (`Components/<Area>/Hooks`) that hold the queries and mutations of the Administration, Settings, Overview, Planetary and Ledger views, plus the shared hooks `useFeedback`, `useCooldown` and `useUserData`.
+
+### Changed
+
+- Frontend inline styles and hard-coded colors replaced by Bootstrap 5 classes and CSS classes; relative imports replaced by `@/` imports and missing `index.ts` files added.
+- The owner type filters of the Overview, Administration and Settings now share one component and show their counters as badges.
+- Both menus now share the same query options (5 minutes stale time, one retry, no refetch on window focus).
+- The portrait in the alts modal of the Administration is now 32 px instead of 28 px.
+
 ### Removed
 
 - Active/Inactive status badge from the owner cards on the `OverviewPage`.

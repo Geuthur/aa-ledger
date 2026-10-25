@@ -1,7 +1,6 @@
 // Third Party
 import {
   Boxes,
-  CircleHelp,
   Info,
   Pickaxe,
   Shield,
@@ -12,6 +11,7 @@ import {
 import { Button, Card, Col, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
+import { HelpTooltip } from "@/Components/Base/HelpTooltip";
 import { renderTooltip } from "@/Utils/bootsTrap";
 import { formatIsk } from "@/Utils/format";
 import { amountClass } from "@/Utils/ledger";
@@ -32,13 +32,13 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
       label: t("Bounty"),
       value: totals.bounty,
       icon: Skull,
-      color: "#f43f5e",
+      iconClass: "text-danger",
     },
     {
       label: t("ESS"),
       value: totals.ess,
       icon: Shield,
-      color: "#38bdf8",
+      iconClass: "text-info",
     },
     ...(showMining
       ? [
@@ -47,7 +47,7 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
           value: totals.mining ?? 0,
           mining: true,
           icon: Pickaxe,
-          color: "#fbbf24",
+          iconClass: "text-warning",
           infoTooltip: t(
             "This is only an informational value and is not included in calculations.",
           ),
@@ -58,19 +58,19 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
       label: t("Miscellaneous"),
       value: totals.miscellaneous,
       icon: Boxes,
-      color: "#c084fc",
+      iconClass: "text-primary",
     },
     {
       label: t("Costs"),
       value: totals.costs,
       icon: TrendingDown,
-      color: "#fb7185",
+      iconClass: "text-danger",
     },
     {
       label: t("Total"),
       value: totals.total,
       icon: TrendingUp,
-      color: totals.total >= 0 ? "#34d399" : "#fb7185",
+      iconClass: totals.total >= 0 ? "text-success" : "text-danger",
     },
   ];
 
@@ -85,19 +85,9 @@ function LedgerSummary({ totals, showMining = false, onDetails }: LedgerSummaryP
                 <div className="d-flex justify-content-between align-items-start mb-2 gap-2">
                   <span className="small fw-semibold text-uppercase d-inline-flex align-items-center gap-1">
                     {item.label}
-                    {"infoTooltip" in item && item.infoTooltip && (
-                      renderTooltip(
-                        item.infoTooltip,
-                        <span
-                          className="d-inline-flex align-items-center text-muted"
-                          style={{ cursor: "help" }}
-                        >
-                          <CircleHelp size={14} />
-                        </span>,
-                      )
-                    )}
+                    {"infoTooltip" in item && item.infoTooltip && <HelpTooltip text={item.infoTooltip} />}
                   </span>
-                  <Icon color={item.color} size={24} className="flex-shrink-0" />
+                  <Icon size={24} className={`flex-shrink-0 ${item.iconClass}`} />
                 </div>
                 <span className={`h5 mb-0 fw-bold ${amountClass(item.value, "mining" in item)}`}>
                   {formatIsk(item.value)}
