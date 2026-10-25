@@ -44,6 +44,7 @@ Section Order:
 
 ### Fixed
 
+- [FIX] Unified the capitalization of UI strings: "Show All", "No owners found." and "Last sync".
 - Fixed missing return statement and import grouping in `BaseTableToolbar`.
 - [FIX] The issue badge on the `Settings` navigation item now also counts failed update sections (e.g. token errors) of corporations the user has added, not only of the user's own characters; the counting lives in `get_user_issue_count`.
 - [FIX] Update sections with `has_token_error` set are now counted as failed even if `is_success` is still true, so the `Settings` badge matches the "Token Error" status shown in Settings.
