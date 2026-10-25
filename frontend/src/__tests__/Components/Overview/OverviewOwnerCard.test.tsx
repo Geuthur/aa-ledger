@@ -40,7 +40,7 @@ describe("OverviewOwnerCard", () => {
     expect(screen.getByText("Pilot Alpha")).toBeInTheDocument();
     expect(screen.getByText("Federal Defense Union")).toBeInTheDocument();
     expect(screen.getByText("Character")).toBeInTheDocument();
-    expect(screen.getByText("Active")).toBeInTheDocument();
+    expect(screen.queryByText("Active")).not.toBeInTheDocument();
     expect(screen.getByText("Planetary")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Ledger/i })).toHaveAttribute(
       "href",
@@ -76,7 +76,7 @@ describe("OverviewOwnerCard", () => {
 
     // Expected Result
     expect(screen.getByText("Acme Mining Corp")).toBeInTheDocument();
-    expect(screen.getByText("Inactive")).toBeInTheDocument();
+    expect(screen.queryByText("Inactive")).not.toBeInTheDocument();
     expect(screen.getByText("Corporation")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Ledger/i })).toHaveAttribute(
       "href",
