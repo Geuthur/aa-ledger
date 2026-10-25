@@ -77,9 +77,6 @@ export const OverviewOwnerCard: React.FC<OverviewOwnerCardProps> = ({ owner }) =
                 >
                   {owner.type_display}
                 </Badge>
-                <Badge bg={owner.active ? "success" : "secondary"}>
-                  {owner.active ? t("Active") : t("Inactive")}
-                </Badge>
                 {owner.has_planetary && (
                   <Badge
                     bg="dark"

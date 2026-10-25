@@ -26,6 +26,10 @@ Section Order:
 ### Removed
 -->
 
+### Removed
+
+- Active/Inactive status badge from the owner cards on the `OverviewPage`.
+
 <!-- Your changes go here -->
 
 ## [4.1.0] - 2026-10-25
