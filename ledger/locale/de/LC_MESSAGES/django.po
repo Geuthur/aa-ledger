@@ -114,6 +114,9 @@ msgstr "Zugriff verweigert"
 msgid "Permission Denied."
 msgstr "Zugriff verweigert."
 
+msgid "Only superusers can bypass the cache."
+msgstr "Nur Superuser können den Cache umgehen."
+
 msgid "Planet not found."
 msgstr "Planet nicht gefunden."
 

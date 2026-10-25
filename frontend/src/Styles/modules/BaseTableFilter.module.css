@@ -1,135 +1,118 @@
-.box {
-  background-color: var(--bs-body-bg);
+.searchwrapper {
+  position: relative;
   width: 100%;
 }
 
-/* Deliberately no background/color/border/radius/font-size here - the
-   trigger is a real Bootstrap .form-control (via react-bootstrap's
-   Form.Control), so it inherits those from Bootstrap's own theming instead
-   of a hand-maintained copy that can drift out of sync. This only adds the
-   layout tweaks .form-control doesn't provide on its own: room for the
-   search/clear icon overlay, and the width-grow transition. */
 .searchinput {
   width: 100%;
-  padding-right: 1.75rem;
-  transition: width 1s;
+  padding: 4px 24px 4px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--aa-text-primary);
+  background-color: var(--aa-color-body);
+  border: 1px solid var(--aa-border-light);
+  border-radius: 4px;
   outline: none;
-}
-
-.radiowrapper {
-  width: 100px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .input {
-    transition: none;
-  }
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .searchinput::placeholder {
-  color: var(--bs-secondary-text-emphasis);
+  color: var(--aa-text-muted);
 }
 
-.searchinput:focus-visible,
-.searchbutton:focus-visible {
-  box-shadow: 0 0 0 0.25rem var(--bs-primary-border-subtle);
+.searchinput:focus {
+  border-color: var(--aa-color-emerald);
+  box-shadow: 0 0 0 1px var(--aa-color-emerald);
+  background-color: var(--aa-color-body);
+  color: var(--aa-text-primary);
 }
 
-.searchwrapper {
-  position: relative;
+.searchinput[readonly] {
+  cursor: pointer;
 }
 
-.searchwrapperfrom {
-  position: relative;
-}
-
-.searchicon,
-.xicon {
+.searchicon {
   position: absolute;
-  width: 1rem;
-  height: 1rem;
-  right: 0.25rem;
+  right: 7px;
   top: 50%;
-  translate: 0 -50%;
-  color: var(--bs-secondary-text-emphasis);
-  opacity: 0;
-  rotate: 90deg;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  color: var(--aa-text-muted);
   pointer-events: none;
-  visibility: hidden;
-  border-radius: 0.25rem;
-  transition-behavior: allow-discrete;
-  transition-property: opacity, rotate, visibility;
-  transition-duration: 0.5s;
 }
 
-.searchwrapper:has(.searchinput:placeholder-shown) .searchicon,
-.searchwrapper:has(.searchinput:not(:placeholder-shown)) .xicon {
-  opacity: 1;
-  pointer-events: all;
-  rotate: 0deg;
-  visibility: visible;
-}
-
-.searchwrapperfrom[aria-describedby="popover-positioned-top"] > div > .dropdownicon {
-  rotate: 180deg !important;
-}
-
-.searchwrapper:has(button) button {
+.clearbutton {
   all: unset;
   cursor: pointer;
   position: absolute;
-  width: 1rem;
-  height: 1rem;
-  right: 0.25rem;
+  right: 6px;
   top: 50%;
-  translate: 0 -50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: var(--aa-text-muted);
+  border-radius: 3px;
+  transition: color 150ms ease, background-color 150ms ease;
 }
 
-/* clears the ‘X’ from Internet Explorer */
-.searchinput[type="search"]::-ms-clear,
-.searchinput[type="search"]::-ms-reveal {
-  appearance: none;
-  width: 0;
-  height: 0;
+.clearbutton:hover {
+  color: var(--aa-text-primary);
+  background-color: var(--aa-color-grey-light);
 }
 
-/* clears the ‘X’ from Chrome */
-.searchinput[type="search"]::-webkit-search-decoration,
-.searchinput[type="search"]::-webkit-search-cancel-button,
-.searchinput[type="search"]::-webkit-search-results-button,
-.searchinput[type="search"]::-webkit-search-results-decoration {
-  appearance: none;
+.dropdown {
+  max-height: 250px !important;
+  overflow-y: auto;
+  background-color: var(--aa-color-body);
+  color: var(--aa-text-primary);
+  border: 1px solid var(--aa-border-light);
+  border-radius: 6px;
+  box-shadow: var(--aa-shadow);
+  padding: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  z-index: 1050;
+}
+
+.dropdown :global(.dropdown-item) {
+  color: var(--aa-text-secondary);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background-color 100ms ease, color 100ms ease;
+}
+
+.dropdown :global(.dropdown-item:hover),
+.dropdown :global(.dropdown-item:focus) {
+  background-color: var(--aa-color-grey-light);
+  color: var(--aa-text-primary);
+}
+
+.dropdown :global(.dropdown-item.active),
+.dropdown :global(.dropdown-item:active) {
+  background-color: var(--aa-color-emerald);
+  color: var(--aa-color-body-dark);
 }
 
 .capitalisewords {
   text-transform: capitalize;
 }
 
-.dropdown {
-  max-height: 250px !important;
-  overflow-y: auto;
-  background-color: var(--bs-body-bg);
-  color: var(--bs-body-color);
-  border: var(--bs-border-width) solid var(--bs-border-color);
-}
-
-.dropdown :global(.dropdown-item) {
-  color: var(--bs-body-color);
-}
-
-.dropdown :global(.dropdown-item:hover),
-.dropdown :global(.dropdown-item:focus) {
-  background-color: var(--bs-dropdown-link-hover-bg, var(--bs-secondary-bg));
-  color: var(--bs-body-color);
-}
-
-/* Points Bootstrap's own popover variables at the app's body theme instead
-   of redeclaring background/border/arrow colors by hand - Popover's own CSS
-   already reads these tokens, this just repoints them. */
 .popover {
-  --bs-popover-bg: var(--bs-body-bg);
-  --bs-popover-border-color: var(--bs-border-color);
-  --bs-popover-header-bg: var(--bs-body-bg);
-  --bs-popover-header-color: var(--bs-body-color);
-  --bs-popover-body-color: var(--bs-body-color);
+  --bs-popover-bg: var(--aa-color-body);
+  --bs-popover-border-color: var(--aa-border-light);
+  --bs-popover-body-color: var(--aa-text-primary);
+  background-color: var(--aa-color-body);
+  border: 1px solid var(--aa-border-light);
+  border-radius: 6px;
+  box-shadow: var(--aa-shadow);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  z-index: 1050;
 }

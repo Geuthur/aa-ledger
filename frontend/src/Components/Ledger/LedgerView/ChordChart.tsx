@@ -7,13 +7,14 @@ import type { Chord, ChordGroup, ChordSubgroup, Chords } from "d3-chord";
 import { schemeTableau10 } from "d3-scale-chromatic";
 import { arc } from "d3-shape";
 import { Eye, EyeOff, Info } from "lucide-react";
+import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { BillboardData } from "@/Api/schema";
-import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import { useAnimationProgress, prefersReducedMotion } from "@/Hooks/useAnimationProgress";
 import { buildChordMatrix } from "@/Utils/billboard";
-import { formatIsk } from "@/Utils/ledger";
+import { renderTooltip } from "@/Utils/bootsTrap";
+import { formatIsk } from "@/Utils/format";
 
 const SIZE = 560;
 const LABEL_SPACE = 110;
@@ -275,9 +276,9 @@ function ChordChart({ billboard, title }: ChordChartProps) {
           );
         })}
         {hidden.length > 0 && (
-          <button type="button" className="aa-btn aa-btn-secondary aa-btn-sm" onClick={() => setHidden([])}>
+          <Button variant="secondary" size="sm" onClick={() => setHidden([])}>
             {t("Show all")}
-          </button>
+          </Button>
         )}
       </div>
 

@@ -5,13 +5,15 @@ import { useMemo, useState } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CircleHelp, Info } from "lucide-react";
+import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { Section } from "@/Api/schema";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import MembersModal from "@/Components/Ledger/LedgerView/MembersModal";
-import { amountClass, formatIsk } from "@/Utils/ledger";
+import { renderTooltip } from "@/Utils/bootsTrap";
+import { formatIsk } from "@/Utils/format";
+import { amountClass } from "@/Utils/ledger";
 import type { LedgerRow } from "@/Utils/ledger";
 
 const columnHelper = createColumnHelper<LedgerRow>();
@@ -118,14 +120,15 @@ function LedgerTable({
         cell: ({ row }) =>
           renderTooltip(
             t("View Details"),
-            <button
+            <Button
               type="button"
-              className="aa-btn aa-btn-primary aa-btn-sm"
+              variant="primary"
+              size="sm"
               aria-label={t("View Details")}
               onClick={() => onDetails(row.original.id, "single")}
             >
               <Info size={14} />
-            </button>,
+            </Button>,
           ),
       }),
     ] as ColumnDef<LedgerRow, unknown>[];

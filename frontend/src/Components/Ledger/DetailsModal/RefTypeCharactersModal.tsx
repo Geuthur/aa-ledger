@@ -9,7 +9,8 @@ import { useTranslation } from "react-i18next";
 import type { CharacterRefTypeSchema, RefTypeAmountSchema } from "@/Api/schema";
 import BaseModal from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { amountClass, formatIsk } from "@/Utils/ledger";
+import { formatIsk } from "@/Utils/format";
+import { amountClass } from "@/Utils/ledger";
 import { formatRefType } from "@/Utils/refTypes";
 
 const columnHelper = createColumnHelper<CharacterRefTypeSchema>();
@@ -83,29 +84,28 @@ function RefTypeCharactersModal({ refType, onHide }: RefTypeCharactersModalProps
       onHide={onHide}
       onExited={() => setSearch("")}
     >
-        <div className="aa-panel">
-          {characterCount > 5 && (
-            <input
-              type="search"
-              className="lg-select lg-input mb-3 w-100"
-              placeholder={t("Search character")}
-              aria-label={t("Search character")}
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          )}
-          <BaseTable
-            variant="vowra-light"
-            columns={columns}
-            data={rows}
-            emptyText={t("No characters")}
-            initialState={{ sorting: [{ id: "amount", desc: true }] }}
+      <div>
+        {characterCount > 5 && (
+          <input
+            type="search"
+            className="lg-select lg-input mb-3 w-100"
+            placeholder={t("Search character")}
+            aria-label={t("Search character")}
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
           />
-          <div className="d-flex justify-content-end gap-2 fw-bold mt-2">
-            <span>{t("Total")}</span>
-            <span className={amountClass(shownTotal)}>{formatIsk(shownTotal)}</span>
-          </div>
+        )}
+        <BaseTable
+          columns={columns}
+          data={rows}
+          emptyText={t("No characters")}
+          initialState={{ sorting: [{ id: "amount", desc: true }] }}
+        />
+        <div className="d-flex justify-content-end gap-2 fw-bold mt-2">
+          <span>{t("Total")}</span>
+          <span className={amountClass(shownTotal)}>{formatIsk(shownTotal)}</span>
         </div>
+      </div>
     </BaseModal>
   );
 }

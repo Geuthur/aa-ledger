@@ -1,6 +1,6 @@
 
 // React
-import { Outlet } from "react-router";
+import { Outlet } from "react-router-dom";
 
 // Third Party
 import { Col } from "react-bootstrap";
@@ -18,7 +18,7 @@ const AuthBase = () => {
       <AuthLeftMenuAsync />
       <AuthRightMenuAsync />
       <Col>
-        <div className="aa-section mt-4">
+        <div className="aa-react container mt-4">
           <ErrorBoundary>
             <Outlet /> {/* Render the Children here */}
           </ErrorBoundary>

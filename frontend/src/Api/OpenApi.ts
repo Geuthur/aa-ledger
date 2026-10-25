@@ -56,6 +56,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ledger/api/settings/owners/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all owners manageable by the user for Settings */
+        get: operations["ledger_api_general_get_settings_owners"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ledger/api/settings/owners/{owner_type}/{owner_id}/unregistered/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List members or corporations that are not registered in Ledger */
+        get: operations["ledger_api_general_get_settings_owner_unregistered"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ledger/api/settings/owners/update-all/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger update for all user-owned characters and user-added corporations */
+        post: operations["ledger_api_general_trigger_update_all_settings_owners"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ledger/api/settings/owners/{owner_type}/{owner_id}/update/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger update for a single owner from settings */
+        post: operations["ledger_api_general_trigger_settings_owner_update"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ledger/api/settings/owners/{owner_type}/{owner_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete an owner from settings */
+        delete: operations["ledger_api_general_delete_settings_owner"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ledger/api/admin/update/": {
         parameters: {
             query?: never;
@@ -67,6 +152,23 @@ export interface paths {
         put?: never;
         /** Queue an update for one or all characters/corporations */
         post: operations["ledger_api_general_queue_update"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ledger/api/overview/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get unified overview of all owners (characters, corporations, alliances) visible to user */
+        get: operations["ledger_api_overview_get_overview"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -141,15 +243,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ledger/api/character/{character_id}/administration/": {
+    "/ledger/api/administration/owners/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get the registered and missing characters of an account */
-        get: operations["ledger_api_administration_get_character_administration"];
+        /** List all character and corporation owners for administration */
+        get: operations["ledger_api_administration_get_administration_owners"];
         put?: never;
         post?: never;
         delete?: never;
@@ -158,7 +260,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ledger/api/character/{character_id}/update/": {
+    "/ledger/api/administration/owners/{owner_type}/{owner_id}/update/": {
         parameters: {
             query?: never;
             header?: never;
@@ -167,49 +269,15 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Queue an update for all characters of the user owning this character */
-        post: operations["ledger_api_administration_trigger_character_update"];
+        /** Queue update for a character or corporation owner */
+        post: operations["ledger_api_administration_trigger_administration_owner_update"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/ledger/api/character/{character_id}/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Remove a character from the ledger */
-        delete: operations["ledger_api_administration_delete_character"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ledger/api/corporation/{corporation_id}/administration/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the registration and members of a corporation */
-        get: operations["ledger_api_administration_get_corporation_administration"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ledger/api/corporation/{corporation_id}/": {
+    "/ledger/api/administration/owners/{owner_type}/{owner_id}/": {
         parameters: {
             query?: never;
             header?: never;
@@ -219,22 +287,22 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Remove a corporation from the ledger */
-        delete: operations["ledger_api_administration_delete_corporation"];
+        /** Delete a character or corporation owner from ledger */
+        delete: operations["ledger_api_administration_delete_administration_owner"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/ledger/api/alliance/{alliance_id}/administration/": {
+    "/ledger/api/administration/owners/{owner_type}/{owner_id}/inspect/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get the registered and missing corporations of an alliance */
-        get: operations["ledger_api_administration_get_alliance_administration"];
+        /** Inspect an owner administration view */
+        get: operations["ledger_api_administration_inspect_administration_owner"];
         put?: never;
         post?: never;
         delete?: never;
@@ -416,6 +484,11 @@ export interface components {
              * @default false
              */
             is_external: boolean;
+            /**
+             * Has Errors
+             * @default false
+             */
+            has_errors: boolean;
         };
         /** MenuSchema */
         MenuSchema: {
@@ -472,10 +545,10 @@ export interface components {
             /** Portrait */
             portrait?: string | null;
             /**
-             * Is Admin
+             * Is Superuser
              * @default false
              */
-            is_admin: boolean;
+            is_superuser: boolean;
             /**
              * Can Manage
              * @default false
@@ -503,6 +576,119 @@ export interface components {
             /** Disable Notifications */
             disable_notifications: boolean;
         };
+        /** SettingsMissingOwnerSchema */
+        SettingsMissingOwnerSchema: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /**
+             * Owner Type
+             * @default character
+             * @enum {string}
+             */
+            owner_type: "character" | "corporation" | "alliance";
+            /** Avatar Url */
+            avatar_url?: string | null;
+            /** Subtitle */
+            subtitle?: string | null;
+        };
+        /** SettingsOwnerSchema */
+        SettingsOwnerSchema: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /**
+             * Owner Type
+             * @enum {string}
+             */
+            owner_type: "character" | "corporation" | "alliance";
+            /** Avatar Url */
+            avatar_url?: string | null;
+            /** Subtitle */
+            subtitle?: string | null;
+            /**
+             * Status
+             * @default ok
+             */
+            status: string;
+            /**
+             * Has Error
+             * @default false
+             */
+            has_error: boolean;
+            /** Error Message */
+            error_message?: string | null;
+            /** Last Sync */
+            last_sync?: string | null;
+            /**
+             * Sections
+             * @default []
+             */
+            sections: components["schemas"]["SettingsOwnerSectionSchema"][];
+        };
+        /** SettingsOwnerSectionSchema */
+        SettingsOwnerSectionSchema: {
+            /** Section */
+            section: string;
+            /** Section Name */
+            section_name: string;
+            /** Is Success */
+            is_success?: boolean | null;
+            /**
+             * Has Token Error
+             * @default false
+             */
+            has_token_error: boolean;
+            /** Error Message */
+            error_message?: string | null;
+            /** Last Run At */
+            last_run_at?: string | null;
+            /** Last Run Finished At */
+            last_run_finished_at?: string | null;
+        };
+        /** SettingsOwnersResponse */
+        SettingsOwnersResponse: {
+            /**
+             * Registered
+             * @default []
+             */
+            registered: components["schemas"]["SettingsOwnerSchema"][];
+            /**
+             * Missing
+             * @default []
+             */
+            missing: components["schemas"]["SettingsMissingOwnerSchema"][];
+            /**
+             * Can Update
+             * @default true
+             */
+            can_update: boolean;
+            /**
+             * Cooldown Seconds
+             * @default 0
+             */
+            cooldown_seconds: number;
+        };
+        /**
+         * SettingsUnregisteredResponse
+         * @description Members (corporation) or corporations (alliance) that are not registered in Ledger.
+         */
+        SettingsUnregisteredResponse: {
+            /**
+             * Owner Type
+             * @enum {string}
+             */
+            owner_type: "corporation" | "alliance";
+            /** Owner Id */
+            owner_id: number;
+            /**
+             * Items
+             * @default []
+             */
+            items: components["schemas"]["SettingsMissingOwnerSchema"][];
+        };
         /**
          * MessageSchema
          * @description Schema for simple success responses.
@@ -529,6 +715,49 @@ export interface components {
              */
             force_refresh: boolean;
         };
+        /** LedgerOverviewOwnerSchema */
+        LedgerOverviewOwnerSchema: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "character" | "corporation" | "alliance";
+            /** Type Display */
+            type_display: string;
+            /** Portrait Url */
+            portrait_url?: string | null;
+            /** Subtitle */
+            subtitle?: string | null;
+            /**
+             * Active
+             * @default true
+             */
+            active: boolean;
+            /**
+             * Has Planetary
+             * @default false
+             */
+            has_planetary: boolean;
+            /**
+             * Can Manage
+             * @default false
+             */
+            can_manage: boolean;
+            /**
+             * Has Errors
+             * @default false
+             */
+            has_errors: boolean;
+        };
+        /** LedgerOverviewResponse */
+        LedgerOverviewResponse: {
+            /** Owners */
+            owners: components["schemas"]["LedgerOverviewOwnerSchema"][];
+        };
         /** CharacterOverview */
         CharacterOverview: {
             /** Character Id */
@@ -553,6 +782,82 @@ export interface components {
             alliance_id: number;
             /** Alliance Name */
             alliance_name: string;
+        };
+        /**
+         * AdministrationOwnerSchema
+         * @description Schema for the administration owners overview in aa-ledger.
+         */
+        AdministrationOwnerSchema: {
+            /** Id */
+            id: number;
+            /** Owner Id */
+            owner_id: number;
+            /**
+             * Owner Type
+             * @enum {string}
+             */
+            owner_type: "character" | "corporation" | "alliance";
+            /** Name */
+            name: string;
+            /** Icon */
+            icon?: string | null;
+            /** Ticker */
+            ticker?: string | null;
+            /** User Id */
+            user_id?: number | null;
+            /** User Name */
+            user_name?: string | null;
+            /**
+             * Status
+             * @default ok
+             */
+            status: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /** Last Sync */
+            last_sync?: string | null;
+            /** Error Message */
+            error_message?: string | null;
+            /**
+             * Alts
+             * @default []
+             */
+            alts: components["schemas"]["AltSchema"][];
+            /** Unregistered Count */
+            unregistered_count?: number | null;
+        };
+        /**
+         * AltSchema
+         * @description Alt character that is included in an entity's ledger.
+         */
+        AltSchema: {
+            /** Character Id */
+            character_id: number;
+            /** Character Name */
+            character_name: string;
+            /** Icon */
+            icon?: string | null;
+            /** Ticker */
+            ticker?: string | null;
+            /**
+             * Is Registered
+             * @default false
+             */
+            is_registered: boolean;
+        };
+        /**
+         * AdministrationOwnerUpdateRequest
+         * @description Request to update a single owner.
+         */
+        AdministrationOwnerUpdateRequest: {
+            /**
+             * Force Refresh
+             * @default false
+             */
+            force_refresh: boolean;
         };
         /**
          * AdminOwnerSchema
@@ -641,23 +946,6 @@ export interface components {
              * @default 0
              */
             cooldown_seconds: number;
-        };
-        /**
-         * AltSchema
-         * @description Alt character that is included in an entity's ledger.
-         */
-        AltSchema: {
-            /** Character Id */
-            character_id: number;
-            /** Character Name */
-            character_name: string;
-            /** Icon */
-            icon?: string | null;
-            /**
-             * Is Registered
-             * @default false
-             */
-            is_registered: boolean;
         };
         /**
          * DashboardSchema
@@ -1070,6 +1358,8 @@ export interface components {
             character_name: string;
             /** Icon */
             icon?: string | null;
+            /** Ticker */
+            ticker?: string | null;
             /**
              * Is Registered
              * @default false
@@ -1366,6 +1656,205 @@ export interface operations {
             };
         };
     };
+    ledger_api_general_get_settings_owners: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsOwnersResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    ledger_api_general_get_settings_owner_unregistered: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                owner_type: string;
+                owner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsUnregisteredResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    ledger_api_general_trigger_update_all_settings_owners: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageSchema"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    ledger_api_general_trigger_settings_owner_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                owner_type: string;
+                owner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageSchema"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    ledger_api_general_delete_settings_owner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                owner_type: string;
+                owner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageSchema"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
     ledger_api_general_queue_update: {
         parameters: {
             query?: never;
@@ -1399,6 +1888,35 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    ledger_api_overview_get_overview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LedgerOverviewResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1488,13 +2006,11 @@ export interface operations {
             };
         };
     };
-    ledger_api_administration_get_character_administration: {
+    ledger_api_administration_get_administration_owners: {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                character_id: number;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -1505,7 +2021,43 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AdministrationResponse"];
+                    "application/json": components["schemas"]["AdministrationOwnerSchema"][];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    ledger_api_administration_trigger_administration_owner_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                owner_type: "character" | "corporation";
+                owner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdministrationOwnerUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageSchema"];
                 };
             };
             /** @description Forbidden */
@@ -1526,23 +2078,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorSchema"];
                 };
             };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
         };
     };
-    ledger_api_administration_trigger_character_update: {
+    ledger_api_administration_delete_administration_owner: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                character_id: number;
+                owner_type: "character" | "corporation";
+                owner_id: number;
             };
             cookie?: never;
         };
@@ -1575,72 +2119,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorSchema"];
                 };
             };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
         };
     };
-    ledger_api_administration_delete_character: {
+    ledger_api_administration_inspect_administration_owner: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                character_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MessageSchema"];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-        };
-    };
-    ledger_api_administration_get_corporation_administration: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                corporation_id: number;
+                owner_type: "character" | "corporation";
+                owner_id: number;
             };
             cookie?: never;
         };
@@ -1666,113 +2153,6 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-        };
-    };
-    ledger_api_administration_delete_corporation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                corporation_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MessageSchema"];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-        };
-    };
-    ledger_api_administration_get_alliance_administration: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                alliance_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdministrationResponse"];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
                 headers: {
                     [name: string]: unknown;
                 };

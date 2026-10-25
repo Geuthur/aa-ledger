@@ -1,8 +1,10 @@
 // React
-import { Link, useParams } from "react-router";
+import { Link, useParams } from "react-router-dom";
 
 // Third Party
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import { fetchCharacterDetails, fetchCharacterLedger } from "@/Api/ApiCalls";
@@ -13,9 +15,15 @@ import { useDateFilter } from "@/Hooks/useDateFilter";
 import { useDetailsState } from "@/Hooks/useLedgerState";
 import { characterRows } from "@/Utils/ledger";
 
-function CharacterLedger() {
+export interface CharacterLedgerProps {
+  characterIdOverride?: number;
+  onBack?: () => void;
+}
+
+function CharacterLedger({ characterIdOverride, onBack }: CharacterLedgerProps = {}) {
   const { t } = useTranslation();
-  const characterId = Number(useParams().characterId);
+  const params = useParams();
+  const characterId = characterIdOverride ?? Number(params.characterId);
   const { filters } = useDateFilter();
   const { entityId, section, openDetails, closeDetails } = useDetailsState();
 
@@ -38,25 +46,24 @@ function CharacterLedger() {
       error={error}
       filterExtras={
         <>
-          <Link className="aa-btn aa-btn-secondary" to="/ledger/character/">
-            {t("Overview")}
-          </Link>
-          <Link
-            className={`aa-btn ${
-              data?.has_errors
-                ? "aa-btn-warning aa-btn-pulse"
-                : "aa-btn-secondary"
-            }`}
-            to={`/ledger/character/${characterId}/administration/`}
-          >
-            {data?.has_errors && (
-              <span className="aa-pending-dot-container me-1">
-                <span className="aa-pending-dot-ping" />
-                <span className="aa-pending-dot-core" />
-              </span>
-            )}
-            {t("Administration")}
-          </Link>
+          {onBack ? (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={onBack}
+              className="d-flex align-items-center gap-1"
+              data-testid="back-to-administration-btn"
+            >
+              <ArrowLeft size={16} />
+              {t("Back to Administration Overview")}
+            </Button>
+          ) : (
+            <>
+              <Link className="btn btn-secondary" to="/ledger/">
+                {t("Overview")}
+              </Link>
+            </>
+          )}
         </>
       }
       onDetails={openDetails}

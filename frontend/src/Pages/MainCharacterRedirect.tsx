@@ -1,5 +1,5 @@
 // React
-import { Navigate } from "react-router";
+import { Navigate } from "react-router-dom";
 
 // Third Party
 import { useQuery } from "@tanstack/react-query";
@@ -24,7 +24,7 @@ function MainCharacterRedirect({ to }: MainCharacterRedirectProps) {
     staleTime: 5 * 60 * 1000,
   });
 
-  if (isLoading) return <FetchingLoader message={t("Loading...")} />;
+  if (isLoading) return <FetchingLoader message={t("Loading…")} />;
   if (error || !data || !data.user.character_id) {
     return (
       <ErrorLoader

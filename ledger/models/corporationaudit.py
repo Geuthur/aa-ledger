@@ -52,10 +52,6 @@ class CorporationOwner(UpdateManagerMixin, models.Model):
 
     class Meta:
         default_permissions = ()
-        permissions = (
-            ("corp_audit_manager", "Has Access to own Corporations."),
-            ("corp_audit_admin_manager", "Has access to all Corporations."),
-        )
 
     corporation_name = models.CharField(max_length=100, null=True, default=None)
 
@@ -100,6 +96,9 @@ class CorporationOwner(UpdateManagerMixin, models.Model):
         """Get the status of this corporation."""
         if self.active is False:
             return UpdateStatus.DISABLED
+
+        if hasattr(self, "total_update_status"):
+            return UpdateStatus(self.total_update_status)
 
         qs = CorporationOwner.objects.filter(pk=self.pk).annotate_total_update_status()
         total_update_status = list(qs.values_list("total_update_status", flat=True))[0]

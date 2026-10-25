@@ -9,7 +9,8 @@ import { useTranslation } from "react-i18next";
 import type { CategorySchema, RefTypeAmountSchema } from "@/Api/schema";
 import BaseModal from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { amountClass, formatIsk } from "@/Utils/ledger";
+import { formatIsk } from "@/Utils/format";
+import { amountClass } from "@/Utils/ledger";
 import { filterRefTypes, formatRefType } from "@/Utils/refTypes";
 
 const columnHelper = createColumnHelper<RefTypeAmountSchema>();
@@ -94,27 +95,26 @@ function RefTypesModal({
       onHide={onHide}
       onShow={() => setSearch(initialSearch)}
     >
-        <div className="aa-panel">
-          <input
-            type="search"
-            className="lg-select lg-input mb-3 w-100"
-            placeholder={t("Search reference type")}
-            aria-label={t("Search reference type")}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-          <BaseTable
-            variant="vowra-light"
-            columns={columns}
-            data={rows}
-            emptyText={t("No matching reference types")}
-            initialState={{ sorting: [{ id: "amount", desc: true }] }}
-          />
-          <div className="d-flex justify-content-end gap-2 fw-bold mt-2">
-            <span>{t("Total")}</span>
-            <span className={amountClass(shown)}>{formatIsk(shown)}</span>
-          </div>
+      <div>
+        <input
+          type="search"
+          className="lg-select lg-input mb-3 w-100"
+          placeholder={t("Search reference type")}
+          aria-label={t("Search reference type")}
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <BaseTable
+          columns={columns}
+          data={rows}
+          emptyText={t("No matching reference types")}
+          initialState={{ sorting: [{ id: "amount", desc: true }] }}
+        />
+        <div className="d-flex justify-content-end gap-2 fw-bold mt-2">
+          <span>{t("Total")}</span>
+          <span className={amountClass(shown)}>{formatIsk(shown)}</span>
         </div>
+      </div>
     </BaseModal>
   );
 }
