@@ -1,5 +1,5 @@
 // React
-import { Navigate } from "react-router";
+import { Navigate } from "react-router-dom";
 
 // Third Party
 import { useQuery } from "@tanstack/react-query";

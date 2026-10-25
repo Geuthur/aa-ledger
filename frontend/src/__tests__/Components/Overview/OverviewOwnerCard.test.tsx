@@ -1,5 +1,5 @@
 // React
-import { MemoryRouter } from "react-router";
+import { MemoryRouter } from "react-router-dom";
 
 // Third Party
 import { render, screen } from "@testing-library/react";

@@ -1,5 +1,5 @@
 // React
-import { Link, useParams } from "react-router";
+import { Link, useParams } from "react-router-dom";
 
 // Third Party
 import { keepPreviousData, useQuery } from "@tanstack/react-query";

@@ -1,6 +1,6 @@
 // React
 import type React from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 // Third Party
 import { BookOpen, Building2, Globe, Shield, User } from "lucide-react";
