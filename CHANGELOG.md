@@ -70,6 +70,7 @@ Section Order:
 - Replaced the remaining `is_superuser` checks in `General.has_delete_access` and the character/corporation audit managers with the permission system (`General.has_perm`); superusers keep full access.
 - Restricted cache bypass (`force_refresh`) for single-owner updates in the Administration view to superusers. Other managers receive `403 Forbidden`; the force refresh option is hidden for them in the UI. Global updates stay superuser-only.
 - Consolidated the frontend formatting helpers in `Utils/format.ts` (`formatNumber`, `formatCompactNumber`, `formatIsk`, `formatDate`, `formatRelativeTime`, `formatEta`) with a single `en` locale fallback; `renderTooltip` now lives only in `Utils/bootsTrap.tsx` and `renderHtml` in `Utils/general.tsx`.
+- Replaced `pook` with `pookx` in the test dependencies and removed the custom `httpx2` pook interceptor, which `pookx` now provides.
 
 ### Removed
 
