@@ -10,8 +10,7 @@ msgstr ""
 "POT-Creation-Date: 2026-02-05 12:37+0100\n"
 "PO-Revision-Date: 2026-02-05 12:17+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
-"Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
-"ledger/de/>\n"
+"Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-ledger/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -26,23 +25,15 @@ msgid "Force update selected corporations"
 msgstr "Update erzwingen für ausgewählte Corporations"
 
 #, python-brace-format
-msgid ""
-"Started force update for {count} corporation(s). Updates will run in the "
-"background."
-msgstr ""
-"Erzwinge Aktualisierung für {count} Charakter(e). Die Aktualisierung erfolgt "
-"im Hintergrund."
+msgid "Started force update for {count} corporation(s). Updates will run in the background."
+msgstr "Erzwinge Aktualisierung für {count} Charakter(e). Die Aktualisierung erfolgt im Hintergrund."
 
 msgid "Force update selected characters"
 msgstr "Aktualisierung erzwingen für ausgewählte Charaktere"
 
 #, python-brace-format
-msgid ""
-"Started force update for {count} character(s). Updates will run in the "
-"background."
-msgstr ""
-"Die erzwungene Aktualisierung für {count} Charaktere wurde gestartet. Die "
-"Aktualisierungen werden im Hintergrund ausgeführt."
+msgid "Started force update for {count} character(s). Updates will run in the background."
+msgstr "Die erzwungene Aktualisierung für {count} Charaktere wurde gestartet. Die Aktualisierungen werden im Hintergrund ausgeführt."
 
 msgid "Please re-register characters with issues"
 msgstr "Bitte registriere betroffene Charaktere erneut"
@@ -458,8 +449,7 @@ msgid "Accept Toggle Notification request"
 msgstr "Anfrage Benachrichtigung Umschalten akzeptieren"
 
 msgid "Are you sure you want to toggle notification for this planet?"
-msgstr ""
-"Möchten Sie wirklich die Benachrichtigungen für diesen Planeten deaktivieren?"
+msgstr "Möchten Sie wirklich die Benachrichtigungen für diesen Planeten deaktivieren?"
 
 msgid "Alliance Ledger Details"
 msgstr "Allianz Ledger Details"
@@ -473,13 +463,8 @@ msgstr "Corporation Ledger Details"
 msgid "Factory"
 msgstr "Fabrik"
 
-msgid ""
-"Note: Planetary information is only recalculated when the colony is viewed "
-"through the client. Information will not update until this criteria is met."
-msgstr ""
-"Hinweis: Die Planeteninformationen werden nur neu berechnet, wenn die "
-"Kolonie über den Client betrachtet wird. Die Informationen werden nicht "
-"aktualisiert, bis dieses Kriterium erfüllt ist."
+msgid "Note: Planetary information is only recalculated when the colony is viewed through the client. Information will not update until this criteria is met."
+msgstr "Hinweis: Die Planeteninformationen werden nur neu berechnet, wenn die Kolonie über den Client betrachtet wird. Die Informationen werden nicht aktualisiert, bis dieses Kriterium erfüllt ist."
 
 msgid "Add Character"
 msgstr "Charakter hinzufügen"
@@ -807,8 +792,7 @@ msgstr "Aktualisiere alle Charaktere wurde in Warteschlange eingereiht"
 
 #, python-brace-format
 msgid "Queued Update for Corporation: {corporation_name}"
-msgstr ""
-"Aktualisierung für Corporation in der Warteschlange: {corporation_name}"
+msgstr "Aktualisierung für Corporation in der Warteschlange: {corporation_name}"
 
 #, python-brace-format
 msgid "Corporation with ID {corporation_id} not found"
@@ -819,6 +803,35 @@ msgstr "Aktualisiere alle Corporationen wurde in Warteschlange eingereiht"
 
 msgid "Queued Clear All Cache"
 msgstr "In der Warteschlange Alle Cache löschen"
+
+msgid "Character not found."
+msgstr ""
+
+#, python-format
+msgid "Update is on cooldown. Please wait %(seconds)d seconds."
+msgstr ""
+
+msgid "Character update initiated successfully."
+msgstr ""
+
+#, python-format
+msgid "%(name)s successfully deleted"
+msgstr ""
+
+msgid "Corporation not found."
+msgstr ""
+
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgid "Superadmin"
+msgstr ""
+
+msgid "Queued Update for Character"
+msgstr ""
+
+msgid "Queued Update for Corporation"
+msgstr ""
 
 #~ msgid "Bounty Income"
 #~ msgstr "Einkünfte aus Kopfgeld"
