@@ -2,15 +2,15 @@
 import { Link, useParams } from "react-router-dom";
 
 // Third Party
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-import { fetchCorporationDetails, fetchCorporationLedger } from "@/Api/ApiCalls";
+import { fetchCorporationDetails } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
 import type { CorporationFilterParams } from "@/Api/schema";
 import DetailsModal from "@/Components/Ledger/DetailsModal";
+import { useCorporationLedger } from "@/Components/Ledger/Hooks";
 import LedgerView from "@/Components/Ledger/LedgerView";
 import { useDateFilter } from "@/Hooks/useDateFilter";
 import { useDetailsState, useDivisionFilter } from "@/Hooks/useLedgerState";
@@ -34,11 +34,7 @@ function CorporationLedger({ corporationIdOverride, onBack }: CorporationLedgerP
     ...(division !== null ? { division_id: division } : {}),
   };
 
-  const { data, isLoading, isFetching, error } = useQuery({
-    queryKey: queryKeys.CorporationLedger(corporationId, filters),
-    queryFn: () => fetchCorporationLedger(corporationId, filters),
-    placeholderData: keepPreviousData,
-  });
+  const { data, isLoading, isFetching, error } = useCorporationLedger(corporationId, filters);
 
   return (
     <LedgerView

@@ -2,14 +2,14 @@
 import { Link, useParams } from "react-router-dom";
 
 // Third Party
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-import { fetchCharacterDetails, fetchCharacterLedger } from "@/Api/ApiCalls";
+import { fetchCharacterDetails } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
 import DetailsModal from "@/Components/Ledger/DetailsModal";
+import { useCharacterLedger } from "@/Components/Ledger/Hooks";
 import LedgerView from "@/Components/Ledger/LedgerView";
 import { useDateFilter } from "@/Hooks/useDateFilter";
 import { useDetailsState } from "@/Hooks/useLedgerState";
@@ -27,11 +27,7 @@ function CharacterLedger({ characterIdOverride, onBack }: CharacterLedgerProps =
   const { filters } = useDateFilter();
   const { entityId, section, openDetails, closeDetails } = useDetailsState();
 
-  const { data, isLoading, isFetching, error } = useQuery({
-    queryKey: queryKeys.CharacterLedger(characterId, filters),
-    queryFn: () => fetchCharacterLedger(characterId, filters),
-    placeholderData: keepPreviousData,
-  });
+  const { data, isLoading, isFetching, error } = useCharacterLedger(characterId, filters);
 
   return (
     <LedgerView

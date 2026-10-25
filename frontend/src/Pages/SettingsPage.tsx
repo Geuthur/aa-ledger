@@ -16,11 +16,11 @@ import {
     BaseOwnerSettingsSection,
     UnregisteredModal,
     BaseUserSettingsCard,
+    useUnregistered,
 } from "@/Components/Base/BaseSettings";
 import {
     useSettingsOwnerActions,
     useSettingsOwners,
-    useSettingsUnregistered,
     useUserSettings,
 } from "@/Components/Settings/Hooks";
 
@@ -39,7 +39,7 @@ export const SettingsPage: React.FC = () => {
         data: unregisteredData,
         isLoading: isLoadingUnregistered,
         isError: isErrorUnregistered,
-    } = useSettingsUnregistered(unregisteredOwner);
+    } = useUnregistered(unregisteredOwner?.owner_type ?? null, unregisteredOwner?.id ?? null);
     const actions = useSettingsOwnerActions(
         ownersData?.registered,
         ownersData?.cooldown_seconds ?? 0,

@@ -2,20 +2,18 @@
 import { useMemo } from "react";
 
 // Third Party
-import { useQuery } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-import { fetchPlanetDetails } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
-import { queryKeys } from "@/Api/query";
 import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 import ExtractorProgress from "@/Components/Planetary/ExtractorProgress";
+import { usePlanetDetails } from "@/Components/Planetary/Hooks";
 import { formatDate, formatNumber } from "@/Utils/format";
 
 type Product = components["schemas"]["ProductSchema"];
@@ -53,11 +51,7 @@ function PlanetModal({ ownerId, planetId, onHide }: PlanetModalProps) {
   const { t } = useTranslation();
   const open = ownerId !== null && planetId !== null;
 
-  const { data, isFetching, error } = useQuery({
-    queryKey: queryKeys.PlanetDetails(ownerId ?? 0, planetId ?? 0),
-    queryFn: () => fetchPlanetDetails(ownerId ?? 0, planetId ?? 0),
-    enabled: open,
-  });
+  const { data, isFetching, error } = usePlanetDetails(ownerId, planetId);
 
   const extractorColumns = useMemo(
     () =>

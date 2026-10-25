@@ -8,11 +8,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deleteAdministrationOwner,
   loadAdministrationOwners,
-  loadUserData,
   queueUpdate,
   triggerAdministrationOwnerUpdate,
 } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
+import { useUserData } from "@/Hooks/useUserData";
 
 export interface TaskFeedback {
   variant: "success" | "danger";
@@ -29,10 +29,7 @@ export function useAdministrationOwners() {
 
 /** Tells whether the current user is a superuser (global update tasks, force refresh). */
 export function useIsSuperuser() {
-  const { data } = useQuery({
-    queryKey: queryKeys.User,
-    queryFn: loadUserData,
-  });
+  const { data } = useUserData();
   return data?.user.is_superuser ?? false;
 }
 

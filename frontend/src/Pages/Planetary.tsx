@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
 // Third Party
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Bell, BellOff, Info } from "lucide-react";
@@ -11,14 +10,13 @@ import { parseAsInteger, useQueryStates } from "nuqs";
 import { Button, Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-import { fetchPlanets, togglePlanetNotification } from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
 import type { PlanetaryDetails } from "@/Api/schema";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 import ExtractorProgress from "@/Components/Planetary/ExtractorProgress";
+import { usePlanets, useTogglePlanetNotification } from "@/Components/Planetary/Hooks";
 import PlanetModal from "@/Components/Planetary/PlanetModal";
 import { renderTooltip } from "@/Utils/bootsTrap";
 import { formatRelativeTime } from "@/Utils/format";
@@ -27,7 +25,6 @@ const columnHelper = createColumnHelper<PlanetaryDetails>();
 
 function Planetary() {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const characterId = Number(useParams().characterId);
 
   // The planet of the open modal; the owner is needed because alts are listed too.
@@ -36,17 +33,8 @@ function Planetary() {
     owner: parseAsInteger,
   });
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: queryKeys.Planets(characterId),
-    queryFn: () => fetchPlanets(characterId),
-  });
-
-  const toggle = useMutation({
-    mutationFn: ({ ownerId, planetId }: { ownerId: number; planetId?: number }) =>
-      togglePlanetNotification(ownerId, planetId),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.Planets(characterId) }),
-  });
+  const { data, isLoading, error } = usePlanets(characterId);
+  const toggle = useTogglePlanetNotification(characterId);
 
   const columns = useMemo(
     () =>

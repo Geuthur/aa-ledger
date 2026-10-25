@@ -2,7 +2,6 @@
 import React, { useMemo, useState } from "react";
 
 // Third Party
-import { useQuery } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, RefreshCw, Trash2 } from "lucide-react";
@@ -13,12 +12,11 @@ import { useTranslation } from "react-i18next";
 import styles from "@/Styles/modules/Administration.module.css";
 
 // AA Ledger
-import { loadSettingsUnregistered } from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
 import type { AdministrationOwnerSchema } from "@/Api/schema";
 import { AdministrationAltsModal } from "@/Components/Administration/AdministrationAltsModal";
 import { AdministrationErrorModal } from "@/Components/Administration/AdministrationErrorModal";
 import { UnregisteredModal } from "@/Components/Base/BaseSettings";
+import { useUnregistered } from "@/Components/Base/BaseSettings";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
@@ -56,20 +54,10 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
     data: unregisteredData,
     isLoading: isLoadingUnregistered,
     isError: isErrorUnregistered,
-  } = useQuery({
-    queryKey: selectedUnregisteredOwner
-      ? queryKeys.SettingsUnregistered(
-          selectedUnregisteredOwner.owner_type,
-          selectedUnregisteredOwner.owner_id,
-        )
-      : ["settings", "unregistered", "disabled"],
-    queryFn: () =>
-      loadSettingsUnregistered(
-        selectedUnregisteredOwner!.owner_type,
-        selectedUnregisteredOwner!.owner_id,
-      ),
-    enabled: Boolean(selectedUnregisteredOwner),
-  });
+  } = useUnregistered(
+    selectedUnregisteredOwner?.owner_type ?? null,
+    selectedUnregisteredOwner?.owner_id ?? null,
+  );
 
   const columns = useMemo<ColumnDef<AdministrationOwnerSchema, unknown>[]>(() => {
     const columnHelper = createColumnHelper<AdministrationOwnerSchema>();

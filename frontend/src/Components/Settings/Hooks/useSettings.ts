@@ -6,15 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
 // AA Ledger
-import {
-  deleteSettingsOwner,
-  loadSettingsOwners,
-  loadSettingsUnregistered,
-  loadUserSettings,
-  triggerSettingsOwnerUpdate,
-  triggerUpdateAllSettingsOwners,
-  updateUserSettings,
-} from "@/Api/ApiCalls";
+import { deleteSettingsOwner, loadSettingsOwners, loadUserSettings, triggerSettingsOwnerUpdate, triggerUpdateAllSettingsOwners, updateUserSettings } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
 import type { SettingsOwnerSchema, UserSettingsSchema } from "@/Api/schema";
 import { useCooldown, useOwnerCooldowns } from "@/Hooks/useCooldown";
@@ -57,15 +49,6 @@ export function useSettingsOwners() {
     queryFn: loadSettingsOwners,
     refetchInterval: 30000,
     refetchIntervalInBackground: false,
-  });
-}
-
-/** Loads the unregistered entries of the given owner (disabled while no owner is selected). */
-export function useSettingsUnregistered(owner: SettingsOwnerSchema | null) {
-  return useQuery({
-    queryKey: queryKeys.SettingsUnregistered(owner?.owner_type ?? "", owner?.id ?? 0),
-    queryFn: () => loadSettingsUnregistered(owner!.owner_type, owner!.id),
-    enabled: !!owner,
   });
 }
 

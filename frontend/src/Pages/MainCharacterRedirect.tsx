@@ -2,13 +2,11 @@
 import { Navigate } from "react-router-dom";
 
 // Third Party
-import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
-import { loadUserData } from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
+import { useUserData } from "@/Hooks/useUserData";
 
 export interface MainCharacterRedirectProps {
   /** Route of the main character, e.g. `character` for `/ledger/character/{id}/`. */
@@ -18,11 +16,7 @@ export interface MainCharacterRedirectProps {
 /** Sends the user to the page of their main character. */
 function MainCharacterRedirect({ to }: MainCharacterRedirectProps) {
   const { t } = useTranslation();
-  const { data, isLoading, error } = useQuery({
-    queryKey: queryKeys.User,
-    queryFn: loadUserData,
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data, isLoading, error } = useUserData();
 
   if (isLoading) return <FetchingLoader message={t("Loading…")} />;
   if (error || !data || !data.user.character_id) {
