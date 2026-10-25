@@ -153,11 +153,11 @@ describe("ChordChart", () => {
     fireEvent.click(screen.getByRole("button", { name: "Hide Alice" }));
 
     // Test Action
-    fireEvent.click(screen.getByRole("button", { name: "Show all" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show All" }));
 
     // Expected Result
     expect(ribbons(container)).toHaveLength(2);
-    expect(screen.queryByRole("button", { name: "Show all" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Show All" })).not.toBeInTheDocument();
   });
 
   it("lists the flows of a node with their share", () => {

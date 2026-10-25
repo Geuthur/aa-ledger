@@ -223,7 +223,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
 
       columnHelper.accessor("last_sync", {
         id: "last_sync",
-        header: t("Last Sync"),
+        header: t("Last sync"),
         cell: ({ row }) => {
           const owner = row.original;
           return owner.last_sync ? (
@@ -366,7 +366,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
           <BaseTable
             columns={columns}
             data={owners ?? []}
-            emptyText={t("No Owners found.")}
+            emptyText={t("No owners found.")}
             exportFileName="administration_owners.csv"
           />
         )}

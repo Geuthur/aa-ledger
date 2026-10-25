@@ -277,7 +277,7 @@ function ChordChart({ billboard, title }: ChordChartProps) {
         })}
         {hidden.length > 0 && (
           <Button variant="secondary" size="sm" onClick={() => setHidden([])}>
-            {t("Show all")}
+            {t("Show All")}
           </Button>
         )}
       </div>
