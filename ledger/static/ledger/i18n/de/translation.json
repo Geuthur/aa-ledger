@@ -292,5 +292,11 @@
   "The ESI token is invalid or expired. Re-add the character or corporation.": "Das ESI-Token ist ungültig oder abgelaufen. Füge den Charakter oder die Corporation erneut hinzu.",
   "No error message available.": "Keine Fehlermeldung verfügbar.",
   "Error details of {{name}}": "Fehlerdetails von {{name}}",
-  "Show error details of {{name}}": "Fehlerdetails von {{name}} anzeigen"
+  "Show error details of {{name}}": "Fehlerdetails von {{name}} anzeigen",
+  "Saving...": "Speichern...",
+  "Loading...": "Lädt...",
+  "Loading user settings...": "Benutzereinstellungen werden geladen...",
+  "Loading ledger...": "Ledger wird geladen...",
+  "Loading planets...": "Planeten werden geladen...",
+  "Loading settings...": "Einstellungen werden geladen..."
 }
