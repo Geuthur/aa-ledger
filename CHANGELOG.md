@@ -38,6 +38,10 @@ Section Order:
 - Both menus now share the same query options (5 minutes stale time, one retry, no refetch on window focus).
 - The portrait in the alts modal of the Administration is now 32 px instead of 28 px.
 
+### Removed
+
+- Active/Inactive status badge from the owner cards on the `OverviewPage`.
+
 <!-- Your changes go here -->
 
 ## [4.1.0] - 2026-10-25
