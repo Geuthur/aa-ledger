@@ -65,7 +65,7 @@ export function BaseOwnerCard<T extends BaseOwner = BaseOwner>({
     }
 
     return (
-      <span className={`${styles["status-badge"]} ${badgeClass}`}>
+      <span className={`${styles["status-badge"]} d-inline-flex align-items-center gap-1 px-2 py-1 fw-semibold text-capitalize ${badgeClass}`}>
         {(isError || isTokenError) && (
           <span className="aa-pending-dot-container me-1" aria-hidden="true">
             <span className={isTokenError ? "aa-danger-dot-ping" : "aa-pending-dot-ping"} />
@@ -90,8 +90,8 @@ export function BaseOwnerCard<T extends BaseOwner = BaseOwner>({
         : "bg-info text-white border-black";
 
   return (
-    <article className={`${styles["char-card"]} ${cardClass}`}>
-      <div className={styles["char-header"]}>
+    <article className={`${styles["char-card"]} d-flex flex-column gap-3 p-3 ${cardClass}`}>
+      <div className="d-flex align-items-center gap-3">
         <OwnerPortrait
           src={owner.avatar_url}
           alt={owner.name}
@@ -99,9 +99,9 @@ export function BaseOwnerCard<T extends BaseOwner = BaseOwner>({
           shape={type === "corporation" ? "rounded" : "circle"}
           bordered
         />
-        <div className={styles["char-info"]}>
+        <div className={`${styles["char-info"]} flex-grow-1`}>
           <div className="d-flex align-items-center justify-content-between gap-2">
-            <h3 className={styles["char-name"]} title={owner.name}>
+            <h3 className={`${styles["char-name"]} m-0 fs-6 fw-semibold text-truncate`} title={owner.name}>
               {owner.name}
             </h3>
             <span
@@ -111,18 +111,18 @@ export function BaseOwnerCard<T extends BaseOwner = BaseOwner>({
               {typeLabel}
             </span>
           </div>
-          {owner.subtitle && <p className={styles["char-corp"]}>{owner.subtitle}</p>}
+          {owner.subtitle && <p className={`${styles["char-corp"]} m-0 text-truncate`}>{owner.subtitle}</p>}
         </div>
       </div>
 
       {owner.error_message && (
-        <div className={styles["error-banner"]} role="alert">
+        <div className={`${styles["error-banner"]} px-2 py-1 text-break`} role="alert">
           {owner.error_message}
         </div>
       )}
 
       {owner.sections && owner.sections.length > 0 && (
-        <div className={styles["sections-list"]}>
+        <div className={`${styles["sections-list"]} d-flex flex-column gap-1 p-2`}>
           {owner.sections.map((sec) => {
             let dotClass = styles["dot-muted"];
             if (sec.is_success === true) dotClass = styles["dot-ok"];
@@ -130,9 +130,9 @@ export function BaseOwnerCard<T extends BaseOwner = BaseOwner>({
             if (sec.has_token_error) dotClass = styles["dot-error"];
 
             return (
-              <div key={sec.section} className={styles["section-item"]}>
+              <div key={sec.section} className={`${styles["section-item"]} d-flex align-items-center justify-content-between`}>
                 <span className="d-inline-flex align-items-center gap-2">
-                  <span className={`${styles["section-dot"]} ${dotClass}`} aria-hidden="true" />
+                  <span className={`${styles["section-dot"]} flex-shrink-0 rounded-circle ${dotClass}`} aria-hidden="true" />
                   <span>{sec.section_name}</span>
                 </span>
                 <span>
@@ -152,10 +152,10 @@ export function BaseOwnerCard<T extends BaseOwner = BaseOwner>({
 
       {renderCustomContent?.(owner)}
 
-      <div className={styles["badge-row"]}>
+      <div className={`${styles["badge-row"]} d-flex align-items-center justify-content-between gap-2 mt-auto pt-2`}>
         {renderStatusBadge()}
         <span
-          className={styles["last-sync"]}
+          className={`${styles["last-sync"]} d-inline-flex align-items-center gap-1`}
           title={owner.last_sync ? `${t("Last sync")}: ${owner.last_sync}` : undefined}
         >
           <Clock size={12} aria-hidden="true" />

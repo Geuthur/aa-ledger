@@ -1,10 +1,4 @@
-.searchwrapper {
-  position: relative;
-  width: 100%;
-}
-
 .searchinput {
-  width: 100%;
   padding: 4px 24px 4px 8px;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -32,27 +26,7 @@
   cursor: pointer;
 }
 
-.searchicon {
-  position: absolute;
-  right: 7px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 12px;
-  height: 12px;
-  color: var(--aa-text-muted);
-  pointer-events: none;
-}
-
 .clearbutton {
-  all: unset;
-  cursor: pointer;
-  position: absolute;
-  right: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 14px;
   height: 14px;
   color: var(--aa-text-muted);
@@ -66,8 +40,7 @@
 }
 
 .dropdown {
-  max-height: 250px !important;
-  overflow-y: auto;
+  max-height: 250px;
   background-color: var(--aa-color-body);
   color: var(--aa-text-primary);
   border: 1px solid var(--aa-border-light);
@@ -98,10 +71,6 @@
 .dropdown :global(.dropdown-item:active) {
   background-color: var(--aa-color-emerald);
   color: var(--aa-color-body-dark);
-}
-
-.capitalisewords {
-  text-transform: capitalize;
 }
 
 .popover {

@@ -138,22 +138,22 @@ export function BaseOwnerSettingsSection<
   };
 
   return (
-    <Card className={`${styles["section"]} border-0`}>
+    <Card className="mt-4 border-0">
       <Card.Body className="bg-dark text-light">
         <Card.Header
-          className={`${styles["section-header"]} bg-secondary d-flex justify-content-between align-items-center flex-wrap gap-2 rounded`}
+          className={`mb-3 bg-secondary d-flex justify-content-between align-items-center flex-wrap gap-2 rounded`}
         >
           <div>
-            <div className={styles["section-title-wrap"]}>
+            <div className={`${styles["section-title-wrap"]} d-flex align-items-center gap-2`}>
               {icon ?? <Users size={20} aria-hidden="true" />}
-              <h2 className={styles["section-title"]}>{title ?? t("Owner Status")}</h2>
+              <h2 className={`${styles["section-title"]} m-0 fs-5 fw-bold`}>{title ?? t("Owner Status")}</h2>
               {owners && (
-                <span className={styles["section-count"]}>
+                <span className={`${styles["section-count"]} small`}>
                   ({isFiltering ? `${filteredOwners.length} / ${owners.length}` : owners.length})
                 </span>
               )}
             </div>
-            <p className={`${styles["section-description"]} text-light`}>
+            <p className={`${styles["section-description"]} mt-1 mb-0 small w-100 text-light`}>
               {description ?? t("ESI synchronization status of your linked owners.")}
             </p>
           </div>
@@ -219,7 +219,7 @@ export function BaseOwnerSettingsSection<
 
         {!isLoading && !isError && !hasOwners && !hasMissing && (
           <Card className="bg-secondary text-light border-0 shadow-sm">
-            <Card.Body className={styles["empty-state"]}>
+            <Card.Body className={`${styles["empty-state"]} py-4 px-3 text-center small`}>
               {emptyMessage ?? t("Nothing to show.")}
             </Card.Body>
           </Card>
@@ -227,7 +227,7 @@ export function BaseOwnerSettingsSection<
 
         {!isLoading && !isError && (hasOwners || hasMissing) && !hasVisible && (
           <Card className="bg-secondary text-light border-0 shadow-sm">
-            <Card.Body className={styles["empty-state"]}>
+            <Card.Body className={`${styles["empty-state"]} py-4 px-3 text-center small`}>
               <p className="mb-2">{t("No matching owners found.")}</p>
               <Button variant="outline-light" size="sm" onClick={resetFilters}>
                 {t("Reset filters")}
@@ -237,7 +237,7 @@ export function BaseOwnerSettingsSection<
         )}
 
         {!isLoading && !isError && filteredOwners.length > 0 && (
-          <div className={styles["characters-grid"]}>
+          <div className={`${styles["characters-grid"]} d-grid gap-3`}>
             {filteredOwners.map((owner) => (
               <BaseOwnerCard<T>
                 key={`${owner.owner_type ?? "owner"}-${owner.id}`}
@@ -261,25 +261,25 @@ export function BaseOwnerSettingsSection<
 
         {!isLoading && !isError && filteredMissing.length > 0 && (
           <>
-            <Card.Header className={`mt-4 mb-2 rounded ${styles["section-title-wrap"]}`}>
+            <Card.Header className={`mt-4 mb-2 rounded d-flex align-items-center gap-2 ${styles["section-title-wrap"]}`}>
               <div>
-                <div className={styles["section-title-wrap"]}>
+                <div className={`${styles["section-title-wrap"]} d-flex align-items-center gap-2`}>
                   <UserRoundXIcon size={20} aria-hidden="true" />
-                  <h2 className={styles["section-title"]}>
+                  <h2 className={`${styles["section-title"]} m-0 fs-5 fw-bold`}>
                     {missingSectionTitle ?? t("Missing in {{app}}", { app: appName })}
                   </h2>
                   {filteredMissing.length > 0 && (
-                    <span className={styles["section-count"]}>
+                    <span className={`${styles["section-count"]} small`}>
                       ({filteredMissing.length})
                     </span>
                   )}
                 </div>
-                <p className={`${styles["section-description"]} text-light`}>
+                <p className={`${styles["section-description"]} mt-1 mb-0 small w-100 text-light`}>
                   {t("The following characters belong to you but are not registered.")}
                 </p>
               </div>
             </Card.Header>
-            <div className={styles["characters-grid"]}>
+            <div className={`${styles["characters-grid"]} d-grid gap-3`}>
               {filteredMissing.map((missing) => (
                 <MissingOwnerCard
                   key={missing.id}

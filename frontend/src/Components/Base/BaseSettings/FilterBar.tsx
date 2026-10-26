@@ -46,7 +46,7 @@ export function OwnerFilterBar({
   );
 
   return (
-    <div className={styles["filter-bar"]}>
+    <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
       <FilterButtonGroup
         options={visibleOptions}
         value={typeFilter}

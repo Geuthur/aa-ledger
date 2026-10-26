@@ -238,23 +238,23 @@ function ChordChart({ billboard, title }: ChordChartProps) {
         <p className="text-center text-muted my-5">{t("No flows to display")}</p>
       )}
 
-      <div className="lg-chord-legend">
+      <div className="d-flex flex-wrap align-items-center gap-2 mt-3">
         {full.names.map((name, index) => {
           const isHidden = hidden.includes(name);
           const toggleLabel = isHidden ? t("Show {{name}}", { name }) : t("Hide {{name}}", { name });
           const detailsLabel = t("Details for {{name}}", { name });
           return (
-            <span key={name} className="lg-chord-chip" data-hidden={isHidden}>
+            <span key={name} className="lg-chord-chip d-inline-flex align-items-center overflow-hidden" data-hidden={isHidden}>
               {renderTooltip(
                 toggleLabel,
                 <button
                   type="button"
-                  className="lg-chord-toggle"
+                  className="lg-chord-toggle d-inline-flex align-items-center gap-2 px-2 py-1"
                   aria-label={toggleLabel}
                   aria-pressed={!isHidden}
                   onClick={() => toggleHidden(name)}
                 >
-                  <span className="lg-chord-dot" style={{ background: color(index) }} />
+                  <span className="lg-chord-dot d-inline-block flex-shrink-0 rounded-circle" style={{ background: color(index) }} />
                   <span>{name}</span>
                   {isHidden ? <EyeOff size={12} /> : <Eye size={12} />}
                 </button>,
@@ -263,7 +263,7 @@ function ChordChart({ billboard, title }: ChordChartProps) {
                 detailsLabel,
                 <button
                   type="button"
-                  className="lg-chord-toggle"
+                  className="lg-chord-toggle d-inline-flex align-items-center gap-2 px-2 py-1"
                   aria-label={detailsLabel}
                   aria-pressed={selected === name}
                   onClick={() => toggleSelected(name)}
@@ -282,20 +282,20 @@ function ChordChart({ billboard, title }: ChordChartProps) {
       </div>
 
       {details && (
-        <div className="lg-chord-details" role="region" aria-label={t("Details for {{name}}", { name: selected })}>
+        <div className="lg-chord-details mt-3 px-3 py-2 small rounded" role="region" aria-label={t("Details for {{name}}", { name: selected })}>
           <div className="d-flex justify-content-between align-items-center mb-2">
             <strong>{selected}</strong>
             <span>{formatIsk(details.total)}</span>
           </div>
           <ul className="list-unstyled m-0">
             {details.flows.map((flow) => (
-              <li key={`${flow.outgoing}-${flow.other}`} className="lg-chord-flow">
-                <span className="lg-chord-dot" style={{ background: color(flow.other) }} />
+              <li key={`${flow.outgoing}-${flow.other}`} className="d-flex align-items-center gap-2 py-1">
+                <span className="lg-chord-dot d-inline-block flex-shrink-0 rounded-circle" style={{ background: color(flow.other) }} />
                 <span className="flex-grow-1">
                   {flow.outgoing ? `→ ${flow.name}` : `← ${flow.name}`}
                 </span>
                 <span>{formatIsk(flow.value)}</span>
-                <span className="text-muted lg-chord-share">
+                <span className="text-muted text-end lg-chord-share">
                   {((flow.value / details.total) * 100).toFixed(1)}%
                 </span>
               </li>

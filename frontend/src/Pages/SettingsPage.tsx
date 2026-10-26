@@ -65,14 +65,14 @@ export const SettingsPage: React.FC = () => {
     }
 
     return (
-        <Card className={`${styles["page"]} border-0`}>
+        <Card className={`${styles["page"]} mx-auto border-0`}>
             <Card.Body className="bg-dark-body">
                 {/* Page Header */}
-                <Card.Header className={styles["header"] + " bg-dark"}>
+                <Card.Header className="d-flex align-items-center gap-3 mb-4 bg-dark">
                     <Settings2 size={24} aria-hidden="true" color="royalblue" />
                     <div>
-                        <h1 className={styles["title"]}>{t("Settings")}</h1>
-                        <p className={styles["description"]}>
+                        <h1 className={`${styles["title"]} fs-4 fw-bold m-0`}>{t("Settings")}</h1>
+                        <p className={`${styles["description"]} small mt-1 mb-0`}>
                             {t("Manage your Ledger preferences.")}
                         </p>
                     </div>

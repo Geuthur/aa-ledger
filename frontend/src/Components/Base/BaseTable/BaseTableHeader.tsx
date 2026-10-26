@@ -36,14 +36,14 @@ function BaseHeader<TData>({ table, enableFilters = true }: TableHeaderProps<TDa
                     key={header.id}
                     colSpan={header.colSpan}
                     onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
-                    className={`aa-table-heading-cell ${canSort ? "aa-table-sortable" : ""} ${
-                      isRight ? "text-end aa-table-cell-right" : ""
+                    className={`aa-table-heading-cell ${canSort ? "aa-table-sortable user-select-none" : ""} ${
+                      isRight ? "text-end" : ""
                     }`}
                   >
                     {header.isPlaceholder ? null : (
                       <div
-                        className={`aa-table-heading ${
-                          isRight ? "aa-table-heading-right justify-content-end" : ""
+                        className={`d-flex align-items-center gap-2 ${
+                          isRight ? "justify-content-end text-end" : ""
                         }`}
                       >
                         {flexRender(header.column.columnDef.header, header.getContext())}
@@ -70,7 +70,7 @@ function BaseHeader<TData>({ table, enableFilters = true }: TableHeaderProps<TDa
                   <th
                     key={`${header.id}-filter`}
                     colSpan={header.colSpan}
-                    className="aa-table-filter-cell"
+                    className="aa-table-filter-cell px-3 py-1"
                   >
                     {header.column.getCanFilter() ? (
                       <Filter column={header.column} table={table} />

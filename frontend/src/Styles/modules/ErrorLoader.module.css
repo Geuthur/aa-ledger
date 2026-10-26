@@ -7,19 +7,8 @@
     80% { transform: translateX(4px); }
 }
 
-.br-shake {
-    animation: br-shake 320ms ease-in-out 1;
-}
-
 .shake {
     animation: br-shake 320ms ease-in-out infinite;
-}
-
-.flex-container-error {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 }
 
 .icon-96 {
