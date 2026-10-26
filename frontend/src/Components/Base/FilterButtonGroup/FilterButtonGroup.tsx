@@ -28,31 +28,33 @@ export function FilterButtonGroup<T extends string = string>({
   ariaLabel,
 }: FilterButtonGroupProps<T>) {
   return (
-    <ButtonGroup size="sm" aria-label={ariaLabel} className="border border-black">
-      {options.map((option) => {
-        const isActive = value === option.value;
-        return (
-          <Button
-            key={option.value}
-            variant={isActive ? "primary" : "secondary"}
-            aria-pressed={isActive}
-            className="d-inline-flex align-items-center gap-1"
-            onClick={() => onChange(option.value)}
-          >
-            {option.icon}
-            {option.label}
-            {option.count !== undefined && (
-              <>
-                {" "}
-                <Badge bg="secondary" className="ms-1">
-                  {option.count}
-                </Badge>
-              </>
-            )}
-          </Button>
-        );
-      })}
-    </ButtonGroup>
+    <div className="mw-100 overflow-x-auto">
+      <ButtonGroup size="sm" aria-label={ariaLabel} className="border border-black">
+        {options.map((option) => {
+          const isActive = value === option.value;
+          return (
+            <Button
+              key={option.value}
+              variant={isActive ? "primary" : "secondary"}
+              aria-pressed={isActive}
+              className="d-inline-flex align-items-center gap-1"
+              onClick={() => onChange(option.value)}
+            >
+              {option.icon}
+              {option.label}
+              {option.count !== undefined && (
+                <>
+                  {" "}
+                  <Badge bg="secondary" className="ms-1">
+                    {option.count}
+                  </Badge>
+                </>
+              )}
+            </Button>
+          );
+        })}
+      </ButtonGroup>
+    </div>
   );
 }
 
