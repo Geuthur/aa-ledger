@@ -41,10 +41,14 @@ Section Order:
 - The owner type filters of the Overview, Administration and Settings now share one component and show their counters as badges.
 - Both menus now share the same query options (5 minutes stale time, one retry, no refetch on window focus).
 - The portrait in the alts modal of the Administration is now 32 px instead of 28 px.
+- Layout-only CSS of the tables, settings page, owner cards, loaders and chord chart replaced by Bootstrap 5 utility classes; the table footer is now stacked on wide screens as well.
+- The clear buttons of the table filters share one `ClearButton` component.
+- The `!important` flags of the button hover overrides were dropped.
 
 ### Removed
 
 - Active/Inactive status badge from the owner cards on the `OverviewPage`.
+- Unused CSS classes, theme variables and keyframes (status indicator, link, `aa-bg-*` and others) and the unused `BaseModalQuery` component.
 
 <!-- Your changes go here -->
 

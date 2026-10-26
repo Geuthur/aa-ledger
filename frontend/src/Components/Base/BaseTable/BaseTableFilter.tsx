@@ -1,5 +1,5 @@
 // React
-import { useState } from "react";
+import { useState, type MouseEventHandler } from "react";
 
 // Third Party
 import type { Column, Table as ReactTable } from "@tanstack/react-table";
@@ -22,6 +22,24 @@ declare module "@tanstack/react-table" {
     align?: "left" | "right" | "center";
   }
 }
+
+const searchWrapperClass = "position-relative w-100";
+const searchIconClass = "position-absolute top-50 end-0 translate-middle-y me-2 pe-none text-muted";
+
+/** Small "x" button inside a filter field that clears the current value. */
+const ClearButton = ({ onClick }: { onClick: MouseEventHandler<HTMLButtonElement> }) => {
+  const { t } = useTranslation();
+  return (
+    <button
+      type="button"
+      className={`${Styles.clearbutton} position-absolute top-50 end-0 translate-middle-y me-1 d-flex align-items-center justify-content-center border-0 bg-transparent p-0`}
+      onClick={onClick}
+      title={t("Clear")}
+    >
+      <X size={12} />
+    </button>
+  );
+};
 
 const isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
 
@@ -91,7 +109,7 @@ export const NumberFilter = <TData,>({ column }: { column: Column<TData, unknown
 
   return (
     <OverlayTrigger trigger="click" placement="bottom" rootClose={true} overlay={popoverNumber}>
-      <div className={Styles.searchwrapper}>
+      <div className={searchWrapperClass}>
         <Form.Control
           size="sm"
           className={Styles.searchinput}
@@ -105,19 +123,12 @@ export const NumberFilter = <TData,>({ column }: { column: Column<TData, unknown
           }
         />
         {hasValue ? (
-          <button
-            type="button"
-            className={Styles.clearbutton}
-            onClick={(e) => {
+          <ClearButton onClick={(e) => {
               e.stopPropagation();
               column.setFilterValue(() => [undefined, undefined]);
-            }}
-            title={t("Clear")}
-          >
-            <X size={12} />
-          </button>
+            }} />
         ) : (
-          <SlidersHorizontal size={12} className={Styles.searchicon} />
+          <SlidersHorizontal size={12} className={searchIconClass} />
         )}
       </div>
     </OverlayTrigger>
@@ -136,7 +147,7 @@ export const BoolFilter = <TData,>({ column }: { column: Column<TData, unknown> 
       rootClose={true}
       overlay={
         <Dropdown show drop="down-centered">
-          <Dropdown.Menu className={Styles.dropdown}>
+          <Dropdown.Menu className={`overflow-y-auto ${Styles.dropdown}`}>
             <Dropdown.Item
               onClick={() => {
                 column.setFilterValue(true);
@@ -166,7 +177,7 @@ export const BoolFilter = <TData,>({ column }: { column: Column<TData, unknown> 
         </Dropdown>
       }
     >
-      <div className={Styles.searchwrapper}>
+      <div className={searchWrapperClass}>
         <Form.Control
           size="sm"
           className={Styles.searchinput}
@@ -176,19 +187,12 @@ export const BoolFilter = <TData,>({ column }: { column: Column<TData, unknown> 
           value={hasValue ? (passFail ? t("True") : t("False")) : ""}
         />
         {hasValue ? (
-          <button
-            type="button"
-            className={Styles.clearbutton}
-            onClick={(e) => {
+          <ClearButton onClick={(e) => {
               e.stopPropagation();
               column.setFilterValue(() => undefined);
-            }}
-            title={t("Clear")}
-          >
-            <X size={12} />
-          </button>
+            }} />
         ) : (
-          <ChevronDown size={12} className={Styles.searchicon} />
+          <ChevronDown size={12} className={searchIconClass} />
         )}
       </div>
     </OverlayTrigger>
@@ -199,7 +203,7 @@ export const TextFilter = <TData,>({ column }: { column: Column<TData, unknown> 
   const { t } = useTranslation();
   const value = (column.getFilterValue() as string) ?? "";
   return (
-    <div className={Styles.searchwrapper}>
+    <div className={searchWrapperClass}>
       <Form.Control
         size="sm"
         className={Styles.searchinput}
@@ -211,16 +215,9 @@ export const TextFilter = <TData,>({ column }: { column: Column<TData, unknown> 
         }}
       />
       {value ? (
-        <button
-          type="button"
-          className={Styles.clearbutton}
-          onClick={() => column.setFilterValue("")}
-          title={t("Clear")}
-        >
-          <X size={12} />
-        </button>
+        <ClearButton onClick={() => column.setFilterValue("")} />
       ) : (
-        <Search size={12} className={Styles.searchicon} />
+        <Search size={12} className={searchIconClass} />
       )}
     </div>
   );
@@ -263,12 +260,12 @@ export const SelectFilter = <TData,>({ column }: { column: Column<TData, unknown
       rootClose={true}
       overlay={
         <Dropdown show drop="down-centered">
-          <Dropdown.Menu className={Styles.dropdown}>
+          <Dropdown.Menu className={`overflow-y-auto ${Styles.dropdown}`}>
             {selectOptions.length > 0 ? (
               selectOptions.map((item) => (
                 <Dropdown.Item
                   key={item.value}
-                  className={Styles.capitalisewords}
+                  className="text-capitalize"
                   onClick={() => {
                     column.setFilterValue(item.value ? item.value : "");
                     document.body.click();
@@ -284,7 +281,7 @@ export const SelectFilter = <TData,>({ column }: { column: Column<TData, unknown
         </Dropdown>
       }
     >
-      <div className={Styles.searchwrapper}>
+      <div className={searchWrapperClass}>
         <Form.Control
           size="sm"
           className={Styles.searchinput}
@@ -307,20 +304,13 @@ export const SelectFilter = <TData,>({ column }: { column: Column<TData, unknown
           }}
         />
         {currentFilterValue ? (
-          <button
-            type="button"
-            className={Styles.clearbutton}
-            onClick={(event) => {
+          <ClearButton onClick={(event) => {
               event.stopPropagation();
               setIsEditing(false);
               column.setFilterValue(() => undefined);
-            }}
-            title={t("Clear")}
-          >
-            <X size={12} />
-          </button>
+            }} />
         ) : (
-          <ChevronDown size={12} className={Styles.searchicon} />
+          <ChevronDown size={12} className={searchIconClass} />
         )}
       </div>
     </OverlayTrigger>

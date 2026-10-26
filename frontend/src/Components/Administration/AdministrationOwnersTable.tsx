@@ -180,7 +180,6 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
               role="button"
               tabIndex={0}
               aria-label={t("Show error details of {{name}}", { name: owner.name })}
-              className={styles.statusBadgeClickable}
               onClick={openError}
               onKeyDown={(event: React.KeyboardEvent) => {
                 if (event.key === "Enter" || event.key === " ") {

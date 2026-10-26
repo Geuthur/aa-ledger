@@ -167,7 +167,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                         onChange={(event) => setSearch(event.target.value)}
                     />
                     {search.trim() !== "" && (
-                        <div className="lg-chord-details mb-3" role="region" aria-label={t("Matching reference types")}>
+                        <div className="lg-chord-details mt-3 mb-3 px-3 py-2 small rounded" role="region" aria-label={t("Matching reference types")}>
                             {matches.length === 0 ? (
                                 <span className="text-muted">{t("No matching reference types")}</span>
                             ) : (
@@ -178,7 +178,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                                             return (
                                                 <li
                                                     key={item.ref_type}
-                                                    className={`lg-chord-flow ${isMining ? "lg-text-mining" : ""}`}
+                                                    className={`d-flex align-items-center gap-2 py-1 ${isMining ? "lg-text-mining" : ""}`}
                                                 >
                                                     {(item.characters ?? []).length > 0 ? (
                                                         <button

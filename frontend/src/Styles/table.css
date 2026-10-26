@@ -1,7 +1,6 @@
 /* ═══ Tables ══════════════════════════════════════════════════════════════ */
 
 .aa-table-shell {
-    margin-top: 8px;
     overflow: hidden;
     border: 2px solid var(--aa-border-light);
     border-radius: var(--aa-border-radius);
@@ -22,12 +21,10 @@
 }
 
 .aa-table {
-    width: 100%;
     border-collapse: collapse;
     color: var(--aa-text-tertiary);
     font-family: var(--font-mono);
     font-size: var(--aa-font-size);
-    text-align: left;
 }
 
 .aa-table-head {
@@ -47,27 +44,11 @@
 
 .aa-table-sortable {
     cursor: pointer;
-    user-select: none;
     transition: color 150ms ease;
 }
 
 .aa-table-sortable:hover {
     color: var(--aa-text-emerald-light);
-}
-
-.aa-table-heading {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.aa-table-heading-right {
-    justify-content: flex-end;
-    text-align: right;
-}
-
-.aa-table-cell-right {
-    text-align: right;
 }
 
 .aa-table-sort-icon {
@@ -93,7 +74,6 @@
 }
 
 .aa-table-filter-cell {
-    padding: 6px 12px;
     font-family: var(--font-mono);
     font-size: var(--aa-font-size);
     font-weight: normal;
@@ -111,19 +91,11 @@
 }
 
 .aa-table-message {
-    padding: 40px 16px;
     color: var(--aa-text-secondary);
     font-family: var(--font-mono);
-    text-align: center;
 }
 
 .aa-table-footer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 14px;
     border-top: 1px solid var(--aa-panel-border, var(--aa-border-light));
     background-color: var(--aa-table-footer-bg, var(--aa-color-body-dark));
     color: var(--aa-text-secondary);
@@ -131,23 +103,7 @@
     font-size: var(--aa-font-size);
 }
 
-.aa-table-controls {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.aa-table-page-size,
-.aa-table-pagination {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
 .aa-table-select.form-select {
-    width: auto;
     padding: 4px 32px 4px 8px;
     border-color: var(--aa-border-light);
     background-color: var(--aa-color-body);
@@ -160,11 +116,6 @@
 .aa-table-select.form-select:focus {
     border-color: var(--aa-color-emerald);
     box-shadow: none;
-}
-
-.aa-table-count {
-    color: var(--aa-text-secondary);
-    font-size: 11px;
 }
 
 .aa-table-page-button.btn {
@@ -192,17 +143,14 @@
 }
 
 .aa-table-page-number {
-    padding: 0 8px;
     color: var(--aa-text-tertiary);
     font-size: 11px;
-    font-weight: var(--aa-font-weight-bold);
 }
 
 /* ═══ TABLE (LIGHT / MODAL VARIANT) ═════════════════════════════════════════ */
 
 .aa-table-shell-light,
 .aa-table-shell.aa-table-light {
-    margin-top: 8px;
     overflow: hidden;
     border: 1px solid var(--aa-border-light);
     border-radius: var(--aa-border-radius);

@@ -203,7 +203,7 @@ export const AdministrationPage: React.FC = () => {
             ariaLabel={t("Filter owners by type")}
           />
 
-          <div className={styles.searchContainer}>
+          <div className={`w-100 ${styles.searchContainer}`}>
             <Form.Control
               type="search"
               placeholder={t("Search owners…")}

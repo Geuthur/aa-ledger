@@ -5,9 +5,7 @@
 /* ═══ DESIGN TOKENS for AA ═══════════════════════════════════════════════════════ */
 :root {
     --font-hud: 'Rajdhani', sans-serif;
-    --font-tech: 'Chakra Petch', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
-    --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
 
     /* Default dark theme tokens */
     --aa-body: #18181b;
@@ -15,8 +13,6 @@
     --aa-panel-border: #343439;
     --aa-panel-header-bg: #27272a;
 
-    --aa-link-body: rgba(39, 39, 42, 1);
-    --aa-link-body-light: rgb(61, 61, 66, 1);
     --aa-color-white: #ffffff;
     --aa-color-black: #000000;
 
@@ -43,77 +39,30 @@
     --aa-color-rose-light: #fda4af;
     --aa-color-rose-dark: color-mix(in srgb, #f43f5e 60%, var(--aa-color-black));
 
-    --aa-color-green: #0ed14f;
     --aa-color-red: #cc1130;
 
     --aa-color-blue: #2563eb;
     --aa-color-blue-light: #3b82f6;
-    --aa-color-blue-dark: color-mix(in srgb, #2563eb 60%, var(--aa-color-black));
 
     --aa-text-white: var(--aa-color-white);
-    --aa-text-black: var(--aa-color-black);
     --aa-text-primary: #cac3c3;
     --aa-text-title: #ffffff;
     --aa-text-secondary: #808080;
     --aa-text-tertiary: #a1a1aa;
     --aa-text-muted: #71717a;
-    --aa-text-emerald: var(--aa-color-emerald);
     --aa-text-emerald-light: var(--aa-color-emerald-light);
-    --aa-text-emerald-dark: var(--aa-color-emerald-dark);
-    --aa-text-amber: var(--aa-color-amber);
-    --aa-text-amber-light: var(--aa-color-amber-light);
-    --aa-text-amber-dark: var(--aa-color-amber-dark);
-    --aa-text-rose: var(--aa-color-rose);
-    --aa-text-rose-light: var(--aa-color-rose-light);
-    --aa-text-rose-dark: var(--aa-color-rose-dark);
 
     --aa-font-size: .75rem;
     --aa-font-size-xs: .625rem;
     --aa-font-size-sm: .875rem;
-    --aa-font-size-md: 1rem;
-    --aa-font-size-lg: 1.25rem;
-    --aa-font-size-xl: 1.5rem;
-    --aa-font-size-2xl: 2rem;
-
-    --aa-font-weight: 600;
-    --aa-font-weight-bold: 700;
-    --aa-font-weight-medium: 500;
-    --aa-font-weight-light: 400;
-
-    --aa-blue-active: #2563eb;
-    --aa-blue-focus: #3b82f6;
 
     --aa-border: #18181b;
     --aa-border-light: #343439;
     --aa-border-subtle: #3f3f46;
     --aa-border-rose: var(--aa-color-rose);
     --aa-border-amber: var(--aa-color-amber);
-    --aa-border-emerald: var(--aa-color-emerald);
-    --aa-border-green: var(--aa-color-green);
-    --aa-border-red: var(--aa-color-red);
 
-    --aa-border-solid: 1px solid var(--aa-panel-border, var(--aa-border-light));
-    --aa-border-solid-lg: 2px solid var(--aa-panel-border, var(--aa-border-light));
-    --aa-border-solid-xl: 3px solid var(--aa-panel-border, var(--aa-border-light));
     --aa-border-radius: 12px;
-
-    --aa-bg-blue: color-mix(in srgb, var(--aa-color-blue) 45%, var(--aa-color-black));
-    --aa-bg-blue-light: color-mix(in srgb, var(--aa-color-blue-light) 35%, var(--aa-color-black));
-    --aa-bg-blue-dark: color-mix(in srgb, var(--aa-color-blue-dark) 45%, var(--aa-color-black));
-    --aa-bg-emerald: color-mix(in srgb, var(--aa-color-emerald) 45%, var(--aa-color-black));
-    --aa-bg-emerald-light: color-mix(in srgb, var(--aa-color-emerald-light) 35%, var(--aa-color-black));
-    --aa-bg-emerald-dark: color-mix(in srgb, var(--aa-color-emerald-dark) 45%, var(--aa-color-black));
-    --aa-bg-amber: color-mix(in srgb, var(--aa-color-amber) 45%, var(--aa-color-black));
-    --aa-bg-amber-light: color-mix(in srgb, var(--aa-color-amber-light) 35%, var(--aa-color-black));
-    --aa-bg-amber-dark: color-mix(in srgb, var(--aa-color-amber-dark) 45%, var(--aa-color-black));
-    --aa-bg-rose: color-mix(in srgb, var(--aa-color-rose) 45%, var(--aa-color-black));
-    --aa-bg-rose-light: color-mix(in srgb, var(--aa-color-rose-light) 35%, var(--aa-color-black));
-    --aa-bg-rose-dark: color-mix(in srgb, var(--aa-color-rose-dark) 45%, var(--aa-color-black));
-    --aa-bg-grey: color-mix(in srgb, var(--aa-color-grey) 70%, var(--aa-color-black));
-    --aa-bg-grey-light: color-mix(in srgb, var(--aa-color-grey-light) 60%, var(--aa-color-black));
-    --aa-bg-grey-dark: color-mix(in srgb, var(--aa-color-grey-dark) 80%, var(--aa-color-black));
-    --aa-bg-dark: color-mix(in srgb, var(--aa-color-body-dark) 80%, var(--aa-color-black));
-    --aa-bg-light: color-mix(in srgb, var(--aa-color-grey-light) 80%, var(--aa-color-black));
 
     --aa-table-shell-bg: #18181b;
     --aa-table-head-bg: #0b0e14;
@@ -131,7 +80,6 @@
     --aa-input-border: #343439;
 
     --aa-shadow: 0 4px 6px rgba(0, 0, 0, var(--aa-shadow-opacity));
-    --aa-shadow-dark: 0 1px 2px rgba(0, 0, 0, var(--aa-shadow-opacity));
     --aa-shadow-opacity: 0.1;
 }
 
@@ -260,18 +208,6 @@ html[data-bs-theme="dark"] {
     background: #52525b;
 }
 
-/* ═══ HyperLink ═══════════════════════════════════════════════════════════════ */
-
-.aa-react .link {
-    color: var(--aa-link-body);
-    cursor: pointer;
-}
-
-.aa-react .link:hover {
-    color: var(--aa-link-body-light);
-    text-decoration: underline;
-}
-
 /* ═══ BUTTONS (Bootstrap 5.3 + Theme Overrides) ════════════════════════════════ */
 .aa-react .btn {
     display: inline-flex;
@@ -294,9 +230,9 @@ html[data-bs-theme="dark"] {
 }
 
 .aa-react .btn-primary:hover:not(:disabled) {
-    background-color: var(--aa-color-blue-light) !important;
-    color: var(--aa-color-white) !important;
-    border-color: var(--aa-color-blue-light) !important;
+    background-color: var(--aa-color-blue-light);
+    color: var(--aa-color-white);
+    border-color: var(--aa-color-blue-light);
 }
 
 .aa-react .btn-secondary {
@@ -306,9 +242,9 @@ html[data-bs-theme="dark"] {
 }
 
 .aa-react .btn-secondary:hover:not(:disabled) {
-    background-color: var(--aa-color-grey-light) !important;
-    color: var(--aa-color-white) !important;
-    border-color: var(--aa-color-grey-light) !important;
+    background-color: var(--aa-color-grey-light);
+    color: var(--aa-color-white);
+    border-color: var(--aa-color-grey-light);
 }
 
 .aa-react .btn-success {
@@ -318,9 +254,9 @@ html[data-bs-theme="dark"] {
 }
 
 .aa-react .btn-success:hover:not(:disabled) {
-    background-color: var(--aa-color-emerald) !important;
-    color: var(--aa-color-white) !important;
-    border-color: var(--aa-color-emerald) !important;
+    background-color: var(--aa-color-emerald);
+    color: var(--aa-color-white);
+    border-color: var(--aa-color-emerald);
 }
 
 .aa-react .btn-warning {
@@ -330,9 +266,9 @@ html[data-bs-theme="dark"] {
 }
 
 .aa-react .btn-warning:hover:not(:disabled) {
-    background-color: var(--aa-color-amber) !important;
-    color: var(--aa-color-black) !important;
-    border-color: var(--aa-color-amber) !important;
+    background-color: var(--aa-color-amber);
+    color: var(--aa-color-black);
+    border-color: var(--aa-color-amber);
 }
 
 .aa-react .btn-danger {
@@ -342,99 +278,14 @@ html[data-bs-theme="dark"] {
 }
 
 .aa-react .btn-danger:hover:not(:disabled) {
-    background-color: var(--aa-color-red) !important;
-    color: var(--aa-color-white) !important;
-    border-color: var(--aa-color-red) !important;
+    background-color: var(--aa-color-red);
+    color: var(--aa-color-white);
+    border-color: var(--aa-color-red);
 }
 
 .aa-react .btn-sm {
     padding: 4px 10px;
     font-size: var(--aa-font-size-xs);
-}
-
-/* ═══ STATUS INDICATOR ══════════════════════════════════════════════════════════════ */
-
-
-.aa-status-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.aa-status-dot {
-    position: relative;
-    display: inline-flex;
-    width: 8px;
-    height: 8px;
-    flex-shrink: 0;
-}
-
-.aa-status-dot-fill {
-    position: relative;
-    display: block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-}
-
-.aa-status-dot-error {
-    background-color: var(--aa-color-rose);
-    box-shadow: 0 0 8px color-mix(in srgb, var(--aa-color-rose) 60%, transparent);
-}
-
-.aa-status-dot-busy {
-    background-color: var(--aa-color-amber);
-    animation: aa-status-pulse 1.5s ease-in-out infinite;
-}
-
-.aa-status-dot-ready {
-    background-color: var(--aa-color-emerald);
-}
-
-.aa-status-ping {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background-color: var(--aa-color-emerald-light);
-    opacity: .75;
-    animation: aa-status-ping 1s cubic-bezier(0, 0, .2, 1) infinite;
-}
-
-.aa-status-text {
-    color: var(--aa-text-secondary);
-    font-family: var(--font-mono);
-    font-size: var(--aa-font-size);
-}
-
-.aa-status-text-error {
-    color: var(--aa-text-rose-light);
-    font-weight: var(--aa-font-weight-bold);
-}
-
-@keyframes aa-status-pulse {
-    50% {
-        opacity: .5;
-    }
-}
-
-@keyframes aa-status-ping {
-
-    75%,
-    100% {
-        transform: scale(2);
-        opacity: 0;
-    }
-}
-
-@media (min-width: 640px) {
-    .aa-table-footer {
-        flex-direction: row;
-    }
-
-    .aa-table-controls {
-        width: auto;
-        justify-content: flex-start;
-    }
 }
 
 /* ═══ ANIMATED PENDING / ERROR PULSE ══════════════════════════════════════════ */

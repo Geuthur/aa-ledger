@@ -69,13 +69,13 @@ export function UnregisteredModal({
       )}
 
       {isError && (
-        <div className={styles["error-banner"]} role="alert">
+        <div className={`${styles["error-banner"]} px-2 py-1 text-break`} role="alert">
           {errorMessage ?? t("Failed to load data.")}
         </div>
       )}
 
       {!isLoading && !isError && items.length === 0 && (
-        <div className={styles["empty-state"]}>{emptyMessage ?? t("Nothing to show.")}</div>
+        <div className={`${styles["empty-state"]} py-4 px-3 text-center small`}>{emptyMessage ?? t("Nothing to show.")}</div>
       )}
 
       {!isLoading && !isError && items.length > 0 && (
@@ -98,7 +98,7 @@ export function UnregisteredModal({
           </p>
 
           {filtered.length === 0 ? (
-            <div className={styles["empty-state"]}>{t("No matching owners found.")}</div>
+            <div className={`${styles["empty-state"]} py-4 px-3 text-center small`}>{t("No matching owners found.")}</div>
           ) : (
             <ul className="list-unstyled d-flex flex-column gap-2 mb-0">
               {filtered.map((item) => (
