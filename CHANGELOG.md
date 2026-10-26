@@ -31,6 +31,10 @@ Section Order:
 - Reusable frontend components `OwnerPortrait`, `HelpTooltip`, `FilterButtonGroup` and `LedgerNavButton`, replacing several inline copies.
 - Frontend hooks per area (`Components/<Area>/Hooks`) that hold the queries and mutations of the Administration, Settings, Overview, Planetary and Ledger views, plus the shared hooks `useFeedback`, `useCooldown` and `useUserData`.
 
+### Fixed
+
+- Section header and owner type filter overflowing the container on small screens; the header now has a gap between its items and the filter buttons scroll horizontally.
+
 ### Changed
 
 - Frontend inline styles and hard-coded colors replaced by Bootstrap 5 classes and CSS classes; relative imports replaced by `@/` imports and missing `index.ts` files added.
