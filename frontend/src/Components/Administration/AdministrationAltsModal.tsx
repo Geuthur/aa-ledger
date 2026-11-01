@@ -2,8 +2,6 @@
 import React, { useMemo } from "react";
 
 // Third Party
-import { createColumnHelper } from "@tanstack/react-table";
-import type { ColumnDef } from "@tanstack/react-table";
 import { RefreshCw } from "lucide-react";
 import { Button, ButtonGroup, Dropdown, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
@@ -15,6 +13,8 @@ import styles from "@/Styles/modules/Administration.module.css";
 import type { AltSchema, AdministrationOwnerSchema } from "@/Api/schema";
 import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { createBaseColumnHelper } from "@/Components/Base/BaseTable/tableFeatures";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 
 export interface AdministrationAltsModalProps {
@@ -42,14 +42,13 @@ export const AdministrationAltsModal: React.FC<AdministrationAltsModalProps> = (
     owner && updatingKey === `${owner.owner_type}-${owner.owner_id}`,
   );
 
-  const columns = useMemo<ColumnDef<AltSchema, unknown>[]>(() => {
-    const columnHelper = createColumnHelper<AltSchema>();
+  const columns = useMemo<BaseColumnDef<AltSchema, unknown>[]>(() => {
+    const columnHelper = createBaseColumnHelper<AltSchema>();
 
     return [
       columnHelper.display({
         id: "avatar",
         header: () => null,
-        size: 40,
         enableSorting: false,
         cell: ({ row }) => {
           const alt = row.original;

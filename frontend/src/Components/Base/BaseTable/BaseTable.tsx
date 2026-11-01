@@ -2,23 +2,13 @@
 import { useLocation } from "react-router-dom";
 
 // Third Party
-import {
-  flexRender,
-  getCoreRowModel,
-  getFacetedMinMaxValues,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { flexRender, useTable } from "@tanstack/react-table";
 import type {
-  ColumnDef,
-  InitialTableState,
   OnChangeFn,
   Row,
+  RowData,
   RowSelectionState,
+  TableState,
 } from "@tanstack/react-table";
 import {
   ChevronFirst,
@@ -31,16 +21,23 @@ import { useTranslation } from "react-i18next";
 
 import BaseHeader from "@/Components/Base/BaseTable/BaseTableHeader";
 import BasePages from "@/Components/Base/BaseTable/BaseTablePages";
+import { baseTableFeatures } from "@/Components/Base/BaseTable/tableFeatures";
+import type { BaseColumnDef, BaseTableFeatures } from "@/Components/Base/BaseTable/tableFeatures";
 
-export interface BaseTableProps<TData, TValue = unknown> {
+// Like v8's InitialTableState: each slice may be given partially (e.g. only pageSize).
+export type BaseTableInitialState = {
+  [K in keyof TableState<BaseTableFeatures>]?: Partial<TableState<BaseTableFeatures>[K]>;
+};
+
+export interface BaseTableProps<TData extends RowData, TValue = unknown> {
   isFetching?: boolean;
   isError?: boolean;
   debugTable?: boolean;
   striped?: boolean;
   hover?: boolean;
   data?: TData[];
-  columns: ColumnDef<TData, TValue>[];
-  initialState?: InitialTableState;
+  columns: BaseColumnDef<TData, TValue>[];
+  initialState?: BaseTableInitialState;
   exportFileName?: string;
   variant?: "default" | "light";
   emptyText?: string;
@@ -48,16 +45,16 @@ export interface BaseTableProps<TData, TValue = unknown> {
   tableClassName?: string;
   pageSizeOptions?: number[];
   itemLabel?: string;
-  getRowClassName?: (row: Row<TData>) => string;
+  getRowClassName?: (row: Row<BaseTableFeatures, TData>) => string;
   enableFilters?: boolean;
   rowSelection?: RowSelectionState;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
-  enableRowSelection?: boolean | ((row: Row<TData>) => boolean);
-  getRowId?: (originalRow: TData, index: number, parent?: Row<TData>) => string;
-  onRowClick?: (row: Row<TData>) => void;
+  enableRowSelection?: boolean | ((row: Row<BaseTableFeatures, TData>) => boolean);
+  getRowId?: (originalRow: TData, index: number, parent?: Row<BaseTableFeatures, TData>) => string;
+  onRowClick?: (row: Row<BaseTableFeatures, TData>) => void;
 }
 
-const BaseTable = <TData, TValue = unknown>({
+const BaseTable = <TData extends RowData, TValue = unknown>({
   isFetching = false,
   isError = false,
   debugTable = false,
@@ -81,10 +78,8 @@ const BaseTable = <TData, TValue = unknown>({
   const location = useLocation();
   const { t } = useTranslation();
 
-  // TanStack Table's useReactTable() returns functions the compiler can't
-  // safely memoize; this is inherent to the library, not fixable here.
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const table = useReactTable({
+  const table = useTable({
+    features: baseTableFeatures,
     data,
     columns,
     getRowId,
@@ -93,18 +88,11 @@ const BaseTable = <TData, TValue = unknown>({
     },
     onRowSelectionChange,
     enableRowSelection,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    getFacetedMinMaxValues: getFacetedMinMaxValues(),
     debugTable,
     initialState: {
-      pagination: { pageSize: 15 },
       ...initialState,
-    },
+      pagination: { pageIndex: 0, pageSize: 15, ...initialState?.pagination },
+    } as Partial<TableState<BaseTableFeatures>>,
   });
 
   const { rows } = table.getRowModel();
@@ -112,8 +100,7 @@ const BaseTable = <TData, TValue = unknown>({
     exportFileName !== undefined ? exportFileName : `ExportedData_${location.pathname}`;
 
   const isLight = variant === "light";
-  const pageIndex = table.getState().pagination.pageIndex;
-  const pageSize = table.getState().pagination.pageSize;
+  const { pageIndex, pageSize } = table.state.pagination;
   const pageCount = table.getPageCount();
 
   return (
@@ -254,7 +241,7 @@ const BaseTable = <TData, TValue = unknown>({
       {debugTable && (
         <div className="p-3">
           <div>{t("{{count}} Rows", { count: table.getRowModel().rows.length })}</div>
-          <pre>{JSON.stringify(table.getState(), null, 2)}</pre>
+          <pre>{JSON.stringify(table.state, null, 2)}</pre>
         </div>
       )}
     </div>

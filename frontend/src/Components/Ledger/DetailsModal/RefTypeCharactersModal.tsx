@@ -2,18 +2,18 @@
 import { useMemo, useState } from "react";
 
 // Third Party
-import { createColumnHelper } from "@tanstack/react-table";
-import type { ColumnDef } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
 
 import type { CharacterRefTypeSchema, RefTypeAmountSchema } from "@/Api/schema";
 import BaseModal from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { createBaseColumnHelper } from "@/Components/Base/BaseTable/tableFeatures";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import { formatIsk } from "@/Utils/format";
 import { amountClass } from "@/Utils/ledger";
 import { formatRefType } from "@/Utils/refTypes";
 
-const columnHelper = createColumnHelper<CharacterRefTypeSchema>();
+const columnHelper = createBaseColumnHelper<CharacterRefTypeSchema>();
 
 export interface RefTypeCharactersModalProps {
   /** Reference type whose characters are listed; `null` keeps the modal closed. */
@@ -55,7 +55,7 @@ function RefTypeCharactersModal({ refType, onHide }: RefTypeCharactersModalProps
         columnHelper.accessor("amount", {
           header: t("Amount"),
           meta: { align: "right" },
-          sortingFn: (a, b) => Math.abs(a.original.amount ?? 0) - Math.abs(b.original.amount ?? 0),
+          sortFn: (a, b) => Math.abs(a.original.amount ?? 0) - Math.abs(b.original.amount ?? 0),
           cell: ({ getValue }) => (
             <span className={`text-end d-block ${amountClass(getValue())}`}>{formatIsk(getValue())}</span>
           ),
@@ -73,7 +73,7 @@ function RefTypeCharactersModal({ refType, onHide }: RefTypeCharactersModalProps
             );
           },
         }),
-      ] as ColumnDef<CharacterRefTypeSchema, unknown>[],
+      ] as BaseColumnDef<CharacterRefTypeSchema, unknown>[],
     [t, refTypeTotal],
   );
 

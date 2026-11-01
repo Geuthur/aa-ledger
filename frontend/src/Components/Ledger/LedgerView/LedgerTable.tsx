@@ -2,14 +2,14 @@
 import { useMemo, useState } from "react";
 
 // Third Party
-import { createColumnHelper } from "@tanstack/react-table";
-import type { ColumnDef } from "@tanstack/react-table";
 import { Info } from "lucide-react";
 import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { Section } from "@/Api/schema";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { createBaseColumnHelper } from "@/Components/Base/BaseTable/tableFeatures";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import { HelpTooltip } from "@/Components/Base/HelpTooltip";
 import MembersModal from "@/Components/Ledger/LedgerView/MembersModal";
 import { renderTooltip } from "@/Utils/bootsTrap";
@@ -17,7 +17,7 @@ import { formatIsk } from "@/Utils/format";
 import { amountClass } from "@/Utils/ledger";
 import type { LedgerRow } from "@/Utils/ledger";
 
-const columnHelper = createColumnHelper<LedgerRow>();
+const columnHelper = createBaseColumnHelper<LedgerRow>();
 
 export interface LedgerTableProps {
   rows: LedgerRow[];
@@ -124,7 +124,7 @@ function LedgerTable({
             </Button>,
           ),
       }),
-    ] as ColumnDef<LedgerRow, unknown>[];
+    ] as BaseColumnDef<LedgerRow, unknown>[];
   }, [t, nameLabel, showMining, onDetails]);
 
   return (
