@@ -22,7 +22,7 @@
     "d3-scale-chromatic": "^3.1.0",
     "d3-shape": "^3.2.0",
     "i18next": "^26.4.2",
-    "i18next-http-backend": "^4.0.2",
+    "i18next-http-backend": "^4.0.4",
     "js-cookie": "^3.0.8",
     "lucide-react": "^0.546.0",
     "nuqs": "^2.10.1",
