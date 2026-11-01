@@ -24,7 +24,7 @@
     "i18next": "^26.4.2",
     "i18next-http-backend": "^4.0.4",
     "js-cookie": "^3.0.8",
-    "lucide-react": "^0.546.0",
+    "lucide-react": "^1.64.0",
     "nuqs": "^2.10.1",
     "openapi-fetch": "^0.17.0",
     "react": "^19.2.8",
