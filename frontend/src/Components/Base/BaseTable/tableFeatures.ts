@@ -2,6 +2,7 @@
 import {
   columnFacetingFeature,
   columnFilteringFeature,
+  columnSizingFeature,
   columnVisibilityFeature,
   createColumnHelper,
   createFacetedMinMaxValues,
@@ -21,10 +22,12 @@ import type { ColumnDef, RowData } from "@tanstack/react-table";
 
 // TanStack Table v9 only exposes the APIs of registered features. BaseTable
 // uses filtering (with faceted values for the filter widgets), sorting,
-// pagination, row selection and visibility, so every table shares this set.
+// pagination, row selection, visibility and column sizing (the `size` hint of
+// some column definitions), so every table shares this set.
 export const baseTableFeatures = tableFeatures({
   columnFilteringFeature,
   columnFacetingFeature,
+  columnSizingFeature,
   columnVisibilityFeature,
   rowSortingFeature,
   rowPaginationFeature,

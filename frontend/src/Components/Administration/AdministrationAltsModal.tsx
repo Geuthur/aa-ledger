@@ -49,6 +49,7 @@ export const AdministrationAltsModal: React.FC<AdministrationAltsModalProps> = (
       columnHelper.display({
         id: "avatar",
         header: () => null,
+        size: 40,
         enableSorting: false,
         cell: ({ row }) => {
           const alt = row.original;

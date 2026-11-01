@@ -66,6 +66,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
       columnHelper.display({
         id: "avatar",
         header: () => null,
+        size: 48,
         enableSorting: false,
         cell: ({ row }) => {
           const owner = row.original;
@@ -212,6 +213,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
       columnHelper.display({
         id: "actions",
         header: () => <div className="text-end">{t("Actions")}</div>,
+        size: 160,
         enableSorting: false,
         cell: ({ row }) => {
           const owner = row.original;
