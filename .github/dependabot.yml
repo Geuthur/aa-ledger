@@ -34,7 +34,9 @@ updates:
 
   # Maintain dependencies for npm
   - package-ecosystem: "npm"
-    directory: "/"
+    directories:
+      - "/"
+      - "/frontend"
     target-branch: "master"
     versioning-strategy: increase
     groups:
