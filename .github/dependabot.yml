@@ -44,6 +44,9 @@ updates:
         update-types:
           - "minor"
           - "patch"
+      "NPM Major Dependencies":
+        update-types:
+          - "major"
     ignore:
       # TypeScript 7 is not yet supported by typescript-eslint and i18next-scanner-typescript
       - dependency-name: "typescript"
