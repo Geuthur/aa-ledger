@@ -3,14 +3,14 @@ import { useMemo, useState } from "react";
 
 // Third Party
 import type { QueryKey } from "@tanstack/react-query";
-import { createColumnHelper } from "@tanstack/react-table";
-import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { CategorySchema, LedgerDetailsResponse, RefTypeAmountSchema } from "@/Api/schema";
 import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { createBaseColumnHelper } from "@/Components/Base/BaseTable/tableFeatures";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import { HelpTooltip } from "@/Components/Base/HelpTooltip";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
@@ -24,7 +24,7 @@ import { filterCategories, filterRefTypes, formatRefType, sumRefTypes } from "@/
 
 type Period = "summary" | "daily" | "hourly";
 
-const columnHelper = createColumnHelper<CategorySchema>();
+const columnHelper = createBaseColumnHelper<CategorySchema>();
 
 const isMiningCategory = (category: CategorySchema) =>
     (category.ref_types ?? []).some((r) => r.ref_type === "mining") ||
@@ -113,7 +113,7 @@ function DetailsModal({ entityId, title, queryKey, queryFn, onHide }: DetailsMod
                         />
                     ),
                 }),
-            ] as ColumnDef<CategorySchema, unknown>[],
+            ] as BaseColumnDef<CategorySchema, unknown>[],
         [t, search],
     );
 

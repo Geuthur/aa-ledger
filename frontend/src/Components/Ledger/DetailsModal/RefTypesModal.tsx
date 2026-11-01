@@ -2,18 +2,18 @@
 import { useMemo, useState } from "react";
 
 // Third Party
-import { createColumnHelper } from "@tanstack/react-table";
-import type { ColumnDef } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
 
 import type { CategorySchema, RefTypeAmountSchema } from "@/Api/schema";
 import BaseModal from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { createBaseColumnHelper } from "@/Components/Base/BaseTable/tableFeatures";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import { formatIsk } from "@/Utils/format";
 import { amountClass } from "@/Utils/ledger";
 import { filterRefTypes, formatRefType } from "@/Utils/refTypes";
 
-const columnHelper = createColumnHelper<RefTypeAmountSchema>();
+const columnHelper = createBaseColumnHelper<RefTypeAmountSchema>();
 
 export interface RefTypesModalProps {
   /** Category whose reference types are listed; `null` keeps the modal closed. */
@@ -70,7 +70,7 @@ function RefTypesModal({
           id: "amount",
           header: t("Amount"),
           meta: { align: "right" },
-          sortingFn: (a, b) => Math.abs(a.original.amount ?? 0) - Math.abs(b.original.amount ?? 0),
+          sortFn: (a, b) => Math.abs(a.original.amount ?? 0) - Math.abs(b.original.amount ?? 0),
           cell: ({ getValue }) => (
             <span className={`text-end d-block ${amountClass(getValue())}`}>{formatIsk(getValue())}</span>
           ),
@@ -83,7 +83,7 @@ function RefTypesModal({
             <span className="text-end d-block">{categoryTotal ? `${(getValue() * 100).toFixed(1)}%` : "-"}</span>
           ),
         }),
-      ] as ColumnDef<RefTypeAmountSchema, unknown>[],
+      ] as BaseColumnDef<RefTypeAmountSchema, unknown>[],
     [t, categoryTotal, onSelectRefType],
   );
 

@@ -2,8 +2,6 @@
 import React, { useMemo, useState } from "react";
 
 // Third Party
-import { createColumnHelper } from "@tanstack/react-table";
-import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, RefreshCw, Trash2 } from "lucide-react";
 import { Badge, Button, ButtonGroup, Card, Dropdown, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
@@ -18,6 +16,8 @@ import { AdministrationErrorModal } from "@/Components/Administration/Administra
 import { UnregisteredModal } from "@/Components/Base/BaseSettings";
 import { useUnregistered } from "@/Components/Base/BaseSettings";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { createBaseColumnHelper } from "@/Components/Base/BaseTable/tableFeatures";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
@@ -59,8 +59,8 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
     selectedUnregisteredOwner?.owner_id ?? null,
   );
 
-  const columns = useMemo<ColumnDef<AdministrationOwnerSchema, unknown>[]>(() => {
-    const columnHelper = createColumnHelper<AdministrationOwnerSchema>();
+  const columns = useMemo<BaseColumnDef<AdministrationOwnerSchema, unknown>[]>(() => {
+    const columnHelper = createBaseColumnHelper<AdministrationOwnerSchema>();
 
     return [
       columnHelper.display({

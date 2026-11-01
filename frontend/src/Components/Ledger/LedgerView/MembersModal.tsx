@@ -2,19 +2,19 @@
 import { useMemo } from "react";
 
 // Third Party
-import { createColumnHelper } from "@tanstack/react-table";
-import type { ColumnDef } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
 
 import type { AltLedgerSchema } from "@/Api/schema";
 import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { createBaseColumnHelper } from "@/Components/Base/BaseTable/tableFeatures";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import { HelpTooltip } from "@/Components/Base/HelpTooltip";
 import { formatIsk } from "@/Utils/format";
 import { amountClass } from "@/Utils/ledger";
 import type { LedgerRow } from "@/Utils/ledger";
 
-const columnHelper = createColumnHelper<AltLedgerSchema>();
+const columnHelper = createBaseColumnHelper<AltLedgerSchema>();
 
 export interface MembersModalProps {
   /** Entity whose characters are listed; `null` keeps the modal closed. */
@@ -73,7 +73,7 @@ function MembersModal({ row, onHide }: MembersModalProps) {
           <span className="text-end d-block">{entityTotal ? `${(getValue() * 100).toFixed(1)}%` : "-"}</span>
         ),
       }),
-    ] as ColumnDef<AltLedgerSchema, unknown>[];
+    ] as BaseColumnDef<AltLedgerSchema, unknown>[];
   }, [t, entityTotal]);
 
   return (

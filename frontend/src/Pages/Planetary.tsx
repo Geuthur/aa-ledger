@@ -3,8 +3,6 @@ import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
 // Third Party
-import { createColumnHelper } from "@tanstack/react-table";
-import type { ColumnDef } from "@tanstack/react-table";
 import { Bell, BellOff, Info } from "lucide-react";
 import { parseAsInteger, useQueryStates } from "nuqs";
 import { Button, Card } from "react-bootstrap";
@@ -13,6 +11,8 @@ import { useTranslation } from "react-i18next";
 import type { PlanetaryDetails } from "@/Api/schema";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { createBaseColumnHelper } from "@/Components/Base/BaseTable/tableFeatures";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 import ExtractorProgress from "@/Components/Planetary/ExtractorProgress";
@@ -21,7 +21,7 @@ import PlanetModal from "@/Components/Planetary/PlanetModal";
 import { renderTooltip } from "@/Utils/bootsTrap";
 import { formatRelativeTime } from "@/Utils/format";
 
-const columnHelper = createColumnHelper<PlanetaryDetails>();
+const columnHelper = createBaseColumnHelper<PlanetaryDetails>();
 
 function Planetary() {
   const { t } = useTranslation();
@@ -138,7 +138,7 @@ function Planetary() {
             </span>
           ),
         }),
-      ] as ColumnDef<PlanetaryDetails, unknown>[],
+      ] as BaseColumnDef<PlanetaryDetails, unknown>[],
     [t, setModal, toggle],
   );
 

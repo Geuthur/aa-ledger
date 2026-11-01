@@ -2,12 +2,12 @@
 import { MemoryRouter } from "react-router-dom";
 
 // Third Party
-import { createColumnHelper } from "@tanstack/react-table";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import BaseTable from "@/Components/Base/BaseTable/BaseTable";
+import { createBaseColumnHelper } from "@/Components/Base/BaseTable/tableFeatures";
 
 interface TestRow {
   id: number;
@@ -15,7 +15,7 @@ interface TestRow {
   role: string;
 }
 
-const columnHelper = createColumnHelper<TestRow>();
+const columnHelper = createBaseColumnHelper<TestRow>();
 
 const testColumns = [
   columnHelper.accessor("name", {
@@ -101,6 +101,22 @@ describe("BaseTable", () => {
     // Expected Result
     expect(container.querySelector(".aa-table-filter-row")).toBeInTheDocument();
     expect(container.querySelectorAll(".aa-table-filter-cell").length).toBe(2);
+  });
+
+  it("test_filter_should_hide_rows_not_matching_the_text_filter", async () => {
+    // Test Data
+    const user = userEvent.setup();
+    const { container } = renderTable({ enableFilters: true });
+    const nameFilter = container.querySelectorAll(".aa-table-filter-cell input")[0] as HTMLInputElement;
+
+    // Test Action
+    await user.type(nameFilter, "bo");
+
+    // Expected Result: only Bob's row is left (the filter dropdown lists names too, so check the cells)
+    const names = Array.from(container.querySelectorAll(".aa-table-body tr td:first-child")).map(
+      (cell) => cell.textContent,
+    );
+    expect(names).toEqual(["Bob"]);
   });
 
   it("test_filter_should_omit_filter_row_when_disabled", () => {

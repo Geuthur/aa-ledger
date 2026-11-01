@@ -2,14 +2,14 @@
 import { useMemo } from "react";
 
 // Third Party
-import { createColumnHelper } from "@tanstack/react-table";
-import type { ColumnDef } from "@tanstack/react-table";
 import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { components } from "@/Api/OpenApi";
 import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { createBaseColumnHelper } from "@/Components/Base/BaseTable/tableFeatures";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
 import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 import ExtractorProgress from "@/Components/Planetary/ExtractorProgress";
@@ -21,9 +21,9 @@ type Extractor = components["schemas"]["ExtractorSchema"];
 type Factory = components["schemas"]["ProduceSchema"];
 type Storage = components["schemas"]["StorageSchema"];
 
-const extractorColumn = createColumnHelper<Extractor>();
-const factoryColumn = createColumnHelper<Factory>();
-const storageColumn = createColumnHelper<Storage>();
+const extractorColumn = createBaseColumnHelper<Extractor>();
+const factoryColumn = createBaseColumnHelper<Factory>();
+const storageColumn = createBaseColumnHelper<Storage>();
 
 const ProductLabel = ({ product }: { product: Pick<Product, "item_name" | "icon"> }) => (
   <span className="d-inline-flex align-items-center gap-2">
@@ -72,7 +72,7 @@ function PlanetModal({ ownerId, planetId, onHide }: PlanetModalProps) {
           header: t("Progress"),
           cell: ({ getValue }) => <ExtractorProgress progress={getValue()} />,
         }),
-      ] as ColumnDef<Extractor, unknown>[],
+      ] as BaseColumnDef<Extractor, unknown>[],
     [t],
   );
 
@@ -105,7 +105,7 @@ function PlanetModal({ ownerId, planetId, onHide }: PlanetModalProps) {
             </span>
           ),
         }),
-      ] as ColumnDef<Factory, unknown>[],
+      ] as BaseColumnDef<Factory, unknown>[],
     [t],
   );
 
@@ -126,7 +126,7 @@ function PlanetModal({ ownerId, planetId, onHide }: PlanetModalProps) {
             <span className="text-end d-block">{formatNumber(getValue())}</span>
           ),
         }),
-      ] as ColumnDef<Storage, unknown>[],
+      ] as BaseColumnDef<Storage, unknown>[],
     [t],
   );
 
