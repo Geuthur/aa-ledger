@@ -34,6 +34,7 @@ Section Order:
 ### Fixed
 
 - Section header and owner type filter overflowing the container on small screens; the header now has a gap between its items and the filter buttons scroll horizontally.
+- Fixed `make coverage` exiting with 0 when tests failed. The reports are still created, and the target now exits with the status of the test run, or with the status of `coverage report` if the tests passed.
 
 ### Changed
 

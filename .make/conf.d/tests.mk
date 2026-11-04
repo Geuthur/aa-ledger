@@ -9,9 +9,13 @@ coverage: check-python-venv check-myauth-path
 		$(GENERAL__PACKAGE) \
 		--keepdb \
 		--failfast; \
+	tests_status=$$?; \
 	coverage html; \
 	coverage xml; \
-	coverage report -m
+	coverage report -m; \
+	report_status=$$?; \
+	if [ $$tests_status -ne 0 ]; then exit $$tests_status; fi; \
+	exit $$report_status
 
 # Build test
 .PHONY: build-test
