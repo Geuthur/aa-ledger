@@ -2,7 +2,7 @@
 from evesde_factory.utils import add_permission_to_user
 
 # AA Ledger
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CorporationJournalFactory,
     CorporationOwnerFactory,
@@ -12,7 +12,7 @@ from ledger.tests.testdata.factory import (
 MODULE_PATH = "ledger.models.corporationaudit"
 
 
-class TestCorporationWalletJournalModel(LedgerTestCase):
+class TestCorporationWalletJournalModel(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

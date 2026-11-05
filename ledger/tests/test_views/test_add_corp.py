@@ -12,14 +12,15 @@ from evesde_factory.utils import add_permission_to_user
 
 # AA Ledger
 from ledger.models.corporationaudit import CorporationOwner
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
+from ledger.tests.testdata.view_helpers import add_corporation
 
 MODULE_PATH = "ledger.views"
 
 
 @patch(MODULE_PATH + ".messages")
 @patch(MODULE_PATH + ".tasks")
-class TestAddCorpView(LedgerTestCase):
+class TestAddCorpView(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -34,7 +35,7 @@ class TestAddCorpView(LedgerTestCase):
         token = user.token_set.first()
 
         # Test Action
-        response = self._add_corporation(user, token)
+        response = add_corporation(self.factory, user, token)
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
@@ -43,6 +44,6 @@ class TestAddCorpView(LedgerTestCase):
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(
             CorporationOwner.objects.filter(
-                eve_corporation__corporation_id=self.user_character.corporation.corporation_id
+                eve_corporation__corporation_id=self.user.profile.main_character.corporation.corporation_id
             ).exists()
         )

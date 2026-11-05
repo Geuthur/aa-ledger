@@ -12,7 +12,7 @@ from evesde_factory.utils import add_new_token
 # AA Ledger
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.helpers.update_manager import CharacterUpdateSection, UpdateStatus
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
     CharacterUpdateStatusFactory,
@@ -21,15 +21,16 @@ from ledger.tests.testdata.factory import (
 MODULE_PATH = "ledger.managers.character_audit_manager"
 
 
-class TestCharacterAuditManager(LedgerTestCase):
+class TestCharacterAuditManager(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
         cls.audit = CharacterOwnerFactory(user=cls.user)
 
     def setUp(self):
         super().setUp()
-        # LedgerTestCase preloads tokens with all scopes; strip the scopes but keep
+        # AuthTestCase preloads tokens with all scopes; strip the scopes but keep
         # the tokens, deleting them would also delete the character ownership
         for token in Token.objects.filter(
             character_id=self.user_character.character_id
@@ -145,7 +146,7 @@ class TestCharacterAuditManager(LedgerTestCase):
         self.assertTrue(CharacterOwner.objects.get(pk=self.audit.pk).active)
 
 
-class TestCharacterAnnotateTotalUpdateStatus(LedgerTestCase):
+class TestCharacterAnnotateTotalUpdateStatus(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

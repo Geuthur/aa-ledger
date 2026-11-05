@@ -21,14 +21,14 @@ from ledger.models.helpers.update_manager import (
     UpdateManager,
     UpdateSectionResult,
 )
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
     CharacterUpdateStatusFactory,
 )
 
 
-class TestUpdateManager(LedgerTestCase):
+class TestUpdateManager(AuthTestCase):
     """Unit tests for UpdateManager and update status behavior."""
 
     @classmethod

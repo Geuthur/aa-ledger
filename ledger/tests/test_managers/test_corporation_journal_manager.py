@@ -16,7 +16,7 @@ from evesde_factory.utils import add_new_token
 
 # AA Ledger
 from ledger.models.general import EveEntity
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CorporationJournalFactory,
     CorporationOwnerFactory,
@@ -27,10 +27,11 @@ from ledger.tests.testdata.factory import (
 MODULE_PATH = "ledger.managers.corporation_journal_manager"
 
 
-class TestCorporationJournalManager(LedgerTestCase):
+class TestCorporationJournalManager(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
         cls.audit = CorporationOwnerFactory(user=cls.user)
         cls.token = add_new_token(
             user=cls.user,
@@ -162,7 +163,7 @@ class TestCorporationJournalManager(LedgerTestCase):
         self.assertIn("No valid token found for corporation", str(context.exception))
 
 
-class TestCorporationJournalManagerAnnotations(LedgerTestCase):
+class TestCorporationJournalManagerAnnotations(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -224,7 +225,7 @@ class TestCorporationJournalManagerAnnotations(LedgerTestCase):
             self.assertEqual(obj.costs, 0)
 
 
-class TestCorporationJournalManagerAggregate(LedgerTestCase):
+class TestCorporationJournalManagerAggregate(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

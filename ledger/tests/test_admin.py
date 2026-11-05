@@ -17,7 +17,7 @@ from ledger.admin import (
 )
 from ledger.models.characteraudit import CharacterOwner, CharacterUpdateStatus
 from ledger.models.corporationaudit import CorporationOwner, CorporationUpdateStatus
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
     CharacterUpdateStatusFactory,
@@ -32,12 +32,13 @@ class MockRequest:
     pass
 
 
-class TestCorporationAuditAdmin(LedgerTestCase):
+class TestCorporationAuditAdmin(AuthTestCase):
     """Test Backend AA Administration for Ledger."""
 
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
 
         cls.site = AdminSite()
 
@@ -187,7 +188,7 @@ class TestCorporationAuditAdmin(LedgerTestCase):
         )
 
 
-class TestCharacterAuditAdmin(LedgerTestCase):
+class TestCharacterAuditAdmin(AuthTestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()

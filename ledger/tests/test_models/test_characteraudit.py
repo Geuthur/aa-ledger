@@ -9,7 +9,7 @@ from ledger.models.characteraudit import (
     CharacterUpdateStatus,
 )
 from ledger.models.helpers.update_manager import UpdateStatus
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
     CharacterUpdateStatusFactory,
@@ -18,7 +18,7 @@ from ledger.tests.testdata.factory import (
 MODULE_PATH = "ledger.models.characteraudit"
 
 
-class TestCharacterWalletJournalModel(LedgerTestCase):
+class TestCharacterWalletJournalModel(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

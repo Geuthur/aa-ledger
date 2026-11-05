@@ -6,10 +6,10 @@ from django.urls import reverse
 
 # AA Ledger
 from ledger.auth_hooks import LedgerMenuItem, register_charlink_hook
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 
 
-class TestAuthHooks(LedgerTestCase):
+class TestAuthHooks(AuthTestCase):
     """Test Alliance Auth Menu Hooks for Ledger"""
 
     @classmethod

@@ -13,19 +13,23 @@ from evesde_factory.utils import add_character_to_user
 # AA Ledger
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models import EveEntity
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CorporationJournalFactory,
     CorporationOwnerFactory,
     DivisionFactory,
     EveEntityFactory,
+    UserMainFactory,
 )
+from ledger.tests.testdata.users import create_manage_user
 
 
-class TestCorporationLedgerApi(LedgerTestCase):
+class TestCorporationLedgerApi(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user2 = UserMainFactory()
+        cls.manage_user = create_manage_user()
         cls.audit = CorporationOwnerFactory(user=cls.manage_user)
         cls.division = DivisionFactory(
             corporation=cls.audit, division_id=1, balance=1000000
@@ -159,10 +163,11 @@ class TestCorporationLedgerApi(LedgerTestCase):
         self.assertEqual(response.json()["total"]["summary"], 0)
 
 
-class TestCorporationDetailsRefTypes(LedgerTestCase):
+class TestCorporationDetailsRefTypes(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.manage_user = create_manage_user()
         cls.audit = CorporationOwnerFactory(user=cls.manage_user)
         division = DivisionFactory(corporation=cls.audit, division_id=1)
         date = timezone.now().replace(
@@ -226,10 +231,11 @@ class TestCorporationDetailsRefTypes(LedgerTestCase):
         self.assertAlmostEqual(income["amount"], 400 / 29)
 
 
-class TestCorporationDetailsCharacterBreakdown(LedgerTestCase):
+class TestCorporationDetailsCharacterBreakdown(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.manage_user = create_manage_user()
         cls.audit = CorporationOwnerFactory(user=cls.manage_user)
         cls.division = DivisionFactory(corporation=cls.audit, division_id=1)
         cls.date = timezone.now().replace(
@@ -281,10 +287,11 @@ class TestCorporationDetailsCharacterBreakdown(LedgerTestCase):
         self.assertEqual(ref["characters"][0]["amount"], 500)
 
 
-class TestCorporationLedgerMembers(LedgerTestCase):
+class TestCorporationLedgerMembers(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.manage_user = create_manage_user()
         cls.audit = CorporationOwnerFactory(user=cls.manage_user)
         division = DivisionFactory(corporation=cls.audit, division_id=1)
         cls.main = cls.manage_user.profile.main_character

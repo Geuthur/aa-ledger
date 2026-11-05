@@ -7,7 +7,7 @@ import pook
 
 # AA Ledger
 from ledger.models.general import EveEntity
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterJournalFactory,
     CharacterOwnerFactory,
@@ -18,12 +18,13 @@ MODULE_PATH = "ledger.managers.character_journal_manager"
 
 
 @patch("ledger.models.general.EveEntity")
-class TestCharacterJournalManager(LedgerTestCase):
+class TestCharacterJournalManager(AuthTestCase):
     """Test Character Journal Manager for Character."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
         cls.audit = CharacterOwnerFactory(user=cls.user)
         cls.token = cls.user.token_set.first()
         cls.audit.get_token = MagicMock(return_value=cls.token)
@@ -124,7 +125,7 @@ class TestCharacterJournalManager(LedgerTestCase):
         self.assertEqual(obj.amount, 10000)
 
 
-class TestCharacterJournalManagerAnnotations(LedgerTestCase):
+class TestCharacterJournalManagerAnnotations(AuthTestCase):
     """Test annotation methods in CharacterJournalManager."""
 
     @classmethod
@@ -160,7 +161,7 @@ class TestCharacterJournalManagerAnnotations(LedgerTestCase):
             self.assertEqual(obj.miscellaneous, 1000.00)
 
 
-class TestCharacterJournalManagerAggregate(LedgerTestCase):
+class TestCharacterJournalManagerAggregate(AuthTestCase):
     """Test aggregation methods in CharacterJournalManager."""
 
     @classmethod

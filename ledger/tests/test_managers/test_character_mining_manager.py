@@ -12,7 +12,7 @@ from evesde_factory.eve_sde import (
 )
 
 # AA Ledger
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
 )
@@ -22,10 +22,11 @@ CHARACTEROWNER_PATH = "ledger.models.characteraudit.CharacterMiningLedger"
 
 
 @patch(CHARACTEROWNER_PATH + ".update_evemarket_price")
-class TestCharacterMiningManager(LedgerTestCase):
+class TestCharacterMiningManager(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
         cls.audit = CharacterOwnerFactory(user=cls.user)
         cls.token = cls.user.token_set.first()
         cls.audit.get_token = MagicMock(return_value=cls.token)
