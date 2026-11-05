@@ -9,14 +9,15 @@ from django.urls import reverse
 
 # AA Ledger
 from ledger.models.characteraudit import CharacterOwner
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
+from ledger.tests.testdata.view_helpers import add_character
 
 MODULE_PATH = "ledger.views"
 
 
 @patch(MODULE_PATH + ".messages")
 @patch(MODULE_PATH + ".tasks")
-class TestAddCharView(LedgerTestCase):
+class TestAddCharView(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -35,7 +36,7 @@ class TestAddCharView(LedgerTestCase):
         token = self.user.token_set.first()
 
         # Test Action
-        response = self._add_character(self.user, token)
+        response = add_character(self.factory, self.user, token)
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
@@ -44,6 +45,6 @@ class TestAddCharView(LedgerTestCase):
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(
             CharacterOwner.objects.filter(
-                eve_character__character_id=self.user_character.character_id
+                eve_character__character_id=self.user.profile.main_character.character_id
             ).exists()
         )

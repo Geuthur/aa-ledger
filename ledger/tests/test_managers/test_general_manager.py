@@ -7,13 +7,13 @@ import pook
 
 # AA Ledger
 from ledger.models.general import EveEntity, EveMarketPrice
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 
 MODULE_PATH = "ledger.managers.general_manager"
 
 
 @pook.on
-class TestGeneralManager(LedgerTestCase):
+class TestGeneralManager(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

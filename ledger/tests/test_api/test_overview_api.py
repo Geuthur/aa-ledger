@@ -5,7 +5,7 @@ from http import HTTPStatus
 from django.urls import reverse
 
 # AA Ledger
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
     CharacterUpdateStatusFactory,
@@ -13,10 +13,11 @@ from ledger.tests.testdata.factory import (
 )
 
 
-class TestOverviewApi(LedgerTestCase):
+class TestOverviewApi(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
         cls.api = f"{reverse('ledger:index')}api"
 
     def test_get_overview_should_return_403_without_basic_access(self):

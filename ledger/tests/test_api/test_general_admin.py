@@ -12,20 +12,22 @@ from evesde_factory.allianceauth import EveCharacterFactory, EveCorporationInfoF
 # AA Ledger
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.helpers.update_manager import CorporationUpdateSection
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
     CorporationOwnerFactory,
     CorporationUpdateStatusFactory,
 )
+from ledger.tests.testdata.users import create_manage_user
 
 TASKS_PATH = "ledger.api.general.tasks"
 
 
-class TestGeneralApi(LedgerTestCase):
+class TestGeneralApi(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.manage_user = create_manage_user()
         cls.api = f"{reverse('ledger:index')}api"
 
     def setUp(self):
@@ -149,7 +151,9 @@ class TestGeneralApi(LedgerTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
         data = response.json()
-        self.assertEqual(data["character_id"], self.manage_character.character_id)
+        self.assertEqual(
+            data["character_id"], self.manage_user.profile.main_character.character_id
+        )
         self.assertTrue(data["can_manage"])
         self.assertTrue(data["has_advanced_access"])
         self.assertFalse(data["is_superuser"])
@@ -429,10 +433,12 @@ class TestGeneralApi(LedgerTestCase):
         self.assertEqual(type_response.status_code, HTTPStatus.NOT_FOUND)
 
 
-class TestAdminApi(LedgerTestCase):
+class TestAdminApi(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.manage_user = create_manage_user()
+        cls.user_character = cls.user.profile.main_character
         cls.api = f"{reverse('ledger:index')}api"
         cls.character_owner = CharacterOwnerFactory(user=cls.user)
         cls.corporation_owner = CorporationOwnerFactory(user=cls.manage_user)

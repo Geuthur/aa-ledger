@@ -47,6 +47,7 @@ Section Order:
 - The clear buttons of the table filters share one `ClearButton` component.
 - The `!important` flags of the button hover overrides were dropped.
 - Test `UserMainFactory` now follows the `aa-evesde-factory` pattern: it sets `scopes__` and reads `obj._main_character_scopes`; pass `scopes=[...]` instead of `main_character__scopes=[...]`.
+- Test base class `LedgerTestCase` replaced by `AuthTestCase` with the same layout as the other AA apps (request factory, `user`, `superuser`). Additional users and the view helpers moved into the test classes and `tests/testdata/`.
 
 ### Removed
 

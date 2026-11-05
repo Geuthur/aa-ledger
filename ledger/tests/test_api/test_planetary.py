@@ -9,19 +9,21 @@ from evesde_factory.allianceauth import EveCharacterFactory
 from evesde_factory.utils import add_character_to_user
 
 # AA Ledger
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
     CharacterPlanetDetailsFactory,
     CharacterPlanetFactory,
+    UserMainFactory,
 )
 from ledger.tests.testdata.integrations.planetary import _planetary_data
 
 
-class TestPlanetaryApi(LedgerTestCase):
+class TestPlanetaryApi(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user2 = UserMainFactory()
         cls.owner = CharacterOwnerFactory(user=cls.user)
         cls.planet = CharacterPlanetFactory(
             character=cls.owner, upgrade_level=5, num_pins=5

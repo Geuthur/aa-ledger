@@ -5,10 +5,10 @@ from http import HTTPStatus
 from django.urls import reverse
 
 # AA Ledger
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 
 
-class TestReactBaseView(LedgerTestCase):
+class TestReactBaseView(AuthTestCase):
     def test_should_serve_the_react_shell_for_frontend_routes(self):
         # Test Data
         self.client.force_login(self.user)

@@ -7,12 +7,12 @@ from ledger.decorators import (
     log_timing,
 )
 from ledger.providers import AppLogger
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 
 DECORATOR_PATH = "ledger.decorators."
 
 
-class TestDecorators(LedgerTestCase):
+class TestDecorators(AuthTestCase):
     def test_log_timing(self):
         """
         Test log_timing decorator functionality.

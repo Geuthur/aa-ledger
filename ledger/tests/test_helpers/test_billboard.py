@@ -6,7 +6,7 @@ from ledger.api.corporation import LedgerEntitySchema
 from ledger.api.schema import DateFilter, EntitySchema, LedgerSchema
 from ledger.helpers.billboard import BillboardSystem
 from ledger.models import CorporationWalletJournalEntry
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CorporationJournalFactory,
     CorporationOwnerFactory,
@@ -14,7 +14,7 @@ from ledger.tests.testdata.factory import (
 )
 
 
-class TestBillboardSystemCreateBillboards(LedgerTestCase):
+class TestBillboardSystemCreateBillboards(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

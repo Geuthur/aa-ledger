@@ -13,7 +13,7 @@ from evesde_factory.eve_sde import (
 )
 
 # AA Ledger
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
     CharacterPlanetFactory,
@@ -22,7 +22,7 @@ from ledger.tests.testdata.factory import (
 MODULE_PATH = "ledger.managers.character_planetary_manager"
 
 
-class TestPlanetaryManager(LedgerTestCase):
+class TestPlanetaryManager(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -96,7 +96,7 @@ class TestPlanetaryManager(LedgerTestCase):
         self.assertEqual(obj.num_pins, 5)
 
 
-class TestPlanetaryDetailsManager(LedgerTestCase):
+class TestPlanetaryDetailsManager(AuthTestCase):
     """Test Planetary Details Manager for Character Planets."""
 
     @classmethod

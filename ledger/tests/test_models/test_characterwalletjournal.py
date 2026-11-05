@@ -2,13 +2,13 @@
 from django.utils import timezone
 
 # AA Ledger
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import CharacterJournalFactory, CharacterOwnerFactory
 
 MODULE_PATH = "ledger.models.characteraudit"
 
 
-class TestCharacterWalletJournalModel(LedgerTestCase):
+class TestCharacterWalletJournalModel(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

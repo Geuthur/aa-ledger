@@ -12,18 +12,19 @@ from esi.errors import TokenError
 from evesde_factory.utils import add_new_token
 
 # AA Ledger
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import CorporationOwnerFactory
 
 MODULE_PATH = "ledger.managers.corporation_journal_manager"
 
 
-class TestDivisionManager(LedgerTestCase):
+class TestDivisionManager(AuthTestCase):
     """Test Division Manager for Corporation Divisions."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
         cls.audit = CorporationOwnerFactory(user=cls.user)
         cls.token = add_new_token(
             user=cls.user,

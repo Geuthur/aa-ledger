@@ -7,12 +7,12 @@ from django.utils import timezone
 
 # AA Ledger
 from ledger.models.general import EveEntity
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 
 MODULE_PATH = "ledger.models.general"
 
 
-class TestGeneralModel(LedgerTestCase):
+class TestGeneralModel(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

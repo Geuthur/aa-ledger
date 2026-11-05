@@ -17,18 +17,20 @@ from evesde_factory.utils import add_character_to_user
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
 from ledger.models.general import General
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
     CorporationOwnerFactory,
     UserMainFactory,
 )
+from ledger.tests.testdata.users import create_manage_own_user
 
 
-class TestAdministrationApi(LedgerTestCase):
+class TestAdministrationApi(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.manage_own_user = create_manage_own_user()
         cls.api = f"{reverse('ledger:index')}api"
 
     def test_get_administration_owners_should_return_403_for_regular_user(self):

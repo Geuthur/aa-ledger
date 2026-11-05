@@ -1,7 +1,7 @@
 """Test to ensure that the factories are working correctly."""
 
 # AA Ledger
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterJournalFactory,
     CharacterMiningLedgerFactory,
@@ -15,7 +15,7 @@ from ledger.tests.testdata.factory import (
 )
 
 
-class TestFactory(LedgerTestCase):
+class TestFactory(AuthTestCase):
     """Test the factories."""
 
     def test_can_create_user(self):

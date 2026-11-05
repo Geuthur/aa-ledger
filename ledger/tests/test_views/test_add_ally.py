@@ -14,13 +14,14 @@ from allianceauth.eveonline.models import EveAllianceInfo
 from evesde_factory.utils import add_permission_to_user
 
 # AA Ledger
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
+from ledger.tests.testdata.view_helpers import add_alliance
 
 MODULE_PATH = "ledger.views"
 
 
 @patch(MODULE_PATH + ".messages")
-class TestAddAllyView(LedgerTestCase):
+class TestAddAllyView(AuthTestCase):
     """Test Add Ally View."""
 
     @classmethod
@@ -44,7 +45,7 @@ class TestAddAllyView(LedgerTestCase):
         token = self.user.token_set.first()
 
         # Test Action
-        response = self._add_alliance(self.user, token)
+        response = add_alliance(self.factory, self.user, token)
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
@@ -88,7 +89,7 @@ class TestAddAllyView(LedgerTestCase):
         token = self.user.token_set.first()
 
         # Test Action
-        response = self._add_alliance(self.user, token)
+        response = add_alliance(self.factory, self.user, token)
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
@@ -122,7 +123,7 @@ class TestAddAllyView(LedgerTestCase):
         token = self.user.token_set.first()
 
         # Test Action
-        response = self._add_alliance(self.user, token)
+        response = add_alliance(self.factory, self.user, token)
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)

@@ -6,22 +6,25 @@ from django.urls import reverse
 from django.utils import timezone
 
 # AA Ledger
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterJournalFactory,
     CharacterOwnerFactory,
     CorporationJournalFactory,
     CorporationOwnerFactory,
     DivisionFactory,
+    UserMainFactory,
 )
+from ledger.tests.testdata.users import create_manage_user
 
 DATE = {"year": 2016, "month": 10, "day": 29, "hour": 0, "minute": 0, "second": 0}
 
 
-class TestCharacterLedgerApi(LedgerTestCase):
+class TestCharacterLedgerApi(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user2 = UserMainFactory()
         cls.owner = CharacterOwnerFactory(user=cls.user)
         CharacterJournalFactory(
             character=cls.owner,
@@ -79,10 +82,11 @@ class TestCharacterLedgerApi(LedgerTestCase):
         self.assertIn(self.owner.eve_character.character_name, data["issues"])
 
 
-class TestAllianceLedgerApi(LedgerTestCase):
+class TestAllianceLedgerApi(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.manage_user = create_manage_user()
         cls.audit = CorporationOwnerFactory(user=cls.manage_user)
         division = DivisionFactory(corporation=cls.audit, balance=1000000)
         CorporationJournalFactory(

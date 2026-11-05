@@ -8,7 +8,7 @@ from django.utils import timezone
 # AA Ledger
 from ledger.models.characteraudit import CharacterMiningLedger
 from ledger.models.general import EveMarketPrice
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterMiningLedgerFactory,
     CharacterOwnerFactory,
@@ -17,7 +17,7 @@ from ledger.tests.testdata.factory import (
 MODULE_PATH = "ledger.models.characteraudit"
 
 
-class TestCharacterMiningLedgerModel(LedgerTestCase):
+class TestCharacterMiningLedgerModel(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

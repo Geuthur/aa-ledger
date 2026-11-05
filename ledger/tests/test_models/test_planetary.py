@@ -1,5 +1,5 @@
 # AA Ledger
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
     CharacterPlanetDetailsFactory,
@@ -10,7 +10,7 @@ from ledger.tests.testdata.integrations.planetary import _planetary_data
 MODULE_PATH = "ledger.models.planetary"
 
 
-class TestPlanetModel(LedgerTestCase):
+class TestPlanetModel(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -31,7 +31,7 @@ class TestPlanetModel(LedgerTestCase):
         )
 
 
-class TestPlanetaryDetailsModel(LedgerTestCase):
+class TestPlanetaryDetailsModel(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

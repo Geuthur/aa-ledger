@@ -7,9 +7,15 @@ from django.contrib.auth.models import AnonymousUser
 from ledger.models.general import General
 from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import UserMainFactory
+from ledger.tests.testdata.users import create_manage_own_user
 
 
 class TestGeneralPermissions(AuthTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.manage_own_user = create_manage_own_user()
+
     def test_choices_should_return_all_seven_permissions(self):
         # Test Data
         expected_codenames = {

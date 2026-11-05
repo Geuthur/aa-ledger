@@ -30,7 +30,7 @@ from ledger.tasks import (
     update_subset_characters,
     update_user_characters,
 )
-from ledger.tests import LedgerTestCase
+from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
     CharacterUpdateStatusFactory,
@@ -45,7 +45,7 @@ MODELS_PATH = "ledger.models"
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
-class TestTasks(LedgerTestCase):
+class TestTasks(AuthTestCase):
     """
     Tests for ledger tasks.
     """
