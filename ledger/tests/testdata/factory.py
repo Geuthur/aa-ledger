@@ -41,6 +41,7 @@ class UserMainFactory(UserFactory):
     """Generate a User object with a main character and default permissions for Ledger."""
 
     permissions__ = [General.get_perm(General.Permission.BASIC_ACCESS)]
+    scopes__ = CharacterOwner.get_esi_scopes()
 
     @factory.post_generation
     def main_character(obj, create, _, **kwargs):
@@ -52,10 +53,11 @@ class UserMainFactory(UserFactory):
             character_name = f"{obj.first_name} {obj.last_name}"
             character = EveCharacterFactory(character_name=character_name)
 
-        scopes = kwargs.get("scopes", CharacterOwner.get_esi_scopes())
-
         add_character_to_user(
-            user=obj, character=character, is_main=True, scopes=scopes
+            user=obj,
+            character=character,
+            is_main=True,
+            scopes=obj._main_character_scopes,
         )
 
 
@@ -104,7 +106,7 @@ class CorporationOwnerFactory(
 
     user = factory.SubFactory(
         UserMainFactory,
-        main_character__scopes=CorporationOwner.get_esi_scopes(),
+        scopes=CorporationOwner.get_esi_scopes(),
     )
     eve_corporation = factory.LazyAttribute(
         lambda o: o.user.profile.main_character.corporation
