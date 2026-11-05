@@ -46,6 +46,7 @@ Section Order:
 - Layout-only CSS of the tables, settings page, owner cards, loaders and chord chart replaced by Bootstrap 5 utility classes; the table footer is now stacked on wide screens as well.
 - The clear buttons of the table filters share one `ClearButton` component.
 - The `!important` flags of the button hover overrides were dropped.
+- Test `UserMainFactory` now follows the `aa-evesde-factory` pattern: it sets `scopes__` and reads `obj._main_character_scopes`; pass `scopes=[...]` instead of `main_character__scopes=[...]`.
 
 ### Removed
 
