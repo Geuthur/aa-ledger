@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 
 // Third Party
 import { Info } from "lucide-react";
-import { Button } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { Section } from "@/Api/schema";
@@ -12,12 +12,15 @@ import { createBaseColumnHelper } from "@/Components/Base/BaseTable/tableFeature
 import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import { HelpTooltip } from "@/Components/Base/HelpTooltip";
 import MembersModal from "@/Components/Ledger/LedgerView/MembersModal";
+import { useStoredToggle } from "@/Hooks/useStoredToggle";
 import { renderTooltip } from "@/Utils/bootsTrap";
 import { formatIsk } from "@/Utils/format";
-import { amountClass } from "@/Utils/ledger";
+import { amountClass, sumRows } from "@/Utils/ledger";
 import type { LedgerRow } from "@/Utils/ledger";
 
 const columnHelper = createBaseColumnHelper<LedgerRow>();
+
+export const SHOW_TOTALS_STORAGE_KEY = "ledger.showTableTotals";
 
 export interface LedgerTableProps {
   rows: LedgerRow[];
@@ -39,12 +42,21 @@ function LedgerTable({
 }: LedgerTableProps) {
   const { t } = useTranslation();
   const [membersRow, setMembersRow] = useState<LedgerRow | null>(null);
+  const [showTotals, setShowTotals] = useStoredToggle(SHOW_TOTALS_STORAGE_KEY);
+
+  // Same totals as the summary cards: all rows, not only the current page.
+  const totals = useMemo(() => sumRows(rows), [rows]);
 
   const columns = useMemo(() => {
     const amountColumn = (key: "bounty" | "ess" | "miscellaneous" | "costs" | "total", header: string) =>
       columnHelper.accessor(key, {
         header,
         meta: { align: "right" },
+        footer: () => (
+          <span className={`text-end d-block ${amountClass(totals[key])}`}>
+            {formatIsk(totals[key])}
+          </span>
+        ),
         cell: ({ getValue }) => (
           <span className={`text-end d-block ${amountClass(getValue())}`}>
             {formatIsk(getValue())}
@@ -61,6 +73,11 @@ function LedgerTable({
         </span>
       ),
       meta: { align: "right" },
+      footer: () => (
+        <span className={`text-end d-block ${amountClass(totals.mining ?? 0, true)}`}>
+          {formatIsk(totals.mining ?? 0)}
+        </span>
+      ),
       cell: ({ getValue }) => (
         <span className={`text-end d-block ${amountClass(getValue(), true)}`}>
           {formatIsk(getValue())}
@@ -71,6 +88,7 @@ function LedgerTable({
     return [
       columnHelper.accessor("name", {
         header: nameLabel,
+        footer: () => t("Total"),
         cell: ({ row }) => {
           const { icon, name, alts, is_member } = row.original;
           return (
@@ -125,10 +143,19 @@ function LedgerTable({
           ),
       }),
     ] as BaseColumnDef<LedgerRow, unknown>[];
-  }, [t, nameLabel, showMining, onDetails]);
+  }, [t, nameLabel, showMining, onDetails, totals]);
 
   return (
     <>
+      <div className="d-flex justify-content-end">
+        <Form.Check
+          type="switch"
+          id="ledger-show-totals"
+          label={t("Show totals row")}
+          checked={showTotals}
+          onChange={(event) => setShowTotals(event.currentTarget.checked)}
+        />
+      </div>
       <BaseTable
         columns={columns}
         data={rows}
@@ -138,6 +165,7 @@ function LedgerTable({
         initialState={{ sorting: [{ id: "total", desc: true }] }}
         exportFileName="ledger.csv"
         getRowClassName={(row) => (row.original.is_member ? "lg-table-row-member" : "")}
+        showFooter={showTotals}
       />
       <MembersModal row={membersRow} onHide={() => setMembersRow(null)} />
     </>

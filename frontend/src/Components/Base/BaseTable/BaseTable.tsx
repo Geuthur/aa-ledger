@@ -52,6 +52,8 @@ export interface BaseTableProps<TData extends RowData, TValue = unknown> {
   enableRowSelection?: boolean | ((row: Row<BaseTableFeatures, TData>) => boolean);
   getRowId?: (originalRow: TData, index: number, parent?: Row<BaseTableFeatures, TData>) => string;
   onRowClick?: (row: Row<BaseTableFeatures, TData>) => void;
+  /** Renders the `footer` of the column definitions as a summary row. */
+  showFooter?: boolean;
 }
 
 const BaseTable = <TData extends RowData, TValue = unknown>({
@@ -74,6 +76,7 @@ const BaseTable = <TData extends RowData, TValue = unknown>({
   enableRowSelection,
   getRowId,
   onRowClick,
+  showFooter = false,
 }: BaseTableProps<TData, TValue>) => {
   const location = useLocation();
   const { t } = useTranslation();
@@ -159,6 +162,29 @@ const BaseTable = <TData extends RowData, TValue = unknown>({
               ))
             )}
           </tbody>
+          {showFooter && !isError && rows.length > 0 && (
+            <tfoot className="aa-table-foot">
+              {table.getFooterGroups().map((footerGroup) => (
+                <tr key={footerGroup.id}>
+                  {footerGroup.headers.map((header) => {
+                    const meta = header.column.columnDef.meta as { align?: string } | undefined;
+                    const isRight = meta?.align === "right";
+                    return (
+                      <td
+                        key={header.id}
+                        colSpan={header.colSpan}
+                        className={`aa-table-cell align-middle ${isRight ? "text-end" : ""}`}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(header.column.columnDef.footer, header.getContext())}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tfoot>
+          )}
         </table>
       </div>
 
