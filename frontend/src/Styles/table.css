@@ -37,6 +37,12 @@
     text-transform: uppercase;
 }
 
+.aa-table-foot {
+    border-top: 2px solid var(--aa-border-light);
+    background-color: var(--aa-color-body-dark);
+    font-weight: 700;
+}
+
 .aa-table-heading-cell,
 .aa-table-cell {
     padding: 12px 16px;

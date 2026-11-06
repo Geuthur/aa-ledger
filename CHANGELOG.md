@@ -30,6 +30,7 @@ Section Order:
 
 - Reusable frontend components `OwnerPortrait`, `HelpTooltip`, `FilterButtonGroup` and `LedgerNavButton`, replacing several inline copies.
 - Frontend hooks per area (`Components/<Area>/Hooks`) that hold the queries and mutations of the Administration, Settings, Overview, Planetary and Ledger views, plus the shared hooks `useFeedback`, `useCooldown` and `useUserData`.
+- Optional totals row in the ledger tables (character, corporation and alliance). It shows the same sums as the summary cards and is switched on with "Show totals row" above the table; the choice is stored in the browser. Off by default.
 
 ### Fixed
 

@@ -201,4 +201,43 @@ describe("BaseTable", () => {
     const updater = onRowSelectionChange.mock.calls[0][0];
     expect(typeof updater === "function" ? updater({}) : updater).toEqual({ "2": true });
   });
+
+  it("test_render_should_show_column_footers_only_when_enabled", () => {
+    // Test Data
+    const footerColumns = [
+      columnHelper.accessor("name", { header: "Name", footer: () => "Sum" }),
+      columnHelper.accessor("role", { header: "Role" }),
+    ];
+
+    // Test Action
+    const { container, rerender } = renderTable({ columns: footerColumns as typeof testColumns });
+
+    // Expected Result
+    expect(container.querySelector("tfoot")).not.toBeInTheDocument();
+
+    // Test Action
+    rerender(
+      <MemoryRouter>
+        <BaseTable columns={footerColumns as typeof testColumns} data={testData} showFooter />
+      </MemoryRouter>,
+    );
+
+    // Expected Result
+    expect(container.querySelector("tfoot")).toHaveTextContent("Sum");
+  });
+
+  it("test_render_should_hide_footer_without_rows", () => {
+    // Test Data
+    const footerColumns = [columnHelper.accessor("name", { header: "Name", footer: () => "Sum" })];
+
+    // Test Action
+    const { container } = renderTable({
+      columns: footerColumns as typeof testColumns,
+      data: [],
+      showFooter: true,
+    });
+
+    // Expected Result
+    expect(container.querySelector("tfoot")).not.toBeInTheDocument();
+  });
 });
