@@ -41,8 +41,6 @@ function Routing() {
                   <Route path="alliance/:allianceId/" element={<AllianceLedger />} />
                   <Route path="settings/" element={<SettingsPage />} />
                   <Route path="administration/" element={<AdministrationPage />} />
-                  <Route path="superuser/" element={<Navigate to={`/${ProjectName}/administration/`} replace />} />
-                  <Route path="admin/" element={<Navigate to={`/${ProjectName}/administration/`} replace />} />
                   <Route path="*" element={<ErrorPage />} />
                 </Route>
                 <Route path="*" element={<Navigate to={`/${ProjectName}/`} replace />} />

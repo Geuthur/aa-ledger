@@ -65,6 +65,7 @@ Section Order:
 ### Removed
 
 - The copies of the shared modules and their tests: `Components/Base/{BaseTable,BaseModal,Loader,BaseHeader}`, `Menu/`, `Hooks/{useCooldown,useFeedback,useUserData}`, `Utils/{bootsTrap,eveOnline,format,general}`, `Pages/Base.tsx`, `Pages/404.tsx`, `Styles/table.css`, the CSS modules of the BaseTable, loaders and tooltips, `eslint-rules/` and the rules of `Styles/index.css` the package ships (`aa-react.container`, `aa-menu-badge-pulse`, `aa-nav-danger`); `loadMenu` and `loadUserData` of `Api/ApiCalls.ts` (now in the package); the dev dependency `openapi-typescript-helpers`
+- The legacy redirects of the routes `superuser/` and `admin/` to `administration/`; the menu and all links use `administration/`
 
 <!-- Your changes go here -->
 
