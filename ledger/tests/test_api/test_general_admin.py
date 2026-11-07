@@ -141,7 +141,7 @@ class TestGeneralApi(AuthTestCase):
         self.assertIsNone(settings_link["badge"])
         self.assertFalse(settings_link["has_errors"])
 
-    def test_get_user_should_return_main_character_and_permissions(self):
+    def test_get_user_should_return_main_character_and_admin_flag(self):
         # Test Data
         self.client.force_login(self.manage_user)
 
@@ -154,9 +154,20 @@ class TestGeneralApi(AuthTestCase):
         self.assertEqual(
             data["character_id"], self.manage_user.profile.main_character.character_id
         )
-        self.assertTrue(data["can_manage"])
-        self.assertTrue(data["has_advanced_access"])
-        self.assertFalse(data["is_superuser"])
+        self.assertFalse(data["is_admin"])
+        self.assertNotIn("is_superuser", data)
+        self.assertNotIn("can_manage", data)
+
+    def test_get_user_should_flag_superuser_as_admin(self):
+        # Test Data
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.get(f"{self.api}/user/")
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(response.json()["is_admin"])
 
     @patch(TASKS_PATH)
     def test_queue_update_should_queue_all_characters(self, mock_tasks):

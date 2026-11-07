@@ -9,10 +9,8 @@ import {
   fetchCorporationDetails,
   fetchCorporationLedger,
   fetchPlanets,
-  loadMenu,
   loadSettingsOwners,
   loadSettingsUnregistered,
-  loadUserData,
   loadUserSettings,
   queueUpdate,
   togglePlanetNotification,
@@ -29,35 +27,6 @@ const failed = (error: unknown) =>
 describe("General API client functions", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-  });
-
-  it("loadUserData wraps the user", async () => {
-    // Test Data
-    const user = { user_id: 1, character_id: 42, character_name: "Test Pilot" };
-    vi.spyOn(apiClient, "GET").mockResolvedValueOnce(ok(user));
-
-    // Test Action
-    const result = await loadUserData();
-
-    // Expected Result
-    expect(result).toEqual({ user });
-    expect(apiClient.GET).toHaveBeenCalledWith("/ledger/api/user/");
-  });
-
-  it("loadUserData throws the API error message", async () => {
-    // Test Data
-    vi.spyOn(apiClient, "GET").mockResolvedValueOnce(failed({ error: "Permission Denied." }));
-
-    // Test Action / Expected Result
-    await expect(loadUserData()).rejects.toThrow("Permission Denied.");
-  });
-
-  it("loadMenu falls back to a generic message", async () => {
-    // Test Data
-    vi.spyOn(apiClient, "GET").mockResolvedValueOnce(failed({ status: 500 }));
-
-    // Test Action / Expected Result
-    await expect(loadMenu()).rejects.toThrow("Failed to load menu");
   });
 
   it("loadUserSettings returns the settings", async () => {

@@ -2,6 +2,7 @@
 import { useMemo, useState } from "react";
 
 // Third Party
+import { BaseModal } from "aa-geuthur-react";
 import { AlertTriangle, RotateCw, Trash2, UserRoundXIcon, Users } from "lucide-react";
 import { Alert, Button, Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
@@ -10,7 +11,6 @@ import { useTranslation } from "react-i18next";
 import styles from "@/Components/Base/BaseSettings/Settings.module.css";
 
 // AA Base
-import { BaseModal } from "@/Components/Base/BaseModal";
 import {
   OwnerFilterBar,
   type OwnerTypeFilter,

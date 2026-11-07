@@ -4,10 +4,10 @@ import { MemoryRouter } from "react-router-dom";
 // Third Party
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { formatIsk } from "aa-geuthur-react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import LedgerTable, { SHOW_TOTALS_STORAGE_KEY } from "@/Components/Ledger/LedgerView/LedgerTable";
-import { formatIsk } from "@/Utils/format";
 import type { LedgerRow } from "@/Utils/ledger";
 
 const row = (id: number, bounty: number, costs: number): LedgerRow => ({

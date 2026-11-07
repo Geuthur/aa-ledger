@@ -1,8 +1,8 @@
 // Third Party
+import { formatIsk } from "aa-geuthur-react";
 import { useTranslation } from "react-i18next";
 
 import type { RefTypeAmountSchema } from "@/Api/schema";
-import { formatIsk } from "@/Utils/format";
 import { MAX_REF_TYPE_BADGES, formatRefType } from "@/Utils/refTypes";
 
 export interface RefTypeBadgesProps {

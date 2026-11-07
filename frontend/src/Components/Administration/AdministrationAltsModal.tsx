@@ -2,6 +2,8 @@
 import React, { useMemo } from "react";
 
 // Third Party
+import { BaseModal, BaseTable, ModalSize, createBaseColumnHelper } from "aa-geuthur-react";
+import type { BaseColumnDef } from "aa-geuthur-react";
 import { RefreshCw } from "lucide-react";
 import { Button, ButtonGroup, Dropdown, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
@@ -11,10 +13,6 @@ import styles from "@/Styles/modules/Administration.module.css";
 
 // AA Ledger
 import type { AltSchema, AdministrationOwnerSchema } from "@/Api/schema";
-import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
-import { BaseTable } from "@/Components/Base/BaseTable";
-import { createBaseColumnHelper } from "@/Components/Base/BaseTable/tableFeatures";
-import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 
 export interface AdministrationAltsModalProps {

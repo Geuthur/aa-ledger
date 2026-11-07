@@ -2,6 +2,7 @@
 import { useMemo } from "react";
 
 // Third Party
+import { formatCompactNumber, formatIsk } from "aa-geuthur-react";
 import type { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 import { Card } from "react-bootstrap";
@@ -10,8 +11,6 @@ import { useTranslation } from "react-i18next";
 import type { BillboardSchema } from "@/Api/schema";
 import ChordChart from "@/Components/Ledger/LedgerView/ChordChart";
 import { buildTimelineChart } from "@/Utils/billboard";
-import { formatCompactNumber } from "@/Utils/format";
-import { formatIsk } from "@/Utils/format";
 
 export interface LedgerChartsProps {
   billboard?: BillboardSchema;

@@ -126,7 +126,7 @@ class ApiEndpoints:
                 HTTPStatus.FORBIDDEN: schema.ErrorSchema,
             },
             tags=self.tags,
-            summary="Get the current user and permissions",
+            summary="Get the current user and its main character",
         )
         def get_user(request: WSGIRequest):
             user = request.user
@@ -135,14 +135,7 @@ class ApiEndpoints:
 
             main_character = getattr(user.profile, "main_character", None)
             if main_character is None:
-                return schema.UserData(
-                    user_id=user.id,
-                    is_superuser=user.is_superuser,
-                    can_manage=General.has_perm(user, General.Permission.MANAGE_ACCESS),
-                    has_advanced_access=General.has_perm(
-                        user, General.Permission.ADVANCED_ACCESS
-                    ),
-                )
+                return schema.UserData(user_id=user.id, is_admin=user.is_superuser)
 
             return schema.UserData(
                 user_id=user.id,
@@ -156,11 +149,7 @@ class ApiEndpoints:
                     character_id=main_character.character_id,
                     character_name=main_character.character_name,
                 ),
-                is_superuser=user.is_superuser,
-                can_manage=General.has_perm(user, General.Permission.MANAGE_ACCESS),
-                has_advanced_access=General.has_perm(
-                    user, General.Permission.ADVANCED_ACCESS
-                ),
+                is_admin=user.is_superuser,
             )
 
         @api.get(

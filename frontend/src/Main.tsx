@@ -3,6 +3,8 @@ import React from 'react'
 import ReactDOM from "react-dom/client";
 
 // Third Party
+import { I18N_NAMESPACE } from "aa-geuthur-react";
+import 'aa-geuthur-react/styles.css';
 import i18n from "i18next";
 import Backend from "i18next-http-backend";
 import { initReactI18next } from "react-i18next";
@@ -10,7 +12,6 @@ import { initReactI18next } from "react-i18next";
 // Styles
 import '@/Styles/index.css';
 import '@/Styles/ledger.css';
-import '@/Styles/table.css';
 
 import { AppName, ProjectName } from '@/constants';
 import Routing from '@/Routing';
@@ -25,6 +26,8 @@ i18n
   .init({
     lng: djangoLanguage,
     fallbackLng: "en",
+    ns: ["translation", I18N_NAMESPACE],
+    defaultNS: "translation",
     keySeparator: false,
     nsSeparator: false,
     interpolation: {
