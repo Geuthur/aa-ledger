@@ -17,6 +17,7 @@ from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
     CorporationOwnerFactory,
     CorporationUpdateStatusFactory,
+    UserMainFactory,
 )
 from ledger.tests.testdata.users import create_manage_user
 
@@ -157,6 +158,23 @@ class TestGeneralApi(AuthTestCase):
         self.assertFalse(data["is_admin"])
         self.assertNotIn("is_superuser", data)
         self.assertNotIn("can_manage", data)
+
+    def test_get_user_without_main_character_should_return_the_user_only(self):
+        # Test Data
+        user = UserMainFactory()
+        user.profile.main_character = None
+        user.profile.save()
+        self.client.force_login(user)
+
+        # Test Action
+        response = self.client.get(f"{self.api}/user/")
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        data = response.json()
+        self.assertEqual(data["user_id"], user.id)
+        self.assertEqual(data["character_id"], 0)
+        self.assertFalse(data["is_admin"])
 
     def test_get_user_should_flag_superuser_as_admin(self):
         # Test Data
