@@ -1,4 +1,5 @@
 // Third Party
+import { formatIsk, renderTooltip } from "aa-geuthur-react";
 import {
   Boxes,
   Info,
@@ -12,8 +13,6 @@ import { Button, Card, Col, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import { HelpTooltip } from "@/Components/Base/HelpTooltip";
-import { renderTooltip } from "@/Utils/bootsTrap";
-import { formatIsk } from "@/Utils/format";
 import { amountClass } from "@/Utils/ledger";
 import type { LedgerTotals } from "@/Utils/ledger";
 

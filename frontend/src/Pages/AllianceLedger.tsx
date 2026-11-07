@@ -2,6 +2,7 @@
 import { useParams } from "react-router-dom";
 
 // Third Party
+import { useUserData } from "aa-geuthur-react";
 import { useTranslation } from "react-i18next";
 
 import { fetchAllianceDetails } from "@/Api/ApiCalls";
@@ -12,7 +13,6 @@ import LedgerNavButton from "@/Components/Ledger/LedgerNavButton";
 import LedgerView from "@/Components/Ledger/LedgerView";
 import { useDateFilter } from "@/Hooks/useDateFilter";
 import { useDetailsState } from "@/Hooks/useLedgerState";
-import { useUserData } from "@/Hooks/useUserData";
 import { corporationRows } from "@/Utils/ledger";
 
 export interface AllianceLedgerProps {

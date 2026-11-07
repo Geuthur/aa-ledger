@@ -28,7 +28,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get the current user and permissions */
+        /** Get the current user and its main character */
         get: operations["ledger_api_general_get_user"];
         put?: never;
         post?: never;
@@ -513,7 +513,10 @@ export interface components {
         };
         /**
          * UserData
-         * @description The current user, its main character and the permissions the UI depends on.
+         * @description The current user and its main character, as the `UserData` type of aa-geuthur-react expects it.
+         *
+         *     `is_admin` is the superuser flag: it unlocks the global update tasks and the
+         *     force refresh of the Administration, which the API restricts to superusers.
          */
         UserData: {
             /** User Id */
@@ -545,20 +548,10 @@ export interface components {
             /** Portrait */
             portrait?: string | null;
             /**
-             * Is Superuser
+             * Is Admin
              * @default false
              */
-            is_superuser: boolean;
-            /**
-             * Can Manage
-             * @default false
-             */
-            can_manage: boolean;
-            /**
-             * Has Advanced Access
-             * @default false
-             */
-            has_advanced_access: boolean;
+            is_admin: boolean;
         };
         /**
          * UserSettingsSchema

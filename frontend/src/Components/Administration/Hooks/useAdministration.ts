@@ -3,6 +3,7 @@ import { useState } from "react";
 
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useUserData } from "aa-geuthur-react";
 
 // AA Ledger
 import {
@@ -12,7 +13,6 @@ import {
   triggerAdministrationOwnerUpdate,
 } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
-import { useUserData } from "@/Hooks/useUserData";
 
 export interface TaskFeedback {
   variant: "success" | "danger";
@@ -27,10 +27,10 @@ export function useAdministrationOwners() {
   });
 }
 
-/** Tells whether the current user is a superuser (global update tasks, force refresh). */
-export function useIsSuperuser() {
+/** Tells whether the current user is an admin (`is_admin` of the user endpoint, the superuser flag: global update tasks, force refresh). */
+export function useIsAdmin() {
   const { data } = useUserData();
-  return data?.user.is_superuser ?? false;
+  return data?.user.is_admin ?? false;
 }
 
 /**

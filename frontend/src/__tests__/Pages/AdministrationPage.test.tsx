@@ -5,6 +5,8 @@ import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useUserData } from "aa-geuthur-react";
+import type { UserData } from "aa-geuthur-react";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -15,12 +17,17 @@ import AdministrationPage from "@/Pages/AdministrationPage";
 
 vi.mock("react-apexcharts", () => ({ default: () => <div data-testid="chart" /> }));
 
+// useUserData of the package calls the `user/` endpoint itself, so the hook is mocked, not the call.
+vi.mock("aa-geuthur-react", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("aa-geuthur-react")>();
+  return { ...actual, useUserData: vi.fn() };
+});
+
 vi.mock("@/Api/ApiCalls", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/Api/ApiCalls")>();
   return {
     ...actual,
     loadAdministrationOwners: vi.fn(),
-    loadUserData: vi.fn(),
     triggerAdministrationOwnerUpdate: vi.fn(),
     deleteAdministrationOwner: vi.fn(),
     loadAdministrationOwnerInspect: vi.fn(),
@@ -31,6 +38,9 @@ vi.mock("@/Api/ApiCalls", async (importOriginal) => {
     queueUpdate: vi.fn(),
   };
 });
+
+const userQuery = (user: UserData) =>
+  ({ data: { user }, isLoading: false, error: null }) as unknown as ReturnType<typeof useUserData>;
 
 const mockOwners: AdministrationOwnerSchema[] = [
   {
@@ -97,18 +107,16 @@ const renderPage = () => {
 describe("AdministrationPage in aa-ledger", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(ApiCalls.loadUserData).mockResolvedValue({
-      user: {
+    vi.mocked(useUserData).mockReturnValue(
+      userQuery({
         user_id: 1,
         character_id: 1001,
         character_name: "Test User",
         corporation_id: 2001,
         corporation_name: "Test Corp",
-        is_superuser: true,
-        can_manage: true,
-        has_advanced_access: true,
-      },
-    });
+        is_admin: true,
+      }),
+    );
   });
 
   it("renders administration page with metrics and table", async () => {
@@ -301,20 +309,18 @@ describe("AdministrationPage in aa-ledger", () => {
     });
   });
 
-  it("does not render global task administration panel for non-superuser", async () => {
+  it("does not render global task administration panel for non-admins", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadUserData).mockResolvedValue({
-      user: {
+    vi.mocked(useUserData).mockReturnValue(
+      userQuery({
         user_id: 2,
         character_id: 1002,
         character_name: "Non Admin",
         corporation_id: 2002,
         corporation_name: "Other Corp",
-        is_superuser: false,
-        can_manage: true,
-        has_advanced_access: false,
-      },
-    });
+        is_admin: false,
+      }),
+    );
     vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
 
     // Test Action
@@ -325,7 +331,7 @@ describe("AdministrationPage in aa-ledger", () => {
     expect(screen.queryByTestId("toggle-task-panel")).not.toBeInTheDocument();
   });
 
-  it("offers force refresh in the update menu for superusers", async () => {
+  it("offers force refresh in the update menu for admins", async () => {
     // Test Data
     const user = userEvent.setup();
     vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
@@ -340,21 +346,19 @@ describe("AdministrationPage in aa-ledger", () => {
     expect(screen.getByText("Force Refresh (Bypass Cache)")).toBeInTheDocument();
   });
 
-  it("hides force refresh in the update menu for non-superuser", async () => {
+  it("hides force refresh in the update menu for non-admins", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadUserData).mockResolvedValue({
-      user: {
+    vi.mocked(useUserData).mockReturnValue(
+      userQuery({
         user_id: 2,
         character_id: 1002,
         character_name: "Non Admin",
         corporation_id: 2002,
         corporation_name: "Other Corp",
-        is_superuser: false,
-        can_manage: true,
-        has_advanced_access: false,
-      },
-    });
+        is_admin: false,
+      }),
+    );
     vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
     renderPage();
     await screen.findByText("John Doe");

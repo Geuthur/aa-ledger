@@ -2,11 +2,11 @@
 import React from "react";
 
 // Third Party
+import { BaseModal, ModalSize } from "aa-geuthur-react";
 import { Badge } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA Ledger
-import BaseModal, { ModalSize } from "@/Components/Base/BaseModal";
 
 /** Props of the modal that shows the full error message of an owner. */
 export interface AdministrationErrorModalProps {

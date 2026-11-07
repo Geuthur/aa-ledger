@@ -2,13 +2,11 @@
 import type { ReactNode } from "react";
 
 // Third Party
+import { BaseSectionHeader, ErrorLoader, FetchingLoader } from "aa-geuthur-react";
 import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import type { BillboardSchema, Section } from "@/Api/schema";
-import BaseSectionHeader from "@/Components/Base/BaseHeader";
-import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
-import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
 import LedgerCharts from "@/Components/Ledger/LedgerView/LedgerCharts";
 import LedgerSummary from "@/Components/Ledger/LedgerView/LedgerSummary";
 import LedgerTable from "@/Components/Ledger/LedgerView/LedgerTable";

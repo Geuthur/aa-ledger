@@ -294,5 +294,6 @@
   "The ESI token is invalid or expired. Re-add the character or corporation.": "The ESI token is invalid or expired. Re-add the character or corporation.",
   "No error message available.": "No error message available.",
   "Error details of {{name}}": "Error details of {{name}}",
-  "Show error details of {{name}}": "Show error details of {{name}}"
+  "Show error details of {{name}}": "Show error details of {{name}}",
+  "Show totals row": "Show totals row"
 }

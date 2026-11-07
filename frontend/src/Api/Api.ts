@@ -1,25 +1,8 @@
 // Third Party
-import Cookies from "js-cookie";
-import createClient from "openapi-fetch";
-import type { PathsWithMethod } from "openapi-typescript-helpers";
+import { createApiClient } from "aa-geuthur-react";
 
+// AA Ledger
 import type { paths } from "@/Api/OpenApi";
 
-export type GetEndpoint = PathsWithMethod<paths, "get">;
-
-export const apiClient = createClient<paths>({
-  baseUrl: "/",
-  credentials: "same-origin",
-});
-
-apiClient.use({
-  async onRequest({ request }) {
-    const csrf = Cookies.get("csrftoken");
-    if (csrf) {
-      request.headers.set("X-CSRFToken", csrf);
-    }
-    return request;
-  },
-});
-
-export const getCatApi = () => apiClient;
+/** The API client of the app: openapi-fetch with the Django CSRF header, typed with the generated paths. */
+export const apiClient = createApiClient<paths>();

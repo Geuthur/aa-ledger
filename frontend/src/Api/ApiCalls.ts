@@ -12,7 +12,6 @@ import type {
   DateFilterParams,
   LedgerDetailsResponse,
   LedgerOverviewResponse,
-  MenuSchema,
   MessageSchema,
   NotificationResponse,
   PlanetDetailResponse,
@@ -22,7 +21,6 @@ import type {
   SettingsUnregisteredResponse,
   AdministrationOwnerSchema,
   AdministrationOwnerUpdateRequest,
-  UserData,
   UserSettingsSchema,
   UserSettingsUpdateRequest,
 } from "@/Api/schema";
@@ -37,22 +35,6 @@ function errorMessage(error: unknown, fallback: string): string {
     if (typeof message === "string") return message;
   }
   return fallback;
-}
-
-export async function loadUserData(): Promise<{ user: UserData }> {
-  const { data, error } = await apiClient.GET(`${API_BASE}/user/`);
-  if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load user data"));
-  }
-  return { user: data };
-}
-
-export async function loadMenu(): Promise<MenuSchema> {
-  const { data, error } = await apiClient.GET(`${API_BASE}/menu/`);
-  if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load menu"));
-  }
-  return data;
 }
 
 export async function loadUserSettings(): Promise<UserSettingsSchema> {

@@ -2,6 +2,7 @@
 import { Fragment, useMemo, useState } from "react";
 
 // Third Party
+import { formatIsk, renderTooltip } from "aa-geuthur-react";
 import { chordDirected, ribbonArrow } from "d3-chord";
 import type { Chord, ChordGroup, ChordSubgroup, Chords } from "d3-chord";
 import { schemeTableau10 } from "d3-scale-chromatic";
@@ -13,8 +14,6 @@ import { useTranslation } from "react-i18next";
 import type { BillboardData } from "@/Api/schema";
 import { useAnimationProgress, prefersReducedMotion } from "@/Hooks/useAnimationProgress";
 import { buildChordMatrix } from "@/Utils/billboard";
-import { renderTooltip } from "@/Utils/bootsTrap";
-import { formatIsk } from "@/Utils/format";
 
 const SIZE = 560;
 const LABEL_SPACE = 110;

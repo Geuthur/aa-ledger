@@ -2,11 +2,9 @@
 import { Navigate } from "react-router-dom";
 
 // Third Party
+import { ErrorLoader, FetchingLoader, useUserData } from "aa-geuthur-react";
 import { useTranslation } from "react-i18next";
 
-import ErrorLoader from "@/Components/Base/Loader/ErrorLoader";
-import FetchingLoader from "@/Components/Base/Loader/FetchingLoader";
-import { useUserData } from "@/Hooks/useUserData";
 
 export interface MainCharacterRedirectProps {
   /** Route of the main character, e.g. `character` for `/ledger/character/{id}/`. */

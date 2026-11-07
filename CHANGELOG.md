@@ -55,6 +55,18 @@ Section Order:
 - Active/Inactive status badge from the owner cards on the `OverviewPage`.
 - Unused CSS classes, theme variables and keyframes (status indicator, link, `aa-bg-*` and others) and the unused `BaseModalQuery` component.
 
+### Changed
+
+- The shared React base comes from the npm package [`aa-geuthur-react`](https://github.com/Geuthur/aa-geuthur-react) 1.0.2 (BaseTable stack, BaseModal, loaders, `BaseSectionHeader`, menu, `useMenu`, `useUserData`, `useCooldown`, `useFeedback`, `AuthBase`, `ErrorPage`, utils, `createApiClient`, `queryKeys`, styles, ESLint rule `import-headings`). `Routing.tsx` wraps the app in `AaReactProvider`, `Main.tsx` loads the namespace `aa-geuthur-react` next to `translation` and `Styles/index.css` imports `aa-geuthur-react/styles.css` first (as `@import`, so the styles land in the CSS file of the app that `react_base.html` loads), `apiClient` is `createApiClient<paths>()`, the app query keys extend the `queryKeys` of the package
+- The `user/` endpoint follows the `UserData` type of the package: `is_superuser` is now `is_admin` (still the superuser flag, which unlocks the global update tasks and the force refresh of the Administration); the unused fields `can_manage` and `has_advanced_access` are gone; the Administration hook and props are named `useIsAdmin` and `isAdmin` accordingly
+- `make react-copy-translations` also copies `i18n/<lng>/aa-geuthur-react.json` of the package into `static/ledger/i18n/<lng>/`
+- Menu links keep the query string of the current page when navigating, like the other apps on the package
+
+### Removed
+
+- The copies of the shared modules and their tests: `Components/Base/{BaseTable,BaseModal,Loader,BaseHeader}`, `Menu/`, `Hooks/{useCooldown,useFeedback,useUserData}`, `Utils/{bootsTrap,eveOnline,format,general}`, `Pages/Base.tsx`, `Pages/404.tsx`, `Styles/table.css`, the CSS modules of the BaseTable, loaders and tooltips, `eslint-rules/` and the rules of `Styles/index.css` the package ships (`aa-react.container`, `aa-menu-badge-pulse`, `aa-nav-danger`); `loadMenu` and `loadUserData` of `Api/ApiCalls.ts` (now in the package); the dev dependency `openapi-typescript-helpers`
+- The legacy redirects of the routes `superuser/` and `admin/` to `administration/`; the menu and all links use `administration/`
+
 <!-- Your changes go here -->
 
 ## [4.1.0] - 2026-10-25

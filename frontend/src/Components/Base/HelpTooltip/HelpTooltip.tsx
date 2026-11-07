@@ -2,10 +2,10 @@
 import type React from "react";
 
 // Third Party
+import { renderTooltip } from "aa-geuthur-react";
 import { CircleHelp } from "lucide-react";
 
 // AA Ledger
-import { renderTooltip } from "@/Utils/bootsTrap";
 
 export interface HelpTooltipProps {
   /** Text shown in the tooltip. */

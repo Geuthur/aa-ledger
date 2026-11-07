@@ -31,7 +31,7 @@ import {
 import {
   useAdministrationActions,
   useAdministrationOwners,
-  useIsSuperuser,
+  useIsAdmin,
 } from "@/Components/Administration/Hooks";
 import { FilterButtonGroup } from "@/Components/Base/FilterButtonGroup";
 
@@ -61,7 +61,7 @@ export const AdministrationPage: React.FC = () => {
 
   // Data and actions
   const { data: owners, isLoading, isError } = useAdministrationOwners();
-  const isSuperuser = useIsSuperuser();
+  const isAdmin = useIsAdmin();
   const actions = useAdministrationActions(() => setOwnerToDelete(null));
 
   // Metrics
@@ -171,8 +171,8 @@ export const AdministrationPage: React.FC = () => {
         {/* Global Statistics Cards */}
         <AdministrationKpiCards metrics={metrics} />
 
-        {/* Global Task Update Panel (Collapsible) - Only for Superusers */}
-        {isSuperuser && (
+        {/* Global Task Update Panel (Collapsible) - Only for admins */}
+        {isAdmin && (
           <AdministrationTaskPanel
             showTaskPanel={showTaskPanel}
             onToggleTaskPanel={() => setShowTaskPanel((prev) => !prev)}
@@ -222,7 +222,7 @@ export const AdministrationPage: React.FC = () => {
           isLoading={isLoading}
           isError={isError}
           updatingKey={actions.updatingKey}
-          isSuperuser={isSuperuser}
+          isAdmin={isAdmin}
           onInspect={(owner) => {
             setInspectOwnerType(owner.owner_type);
             setInspectOwnerId(owner.owner_id);
