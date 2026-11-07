@@ -18,7 +18,7 @@ import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 export interface AdministrationAltsModalProps {
   owner: AdministrationOwnerSchema | null;
   updatingKey: string | null;
-  isSuperuser?: boolean;
+  isAdmin?: boolean;
   onHide: () => void;
   onTriggerUpdate: (
     ownerType: "character" | "corporation",
@@ -30,7 +30,7 @@ export interface AdministrationAltsModalProps {
 export const AdministrationAltsModal: React.FC<AdministrationAltsModalProps> = ({
   owner,
   updatingKey,
-  isSuperuser = false,
+  isAdmin = false,
   onHide,
   onTriggerUpdate,
 }) => {
@@ -150,7 +150,7 @@ export const AdministrationAltsModal: React.FC<AdministrationAltsModalProps> = (
                   <RefreshCw size={14} className="me-2 text-primary" />
                   {t("Normal Update")}
                 </Dropdown.Item>
-                {isSuperuser && (
+                {isAdmin && (
                   <Dropdown.Item
                     onClick={() =>
                       onTriggerUpdate("character", owner.owner_id, true)

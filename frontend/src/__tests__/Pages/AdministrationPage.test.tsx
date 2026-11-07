@@ -309,7 +309,7 @@ describe("AdministrationPage in aa-ledger", () => {
     });
   });
 
-  it("does not render global task administration panel for non-superuser", async () => {
+  it("does not render global task administration panel for non-admins", async () => {
     // Test Data
     vi.mocked(useUserData).mockReturnValue(
       userQuery({
@@ -331,7 +331,7 @@ describe("AdministrationPage in aa-ledger", () => {
     expect(screen.queryByTestId("toggle-task-panel")).not.toBeInTheDocument();
   });
 
-  it("offers force refresh in the update menu for superusers", async () => {
+  it("offers force refresh in the update menu for admins", async () => {
     // Test Data
     const user = userEvent.setup();
     vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
@@ -346,7 +346,7 @@ describe("AdministrationPage in aa-ledger", () => {
     expect(screen.getByText("Force Refresh (Bypass Cache)")).toBeInTheDocument();
   });
 
-  it("hides force refresh in the update menu for non-superuser", async () => {
+  it("hides force refresh in the update menu for non-admins", async () => {
     // Test Data
     const user = userEvent.setup();
     vi.mocked(useUserData).mockReturnValue(

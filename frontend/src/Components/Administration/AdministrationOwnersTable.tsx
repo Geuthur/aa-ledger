@@ -31,7 +31,7 @@ interface AdministrationOwnersTableProps {
   isLoading: boolean;
   isError: boolean;
   updatingKey: string | null;
-  isSuperuser?: boolean;
+  isAdmin?: boolean;
   onInspect: (owner: AdministrationOwnerSchema) => void;
   onTriggerUpdate: (ownerType: "character" | "corporation", ownerId: number, forceRefresh: boolean) => void;
   onDelete: (owner: AdministrationOwnerSchema) => void;
@@ -42,7 +42,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
   isLoading,
   isError,
   updatingKey,
-  isSuperuser = false,
+  isAdmin = false,
   onInspect,
   onTriggerUpdate,
   onDelete,
@@ -301,7 +301,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
                     <RefreshCw size={14} className="me-2 text-primary" />
                     {t("Normal Update")}
                   </Dropdown.Item>
-                  {isSuperuser && (
+                  {isAdmin && (
                     <Dropdown.Item
                       onClick={() => onTriggerUpdate(targetOwnerType, owner.owner_id, true)}
                     >
@@ -331,7 +331,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
         },
       }),
     ];
-  }, [t, updatingKey, isSuperuser, onInspect, onTriggerUpdate, onDelete]);
+  }, [t, updatingKey, isAdmin, onInspect, onTriggerUpdate, onDelete]);
 
   return (
     <>
@@ -351,7 +351,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
       <AdministrationAltsModal
         owner={selectedAltsOwner}
         updatingKey={updatingKey}
-        isSuperuser={isSuperuser}
+        isAdmin={isAdmin}
         onHide={() => setSelectedAltsOwner(null)}
         onTriggerUpdate={onTriggerUpdate}
       />

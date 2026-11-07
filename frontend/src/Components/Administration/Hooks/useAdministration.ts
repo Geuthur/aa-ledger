@@ -27,8 +27,8 @@ export function useAdministrationOwners() {
   });
 }
 
-/** Tells whether the current user is a superuser (`is_admin` of the user endpoint: global update tasks, force refresh). */
-export function useIsSuperuser() {
+/** Tells whether the current user is an admin (`is_admin` of the user endpoint, the superuser flag: global update tasks, force refresh). */
+export function useIsAdmin() {
   const { data } = useUserData();
   return data?.user.is_admin ?? false;
 }
