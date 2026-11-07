@@ -61,6 +61,7 @@ Section Order:
 - The `user/` endpoint follows the `UserData` type of the package: `is_superuser` is now `is_admin` (still the superuser flag, which unlocks the global update tasks and the force refresh of the Administration); the unused fields `can_manage` and `has_advanced_access` are gone
 - `make react-copy-translations` also copies `i18n/<lng>/aa-geuthur-react.json` of the package into `static/ledger/i18n/<lng>/`
 - Menu links keep the query string of the current page when navigating, like the other apps on the package
+- `react_base.html` loads the CSS of every chunk the entry imports, not only the CSS of the entry: Vite puts the styles of `aa-geuthur-react` into the vendor chunk, which the page never loaded
 
 ### Removed
 
