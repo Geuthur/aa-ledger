@@ -2,6 +2,9 @@
 from http import HTTPStatus
 from unittest.mock import patch
 
+# Third Party
+from ninja.testing import TestClient
+
 # Django
 from django.core.cache import cache
 from django.urls import reverse
@@ -10,6 +13,7 @@ from django.urls import reverse
 from evesde_factory.allianceauth import EveCharacterFactory, EveCorporationInfoFactory
 
 # AA Ledger
+from ledger.api import api
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.helpers.update_manager import CorporationUpdateSection
 from ledger.tests import AuthTestCase
@@ -164,10 +168,11 @@ class TestGeneralApi(AuthTestCase):
         user = UserMainFactory()
         user.profile.main_character = None
         user.profile.save()
-        self.client.force_login(user)
+        # Alliance Auth redirects such a user before the view, so the API is called directly.
+        client = TestClient(api)
 
         # Test Action
-        response = self.client.get(f"{self.api}/user/")
+        response = client.get("/user/", user=user)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
