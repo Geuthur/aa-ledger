@@ -56,32 +56,6 @@
         });
     }
 
-    // Collects the CSS of the entry and of every chunk it imports, imports first, each file once.
-    function collectChunkCSS(manifest, entry) {
-        const seen = new Set();
-        const cssFiles = [];
-
-        function visit(chunk) {
-            if (!chunk || seen.has(chunk)) {
-                return;
-            }
-
-            seen.add(chunk);
-            (chunk.imports || []).forEach(function (name) {
-                visit(manifest[name]);
-            });
-            (chunk.css || []).forEach(function (cssFile) {
-                if (!cssFiles.includes(cssFile)) {
-                    cssFiles.push(cssFile);
-                }
-            });
-        }
-
-        visit(entry);
-
-        return cssFiles;
-    }
-
     function loadReactScript(scriptFile) {
         const script = document.createElement('script');
 
@@ -107,9 +81,7 @@
                 throw new Error('React-Entry im Manifest fehlt');
             }
 
-            // The CSS of imported chunks (e.g. the styles of aa-geuthur-react in the
-            // vendor chunk) comes first, so the stylesheet of the app can override it.
-            loadCSS(collectChunkCSS(manifest, entry));
+            loadCSS(entry.css || []);
             loadReactScript(entry.file);
         })
         .catch(function (error) {

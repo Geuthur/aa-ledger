@@ -1,3 +1,6 @@
+/* The styles of the shared React base come first, so the rules below can override them. */
+@import "aa-geuthur-react/styles.css";
+
 /*
  * AllianceAuth CSS not colliding with BS5
  */

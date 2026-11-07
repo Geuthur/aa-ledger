@@ -57,11 +57,10 @@ Section Order:
 
 ### Changed
 
-- The shared React base comes from the npm package [`aa-geuthur-react`](https://github.com/Geuthur/aa-geuthur-react) (BaseTable stack, BaseModal, loaders, `BaseSectionHeader`, menu, `useMenu`, `useUserData`, `useCooldown`, `useFeedback`, `AuthBase`, `ErrorPage`, utils, `createApiClient`, `queryKeys`, styles, ESLint rule `import-headings`). `Routing.tsx` wraps the app in `AaReactProvider`, `Main.tsx` loads the namespace `aa-geuthur-react` next to `translation` and imports `aa-geuthur-react/styles.css`, `apiClient` is `createApiClient<paths>()`, the app query keys extend the `queryKeys` of the package
+- The shared React base comes from the npm package [`aa-geuthur-react`](https://github.com/Geuthur/aa-geuthur-react) (BaseTable stack, BaseModal, loaders, `BaseSectionHeader`, menu, `useMenu`, `useUserData`, `useCooldown`, `useFeedback`, `AuthBase`, `ErrorPage`, utils, `createApiClient`, `queryKeys`, styles, ESLint rule `import-headings`). `Routing.tsx` wraps the app in `AaReactProvider`, `Main.tsx` loads the namespace `aa-geuthur-react` next to `translation` and `Styles/index.css` imports `aa-geuthur-react/styles.css` first (as `@import`, so the styles land in the CSS file of the app that `react_base.html` loads), `apiClient` is `createApiClient<paths>()`, the app query keys extend the `queryKeys` of the package
 - The `user/` endpoint follows the `UserData` type of the package: `is_superuser` is now `is_admin` (still the superuser flag, which unlocks the global update tasks and the force refresh of the Administration); the unused fields `can_manage` and `has_advanced_access` are gone
 - `make react-copy-translations` also copies `i18n/<lng>/aa-geuthur-react.json` of the package into `static/ledger/i18n/<lng>/`
 - Menu links keep the query string of the current page when navigating, like the other apps on the package
-- `react_base.html` loads the CSS of every chunk the entry imports, not only the CSS of the entry: Vite puts the styles of `aa-geuthur-react` into the vendor chunk, which the page never loaded
 
 ### Removed
 
