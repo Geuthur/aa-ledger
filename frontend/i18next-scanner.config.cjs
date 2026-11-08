@@ -16,12 +16,12 @@ module.exports = {
       extensions: [".js", ".jsx"],
     },
     trans: false,
-    lngs: ["en", "de", "es", "it-IT", "ko-KR", "fr-FR", "nl-NL", "pl-PL", "ru", "uk", "zh-Hans", "ja"],
+    lngs: ["en"],
     ns: ["translation"],
     defaultLng: "en",
     defaultNs: "translation",
     defaultValue: function (lng, ns, key) {
-      return lng === "en" ? key : "";
+      return key;
     },
     resource: {
       loadPath: "i18n/{{lng}}/{{ns}}.json",
