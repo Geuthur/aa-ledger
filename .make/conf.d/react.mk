@@ -44,12 +44,6 @@ react-copy-translations:
 	@echo "Copying translations to $(REACT__STATIC_DIR)/i18n"
 	@mkdir -p $(REACT__STATIC_DIR)
 	@cp -r $(REACT__EXECUTABLE)/i18n $(REACT__STATIC_DIR)/i18n
-	@echo "Copying aa-geuthur-react translations to $(REACT__STATIC_DIR)/i18n"
-	@for lng_dir in $(REACT__EXECUTABLE)/node_modules/aa-geuthur-react/i18n/*/; do \
-		lng=$$(basename "$$lng_dir"); \
-		mkdir -p "$(REACT__STATIC_DIR)/i18n/$$lng"; \
-		cp "$$lng_dir/aa-geuthur-react.json" "$(REACT__STATIC_DIR)/i18n/$$lng/"; \
-	done
 	@echo "Translations copied successfully"
 
 # React Translations Scanner

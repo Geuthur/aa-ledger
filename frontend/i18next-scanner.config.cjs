@@ -21,7 +21,7 @@ module.exports = {
     defaultLng: "en",
     defaultNs: "translation",
     defaultValue: function (lng, ns, key) {
-      return key;
+      return lng === "en" ? key : "";
     },
     resource: {
       loadPath: "i18n/{{lng}}/{{ns}}.json",
