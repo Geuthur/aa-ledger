@@ -41,6 +41,7 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] Language files other than `en` hold only real translations as Weblate writes them; untranslated strings are no longer stored as empty values, and missing keys fall back to English. `i18next-scanner` now maintains only `frontend/i18n/en/translation.json`. A one-time cleanup removed the empty entries from all other languages.
 - [CHANGE] Real translations from the unmerged Weblate branch `weblate-translation` taken over into `frontend/i18n/<lng>/translation.json` (33 to 40 values per language, 1 for German, which already had them), after the bundled-translations switch had emptied them. New `frontend/i18n/cs` and `frontend/i18n/sk` with the same rule. Empty values stay empty; the Django `.po` files had nothing to take over.
 - [CHANGE] `aa-geuthur-react` raised to `^1.3.0`. The package bundles its own translations and registers them with i18next through `AaReactProvider`, so `Main.tsx` lists only the namespace `translation`, the copies under `ledger/static/ledger/i18n/<lng>/aa-geuthur-react.json` are removed and `make react-copy-translations` no longer copies them. Untranslated strings in `frontend/i18n/<lng>/translation.json` are empty instead of English (`i18next-scanner` writes the key as value only for `en`); `returnEmptyString: false` shows the English fallback at runtime. Translate on Weblate as before.
 - Frontend inline styles and hard-coded colors replaced by Bootstrap 5 classes and CSS classes; relative imports replaced by `@/` imports and missing `index.ts` files added.

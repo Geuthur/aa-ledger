@@ -216,7 +216,7 @@ Advanced Settings: Stale Status for Each Section
 
 [![Translations](https://weblate.geuthur.de/widget/allianceauth/aa-ledger/multi-auto.svg)](https://weblate.geuthur.de/engage/allianceauth/)
 
-The texts of the app live in the namespace `translation` (`frontend/i18n/<lng>/translation.json`). The shared frontend components (tables, modals, menu, loaders) come from the npm package [aa-geuthur-react](https://github.com/Geuthur/aa-geuthur-react); their texts live in the namespace `aa-geuthur-react`, the package bundles them and registers them with i18next itself, so the app neither copies nor loads them. Both are translated on Weblate, the package in its own component. Only `en` holds the English text as value; in the other languages untranslated strings are empty and fall back to English at runtime (`returnEmptyString: false`).
+The texts of the app live in the namespace `translation` (`frontend/i18n/<lng>/translation.json`). The shared frontend components (tables, modals, menu, loaders) come from the npm package [aa-geuthur-react](https://github.com/Geuthur/aa-geuthur-react); their texts live in the namespace `aa-geuthur-react`, the package bundles them and registers them with i18next itself, so the app neither copies nor loads them. Both are translated on Weblate, the package in its own component. Only `en` holds the English text; the other languages contain only real translations, exactly as Weblate writes them, and a missing key falls back to English at runtime (`fallbackLng: "en"`).
 
 Help us translate this app into your language or improve existing translations. Join our team!"
 
