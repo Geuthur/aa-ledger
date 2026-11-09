@@ -31,6 +31,7 @@ Section Order:
 - Reusable frontend components `OwnerPortrait`, `HelpTooltip`, `FilterButtonGroup` and `LedgerNavButton`, replacing several inline copies.
 - Frontend hooks per area (`Components/<Area>/Hooks`) that hold the queries and mutations of the Administration, Settings, Overview, Planetary and Ledger views, plus the shared hooks `useFeedback`, `useCooldown` and `useUserData`.
 - Optional totals row in the ledger tables (character, corporation and alliance). It shows the same sums as the summary cards and is switched on with "Show totals row" above the table; the choice is stored in the browser. Off by default.
+- Optional extra `tests-allianceauth-development` (test packages plus the Alliance Auth 6 pre-release) with separate test settings in `testauth/settings/development/` for the tox environment `allianceauth-development` and `make tox-tests-development`; a non-blocking CI job "AA Development" runs it on Python 3.13 and 3.14
 
 ### Fixed
 
@@ -41,6 +42,7 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] Compatibility with Alliance Auth 6 (works with Alliance Auth 5 as before): the migrations that depended on `eveonline` `0017_alliance_and_corp_names_are_not_unique` (removed in Alliance Auth 6) now depend on `eveonline` `0019_v5squash`, which exists in both versions and replaces `0001` to `0018`. The alts lookup in `get_alts_queryset` filters by the `EveCharacter` primary key instead of the `id` field, which no longer exists in Alliance Auth 6.
 - [CHANGE] Language files other than `en` hold only real translations as Weblate writes them; untranslated strings are no longer stored as empty values, and missing keys fall back to English. `i18next-scanner` now maintains only `frontend/i18n/en/translation.json`. A one-time cleanup removed the empty entries from all other languages.
 - [CHANGE] Real translations from the unmerged Weblate branch `weblate-translation` taken over into `frontend/i18n/<lng>/translation.json` (33 to 40 values per language, 1 for German, which already had them), after the bundled-translations switch had emptied them. New `frontend/i18n/cs` and `frontend/i18n/sk` with the same rule. Empty values stay empty; the Django `.po` files had nothing to take over.
 - [CHANGE] `aa-geuthur-react` raised to `^1.3.0`. The package bundles its own translations and registers them with i18next through `AaReactProvider`, so `Main.tsx` lists only the namespace `translation`, the copies under `ledger/static/ledger/i18n/<lng>/aa-geuthur-react.json` are removed and `make react-copy-translations` no longer copies them. Untranslated strings in `frontend/i18n/<lng>/translation.json` are empty instead of English (`i18next-scanner` writes the key as value only for `en`); `returnEmptyString: false` shows the English fallback at runtime. Translate on Weblate as before.

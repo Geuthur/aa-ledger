@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("eveonline", "0017_alliance_and_corp_names_are_not_unique"),
+        ("eveonline", "0019_v5squash"),
         (
             "ledger",
             "0018_remove_characterplanet_ledger_char_planet__58a5b6_idx_and_more",

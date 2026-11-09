@@ -170,3 +170,64 @@ jobs:
           verbose: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  # Run Tests against the Alliance Auth development (pre-release) version
+  # Non-blocking: not part of the "Pass All Checks" ruleset
+  test-development:
+    needs: [pre-commit, frontend]
+    name: AA Development (Python ${{ matrix.python-version }} with ${{ matrix.database }})
+    runs-on: ubuntu-latest
+
+    continue-on-error: true
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - '3.13'
+          - '3.14'
+        database:
+          - mariadb:11.4
+
+    # Set up services
+    services:
+      database:
+        image: ${{ matrix.database }}
+        env:
+          MYSQL_ROOT_PASSWORD: temp_password_aa_tox_tests
+          MYSQL_DATABASE: temp_allianceauth
+        ports:
+          - 3306:3306
+        options: --tmpfs /var/lib/mysql
+
+    steps:
+      # Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install Redis
+        uses: shogo82148/actions-setup-redis@v1.60.0
+        with:
+          redis-version: ${{ env.REDIS_VERSION }}
+
+      - name: Verify Redis is running
+        run: |
+          redis-cli ping
+          redis-cli info
+
+      # Set up Python
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Install Tox and any other packages
+      - name: Install Tox and any other packages
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade tox tox-gh-actions
+
+      # Run Tox with the specified environment
+      - name: Run Tox
+        env:
+          TOX_ENV: allianceauth-development
+        run: tox -v -e ${{ env.TOX_ENV }}
