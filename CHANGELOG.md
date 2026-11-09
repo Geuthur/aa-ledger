@@ -35,6 +35,7 @@ Section Order:
 
 ### Fixed
 
+- Planetary alarm notifications raised a `TypeError` on Django 6 because `check_planetary_alarms` called `format_html()` without arguments. The message holds only plain text (character and planet names), so it is now sent as is.
 - On phones narrower than 640 px the pages were wider than the screen because of the minimum width of the `aa-react container` of `aa-geuthur-react`. `Routing.tsx` sets `fluidOnSmallScreens` on `AuthBase` (`aa-geuthur-react` 1.2.0), so the container shrinks with the screen.
 - Section header and owner type filter overflowing the container on small screens; the header now has a gap between its items and the filter buttons scroll horizontally.
 - Fixed `make coverage` exiting with 0 when tests failed. The reports are still created, and the target now exits with the status of the test run, or with the status of `coverage report` if the tests passed.
