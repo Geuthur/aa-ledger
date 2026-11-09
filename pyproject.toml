@@ -40,6 +40,16 @@ dependencies = [
     "django-eveonline-sde",
     "django-ninja>=1.5,<2",
 ]
+optional-dependencies.tests-allianceauth-development = [
+    "aa-discordnotify",
+    "aa-evesde-factory",
+    "allianceauth>=6.0.0a1,<7",
+    "allianceauth-discordbot",
+    "coverage",
+    "discordproxy",
+    "factory-boy",
+    "pookx",
+]
 optional-dependencies.tests-allianceauth-latest = [
     "aa-discordnotify",
     "aa-evesde-factory",
