@@ -30,6 +30,13 @@ tox-tests: check-python-venv
 	@export USE_MYSQL=False; \
 	tox -v -e allianceauth-latest; \
 
+# Tox tests against the Alliance Auth development (pre-release) version
+.PHONY: tox-tests-development
+tox-tests-development: check-python-venv
+	@echo "Running tests with tox against the Alliance Auth development version…"
+	@export USE_MYSQL=False; \
+	tox -v -e allianceauth-development; \
+
 # Help message
 .PHONY: help
 help::
@@ -37,4 +44,5 @@ help::
 	@echo "    build-test                  Build the package"
 	@echo "    coverage                    Run tests and create a coverage report"
 	@echo "    tox-tests                   Run tests with tox"
+	@echo "    tox-tests-development       Run tests with tox against the Alliance Auth development version"
 	@echo ""

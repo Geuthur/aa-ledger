@@ -31,6 +31,7 @@ Section Order:
 - Reusable frontend components `OwnerPortrait`, `HelpTooltip`, `FilterButtonGroup` and `LedgerNavButton`, replacing several inline copies.
 - Frontend hooks per area (`Components/<Area>/Hooks`) that hold the queries and mutations of the Administration, Settings, Overview, Planetary and Ledger views, plus the shared hooks `useFeedback`, `useCooldown` and `useUserData`.
 - Optional totals row in the ledger tables (character, corporation and alliance). It shows the same sums as the summary cards and is switched on with "Show totals row" above the table; the choice is stored in the browser. Off by default.
+- Optional extra `tests-allianceauth-development` (test packages plus the Alliance Auth 6 pre-release) with separate test settings in `testauth/settings/development/` for the tox environment `allianceauth-development` and `make tox-tests-development`; a non-blocking CI job "AA Development" runs it on Python 3.13 and 3.14
 
 ### Fixed
 
