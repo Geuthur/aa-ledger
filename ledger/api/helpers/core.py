@@ -146,7 +146,7 @@ def get_alts_queryset(
 
         linked_characters = linked_characters.values_list("character_id", flat=True)
         return models.CharacterOwner.objects.filter(
-            eve_character__id__in=linked_characters
+            eve_character__pk__in=linked_characters
         )
     except ObjectDoesNotExist:
         return models.CharacterOwner.objects.filter(
