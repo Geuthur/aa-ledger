@@ -6,7 +6,6 @@ from celery import Task, shared_task
 # Django
 from django.contrib.auth.models import User
 from django.db.models import Min
-from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -103,9 +102,7 @@ def check_planetary_alarms(runs: int = 0):
             # Split messages into chunks of 50
             for i in range(0, len(messages), 50):
                 chunk = messages[i : i + 50]
-                msg = "\n".join(chunk)
-
-                full_message = format_html(msg)
+                full_message = "\n".join(chunk)
 
                 send_user_notification.delay(
                     user_id=owner.user.id,

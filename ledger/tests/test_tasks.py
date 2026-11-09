@@ -23,6 +23,7 @@ from ledger.models.helpers.update_manager import (
 from ledger.tasks import (
     _update_character_section,
     _update_corporation_section,
+    check_planetary_alarms,
     update_all_characters,
     update_all_corporations,
     update_character,
@@ -33,6 +34,7 @@ from ledger.tasks import (
 from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
+    CharacterPlanetDetailsFactory,
     CharacterUpdateStatusFactory,
     CorporationOwnerFactory,
     CorporationUpdateStatusFactory,
@@ -377,3 +379,26 @@ class TestTasks(AuthTestCase):
             kwargs={"force_refresh": True, "update_alts": False},
             priority=7,
         )
+
+    @patch(TASKS_PATH + ".send_user_notification", spec=True)
+    def test_check_planetary_alarms_should_notify_with_plain_message(
+        self, mock_send: MagicMock
+    ):
+        """Test that expired planets are sent as one plain text message."""
+        # Test Data
+        user = UserMainFactory()
+        owner = CharacterOwnerFactory(user=user)
+        details = CharacterPlanetDetailsFactory(
+            character=owner, planet__character=owner, notification=True
+        )
+
+        # Test Action
+        check_planetary_alarms()
+
+        # Expected Result
+        mock_send.delay.assert_called_once()
+        kwargs = mock_send.delay.call_args.kwargs
+        self.assertEqual(kwargs["user_id"], user.id)
+        self.assertIn(details.planet.eve_planet.name, kwargs["message"])
+        details.refresh_from_db()
+        self.assertTrue(details.notification_sent)
