@@ -11,10 +11,18 @@ from django.utils import timezone
 
 # Alliance Auth
 from esi.errors import TokenError
-from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
+from esi.exceptions import (
+    ESIBucketLimitException,
+    ESIErrorLimitException,
+    HTTPClientError,
+    HTTPNotModified,
+    HTTPServerError,
+)
+from esi.rate_limiting import ESIRateLimitBucket
 
 # AA Ledger
 from ledger.app_settings import LEDGER_STALE_TYPES
+from ledger.errors import DownTimeError
 from ledger.models.characteraudit import CharacterUpdateStatus
 from ledger.models.helpers.update_manager import (
     CharacterUpdateSection,
@@ -170,26 +178,8 @@ class TestUpdateManager(AuthTestCase):
     def test_perform_update_status_should_catch_server_error_without_token_error(self):
         # Test Data
         mock_method = MagicMock(
-            side_effect=HTTPServerError(HTTPStatus.BAD_GATEWAY, {}, b"Bad Gateway")
-        )
-
-        # Test Action
-        result = self.manager.perform_update_status(
-            section=CharacterUpdateSection.WALLET_JOURNAL,
-            method=mock_method,
-        )
-
-        # Expected Result
-        self.assertFalse(result.is_changed)
-        self.assertFalse(result.is_updated)
-        self.assertFalse(result.has_token_error)
-        self.assertIn("502", result.error_message)
-
-    def test_perform_update_status_should_catch_http_504_gateway_timeout(self):
-        # Test Data
-        mock_method = MagicMock(
             side_effect=HTTPServerError(
-                HTTPStatus.GATEWAY_TIMEOUT, {}, b"Timeout contacting tranquility"
+                HTTPStatus.INTERNAL_SERVER_ERROR, {}, b"Internal Server Error"
             )
         )
 
@@ -203,30 +193,34 @@ class TestUpdateManager(AuthTestCase):
         self.assertFalse(result.is_changed)
         self.assertFalse(result.is_updated)
         self.assertFalse(result.has_token_error)
-        self.assertIn("504", result.error_message)
+        self.assertIn("500", result.error_message)
 
-    def test_perform_update_status_should_catch_request_error(self):
-        # Test Data
-        mock_method = MagicMock(
-            side_effect=RequestError(
-                operation=None,
-                request=None,
-                data="Request failed",
-                parameters={},
-            )
-        )
+    def test_perform_update_status_should_raise_retryable_esi_errors(self):
+        for exc in retryable_errors():
+            with self.subTest(exc=type(exc).__name__):
+                # Test Data
+                mock_method = MagicMock(side_effect=exc)
 
-        # Test Action
-        result = self.manager.perform_update_status(
-            section=CharacterUpdateSection.WALLET_JOURNAL,
-            method=mock_method,
-        )
+                # Test Action & Expected Result
+                with self.assertRaises(type(exc)) as ctx:
+                    self.manager.perform_update_status(
+                        section=CharacterUpdateSection.WALLET_JOURNAL,
+                        method=mock_method,
+                    )
+                self.assertIs(ctx.exception, exc)
 
-        # Expected Result
-        self.assertFalse(result.is_changed)
-        self.assertFalse(result.is_updated)
-        self.assertFalse(result.has_token_error)
-        self.assertIn("RequestError", result.error_message)
+    def test_update_section_if_changed_should_raise_retryable_esi_errors(self):
+        for exc in retryable_errors():
+            with self.subTest(exc=type(exc).__name__):
+                # Test Data
+                fetch_func = MagicMock(side_effect=exc)
+
+                # Test Action & Expected Result
+                with self.assertRaises(type(exc)):
+                    self.manager.update_section_if_changed(
+                        section=CharacterUpdateSection.WALLET_JOURNAL,
+                        fetch_func=fetch_func,
+                    )
 
     def test_update_section_log_should_record_success_on_http_304(self):
         # Test Data
@@ -309,6 +303,27 @@ class TestUpdateManager(AuthTestCase):
         self.assertTrue(status.is_success)
         self.assertFalse(status.has_token_error)
 
+    def test_execute_section_should_record_and_raise_retryable_esi_errors(self):
+        for exc in retryable_errors():
+            with self.subTest(exc=type(exc).__name__):
+                # Test Data
+                self.owner.update_wallet_journal = MagicMock(side_effect=exc)
+                self.addCleanup(vars(self.owner).pop, "update_wallet_journal", None)
+
+                # Test Action
+                with self.assertRaises(type(exc)):
+                    self.manager.execute_section(CharacterUpdateSection.WALLET_JOURNAL)
+
+                # Expected Result: a failed run, not success and not in progress
+                status = CharacterUpdateStatus.objects.get(
+                    owner=self.owner, section=CharacterUpdateSection.WALLET_JOURNAL
+                )
+                self.assertFalse(status.is_success)
+                self.assertFalse(status.has_token_error)
+                self.assertTrue(status.error_message.startswith(type(exc).__name__))
+                self.assertIsNotNone(status.last_run_finished_at)
+                self.assertTrue(status.need_update())
+
     def test_mixin_provides_update_manager_and_shortcuts(self):
         """Test that UpdateManagerMixin provides update_manager and shortcut methods."""
         # Test Data & Action & Expected Result
@@ -316,3 +331,18 @@ class TestUpdateManager(AuthTestCase):
         self.assertEqual(self.owner.update_manager.owner, self.owner)
         sections = self.owner.get_sections_to_update(force_refresh=True)
         self.assertEqual(sections, CharacterUpdateSection.get_sections())
+
+
+def retryable_errors() -> list[Exception]:
+    """Errors on which `retry_task_on_esi_error` retries the task."""
+    return [
+        ESIErrorLimitException(reset=60),
+        ESIBucketLimitException(ESIRateLimitBucket("char-wallet:1", 150, 900), 60),
+        HTTPServerError(HTTPStatus.BAD_GATEWAY, {}, b"Bad Gateway"),
+        HTTPServerError(HTTPStatus.SERVICE_UNAVAILABLE, {}, b"Service Unavailable"),
+        HTTPServerError(HTTPStatus.GATEWAY_TIMEOUT, {}, b"Gateway Timeout"),
+        RequestError(
+            operation=None, request=None, data="Request failed", parameters={}
+        ),
+        DownTimeError("ESI is in daily downtime"),
+    ]
