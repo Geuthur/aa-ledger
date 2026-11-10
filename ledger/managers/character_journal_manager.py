@@ -8,16 +8,14 @@ from django.db.models import DecimalField, Q, Sum, Value
 from django.db.models.functions import Coalesce
 
 # Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 
 # AA Ledger
-from ledger import __title__
 from ledger.app_settings import LEDGER_BULK_BATCH_SIZE
 from ledger.decorators import log_timing
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.helpers.update_manager import CharacterUpdateSection
-from ledger.providers import AppLogger, esi
+from ledger.providers import esi, logger
 
 if TYPE_CHECKING:
     # Alliance Auth
@@ -31,9 +29,6 @@ if TYPE_CHECKING:
         CharacterWalletJournalEntry as CharacterWalletJournalEntryContext,
     )
     from ledger.models.general import UpdateSectionResult
-
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CharacterWalletIncomeFilter(models.QuerySet):

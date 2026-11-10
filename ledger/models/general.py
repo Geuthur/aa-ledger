@@ -20,22 +20,19 @@ from allianceauth.eveonline.models import (
     EveCharacter,
     EveCorporationInfo,
 )
-from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
 from eve_sde.models import ItemType
 
 # AA Ledger
-from ledger import __title__, app_settings
+from ledger import app_settings
 from ledger.helpers.eveonline import (
     get_alliance_logo_url,
     get_character_portrait_url,
     get_corporation_logo_url,
 )
 from ledger.managers.general_manager import EveEntityManager, EveMarketPriceManager
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from ledger.providers import logger
 
 
 class General(models.Model):

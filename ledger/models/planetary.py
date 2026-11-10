@@ -7,23 +7,16 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # Alliance Auth (External Libs)
 from eve_sde.models.map import Planet
 
 # AA Ledger
-from ledger import __title__
 from ledger.managers.character_planetary_manager import (
     CharacterPlanetManager,
     PlanetDetailsManager,
 )
 from ledger.models.characteraudit import CharacterOwner, CharacterUpdateStatus
 from ledger.models.helpers.update_manager import CharacterUpdateSection
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CharacterPlanet(models.Model):

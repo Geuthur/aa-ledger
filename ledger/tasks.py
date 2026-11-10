@@ -10,11 +10,10 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.authentication.models import CharacterOwnership
-from allianceauth.services.hooks import get_extension_logger
 from allianceauth.services.tasks import QueueOnce
 
 # AA Ledger
-from ledger import __title__, app_settings
+from ledger import app_settings
 from ledger.helpers.discord import send_user_notification
 from ledger.models.characteraudit import CharacterMiningLedger, CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
@@ -23,9 +22,7 @@ from ledger.models.helpers.update_manager import (
     CorporationUpdateSection,
 )
 from ledger.models.planetary import CharacterPlanetDetails
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from ledger.providers import logger
 
 MAX_RETRIES_DEFAULT = 3
 

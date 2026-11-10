@@ -13,19 +13,15 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
 
 # AA Ledger
-from ledger import __title__
 from ledger.models.general import (
     UpdateSectionResult,
     _NeedsUpdate,
 )
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from ledger.providers import logger
 
 if TYPE_CHECKING:
     # AA Ledger

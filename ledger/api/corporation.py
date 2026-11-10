@@ -14,10 +14,8 @@ from django.utils.translation import gettext as _
 # Alliance Auth
 from allianceauth.authentication.models import UserProfile
 from allianceauth.eveonline.models import EveCharacter
-from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
-from ledger import __title__
 from ledger.api.character import create_ledger_details
 from ledger.api.helpers.core import (
     get_available_years,
@@ -46,9 +44,6 @@ from ledger.models.corporationaudit import (
     CorporationWalletJournalEntry,
 )
 from ledger.models.general import EveEntity
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class LedgerEntitySchema(Schema):

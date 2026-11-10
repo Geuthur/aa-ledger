@@ -14,14 +14,12 @@ from django.utils.translation import gettext_lazy as _
 # Alliance Auth
 from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveCharacter, Token
-from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
 from eve_sde.models import ItemType
 from eve_sde.models.map import SolarSystem
 
 # AA Ledger
-from ledger import __title__
 from ledger.app_settings import (
     LEDGER_USE_COMPRESSED,
 )
@@ -43,9 +41,6 @@ from ledger.models.helpers.update_manager import (
     UpdateManagerMixin,
     UpdateStatus,
 )
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CharacterOwner(UpdateManagerMixin, models.Model):

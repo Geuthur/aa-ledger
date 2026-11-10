@@ -8,11 +8,7 @@ from ninja import NinjaAPI, Query, schema
 from django.core.handlers.wsgi import WSGIRequest
 from django.utils.translation import gettext as _
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA Ledger
-from ledger import __title__
 from ledger.api.helpers.core import get_alts_queryset, get_characterowner_or_none
 from ledger.api.helpers.planetary_helper import (
     ProduceSchema,
@@ -35,9 +31,6 @@ from ledger.helpers.eveonline import (
     get_icon_render_url,
 )
 from ledger.models.planetary import CharacterPlanetDetails
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class PlanetaryDetails(schema.Schema):
