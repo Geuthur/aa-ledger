@@ -5,15 +5,6 @@ Decorators
 # Standard Library
 import time
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
-# AA Ledger
-from ledger import __title__
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
-
 
 def log_timing(logs):
     """

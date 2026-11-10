@@ -13,10 +13,8 @@ from django.utils.translation import gettext as _
 # Alliance Auth
 from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveAllianceInfo
-from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
-from ledger import __title__
 from ledger.api.character import create_ledger_details
 from ledger.api.helpers.core import (
     get_alliance_or_none,
@@ -40,9 +38,6 @@ from ledger.models.corporationaudit import (
     CorporationOwner,
     CorporationWalletJournalEntry,
 )
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class LedgerAllianceSchema(Schema):

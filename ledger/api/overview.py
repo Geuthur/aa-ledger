@@ -10,10 +10,8 @@ from django.utils.translation import gettext as _
 
 # Alliance Auth
 from allianceauth.authentication.models import UserProfile
-from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
-from ledger import __title__
 from ledger.api import schema
 from ledger.helpers.eveonline import (
     get_alliance_logo_url,
@@ -23,9 +21,6 @@ from ledger.helpers.eveonline import (
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
 from ledger.models.general import General
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 def _main_character_overview(character_ids) -> list[schema.CharacterOverview]:

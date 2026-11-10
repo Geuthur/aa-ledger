@@ -5,11 +5,7 @@ from ninja.security import django_auth
 # Django
 from django.conf import settings
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA Ledger
-from ledger import __title__
 from ledger.api import (
     administration,
     alliance,
@@ -19,10 +15,7 @@ from ledger.api import (
     overview,
     planetary,
 )
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
-
+from ledger.providers import logger
 
 api = NinjaAPI(
     title="Geuthur API",

@@ -16,15 +16,11 @@ from django.db.models import (
 from django.db.models.functions import Coalesce, Round
 from django.utils import timezone
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA Ledger
-from ledger import __title__
 from ledger.app_settings import LEDGER_BULK_BATCH_SIZE, LEDGER_PRICE_PERCENTAGE
 from ledger.decorators import log_timing
 from ledger.models.helpers.update_manager import CharacterUpdateSection
-from ledger.providers import AppLogger, esi
+from ledger.providers import esi, logger
 
 if TYPE_CHECKING:
     # Alliance Auth
@@ -36,8 +32,6 @@ if TYPE_CHECKING:
     )
     from ledger.models.characteraudit import CharacterOwner
     from ledger.models.general import UpdateSectionResult
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 def require_valid_price_percentage(func):

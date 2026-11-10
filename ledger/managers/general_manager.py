@@ -5,18 +5,12 @@ from typing import TYPE_CHECKING, Any
 from django.db import models
 from django.utils import timezone
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # Alliance Auth (External Libs)
 from eve_sde.models import ItemType
 
 # AA Ledger
-from ledger import __title__
 from ledger.app_settings import LEDGER_BULK_BATCH_SIZE
-from ledger.providers import AppLogger, esi
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from ledger.providers import esi, logger
 
 if TYPE_CHECKING:
     # Alliance Auth

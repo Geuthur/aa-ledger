@@ -8,19 +8,17 @@ from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 from esi.exceptions import HTTPNotModified
 
 # AA Ledger
-from ledger import __title__
 from ledger.app_settings import LEDGER_BULK_BATCH_SIZE
 from ledger.decorators import log_timing
 from ledger.errors import DatabaseError
 from ledger.helpers.ref_type import RefTypeManager
 from ledger.models.general import EveEntity
 from ledger.models.helpers.update_manager import CorporationUpdateSection
-from ledger.providers import AppLogger, esi
+from ledger.providers import esi, logger
 
 if TYPE_CHECKING:
     # Alliance Auth
@@ -36,8 +34,6 @@ if TYPE_CHECKING:
         CorporationWalletDivision,
         CorporationWalletJournalEntry,
     )
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CorporationWalletQuerySet(models.QuerySet):

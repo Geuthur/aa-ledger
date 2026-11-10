@@ -7,7 +7,6 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 # Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
 from esi.exceptions import HTTPNotModified
 
 # Alliance Auth (External Libs)
@@ -15,12 +14,11 @@ from eve_sde.models.map import Planet
 from eve_sde.models.types import ItemType
 
 # AA Ledger
-from ledger import __title__
 from ledger.app_settings import LEDGER_BULK_BATCH_SIZE
 from ledger.decorators import log_timing
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.helpers.update_manager import CharacterUpdateSection
-from ledger.providers import AppLogger, esi
+from ledger.providers import esi, logger
 
 if TYPE_CHECKING:  # pragma: no cover
     # Alliance Auth
@@ -31,8 +29,6 @@ if TYPE_CHECKING:  # pragma: no cover
     from ledger.models.general import UpdateSectionResult
     from ledger.models.planetary import CharacterPlanet as PlanetContext
     from ledger.models.planetary import CharacterPlanetDetails as PlanetDetailsContext
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 def to_json_serializable(data):

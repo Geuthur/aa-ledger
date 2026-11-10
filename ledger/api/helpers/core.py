@@ -5,16 +5,12 @@ from django.utils import timezone
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo, EveCharacter
-from allianceauth.services.hooks import get_extension_logger
 from esi.models import Token
 
 # AA Ledger
-from ledger import __title__, models
+from ledger import models
 from ledger.api import schema
 from ledger.helpers.eveonline import get_character_portrait_url
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 def get_available_years(journal: QuerySet) -> list[int]:
