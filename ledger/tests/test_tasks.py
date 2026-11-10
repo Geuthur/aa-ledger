@@ -1,17 +1,33 @@
 """Tests for the providers module."""
 
 # Standard Library
+from http import HTTPStatus
 from unittest.mock import MagicMock, PropertyMock, patch
 
+# Third Party
+import pook
+from aiopenapi3 import RequestError
+from celery.exceptions import Retry
+
 # Django
+from django.core.cache import cache
 from django.test import override_settings
 from django.utils import timezone
+
+# Alliance Auth
+from esi.exceptions import (
+    ESIBucketLimitException,
+    ESIErrorLimitException,
+    HTTPServerError,
+)
 
 # Alliance Auth (External Libs)
 from evesde_factory.allianceauth import EveCharacterFactory
 from evesde_factory.utils import add_character_to_user
 
 # AA Ledger
+from ledger import tasks
+from ledger.errors import DownTimeError
 from ledger.models import CharacterOwner
 from ledger.models.characteraudit import CharacterUpdateStatus
 from ledger.models.corporationaudit import CorporationUpdateStatus
@@ -19,7 +35,9 @@ from ledger.models.general import UpdateSectionResult
 from ledger.models.helpers.update_manager import (
     CharacterUpdateSection,
     CorporationUpdateSection,
+    UpdateStatus,
 )
+from ledger.providers import DOWNTIME_TIMER
 from ledger.tasks import (
     _update_character_section,
     _update_corporation_section,
@@ -32,6 +50,11 @@ from ledger.tasks import (
     update_user_characters,
 )
 from ledger.tests import AuthTestCase
+from ledger.tests.testdata.esi import (
+    clear_esi_limits,
+    markets_prices_url,
+    wallet_journal_url,
+)
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
     CharacterPlanetDetailsFactory,
@@ -46,7 +69,11 @@ MANAGERS_PATH = "ledger.managers"
 MODELS_PATH = "ledger.models"
 
 
-@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
+@override_settings(
+    CELERY_ALWAYS_EAGER=True,
+    CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+    DISABLE_DAILY_DOWNTIME_CHECK=True,
+)
 class TestTasks(AuthTestCase):
     """
     Tests for ledger tasks.
@@ -402,3 +429,241 @@ class TestTasks(AuthTestCase):
         self.assertIn(details.planet.eve_planet.name, kwargs["message"])
         details.refresh_from_db()
         self.assertTrue(details.notification_sent)
+
+
+@override_settings(
+    CELERY_ALWAYS_EAGER=True,
+    CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+    DISABLE_DAILY_DOWNTIME_CHECK=True,
+)
+@patch(TASKS_PATH + ".CharacterUpdateSection.get_sections", lambda: ["wallet_journal"])
+@patch.object(tasks.update_character, "retry", side_effect=Retry)
+class TestUpdateCharacterEsiRetry(AuthTestCase):
+    """ESI errors of a section retry `update_character` through the UpdateManager."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.owner = CharacterOwnerFactory(user=cls.user)
+
+    def setUp(self):
+        super().setUp()
+        clear_esi_limits(self.owner)
+        self.addCleanup(clear_esi_limits, self.owner)
+
+    def _assert_retried(self, mock_retry, exc_type, countdown_min: float):
+        mock_retry.assert_called_once()
+        kwargs = mock_retry.call_args.kwargs
+        self.assertIsInstance(kwargs["exc"], exc_type)
+        self.assertGreaterEqual(kwargs["countdown"], countdown_min)
+        status = CharacterUpdateStatus.objects.get(
+            owner=self.owner, section=CharacterUpdateSection.WALLET_JOURNAL
+        )
+        self.assertFalse(status.is_success)
+        self.assertTrue(status.error_message.startswith(exc_type.__name__))
+
+    def test_should_retry_on_esi_server_errors(self, mock_retry):
+        for status_code in [
+            HTTPStatus.BAD_GATEWAY,
+            HTTPStatus.SERVICE_UNAVAILABLE,
+            HTTPStatus.GATEWAY_TIMEOUT,
+        ]:
+            with self.subTest(status_code=status_code), pook.use():
+                # Test Data
+                mock_retry.reset_mock()
+                pook.get(
+                    wallet_journal_url(self.owner),
+                    reply=status_code,
+                    response_json={"error": status_code.phrase},
+                )
+
+                # Test Action
+                with self.assertRaises(Retry):
+                    tasks.update_character(self.owner.eve_id)
+
+                # Expected Result
+                self._assert_retried(mock_retry, HTTPServerError, DOWNTIME_TIMER)
+
+    @pook.on
+    def test_should_retry_on_the_esi_error_limit(self, mock_retry):
+        # Test Data
+        pook.get(
+            wallet_journal_url(self.owner),
+            reply=420,
+            response_json={"error": "Error limited"},
+            response_headers={"X-RateLimit-Reset": "30"},
+        )
+
+        # Test Action
+        with self.assertRaises(Retry):
+            tasks.update_character(self.owner.eve_id)
+
+        # Expected Result
+        self._assert_retried(mock_retry, ESIErrorLimitException, 30)
+
+    @pook.on
+    def test_should_retry_on_the_esi_bucket_limit(self, mock_retry):
+        # Test Data: the wallet bucket of the character is used up
+        cache.set(f"esi:bucket:char-wallet:{self.owner.eve_id}", 0, timeout=900)
+
+        # Test Action
+        with self.assertRaises(Retry):
+            tasks.update_character(self.owner.eve_id)
+
+        # Expected Result
+        self._assert_retried(mock_retry, ESIBucketLimitException, 1)
+
+    @pook.on
+    @patch("esi.app_settings.ESI_SERVER_ERROR_MAX_RETRIES", 1)
+    def test_should_retry_on_request_errors(self, mock_retry):
+        # Test Data
+        pook.get(wallet_journal_url(self.owner)).error(
+            ConnectionError("Connection reset")
+        )
+
+        # Test Action
+        with self.assertRaises(Retry):
+            tasks.update_character(self.owner.eve_id)
+
+        # Expected Result
+        self._assert_retried(mock_retry, RequestError, DOWNTIME_TIMER)
+
+    @patch(TASKS_PATH + ".CharacterOwner.update_wallet_journal", autospec=True)
+    def test_should_retry_on_downtime_errors_of_a_section(
+        self, mock_update_wallet_journal, mock_retry
+    ):
+        # Test Data
+        mock_update_wallet_journal.side_effect = DownTimeError(
+            "ESI is in daily downtime"
+        )
+
+        # Test Action
+        with self.assertRaises(Retry):
+            tasks.update_character(self.owner.eve_id)
+
+        # Expected Result
+        self._assert_retried(mock_retry, DownTimeError, DOWNTIME_TIMER)
+
+    def test_should_record_other_esi_errors_without_retry(self, mock_retry):
+        for status_code in [HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.NOT_FOUND]:
+            with self.subTest(status_code=status_code), pook.use():
+                # Test Data
+                pook.get(
+                    wallet_journal_url(self.owner),
+                    reply=status_code,
+                    response_json={"error": status_code.phrase},
+                )
+
+                # Test Action
+                result = tasks.update_character(self.owner.eve_id)
+
+                # Expected Result
+                self.assertTrue(result)
+                mock_retry.assert_not_called()
+                status = CharacterUpdateStatus.objects.get(
+                    owner=self.owner, section=CharacterUpdateSection.WALLET_JOURNAL
+                )
+                self.assertFalse(status.is_success)
+                self.assertIn(str(status_code.value), status.error_message)
+                self.assertEqual(self.owner.get_status, UpdateStatus.ERROR)
+
+
+@override_settings(
+    CELERY_ALWAYS_EAGER=True,
+    CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+    DISABLE_DAILY_DOWNTIME_CHECK=True,
+)
+@patch(
+    TASKS_PATH + ".CorporationUpdateSection.get_sections",
+    lambda: ["wallet_division_names"],
+)
+@patch.object(tasks.update_corporation, "retry", side_effect=Retry)
+class TestUpdateCorporationEsiRetry(AuthTestCase):
+    """ESI errors of a section retry `update_corporation` through the UpdateManager."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.owner = CorporationOwnerFactory(user=cls.user)
+
+    @patch(TASKS_PATH + ".CorporationOwner.update_wallet_division_names", autospec=True)
+    def test_should_retry_on_retryable_esi_errors(self, mock_update, mock_retry):
+        for exc in [
+            HTTPServerError(HTTPStatus.SERVICE_UNAVAILABLE, {}, b"Unavailable"),
+            DownTimeError("ESI is in daily downtime"),
+        ]:
+            with self.subTest(exc=type(exc).__name__):
+                # Test Data
+                mock_retry.reset_mock()
+                mock_update.side_effect = exc
+
+                # Test Action
+                with self.assertRaises(Retry):
+                    tasks.update_corporation(self.owner.eve_id, force_refresh=True)
+
+                # Expected Result
+                mock_retry.assert_called_once()
+                self.assertIs(mock_retry.call_args.kwargs["exc"], exc)
+                status = CorporationUpdateStatus.objects.get(
+                    owner=self.owner,
+                    section=CorporationUpdateSection.WALLET_DIVISION_NAMES,
+                )
+                self.assertFalse(status.is_success)
+
+    @patch(TASKS_PATH + ".CorporationOwner.update_wallet_division_names", autospec=True)
+    def test_should_record_other_errors_without_retry(self, mock_update, mock_retry):
+        # Test Data
+        mock_update.side_effect = HTTPServerError(
+            HTTPStatus.INTERNAL_SERVER_ERROR, {}, b"Internal Server Error"
+        )
+
+        # Test Action
+        result = tasks.update_corporation(self.owner.eve_id, force_refresh=True)
+
+        # Expected Result
+        self.assertTrue(result)
+        mock_retry.assert_not_called()
+        status = CorporationUpdateStatus.objects.get(
+            owner=self.owner, section=CorporationUpdateSection.WALLET_DIVISION_NAMES
+        )
+        self.assertFalse(status.is_success)
+        self.assertIn("500", status.error_message)
+
+
+@override_settings(
+    CELERY_ALWAYS_EAGER=True,
+    CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+    DISABLE_DAILY_DOWNTIME_CHECK=True,
+)
+class TestUpdateMarketPricesEsiRetry(AuthTestCase):
+    """ESI errors of the market prices retry the character queue tasks."""
+
+    def setUp(self):
+        super().setUp()
+        cache.delete("esi_error_limit_reset")
+
+    @patch(TASKS_PATH + ".update_character", spec=True)
+    def test_should_retry_on_esi_server_errors(self, mock_update_character):
+        for task in [tasks.update_all_characters, tasks.update_subset_characters]:
+            with (
+                self.subTest(task=task.name),
+                pook.use(),
+                patch.object(task, "retry", side_effect=Retry) as mock_retry,
+            ):
+                # Test Data
+                pook.get(
+                    markets_prices_url(),
+                    reply=HTTPStatus.SERVICE_UNAVAILABLE,
+                    response_json={"error": "Service Unavailable"},
+                )
+
+                # Test Action
+                with self.assertRaises(Retry):
+                    task()
+
+                # Expected Result
+                mock_retry.assert_called_once()
+                self.assertIsInstance(
+                    mock_retry.call_args.kwargs["exc"], HTTPServerError
+                )
+                mock_update_character.apply_async.assert_not_called()

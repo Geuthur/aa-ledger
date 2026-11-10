@@ -1,11 +1,16 @@
+"""Update status handling for character and corporation owners.
+
+ESI errors that `retry_task_on_esi_error` retries (error and bucket limits,
+HTTP 502/503/504, request errors, downtime) are not swallowed: they are
+recorded in the status row of the section and raised again, so the task
+around the update can retry. All other errors end in the status row.
+"""
+
 # Standard Library
 import inspect
 from collections.abc import Callable
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Any, Union
-
-# Third Party
-from aiopenapi3 import RequestError
 
 # Django
 from django.db import models
@@ -21,7 +26,7 @@ from ledger.models.general import (
     UpdateSectionResult,
     _NeedsUpdate,
 )
-from ledger.providers import logger
+from ledger.providers import is_retryable_esi_error, logger
 
 if TYPE_CHECKING:
     # AA Ledger
@@ -188,7 +193,21 @@ class UpdateManager:
 
         Returns:
             UpdateSectionResult: The structured result of the failed update operation.
+
+        Raises:
+            Exception: `exc` again if `retry_task_on_esi_error` retries on it,
+                and `TokenError` if `catch_token_error` is False.
         """
+        if is_retryable_esi_error(exc):
+            logger.debug(
+                "%s: %s: Retryable ESI error, raising it for a task retry: %s: %s",
+                self.owner,
+                section.label,
+                type(exc).__name__,
+                exc,
+            )
+            raise exc
+
         if isinstance(exc, HTTPNotModified):
             logger.debug(
                 "%s: Update has not changed (HTTP 304), section: %s",
@@ -202,10 +221,10 @@ class UpdateManager:
                 error_message="",
             )
 
-        if isinstance(exc, (HTTPServerError, RequestError)):
+        if isinstance(exc, HTTPServerError):
             error_message = f"{type(exc).__name__}: {str(exc)}"
             logger.debug(
-                "%s: %s: ESI server error / timeout: %s",
+                "%s: %s: ESI server error: %s",
                 self.owner,
                 section.label,
                 error_message,
@@ -367,6 +386,9 @@ class UpdateManager:
         4. Calls perform_update_status with full ESI exception handling.
         5. Updates and logs the section status log.
 
+        A retryable ESI error is recorded as failed run of the section and
+        raised again, so `retry_task_on_esi_error` can retry the task.
+
         Args:
             section (Any): The section to update (enum or string value).
             force_refresh (bool): Whether to force a refresh.
@@ -375,6 +397,9 @@ class UpdateManager:
 
         Returns:
             UpdateSectionResult: The result of the update operation.
+
+        Raises:
+            Exception: A retryable ESI error (see `is_retryable_esi_error`).
         """
         section_enum = (
             self.update_section(section)
@@ -393,7 +418,20 @@ class UpdateManager:
         ):
             kwargs["force_refresh"] = force_refresh
 
-        result = self.perform_update_status(section_enum, method, *args, **kwargs)
+        try:
+            result = self.perform_update_status(section_enum, method, *args, **kwargs)
+        except Exception as exc:
+            # Only retryable ESI errors get here. Record the failed run,
+            # so the section is not left "in progress" and counts as stale.
+            self.update_section_log(
+                section_enum,
+                UpdateSectionResult(
+                    is_changed=False,
+                    is_updated=False,
+                    error_message=f"{type(exc).__name__}: {str(exc)}",
+                ),
+            )
+            raise
         self.update_section_log(section_enum, result)
         return result
 
