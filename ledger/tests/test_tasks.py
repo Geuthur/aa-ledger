@@ -31,10 +31,10 @@ from ledger.errors import DownTimeError
 from ledger.models import CharacterOwner
 from ledger.models.characteraudit import CharacterUpdateStatus
 from ledger.models.corporationaudit import CorporationUpdateStatus
-from ledger.models.general import UpdateSectionResult
 from ledger.models.helpers.update_manager import (
     CharacterUpdateSection,
     CorporationUpdateSection,
+    UpdateSectionResult,
     UpdateStatus,
 )
 from ledger.providers import DOWNTIME_TIMER

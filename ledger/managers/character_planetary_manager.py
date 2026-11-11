@@ -26,7 +26,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from esi.stubs import CharactersCharacterIdPlanetsPlanetIdGet as PlanetDetailsItem
 
     # AA Ledger
-    from ledger.models.general import UpdateSectionResult
+    from ledger.models.helpers.update_manager import UpdateSectionResult
     from ledger.models.planetary import CharacterPlanet as PlanetContext
     from ledger.models.planetary import CharacterPlanetDetails as PlanetDetailsContext
 
