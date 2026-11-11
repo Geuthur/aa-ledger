@@ -4,8 +4,7 @@ General Model
 
 # Standard Library
 import datetime
-from dataclasses import dataclass
-from typing import Any, Literal, NamedTuple
+from typing import Any, Literal
 
 # Django
 from django.contrib.auth.models import User
@@ -20,22 +19,17 @@ from allianceauth.eveonline.models import (
     EveCharacter,
     EveCorporationInfo,
 )
-from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
 from eve_sde.models import ItemType
 
 # AA Ledger
-from ledger import __title__, app_settings
 from ledger.helpers.eveonline import (
     get_alliance_logo_url,
     get_character_portrait_url,
     get_corporation_logo_url,
 )
 from ledger.managers.general_manager import EveEntityManager, EveMarketPriceManager
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class General(models.Model):
@@ -282,98 +276,6 @@ class EveMarketPrice(models.Model):
 
     def __str__(self) -> str:
         return f"{self.eve_type}: {self.average_price}"
-
-
-class UpdateSectionResult(NamedTuple):
-    """A result of an attempted section update."""
-
-    is_changed: bool | None
-    is_updated: bool
-    has_token_error: bool = False
-    error_message: str | None = None
-    data: Any = None
-
-
-@dataclass(frozen=True)
-class _NeedsUpdate:
-    """An Object to track if an update is needed."""
-
-    section_map: dict[str, bool]
-
-    def __bool__(self) -> bool:
-        """Check if any section needs an update."""
-        return any(self.section_map.values())
-
-    def for_section(self, section: str) -> bool:
-        """Check if an update is needed for a specific section."""
-        return self.section_map.get(section, False)
-
-
-class UpdateStatusBaseModel(models.Model):
-    """A Model to track the status of the last update."""
-
-    class Meta:
-        abstract = True
-        default_permissions = ()
-
-    is_success = models.BooleanField(default=None, null=True, db_index=True)
-    error_message = models.TextField()
-    has_token_error = models.BooleanField(default=False)
-
-    last_run_at = models.DateTimeField(
-        default=None,
-        null=True,
-        db_index=True,
-        help_text="Last run has been started at this time",
-    )
-    last_run_finished_at = models.DateTimeField(
-        default=None,
-        null=True,
-        db_index=True,
-        help_text="Last run has been successful finished at this time",
-    )
-    last_update_at = models.DateTimeField(
-        default=None,
-        null=True,
-        db_index=True,
-        help_text="Last update has been started at this time",
-    )
-    last_update_finished_at = models.DateTimeField(
-        default=None,
-        null=True,
-        db_index=True,
-        help_text="Last update has been successful finished at this time",
-    )
-
-    def need_update(self) -> bool:
-        """Check if the update is needed."""
-        if self.has_token_error:
-            logger.info(
-                "%s: Ignoring update because of token error, section: %s",
-                self,
-                self.section,
-            )
-            return False
-
-        if not self.is_success or not self.last_run_finished_at:
-            return True
-
-        section_time_stale = app_settings.LEDGER_STALE_TYPES.get(self.section, 60)
-        stale = timezone.now() - timezone.timedelta(minutes=section_time_stale)
-
-        try:
-            return self.last_run_finished_at <= stale
-        except AttributeError:
-            return True
-
-    def reset(self) -> None:
-        """Reset this update status."""
-        self.is_success = None
-        self.error_message = ""
-        self.has_token_error = False
-        self.last_run_at = timezone.now()
-        self.last_run_finished_at = None
-        self.save()
 
 
 class WalletJournalEntry(models.Model):

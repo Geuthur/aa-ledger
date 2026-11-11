@@ -4,19 +4,12 @@ from ninja import schema
 # Django
 from django.utils.translation import gettext_lazy as _
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # Alliance Auth (External Libs)
 from eve_sde.models.types import ItemType
 
 # AA Ledger
-from ledger import __title__
 from ledger.helpers.eveonline import get_icon_render_url
 from ledger.models.planetary import CharacterPlanetDetails
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class ProductSchema(schema.Schema):

@@ -8,15 +8,11 @@ from django.db.models import Case, Count, Q, Value, When
 # Alliance Auth
 from allianceauth.authentication.models import User
 from allianceauth.eveonline.models import EveCharacter, Token
-from allianceauth.services.hooks import get_extension_logger
 
 # AA Ledger
-from ledger import __title__
 from ledger.models.general import General
 from ledger.models.helpers.update_manager import CharacterUpdateSection, UpdateStatus
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from ledger.providers import logger
 
 if TYPE_CHECKING:
     # AA Ledger

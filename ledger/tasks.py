@@ -10,11 +10,10 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.authentication.models import CharacterOwnership
-from allianceauth.services.hooks import get_extension_logger
 from allianceauth.services.tasks import QueueOnce
 
 # AA Ledger
-from ledger import __title__, app_settings
+from ledger import app_settings
 from ledger.helpers.discord import send_user_notification
 from ledger.models.characteraudit import CharacterMiningLedger, CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
@@ -23,9 +22,7 @@ from ledger.models.helpers.update_manager import (
     CorporationUpdateSection,
 )
 from ledger.models.planetary import CharacterPlanetDetails
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from ledger.providers import logger, retry_task_on_esi_error
 
 MAX_RETRIES_DEFAULT = 3
 
@@ -148,15 +145,16 @@ def update_user_characters(
     return len(char_ids)
 
 
-@shared_task(**TASK_DEFAULTS_ONCE)
-def update_all_characters(runs: int = 0, force_refresh=False):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE)
+def update_all_characters(self: Task, runs: int = 0, force_refresh=False):
     """Update all characters"""
     # Disable characters with no owner
     CharacterOwner.objects.disable_characters_with_no_owner()
     # Enable characters which have an owner and a valid token again
     CharacterOwner.objects.enable_characters_with_owner()
     # Update EveMarketPrice
-    CharacterMiningLedger.update_evemarket_price()
+    with retry_task_on_esi_error(self):
+        CharacterMiningLedger.update_evemarket_price()
 
     characters = CharacterOwner.objects.select_related("eve_character").filter(active=1)
     for character in characters:
@@ -168,15 +166,18 @@ def update_all_characters(runs: int = 0, force_refresh=False):
     logger.debug("Queued %s Character Audit Tasks", runs)
 
 
-@shared_task(**TASK_DEFAULTS_ONCE)
-def update_subset_characters(subset=2, min_runs=50, max_runs=500, force_refresh=False):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE)
+def update_subset_characters(
+    self: Task, subset=2, min_runs=50, max_runs=500, force_refresh=False
+):
     """Update a batch of characters to prevent overload ESI, grouping by user."""
     # Disable characters with no owner
     CharacterOwner.objects.disable_characters_with_no_owner()
     # Enable characters which have an owner and a valid token again
     CharacterOwner.objects.enable_characters_with_owner()
     # Update EveMarketPrice
-    CharacterMiningLedger.update_evemarket_price()
+    with retry_task_on_esi_error(self):
+        CharacterMiningLedger.update_evemarket_price()
 
     # Calculate number of characters to update
     total_characters = CharacterOwner.objects.filter(active=1).count()
@@ -274,19 +275,20 @@ def update_character(
         logger.info("No updates needed for %s", character.eve_character.character_name)
     else:
         runs = 0
-        for section in sections:
-            task_name = f"update_char_{section}"
-            task = globals().get(task_name)
-            if task:
-                task(eve_id=character.eve_id, force_refresh=force_refresh)
-            else:
-                _update_character_section(
-                    task=self,
-                    eve_id=character.eve_id,
-                    section=section,
-                    force_refresh=force_refresh,
-                )
-            runs += 1
+        with retry_task_on_esi_error(self):
+            for section in sections:
+                task_name = f"update_char_{section}"
+                task = globals().get(task_name)
+                if task:
+                    task(eve_id=character.eve_id, force_refresh=force_refresh)
+                else:
+                    _update_character_section(
+                        task=self,
+                        eve_id=character.eve_id,
+                        section=section,
+                        force_refresh=force_refresh,
+                    )
+                runs += 1
 
         logger.debug(
             "Queued %s Audit Updates for %s",
@@ -327,44 +329,48 @@ def update_character(
 
 @shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
 def update_char_wallet_journal(self: Task, eve_id: int, force_refresh: bool):
-    return _update_character_section(
-        task=self,
-        eve_id=eve_id,
-        section=CharacterUpdateSection.WALLET_JOURNAL,
-        force_refresh=force_refresh,
-    )
+    with retry_task_on_esi_error(self):
+        return _update_character_section(
+            task=self,
+            eve_id=eve_id,
+            section=CharacterUpdateSection.WALLET_JOURNAL,
+            force_refresh=force_refresh,
+        )
 
 
 @shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
 def update_char_mining_ledger(self: Task, eve_id: int, force_refresh: bool):
-    return _update_character_section(
-        task=self,
-        eve_id=eve_id,
-        section=CharacterUpdateSection.MINING_LEDGER,
-        force_refresh=force_refresh,
-    )
+    with retry_task_on_esi_error(self):
+        return _update_character_section(
+            task=self,
+            eve_id=eve_id,
+            section=CharacterUpdateSection.MINING_LEDGER,
+            force_refresh=force_refresh,
+        )
 
 
 @shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
 def update_char_planets(self: Task, eve_id: int, force_refresh: bool):
-    logger.debug("Updating Planet Data for %s", eve_id)
-    return _update_character_section(
-        task=self,
-        eve_id=eve_id,
-        section=CharacterUpdateSection.PLANETS,
-        force_refresh=force_refresh,
-    )
+    with retry_task_on_esi_error(self):
+        logger.debug("Updating Planet Data for %s", eve_id)
+        return _update_character_section(
+            task=self,
+            eve_id=eve_id,
+            section=CharacterUpdateSection.PLANETS,
+            force_refresh=force_refresh,
+        )
 
 
 @shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
 def update_char_planets_details(self: Task, eve_id: int, force_refresh: bool):
-    logger.debug("Updating Planet Details for %s", eve_id)
-    return _update_character_section(
-        task=self,
-        eve_id=eve_id,
-        section=CharacterUpdateSection.PLANETS_DETAILS,
-        force_refresh=force_refresh,
-    )
+    with retry_task_on_esi_error(self):
+        logger.debug("Updating Planet Details for %s", eve_id)
+        return _update_character_section(
+            task=self,
+            eve_id=eve_id,
+            section=CharacterUpdateSection.PLANETS_DETAILS,
+            force_refresh=force_refresh,
+        )
 
 
 def _update_character_section(
@@ -462,19 +468,20 @@ def update_corporation(
         return False
 
     runs = 0
-    for section in sections:
-        task_name = f"update_corp_{section}"
-        task = globals().get(task_name)
-        if task:
-            task(eve_id=corporation.eve_id, force_refresh=force_refresh)
-        else:
-            _update_corporation_section(
-                task=self,
-                eve_id=corporation.eve_id,
-                section=section,
-                force_refresh=force_refresh,
-            )
-        runs += 1
+    with retry_task_on_esi_error(self):
+        for section in sections:
+            task_name = f"update_corp_{section}"
+            task = globals().get(task_name)
+            if task:
+                task(eve_id=corporation.eve_id, force_refresh=force_refresh)
+            else:
+                _update_corporation_section(
+                    task=self,
+                    eve_id=corporation.eve_id,
+                    section=section,
+                    force_refresh=force_refresh,
+                )
+            runs += 1
 
     logger.debug(
         "Queued %s Audit Updates for %s",
@@ -486,32 +493,35 @@ def update_corporation(
 
 @shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
 def update_corp_wallet_division_names(self: Task, eve_id: int, force_refresh: bool):
-    return _update_corporation_section(
-        task=self,
-        eve_id=eve_id,
-        section=CorporationUpdateSection.WALLET_DIVISION_NAMES,
-        force_refresh=force_refresh,
-    )
+    with retry_task_on_esi_error(self):
+        return _update_corporation_section(
+            task=self,
+            eve_id=eve_id,
+            section=CorporationUpdateSection.WALLET_DIVISION_NAMES,
+            force_refresh=force_refresh,
+        )
 
 
 @shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
 def update_corp_wallet_division(self: Task, eve_id: int, force_refresh: bool):
-    return _update_corporation_section(
-        task=self,
-        eve_id=eve_id,
-        section=CorporationUpdateSection.WALLET_DIVISION,
-        force_refresh=force_refresh,
-    )
+    with retry_task_on_esi_error(self):
+        return _update_corporation_section(
+            task=self,
+            eve_id=eve_id,
+            section=CorporationUpdateSection.WALLET_DIVISION,
+            force_refresh=force_refresh,
+        )
 
 
 @shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
 def update_corp_wallet_journal(self: Task, eve_id: int, force_refresh: bool):
-    return _update_corporation_section(
-        task=self,
-        eve_id=eve_id,
-        section=CorporationUpdateSection.WALLET_JOURNAL,
-        force_refresh=force_refresh,
-    )
+    with retry_task_on_esi_error(self):
+        return _update_corporation_section(
+            task=self,
+            eve_id=eve_id,
+            section=CorporationUpdateSection.WALLET_JOURNAL,
+            force_refresh=force_refresh,
+        )
 
 
 def _update_corporation_section(

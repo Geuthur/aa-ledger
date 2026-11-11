@@ -35,6 +35,8 @@ Section Order:
 
 ### Fixed
 
+- [FIX] ESI outages and limits did not retry the update tasks: `retry_task_on_esi_error` was missing and the `UpdateManager` turned every ESI error except `TokenError` into an update status. `ledger/providers.py` now has `retry_task_on_esi_error` and `is_retryable_esi_error()` (from the `aa-example` template), and `_handle_update_exception` raises the errors the tasks retry on (`ESIErrorLimitException`, `ESIBucketLimitException`, `HTTPServerError` 502/503/504, `RequestError`, `DownTimeError`). `execute_section` records them as a failed run of the section before raising, so the section shows the error and stays stale until the retry succeeds. `update_character`, `update_corporation` and the section tasks (`update_char_*`, `update_corp_*`) run inside `retry_task_on_esi_error`, as does the market price update in `update_all_characters` and `update_subset_characters` (both now `bind=True`). Other errors (e.g. HTTP 500 or 404) still end in the update status only.
+- [FIX] Tests no longer share the Redis cache with other processes. `testauth/settings/local.py` and `testauth/settings/development/local.py` give each test run its own random cache `KEY_PREFIX`. Before, ESI responses cached by a running testauth instance on the same Redis were returned instead of the pook responses. Redis stays the cache backend because Alliance Auth needs `django_redis`.
 - Planetary alarm notifications raised a `TypeError` on Django 6 because `check_planetary_alarms` called `format_html()` without arguments. The message holds only plain text (character and planet names), so it is now sent as is.
 - On phones narrower than 640 px the pages were wider than the screen because of the minimum width of the `aa-react container` of `aa-geuthur-react`. `Routing.tsx` sets `fluidOnSmallScreens` on `AuthBase` (`aa-geuthur-react` 1.2.0), so the container shrinks with the screen.
 - Section header and owner type filter overflowing the container on small screens; the header now has a gap between its items and the filter buttons scroll horizontally.
@@ -43,6 +45,8 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] `ledger/models/helpers/update_manager.py` follows the `aa-example` template: `UpdateSectionResult`, `_NeedsUpdate` and `UpdateStatusBaseModel` moved there from `ledger/models/general.py`, and `CharacterUpdateSection` and `CorporationUpdateSection` now inherit the shared `UpdateSection` base class. `CharacterUpdateStatus` uses the `__str__` of `UpdateStatusBaseModel`. `get_status` stays on `CharacterOwner` and `CorporationOwner`, because the status annotation lives on the owner managers. No migration; the only visible change is the token error log line of `need_update`, which now names the owner instead of the status row.
+- [CHANGE] The `AppLogger` is created only once in `ledger/providers.py`. The 14 modules that log import it with `from ledger.providers import logger` instead of building their own; 12 modules that created a logger without using it no longer create one. Log records now carry the logger name `ledger.providers` instead of the module name; the `[Ledger]` prefix is unchanged.
 - [CHANGE] Compatibility with Alliance Auth 6 (works with Alliance Auth 5 as before): the migrations that depended on `eveonline` `0017_alliance_and_corp_names_are_not_unique` (removed in Alliance Auth 6) now depend on `eveonline` `0019_v5squash`, which exists in both versions and replaces `0001` to `0018`. The alts lookup in `get_alts_queryset` filters by the `EveCharacter` primary key instead of the `id` field, which no longer exists in Alliance Auth 6.
 - [CHANGE] Language files other than `en` hold only real translations as Weblate writes them; untranslated strings are no longer stored as empty values, and missing keys fall back to English. `i18next-scanner` now maintains only `frontend/i18n/en/translation.json`. A one-time cleanup removed the empty entries from all other languages.
 - [CHANGE] Real translations from the unmerged Weblate branch `weblate-translation` taken over into `frontend/i18n/<lng>/translation.json` (33 to 40 values per language, 1 for German, which already had them), after the bundled-translations switch had emptied them. New `frontend/i18n/cs` and `frontend/i18n/sk` with the same rule. Empty values stay empty; the Django `.po` files had nothing to take over.
@@ -61,6 +65,7 @@ Section Order:
 
 - Active/Inactive status badge from the owner cards on the `OverviewPage`.
 - Unused CSS classes, theme variables and keyframes (status indicator, link, `aa-bg-*` and others) and the unused `BaseModalQuery` component.
+- The unused HTML helpers `bootstrap_icon`, `bootstrap_text_style_class` and `description` of `UpdateStatus`; the frontend renders the update status from the API itself.
 
 ### Changed
 

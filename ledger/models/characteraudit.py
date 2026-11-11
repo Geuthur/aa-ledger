@@ -14,14 +14,12 @@ from django.utils.translation import gettext_lazy as _
 # Alliance Auth
 from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveCharacter, Token
-from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
 from eve_sde.models import ItemType
 from eve_sde.models.map import SolarSystem
 
 # AA Ledger
-from ledger import __title__
 from ledger.app_settings import (
     LEDGER_USE_COMPRESSED,
 )
@@ -34,18 +32,15 @@ from ledger.managers.character_journal_manager import CharacterWalletManager
 from ledger.managers.character_mining_manager import CharacterMiningLedgerEntryManager
 from ledger.models.general import (
     EveMarketPrice,
-    UpdateSectionResult,
-    UpdateStatusBaseModel,
     WalletJournalEntry,
 )
 from ledger.models.helpers.update_manager import (
     CharacterUpdateSection,
     UpdateManagerMixin,
+    UpdateSectionResult,
     UpdateStatus,
+    UpdateStatusBaseModel,
 )
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CharacterOwner(UpdateManagerMixin, models.Model):
@@ -319,9 +314,6 @@ class CharacterUpdateStatus(UpdateStatusBaseModel):
     section = models.CharField(
         max_length=32, choices=CharacterUpdateSection.choices, db_index=True
     )
-
-    def __str__(self) -> str:
-        return f"{self.owner} - {self.section}"
 
     class Meta:
         default_permissions = ()

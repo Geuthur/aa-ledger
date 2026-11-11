@@ -9,11 +9,8 @@ from ninja import NinjaAPI
 from django.core.handlers.wsgi import WSGIRequest
 from django.utils.translation import gettext as _
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA Ledger
-from ledger import __title__, tasks
+from ledger import tasks
 from ledger.api import schema
 from ledger.api.helpers.administration import (
     build_administration_owners_list,
@@ -23,9 +20,6 @@ from ledger.api.helpers.administration import (
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
 from ledger.models.general import General
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 ADMIN_TASK_PRIORITY = 7
 

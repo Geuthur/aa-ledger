@@ -12,11 +12,7 @@ from django.db.models import Q, QuerySet, Sum
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA Ledger
-from ledger import __title__
 from ledger.api.helpers.core import (
     get_available_years,
     get_characterowner_or_none,
@@ -45,9 +41,6 @@ from ledger.models.characteraudit import (
     CharacterOwner,
     CharacterWalletJournalEntry,
 )
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class LedgerCharacterSchema(Schema):
