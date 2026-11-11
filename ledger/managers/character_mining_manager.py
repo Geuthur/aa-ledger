@@ -31,7 +31,7 @@ if TYPE_CHECKING:
         CharacterMiningLedger as MiningLedgerContext,
     )
     from ledger.models.characteraudit import CharacterOwner
-    from ledger.models.general import UpdateSectionResult
+    from ledger.models.helpers.update_manager import UpdateSectionResult
 
 
 def require_valid_price_percentage(func):

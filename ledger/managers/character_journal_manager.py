@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from ledger.models.characteraudit import (
         CharacterWalletJournalEntry as CharacterWalletJournalEntryContext,
     )
-    from ledger.models.general import UpdateSectionResult
+    from ledger.models.helpers.update_manager import UpdateSectionResult
 
 
 class CharacterWalletIncomeFilter(models.QuerySet):

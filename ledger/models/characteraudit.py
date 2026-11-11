@@ -32,14 +32,14 @@ from ledger.managers.character_journal_manager import CharacterWalletManager
 from ledger.managers.character_mining_manager import CharacterMiningLedgerEntryManager
 from ledger.models.general import (
     EveMarketPrice,
-    UpdateSectionResult,
-    UpdateStatusBaseModel,
     WalletJournalEntry,
 )
 from ledger.models.helpers.update_manager import (
     CharacterUpdateSection,
     UpdateManagerMixin,
+    UpdateSectionResult,
     UpdateStatus,
+    UpdateStatusBaseModel,
 )
 
 
@@ -314,9 +314,6 @@ class CharacterUpdateStatus(UpdateStatusBaseModel):
     section = models.CharField(
         max_length=32, choices=CharacterUpdateSection.choices, db_index=True
     )
-
-    def __str__(self) -> str:
-        return f"{self.owner} - {self.section}"
 
     class Meta:
         default_permissions = ()

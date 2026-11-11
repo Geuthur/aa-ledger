@@ -24,13 +24,11 @@ from ledger.managers.corporation_journal_manager import (
     CorporationWalletManager,
 )
 from ledger.models.characteraudit import WalletJournalEntry
-from ledger.models.general import (
-    UpdateStatusBaseModel,
-)
 from ledger.models.helpers.update_manager import (
     CorporationUpdateSection,
     UpdateManagerMixin,
     UpdateStatus,
+    UpdateStatusBaseModel,
 )
 from ledger.providers import esi, logger
 
