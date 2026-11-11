@@ -11,15 +11,6 @@ from django.utils.functional import Promise
 from django.utils.timezone import datetime
 from django.utils.translation import gettext_lazy as _
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
-# AA Ledger
-from ledger import __title__
-from ledger.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
-
 if TYPE_CHECKING:
     # AA Ledger
     from ledger.api.schema import DateFilter

@@ -13,12 +13,10 @@ from django.utils.translation import gettext_lazy as _
 # Alliance Auth
 from allianceauth.authentication.models import UserProfile
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
-from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 from esi.models import Token
 
 # AA Ledger
-from ledger import __title__
 from ledger.helpers.eveonline import get_corporation_logo_url
 from ledger.managers.corporation_audit_manager import CorporationAuditManager
 from ledger.managers.corporation_journal_manager import (
@@ -26,17 +24,13 @@ from ledger.managers.corporation_journal_manager import (
     CorporationWalletManager,
 )
 from ledger.models.characteraudit import WalletJournalEntry
-from ledger.models.general import (
-    UpdateStatusBaseModel,
-)
 from ledger.models.helpers.update_manager import (
     CorporationUpdateSection,
     UpdateManagerMixin,
     UpdateStatus,
+    UpdateStatusBaseModel,
 )
-from ledger.providers import AppLogger, esi
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from ledger.providers import esi, logger
 
 
 class CorporationOwner(UpdateManagerMixin, models.Model):
