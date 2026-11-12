@@ -16,7 +16,6 @@ from evesde_factory.utils import add_character_to_user
 # AA Ledger
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
-from ledger.models.general import General
 from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
     CharacterOwnerFactory,
@@ -117,11 +116,7 @@ class TestAdministrationApi(AuthTestCase):
         self, mock_task
     ):
         # Test Data
-        admin_user = UserMainFactory(
-            permissions__=[
-                General.get_perm(General.Permission.CHAR_AUDIT_ADMIN_MANAGER)
-            ]
-        )
+        admin_user = UserMainFactory(permissions__=["ledger.char_audit_admin_manager"])
         self.client.force_login(admin_user)
         char_owner = CharacterOwnerFactory()
 
@@ -141,11 +136,7 @@ class TestAdministrationApi(AuthTestCase):
         self, mock_task
     ):
         # Test Data
-        admin_user = UserMainFactory(
-            permissions__=[
-                General.get_perm(General.Permission.CORP_AUDIT_ADMIN_MANAGER)
-            ]
-        )
+        admin_user = UserMainFactory(permissions__=["ledger.corp_audit_admin_manager"])
         self.client.force_login(admin_user)
         corp_owner = CorporationOwnerFactory()
 
@@ -165,11 +156,7 @@ class TestAdministrationApi(AuthTestCase):
         self, mock_task
     ):
         # Test Data
-        admin_user = UserMainFactory(
-            permissions__=[
-                General.get_perm(General.Permission.CHAR_AUDIT_ADMIN_MANAGER)
-            ]
-        )
+        admin_user = UserMainFactory(permissions__=["ledger.char_audit_admin_manager"])
         self.client.force_login(admin_user)
         char_owner = CharacterOwnerFactory()
 
@@ -292,9 +279,7 @@ class TestAdministrationApi(AuthTestCase):
         self,
     ):
         # Test Data
-        char_manager_user = UserMainFactory(
-            permissions__=[General.get_perm(General.Permission.CHAR_AUDIT_MANAGER)]
-        )
+        char_manager_user = UserMainFactory(permissions__=["ledger.char_audit_manager"])
         char_manager = char_manager_user.profile.main_character
         char_in_corp = EveCharacterFactory(corporation_id=char_manager.corporation_id)
         user_in_corp = UserMainFactory()
