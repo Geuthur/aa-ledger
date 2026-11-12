@@ -9,7 +9,7 @@ import pook
 from ledger.models.general import EveEntity, EveMarketPrice
 from ledger.tests import AuthTestCase
 
-MODULE_PATH = "ledger.managers.general_manager"
+MODULE_PATH = "ledger.managers.general"
 
 
 @pook.on
