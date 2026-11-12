@@ -67,7 +67,7 @@ class ApiEndpoints:
         )
         def get_menu(request: WSGIRequest):
             user = request.user
-            if not General.has_perm(user, General.Permission.BASIC_ACCESS):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             issues = get_user_issue_count(user)
@@ -92,7 +92,7 @@ class ApiEndpoints:
                     is_external=True,
                 )
             ]
-            if General.has_perm(user, General.Permission.MANAGE_ACCESS):
+            if General.objects.has_manage_access(user):
                 add_links += [
                     schema.MenuLink(
                         name=_("Add Corporation"),
@@ -108,7 +108,7 @@ class ApiEndpoints:
 
             right_links = [*add_links]
             can_manage_ledger = (
-                General.has_admin_management_access(user)
+                General.objects.has_admin_management_access(user)
                 or CharacterOwner.objects.manage_to(user).exists()
                 or CorporationOwner.objects.manage_to(user).exists()
             )
@@ -130,7 +130,7 @@ class ApiEndpoints:
         )
         def get_user(request: WSGIRequest):
             user = request.user
-            if not General.has_perm(user, General.Permission.BASIC_ACCESS):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             main_character = getattr(user.profile, "main_character", None)
@@ -162,7 +162,7 @@ class ApiEndpoints:
             summary="Get the settings of the current user",
         )
         def get_user_settings(request: WSGIRequest):
-            if not General.has_perm(request.user, General.Permission.BASIC_ACCESS):
+            if not General.objects.has_basic_access(request.user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             settings, __ = UserSettings.objects.get_or_create(user=request.user)
@@ -182,7 +182,7 @@ class ApiEndpoints:
         def update_user_settings(
             request: WSGIRequest, payload: schema.UserSettingsUpdateRequest
         ):
-            if not General.has_perm(request.user, General.Permission.BASIC_ACCESS):
+            if not General.objects.has_basic_access(request.user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             settings, __ = UserSettings.objects.get_or_create(user=request.user)
@@ -204,7 +204,7 @@ class ApiEndpoints:
         # pylint: disable=too-many-locals
         def get_settings_owners(request: WSGIRequest):
             user = request.user
-            if not General.has_perm(user, General.Permission.BASIC_ACCESS):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             user_char_ids = list(
@@ -382,17 +382,14 @@ class ApiEndpoints:
             request: WSGIRequest, owner_type: str, owner_id: int
         ):
             user = request.user
-            has_manage_access = General.has_management_access(user)
-            if (
-                not General.has_perm(user, General.Permission.BASIC_ACCESS)
-                or not has_manage_access
-            ):
+            has_manage_access = General.objects.has_management_access(user)
+            if not General.objects.has_basic_access(user) or not has_manage_access:
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             if owner_type == "corporation":
                 perm, owner = get_manage_corporation(request, owner_id)
                 if owner is None:
-                    if not General.has_admin_management_access(user):
+                    if not General.objects.has_admin_management_access(user):
                         return HTTPStatus.NOT_FOUND, {
                             "error": _("Corporation not found.")
                         }
@@ -402,7 +399,7 @@ class ApiEndpoints:
                         return HTTPStatus.NOT_FOUND, {
                             "error": _("Corporation not found.")
                         }
-                elif not perm and not General.has_admin_management_access(user):
+                elif not perm and not General.objects.has_admin_management_access(user):
                     return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
                 registered_ids = CharacterOwner.objects.filter(
@@ -436,7 +433,7 @@ class ApiEndpoints:
                 alliance_corps = CorporationOwner.objects.filter(
                     eve_corporation__alliance__alliance_id=owner_id
                 )
-                is_admin = General.has_admin_management_access(user)
+                is_admin = General.objects.has_admin_management_access(user)
                 if not is_admin:
                     if not alliance_corps.intersection(
                         CorporationOwner.objects.manage_to(user)
@@ -483,7 +480,7 @@ class ApiEndpoints:
         )
         def trigger_update_all_settings_owners(request: WSGIRequest):
             user = request.user
-            if not General.has_perm(user, General.Permission.BASIC_ACCESS):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             # Update characters
@@ -520,7 +517,7 @@ class ApiEndpoints:
             request: WSGIRequest, owner_type: str, owner_id: int
         ):
             user = request.user
-            if not General.has_perm(user, General.Permission.BASIC_ACCESS):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             if owner_type == "character":
@@ -541,9 +538,7 @@ class ApiEndpoints:
                 perm, owner = get_manage_corporation(request, owner_id)
                 if owner is None:
                     return HTTPStatus.NOT_FOUND, {"error": _("Corporation not found.")}
-                if not perm or not General.has_perm(
-                    user, General.Permission.MANAGE_ACCESS
-                ):
+                if not perm or not General.objects.has_manage_access(user):
                     return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
                 update_corporation.apply_async(
                     args=[owner_id], kwargs={"force_refresh": False}
@@ -567,7 +562,7 @@ class ApiEndpoints:
         # pylint: disable=too-many-return-statements
         def delete_settings_owner(request: WSGIRequest, owner_type: str, owner_id: int):
             user = request.user
-            if not General.has_perm(user, General.Permission.BASIC_ACCESS):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             if owner_type == "character":
@@ -587,9 +582,7 @@ class ApiEndpoints:
                 perm, owner = get_manage_corporation(request, owner_id)
                 if owner is None:
                     return HTTPStatus.NOT_FOUND, {"error": _("Corporation not found.")}
-                if not perm or not General.has_perm(
-                    user, General.Permission.MANAGE_ACCESS
-                ):
+                if not perm or not General.objects.has_manage_access(user):
                     return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
                 name = owner.eve_corporation.corporation_name

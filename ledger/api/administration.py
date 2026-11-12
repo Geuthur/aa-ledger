@@ -38,7 +38,7 @@ class ApiEndpoints:
             summary="List all character and corporation owners for administration",
         )
         def get_administration_owners(request: WSGIRequest):
-            if not General.has_management_access(request.user):
+            if not General.objects.has_management_access(request.user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             return build_administration_owners_list(request.user)
@@ -60,7 +60,7 @@ class ApiEndpoints:
             owner_id: int,
             payload: schema.AdministrationOwnerUpdateRequest,
         ):
-            if not General.has_management_access(request.user):
+            if not General.objects.has_management_access(request.user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             # Bypassing the ESI cache is reserved for superusers
@@ -131,7 +131,9 @@ class ApiEndpoints:
             owner_type: Literal["character", "corporation"],
             owner_id: int,
         ):
-            if not General.has_delete_access(owner_type=owner_type, user=request.user):
+            if not General.objects.has_delete_access(
+                owner_type=owner_type, user=request.user
+            ):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             if owner_type == "character":
@@ -183,7 +185,7 @@ class ApiEndpoints:
             owner_type: Literal["character", "corporation"],
             owner_id: int,
         ):
-            if not General.has_management_access(request.user):
+            if not General.objects.has_management_access(request.user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             if owner_type == "character":

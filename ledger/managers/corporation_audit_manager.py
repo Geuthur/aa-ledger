@@ -9,7 +9,6 @@ from django.db.models import Case, Count, Q, Value, When
 from allianceauth.authentication.models import User
 
 # AA Ledger
-from ledger.models.general import General
 from ledger.models.helpers.update_manager import CorporationUpdateSection, UpdateStatus
 from ledger.providers import logger
 
@@ -21,7 +20,11 @@ if TYPE_CHECKING:
 class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
     def visible_to(self, user: User):
         """Returns a queryset of all corps visible to the user."""
-        if General.has_perm(user, General.Permission.CORP_AUDIT_ADMIN_MANAGER):
+        # pylint: disable=import-outside-toplevel
+        # AA Ledger
+        from ledger.models.general import General
+
+        if General.objects.has_corp_audit_admin_access(user):
             logger.debug("Returning all corps for Corp Audit Admin %s.", user)
             return self
 
@@ -30,7 +33,7 @@ class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
             assert char
             queries = []
 
-            if General.has_perm(user, General.Permission.ADVANCED_ACCESS):
+            if General.objects.has_advanced_access(user):
                 # If the user has advanced access, return all corps from their characters
                 corp_ids = char.character_ownership.user.character_ownerships.all().values_list(
                     "character__corporation_id", flat=True
@@ -52,7 +55,11 @@ class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
 
     def manage_to(self, user: User):
         """Return all corps that the user can manage."""
-        if General.has_perm(user, General.Permission.CORP_AUDIT_ADMIN_MANAGER):
+        # pylint: disable=import-outside-toplevel
+        # AA Ledger
+        from ledger.models.general import General
+
+        if General.objects.has_corp_audit_admin_access(user):
             logger.debug("Returning all corps for Corp Audit Admin %s.", user)
             return self
 
@@ -61,7 +68,7 @@ class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
             assert char
             queries = []
 
-            if General.has_perm(user, General.Permission.CORP_AUDIT_MANAGER):
+            if General.objects.has_corp_audit_access(user):
                 # If the user has corp management access, return all corps from their characters
                 corp_ids = char.character_ownership.user.character_ownerships.all().values_list(
                     "character__corporation_id", flat=True

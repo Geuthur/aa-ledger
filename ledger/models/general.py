@@ -4,7 +4,6 @@ General Model
 
 # Standard Library
 import datetime
-from typing import Any, Literal
 
 # Django
 from django.contrib.auth.models import User
@@ -29,97 +28,44 @@ from ledger.helpers.eveonline import (
     get_character_portrait_url,
     get_corporation_logo_url,
 )
-from ledger.managers.general_manager import EveEntityManager, EveMarketPriceManager
+from ledger.managers.general_manager import (
+    EveEntityManager,
+    EveMarketPriceManager,
+    GeneralManager,
+)
 
 
 class General(models.Model):
     """A model defining commonly used properties, permissions, and helper methods for Ledger."""
 
-    class Permission(models.TextChoices):
-        BASIC_ACCESS = "basic_access", _("Can access this app, Ledger.")
-        ADVANCED_ACCESS = (
-            "advanced_access",
-            _("Can access Corporation and Alliance Ledger."),
-        )
-        MANAGE_ACCESS = "manage_access", _("Can manage Ledger.")
-        CHAR_AUDIT_MANAGER = (
-            "char_audit_manager",
-            _("Has access to all characters for own Corp."),
-        )
-        CHAR_AUDIT_ADMIN_MANAGER = (
-            "char_audit_admin_manager",
-            _("Has access to all characters."),
-        )
-        CORP_AUDIT_MANAGER = (
-            "corp_audit_manager",
-            _("Has Access to own Corporations."),
-        )
-        CORP_AUDIT_ADMIN_MANAGER = (
-            "corp_audit_admin_manager",
-            _("Has access to all Corporations."),
-        )
+    objects = GeneralManager()
 
     class Meta:
         managed = False
         default_permissions = ()
         verbose_name = "AA-Ledger"
         verbose_name_plural = "AA-Ledger"
-
-    # Inject dynamic permissions
-    Meta.permissions = Permission.choices
-
-    @classmethod
-    def get_perm(cls, perm: "str | Permission") -> str:
-        """Return full permission string 'ledger.<codename>'."""
-        codename = perm.value if isinstance(perm, cls.Permission) else perm
-        return f"ledger.{codename}"
-
-    @classmethod
-    def has_perm(cls, user: Any, perm: "str | General.Permission") -> bool:
-        """Check if user has permission."""
-        if not user or not hasattr(user, "has_perm"):
-            return False
-        return user.has_perm(cls.get_perm(perm))
-
-    @classmethod
-    def has_any_perm(cls, user: Any, *perms: "str | General.Permission") -> bool:
-        """Return True if user has any of the specified permissions."""
-        if not user or not hasattr(user, "has_perm"):
-            return False
-        return any(user.has_perm(cls.get_perm(p)) for p in perms)
-
-    @classmethod
-    def has_management_access(cls, user: Any) -> bool:
-        """Check if user has any management permission."""
-        return cls.has_any_perm(
-            user,
-            cls.Permission.MANAGE_ACCESS,
-            cls.Permission.CHAR_AUDIT_MANAGER,
-            cls.Permission.CHAR_AUDIT_ADMIN_MANAGER,
-            cls.Permission.CORP_AUDIT_MANAGER,
-            cls.Permission.CORP_AUDIT_ADMIN_MANAGER,
+        permissions = (
+            ("basic_access", _("Can access this app, Ledger.")),
+            ("advanced_access", _("Can access Corporation and Alliance Ledger.")),
+            ("manage_access", _("Can manage Ledger.")),
+            (
+                "char_audit_manager",
+                _("Has access to all characters for own Corp."),
+            ),
+            (
+                "char_audit_admin_manager",
+                _("Has access to all characters."),
+            ),
+            (
+                "corp_audit_manager",
+                _("Has Access to own Corporations."),
+            ),
+            (
+                "corp_audit_admin_manager",
+                _("Has access to all Corporations."),
+            ),
         )
-
-    @classmethod
-    def has_admin_management_access(cls, user: Any) -> bool:
-        """Check if user has system-wide audit admin permissions."""
-        return cls.has_any_perm(
-            user,
-            cls.Permission.CHAR_AUDIT_ADMIN_MANAGER,
-            cls.Permission.CORP_AUDIT_ADMIN_MANAGER,
-        )
-
-    @classmethod
-    def has_delete_access(
-        cls, owner_type: Literal["character", "corporation"], user: Any
-    ) -> bool:
-        if not user or not getattr(user, "is_authenticated", False):
-            return False
-        if owner_type == "character":
-            return cls.has_perm(user, cls.Permission.CHAR_AUDIT_ADMIN_MANAGER)
-        if owner_type == "corporation":
-            return cls.has_perm(user, cls.Permission.CORP_AUDIT_ADMIN_MANAGER)
-        return False
 
 
 class UserSettings(models.Model):

@@ -1,5 +1,5 @@
 # Standard Library
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 # Django
 from django.db import models
@@ -19,6 +19,76 @@ if TYPE_CHECKING:
     # AA Ledger
     from ledger.models.general import EveEntity as EveEntityContext
     from ledger.models.general import EveMarketPrice as EveMarketPriceContext
+
+
+class GeneralManager(models.Manager):
+    """App rules that Django cannot check itself.
+
+    General is unmanaged, so this manager never queries the database.
+    """
+
+    def has_basic_access(self, user) -> bool:
+        """True if the user may use the app."""
+        return user.has_perm("ledger.basic_access")
+
+    def has_advanced_access(self, user) -> bool:
+        """True if the user may access Corporation and Alliance Ledger."""
+        return user.has_perm("ledger.advanced_access")
+
+    def has_manage_access(self, user) -> bool:
+        """True if the user holds the general manage permission."""
+        return user.has_perm("ledger.manage_access")
+
+    def has_char_audit_access(self, user) -> bool:
+        """True if the user may see and manage characters of the own corporation."""
+        return user.has_perm("ledger.char_audit_manager")
+
+    def has_char_audit_admin_access(self, user) -> bool:
+        """True if the user may see and manage all characters."""
+        return user.has_perm("ledger.char_audit_admin_manager")
+
+    def has_corp_audit_access(self, user) -> bool:
+        """True if the user may manage the own corporations."""
+        return user.has_perm("ledger.corp_audit_manager")
+
+    def has_corp_audit_admin_access(self, user) -> bool:
+        """True if the user may see and manage all corporations."""
+        return user.has_perm("ledger.corp_audit_admin_manager")
+
+    def has_management_access(self, user) -> bool:
+        """True if the user holds any management permission."""
+        return any(
+            user.has_perm(perm)
+            for perm in (
+                "ledger.manage_access",
+                "ledger.char_audit_manager",
+                "ledger.char_audit_admin_manager",
+                "ledger.corp_audit_manager",
+                "ledger.corp_audit_admin_manager",
+            )
+        )
+
+    def has_admin_management_access(self, user) -> bool:
+        """True if the user holds a system-wide audit admin permission."""
+        return any(
+            user.has_perm(perm)
+            for perm in (
+                "ledger.char_audit_admin_manager",
+                "ledger.corp_audit_admin_manager",
+            )
+        )
+
+    def has_delete_access(
+        self, owner_type: Literal["character", "corporation"], user
+    ) -> bool:
+        """True if the user may delete owners of the given type."""
+        if not getattr(user, "is_authenticated", False):
+            return False
+        if owner_type == "character":
+            return self.has_char_audit_admin_access(user)
+        if owner_type == "corporation":
+            return self.has_corp_audit_admin_access(user)
+        return False
 
 
 class EveEntityManager(models.Manager["EveEntityContext"]):
