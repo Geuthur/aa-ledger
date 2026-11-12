@@ -1,13 +1,26 @@
-"""Tests for centralized Ledger permissions on General model."""
+"""Tests for the permission definitions in General."""
+
+# Standard Library
+import re
+from pathlib import Path
 
 # Django
 from django.contrib.auth.models import AnonymousUser
 
 # AA Ledger
+import ledger
 from ledger.models.general import General
 from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import UserMainFactory
 from ledger.tests.testdata.users import create_manage_own_user
+
+APP_LABEL = "ledger"
+# Permission strings like "<app_label>.<codename>" in quotes, any app label
+PERMISSION_PATTERN = re.compile(
+    r"[\"']([A-Za-z0-9_]+)\.([A-Za-z0-9_]*_(?:access|manager))[\"']"
+)
+IGNORED_PARTS = ("tests", "migrations", "node_modules")
+SCANNED_SUFFIXES = (".py", ".html", ".txt")
 
 
 class TestGeneralPermissions(AuthTestCase):
@@ -16,204 +29,98 @@ class TestGeneralPermissions(AuthTestCase):
         super().setUpClass()
         cls.manage_own_user = create_manage_own_user()
 
-    def test_choices_should_return_all_seven_permissions(self):
-        # Test Data
-        expected_codenames = {
-            "basic_access",
-            "advanced_access",
-            "manage_access",
-            "char_audit_manager",
-            "char_audit_admin_manager",
-            "corp_audit_manager",
-            "corp_audit_admin_manager",
-        }
-
-        # Test Action
-        choices = General.Permission.choices
-        codenames = {c[0] for c in choices}
-
-        # Expected Result
-        self.assertEqual(len(choices), 7)
-        self.assertEqual(codenames, expected_codenames)
-
-    def test_get_perm_should_return_prefixed_permission_string(self):
-        # Test Data
-        perm = General.Permission.BASIC_ACCESS
-
-        # Test Action
-        full_name = General.get_perm(perm)
-
-        # Expected Result
-        self.assertEqual(full_name, "ledger.basic_access")
-
-    def test_has_perm_should_return_true_when_user_has_permission(self):
-        # Test Data
-        user = self.user
-
-        # Test Action
-        result = General.has_perm(user, General.Permission.BASIC_ACCESS)
-
-        # Expected Result
-        self.assertTrue(result)
-
-    def test_has_perm_should_return_false_when_user_lacks_permission(self):
-        # Test Data
-        user = self.user
-
-        # Test Action
-        result = General.has_perm(user, General.Permission.CHAR_AUDIT_ADMIN_MANAGER)
-
-        # Expected Result
-        self.assertFalse(result)
-
-    def test_has_any_perm_should_return_true_when_at_least_one_perm_is_held(self):
-        # Test Data
-        user = self.user
-
-        # Test Action
-        result = General.has_any_perm(
-            user,
-            General.Permission.CHAR_AUDIT_ADMIN_MANAGER,
-            General.Permission.BASIC_ACCESS,
+    def test_codenames_should_stay_unchanged(self):
+        self.assertEqual(
+            [codename for codename, _ in General._meta.permissions],
+            [
+                "basic_access",
+                "advanced_access",
+                "manage_access",
+                "char_audit_manager",
+                "char_audit_admin_manager",
+                "corp_audit_manager",
+                "corp_audit_admin_manager",
+            ],
         )
 
-        # Expected Result
-        self.assertTrue(result)
+    def test_used_permission_strings_should_exist_in_general(self):
+        """Every permission string used in code and templates is defined in General.Meta.permissions."""
+        defined = {f"{APP_LABEL}.{c}" for c, _ in General._meta.permissions}
+        used: dict[str, set[str]] = {}
+        root = Path(ledger.__file__).parent
 
-    def test_has_any_perm_should_return_false_when_none_are_held(self):
-        # Test Data
-        user = self.user
+        for path in root.rglob("*"):
+            relative = path.relative_to(root)
+            if path.suffix not in SCANNED_SUFFIXES or any(
+                part in IGNORED_PARTS for part in relative.parts
+            ):
+                continue
+            for label, codename in PERMISSION_PATTERN.findall(path.read_text("utf-8")):
+                used.setdefault(f"{label}.{codename}", set()).add(str(relative))
 
-        # Test Action
-        result = General.has_any_perm(
-            user,
-            General.Permission.CHAR_AUDIT_ADMIN_MANAGER,
-            General.Permission.CORP_AUDIT_ADMIN_MANAGER,
-        )
-
-        # Expected Result
-        self.assertFalse(result)
+        self.assertTrue(used, "No permission strings found, pattern is broken.")
+        unknown = {c: sorted(f) for c, f in used.items() if c not in defined}
+        self.assertEqual(unknown, {})
 
     def test_has_management_access_should_return_true_for_superuser(self):
-        # Test Data
-        user = self.superuser
-
-        # Test Action
-        result = General.has_management_access(user)
-
-        # Expected Result
-        self.assertTrue(result)
+        self.assertTrue(General.objects.has_management_access(self.superuser))
 
     def test_has_management_access_should_return_true_for_manage_own_user(self):
-        # Test Data
-        user = self.manage_own_user
-
-        # Test Action
-        result = General.has_management_access(user)
-
-        # Expected Result
-        self.assertTrue(result)
+        self.assertTrue(General.objects.has_management_access(self.manage_own_user))
 
     def test_has_management_access_should_return_false_for_regular_user(self):
-        # Test Data
-        user = self.user
-
-        # Test Action
-        result = General.has_management_access(user)
-
-        # Expected Result
-        self.assertFalse(result)
+        self.assertFalse(General.objects.has_management_access(self.user))
 
     def test_has_management_access_should_return_false_for_anonymous_user(self):
-        # Test Data
-        anon = AnonymousUser()
-
-        # Test Action
-        result = General.has_management_access(anon)
-
-        # Expected Result
-        self.assertFalse(result)
+        self.assertFalse(General.objects.has_management_access(AnonymousUser()))
 
     def test_has_admin_management_access_should_return_true_for_superuser(self):
-        # Test Data
-        user = self.superuser
-
-        # Test Action
-        result = General.has_admin_management_access(user)
-
-        # Expected Result
-        self.assertTrue(result)
+        self.assertTrue(General.objects.has_admin_management_access(self.superuser))
 
     def test_has_admin_management_access_should_return_true_for_admin_manager(self):
-        # Test Data
-        admin_manager_user = UserMainFactory(
-            permissions__=[
-                General.get_perm(General.Permission.CHAR_AUDIT_ADMIN_MANAGER)
-            ]
-        )
-
-        # Test Action
-        result = General.has_admin_management_access(admin_manager_user)
-
-        # Expected Result
-        self.assertTrue(result)
+        user = UserMainFactory(permissions__=["ledger.char_audit_admin_manager"])
+        self.assertTrue(General.objects.has_admin_management_access(user))
 
     def test_has_admin_management_access_should_return_false_for_corp_audit_manager(
         self,
     ):
-        # Test Data
-        user = self.manage_own_user
-
-        # Test Action
-        result = General.has_admin_management_access(user)
-
-        # Expected Result
-        self.assertFalse(result)
-
-    def test_has_admin_management_access_should_return_false_for_anonymous_user(self):
-        # Test Data
-        anon = AnonymousUser()
-
-        # Test Action
-        result = General.has_admin_management_access(anon)
-
-        # Expected Result
-        self.assertFalse(result)
-
-    def test_has_delete_access_should_return_true_for_superuser(self):
-        # Test Data
-        user = self.superuser
-
-        # Test Action
-        char_result = General.has_delete_access("character", user)
-        corp_result = General.has_delete_access("corporation", user)
-
-        # Expected Result
-        self.assertTrue(char_result)
-        self.assertTrue(corp_result)
-
-    def test_has_delete_access_should_follow_admin_manager_permissions(self):
-        # Test Data
-        user = UserMainFactory(
-            permissions__=[
-                General.get_perm(General.Permission.CHAR_AUDIT_ADMIN_MANAGER)
-            ]
+        self.assertFalse(
+            General.objects.has_admin_management_access(self.manage_own_user)
         )
 
-        # Test Action
-        char_result = General.has_delete_access("character", user)
-        corp_result = General.has_delete_access("corporation", user)
+    def test_has_admin_management_access_should_return_false_for_anonymous_user(self):
+        self.assertFalse(General.objects.has_admin_management_access(AnonymousUser()))
 
-        # Expected Result
-        self.assertTrue(char_result)
-        self.assertFalse(corp_result)
+    def test_has_delete_access_should_return_true_for_superuser(self):
+        self.assertTrue(General.objects.has_delete_access("character", self.superuser))
+        self.assertTrue(
+            General.objects.has_delete_access("corporation", self.superuser)
+        )
+
+    def test_has_delete_access_should_follow_admin_manager_permissions(self):
+        user = UserMainFactory(permissions__=["ledger.char_audit_admin_manager"])
+        self.assertTrue(General.objects.has_delete_access("character", user))
+        self.assertFalse(General.objects.has_delete_access("corporation", user))
 
     def test_has_delete_access_should_return_false_for_anonymous_user(self):
-        # Test Data
-        anon = AnonymousUser()
+        self.assertFalse(
+            General.objects.has_delete_access("character", AnonymousUser())
+        )
 
-        # Test Action
-        result = General.has_delete_access("character", anon)
-
-        # Expected Result
-        self.assertFalse(result)
+    def test_single_permission_checks_should_follow_the_codename(self):
+        checks = {
+            "has_basic_access": "ledger.basic_access",
+            "has_advanced_access": "ledger.advanced_access",
+            "has_manage_access": "ledger.manage_access",
+            "has_char_audit_access": "ledger.char_audit_manager",
+            "has_char_audit_admin_access": "ledger.char_audit_admin_manager",
+            "has_corp_audit_access": "ledger.corp_audit_manager",
+            "has_corp_audit_admin_access": "ledger.corp_audit_admin_manager",
+        }
+        for method, perm in checks.items():
+            with self.subTest(method=method):
+                user = UserMainFactory(permissions__=[perm])
+                other = UserMainFactory(permissions__=[])
+                self.assertTrue(getattr(General.objects, method)(user))
+                self.assertFalse(getattr(General.objects, method)(other))
+                self.assertFalse(getattr(General.objects, method)(AnonymousUser()))

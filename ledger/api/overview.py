@@ -59,7 +59,7 @@ class ApiEndpoints:
         )
         def get_overview(request: WSGIRequest):
             user = request.user
-            if not General.has_perm(user, General.Permission.BASIC_ACCESS):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             owners: list[schema.LedgerOverviewOwnerSchema] = []
@@ -73,7 +73,7 @@ class ApiEndpoints:
                     "character_id", flat=True
                 )
             )
-            can_manage = General.has_perm(user, General.Permission.MANAGE_ACCESS)
+            can_manage = General.objects.has_manage_access(user)
 
             profiles = (
                 UserProfile.objects.filter(
@@ -107,7 +107,7 @@ class ApiEndpoints:
                 )
 
             # 2. Corporations & Alliances
-            if General.has_perm(user, General.Permission.ADVANCED_ACCESS):
+            if General.objects.has_advanced_access(user):
                 corps = (
                     CorporationOwner.objects.visible_to(user)
                     .select_related("eve_corporation", "eve_corporation__alliance")

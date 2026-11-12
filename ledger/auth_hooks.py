@@ -26,7 +26,7 @@ class LedgerMenuItem(MenuItemHook):
         )
 
     def render(self, request):
-        if General.has_perm(request.user, General.Permission.BASIC_ACCESS):
+        if General.objects.has_basic_access(request.user):
             self.count = (
                 CharacterOwner.objects.annotate_total_update_status_user(
                     user=request.user
