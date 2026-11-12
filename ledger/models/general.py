@@ -28,7 +28,7 @@ from ledger.helpers.eveonline import (
     get_character_portrait_url,
     get_corporation_logo_url,
 )
-from ledger.managers.general_manager import (
+from ledger.managers.general import (
     EveEntityManager,
     EveMarketPriceManager,
     GeneralManager,
