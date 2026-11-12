@@ -6,7 +6,6 @@ from unittest.mock import patch
 from ninja.testing import TestClient
 
 # Django
-from django.core.cache import cache
 from django.urls import reverse
 
 # Alliance Auth (External Libs)
@@ -34,10 +33,6 @@ class TestGeneralApi(AuthTestCase):
         super().setUpClass()
         cls.manage_user = create_manage_user()
         cls.api = f"{reverse('ledger:index')}api"
-
-    def setUp(self):
-        super().setUp()
-        cache.clear()
 
     def test_get_menu_should_hide_advanced_links_without_permission(self):
         # Test Data
