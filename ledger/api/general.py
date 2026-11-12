@@ -67,7 +67,7 @@ class ApiEndpoints:
         )
         def get_menu(request: WSGIRequest):
             user = request.user
-            if not user.has_perm("ledger.basic_access"):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             issues = get_user_issue_count(user)
@@ -92,7 +92,7 @@ class ApiEndpoints:
                     is_external=True,
                 )
             ]
-            if user.has_perm("ledger.manage_access"):
+            if General.objects.has_manage_access(user):
                 add_links += [
                     schema.MenuLink(
                         name=_("Add Corporation"),
@@ -130,7 +130,7 @@ class ApiEndpoints:
         )
         def get_user(request: WSGIRequest):
             user = request.user
-            if not user.has_perm("ledger.basic_access"):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             main_character = getattr(user.profile, "main_character", None)
@@ -162,7 +162,7 @@ class ApiEndpoints:
             summary="Get the settings of the current user",
         )
         def get_user_settings(request: WSGIRequest):
-            if not request.user.has_perm("ledger.basic_access"):
+            if not General.objects.has_basic_access(request.user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             settings, __ = UserSettings.objects.get_or_create(user=request.user)
@@ -182,7 +182,7 @@ class ApiEndpoints:
         def update_user_settings(
             request: WSGIRequest, payload: schema.UserSettingsUpdateRequest
         ):
-            if not request.user.has_perm("ledger.basic_access"):
+            if not General.objects.has_basic_access(request.user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             settings, __ = UserSettings.objects.get_or_create(user=request.user)
@@ -204,7 +204,7 @@ class ApiEndpoints:
         # pylint: disable=too-many-locals
         def get_settings_owners(request: WSGIRequest):
             user = request.user
-            if not user.has_perm("ledger.basic_access"):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             user_char_ids = list(
@@ -383,7 +383,7 @@ class ApiEndpoints:
         ):
             user = request.user
             has_manage_access = General.objects.has_management_access(user)
-            if not user.has_perm("ledger.basic_access") or not has_manage_access:
+            if not General.objects.has_basic_access(user) or not has_manage_access:
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             if owner_type == "corporation":
@@ -480,7 +480,7 @@ class ApiEndpoints:
         )
         def trigger_update_all_settings_owners(request: WSGIRequest):
             user = request.user
-            if not user.has_perm("ledger.basic_access"):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             # Update characters
@@ -517,7 +517,7 @@ class ApiEndpoints:
             request: WSGIRequest, owner_type: str, owner_id: int
         ):
             user = request.user
-            if not user.has_perm("ledger.basic_access"):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             if owner_type == "character":
@@ -538,7 +538,7 @@ class ApiEndpoints:
                 perm, owner = get_manage_corporation(request, owner_id)
                 if owner is None:
                     return HTTPStatus.NOT_FOUND, {"error": _("Corporation not found.")}
-                if not perm or not user.has_perm("ledger.manage_access"):
+                if not perm or not General.objects.has_manage_access(user):
                     return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
                 update_corporation.apply_async(
                     args=[owner_id], kwargs={"force_refresh": False}
@@ -562,7 +562,7 @@ class ApiEndpoints:
         # pylint: disable=too-many-return-statements
         def delete_settings_owner(request: WSGIRequest, owner_type: str, owner_id: int):
             user = request.user
-            if not user.has_perm("ledger.basic_access"):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             if owner_type == "character":
@@ -582,7 +582,7 @@ class ApiEndpoints:
                 perm, owner = get_manage_corporation(request, owner_id)
                 if owner is None:
                     return HTTPStatus.NOT_FOUND, {"error": _("Corporation not found.")}
-                if not perm or not user.has_perm("ledger.manage_access"):
+                if not perm or not General.objects.has_manage_access(user):
                     return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
                 name = owner.eve_corporation.corporation_name

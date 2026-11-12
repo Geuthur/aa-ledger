@@ -27,6 +27,34 @@ class GeneralManager(models.Manager):
     General is unmanaged, so this manager never queries the database.
     """
 
+    def has_basic_access(self, user) -> bool:
+        """True if the user may use the app."""
+        return user.has_perm("ledger.basic_access")
+
+    def has_advanced_access(self, user) -> bool:
+        """True if the user may access Corporation and Alliance Ledger."""
+        return user.has_perm("ledger.advanced_access")
+
+    def has_manage_access(self, user) -> bool:
+        """True if the user holds the general manage permission."""
+        return user.has_perm("ledger.manage_access")
+
+    def has_char_audit_access(self, user) -> bool:
+        """True if the user may see and manage characters of the own corporation."""
+        return user.has_perm("ledger.char_audit_manager")
+
+    def has_char_audit_admin_access(self, user) -> bool:
+        """True if the user may see and manage all characters."""
+        return user.has_perm("ledger.char_audit_admin_manager")
+
+    def has_corp_audit_access(self, user) -> bool:
+        """True if the user may manage the own corporations."""
+        return user.has_perm("ledger.corp_audit_manager")
+
+    def has_corp_audit_admin_access(self, user) -> bool:
+        """True if the user may see and manage all corporations."""
+        return user.has_perm("ledger.corp_audit_admin_manager")
+
     def has_management_access(self, user) -> bool:
         """True if the user holds any management permission."""
         return any(
@@ -57,9 +85,9 @@ class GeneralManager(models.Manager):
         if not getattr(user, "is_authenticated", False):
             return False
         if owner_type == "character":
-            return user.has_perm("ledger.char_audit_admin_manager")
+            return self.has_char_audit_admin_access(user)
         if owner_type == "corporation":
-            return user.has_perm("ledger.corp_audit_admin_manager")
+            return self.has_corp_audit_admin_access(user)
         return False
 
 

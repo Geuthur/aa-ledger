@@ -20,6 +20,7 @@ from ledger.helpers.eveonline import (
 )
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
+from ledger.models.general import General
 
 
 def _main_character_overview(character_ids) -> list[schema.CharacterOverview]:
@@ -58,7 +59,7 @@ class ApiEndpoints:
         )
         def get_overview(request: WSGIRequest):
             user = request.user
-            if not user.has_perm("ledger.basic_access"):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             owners: list[schema.LedgerOverviewOwnerSchema] = []
@@ -72,7 +73,7 @@ class ApiEndpoints:
                     "character_id", flat=True
                 )
             )
-            can_manage = user.has_perm("ledger.manage_access")
+            can_manage = General.objects.has_manage_access(user)
 
             profiles = (
                 UserProfile.objects.filter(
@@ -106,7 +107,7 @@ class ApiEndpoints:
                 )
 
             # 2. Corporations & Alliances
-            if user.has_perm("ledger.advanced_access"):
+            if General.objects.has_advanced_access(user):
                 corps = (
                     CorporationOwner.objects.visible_to(user)
                     .select_related("eve_corporation", "eve_corporation__alliance")

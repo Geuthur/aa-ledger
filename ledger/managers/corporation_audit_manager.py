@@ -20,7 +20,11 @@ if TYPE_CHECKING:
 class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
     def visible_to(self, user: User):
         """Returns a queryset of all corps visible to the user."""
-        if user.has_perm("ledger.corp_audit_admin_manager"):
+        # pylint: disable=import-outside-toplevel
+        # AA Ledger
+        from ledger.models.general import General
+
+        if General.objects.has_corp_audit_admin_access(user):
             logger.debug("Returning all corps for Corp Audit Admin %s.", user)
             return self
 
@@ -29,7 +33,7 @@ class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
             assert char
             queries = []
 
-            if user.has_perm("ledger.advanced_access"):
+            if General.objects.has_advanced_access(user):
                 # If the user has advanced access, return all corps from their characters
                 corp_ids = char.character_ownership.user.character_ownerships.all().values_list(
                     "character__corporation_id", flat=True
@@ -51,7 +55,11 @@ class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
 
     def manage_to(self, user: User):
         """Return all corps that the user can manage."""
-        if user.has_perm("ledger.corp_audit_admin_manager"):
+        # pylint: disable=import-outside-toplevel
+        # AA Ledger
+        from ledger.models.general import General
+
+        if General.objects.has_corp_audit_admin_access(user):
             logger.debug("Returning all corps for Corp Audit Admin %s.", user)
             return self
 
@@ -60,7 +68,7 @@ class CorporationAuditQuerySet(models.QuerySet["CorporationOwner"]):
             assert char
             queries = []
 
-            if user.has_perm("ledger.corp_audit_manager"):
+            if General.objects.has_corp_audit_access(user):
                 # If the user has corp management access, return all corps from their characters
                 corp_ids = char.character_ownership.user.character_ownerships.all().values_list(
                     "character__corporation_id", flat=True

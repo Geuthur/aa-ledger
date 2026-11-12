@@ -106,3 +106,21 @@ class TestGeneralPermissions(AuthTestCase):
         self.assertFalse(
             General.objects.has_delete_access("character", AnonymousUser())
         )
+
+    def test_single_permission_checks_should_follow_the_codename(self):
+        checks = {
+            "has_basic_access": "ledger.basic_access",
+            "has_advanced_access": "ledger.advanced_access",
+            "has_manage_access": "ledger.manage_access",
+            "has_char_audit_access": "ledger.char_audit_manager",
+            "has_char_audit_admin_access": "ledger.char_audit_admin_manager",
+            "has_corp_audit_access": "ledger.corp_audit_manager",
+            "has_corp_audit_admin_access": "ledger.corp_audit_admin_manager",
+        }
+        for method, perm in checks.items():
+            with self.subTest(method=method):
+                user = UserMainFactory(permissions__=[perm])
+                other = UserMainFactory(permissions__=[])
+                self.assertTrue(getattr(General.objects, method)(user))
+                self.assertFalse(getattr(General.objects, method)(other))
+                self.assertFalse(getattr(General.objects, method)(AnonymousUser()))

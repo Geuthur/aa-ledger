@@ -11,6 +11,7 @@ from allianceauth.services.hooks import MenuItemHook, UrlHook
 # AA Ledger
 from ledger import app_settings, urls
 from ledger.models.characteraudit import CharacterOwner
+from ledger.models.general import General
 
 
 class LedgerMenuItem(MenuItemHook):
@@ -25,7 +26,7 @@ class LedgerMenuItem(MenuItemHook):
         )
 
     def render(self, request):
-        if request.user.has_perm("ledger.basic_access"):
+        if General.objects.has_basic_access(request.user):
             self.count = (
                 CharacterOwner.objects.annotate_total_update_status_user(
                     user=request.user

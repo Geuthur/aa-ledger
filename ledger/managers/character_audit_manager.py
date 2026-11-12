@@ -21,7 +21,11 @@ if TYPE_CHECKING:
 class CharacterAuditQuerySet(models.QuerySet["CharacterAuditContext"]):
     # pylint: disable=duplicate-code
     def visible_to(self, user: User):
-        if user.has_perm("ledger.char_audit_admin_manager"):
+        # pylint: disable=import-outside-toplevel
+        # AA Ledger
+        from ledger.models.general import General
+
+        if General.objects.has_char_audit_admin_access(user):
             logger.debug("Returning all characters for %s.", user)
             return self
 
@@ -30,7 +34,7 @@ class CharacterAuditQuerySet(models.QuerySet["CharacterAuditContext"]):
             assert char
             queries = [models.Q(eve_character__character_ownership__user=user)]
 
-            if user.has_perm("ledger.char_audit_manager"):
+            if General.objects.has_char_audit_access(user):
                 queries.append(
                     models.Q(eve_character__corporation_id=char.corporation_id)
                 )
@@ -49,7 +53,11 @@ class CharacterAuditQuerySet(models.QuerySet["CharacterAuditContext"]):
 
     def manage_to(self, user: User):
         """Return all characters that the user can manage."""
-        if user.has_perm("ledger.char_audit_admin_manager"):
+        # pylint: disable=import-outside-toplevel
+        # AA Ledger
+        from ledger.models.general import General
+
+        if General.objects.has_char_audit_admin_access(user):
             logger.debug("Returning all characters for Char Audit Admin %s.", user)
             return self
 
@@ -58,7 +66,7 @@ class CharacterAuditQuerySet(models.QuerySet["CharacterAuditContext"]):
             assert char
             queries = []
 
-            if user.has_perm("ledger.char_audit_manager"):
+            if General.objects.has_char_audit_access(user):
                 # If the user has char management access, return all chars for own Corp
                 queries.append(
                     models.Q(eve_character__corporation_id=char.corporation_id)
@@ -229,8 +237,12 @@ class CharacterAuditManager(models.Manager["CharacterAuditContext"]):
 
     @staticmethod
     def visible_eve_characters(user):
+        # pylint: disable=import-outside-toplevel
+        # AA Ledger
+        from ledger.models.general import General
+
         qs = EveCharacter.objects.get_queryset()
-        if user.has_perm("ledger.char_audit_admin_manager"):
+        if General.objects.has_char_audit_admin_access(user):
             logger.debug("Returning all characters for %s.", user)
             return qs.all()
 
@@ -239,7 +251,7 @@ class CharacterAuditManager(models.Manager["CharacterAuditContext"]):
             assert char
             queries = [models.Q(character_ownership__user=user)]
 
-            if user.has_perm("ledger.char_audit_manager"):
+            if General.objects.has_char_audit_access(user):
                 queries.append(models.Q(corporation_id=char.corporation_id))
 
             logger.debug(
