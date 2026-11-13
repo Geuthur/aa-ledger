@@ -266,7 +266,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
                   variant="primary"
                   aria-label={t("More update options")}
                   disabled={isUpdatingThis}
-                  className="aa-react"
+                  className="aa-react rounded-0"
                 />
               )}
               <Dropdown.Menu
