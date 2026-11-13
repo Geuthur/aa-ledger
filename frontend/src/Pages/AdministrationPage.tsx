@@ -2,6 +2,7 @@
 import React, { useMemo, useState } from "react";
 
 // Third Party
+import { FilterButtonGroup } from "aa-geuthur-react";
 import {
   ShieldAlert,
   Trash2,
@@ -33,7 +34,6 @@ import {
   useAdministrationOwners,
   useIsAdmin,
 } from "@/Components/Administration/Hooks";
-import { FilterButtonGroup } from "@/Components/Base/FilterButtonGroup";
 
 type AdministrationTypeFilter = "all" | "character" | "corporation" | "alliance" | "issues";
 
