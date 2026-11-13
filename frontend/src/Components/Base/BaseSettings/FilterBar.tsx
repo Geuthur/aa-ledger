@@ -1,4 +1,6 @@
 // Third Party
+import { FilterButtonGroup } from "aa-geuthur-react";
+import type { FilterOption } from "aa-geuthur-react";
 import { Search } from "lucide-react";
 import { Form, InputGroup } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
@@ -6,8 +8,6 @@ import { useTranslation } from "react-i18next";
 // Styles
 import styles from "@/Components/Base/BaseSettings/Settings.module.css";
 
-import { FilterButtonGroup } from "@/Components/Base/FilterButtonGroup";
-import type { FilterOption } from "@/Components/Base/FilterButtonGroup";
 
 export type OwnerTypeFilter = "all" | "character" | "corporation" | "alliance";
 

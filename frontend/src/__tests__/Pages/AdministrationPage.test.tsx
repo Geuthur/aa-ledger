@@ -145,6 +145,8 @@ describe("AdministrationPage in aa-ledger", () => {
     // Test Action
     await screen.findByText("John Doe");
     const updateBtn = screen.getByTestId("update-btn-character-1001");
+    expect(updateBtn).toHaveAccessibleName("Trigger owner update task");
+    expect(updateBtn.closest(".btn-group")).toContainElement(screen.getByTestId("delete-btn-character-1001"));
     await user.click(updateBtn);
 
     // Expected Result
@@ -385,6 +387,7 @@ describe("AdministrationPage in aa-ledger", () => {
     expect(screen.queryByTestId("update-btn-alliance-3001")).not.toBeInTheDocument();
     expect(screen.queryByTestId("delete-btn-alliance-3001")).not.toBeInTheDocument();
     expect(screen.getByTestId("unregistered-btn-alliance-3001")).toBeInTheDocument();
+    expect(screen.getByTestId("inspect-btn-alliance-3001").parentElement).toHaveClass("btn-group");
 
     // Clicking inspect navigates to inspection view
     await user.click(screen.getByTestId("inspect-btn-alliance-3001"));

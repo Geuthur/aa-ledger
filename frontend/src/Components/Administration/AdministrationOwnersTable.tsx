@@ -214,119 +214,92 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
 
       columnHelper.display({
         id: "actions",
-        header: () => <div className="text-end">{t("Actions")}</div>,
+        header: t("Actions"),
         size: 160,
         enableSorting: false,
+        meta: { align: "right" },
         cell: ({ row }) => {
           const owner = row.original;
 
+          const inspectButton = renderTooltip(
+            t("Inspect Owner"),
+            <Button
+              variant="info"
+              aria-label={t("Inspect Owner")}
+              onClick={() => onInspect(owner)}
+              data-testid={`inspect-btn-${owner.owner_type}-${owner.owner_id}`}
+            >
+              <Eye size={14} />
+            </Button>
+          );
+
           if (owner.owner_type === "alliance") {
-            return (
-              <div className="d-flex align-items-center justify-content-end gap-2">
-                {renderTooltip(
-                  t("Inspect Owner"),
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => onInspect(owner)}
-                    className="d-inline-flex align-items-center gap-1"
-                    data-testid={`inspect-btn-${owner.owner_type}-${owner.owner_id}`}
-                  >
-                    <Eye size={13} />
-                    <span>{t("Inspect")}</span>
-                  </Button>
-                )}
-              </div>
-            );
+            return <ButtonGroup size="sm">{inspectButton}</ButtonGroup>;
           }
 
           const targetOwnerType = owner.owner_type as "character" | "corporation";
           const isUpdatingThis = updatingKey === `${targetOwnerType}-${owner.owner_id}`;
 
           return (
-            <div className="d-flex align-items-center justify-content-end gap-2">
-              {/* Inspect / View Button */}
+            <Dropdown as={ButtonGroup} size="sm">
+              {inspectButton}
               {renderTooltip(
-                t("Inspect Owner"),
+                t("Trigger owner update task"),
                 <Button
                   variant="primary"
-                  size="sm"
-                  onClick={() => onInspect(owner)}
-                  className="d-inline-flex align-items-center gap-1"
-                  data-testid={`inspect-btn-${owner.owner_type}-${owner.owner_id}`}
+                  aria-label={t("Trigger owner update task")}
+                  disabled={isUpdatingThis}
+                  onClick={() => onTriggerUpdate(targetOwnerType, owner.owner_id, false)}
+                  data-testid={`update-btn-${owner.owner_type}-${owner.owner_id}`}
                 >
-                  <Eye size={13} />
-                  <span>{t("Inspect")}</span>
+                  {isUpdatingThis ? (
+                    <Spinner size="sm" animation="border" />
+                  ) : (
+                    <RefreshCw size={14} />
+                  )}
                 </Button>
               )}
-
-              {/* Update dropdown: normal & force refresh */}
-              <Dropdown as={ButtonGroup} size="sm">
-                {renderTooltip(
-                  t("Trigger owner update task"),
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    disabled={isUpdatingThis}
-                    onClick={() => onTriggerUpdate(targetOwnerType, owner.owner_id, false)}
-                    className="d-inline-flex align-items-center gap-1"
-                    data-testid={`update-btn-${owner.owner_type}-${owner.owner_id}`}
-                  >
-                    {isUpdatingThis ? (
-                      <Spinner size="sm" animation="border" />
-                    ) : (
-                      <RefreshCw size={13} />
-                    )}
-                    <span>{t("Update")}</span>
-                  </Button>
-                )}
-                {renderTooltip(
-                  t("More update options"),
-                  <Dropdown.Toggle
-                    split
-                    size="sm"
-                    variant="danger"
-                    aria-label={t("More update options")}
-                    disabled={isUpdatingThis}
-                    className="aa-react"
-                  />
-                )}
-                <Dropdown.Menu
-                  align="end"
-                  className={`shadow-lg ${styles.dropdownMenu}`}
+              {renderTooltip(
+                t("More update options"),
+                <Dropdown.Toggle
+                  split
+                  variant="primary"
+                  aria-label={t("More update options")}
+                  disabled={isUpdatingThis}
+                  className="aa-react"
+                />
+              )}
+              <Dropdown.Menu
+                align="end"
+                className={`shadow-lg ${styles.dropdownMenu}`}
+              >
+                <Dropdown.Item
+                  onClick={() => onTriggerUpdate(targetOwnerType, owner.owner_id, false)}
                 >
+                  <RefreshCw size={14} className="me-2 text-primary" />
+                  {t("Normal Update")}
+                </Dropdown.Item>
+                {isAdmin && (
                   <Dropdown.Item
-                    onClick={() => onTriggerUpdate(targetOwnerType, owner.owner_id, false)}
+                    onClick={() => onTriggerUpdate(targetOwnerType, owner.owner_id, true)}
                   >
-                    <RefreshCw size={14} className="me-2 text-primary" />
-                    {t("Normal Update")}
+                    <RefreshCw size={14} className="me-2 text-warning" />
+                    {t("Force Refresh (Bypass Cache)")}
                   </Dropdown.Item>
-                  {isAdmin && (
-                    <Dropdown.Item
-                      onClick={() => onTriggerUpdate(targetOwnerType, owner.owner_id, true)}
-                    >
-                      <RefreshCw size={14} className="me-2 text-warning" />
-                      {t("Force Refresh (Bypass Cache)")}
-                    </Dropdown.Item>
-                  )}
-                </Dropdown.Menu>
-              </Dropdown>
-
-              {/* Delete button */}
+                )}
+              </Dropdown.Menu>
               {renderTooltip(
                 t("Delete Owner"),
                 <Button
                   variant="danger"
-                  size="sm"
+                  aria-label={t("Delete Owner")}
                   onClick={() => onDelete(owner)}
-                  className="d-inline-flex align-items-center gap-1"
                   data-testid={`delete-btn-${owner.owner_type}-${owner.owner_id}`}
                 >
-                  <Trash2 size={13} />
-                  <span>{t("Delete")}</span>
+                  <Trash2 size={14} />
                 </Button>
               )}
-            </div>
+            </Dropdown>
           );
         },
       }),
