@@ -37,7 +37,7 @@ export const AdministrationTaskPanel: React.FC<AdministrationTaskPanelProps> = (
   return (
     <Card className="bg-dark border-secondary mb-4 shadow-sm">
       <Card.Header
-        className={`border-secondary d-flex align-items-center justify-content-between py-2 ${styles.cursorPointer}`}
+        className={`border-secondary d-flex align-items-center justify-content-between py-2 ${styles["cursor-pointer"]}`}
         onClick={onToggleTaskPanel}
       >
         <div className="d-flex align-items-center gap-2">
