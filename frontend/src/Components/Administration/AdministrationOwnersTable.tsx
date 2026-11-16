@@ -98,7 +98,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
                   <Button
                     variant="secondary"
                     size="sm"
-                    className={`py-0 px-2 lh-1 text-decoration-none ${styles.compactButton}`}
+                    className={`py-0 px-2 lh-1 text-decoration-none ${styles["compact-button"]}`}
                     onClick={() => setSelectedAltsOwner(owner)}
                     data-testid={`alts-btn-${owner.owner_type}-${owner.owner_id}`}
                   >
@@ -109,7 +109,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
                   <Button
                     variant="warning"
                     size="sm"
-                    className={`py-0 px-2 lh-1 text-decoration-none ${styles.compactButton}`}
+                    className={`py-0 px-2 lh-1 text-decoration-none ${styles["compact-button"]}`}
                     onClick={() => setSelectedUnregisteredOwner(owner)}
                     data-testid={`unregistered-btn-${owner.owner_type}-${owner.owner_id}`}
                   >
@@ -271,7 +271,7 @@ export const AdministrationOwnersTable: React.FC<AdministrationOwnersTableProps>
               )}
               <Dropdown.Menu
                 align="end"
-                className={`shadow-lg ${styles.dropdownMenu}`}
+                className={`shadow-lg ${styles["dropdown-menu"]}`}
               >
                 <Dropdown.Item
                   onClick={() => onTriggerUpdate(targetOwnerType, owner.owner_id, false)}
