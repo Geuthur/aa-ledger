@@ -1,8 +1,6 @@
 // Third Party
+import { FilterButtonGroup } from "aa-geuthur-react";
 import { Building2, Shield, User, Users } from "lucide-react";
-
-// AA Ledger
-import { FilterButtonGroup } from "@/Components/Base/FilterButtonGroup";
 
 export interface OwnerTypeFilterProps {
   ownerType: string;
