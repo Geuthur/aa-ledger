@@ -1,4 +1,4 @@
-"""Discord helper functions"""
+"""Discord notifications via Alliance Auth, aadiscordbot, discordproxy or a webhook."""
 
 # Third Party
 from celery import shared_task
@@ -13,9 +13,22 @@ from allianceauth.notifications import notify
 
 # AA Ledger
 from ledger import __title__
-from ledger.constants import DISCORD_EMBED_COLOR_MAP
-from ledger.models import UserSettings
+from ledger.models.general import UserSettings
 from ledger.providers import logger
+
+# Embed colors
+DISCORD_EMBED_COLOR_INFO = 0x5BC0DE
+DISCORD_EMBED_COLOR_SUCCESS = 0x5CB85C
+DISCORD_EMBED_COLOR_WARNING = 0xF0AD4E
+DISCORD_EMBED_COLOR_DANGER = 0xD9534F
+
+# Discord embed color map
+DISCORD_EMBED_COLOR_MAP = {
+    "info": DISCORD_EMBED_COLOR_INFO,
+    "success": DISCORD_EMBED_COLOR_SUCCESS,
+    "warning": DISCORD_EMBED_COLOR_WARNING,
+    "danger": DISCORD_EMBED_COLOR_DANGER,
+}
 
 
 def allianceauth_discordbot_installed() -> bool:
@@ -31,6 +44,16 @@ def discordproxy_installed() -> bool:
     try:
         # Third Party
         from discordproxy.client import DiscordClient
+    except ModuleNotFoundError:
+        return False
+    return True
+
+
+# pylint: disable=import-outside-toplevel, unused-import
+def discordwebhook_installed() -> bool:
+    try:
+        # Third Party
+        import dhooks_lite
     except ModuleNotFoundError:
         return False
     return True
@@ -95,6 +118,53 @@ def _discordproxy_send_direct_message(
         )
 
 
+def _discordwebhook_send_message(
+    webhook_url: str,
+    title: str,
+    message: str,
+    embed_message: bool = True,
+    level: str = "info",
+) -> bool | None:
+    """Send a message to a webhook via discordwebhook"""
+    if not discordwebhook_installed():
+        logger.debug(
+            "Discord webhook is not installed, messages will not be sent via webhook."
+        )
+        return None
+
+    # Third Party
+    import dhooks_lite
+
+    hook = dhooks_lite.Webhook(url=webhook_url)
+    if embed_message is True:
+        # Third Party
+        from dhooks_lite import Embed
+
+        embed = Embed(
+            title=str(title),
+            description=message,
+            color=DISCORD_EMBED_COLOR_MAP.get(level),
+            timestamp=timezone.now(),
+        )
+        response = hook.execute(embeds=[embed])
+    else:
+        response = hook.execute(content=f"**{title}**\n\n{message}")
+
+    logger.debug("headers: %s", response.headers)
+    logger.debug("status_code: %s", response.status_code)
+    logger.debug("content: %s", response.content)
+
+    if not response.status_ok:
+        msg = (
+            f"Webhook failed to send message to Discord. "
+            f"HTTP status code: {response.status_code}. "
+            f"API response: {response.content}"
+        )
+        logger.warning(msg)
+        return False
+    return True
+
+
 @shared_task
 def send_user_notification(
     user_id: int,
@@ -112,10 +182,7 @@ def send_user_notification(
         )
         return
 
-    user_pk = getattr(user, "pk", user_id)
-    if UserSettings.objects.filter(
-        user_id=user_pk, disable_notifications=True
-    ).exists():
+    if UserSettings.objects.filter(user=user, disable_notifications=True).exists():
         logger.info("Notifications are disabled for user %s; skipping delivery.", user)
         return
 
@@ -152,4 +219,39 @@ def send_user_notification(
         logger.debug(
             "User %s does not have a Discord account, sending of Discord message canceled.",
             user.username,
+        )
+
+
+@shared_task
+def send_webhook_notification(
+    webhook_url: str,
+    title: str,
+    message: str,
+    embed_message: bool = True,
+    level: str = "info",
+) -> None:
+    """Send a notification as a Celery Task to a webhook."""
+    if webhook_url is None:
+        logger.debug("No webhook URL given. Webhook notification not sent.")
+        return
+
+    # Send the message to the webhook using the appropriate method
+    notification_sent = _discordwebhook_send_message(
+        webhook_url=webhook_url,
+        title=title,
+        message=message,
+        embed_message=embed_message,
+        level=level,
+    )
+
+    # If the notification was not sent successfully, retry sending the notification with a delay and a maximum of 3 retries
+    if notification_sent is False:
+        logger.warning(
+            "Failed to send webhook notification to %s. Check the webhook URL and try again.",
+            webhook_url,
+        )
+        send_webhook_notification.retry(
+            args=[webhook_url, title, message, embed_message, level],
+            countdown=2,  # Delay in seconds before retrying
+            max_retries=3,
         )
