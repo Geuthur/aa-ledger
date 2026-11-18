@@ -14,7 +14,10 @@ from ledger.app_settings import LEDGER_APP_NAME
 from ledger.models import CharacterOwner, CorporationOwner, General
 from ledger.tasks import update_character, update_corporation
 
+# The corporation import needs all of these permissions, like the view `add_corp`.
+# Basic access is only granted by `basic_access`; `manage_access` does not include it.
 _corp_perms = [
+    "ledger.basic_access",
     "ledger.manage_access",
 ]
 
@@ -55,7 +58,7 @@ def _add_character_corp(request, token):
 
 
 def _check_perms_corp(user: User):
-    return any(user.has_perm(perm) for perm in _corp_perms)
+    return all(user.has_perm(perm) for perm in _corp_perms)
 
 
 def _is_character_added_charaudit(character: EveCharacter):
@@ -128,7 +131,7 @@ def _users_with_perms_corp():
             )
             | user_model.objects.filter(is_superuser=True)
         )
-        users |= users_qs.distinct()
+        users = users.filter(pk__in=users_qs.values("pk"))
     return users
 
 
