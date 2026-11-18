@@ -44,9 +44,15 @@ Section Order:
 - Fixed `make coverage` exiting with 0 when tests failed. The reports are still created, and the target now exits with the status of the test run, or with the status of `coverage report` if the tests passed.
 - [FIX] The pulsing menu and tab badges scaled up and down with their number. Only the glow around the badge pulses now.
 - [FIX] Dev dependencies: `minimatch` raised to 11 (ReDoS, Dependabot) via `eslint` ^10.15.0 and `typescript-eslint` ^8.72.2 with an override for `@typescript-eslint/typescript-estree`; `zod` raised to 4.6.7 (GHSA-mrhx-c7xc-m3w5).
+- [FIX] Security: `ledger/thirdparty/discord.py` follows the `aa-example` template again: a failed webhook notification no longer writes the webhook URL (which contains the token) to the log, also not through the exception texts of `requests` and Celery; after the last retry it ends with a warning instead of a failed task. The webhook sender is still unused in this app.
 
 ### Changed
 
+> [!IMPORTANT]
+>
+> Basic access is only granted by `ledger.basic_access`; higher permissions (`advanced_access`, `manage_access`, the audit manager permissions) no longer include it. Users and groups that hold a higher permission without `basic_access` lose access to the API, to the pages for adding corporations and alliances and to the Charlink import for corporations. Give them `basic_access` before the update.
+
+- [CHANGE] Security: every URL of the API (all endpoints, root, schema and docs) answers 403 `{"error": "Permission Denied"}` without `basic_access`, through the `aa-example` building block `ledger/api/auth.py` (`basic_access_required`) around the API URLs in `urls.py`. Before, 18 of 28 endpoints (ledger, details, planets and overviews per character, corporation and alliance, `administration/owners/…`, `admin/update/`) only checked higher permissions or the visibility of the object. `add_corp` and `add_ally` need `basic_access` and `manage_access`, and all three registration views check the permissions before the SSO detour of `token_required`. The Charlink import for corporations needs both permissions as well (before: `manage_access` only). A new test walks all routes of the API. `GeneralManager.has_basic_access` is a static method now.
 - [CHANGE] The stylelint pre-commit hook now checks the source CSS in `frontend/src/` (built bundles stay excluded); its findings are fixed without visual change (hex colors as equivalent `rgb()`, camelCase module classes renamed to kebab-case)
 - [CHANGE] Discord notifications moved from `ledger/helpers/discord.py` to `ledger/thirdparty/discord.py` and are now the building block of the `aa-example` template (embed colors in the module, webhook sender included but unused); behavior is unchanged. The Celery task name changes to `ledger.thirdparty.discord.send_user_notification`, so notification tasks still queued under the old name during the update are lost
 - [FIX] CI: `tox` limited to `<4.67.14` in `autotester.yml`, because newer releases break `tox-gh-actions` 3.5.0 and all Python jobs failed

@@ -116,7 +116,9 @@ class TestAdministrationApi(AuthTestCase):
         self, mock_task
     ):
         # Test Data
-        admin_user = UserMainFactory(permissions__=["ledger.char_audit_admin_manager"])
+        admin_user = UserMainFactory(
+            permissions__=["ledger.basic_access", "ledger.char_audit_admin_manager"]
+        )
         self.client.force_login(admin_user)
         char_owner = CharacterOwnerFactory()
 
@@ -136,7 +138,9 @@ class TestAdministrationApi(AuthTestCase):
         self, mock_task
     ):
         # Test Data
-        admin_user = UserMainFactory(permissions__=["ledger.corp_audit_admin_manager"])
+        admin_user = UserMainFactory(
+            permissions__=["ledger.basic_access", "ledger.corp_audit_admin_manager"]
+        )
         self.client.force_login(admin_user)
         corp_owner = CorporationOwnerFactory()
 
@@ -156,7 +160,9 @@ class TestAdministrationApi(AuthTestCase):
         self, mock_task
     ):
         # Test Data
-        admin_user = UserMainFactory(permissions__=["ledger.char_audit_admin_manager"])
+        admin_user = UserMainFactory(
+            permissions__=["ledger.basic_access", "ledger.char_audit_admin_manager"]
+        )
         self.client.force_login(admin_user)
         char_owner = CharacterOwnerFactory()
 
@@ -279,7 +285,9 @@ class TestAdministrationApi(AuthTestCase):
         self,
     ):
         # Test Data
-        char_manager_user = UserMainFactory(permissions__=["ledger.char_audit_manager"])
+        char_manager_user = UserMainFactory(
+            permissions__=["ledger.basic_access", "ledger.char_audit_manager"]
+        )
         char_manager = char_manager_user.profile.main_character
         char_in_corp = EveCharacterFactory(corporation_id=char_manager.corporation_id)
         user_in_corp = UserMainFactory()
