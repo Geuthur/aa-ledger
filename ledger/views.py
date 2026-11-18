@@ -34,8 +34,8 @@ def react_base(request: WSGIRequest):
 
 
 @login_required
-@token_required(scopes=CharacterOwner.get_esi_scopes())
 @permission_required("ledger.basic_access")
+@token_required(scopes=CharacterOwner.get_esi_scopes())
 def add_char(request, token):
     char = CharacterOwner.objects.update_or_create(
         eve_character=EveCharacter.objects.get_character_by_id(token.character_id),
@@ -61,8 +61,9 @@ def add_char(request, token):
 
 
 @login_required
-@token_required(scopes=CorporationOwner.get_esi_scopes())
+@permission_required("ledger.basic_access")
 @permission_required("ledger.manage_access")
+@token_required(scopes=CorporationOwner.get_esi_scopes())
 def add_corp(request, token) -> HttpResponse:
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
     eve_corp = EveCorporationInfo.objects.get_or_create(
@@ -93,8 +94,9 @@ def add_corp(request, token) -> HttpResponse:
 
 
 @login_required
-@token_required(scopes=["publicData"])
+@permission_required("ledger.basic_access")
 @permission_required("ledger.manage_access")
+@token_required(scopes=["publicData"])
 def add_ally(request, token) -> HttpResponse:
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
     try:
