@@ -44,6 +44,7 @@ Section Order:
 - Fixed `make coverage` exiting with 0 when tests failed. The reports are still created, and the target now exits with the status of the test run, or with the status of `coverage report` if the tests passed.
 - [FIX] The pulsing menu and tab badges scaled up and down with their number. Only the glow around the badge pulses now.
 - [FIX] Dev dependencies: `minimatch` raised to 11 (ReDoS, Dependabot) via `eslint` ^10.15.0 and `typescript-eslint` ^8.72.2 with an override for `@typescript-eslint/typescript-estree`; `zod` raised to 4.6.7 (GHSA-mrhx-c7xc-m3w5).
+- [FIX] Security: `ledger/thirdparty/discord.py` follows the `aa-example` template again: a failed webhook notification no longer writes the webhook URL (which contains the token) to the log, also not through the exception texts of `requests` and Celery; after the last retry it ends with a warning instead of a failed task. The webhook sender is still unused in this app.
 
 ### Changed
 

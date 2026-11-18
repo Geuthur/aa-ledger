@@ -2,6 +2,8 @@
 
 # Third Party
 from celery import shared_task
+from celery.exceptions import MaxRetriesExceededError
+from requests.exceptions import RequestException
 
 # Django
 from django.apps import apps
@@ -136,19 +138,28 @@ def _discordwebhook_send_message(
     import dhooks_lite
 
     hook = dhooks_lite.Webhook(url=webhook_url)
-    if embed_message is True:
-        # Third Party
-        from dhooks_lite import Embed
+    try:
+        if embed_message is True:
+            # Third Party
+            from dhooks_lite import Embed
 
-        embed = Embed(
-            title=str(title),
-            description=message,
-            color=DISCORD_EMBED_COLOR_MAP.get(level),
-            timestamp=timezone.now(),
+            embed = Embed(
+                title=str(title),
+                description=message,
+                color=DISCORD_EMBED_COLOR_MAP.get(level),
+                timestamp=timezone.now(),
+            )
+            response = hook.execute(embeds=[embed])
+        else:
+            response = hook.execute(content=f"**{title}**\n\n{message}")
+    except RequestException as exc:
+        # The exception text contains the webhook URL with the token, so only
+        # the type of the exception is logged and the exception is not raised.
+        logger.warning(
+            "Webhook failed to send message to Discord. Error: %s",
+            type(exc).__name__,
         )
-        response = hook.execute(embeds=[embed])
-    else:
-        response = hook.execute(content=f"**{title}**\n\n{message}")
+        return False
 
     logger.debug("headers: %s", response.headers)
     logger.debug("status_code: %s", response.status_code)
@@ -247,11 +258,17 @@ def send_webhook_notification(
     # If the notification was not sent successfully, retry sending the notification with a delay and a maximum of 3 retries
     if notification_sent is False:
         logger.warning(
-            "Failed to send webhook notification to %s. Check the webhook URL and try again.",
-            webhook_url,
+            "Failed to send webhook notification. Check the webhook URL and try again."
         )
-        send_webhook_notification.retry(
-            args=[webhook_url, title, message, embed_message, level],
-            countdown=2,  # Delay in seconds before retrying
-            max_retries=3,
-        )
+        try:
+            send_webhook_notification.retry(
+                args=[webhook_url, title, message, embed_message, level],
+                countdown=2,  # Delay in seconds before retrying
+                max_retries=3,
+            )
+        except MaxRetriesExceededError:
+            # The exception text contains the task arguments and with them the
+            # webhook URL with the token, so the exception is not raised.
+            logger.warning(
+                "Failed to send webhook notification after the maximum number of retries."
+            )
