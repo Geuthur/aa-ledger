@@ -151,3 +151,28 @@ class TestApiAuth(AuthTestCase):
                 # Expected Result
                 self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
                 self.assertEqual(response.json(), {"detail": "CSRF check Failed"})
+
+
+class TestApiErrorFormat(AuthTestCase):
+    """Every error response of the API is an `ErrorSchema` (`{"error": "<text>"}`)."""
+
+    def test_every_endpoint_should_declare_403_and_errors_as_error_schema(self):
+        # Test Data
+        error_schema = {"$ref": "#/components/schemas/ErrorSchema"}
+        paths = api.get_openapi_schema()["paths"]
+        self.assertTrue(paths)
+
+        for path, operations in paths.items():
+            for method, operation in operations.items():
+                responses = operation["responses"]
+                with self.subTest(method=method.upper(), path=path):
+                    # Expected Result: the answer of `basic_access_required` is documented
+                    self.assertIn(HTTPStatus.FORBIDDEN, responses)
+                    for status, response in responses.items():
+                        if int(status) < HTTPStatus.BAD_REQUEST:
+                            continue
+                        self.assertEqual(
+                            response["content"]["application/json"]["schema"],
+                            error_schema,
+                            msg=f"{status} is not an ErrorSchema",
+                        )

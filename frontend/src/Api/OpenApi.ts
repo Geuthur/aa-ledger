@@ -1937,6 +1937,15 @@ export interface operations {
                     "application/json": components["schemas"]["CharacterOverview"][];
                 };
             };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
         };
     };
     ledger_api_overview_get_planetary_overview: {
@@ -1955,6 +1964,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CharacterOverview"][];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
                 };
             };
         };
@@ -1977,6 +1995,15 @@ export interface operations {
                     "application/json": components["schemas"]["CorporationOverview"][];
                 };
             };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
         };
     };
     ledger_api_overview_get_alliance_overview: {
@@ -1995,6 +2022,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AllianceOverview"][];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
                 };
             };
         };

@@ -1,3 +1,7 @@
+// Third Party
+import { apiErrorMessage } from "aa-geuthur-react";
+
+// AA Ledger
 import { apiClient } from "@/Api/Api";
 import type {
   AdminUpdateRequest,
@@ -26,21 +30,12 @@ import type {
 // Literal on purpose: App.tsx imports the pages, so importing ProjectName here would be circular.
 const API_BASE = "/ledger/api";
 
-/** Prefer the message sent by the API (`{"error": "..."}`) over the generic fallback. */
-function errorMessage(error: unknown, fallback: string): string {
-  if (typeof error === "object" && error !== null && "error" in error) {
-    const message = (error as { error: unknown }).error;
-    if (typeof message === "string") return message;
-  }
-  return fallback;
-}
-
 // -- Overviews
 
 export async function fetchOverview(): Promise<LedgerOverviewResponse> {
   const { data, error } = await apiClient.GET(`${API_BASE}/overview/`);
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load overview"));
+    throw new Error(apiErrorMessage(error, "Failed to load overview"));
   }
   return data;
 }
@@ -48,7 +43,7 @@ export async function fetchOverview(): Promise<LedgerOverviewResponse> {
 export async function fetchCharacterOverview(): Promise<CharacterOverview[]> {
   const { data, error } = await apiClient.GET(`${API_BASE}/character/overview/`);
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load characters"));
+    throw new Error(apiErrorMessage(error, "Failed to load characters"));
   }
   return data;
 }
@@ -56,7 +51,7 @@ export async function fetchCharacterOverview(): Promise<CharacterOverview[]> {
 export async function fetchPlanetaryOverview(): Promise<CharacterOverview[]> {
   const { data, error } = await apiClient.GET(`${API_BASE}/planetary/overview/`);
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load characters"));
+    throw new Error(apiErrorMessage(error, "Failed to load characters"));
   }
   return data;
 }
@@ -64,7 +59,7 @@ export async function fetchPlanetaryOverview(): Promise<CharacterOverview[]> {
 export async function fetchCorporationOverview(): Promise<CorporationOverview[]> {
   const { data, error } = await apiClient.GET(`${API_BASE}/corporation/overview/`);
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load corporations"));
+    throw new Error(apiErrorMessage(error, "Failed to load corporations"));
   }
   return data;
 }
@@ -72,7 +67,7 @@ export async function fetchCorporationOverview(): Promise<CorporationOverview[]>
 export async function fetchAllianceOverview(): Promise<AllianceOverview[]> {
   const { data, error } = await apiClient.GET(`${API_BASE}/alliance/overview/`);
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load alliances"));
+    throw new Error(apiErrorMessage(error, "Failed to load alliances"));
   }
   return data;
 }
@@ -87,7 +82,7 @@ export async function fetchCharacterLedger(
     params: { path: { character_id: characterId }, query: filters },
   });
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load the character ledger"));
+    throw new Error(apiErrorMessage(error, "Failed to load the character ledger"));
   }
   return data;
 }
@@ -101,7 +96,7 @@ export async function fetchCorporationLedger(
     { params: { path: { corporation_id: corporationId }, query: filters } },
   );
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load the corporation ledger"));
+    throw new Error(apiErrorMessage(error, "Failed to load the corporation ledger"));
   }
   return data;
 }
@@ -114,7 +109,7 @@ export async function fetchAllianceLedger(
     params: { path: { alliance_id: allianceId }, query: filters },
   });
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load the alliance ledger"));
+    throw new Error(apiErrorMessage(error, "Failed to load the alliance ledger"));
   }
   return data;
 }
@@ -130,7 +125,7 @@ export async function fetchCharacterDetails(
     params: { path: { character_id: characterId }, query: { ...filters, section } },
   });
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load the details"));
+    throw new Error(apiErrorMessage(error, "Failed to load the details"));
   }
   return data;
 }
@@ -151,7 +146,7 @@ export async function fetchCorporationDetails(
     },
   );
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load the details"));
+    throw new Error(apiErrorMessage(error, "Failed to load the details"));
   }
   return data;
 }
@@ -169,7 +164,7 @@ export async function fetchAllianceDetails(
     },
   });
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load the details"));
+    throw new Error(apiErrorMessage(error, "Failed to load the details"));
   }
   return data;
 }
@@ -183,7 +178,7 @@ export async function fetchPlanets(
     params: { path: { character_id: characterId } },
   });
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load the planets"));
+    throw new Error(apiErrorMessage(error, "Failed to load the planets"));
   }
   return data;
 }
@@ -197,7 +192,7 @@ export async function fetchPlanetDetails(
     { params: { path: { character_id: characterId, planet_id: planetId } } },
   );
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load the planet"));
+    throw new Error(apiErrorMessage(error, "Failed to load the planet"));
   }
   return data;
 }
@@ -217,7 +212,7 @@ export async function togglePlanetNotification(
     },
   );
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to toggle the notification"));
+    throw new Error(apiErrorMessage(error, "Failed to toggle the notification"));
   }
   return data;
 }
@@ -229,7 +224,7 @@ export async function queueUpdate(request: AdminUpdateRequest): Promise<MessageS
     body: request,
   });
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to queue the update"));
+    throw new Error(apiErrorMessage(error, "Failed to queue the update"));
   }
   return data;
 }
@@ -237,7 +232,7 @@ export async function queueUpdate(request: AdminUpdateRequest): Promise<MessageS
 export async function loadAdministrationOwners(): Promise<AdministrationOwnerSchema[]> {
   const { data, error } = await apiClient.GET(`${API_BASE}/administration/owners/`);
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load administration owners"));
+    throw new Error(apiErrorMessage(error, "Failed to load administration owners"));
   }
   return data;
 }
@@ -255,7 +250,7 @@ export async function triggerAdministrationOwnerUpdate(
     },
   );
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to trigger owner update"));
+    throw new Error(apiErrorMessage(error, "Failed to trigger owner update"));
   }
   return data;
 }
@@ -271,7 +266,7 @@ export async function deleteAdministrationOwner(
     },
   );
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to delete owner"));
+    throw new Error(apiErrorMessage(error, "Failed to delete owner"));
   }
   return data;
 }
@@ -287,7 +282,7 @@ export async function loadAdministrationOwnerInspect(
     },
   );
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to inspect owner"));
+    throw new Error(apiErrorMessage(error, "Failed to inspect owner"));
   }
   return data;
 }
@@ -297,7 +292,7 @@ export async function loadAdministrationOwnerInspect(
 export async function loadSettingsOwners(): Promise<SettingsOwnersResponse> {
   const { data, error } = await apiClient.GET(`${API_BASE}/settings/owners/`);
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load settings owners"));
+    throw new Error(apiErrorMessage(error, "Failed to load settings owners"));
   }
   return data;
 }
@@ -305,7 +300,7 @@ export async function loadSettingsOwners(): Promise<SettingsOwnersResponse> {
 export async function triggerUpdateAllSettingsOwners(): Promise<MessageSchema> {
   const { data, error } = await apiClient.POST(`${API_BASE}/settings/owners/update-all/`);
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to trigger update all"));
+    throw new Error(apiErrorMessage(error, "Failed to trigger update all"));
   }
   return data;
 }
@@ -319,7 +314,7 @@ export async function triggerSettingsOwnerUpdate(
     { params: { path: { owner_type: ownerType, owner_id: ownerId } } },
   );
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to update owner"));
+    throw new Error(apiErrorMessage(error, "Failed to update owner"));
   }
   return data;
 }
@@ -333,7 +328,7 @@ export async function loadSettingsUnregistered(
     { params: { path: { owner_type: ownerType, owner_id: ownerId } } },
   );
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load unregistered entries"));
+    throw new Error(apiErrorMessage(error, "Failed to load unregistered entries"));
   }
   return data;
 }
@@ -347,7 +342,7 @@ export async function deleteSettingsOwner(
     { params: { path: { owner_type: ownerType, owner_id: ownerId } } },
   );
   if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to delete owner"));
+    throw new Error(apiErrorMessage(error, "Failed to delete owner"));
   }
   return data;
 }

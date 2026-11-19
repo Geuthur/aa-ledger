@@ -67,9 +67,6 @@ class ApiEndpoints:
         )
         def get_menu(request: WSGIRequest):
             user = request.user
-            if not General.objects.has_basic_access(user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             issues = get_user_issue_count(user)
             has_owner_errors = issues > 0
 
@@ -130,9 +127,6 @@ class ApiEndpoints:
         )
         def get_user(request: WSGIRequest):
             user = request.user
-            if not General.objects.has_basic_access(user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             main_character = getattr(user.profile, "main_character", None)
             if main_character is None:
                 return schema.UserData(user_id=user.id, is_admin=user.is_superuser)
@@ -162,9 +156,6 @@ class ApiEndpoints:
             summary="Get the settings of the current user",
         )
         def get_user_settings(request: WSGIRequest):
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             settings, __ = UserSettings.objects.get_or_create(user=request.user)
             return schema.UserSettingsSchema(
                 disable_notifications=settings.disable_notifications
@@ -182,9 +173,6 @@ class ApiEndpoints:
         def update_user_settings(
             request: WSGIRequest, payload: schema.UserSettingsUpdateRequest
         ):
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             settings, __ = UserSettings.objects.get_or_create(user=request.user)
             settings.disable_notifications = payload.disable_notifications
             settings.save(update_fields=["disable_notifications"])
@@ -204,9 +192,6 @@ class ApiEndpoints:
         # pylint: disable=too-many-locals
         def get_settings_owners(request: WSGIRequest):
             user = request.user
-            if not General.objects.has_basic_access(user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             user_char_ids = list(
                 CharacterOwnership.objects.filter(user=user).values_list(
                     "character__character_id", flat=True
@@ -382,8 +367,7 @@ class ApiEndpoints:
             request: WSGIRequest, owner_type: str, owner_id: int
         ):
             user = request.user
-            has_manage_access = General.objects.has_management_access(user)
-            if not General.objects.has_basic_access(user) or not has_manage_access:
+            if not General.objects.has_management_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             if owner_type == "corporation":
@@ -480,9 +464,6 @@ class ApiEndpoints:
         )
         def trigger_update_all_settings_owners(request: WSGIRequest):
             user = request.user
-            if not General.objects.has_basic_access(user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             # Update characters
             update_user_characters.apply_async(
                 args=[user.id], kwargs={"force_refresh": False}
@@ -517,9 +498,6 @@ class ApiEndpoints:
             request: WSGIRequest, owner_type: str, owner_id: int
         ):
             user = request.user
-            if not General.objects.has_basic_access(user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             if owner_type == "character":
                 perm, owner = get_characterowner_or_none(request, owner_id)
                 if owner is None:
@@ -562,9 +540,6 @@ class ApiEndpoints:
         # pylint: disable=too-many-return-statements
         def delete_settings_owner(request: WSGIRequest, owner_type: str, owner_id: int):
             user = request.user
-            if not General.objects.has_basic_access(user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             if owner_type == "character":
                 perm, owner = get_characterowner_or_none(request, owner_id)
                 if owner is None:
