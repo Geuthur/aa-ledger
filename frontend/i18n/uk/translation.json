@@ -36,7 +36,5 @@
   "Range…": "Діапазон…",
   "Clear": "Скинути",
   "Filter…": "Фільтр…",
-  "No matching options": "Немає відповідних варіантів",
-  "{{count}} unregistered_few": "{{count}} unregistered",
-  "{{count}} unregistered_many": "{{count}} unregistered"
+  "No matching options": "Немає відповідних варіантів"
 }
