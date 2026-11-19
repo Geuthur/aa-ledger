@@ -5,150 +5,26 @@
  * AllianceAuth CSS not colliding with BS5
  */
 
-/* ═══ DESIGN TOKENS for AA ═══════════════════════════════════════════════════════ */
+/* ═══ DESIGN TOKENS ═══════════════════════════════════════════════════════════════
+ * The tokens come from aa-geuthur-react (tokens.css). Only what the package does not have stays here.
+ */
 :root {
-    --font-hud: 'Rajdhani', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-
-    /* Default dark theme tokens */
-    --aa-body: rgb(24 24 27);
-    --aa-panel-bg: rgb(24 24 27);
     --aa-panel-border: rgb(52 52 57);
-    --aa-panel-header-bg: rgb(39 39 42);
-    --aa-color-white: rgb(255 255 255);
-    --aa-color-black: rgb(0 0 0);
-    --aa-color-body: rgb(24 24 27);
-    --aa-color-body-dark: rgb(11 14 20);
-    --aa-color-grey: rgb(39 39 42);
-    --aa-color-grey-light: rgb(52 52 57);
-    --aa-color-white-light: rgb(202 195 195);
-    --aa-color-secondary: rgb(128 128 128);
-    --aa-color-tertiary: rgb(161 161 170);
-    --aa-color-muted: rgb(113 113 122);
-    --aa-color-dark: rgb(11 14 20);
-    --aa-color-light: rgb(202 195 195);
-    --aa-color-emerald: rgb(16 185 129);
-    --aa-color-emerald-light: rgb(0 188 125);
-    --aa-color-emerald-dark: color-mix(in srgb, rgb(16 185 129) 60%, var(--aa-color-black));
-    --aa-color-amber: rgb(245 158 11);
-    --aa-color-amber-light: rgb(252 211 77);
-    --aa-color-amber-dark: color-mix(in srgb, rgb(245 158 11) 60%, var(--aa-color-black));
-    --aa-color-rose: rgb(244 63 94);
-    --aa-color-rose-light: rgb(253 164 175);
-    --aa-color-rose-dark: color-mix(in srgb, rgb(244 63 94) 60%, var(--aa-color-black));
-    --aa-color-red: rgb(204 17 48);
-    --aa-color-blue: rgb(37 99 235);
-    --aa-color-blue-light: rgb(59 130 246);
-    --aa-text-white: var(--aa-color-white);
-    --aa-text-primary: rgb(202 195 195);
-    --aa-text-title: rgb(255 255 255);
-    --aa-text-secondary: rgb(128 128 128);
-    --aa-text-tertiary: rgb(161 161 170);
-    --aa-text-muted: rgb(113 113 122);
-    --aa-text-emerald-light: var(--aa-color-emerald-light);
-    --aa-font-size: .75rem;
-    --aa-font-size-xs: .625rem;
-    --aa-font-size-sm: .875rem;
-    --aa-border: rgb(24 24 27);
-    --aa-border-light: rgb(52 52 57);
-    --aa-border-subtle: rgb(63 63 70);
-    --aa-border-rose: var(--aa-color-rose);
-    --aa-border-amber: var(--aa-color-amber);
-    --aa-border-radius: 12px;
-    --aa-table-shell-bg: rgb(24 24 27);
-    --aa-table-head-bg: rgb(11 14 20);
     --aa-table-footer-bg: rgb(11 14 20);
-    --aa-table-row-border: rgb(52 52 57);
-    --aa-table-row-hover: color-mix(in srgb, rgb(52 52 57) 55%, transparent);
-    --aa-tab-bar-bg: rgb(11 14 20);
-    --aa-tab-btn-color: rgb(128 128 128);
-    --aa-tab-btn-active-bg: rgb(52 52 57);
-    --aa-tab-btn-active-color: rgb(255 255 255);
-    --aa-input-bg: rgb(24 24 27);
-    --aa-input-color: rgb(255 255 255);
-    --aa-input-border: rgb(52 52 57);
-    --aa-shadow: 0 4px 6px rgb(0 0 0 / var(--aa-shadow-opacity));
-    --aa-shadow-opacity: 0.1;
 }
 
-/* ═══ Flatly (Light Theme) Overrides ══════════════════════════════════════════════ */
+/* ═══ Flatly (Light Theme) ═══════════════════════════════════════════════════════ */
 html[data-theme="flatly"],
 html[data-bs-theme="light"] {
-    --aa-body: var(--bs-body-bg, rgb(255 255 255));
-    --aa-panel-bg: var(--bs-card-bg, rgb(255 255 255));
     --aa-panel-border: var(--bs-border-color, rgb(222 226 230));
-    --aa-panel-header-bg: var(--bs-tertiary-bg, rgb(248 249 250));
-    --aa-color-body: var(--bs-body-bg, rgb(255 255 255));
-    --aa-color-body-dark: var(--bs-tertiary-bg, rgb(236 240 241));
-    --aa-color-grey: rgb(236 240 241);
-    --aa-color-grey-light: rgb(222 226 230);
-    --aa-color-white-light: rgb(44 62 80);
-    --aa-color-secondary: rgb(123 138 139);
-    --aa-color-tertiary: rgb(73 80 87);
-    --aa-color-muted: rgb(149 165 166);
-    --aa-color-dark: rgb(44 62 80);
-    --aa-color-light: rgb(248 249 250);
-    --aa-text-primary: var(--bs-body-color, rgb(44 62 80));
-    --aa-text-title: var(--bs-heading-color, rgb(44 62 80));
-    --aa-text-secondary: rgb(123 138 139);
-    --aa-text-tertiary: rgb(73 80 87);
-    --aa-text-muted: rgb(149 165 166);
-    --aa-border: var(--bs-border-color, rgb(222 226 230));
-    --aa-border-light: var(--bs-border-color-subtle, rgb(236 240 241));
-    --aa-border-subtle: rgb(222 226 230);
-    --aa-table-shell-bg: var(--bs-card-bg, rgb(255 255 255));
-    --aa-table-head-bg: var(--bs-tertiary-bg, rgb(236 240 241));
     --aa-table-footer-bg: var(--bs-tertiary-bg, rgb(236 240 241));
-    --aa-table-row-border: var(--bs-border-color, rgb(222 226 230));
-    --aa-table-row-hover: rgb(0 0 0 / 4%);
-    --aa-tab-bar-bg: var(--bs-tertiary-bg, rgb(236 240 241));
-    --aa-tab-btn-color: rgb(123 138 139);
-    --aa-tab-btn-active-bg: var(--bs-card-bg, rgb(255 255 255));
-    --aa-tab-btn-active-color: var(--bs-body-color, rgb(44 62 80));
-    --aa-input-bg: var(--bs-body-bg, rgb(255 255 255));
-    --aa-input-color: var(--bs-body-color, rgb(44 62 80));
-    --aa-input-border: var(--bs-border-color, rgb(206 212 218));
-    --aa-shadow-opacity: 0.05;
 }
 
-/* ═══ Darkly (Dark Theme) Overrides ══════════════════════════════════════════════ */
+/* ═══ Darkly (Dark Theme) ════════════════════════════════════════════════════════ */
 html[data-theme="darkly"],
 html[data-bs-theme="dark"] {
-    --aa-body: rgb(24 24 27);
-    --aa-panel-bg: rgb(24 24 27);
     --aa-panel-border: rgb(52 52 57);
-    --aa-panel-header-bg: rgb(39 39 42);
-    --aa-color-body: rgb(24 24 27);
-    --aa-color-body-dark: rgb(11 14 20);
-    --aa-color-grey: rgb(39 39 42);
-    --aa-color-grey-light: rgb(52 52 57);
-    --aa-color-white-light: rgb(202 195 195);
-    --aa-color-secondary: rgb(128 128 128);
-    --aa-color-tertiary: rgb(161 161 170);
-    --aa-color-muted: rgb(113 113 122);
-    --aa-color-dark: rgb(11 14 20);
-    --aa-color-light: rgb(202 195 195);
-    --aa-text-primary: rgb(202 195 195);
-    --aa-text-title: rgb(255 255 255);
-    --aa-text-secondary: rgb(128 128 128);
-    --aa-text-tertiary: rgb(161 161 170);
-    --aa-text-muted: rgb(113 113 122);
-    --aa-border: rgb(24 24 27);
-    --aa-border-light: rgb(52 52 57);
-    --aa-border-subtle: rgb(63 63 70);
-    --aa-table-shell-bg: rgb(24 24 27);
-    --aa-table-head-bg: rgb(11 14 20);
     --aa-table-footer-bg: rgb(11 14 20);
-    --aa-table-row-border: rgb(52 52 57);
-    --aa-table-row-hover: color-mix(in srgb, rgb(52 52 57) 55%, transparent);
-    --aa-tab-bar-bg: rgb(11 14 20);
-    --aa-tab-btn-color: rgb(128 128 128);
-    --aa-tab-btn-active-bg: rgb(52 52 57);
-    --aa-tab-btn-active-color: rgb(255 255 255);
-    --aa-input-bg: rgb(24 24 27);
-    --aa-input-color: rgb(255 255 255);
-    --aa-input-border: rgb(52 52 57);
-    --aa-shadow-opacity: 0.1;
 }
 
 .bg-dark-body {
@@ -300,36 +176,6 @@ html[data-bs-theme="dark"] {
     height: 6px;
     border-radius: 50%;
     background-color: var(--aa-color-rose-light);
-}
-
-@keyframes aa-pending-ping {
-    75%,
-    100% {
-        transform: scale(2.6);
-        opacity: 0;
-    }
-}
-
-@keyframes aa-pending-glow {
-    0%,
-    100% {
-        box-shadow: 0 0 0 0 rgb(245 158 11 / 25%);
-    }
-
-    50% {
-        box-shadow: 0 0 10px 2px rgb(245 158 11 / 50%);
-    }
-}
-
-@keyframes aa-danger-glow {
-    0%,
-    100% {
-        box-shadow: 0 0 0 0 rgb(244 63 94 / 25%);
-    }
-
-    50% {
-        box-shadow: 0 0 10px 2px rgb(244 63 94 / 50%);
-    }
 }
 
 /* ═══ UTILITIES ═══════════════════════════════════════════════════════════════ */

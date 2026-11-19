@@ -11,46 +11,16 @@ import {
   fetchPlanets,
   loadSettingsOwners,
   loadSettingsUnregistered,
-  loadUserSettings,
   queueUpdate,
   togglePlanetNotification,
   triggerSettingsOwnerUpdate,
   triggerUpdateAllSettingsOwners,
-  updateUserSettings,
 } from "@/Api/ApiCalls";
 
 const ok = (data: unknown) =>
   ({ data, error: undefined, response: new Response() }) as never;
 const failed = (error: unknown) =>
   ({ data: undefined, error, response: new Response() }) as never;
-
-describe("General API client functions", () => {
-  beforeEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("loadUserSettings returns the settings", async () => {
-    // Test Data
-    vi.spyOn(apiClient, "GET").mockResolvedValueOnce(ok({ disable_notifications: true }));
-
-    // Test Action / Expected Result
-    await expect(loadUserSettings()).resolves.toEqual({ disable_notifications: true });
-    expect(apiClient.GET).toHaveBeenCalledWith("/ledger/api/settings/");
-  });
-
-  it("updateUserSettings submits the body", async () => {
-    // Test Data
-    vi.spyOn(apiClient, "PUT").mockResolvedValueOnce(ok({ disable_notifications: false }));
-
-    // Test Action
-    await updateUserSettings({ disable_notifications: false });
-
-    // Expected Result
-    expect(apiClient.PUT).toHaveBeenCalledWith("/ledger/api/settings/", {
-      body: { disable_notifications: false },
-    });
-  });
-});
 
 describe("Ledger API client functions", () => {
   beforeEach(() => {

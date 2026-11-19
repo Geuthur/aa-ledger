@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 // Third Party
+import { BaseOwnerSettingsSection, UnregisteredModal, useUserSettings } from "aa-geuthur-react";
 import { BookOpen, Settings2, UserRoundX, Users } from "lucide-react";
 import { Button, Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
@@ -11,25 +12,24 @@ import { useTranslation } from "react-i18next";
 import styles from "@/Styles/modules/SettingsPage.module.css";
 
 // API
-import type { SettingsMissingOwnerSchema, SettingsOwnerSchema } from "@/Api/schema";
-import {
-    BaseOwnerSettingsSection,
-    UnregisteredModal,
-    BaseUserSettingsCard,
-    useUnregistered,
-} from "@/Components/Base/BaseSettings";
-import {
-    useSettingsOwnerActions,
-    useSettingsOwners,
-    useUserSettings,
-} from "@/Components/Settings/Hooks";
+import type {
+    SettingsMissingOwnerSchema,
+    SettingsOwnerSchema,
+    UserSettingsSchema,
+    UserSettingsUpdateRequest,
+} from "@/Api/schema";
+import { BaseUserSettingsCard, useUnregistered } from "@/Components/Base/BaseSettings";
+import { useSettingsOwnerActions, useSettingsOwners } from "@/Components/Settings/Hooks";
 
 export const SettingsPage: React.FC = () => {
     const { t } = useTranslation();
 
     const [unregisteredOwner, setUnregisteredOwner] = useState<SettingsOwnerSchema | null>(null);
 
-    const { data, isLoading, isError, updateMutation } = useUserSettings();
+    const { data, isLoading, isError, updateMutation } = useUserSettings<
+        UserSettingsSchema,
+        UserSettingsUpdateRequest
+    >();
     const {
         data: ownersData,
         isLoading: isLoadingOwners,
@@ -95,6 +95,7 @@ export const SettingsPage: React.FC = () => {
                     description={t("ESI synchronization status of your linked owners.")}
                     icon={<Users size={20} aria-hidden="true" color="royalblue" />}
                     appName="Ledger"
+                    enableFilters
                     owners={ownersData?.registered ?? []}
                     missingOwners={ownersData?.missing ?? []}
                     isLoading={isLoadingOwners}

@@ -6,6 +6,8 @@ import {
   BaseTable,
   ErrorLoader,
   FetchingLoader,
+  OwnerPortrait,
+  UnregisteredModal,
   createBaseColumnHelper,
   formatRelativeTime,
   renderTooltip,
@@ -22,9 +24,7 @@ import styles from "@/Styles/modules/Administration.module.css";
 import type { AdministrationOwnerSchema } from "@/Api/schema";
 import { AdministrationAltsModal } from "@/Components/Administration/AdministrationAltsModal";
 import { AdministrationErrorModal } from "@/Components/Administration/AdministrationErrorModal";
-import { UnregisteredModal } from "@/Components/Base/BaseSettings";
 import { useUnregistered } from "@/Components/Base/BaseSettings";
-import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 
 interface AdministrationOwnersTableProps {
   owners?: AdministrationOwnerSchema[];
