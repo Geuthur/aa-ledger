@@ -59,9 +59,6 @@ class ApiEndpoints:
         )
         def get_overview(request: WSGIRequest):
             user = request.user
-            if not General.objects.has_basic_access(user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             owners: list[schema.LedgerOverviewOwnerSchema] = []
 
             # 1. Characters
