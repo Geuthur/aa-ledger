@@ -21,8 +21,6 @@ import type {
   SettingsUnregisteredResponse,
   AdministrationOwnerSchema,
   AdministrationOwnerUpdateRequest,
-  UserSettingsSchema,
-  UserSettingsUpdateRequest,
 } from "@/Api/schema";
 
 // Literal on purpose: App.tsx imports the pages, so importing ProjectName here would be circular.
@@ -35,26 +33,6 @@ function errorMessage(error: unknown, fallback: string): string {
     if (typeof message === "string") return message;
   }
   return fallback;
-}
-
-export async function loadUserSettings(): Promise<UserSettingsSchema> {
-  const { data, error } = await apiClient.GET(`${API_BASE}/settings/`);
-  if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to load user settings"));
-  }
-  return data;
-}
-
-export async function updateUserSettings(
-  settings: UserSettingsUpdateRequest,
-): Promise<UserSettingsSchema> {
-  const { data, error } = await apiClient.PUT(`${API_BASE}/settings/`, {
-    body: settings,
-  });
-  if (error || !data) {
-    throw new Error(errorMessage(error, "Failed to update user settings"));
-  }
-  return data;
 }
 
 // -- Overviews

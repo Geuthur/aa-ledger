@@ -5,18 +5,38 @@ import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useUserSettings } from "aa-geuthur-react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA Ledger
 import * as ApiCalls from "@/Api/ApiCalls";
 import { SettingsPage } from "@/Pages/SettingsPage";
 
+// The hook itself (request, optimistic update, rollback) is tested in aa-geuthur-react.
+vi.mock("aa-geuthur-react", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("aa-geuthur-react")>();
+  return { ...actual, useUserSettings: vi.fn() };
+});
+
+type HookResult = ReturnType<typeof useUserSettings>;
+
+const mutate = vi.fn();
+
+/** Sets what `useUserSettings` returns for the page. */
+const mockSettings = (result: object, mutation: object = {}) => {
+  vi.mocked(useUserSettings).mockReturnValue({
+    data: undefined,
+    isLoading: false,
+    isError: false,
+    ...result,
+    updateMutation: { mutate, isError: false, isPending: false, ...mutation },
+  } as unknown as HookResult);
+};
+
 vi.mock("@/Api/ApiCalls", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/Api/ApiCalls")>();
   return {
     ...actual,
-    loadUserSettings: vi.fn(),
-    updateUserSettings: vi.fn(),
     loadSettingsOwners: vi.fn(),
     loadSettingsUnregistered: vi.fn(),
     triggerUpdateAllSettingsOwners: vi.fn(),
@@ -81,17 +101,38 @@ const renderPage = () => {
 describe("SettingsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(ApiCalls.loadUserSettings).mockResolvedValue({
-      disable_notifications: false,
-    });
+    mockSettings({ data: { disable_notifications: false } });
     vi.mocked(ApiCalls.loadSettingsOwners).mockResolvedValue(defaultOwnersResponse);
+  });
+
+  it("should show the loader while the settings load", () => {
+    // Test Data
+    mockSettings({ isLoading: true });
+
+    // Test Action
+    renderPage();
+
+    // Expected Result
+    expect(screen.getByText("Loading settings…")).toBeInTheDocument();
+    expect(screen.queryByRole("switch")).not.toBeInTheDocument();
+  });
+
+  it("should show an error when the settings cannot be loaded", () => {
+    // Test Data
+    mockSettings({ isError: true });
+
+    // Test Action
+    renderPage();
+
+    // Expected Result
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Failed to load settings. Please try refreshing the page.",
+    );
   });
 
   it("should load the saved global notification preference", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadUserSettings).mockResolvedValueOnce({
-      disable_notifications: true,
-    });
+    mockSettings({ data: { disable_notifications: true } });
 
     // Test Action
     renderPage();
@@ -105,26 +146,30 @@ describe("SettingsPage", () => {
   it("should save the global preference when the switch is enabled", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadUserSettings).mockResolvedValue({
-      disable_notifications: false,
-    });
-    vi.mocked(ApiCalls.updateUserSettings).mockResolvedValue({
-      disable_notifications: true,
-    });
+    mockSettings({ data: { disable_notifications: false } });
 
     // Test Action
     renderPage();
-    const toggle = await screen.findByRole("switch", {
-      name: "Disable all notifications",
-    });
-    await user.click(toggle);
+    await user.click(await screen.findByRole("switch", { name: "Disable all notifications" }));
 
     // Expected Result
-    expect(ApiCalls.updateUserSettings).toHaveBeenCalledWith(
-      { disable_notifications: true },
-      expect.any(Object),
+    expect(mutate).toHaveBeenCalledWith({ disable_notifications: true });
+  });
+
+  it("should lock the switch while saving and show the save error", async () => {
+    // Test Data
+    mockSettings(
+      { data: { disable_notifications: false } },
+      { isPending: true, isError: true },
     );
-    await waitFor(() => expect(toggle).toBeChecked());
+
+    // Test Action
+    renderPage();
+
+    // Expected Result
+    expect(await screen.findByRole("switch", { name: "Disable all notifications" })).toBeDisabled();
+    expect(screen.getByRole("status")).toHaveTextContent("Saving…");
+    expect(screen.getByText(/Could not save this setting/)).toBeInTheDocument();
   });
 
   it("should render registered owners and missing alts", async () => {
@@ -136,7 +181,7 @@ describe("SettingsPage", () => {
 
     // Expected Result
     expect(await screen.findByText("Alice")).toBeInTheDocument();
-    expect(screen.getByText("Awesome Corp")).toBeInTheDocument();
+    expect(await screen.findByText("Awesome Corp")).toBeInTheDocument();
     expect(screen.getByText("Bob (Alt)")).toBeInTheDocument();
     expect(screen.getByText("Missing in Ledger")).toBeInTheDocument();
   });
