@@ -27,9 +27,10 @@ class GeneralManager(models.Manager):
     General is unmanaged, so this manager never queries the database.
     """
 
-    def has_basic_access(self, user) -> bool:
+    @staticmethod
+    def has_basic_access(user) -> bool:
         """True if the user may use the app."""
-        return user.has_perm("ledger.basic_access")
+        return bool(user.has_perm("ledger.basic_access"))
 
     def has_advanced_access(self, user) -> bool:
         """True if the user may access Corporation and Alliance Ledger."""

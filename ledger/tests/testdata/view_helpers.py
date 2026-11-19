@@ -1,4 +1,5 @@
 # Standard Library
+from inspect import unwrap
 from unittest.mock import Mock
 
 # Django
@@ -16,7 +17,7 @@ def _call_wrapped_view(factory, view, url_name, user, token):
     request.token = token
     middleware = SessionMiddleware(Mock())
     middleware.process_request(request)
-    return view.__wrapped__.__wrapped__.__wrapped__(request, token)
+    return unwrap(view)(request, token)
 
 
 def add_character(factory, user, token):

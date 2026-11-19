@@ -59,9 +59,6 @@ class ApiEndpoints:
         )
         def get_overview(request: WSGIRequest):
             user = request.user
-            if not General.objects.has_basic_access(user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             owners: list[schema.LedgerOverviewOwnerSchema] = []
 
             # 1. Characters
@@ -167,7 +164,10 @@ class ApiEndpoints:
 
         @api.get(
             "character/overview/",
-            response={HTTPStatus.OK: list[schema.CharacterOverview]},
+            response={
+                HTTPStatus.OK: list[schema.CharacterOverview],
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+            },
             tags=self.tags,
             summary="Get all main characters visible to the user",
         )
@@ -179,7 +179,10 @@ class ApiEndpoints:
 
         @api.get(
             "planetary/overview/",
-            response={HTTPStatus.OK: list[schema.CharacterOverview]},
+            response={
+                HTTPStatus.OK: list[schema.CharacterOverview],
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+            },
             tags=self.tags,
             summary="Get all main characters with planetary access",
         )
@@ -191,7 +194,10 @@ class ApiEndpoints:
 
         @api.get(
             "corporation/overview/",
-            response={HTTPStatus.OK: list[schema.CorporationOverview]},
+            response={
+                HTTPStatus.OK: list[schema.CorporationOverview],
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+            },
             tags=self.tags,
             summary="Get all corporations visible to the user",
         )
@@ -209,7 +215,10 @@ class ApiEndpoints:
 
         @api.get(
             "alliance/overview/",
-            response={HTTPStatus.OK: list[schema.AllianceOverview]},
+            response={
+                HTTPStatus.OK: list[schema.AllianceOverview],
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+            },
             tags=self.tags,
             summary="Get all alliances visible to the user",
         )

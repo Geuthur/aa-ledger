@@ -14,7 +14,6 @@ from allianceauth.services.tasks import QueueOnce
 
 # AA Ledger
 from ledger import app_settings
-from ledger.helpers.discord import send_user_notification
 from ledger.models.characteraudit import CharacterMiningLedger, CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
 from ledger.models.helpers.update_manager import (
@@ -23,6 +22,7 @@ from ledger.models.helpers.update_manager import (
 )
 from ledger.models.planetary import CharacterPlanetDetails
 from ledger.providers import logger, retry_task_on_esi_error
+from ledger.thirdparty.discord import send_user_notification
 
 MAX_RETRIES_DEFAULT = 3
 

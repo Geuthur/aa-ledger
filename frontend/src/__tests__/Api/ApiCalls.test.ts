@@ -1,56 +1,39 @@
 // Third Party
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+// AA Ledger
 import { apiClient } from "@/Api/Api";
 import {
+  deleteAdministrationOwner,
   deleteSettingsOwner,
   fetchAllianceDetails,
+  fetchAllianceLedger,
+  fetchAllianceOverview,
+  fetchCharacterDetails,
   fetchCharacterLedger,
+  fetchCharacterOverview,
   fetchCorporationDetails,
   fetchCorporationLedger,
+  fetchCorporationOverview,
+  fetchOverview,
+  fetchPlanetaryOverview,
+  fetchPlanetDetails,
   fetchPlanets,
+  loadAdministrationOwnerInspect,
+  loadAdministrationOwners,
   loadSettingsOwners,
   loadSettingsUnregistered,
-  loadUserSettings,
   queueUpdate,
   togglePlanetNotification,
+  triggerAdministrationOwnerUpdate,
   triggerSettingsOwnerUpdate,
   triggerUpdateAllSettingsOwners,
-  updateUserSettings,
 } from "@/Api/ApiCalls";
 
 const ok = (data: unknown) =>
   ({ data, error: undefined, response: new Response() }) as never;
 const failed = (error: unknown) =>
   ({ data: undefined, error, response: new Response() }) as never;
-
-describe("General API client functions", () => {
-  beforeEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("loadUserSettings returns the settings", async () => {
-    // Test Data
-    vi.spyOn(apiClient, "GET").mockResolvedValueOnce(ok({ disable_notifications: true }));
-
-    // Test Action / Expected Result
-    await expect(loadUserSettings()).resolves.toEqual({ disable_notifications: true });
-    expect(apiClient.GET).toHaveBeenCalledWith("/ledger/api/settings/");
-  });
-
-  it("updateUserSettings submits the body", async () => {
-    // Test Data
-    vi.spyOn(apiClient, "PUT").mockResolvedValueOnce(ok({ disable_notifications: false }));
-
-    // Test Action
-    await updateUserSettings({ disable_notifications: false });
-
-    // Expected Result
-    expect(apiClient.PUT).toHaveBeenCalledWith("/ledger/api/settings/", {
-      body: { disable_notifications: false },
-    });
-  });
-});
 
 describe("Ledger API client functions", () => {
   beforeEach(() => {
@@ -235,3 +218,77 @@ describe("Planetary and administration API client functions", () => {
   });
 });
 
+
+type Method = "GET" | "POST" | "DELETE";
+
+/** Every call of `ApiCalls.ts`: [name, HTTP method, call, fixed text]. */
+const calls: [string, Method, () => Promise<unknown>, string][] = [
+  ["fetchOverview", "GET", () => fetchOverview(), "Failed to load overview"],
+  ["fetchCharacterOverview", "GET", () => fetchCharacterOverview(), "Failed to load characters"],
+  ["fetchPlanetaryOverview", "GET", () => fetchPlanetaryOverview(), "Failed to load characters"],
+  ["fetchCorporationOverview", "GET", () => fetchCorporationOverview(), "Failed to load corporations"],
+  ["fetchAllianceOverview", "GET", () => fetchAllianceOverview(), "Failed to load alliances"],
+  ["fetchCharacterLedger", "GET", () => fetchCharacterLedger(1, { year: 2026 }), "Failed to load the character ledger"],
+  ["fetchCorporationLedger", "GET", () => fetchCorporationLedger(1, { year: 2026 }), "Failed to load the corporation ledger"],
+  ["fetchAllianceLedger", "GET", () => fetchAllianceLedger(1, { year: 2026 }), "Failed to load the alliance ledger"],
+  ["fetchCharacterDetails", "GET", () => fetchCharacterDetails(1, { year: 2026 }, "summary"), "Failed to load the details"],
+  [
+    "fetchCorporationDetails",
+    "GET",
+    () => fetchCorporationDetails(1, 2, { year: 2026 }, "summary"),
+    "Failed to load the details",
+  ],
+  ["fetchAllianceDetails", "GET", () => fetchAllianceDetails(1, 2, { year: 2026 }, "summary"), "Failed to load the details"],
+  ["fetchPlanets", "GET", () => fetchPlanets(1), "Failed to load the planets"],
+  ["fetchPlanetDetails", "GET", () => fetchPlanetDetails(1, 2), "Failed to load the planet"],
+  ["togglePlanetNotification", "POST", () => togglePlanetNotification(1), "Failed to toggle the notification"],
+  ["queueUpdate", "POST", () => queueUpdate({ target: "characters", force_refresh: true }), "Failed to queue the update"],
+  ["loadAdministrationOwners", "GET", () => loadAdministrationOwners(), "Failed to load administration owners"],
+  [
+    "triggerAdministrationOwnerUpdate",
+    "POST",
+    () => triggerAdministrationOwnerUpdate("character", 1),
+    "Failed to trigger owner update",
+  ],
+  ["deleteAdministrationOwner", "DELETE", () => deleteAdministrationOwner("character", 1), "Failed to delete owner"],
+  [
+    "loadAdministrationOwnerInspect",
+    "GET",
+    () => loadAdministrationOwnerInspect("character", 1),
+    "Failed to inspect owner",
+  ],
+  ["loadSettingsOwners", "GET", () => loadSettingsOwners(), "Failed to load settings owners"],
+  ["triggerUpdateAllSettingsOwners", "POST", () => triggerUpdateAllSettingsOwners(), "Failed to trigger update all"],
+  ["triggerSettingsOwnerUpdate", "POST", () => triggerSettingsOwnerUpdate("character", 1), "Failed to update owner"],
+  [
+    "loadSettingsUnregistered",
+    "GET",
+    () => loadSettingsUnregistered("character", 1),
+    "Failed to load unregistered entries",
+  ],
+  ["deleteSettingsOwner", "DELETE", () => deleteSettingsOwner("character", 1), "Failed to delete owner"],
+];
+
+describe("API error messages", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  describe.each(calls)("%s", (_name, method, call, fixedText) => {
+    it("should throw the message of the API when the request fails", async () => {
+      // Test Data
+      vi.spyOn(apiClient, method).mockResolvedValueOnce(failed({ error: "Permission Denied" }));
+
+      // Test Action & Expected Result
+      await expect(call()).rejects.toThrow("Permission Denied");
+    });
+
+    it("should throw the fixed text when the API sent no message", async () => {
+      // Test Data
+      vi.spyOn(apiClient, method).mockResolvedValueOnce(failed({}));
+
+      // Test Action & Expected Result
+      await expect(call()).rejects.toThrow(fixedText);
+    });
+  });
+});
