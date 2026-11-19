@@ -261,7 +261,7 @@
   "Failed to load owner status.": "Eigentümerstatus konnte nicht geladen werden.",
   "This will remove this owner from Ledger along with all associated wallets, transactions, and audit records. This action cannot be undone.": "Dadurch wird dieser Eigentümer samt aller zugehörigen Wallets, Transaktionen und Audit-Datensätze aus Ledger entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
   "Missing in {{app}}": "Fehlt in {{app}}",
-  "The following characters belong to you but are not registered.": "Die folgenden Charaktere gehören Ihnen, sind aber nicht registriert.",
+  "The following characters belong to you but are not registered.": "Die folgenden Charaktere gehören dir, sind aber nicht registriert.",
   "Failed to load data.": "Daten konnten nicht geladen werden.",
   "{{count}} unregistered_one": "{{count}} nicht registriert",
   "{{count}} unregistered_other": "{{count}} nicht registriert",

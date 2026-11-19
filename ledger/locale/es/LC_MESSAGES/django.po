@@ -6,9 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: AA Ledger\n"
-"Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-"
-"ledger/\n"
-"POT-Creation-Date: 2026-10-18 20:37+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-19 16:22+0000\n"
 "PO-Revision-Date: 2026-02-05 12:08+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Spanish <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -26,48 +25,39 @@ msgstr ""
 msgid "Force update selected corporations"
 msgstr ""
 
-#, python-brace-format
-msgid ""
-"Started force update for {count} corporation(s). Updates will run in the "
-"background."
-msgstr ""
-
 msgid "Force update selected characters"
-msgstr ""
-
-#, python-brace-format
-msgid ""
-"Started force update for {count} character(s). Updates will run in the "
-"background."
-msgstr ""
-
-msgid "Character not found."
 msgstr ""
 
 msgid "Permission Denied."
 msgstr ""
 
-#, python-format
-msgid "Update is on cooldown. Please wait %(seconds)d seconds."
+msgid "Only superusers can bypass the cache."
 msgstr ""
 
-msgid "Character update initiated successfully."
+msgid "Character not found."
+msgstr ""
+
+#, python-format
+msgid "Queued update for %(name)s"
+msgstr ""
+
+msgid "Corporation not found."
+msgstr ""
+
+msgid "Invalid owner type."
 msgstr ""
 
 #, python-format
 msgid "%(name)s successfully deleted"
 msgstr ""
 
-msgid "Corporation not found."
-msgstr ""
-
-msgid "Alliance not found."
-msgstr ""
-
 msgid "Alliance not found in Ledger."
 msgstr ""
 
 msgid "You do not have permission to view this alliance."
+msgstr ""
+
+msgid "Permission Denied"
 msgstr ""
 
 msgid "Character not found in Ledger."
@@ -95,16 +85,10 @@ msgstr ""
 msgid "You do not have permission to view this corporation."
 msgstr ""
 
-msgid "Character Ledger"
+msgid "Overview"
 msgstr ""
 
-msgid "Planetary Ledger"
-msgstr ""
-
-msgid "Corporation Ledger"
-msgstr ""
-
-msgid "Alliance Ledger"
+msgid "My Characters"
 msgstr ""
 
 msgid "Settings"
@@ -119,7 +103,19 @@ msgstr ""
 msgid "Add Alliance"
 msgstr ""
 
-msgid "Superadmin"
+msgid "Administration"
+msgstr ""
+
+msgid "Alliance not found."
+msgstr ""
+
+msgid "Update task queued for all owners."
+msgstr ""
+
+msgid "Character update initiated successfully."
+msgstr ""
+
+msgid "Corporation update initiated successfully."
 msgstr ""
 
 msgid "Queued Update All Characters"
@@ -135,6 +131,15 @@ msgid "Queued Update for Corporation"
 msgstr ""
 
 msgid "No facility"
+msgstr ""
+
+msgid "Character"
+msgstr ""
+
+msgid "Corporation"
+msgstr ""
+
+msgid "Alliance"
 msgstr ""
 
 msgid "Planet not found."
@@ -221,6 +226,27 @@ msgstr ""
 msgid "Master Wallet"
 msgstr ""
 
+msgid "Can access this app, Ledger."
+msgstr ""
+
+msgid "Can access Corporation and Alliance Ledger."
+msgstr ""
+
+msgid "Can manage Ledger."
+msgstr ""
+
+msgid "Has access to all characters for own Corp."
+msgstr ""
+
+msgid "Has access to all characters."
+msgstr ""
+
+msgid "Has Access to own Corporations."
+msgstr ""
+
+msgid "Has access to all Corporations."
+msgstr ""
+
 msgid "ID"
 msgstr ""
 
@@ -246,24 +272,6 @@ msgid "Incomplete"
 msgstr ""
 
 msgid "In Progress"
-msgstr ""
-
-msgid "Update is disabled"
-msgstr ""
-
-msgid "One section has a token error during update"
-msgstr ""
-
-msgid "One or more sections have not been updated"
-msgstr ""
-
-msgid "Update is in progress"
-msgstr ""
-
-msgid "An error occurred during update"
-msgstr ""
-
-msgid "Updates completed successfully"
 msgstr ""
 
 msgid "Wallet Journal"
@@ -295,12 +303,6 @@ msgid "%(charname)s on %(planetname)s"
 msgstr ""
 
 msgid "Planetary Extractor Heads Expired"
-msgstr ""
-
-msgid "Character"
-msgstr ""
-
-msgid "Corporation"
 msgstr ""
 
 #, python-brace-format
