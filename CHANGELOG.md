@@ -46,6 +46,7 @@ Section Order:
 - [FIX] Dev dependencies: `minimatch` raised to 11 (ReDoS, Dependabot) via `eslint` ^10.15.0 and `typescript-eslint` ^8.72.2 with an override for `@typescript-eslint/typescript-estree`; `zod` raised to 4.6.7 (GHSA-mrhx-c7xc-m3w5).
 - [FIX] Security: `ledger/thirdparty/discord.py` follows the `aa-example` template again: a failed webhook notification no longer writes the webhook URL (which contains the token) to the log, also not through the exception texts of `requests` and Celery; after the last retry it ends with a warning instead of a failed task. The webhook sender is still unused in this app.
 - [FIX] The success messages of the force update actions in the admin (corporations and characters) were f-strings inside `_()` and could never be translated; they now use `_("… {count} …").format(count=count)`.
+- [FIX] React Query no longer retries 403, 404 and other 4xx answers three times, so the error shows at once instead of after about seven seconds: `Routing.tsx` uses `createQueryClient` of `aa-geuthur-react` (`^1.7.0`), which retries only network errors and 502/503/504.
 
 ### Changed
 
