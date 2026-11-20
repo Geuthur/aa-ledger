@@ -15,7 +15,11 @@ from allianceauth.eveonline.evelinks.eveimageserver import (
 
 
 def get_character_portrait_url(
-    character_id: int, size: int = 32, character_name: str = "", as_html: bool = False
+    character_id: int,
+    size: int = 32,
+    character_name: str = "",
+    as_html: bool = False,
+    display_name: bool = False,
 ) -> str:
     """
     Get the character portrait for a character ID.
@@ -25,6 +29,7 @@ def get_character_portrait_url(
         size (int, optional): The size of the portrait image.
         character_name (str, optional): The name of the character.
         as_html (bool, optional): Whether to return the portrait as an HTML img tag.
+        display_name (bool, optional): Whether to display the character name next to the portrait.
     Returns:
         str: The URL of the character portrait or an HTML img tag.
     """
@@ -39,6 +44,16 @@ def get_character_portrait_url(
             render_url,
             character_name,
         )
+        if display_name:
+            render_html = format_html(
+                '<div class="d-flex align-items-center">'
+                '<img class="character-portrait rounded-circle me-2" src="{}" alt="{}">'
+                "<span>{}</span>"
+                "</div>",
+                render_url,
+                character_name,
+                character_name,
+            )
         return render_html
     return render_url
 
@@ -48,6 +63,7 @@ def get_corporation_logo_url(
     size: int = 32,
     corporation_name: str = "",
     as_html: bool = False,
+    display_name: bool = False,
 ) -> str:
     """
     Get the corporation logo for a corporation ID.
@@ -57,6 +73,7 @@ def get_corporation_logo_url(
         size (int, optional): The size of the logo image.
         corporation_name (str, optional): The name of the corporation.
         as_html (bool, optional): Whether to return the logo as an HTML img tag.
+        display_name (bool, optional): Whether to display the corporation name next to the logo.
     Returns:
         str: The URL of the corporation logo or an HTML img tag.
     """
@@ -69,6 +86,16 @@ def get_corporation_logo_url(
             render_url,
             corporation_name,
         )
+        if display_name:
+            render_html = format_html(
+                '<div class="d-flex align-items-center">'
+                '<img class="corporation-logo rounded-circle me-2" src="{}" alt="{}">'
+                "<span>{}</span>"
+                "</div>",
+                render_url,
+                corporation_name,
+                corporation_name,
+            )
         return render_html
     return render_url
 
@@ -78,6 +105,7 @@ def get_alliance_logo_url(
     size: int = 32,
     alliance_name: str = "",
     as_html: bool = False,
+    display_name: bool = False,
 ) -> str:
     """
     Get the alliance logo for a alliance ID.
@@ -87,7 +115,7 @@ def get_alliance_logo_url(
         size (int, optional): The size of the logo image.
         alliance_name (str, optional): The name of the alliance.
         as_html (bool, optional): Whether to return the logo as an HTML img tag.
-
+        display_name (bool, optional): Whether to display the alliance name next to the logo.
     Returns:
         str: The URL of the alliance logo or an HTML img tag.
     """
@@ -100,12 +128,26 @@ def get_alliance_logo_url(
             render_url,
             alliance_name,
         )
+        if display_name:
+            render_html = format_html(
+                '<div class="d-flex align-items-center">'
+                '<img class="alliance-logo rounded-circle me-2" src="{}" alt="{}">'
+                "<span>{}</span>"
+                "</div>",
+                render_url,
+                alliance_name,
+                alliance_name,
+            )
         return render_html
     return render_url
 
 
 def get_type_render_url(
-    type_id: int, size: int = 32, type_name: str = "", as_html: bool = False
+    type_id: int,
+    size: int = 32,
+    type_name: str = "",
+    as_html: bool = False,
+    display_name: bool = False,
 ) -> str:
     """
     Get the type render for a type ID.
@@ -115,7 +157,7 @@ def get_type_render_url(
         size (int, optional): The size of the render image.
         type_name (str, optional): The name of the type.
         as_html (bool): Whether to return the render as an HTML img tag.
-
+        display_name (bool, optional): Whether to display the type name next to the render.
     Returns:
         str: The URL of the type render or an HTML img tag.
     """
@@ -128,12 +170,26 @@ def get_type_render_url(
             render_url,
             type_name,
         )
+        if display_name:
+            render_html = format_html(
+                '<div class="d-flex align-items-center">'
+                '<img class="type-render rounded-circle me-2" src="{}" alt="{}">'
+                "<span>{}</span>"
+                "</div>",
+                render_url,
+                type_name,
+                type_name,
+            )
         return render_html
     return render_url
 
 
 def get_icon_render_url(
-    type_id: int, size: int = 32, type_name: str = "", as_html: bool = False
+    type_id: int,
+    size: int = 32,
+    type_name: str = "",
+    as_html: bool = False,
+    display_name: bool = False,
 ) -> str:
     """
     Get the icon render for a type ID.
@@ -143,7 +199,7 @@ def get_icon_render_url(
         size (int, optional): The size of the icon image.
         type_name (str, optional): The name of the type.
         as_html (bool): Whether to return the icon as an HTML img tag.
-
+        display_name (bool, optional): Whether to display the type name next to the icon.
     Returns:
         str: The URL of the type icon or an HTML img tag.
     """
@@ -156,5 +212,15 @@ def get_icon_render_url(
             render_url,
             type_name,
         )
+        if display_name:
+            render_html = format_html(
+                '<div class="d-flex align-items-center">'
+                '<img class="type-render rounded-circle me-2" data-bs-tooltip="aa-ledger" src="{}" title="{}">'
+                "<span>{}</span>"
+                "</div>",
+                render_url,
+                type_name,
+                type_name,
+            )
         return render_html
     return render_url
