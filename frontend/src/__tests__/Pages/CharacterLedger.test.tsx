@@ -8,13 +8,13 @@ import userEvent from "@testing-library/user-event";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import * as ApiCalls from "@/Api/ApiCalls";
+import * as ledgerApi from "@/Api/calls/ledger";
 import CharacterLedger from "@/Pages/CharacterLedger";
 
 vi.mock("react-apexcharts", () => ({ default: () => <div data-testid="chart" /> }));
 
-vi.mock("@/Api/ApiCalls", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/Api/ApiCalls")>();
+vi.mock("@/Api/calls/ledger", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/ledger")>();
   return { ...actual, fetchCharacterLedger: vi.fn(), fetchCharacterDetails: vi.fn() };
 });
 
@@ -55,14 +55,14 @@ describe("CharacterLedger", () => {
 
   it("requests the ledger for the date in the URL", async () => {
     // Test Data
-    vi.mocked(ApiCalls.fetchCharacterLedger).mockResolvedValue(ledger as never);
+    vi.mocked(ledgerApi.fetchCharacterLedger).mockResolvedValue(ledger as never);
 
     // Test Action
     renderPage("?year=2025&month=3&day=4");
 
     // Expected Result
     expect(await screen.findByText("Character Ledger - Alice")).toBeInTheDocument();
-    expect(ApiCalls.fetchCharacterLedger).toHaveBeenCalledWith(1, {
+    expect(ledgerApi.fetchCharacterLedger).toHaveBeenCalledWith(1, {
       year: 2025,
       month: 3,
       day: 4,
@@ -71,7 +71,7 @@ describe("CharacterLedger", () => {
 
   it("shows the totals and the character row", async () => {
     // Test Data
-    vi.mocked(ApiCalls.fetchCharacterLedger).mockResolvedValue(ledger as never);
+    vi.mocked(ledgerApi.fetchCharacterLedger).mockResolvedValue(ledger as never);
 
     // Test Action
     renderPage();
@@ -84,7 +84,7 @@ describe("CharacterLedger", () => {
 
   it("shows the API error", async () => {
     // Test Data
-    vi.mocked(ApiCalls.fetchCharacterLedger).mockRejectedValue(
+    vi.mocked(ledgerApi.fetchCharacterLedger).mockRejectedValue(
       new Error("You do not have permission to view this character."),
     );
 
@@ -100,8 +100,8 @@ describe("CharacterLedger", () => {
   it("opens the details of a character from the table", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.fetchCharacterLedger).mockResolvedValue(ledger as never);
-    vi.mocked(ApiCalls.fetchCharacterDetails).mockResolvedValue({
+    vi.mocked(ledgerApi.fetchCharacterLedger).mockResolvedValue(ledger as never);
+    vi.mocked(ledgerApi.fetchCharacterDetails).mockResolvedValue({
       summary: [
         { name: "Income from Bounty", amount: 1000, average: 1, average_tick: 1, ref_types: [{ ref_type: "bounty_prizes", amount: 1000 }] },
       ],
@@ -117,7 +117,7 @@ describe("CharacterLedger", () => {
 
     // Expected Result
     await waitFor(() =>
-      expect(ApiCalls.fetchCharacterDetails).toHaveBeenCalledWith(
+      expect(ledgerApi.fetchCharacterDetails).toHaveBeenCalledWith(
         1,
         { year: 2026, month: 10 },
         "single",
@@ -128,7 +128,7 @@ describe("CharacterLedger", () => {
 
   it("renders overview link when character ledger is loaded", async () => {
     // Test Data
-    vi.mocked(ApiCalls.fetchCharacterLedger).mockResolvedValue(ledger as never);
+    vi.mocked(ledgerApi.fetchCharacterLedger).mockResolvedValue(ledger as never);
 
     // Test Action
     renderPage();
