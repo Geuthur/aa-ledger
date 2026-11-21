@@ -17,14 +17,14 @@ import { Eye, RefreshCw, Trash2 } from "lucide-react";
 import { Badge, Button, ButtonGroup, Card, Dropdown, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-// Styles
-import styles from "@/Styles/modules/Administration.module.css";
-
 // AA Ledger
 import type { AdministrationOwnerSchema } from "@/Api/schema";
 import { AdministrationAltsModal } from "@/Components/Administration/AdministrationAltsModal";
 import { AdministrationErrorModal } from "@/Components/Administration/AdministrationErrorModal";
 import { useUnregistered } from "@/Components/Base/BaseSettings";
+
+// Styles
+import styles from "@/Styles/modules/Administration.module.css";
 
 interface AdministrationOwnersTableProps {
   owners?: AdministrationOwnerSchema[];

@@ -12,6 +12,7 @@ import {
 import type { BaseColumnDef } from "aa-geuthur-react";
 import { useTranslation } from "react-i18next";
 
+// AA Ledger
 import type { AltLedgerSchema } from "@/Api/schema";
 import { HelpTooltip } from "@/Components/Base/HelpTooltip";
 import { amountClass } from "@/Utils/ledger";

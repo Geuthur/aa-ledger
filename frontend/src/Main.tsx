@@ -1,3 +1,4 @@
+/* eslint-disable import-headings/import-headings -- the global index.css must load before the CSS modules */
 // React
 import React from 'react'
 import ReactDOM from "react-dom/client";

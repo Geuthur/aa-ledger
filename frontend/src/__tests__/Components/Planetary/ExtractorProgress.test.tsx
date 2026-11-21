@@ -2,6 +2,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+// AA Ledger
 import ExtractorProgress from "@/Components/Planetary/ExtractorProgress";
 
 describe("ExtractorProgress", () => {

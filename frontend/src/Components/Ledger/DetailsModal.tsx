@@ -16,6 +16,7 @@ import type { BaseColumnDef } from "aa-geuthur-react";
 import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
+// AA Ledger
 import type { CategorySchema, LedgerDetailsResponse, RefTypeAmountSchema } from "@/Api/schema";
 import { HelpTooltip } from "@/Components/Base/HelpTooltip";
 import RefTypeBadges from "@/Components/Ledger/DetailsModal/RefTypeBadges";
