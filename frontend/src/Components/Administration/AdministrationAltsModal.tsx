@@ -8,11 +8,11 @@ import { RefreshCw } from "lucide-react";
 import { Button, ButtonGroup, Dropdown, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-// Styles
-import styles from "@/Styles/modules/Administration.module.css";
-
 // AA Ledger
 import type { AltSchema, AdministrationOwnerSchema } from "@/Api/schema";
+
+// Styles
+import styles from "@/Styles/modules/Administration.module.css";
 
 export interface AdministrationAltsModalProps {
   owner: AdministrationOwnerSchema | null;

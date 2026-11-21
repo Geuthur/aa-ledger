@@ -36,9 +36,8 @@ export default defineConfig([
             // 2. Externe Bibliotheken / Third Party
             { heading: '// Third Party', pattern: '^@?\\w' },
 
-            // 3. AA Example (Eigene Komponenten, Helpers, API)
-            //{ heading: '// AA Example', pattern: '^@/' },
-            //{ heading: '// AA Example', pattern: '^\\.(?!.*\\.s?css$)' },
+            // 3. AA Ledger (Eigene Komponenten, Helpers, API)
+            { heading: '// AA Ledger', pattern: '^@/(?!.*\\.s?css$)' },
 
             // 4. Stylesheets & CSS-Module
             { heading: '// Styles', pattern: '\\.s?css$' },

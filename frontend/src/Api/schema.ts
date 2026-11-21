@@ -1,3 +1,4 @@
+// AA Ledger
 import type { components } from "@/Api/OpenApi";
 
 export type UserSettingsSchema = components["schemas"]["UserSettingsSchema"];

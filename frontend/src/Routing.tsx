@@ -7,6 +7,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { AaReactProvider, AuthBase, createQueryClient, ErrorPage } from "aa-geuthur-react";
 import { NuqsAdapter } from "nuqs/adapters/react-router/v8";
 
+// AA Ledger
 import { AppName, ProjectName } from "@/constants";
 import AdministrationPage from "@/Pages/AdministrationPage";
 import AllianceLedger from "@/Pages/AllianceLedger";

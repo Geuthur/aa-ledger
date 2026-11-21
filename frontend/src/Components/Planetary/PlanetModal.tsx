@@ -16,6 +16,7 @@ import type { BaseColumnDef } from "aa-geuthur-react";
 import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
+// AA Ledger
 import type { components } from "@/Api/OpenApi";
 import ExtractorProgress from "@/Components/Planetary/ExtractorProgress";
 import { usePlanetDetails } from "@/Components/Planetary/Hooks";

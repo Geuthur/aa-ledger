@@ -18,6 +18,7 @@ import { parseAsInteger, useQueryStates } from "nuqs";
 import { Button, Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
+// AA Ledger
 import type { PlanetaryDetails } from "@/Api/schema";
 import ExtractorProgress from "@/Components/Planetary/ExtractorProgress";
 import { usePlanets, useTogglePlanetNotification } from "@/Components/Planetary/Hooks";
