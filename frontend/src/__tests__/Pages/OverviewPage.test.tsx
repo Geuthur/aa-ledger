@@ -7,12 +7,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import * as ApiCalls from "@/Api/ApiCalls";
+import * as overviewApi from "@/Api/calls/overview";
 import type { LedgerOverviewResponse } from "@/Api/schema";
 import OverviewPage from "@/Pages/OverviewPage";
 
-vi.mock("@/Api/ApiCalls", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/Api/ApiCalls")>();
+vi.mock("@/Api/calls/overview", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/overview")>();
   return { ...actual, fetchOverview: vi.fn() };
 });
 
@@ -79,7 +79,7 @@ describe("OverviewPage", () => {
 
   it("renders overview cards with characters, corporations, and alliances", async () => {
     // Test Data
-    vi.mocked(ApiCalls.fetchOverview).mockResolvedValue(mockOverview);
+    vi.mocked(overviewApi.fetchOverview).mockResolvedValue(mockOverview);
 
     // Test Action
     renderPage();
@@ -94,7 +94,7 @@ describe("OverviewPage", () => {
 
   it("filters owners by search term", async () => {
     // Test Data
-    vi.mocked(ApiCalls.fetchOverview).mockResolvedValue(mockOverview);
+    vi.mocked(overviewApi.fetchOverview).mockResolvedValue(mockOverview);
     const user = userEvent.setup();
 
     // Test Action
@@ -111,7 +111,7 @@ describe("OverviewPage", () => {
 
   it("filters owners by type filter buttons", async () => {
     // Test Data
-    vi.mocked(ApiCalls.fetchOverview).mockResolvedValue(mockOverview);
+    vi.mocked(overviewApi.fetchOverview).mockResolvedValue(mockOverview);
     const user = userEvent.setup();
 
     // Test Action
@@ -128,7 +128,7 @@ describe("OverviewPage", () => {
 
   it("displays View Planetary button only for characters", async () => {
     // Test Data
-    vi.mocked(ApiCalls.fetchOverview).mockResolvedValue(mockOverview);
+    vi.mocked(overviewApi.fetchOverview).mockResolvedValue(mockOverview);
 
     // Test Action
     renderPage();
@@ -151,7 +151,7 @@ describe("OverviewPage", () => {
         },
       ],
     };
-    vi.mocked(ApiCalls.fetchOverview).mockResolvedValue(overviewWithErrors);
+    vi.mocked(overviewApi.fetchOverview).mockResolvedValue(overviewWithErrors);
 
     // Test Action
     renderPage();

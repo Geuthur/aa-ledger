@@ -2,13 +2,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // AA Ledger
-import { fetchPlanetDetails, fetchPlanets, togglePlanetNotification } from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
+import {
+  fetchPlanetDetails,
+  fetchPlanets,
+  planetaryQueryKeys,
+  togglePlanetNotification,
+} from "@/Api/calls/planetary";
 
 /** Loads the planets of a character and its alts. */
 export function usePlanets(characterId: number) {
   return useQuery({
-    queryKey: queryKeys.Planets(characterId),
+    queryKey: planetaryQueryKeys.planets(characterId),
     queryFn: () => fetchPlanets(characterId),
   });
 }
@@ -16,7 +20,7 @@ export function usePlanets(characterId: number) {
 /** Loads the details of one planet; stays disabled until owner and planet are set. */
 export function usePlanetDetails(ownerId: number | null, planetId: number | null) {
   return useQuery({
-    queryKey: queryKeys.PlanetDetails(ownerId ?? 0, planetId ?? 0),
+    queryKey: planetaryQueryKeys.planet(ownerId ?? 0, planetId ?? 0),
     queryFn: () => fetchPlanetDetails(ownerId ?? 0, planetId ?? 0),
     enabled: ownerId !== null && planetId !== null,
   });
@@ -32,6 +36,6 @@ export function useTogglePlanetNotification(characterId: number) {
     mutationFn: ({ ownerId, planetId }: { ownerId: number; planetId?: number }) =>
       togglePlanetNotification(ownerId, planetId),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.Planets(characterId) }),
+      queryClient.invalidateQueries({ queryKey: planetaryQueryKeys.planets(characterId) }),
   });
 }

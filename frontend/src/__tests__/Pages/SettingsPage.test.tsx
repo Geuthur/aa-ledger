@@ -9,7 +9,7 @@ import { useUserSettings } from "aa-geuthur-react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA Ledger
-import * as ApiCalls from "@/Api/ApiCalls";
+import * as settingsApi from "@/Api/calls/settings";
 import { SettingsPage } from "@/Pages/SettingsPage";
 
 // The hook itself (request, optimistic update, rollback) is tested in aa-geuthur-react.
@@ -33,8 +33,8 @@ const mockSettings = (result: object, mutation: object = {}) => {
   } as unknown as HookResult);
 };
 
-vi.mock("@/Api/ApiCalls", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/Api/ApiCalls")>();
+vi.mock("@/Api/calls/settings", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/settings")>();
   return {
     ...actual,
     loadSettingsOwners: vi.fn(),
@@ -102,7 +102,7 @@ describe("SettingsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockSettings({ data: { disable_notifications: false } });
-    vi.mocked(ApiCalls.loadSettingsOwners).mockResolvedValue(defaultOwnersResponse);
+    vi.mocked(settingsApi.loadSettingsOwners).mockResolvedValue(defaultOwnersResponse);
   });
 
   it("should show the loader while the settings load", () => {
@@ -189,7 +189,7 @@ describe("SettingsPage", () => {
   it("should trigger update all owners when update all button is clicked", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.triggerUpdateAllSettingsOwners).mockResolvedValue({
+    vi.mocked(settingsApi.triggerUpdateAllSettingsOwners).mockResolvedValue({
       message: "Update task queued for all owners.",
     });
 
@@ -200,14 +200,14 @@ describe("SettingsPage", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.triggerUpdateAllSettingsOwners).toHaveBeenCalled();
+      expect(settingsApi.triggerUpdateAllSettingsOwners).toHaveBeenCalled();
     });
   });
 
   it("should open delete modal and confirm deletion of an owner", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.deleteSettingsOwner).mockResolvedValue({
+    vi.mocked(settingsApi.deleteSettingsOwner).mockResolvedValue({
       message: "Alice successfully deleted",
     });
 
@@ -223,7 +223,7 @@ describe("SettingsPage", () => {
     await user.click(confirmBtn);
 
     await waitFor(() => {
-      expect(ApiCalls.deleteSettingsOwner).toHaveBeenCalledWith("character", 1);
+      expect(settingsApi.deleteSettingsOwner).toHaveBeenCalledWith("character", 1);
     });
   });
 
@@ -288,7 +288,7 @@ describe("SettingsPage", () => {
   it("should open the modal and list unregistered members of a corporation", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadSettingsUnregistered).mockResolvedValue({
+    vi.mocked(settingsApi.loadSettingsUnregistered).mockResolvedValue({
       owner_type: "corporation",
       owner_id: 10,
       items: [
@@ -304,13 +304,13 @@ describe("SettingsPage", () => {
     // Expected Result
     const dialog = await screen.findByRole("dialog");
     expect(await within(dialog).findByText("Carol")).toBeInTheDocument();
-    expect(ApiCalls.loadSettingsUnregistered).toHaveBeenCalledWith("corporation", 10);
+    expect(settingsApi.loadSettingsUnregistered).toHaveBeenCalledWith("corporation", 10);
   });
 
   it("should show an empty message when everything is registered", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadSettingsUnregistered).mockResolvedValue({
+    vi.mocked(settingsApi.loadSettingsUnregistered).mockResolvedValue({
       owner_type: "corporation",
       owner_id: 10,
       items: [],
@@ -329,7 +329,7 @@ describe("SettingsPage", () => {
   it("should show an error message when loading unregistered entries fails", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadSettingsUnregistered).mockRejectedValue(new Error("boom"));
+    vi.mocked(settingsApi.loadSettingsUnregistered).mockRejectedValue(new Error("boom"));
 
     // Test Action
     renderPage();
@@ -343,7 +343,7 @@ describe("SettingsPage", () => {
 
   it("should not offer update or delete for alliance cards", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadSettingsOwners).mockResolvedValue({
+    vi.mocked(settingsApi.loadSettingsOwners).mockResolvedValue({
       ...defaultOwnersResponse,
       registered: [
         {

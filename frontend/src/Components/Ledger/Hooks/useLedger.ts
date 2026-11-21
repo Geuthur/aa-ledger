@@ -7,8 +7,8 @@ import {
   fetchAllianceLedger,
   fetchCharacterLedger,
   fetchCorporationLedger,
-} from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
+  ledgerQueryKeys,
+} from "@/Api/calls/ledger";
 import type {
   CorporationFilterParams,
   DateFilterParams,
@@ -18,7 +18,7 @@ import type {
 /** Loads the ledger of a character; keeps the previous data while filters change. */
 export function useCharacterLedger(characterId: number, filters: DateFilterParams) {
   return useQuery({
-    queryKey: queryKeys.CharacterLedger(characterId, filters),
+    queryKey: ledgerQueryKeys.character(characterId, filters),
     queryFn: () => fetchCharacterLedger(characterId, filters),
     placeholderData: keepPreviousData,
   });
@@ -27,7 +27,7 @@ export function useCharacterLedger(characterId: number, filters: DateFilterParam
 /** Loads the ledger of a corporation; keeps the previous data while filters change. */
 export function useCorporationLedger(corporationId: number, filters: CorporationFilterParams) {
   return useQuery({
-    queryKey: queryKeys.CorporationLedger(corporationId, filters),
+    queryKey: ledgerQueryKeys.corporation(corporationId, filters),
     queryFn: () => fetchCorporationLedger(corporationId, filters),
     placeholderData: keepPreviousData,
   });
@@ -36,7 +36,7 @@ export function useCorporationLedger(corporationId: number, filters: Corporation
 /** Loads the ledger of an alliance; keeps the previous data while filters change. */
 export function useAllianceLedger(allianceId: number, filters: DateFilterParams) {
   return useQuery({
-    queryKey: queryKeys.AllianceLedger(allianceId, filters),
+    queryKey: ledgerQueryKeys.alliance(allianceId, filters),
     queryFn: () => fetchAllianceLedger(allianceId, filters),
     placeholderData: keepPreviousData,
     enabled: Boolean(allianceId),
@@ -45,7 +45,7 @@ export function useAllianceLedger(allianceId: number, filters: DateFilterParams)
 
 /**
  * Loads the category details of a ledger entity.
- * @param queryKey Key of the details query (from `queryKeys`)
+ * @param queryKey Key of the details query (from `ledgerQueryKeys`)
  * @param queryFn Loader of the details
  * @param enabled Whether an entity is selected
  */

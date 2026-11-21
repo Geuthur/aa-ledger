@@ -11,7 +11,9 @@ import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA Ledger
-import * as ApiCalls from "@/Api/ApiCalls";
+import * as administrationApi from "@/Api/calls/administration";
+import * as ledgerApi from "@/Api/calls/ledger";
+import * as settingsApi from "@/Api/calls/settings";
 import type { AdministrationOwnerSchema } from "@/Api/schema";
 import AdministrationPage from "@/Pages/AdministrationPage";
 
@@ -23,20 +25,31 @@ vi.mock("aa-geuthur-react", async (importOriginal) => {
   return { ...actual, useUserData: vi.fn() };
 });
 
-vi.mock("@/Api/ApiCalls", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/Api/ApiCalls")>();
+vi.mock("@/Api/calls/administration", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/administration")>();
   return {
     ...actual,
     loadAdministrationOwners: vi.fn(),
     triggerAdministrationOwnerUpdate: vi.fn(),
     deleteAdministrationOwner: vi.fn(),
     loadAdministrationOwnerInspect: vi.fn(),
-    loadSettingsUnregistered: vi.fn(),
+    queueUpdate: vi.fn(),
+  };
+});
+
+vi.mock("@/Api/calls/ledger", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/ledger")>();
+  return {
+    ...actual,
     fetchCharacterLedger: vi.fn(),
     fetchCorporationLedger: vi.fn(),
     fetchAllianceLedger: vi.fn(),
-    queueUpdate: vi.fn(),
   };
+});
+
+vi.mock("@/Api/calls/settings", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/settings")>();
+  return { ...actual, loadSettingsUnregistered: vi.fn() };
 });
 
 const userQuery = (user: UserData) =>
@@ -121,7 +134,7 @@ describe("AdministrationPage in aa-ledger", () => {
 
   it("renders administration page with metrics and table", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(administrationApi.loadAdministrationOwners).mockResolvedValue(mockOwners);
 
     // Test Action
     renderPage();
@@ -136,8 +149,8 @@ describe("AdministrationPage in aa-ledger", () => {
   it("triggers update for a specific owner", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
-    vi.mocked(ApiCalls.triggerAdministrationOwnerUpdate).mockResolvedValue({
+    vi.mocked(administrationApi.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(administrationApi.triggerAdministrationOwnerUpdate).mockResolvedValue({
       message: "Queued update for John Doe",
     });
     renderPage();
@@ -151,7 +164,7 @@ describe("AdministrationPage in aa-ledger", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.triggerAdministrationOwnerUpdate).toHaveBeenCalledWith(
+      expect(administrationApi.triggerAdministrationOwnerUpdate).toHaveBeenCalledWith(
         "character",
         1001,
         { force_refresh: false }
@@ -163,8 +176,8 @@ describe("AdministrationPage in aa-ledger", () => {
   it("deletes an owner via confirmation modal", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
-    vi.mocked(ApiCalls.deleteAdministrationOwner).mockResolvedValue({
+    vi.mocked(administrationApi.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(administrationApi.deleteAdministrationOwner).mockResolvedValue({
       message: "John Doe successfully deleted",
     });
     renderPage();
@@ -180,7 +193,7 @@ describe("AdministrationPage in aa-ledger", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.deleteAdministrationOwner).toHaveBeenCalledWith("character", 1001);
+      expect(administrationApi.deleteAdministrationOwner).toHaveBeenCalledWith("character", 1001);
     });
     expect(await screen.findByTestId("task-feedback-message")).toHaveTextContent("John Doe successfully deleted");
   });
@@ -200,8 +213,8 @@ describe("AdministrationPage in aa-ledger", () => {
         },
       ],
     };
-    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
-    vi.mocked(ApiCalls.fetchCharacterLedger).mockResolvedValue(mockCharacterLedger as never);
+    vi.mocked(administrationApi.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(ledgerApi.fetchCharacterLedger).mockResolvedValue(mockCharacterLedger as never);
     renderPage();
 
     // Test Action
@@ -213,7 +226,7 @@ describe("AdministrationPage in aa-ledger", () => {
     expect(
       await screen.findByTestId("back-to-administration-btn")
     ).toBeInTheDocument();
-    expect(ApiCalls.fetchCharacterLedger).toHaveBeenCalledWith(1001, expect.any(Object));
+    expect(ledgerApi.fetchCharacterLedger).toHaveBeenCalledWith(1001, expect.any(Object));
 
     // Test Action - Back button
     const backBtn = screen.getByTestId("back-to-administration-btn");
@@ -226,8 +239,8 @@ describe("AdministrationPage in aa-ledger", () => {
   it("queues global update all characters", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
-    vi.mocked(ApiCalls.queueUpdate).mockResolvedValue({
+    vi.mocked(administrationApi.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(administrationApi.queueUpdate).mockResolvedValue({
       message: "Queued Update All Characters",
     });
     renderPage();
@@ -244,7 +257,7 @@ describe("AdministrationPage in aa-ledger", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.queueUpdate).toHaveBeenCalledWith({
+      expect(administrationApi.queueUpdate).toHaveBeenCalledWith({
         target: "characters",
         eve_id: null,
         force_refresh: false,
@@ -256,7 +269,7 @@ describe("AdministrationPage in aa-ledger", () => {
   it("filters table when searching by alt character name and opens alts modal", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(administrationApi.loadAdministrationOwners).mockResolvedValue(mockOwners);
     renderPage();
 
     // Test Action - Search by alt name
@@ -285,8 +298,8 @@ describe("AdministrationPage in aa-ledger", () => {
   it("triggers update all alts from the modal", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
-    vi.mocked(ApiCalls.triggerAdministrationOwnerUpdate).mockResolvedValue({
+    vi.mocked(administrationApi.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(administrationApi.triggerAdministrationOwnerUpdate).mockResolvedValue({
       message: "Queued update for John Doe",
     });
     renderPage();
@@ -303,7 +316,7 @@ describe("AdministrationPage in aa-ledger", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.triggerAdministrationOwnerUpdate).toHaveBeenCalledWith(
+      expect(administrationApi.triggerAdministrationOwnerUpdate).toHaveBeenCalledWith(
         "character",
         1001,
         { force_refresh: false }
@@ -323,7 +336,7 @@ describe("AdministrationPage in aa-ledger", () => {
         is_admin: false,
       }),
     );
-    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(administrationApi.loadAdministrationOwners).mockResolvedValue(mockOwners);
 
     // Test Action
     renderPage();
@@ -336,7 +349,7 @@ describe("AdministrationPage in aa-ledger", () => {
   it("offers force refresh in the update menu for admins", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(administrationApi.loadAdministrationOwners).mockResolvedValue(mockOwners);
     renderPage();
     await screen.findByText("John Doe");
 
@@ -361,7 +374,7 @@ describe("AdministrationPage in aa-ledger", () => {
         is_admin: false,
       }),
     );
-    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(administrationApi.loadAdministrationOwners).mockResolvedValue(mockOwners);
     renderPage();
     await screen.findByText("John Doe");
 
@@ -376,7 +389,7 @@ describe("AdministrationPage in aa-ledger", () => {
   it("renders alliance owner with inspect button and unregistered button, but no update or delete", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(administrationApi.loadAdministrationOwners).mockResolvedValue(mockOwners);
 
     // Test Action
     renderPage();
@@ -397,8 +410,8 @@ describe("AdministrationPage in aa-ledger", () => {
   it("opens unregistered modal when clicking unregistered button on corporation or alliance", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
-    vi.mocked(ApiCalls.loadSettingsUnregistered).mockResolvedValue({
+    vi.mocked(administrationApi.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(settingsApi.loadSettingsUnregistered).mockResolvedValue({
       owner_type: "corporation",
       owner_id: 2001,
       items: [
