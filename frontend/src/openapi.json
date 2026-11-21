@@ -548,170 +548,6 @@
         ]
       }
     },
-    "/ledger/api/character/overview/": {
-      "get": {
-        "operationId": "ledger_api_overview_get_character_overview",
-        "summary": "Get all main characters visible to the user",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CharacterOverview"
-                  },
-                  "title": "Response",
-                  "type": "array"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "LedgerAdmin"
-        ],
-        "security": [
-          {
-            "SessionAuth": []
-          }
-        ]
-      }
-    },
-    "/ledger/api/planetary/overview/": {
-      "get": {
-        "operationId": "ledger_api_overview_get_planetary_overview",
-        "summary": "Get all main characters with planetary access",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CharacterOverview"
-                  },
-                  "title": "Response",
-                  "type": "array"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "LedgerAdmin"
-        ],
-        "security": [
-          {
-            "SessionAuth": []
-          }
-        ]
-      }
-    },
-    "/ledger/api/corporation/overview/": {
-      "get": {
-        "operationId": "ledger_api_overview_get_corporation_overview",
-        "summary": "Get all corporations visible to the user",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CorporationOverview"
-                  },
-                  "title": "Response",
-                  "type": "array"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "LedgerAdmin"
-        ],
-        "security": [
-          {
-            "SessionAuth": []
-          }
-        ]
-      }
-    },
-    "/ledger/api/alliance/overview/": {
-      "get": {
-        "operationId": "ledger_api_overview_get_alliance_overview",
-        "summary": "Get all alliances visible to the user",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/AllianceOverview"
-                  },
-                  "title": "Response",
-                  "type": "array"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "LedgerAdmin"
-        ],
-        "security": [
-          {
-            "SessionAuth": []
-          }
-        ]
-      }
-    },
     "/ledger/api/administration/owners/": {
       "get": {
         "operationId": "ledger_api_administration_get_administration_owners",
@@ -868,76 +704,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MessageSchema"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Administration"
-        ],
-        "security": [
-          {
-            "SessionAuth": []
-          }
-        ]
-      }
-    },
-    "/ledger/api/administration/owners/{owner_type}/{owner_id}/inspect/": {
-      "get": {
-        "operationId": "ledger_api_administration_inspect_administration_owner",
-        "summary": "Inspect an owner administration view",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "owner_type",
-            "schema": {
-              "enum": [
-                "character",
-                "corporation"
-              ],
-              "title": "Owner Type",
-              "type": "string"
-            },
-            "required": true
-          },
-          {
-            "in": "path",
-            "name": "owner_id",
-            "schema": {
-              "title": "Owner Id",
-              "type": "integer"
-            },
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdministrationResponse"
                 }
               }
             }
@@ -2518,70 +2284,6 @@
         "title": "LedgerOverviewResponse",
         "type": "object"
       },
-      "CharacterOverview": {
-        "properties": {
-          "character_id": {
-            "title": "Character Id",
-            "type": "integer"
-          },
-          "character_name": {
-            "title": "Character Name",
-            "type": "string"
-          },
-          "corporation_id": {
-            "title": "Corporation Id",
-            "type": "integer"
-          },
-          "corporation_name": {
-            "title": "Corporation Name",
-            "type": "string"
-          }
-        },
-        "required": [
-          "character_id",
-          "character_name",
-          "corporation_id",
-          "corporation_name"
-        ],
-        "title": "CharacterOverview",
-        "type": "object"
-      },
-      "CorporationOverview": {
-        "properties": {
-          "corporation_id": {
-            "title": "Corporation Id",
-            "type": "integer"
-          },
-          "corporation_name": {
-            "title": "Corporation Name",
-            "type": "string"
-          }
-        },
-        "required": [
-          "corporation_id",
-          "corporation_name"
-        ],
-        "title": "CorporationOverview",
-        "type": "object"
-      },
-      "AllianceOverview": {
-        "properties": {
-          "alliance_id": {
-            "title": "Alliance Id",
-            "type": "integer"
-          },
-          "alliance_name": {
-            "title": "Alliance Name",
-            "type": "string"
-          }
-        },
-        "required": [
-          "alliance_id",
-          "alliance_name"
-        ],
-        "title": "AllianceOverview",
-        "type": "object"
-      },
       "AdministrationOwnerSchema": {
         "description": "Schema for the administration owners overview in aa-ledger.",
         "properties": {
@@ -2768,290 +2470,6 @@
           }
         },
         "title": "AdministrationOwnerUpdateRequest",
-        "type": "object"
-      },
-      "AdminOwnerSchema": {
-        "description": "A character, corporation or alliance in the administration lists.",
-        "properties": {
-          "owner_id": {
-            "title": "Owner Id",
-            "type": "integer"
-          },
-          "name": {
-            "title": "Name",
-            "type": "string"
-          },
-          "icon": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Icon"
-          },
-          "status": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Status"
-          },
-          "last_sync": {
-            "anyOf": [
-              {
-                "format": "date-time",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Sync"
-          },
-          "error_message": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Error Message"
-          },
-          "sections": {
-            "anyOf": [
-              {
-                "items": {
-                  "$ref": "#/components/schemas/AdminOwnerSectionSchema"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Sections"
-          }
-        },
-        "required": [
-          "owner_id",
-          "name"
-        ],
-        "title": "AdminOwnerSchema",
-        "type": "object"
-      },
-      "AdminOwnerSectionSchema": {
-        "description": "Status of an individual update section.",
-        "properties": {
-          "section": {
-            "title": "Section",
-            "type": "string"
-          },
-          "section_name": {
-            "title": "Section Name",
-            "type": "string"
-          },
-          "is_success": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Success"
-          },
-          "has_token_error": {
-            "default": false,
-            "title": "Has Token Error",
-            "type": "boolean"
-          },
-          "error_message": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Error Message"
-          },
-          "last_run_at": {
-            "anyOf": [
-              {
-                "format": "date-time",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Run At"
-          },
-          "last_run_finished_at": {
-            "anyOf": [
-              {
-                "format": "date-time",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Run Finished At"
-          }
-        },
-        "required": [
-          "section",
-          "section_name"
-        ],
-        "title": "AdminOwnerSectionSchema",
-        "type": "object"
-      },
-      "AdministrationResponse": {
-        "description": "Everything the administration page of an account, corporation or alliance shows.\n\nAttributes:\n    owner: The account's main character, corporation or alliance.\n    dashboard: Registration statistics.\n    registered: Entries registered in the ledger.\n    missing: Entries that exist but are not registered.\n    members: Characters of a corporation that are known to Auth.\n    last_sync: The timestamp of the most recent synchronization.\n    can_update: Whether the user can trigger a manual update.\n    cooldown_seconds: Remaining seconds until next manual update is allowed.",
-        "properties": {
-          "owner": {
-            "$ref": "#/components/schemas/OwnerSchema"
-          },
-          "dashboard": {
-            "$ref": "#/components/schemas/DashboardSchema"
-          },
-          "registered": {
-            "default": [],
-            "items": {
-              "$ref": "#/components/schemas/AdminOwnerSchema"
-            },
-            "title": "Registered",
-            "type": "array"
-          },
-          "missing": {
-            "default": [],
-            "items": {
-              "$ref": "#/components/schemas/AdminOwnerSchema"
-            },
-            "title": "Missing",
-            "type": "array"
-          },
-          "members": {
-            "default": [],
-            "items": {
-              "$ref": "#/components/schemas/AltSchema"
-            },
-            "title": "Members",
-            "type": "array"
-          },
-          "last_sync": {
-            "anyOf": [
-              {
-                "format": "date-time",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Sync"
-          },
-          "can_update": {
-            "default": false,
-            "title": "Can Update",
-            "type": "boolean"
-          },
-          "cooldown_seconds": {
-            "default": 0,
-            "title": "Cooldown Seconds",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "owner",
-          "dashboard"
-        ],
-        "title": "AdministrationResponse",
-        "type": "object"
-      },
-      "DashboardSchema": {
-        "description": "Statistics shown on the administration dashboards.",
-        "properties": {
-          "auth_count": {
-            "title": "Auth Count",
-            "type": "integer"
-          },
-          "active_count": {
-            "title": "Active Count",
-            "type": "integer"
-          },
-          "inactive_count": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Inactive Count"
-          },
-          "missing_count": {
-            "title": "Missing Count",
-            "type": "integer"
-          },
-          "issues": {
-            "default": [],
-            "items": {
-              "type": "string"
-            },
-            "title": "Issues",
-            "type": "array"
-          }
-        },
-        "required": [
-          "auth_count",
-          "active_count",
-          "missing_count"
-        ],
-        "title": "DashboardSchema",
-        "type": "object"
-      },
-      "OwnerSchema": {
-        "description": "Schema for Character or Character Owner.\n\nAttributes:\n    character_id (int): The ID of the character.\n    character_name (str): The name of the character.\n    icon (str | None): The URL of the character's icon, if available.",
-        "properties": {
-          "character_id": {
-            "title": "Character Id",
-            "type": "integer"
-          },
-          "character_name": {
-            "title": "Character Name",
-            "type": "string"
-          },
-          "icon": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Icon"
-          }
-        },
-        "required": [
-          "character_id",
-          "character_name"
-        ],
-        "title": "OwnerSchema",
         "type": "object"
       },
       "DateFilter": {
@@ -3252,6 +2670,36 @@
           "update_status"
         ],
         "title": "LedgerCharacterSchema",
+        "type": "object"
+      },
+      "OwnerSchema": {
+        "description": "Schema for Character or Character Owner.\n\nAttributes:\n    character_id (int): The ID of the character.\n    character_name (str): The name of the character.\n    icon (str | None): The URL of the character's icon, if available.",
+        "properties": {
+          "character_id": {
+            "title": "Character Id",
+            "type": "integer"
+          },
+          "character_name": {
+            "title": "Character Name",
+            "type": "string"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          }
+        },
+        "required": [
+          "character_id",
+          "character_name"
+        ],
+        "title": "OwnerSchema",
         "type": "object"
       },
       "UpdateStatusSchema": {

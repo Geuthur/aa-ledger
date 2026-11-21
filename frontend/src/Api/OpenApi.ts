@@ -175,74 +175,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ledger/api/character/overview/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all main characters visible to the user */
-        get: operations["ledger_api_overview_get_character_overview"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ledger/api/planetary/overview/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all main characters with planetary access */
-        get: operations["ledger_api_overview_get_planetary_overview"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ledger/api/corporation/overview/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all corporations visible to the user */
-        get: operations["ledger_api_overview_get_corporation_overview"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ledger/api/alliance/overview/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all alliances visible to the user */
-        get: operations["ledger_api_overview_get_alliance_overview"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/ledger/api/administration/owners/": {
         parameters: {
             query?: never;
@@ -289,23 +221,6 @@ export interface paths {
         post?: never;
         /** Delete a character or corporation owner from ledger */
         delete: operations["ledger_api_administration_delete_administration_owner"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ledger/api/administration/owners/{owner_type}/{owner_id}/inspect/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Inspect an owner administration view */
-        get: operations["ledger_api_administration_inspect_administration_owner"];
-        put?: never;
-        post?: never;
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -751,31 +666,6 @@ export interface components {
             /** Owners */
             owners: components["schemas"]["LedgerOverviewOwnerSchema"][];
         };
-        /** CharacterOverview */
-        CharacterOverview: {
-            /** Character Id */
-            character_id: number;
-            /** Character Name */
-            character_name: string;
-            /** Corporation Id */
-            corporation_id: number;
-            /** Corporation Name */
-            corporation_name: string;
-        };
-        /** CorporationOverview */
-        CorporationOverview: {
-            /** Corporation Id */
-            corporation_id: number;
-            /** Corporation Name */
-            corporation_name: string;
-        };
-        /** AllianceOverview */
-        AllianceOverview: {
-            /** Alliance Id */
-            alliance_id: number;
-            /** Alliance Name */
-            alliance_name: string;
-        };
         /**
          * AdministrationOwnerSchema
          * @description Schema for the administration owners overview in aa-ledger.
@@ -851,130 +741,6 @@ export interface components {
              * @default false
              */
             force_refresh: boolean;
-        };
-        /**
-         * AdminOwnerSchema
-         * @description A character, corporation or alliance in the administration lists.
-         */
-        AdminOwnerSchema: {
-            /** Owner Id */
-            owner_id: number;
-            /** Name */
-            name: string;
-            /** Icon */
-            icon?: string | null;
-            /** Status */
-            status?: string | null;
-            /** Last Sync */
-            last_sync?: string | null;
-            /** Error Message */
-            error_message?: string | null;
-            /** Sections */
-            sections?: components["schemas"]["AdminOwnerSectionSchema"][] | null;
-        };
-        /**
-         * AdminOwnerSectionSchema
-         * @description Status of an individual update section.
-         */
-        AdminOwnerSectionSchema: {
-            /** Section */
-            section: string;
-            /** Section Name */
-            section_name: string;
-            /** Is Success */
-            is_success?: boolean | null;
-            /**
-             * Has Token Error
-             * @default false
-             */
-            has_token_error: boolean;
-            /** Error Message */
-            error_message?: string | null;
-            /** Last Run At */
-            last_run_at?: string | null;
-            /** Last Run Finished At */
-            last_run_finished_at?: string | null;
-        };
-        /**
-         * AdministrationResponse
-         * @description Everything the administration page of an account, corporation or alliance shows.
-         *
-         *     Attributes:
-         *         owner: The account's main character, corporation or alliance.
-         *         dashboard: Registration statistics.
-         *         registered: Entries registered in the ledger.
-         *         missing: Entries that exist but are not registered.
-         *         members: Characters of a corporation that are known to Auth.
-         *         last_sync: The timestamp of the most recent synchronization.
-         *         can_update: Whether the user can trigger a manual update.
-         *         cooldown_seconds: Remaining seconds until next manual update is allowed.
-         */
-        AdministrationResponse: {
-            owner: components["schemas"]["OwnerSchema"];
-            dashboard: components["schemas"]["DashboardSchema"];
-            /**
-             * Registered
-             * @default []
-             */
-            registered: components["schemas"]["AdminOwnerSchema"][];
-            /**
-             * Missing
-             * @default []
-             */
-            missing: components["schemas"]["AdminOwnerSchema"][];
-            /**
-             * Members
-             * @default []
-             */
-            members: components["schemas"]["AltSchema"][];
-            /** Last Sync */
-            last_sync?: string | null;
-            /**
-             * Can Update
-             * @default false
-             */
-            can_update: boolean;
-            /**
-             * Cooldown Seconds
-             * @default 0
-             */
-            cooldown_seconds: number;
-        };
-        /**
-         * DashboardSchema
-         * @description Statistics shown on the administration dashboards.
-         */
-        DashboardSchema: {
-            /** Auth Count */
-            auth_count: number;
-            /** Active Count */
-            active_count: number;
-            /** Inactive Count */
-            inactive_count?: number | null;
-            /** Missing Count */
-            missing_count: number;
-            /**
-             * Issues
-             * @default []
-             */
-            issues: string[];
-        };
-        /**
-         * OwnerSchema
-         * @description Schema for Character or Character Owner.
-         *
-         *     Attributes:
-         *         character_id (int): The ID of the character.
-         *         character_name (str): The name of the character.
-         *         icon (str | None): The URL of the character's icon, if available.
-         */
-        OwnerSchema: {
-            /** Character Id */
-            character_id: number;
-            /** Character Name */
-            character_name: string;
-            /** Icon */
-            icon?: string | null;
         };
         /**
          * DateFilter
@@ -1078,6 +844,23 @@ export interface components {
             character: components["schemas"]["OwnerSchema"];
             ledger: components["schemas"]["CharacterLedgerSchema"];
             update_status: components["schemas"]["UpdateStatusSchema"];
+        };
+        /**
+         * OwnerSchema
+         * @description Schema for Character or Character Owner.
+         *
+         *     Attributes:
+         *         character_id (int): The ID of the character.
+         *         character_name (str): The name of the character.
+         *         icon (str | None): The URL of the character's icon, if available.
+         */
+        OwnerSchema: {
+            /** Character Id */
+            character_id: number;
+            /** Character Name */
+            character_name: string;
+            /** Icon */
+            icon?: string | null;
         };
         /** UpdateStatusSchema */
         UpdateStatusSchema: {
@@ -1919,122 +1702,6 @@ export interface operations {
             };
         };
     };
-    ledger_api_overview_get_character_overview: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CharacterOverview"][];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-        };
-    };
-    ledger_api_overview_get_planetary_overview: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CharacterOverview"][];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-        };
-    };
-    ledger_api_overview_get_corporation_overview: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CorporationOverview"][];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-        };
-    };
-    ledger_api_overview_get_alliance_overview: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AllianceOverview"][];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-        };
-    };
     ledger_api_administration_get_administration_owners: {
         parameters: {
             query?: never;
@@ -2128,47 +1795,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MessageSchema"];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-        };
-    };
-    ledger_api_administration_inspect_administration_owner: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                owner_type: "character" | "corporation";
-                owner_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdministrationResponse"];
                 };
             };
             /** @description Forbidden */

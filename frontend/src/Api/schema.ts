@@ -7,7 +7,6 @@ export type MessageSchema = components["schemas"]["MessageSchema"];
 
 export type LedgerOverviewOwnerSchema = components["schemas"]["LedgerOverviewOwnerSchema"];
 export type LedgerOverviewResponse = components["schemas"]["LedgerOverviewResponse"];
-export type DashboardSchema = components["schemas"]["DashboardSchema"];
 export type AdministrationOwnerSchema = components["schemas"]["AdministrationOwnerSchema"];
 export type AdministrationOwnerUpdateRequest = components["schemas"]["AdministrationOwnerUpdateRequest"];
 export type SettingsOwnerSectionSchema = components["schemas"]["SettingsOwnerSectionSchema"];

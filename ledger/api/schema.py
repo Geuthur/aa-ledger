@@ -326,23 +326,6 @@ class DivisionSchema(Schema):
     name: str
 
 
-class CharacterOverview(Schema):
-    character_id: int
-    character_name: str
-    corporation_id: int
-    corporation_name: str
-
-
-class CorporationOverview(Schema):
-    corporation_id: int
-    corporation_name: str
-
-
-class AllianceOverview(Schema):
-    alliance_id: int
-    alliance_name: str
-
-
 class LedgerOverviewOwnerSchema(Schema):
     id: int
     name: str
@@ -360,16 +343,6 @@ class LedgerOverviewResponse(Schema):
     owners: list[LedgerOverviewOwnerSchema]
 
 
-class DashboardSchema(Schema):
-    """Statistics shown on the administration dashboards."""
-
-    auth_count: int
-    active_count: int
-    inactive_count: int | None = None
-    missing_count: int
-    issues: list[str] = []
-
-
 class AdminOwnerSectionSchema(Schema):
     """Status of an individual update section."""
 
@@ -380,43 +353,6 @@ class AdminOwnerSectionSchema(Schema):
     error_message: str | None = None
     last_run_at: datetime | None = None
     last_run_finished_at: datetime | None = None
-
-
-class AdminOwnerSchema(Schema):
-    """A character, corporation or alliance in the administration lists."""
-
-    owner_id: int
-    name: str
-    icon: str | None = None
-    status: str | None = None
-    last_sync: datetime | None = None
-    error_message: str | None = None
-    sections: list[AdminOwnerSectionSchema] | None = None
-
-
-class AdministrationResponse(Schema):
-    """
-    Everything the administration page of an account, corporation or alliance shows.
-
-    Attributes:
-        owner: The account's main character, corporation or alliance.
-        dashboard: Registration statistics.
-        registered: Entries registered in the ledger.
-        missing: Entries that exist but are not registered.
-        members: Characters of a corporation that are known to Auth.
-        last_sync: The timestamp of the most recent synchronization.
-        can_update: Whether the user can trigger a manual update.
-        cooldown_seconds: Remaining seconds until next manual update is allowed.
-    """
-
-    owner: OwnerSchema
-    dashboard: DashboardSchema
-    registered: list[AdminOwnerSchema] = []
-    missing: list[AdminOwnerSchema] = []
-    members: list[AltSchema] = []
-    last_sync: datetime | None = None
-    can_update: bool = False
-    cooldown_seconds: int = 0
 
 
 class EveTypeSchema(Schema):
