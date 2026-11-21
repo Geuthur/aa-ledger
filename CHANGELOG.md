@@ -86,6 +86,7 @@ Section Order:
 - Active/Inactive status badge from the owner cards on the `OverviewPage`.
 - Unused CSS classes, theme variables and keyframes (status indicator, link, `aa-bg-*` and others) and the unused `BaseModalQuery` component.
 - The unused HTML helpers `bootstrap_icon`, `bootstrap_text_style_class` and `description` of `UpdateStatus`; the frontend renders the update status from the API itself.
+- The unused frontend API calls `fetchCharacterOverview`, `fetchPlanetaryOverview`, `fetchCorporationOverview`, `fetchAllianceOverview` and `loadAdministrationOwnerInspect` with their query keys and type aliases.
 
 ### Changed
 

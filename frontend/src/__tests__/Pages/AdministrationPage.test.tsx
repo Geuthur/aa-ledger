@@ -32,7 +32,6 @@ vi.mock("@/Api/calls/administration", async (importOriginal) => {
     loadAdministrationOwners: vi.fn(),
     triggerAdministrationOwnerUpdate: vi.fn(),
     deleteAdministrationOwner: vi.fn(),
-    loadAdministrationOwnerInspect: vi.fn(),
     queueUpdate: vi.fn(),
   };
 });

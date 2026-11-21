@@ -6,7 +6,6 @@ import { apiClient } from "@/Api/Api";
 import type {
   AdministrationOwnerSchema,
   AdministrationOwnerUpdateRequest,
-  AdministrationResponse,
   AdminUpdateRequest,
   MessageSchema,
 } from "@/Api/schema";
@@ -14,11 +13,9 @@ import type {
 // Literal on purpose: App.tsx imports the pages, so importing ProjectName here would be circular.
 const API_BASE = "/ledger/api";
 
-/** Query keys of the administration area: all owners and the inspection of one owner. */
+/** Query keys of the administration area: all owners. */
 export const administrationQueryKeys = {
   owners: ["AdministrationOwners"] as const,
-  ownerInspect: (ownerType: string, ownerId: number) =>
-    ["AdministrationOwnerInspect", ownerType, ownerId] as const,
 };
 
 export async function queueUpdate(request: AdminUpdateRequest): Promise<MessageSchema> {
@@ -69,22 +66,6 @@ export async function deleteAdministrationOwner(
   );
   if (error || !data) {
     throw new Error(apiErrorMessage(error, "Failed to delete owner"));
-  }
-  return data;
-}
-
-export async function loadAdministrationOwnerInspect(
-  ownerType: "character" | "corporation",
-  ownerId: number,
-): Promise<AdministrationResponse> {
-  const { data, error } = await apiClient.GET(
-    `${API_BASE}/administration/owners/{owner_type}/{owner_id}/inspect/`,
-    {
-      params: { path: { owner_type: ownerType, owner_id: ownerId } },
-    },
-  );
-  if (error || !data) {
-    throw new Error(apiErrorMessage(error, "Failed to inspect owner"));
   }
   return data;
 }
