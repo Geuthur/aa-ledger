@@ -227,42 +227,6 @@ class TestAdministrationApi(AuthTestCase):
             ).exists()
         )
 
-    def test_inspect_character_owner_should_return_administration_data(self):
-        # Test Data
-        self.client.force_login(self.superuser)
-        char_owner = CharacterOwnerFactory()
-        char_id = char_owner.eve_character.character_id
-
-        # Test Action
-        response = self.client.get(
-            f"{self.api}/administration/owners/character/{char_id}/inspect/"
-        )
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        data = response.json()
-        self.assertIn("dashboard", data)
-        self.assertIn("registered", data)
-        self.assertEqual(data["owner"]["character_id"], char_id)
-
-    def test_inspect_corporation_owner_should_return_administration_data(self):
-        # Test Data
-        self.client.force_login(self.superuser)
-        corp_owner = CorporationOwnerFactory()
-        corp_id = corp_owner.eve_corporation.corporation_id
-
-        # Test Action
-        response = self.client.get(
-            f"{self.api}/administration/owners/corporation/{corp_id}/inspect/"
-        )
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        data = response.json()
-        self.assertIn("dashboard", data)
-        self.assertIn("registered", data)
-        self.assertEqual(data["owner"]["character_id"], corp_id)
-
     def test_get_administration_owners_should_return_only_own_corporations_for_corp_audit_manager(
         self,
     ):
@@ -324,21 +288,6 @@ class TestAdministrationApi(AuthTestCase):
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
-
-    def test_inspect_corporation_owner_should_return_404_for_unmanageable_owner(
-        self,
-    ):
-        # Test Data
-        self.client.force_login(self.manage_own_user)
-        other_corp = CorporationOwnerFactory()
-
-        # Test Action
-        response = self.client.get(
-            f"{self.api}/administration/owners/corporation/{other_corp.eve_corporation.corporation_id}/inspect/"
-        )
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
     def test_get_administration_owners_should_include_alliances_and_unregistered_counts(
         self,

@@ -3,14 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA Ledger
 import { apiClient } from "@/Api/Api";
-import {
-  fetchAllianceOverview,
-  fetchCharacterOverview,
-  fetchCorporationOverview,
-  fetchOverview,
-  fetchPlanetaryOverview,
-  overviewQueryKeys,
-} from "@/Api/calls/overview";
+import { fetchOverview, overviewQueryKeys } from "@/Api/calls/overview";
 
 const ok = (data: unknown) =>
   ({ data, error: undefined, response: new Response() }) as never;
@@ -20,10 +13,6 @@ const failed = (error: unknown) =>
 describe("overviewQueryKeys", () => {
   it("provides the keys of the overview area", () => {
     expect(overviewQueryKeys.overview).toEqual(["Overview"]);
-    expect(overviewQueryKeys.character).toEqual(["CharacterOverview"]);
-    expect(overviewQueryKeys.planetary).toEqual(["PlanetaryOverview"]);
-    expect(overviewQueryKeys.corporation).toEqual(["CorporationOverview"]);
-    expect(overviewQueryKeys.alliance).toEqual(["AllianceOverview"]);
   });
 });
 
@@ -51,10 +40,6 @@ type Method = "GET";
 /** Every call of `Api/calls/overview.ts`: [name, HTTP method, call, fixed text]. */
 const calls: [string, Method, () => Promise<unknown>, string][] = [
   ["fetchOverview", "GET", () => fetchOverview(), "Failed to load overview"],
-  ["fetchCharacterOverview", "GET", () => fetchCharacterOverview(), "Failed to load characters"],
-  ["fetchPlanetaryOverview", "GET", () => fetchPlanetaryOverview(), "Failed to load characters"],
-  ["fetchCorporationOverview", "GET", () => fetchCorporationOverview(), "Failed to load corporations"],
-  ["fetchAllianceOverview", "GET", () => fetchAllianceOverview(), "Failed to load alliances"],
 ];
 
 describe("API error messages", () => {

@@ -6,7 +6,6 @@ import { apiClient } from "@/Api/Api";
 import {
   administrationQueryKeys,
   deleteAdministrationOwner,
-  loadAdministrationOwnerInspect,
   loadAdministrationOwners,
   queueUpdate,
   triggerAdministrationOwnerUpdate,
@@ -20,11 +19,6 @@ const failed = (error: unknown) =>
 describe("administrationQueryKeys", () => {
   it("provides the keys of the administration area", () => {
     expect(administrationQueryKeys.owners).toEqual(["AdministrationOwners"]);
-    expect(administrationQueryKeys.ownerInspect("character", 1)).toEqual([
-      "AdministrationOwnerInspect",
-      "character",
-      1,
-    ]);
   });
 });
 
@@ -77,12 +71,6 @@ const calls: [string, Method, () => Promise<unknown>, string][] = [
     "Failed to trigger owner update",
   ],
   ["deleteAdministrationOwner", "DELETE", () => deleteAdministrationOwner("character", 1), "Failed to delete owner"],
-  [
-    "loadAdministrationOwnerInspect",
-    "GET",
-    () => loadAdministrationOwnerInspect("character", 1),
-    "Failed to inspect owner",
-  ],
 ];
 
 describe("API error messages", () => {
