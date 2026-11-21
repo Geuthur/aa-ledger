@@ -260,6 +260,47 @@ class TestDiscordWebhookSendMessage(NoSocketsTestCase):
             self.assertNotIn(WEBHOOK_URL, str(record.args))
             self.assertIsNone(record.exc_info)
 
+    @skipUnless(DHOOKS_LITE_AVAILABLE, "dhooks_lite is not installed")
+    def test_should_return_false_and_not_raise_on_too_long_content(self):
+        # dhooks_lite raises ValueError before a request is sent. Raised from a
+        # Celery task, the task arguments with the webhook URL would end up in
+        # the log record.
+        with self.assertLogs(discord_module.logger.logger, level="DEBUG") as logs:
+            result = _discordwebhook_send_message(
+                webhook_url=WEBHOOK_URL,
+                title="Test Title",
+                message="x" * 2001,
+                embed_message=False,
+            )
+
+        self.assertFalse(result)
+        self.assertEqual(len(logs.records), 1)
+        self.assertIn("ValueError", logs.records[0].getMessage())
+        for record in logs.records:
+            self.assertNotIn(WEBHOOK_URL, record.getMessage())
+            self.assertNotIn(WEBHOOK_URL, str(record.args))
+            self.assertIsNone(record.exc_info)
+
+    @skipUnless(DHOOKS_LITE_AVAILABLE, "dhooks_lite is not installed")
+    def test_should_return_false_and_not_raise_on_type_error(self):
+        with patch("dhooks_lite.Webhook") as mock_webhook:
+            mock_webhook.return_value.execute.side_effect = TypeError(
+                "embeds elements must be of type Embed"
+            )
+
+            with self.assertLogs(discord_module.logger.logger, level="DEBUG") as logs:
+                result = _discordwebhook_send_message(
+                    webhook_url=WEBHOOK_URL, title="Test Title", message="Test Message"
+                )
+
+        self.assertFalse(result)
+        self.assertEqual(len(logs.records), 1)
+        self.assertIn("TypeError", logs.records[0].getMessage())
+        for record in logs.records:
+            self.assertNotIn(WEBHOOK_URL, record.getMessage())
+            self.assertNotIn(WEBHOOK_URL, str(record.args))
+            self.assertIsNone(record.exc_info)
+
 
 class TestSendUserNotification(NoSocketsTestCase):
     def setUp(self):

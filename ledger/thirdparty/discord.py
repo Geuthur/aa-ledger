@@ -152,9 +152,12 @@ def _discordwebhook_send_message(
             response = hook.execute(embeds=[embed])
         else:
             response = hook.execute(content=f"**{title}**\n\n{message}")
-    except RequestException as exc:
-        # The exception text contains the webhook URL with the token, so only
-        # the type of the exception is logged and the exception is not raised.
+    except (RequestException, ValueError, TypeError) as exc:
+        # The text of a RequestException contains the webhook URL with the
+        # token. A ValueError or TypeError of dhooks_lite (e.g. content over
+        # 2000 characters) would fail the Celery task, and Celery attaches the
+        # task arguments with the URL to its log record. So only the type of
+        # the exception is logged and the exception is not raised.
         logger.warning(
             "Webhook failed to send message to Discord. Error: %s",
             type(exc).__name__,
