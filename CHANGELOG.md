@@ -82,6 +82,7 @@ Section Order:
 - The `!important` flags of the button hover overrides were dropped.
 - Test `UserMainFactory` now follows the `aa-evesde-factory` pattern: it sets `scopes__` and reads `obj._main_character_scopes`; pass `scopes=[...]` instead of `main_character__scopes=[...]`.
 - Test base class `LedgerTestCase` replaced by `AuthTestCase` with the same layout as the other AA apps (request factory, `user`, `superuser`). Additional users and the view helpers moved into the test classes and `tests/testdata/`.
+- [CHANGE] Node 26 (LTS) in the CI workflow and the pre-commit config, and updated npm packages (minor/patch, `jsdom` 31, `@testing-library/jest-dom` 8); `stylelint`, `typescript`, `i18next` and `react-i18next` stay on their current major version.
 
 ### Removed
 
