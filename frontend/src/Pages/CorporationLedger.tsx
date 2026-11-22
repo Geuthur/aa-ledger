@@ -4,8 +4,8 @@ import { useParams } from "react-router-dom";
 // Third Party
 import { useTranslation } from "react-i18next";
 
-import { fetchCorporationDetails } from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
+// AA Ledger
+import { fetchCorporationDetails, ledgerQueryKeys } from "@/Api/calls/ledger";
 import type { CorporationFilterParams } from "@/Api/schema";
 import DetailsModal from "@/Components/Ledger/DetailsModal";
 import { useCorporationLedger } from "@/Components/Ledger/Hooks";
@@ -71,7 +71,7 @@ function CorporationLedger({ corporationIdOverride, onBack }: CorporationLedgerP
       <DetailsModal
         entityId={entityId}
         title={t("Corporation Ledger Details")}
-        queryKey={queryKeys.CorporationDetails(corporationId, entityId ?? 0, filters, section)}
+        queryKey={ledgerQueryKeys.corporationDetails(corporationId, entityId ?? 0, filters, section)}
         queryFn={() => fetchCorporationDetails(corporationId, entityId ?? 0, filters, section)}
         onHide={closeDetails}
       />

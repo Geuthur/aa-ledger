@@ -122,8 +122,8 @@ class TestCorporationAuditAdmin(AuthTestCase):
 
         # Test Action/Expected Result
         expected_html = '<img src="{}" class="img-circle">'.format(
-            eveimageserver._eve_entity_image_url(
-                "corporation", self.corporation_audit.eve_corporation.corporation_id, 32
+            eveimageserver.corporation_logo_url(
+                self.corporation_audit.eve_corporation.corporation_id, 32
             )
         )
         self.assertEqual(
@@ -263,8 +263,8 @@ class TestCharacterAuditAdmin(AuthTestCase):
 
         # Test Action/Expected Result
         expected_html = '<img src="{}" class="img-circle">'.format(
-            eveimageserver._eve_entity_image_url(
-                "character", self.character_audit.eve_character.character_id, 32
+            eveimageserver.character_portrait_url(
+                self.character_audit.eve_character.character_id, 32
             )
         )
         self.assertEqual(

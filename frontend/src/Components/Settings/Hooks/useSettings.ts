@@ -3,18 +3,24 @@ import { useState } from "react";
 
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCooldown, useFeedback, useOwnerCooldowns } from "aa-geuthur-react";
+import { queryKeys, useCooldown, useFeedback, useOwnerCooldowns } from "aa-geuthur-react";
 import { useTranslation } from "react-i18next";
 
 // AA Ledger
-import { deleteSettingsOwner, loadSettingsOwners, triggerSettingsOwnerUpdate, triggerUpdateAllSettingsOwners } from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
+import { overviewQueryKeys } from "@/Api/calls/overview";
+import {
+  deleteSettingsOwner,
+  loadSettingsOwners,
+  settingsQueryKeys,
+  triggerSettingsOwnerUpdate,
+  triggerUpdateAllSettingsOwners,
+} from "@/Api/calls/settings";
 import type { SettingsOwnerSchema } from "@/Api/schema";
 
 /** Loads the registered and missing owners, refreshed every 30 seconds. */
 export function useSettingsOwners() {
   return useQuery({
-    queryKey: queryKeys.SettingsOwners,
+    queryKey: settingsQueryKeys.owners,
     queryFn: loadSettingsOwners,
     refetchInterval: 30000,
     refetchIntervalInBackground: false,
@@ -39,8 +45,8 @@ export function useSettingsOwnerActions(
   const [updatingOwnerId, setUpdatingOwnerId] = useState<number | null>(null);
 
   const invalidateQueries = () => {
-    queryClient.invalidateQueries({ queryKey: queryKeys.SettingsOwners });
-    queryClient.invalidateQueries({ queryKey: queryKeys.Overview });
+    queryClient.invalidateQueries({ queryKey: settingsQueryKeys.owners });
+    queryClient.invalidateQueries({ queryKey: overviewQueryKeys.overview });
     queryClient.invalidateQueries({ queryKey: queryKeys.Menu });
   };
 

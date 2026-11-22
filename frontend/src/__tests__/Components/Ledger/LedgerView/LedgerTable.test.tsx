@@ -7,6 +7,7 @@ import userEvent from "@testing-library/user-event";
 import { formatIsk } from "aa-geuthur-react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+// AA Ledger
 import LedgerTable, { SHOW_TOTALS_STORAGE_KEY } from "@/Components/Ledger/LedgerView/LedgerTable";
 import type { LedgerRow } from "@/Utils/ledger";
 

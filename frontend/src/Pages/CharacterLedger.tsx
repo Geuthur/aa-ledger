@@ -4,8 +4,8 @@ import { useParams } from "react-router-dom";
 // Third Party
 import { useTranslation } from "react-i18next";
 
-import { fetchCharacterDetails } from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
+// AA Ledger
+import { fetchCharacterDetails, ledgerQueryKeys } from "@/Api/calls/ledger";
 import DetailsModal from "@/Components/Ledger/DetailsModal";
 import { useCharacterLedger } from "@/Components/Ledger/Hooks";
 import LedgerNavButton from "@/Components/Ledger/LedgerNavButton";
@@ -50,7 +50,7 @@ function CharacterLedger({ characterIdOverride, onBack }: CharacterLedgerProps =
       <DetailsModal
         entityId={entityId}
         title={t("Character Ledger Details")}
-        queryKey={queryKeys.CharacterDetails(entityId ?? 0, filters, section)}
+        queryKey={ledgerQueryKeys.characterDetails(entityId ?? 0, filters, section)}
         queryFn={() => fetchCharacterDetails(entityId ?? 0, filters, section)}
         onHide={closeDetails}
       />

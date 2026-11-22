@@ -127,7 +127,7 @@ class CorporationAuditAdmin(admin.ModelAdmin):
         eve_id = obj.eve_corporation.corporation_id
         return format_html(
             '<img src="{}" class="img-circle">',
-            eveimageserver._eve_entity_image_url("corporation", eve_id, 32),
+            eveimageserver.corporation_logo_url(eve_id, 32),
         )
 
     @admin.display(
@@ -161,8 +161,8 @@ class CorporationAuditAdmin(admin.ModelAdmin):
         messages.success(
             request,
             _(
-                f"Started force update for {count} corporation(s). Updates will run in the background."
-            ),
+                "Started force update for {count} corporation(s). Updates will run in the background."
+            ).format(count=count),
         )
 
 
@@ -271,7 +271,7 @@ class CharacterAuditAdmin(admin.ModelAdmin):
         eve_id = obj.eve_character.character_id
         return format_html(
             '<img src="{}" class="img-circle">',
-            eveimageserver._eve_entity_image_url("character", eve_id, 32),
+            eveimageserver.character_portrait_url(eve_id, 32),
         )
 
     @admin.display(
@@ -303,6 +303,6 @@ class CharacterAuditAdmin(admin.ModelAdmin):
         messages.success(
             request,
             _(
-                f"Started force update for {count} character(s). Updates will run in the background."
-            ),
+                "Started force update for {count} character(s). Updates will run in the background."
+            ).format(count=count),
         )

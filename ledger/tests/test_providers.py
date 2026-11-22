@@ -1,6 +1,7 @@
 """Tests for the providers module."""
 
 # Standard Library
+from http import HTTPStatus
 from unittest.mock import MagicMock, patch
 
 # Third Party
@@ -20,7 +21,12 @@ from esi.exceptions import (
 
 # AA Ledger
 from ledger.errors import DownTimeError
-from ledger.providers import esi, retry_task_on_esi_error
+from ledger.providers import (
+    ESI_RETRY_STATUS_CODES,
+    esi,
+    is_retryable_esi_error,
+    retry_task_on_esi_error,
+)
 from ledger.tests import NoSocketsTestCase
 
 MODULE_PATH = "ledger.providers"
@@ -33,6 +39,58 @@ class TestEsiClient(NoSocketsTestCase):
         client = esi.client
         # then
         self.assertTrue(hasattr(client.Market, "GetMarketsPrices"))
+
+
+class TestIsRetryableEsiError(NoSocketsTestCase):
+    """Tests for is_retryable_esi_error and ESI_RETRY_STATUS_CODES."""
+
+    def test_retry_status_codes(self):
+        self.assertEqual(
+            ESI_RETRY_STATUS_CODES,
+            (
+                HTTPStatus.BAD_GATEWAY,
+                HTTPStatus.SERVICE_UNAVAILABLE,
+                HTTPStatus.GATEWAY_TIMEOUT,
+            ),
+        )
+
+    def test_should_be_retryable_for_retry_status_codes(self):
+        for status_code in ESI_RETRY_STATUS_CODES:
+            with self.subTest(status_code=status_code):
+                exc = HTTPServerError(int(status_code), {}, b"Server Error")
+                self.assertTrue(is_retryable_esi_error(exc))
+
+    def test_should_not_be_retryable_for_other_server_errors(self):
+        for status_code in (500, 501, 505):
+            with self.subTest(status_code=status_code):
+                exc = HTTPServerError(status_code, {}, b"Server Error")
+                self.assertFalse(is_retryable_esi_error(exc))
+
+    def test_should_not_be_retryable_for_client_errors(self):
+        for status_code in (400, 403, 404, 420):
+            with self.subTest(status_code=status_code):
+                exc = HTTPClientError(status_code, {}, b"Client Error")
+                self.assertFalse(is_retryable_esi_error(exc))
+
+    def test_should_be_retryable_for_esi_limit_errors(self):
+        for exc in (
+            ESIErrorLimitException(60.0),
+            ESIBucketLimitException(bucket="test_bucket", reset=30.0),
+        ):
+            with self.subTest(exc=type(exc).__name__):
+                self.assertTrue(is_retryable_esi_error(exc))
+
+    def test_should_be_retryable_for_request_error(self):
+        exc = RequestError(operation=None, request=None, data="Test", parameters={})
+        self.assertTrue(is_retryable_esi_error(exc))
+
+    def test_should_be_retryable_for_downtime_error(self):
+        self.assertTrue(is_retryable_esi_error(DownTimeError("ESI is in downtime")))
+
+    def test_should_not_be_retryable_for_other_exceptions(self):
+        for exc in (ValueError("error"), KeyError("key"), Exception("error")):
+            with self.subTest(exc=type(exc).__name__):
+                self.assertFalse(is_retryable_esi_error(exc))
 
 
 @override_settings(

@@ -14,8 +14,6 @@ from ledger import tasks
 from ledger.api import schema
 from ledger.api.helpers.administration import (
     build_administration_owners_list,
-    build_character_inspection_response,
-    build_corporation_inspection_response,
 )
 from ledger.models.characteraudit import CharacterOwner
 from ledger.models.corporationaudit import CorporationOwner
@@ -167,31 +165,5 @@ class ApiEndpoints:
                 return schema.MessageSchema(
                     message=_("%(name)s successfully deleted") % {"name": name}
                 )
-
-            return HTTPStatus.NOT_FOUND, {"error": _("Invalid owner type.")}
-
-        @api.get(
-            "administration/owners/{str:owner_type}/{int:owner_id}/inspect/",
-            response={
-                HTTPStatus.OK: schema.AdministrationResponse,
-                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
-                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
-            },
-            tags=self.tags,
-            summary="Inspect an owner administration view",
-        )
-        def inspect_administration_owner(
-            request: WSGIRequest,
-            owner_type: Literal["character", "corporation"],
-            owner_id: int,
-        ):
-            if not General.objects.has_management_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
-            if owner_type == "character":
-                return build_character_inspection_response(request.user, owner_id)
-
-            if owner_type == "corporation":
-                return build_corporation_inspection_response(request.user, owner_id)
 
             return HTTPStatus.NOT_FOUND, {"error": _("Invalid owner type.")}

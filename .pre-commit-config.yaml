@@ -6,7 +6,7 @@
 default_language_version:
   # force all unspecified python hooks to run python3
   python: python3
-  node: 24.18.0 # LTS https://nodejs.org/en/blog/release/
+  node: 26.13.1 # LTS https://nodejs.org/en/blog/release/
 
 # https://pre-commit.ci/
 ci:
@@ -138,12 +138,16 @@ repos:
       - id: stylelint
         name: Stylelint
         description: Check for problems in CSS files.
+        # stylelint 18 no longer resolves `extends` from global node_modules.
+        # pre-commit installs additional_dependencies into the hook environment
+        # and sets NODE_PATH to its lib/node_modules, so use that as config basedir.
+        entry: bash -c 'exec stylelint --config-basedir "$NODE_PATH" "$@"' --
         args:
           - --formatter=compact
         additional_dependencies:
           # stylelint itself needs to be here when using additional_dependencies.
-          - stylelint@17.15.0  # https://github.com/stylelint/stylelint/releases/latest
-          - stylelint-config-standard@40.0.0  # https://github.com/stylelint/stylelint-config-standard/releases/latest
+          - stylelint@18.1.0  # https://github.com/stylelint/stylelint/releases/latest
+          - stylelint-config-standard@41.1.0  # https://github.com/stylelint/stylelint-config-standard/releases/latest
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0

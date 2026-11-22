@@ -7,12 +7,12 @@ import { useUserData } from "aa-geuthur-react";
 
 // AA Ledger
 import {
+  administrationQueryKeys,
   deleteAdministrationOwner,
   loadAdministrationOwners,
   queueUpdate,
   triggerAdministrationOwnerUpdate,
-} from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
+} from "@/Api/calls/administration";
 
 export interface TaskFeedback {
   variant: "success" | "danger";
@@ -22,7 +22,7 @@ export interface TaskFeedback {
 /** Loads all owners of the Administration. */
 export function useAdministrationOwners() {
   return useQuery({
-    queryKey: queryKeys.AdministrationOwners,
+    queryKey: administrationQueryKeys.owners,
     queryFn: loadAdministrationOwners,
   });
 }
@@ -44,7 +44,7 @@ export function useAdministrationActions(onDeleted?: () => void) {
   const [taskFeedback, setTaskFeedback] = useState<TaskFeedback | null>(null);
 
   const refreshOwners = () =>
-    queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
+    queryClient.invalidateQueries({ queryKey: administrationQueryKeys.owners });
 
   const singleUpdateMutation = useMutation({
     mutationFn: ({

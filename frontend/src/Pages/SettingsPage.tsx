@@ -8,10 +8,7 @@ import { BookOpen, Settings2, UserRoundX, Users } from "lucide-react";
 import { Button, Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-// Styles
-import styles from "@/Styles/modules/SettingsPage.module.css";
-
-// API
+// AA Ledger
 import type {
     SettingsMissingOwnerSchema,
     SettingsOwnerSchema,
@@ -20,6 +17,9 @@ import type {
 } from "@/Api/schema";
 import { BaseUserSettingsCard, useUnregistered } from "@/Components/Base/BaseSettings";
 import { useSettingsOwnerActions, useSettingsOwners } from "@/Components/Settings/Hooks";
+
+// Styles
+import styles from "@/Styles/modules/SettingsPage.module.css";
 
 export const SettingsPage: React.FC = () => {
     const { t } = useTranslation();

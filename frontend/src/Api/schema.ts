@@ -1,3 +1,4 @@
+// AA Ledger
 import type { components } from "@/Api/OpenApi";
 
 export type UserSettingsSchema = components["schemas"]["UserSettingsSchema"];
@@ -5,15 +6,8 @@ export type UserSettingsUpdateRequest = components["schemas"]["UserSettingsUpdat
 export type AdminUpdateRequest = components["schemas"]["AdminUpdateRequest"];
 export type MessageSchema = components["schemas"]["MessageSchema"];
 
-export type CharacterOverview = components["schemas"]["CharacterOverview"];
-export type CorporationOverview = components["schemas"]["CorporationOverview"];
-export type AllianceOverview = components["schemas"]["AllianceOverview"];
 export type LedgerOverviewOwnerSchema = components["schemas"]["LedgerOverviewOwnerSchema"];
 export type LedgerOverviewResponse = components["schemas"]["LedgerOverviewResponse"];
-export type DashboardSchema = components["schemas"]["DashboardSchema"];
-export type AdministrationResponse = components["schemas"]["AdministrationResponse"];
-export type AdminOwnerSchema = components["schemas"]["AdminOwnerSchema"];
-export type AdminOwnerSectionSchema = components["schemas"]["AdminOwnerSectionSchema"];
 export type AdministrationOwnerSchema = components["schemas"]["AdministrationOwnerSchema"];
 export type AdministrationOwnerUpdateRequest = components["schemas"]["AdministrationOwnerUpdateRequest"];
 export type SettingsOwnerSectionSchema = components["schemas"]["SettingsOwnerSectionSchema"];

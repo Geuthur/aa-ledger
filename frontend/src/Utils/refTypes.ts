@@ -1,3 +1,4 @@
+// AA Ledger
 import type { CategorySchema, CharacterRefTypeSchema, RefTypeAmountSchema } from "@/Api/schema";
 
 /** Number of reference types shown as badges before the rest moves into a modal. */

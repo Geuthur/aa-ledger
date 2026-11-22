@@ -18,9 +18,6 @@ import {
 } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-// Styles
-import styles from "@/Styles/modules/Administration.module.css";
-
 // AA Ledger
 import type { AdministrationOwnerSchema } from "@/Api/schema";
 import {
@@ -34,6 +31,9 @@ import {
   useAdministrationOwners,
   useIsAdmin,
 } from "@/Components/Administration/Hooks";
+
+// Styles
+import styles from "@/Styles/modules/Administration.module.css";
 
 type AdministrationTypeFilter = "all" | "character" | "corporation" | "alliance" | "issues";
 

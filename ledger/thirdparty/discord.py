@@ -127,7 +127,12 @@ def _discordwebhook_send_message(
     embed_message: bool = True,
     level: str = "info",
 ) -> bool | None:
-    """Send a message to a webhook via discordwebhook"""
+    """Send a message to a webhook via discordwebhook
+
+    Returns `True` if the message was sent, `False` if sending failed and a
+    retry makes sense, and `None` if it was not sent and a retry cannot help
+    (dhooks_lite is not installed or rejects the message).
+    """
     if not discordwebhook_installed():
         logger.debug(
             "Discord webhook is not installed, messages will not be sent via webhook."
@@ -153,13 +158,24 @@ def _discordwebhook_send_message(
         else:
             response = hook.execute(content=f"**{title}**\n\n{message}")
     except RequestException as exc:
-        # The exception text contains the webhook URL with the token, so only
-        # the type of the exception is logged and the exception is not raised.
+        # The text of a RequestException contains the webhook URL with the
+        # token, and Celery attaches the task arguments with the URL to its
+        # log record. So only the type of the exception is logged.
         logger.warning(
             "Webhook failed to send message to Discord. Error: %s",
             type(exc).__name__,
         )
         return False
+    except (ValueError, TypeError) as exc:
+        # dhooks_lite rejects the message (e.g. content over 2000 characters)
+        # before any request is sent, so a retry can never help. The exception
+        # is not raised and only its type is logged, for the same reason as
+        # above.
+        logger.warning(
+            "Webhook message was rejected by dhooks_lite and is not sent. Error: %s",
+            type(exc).__name__,
+        )
+        return None
 
     logger.debug("headers: %s", response.headers)
     logger.debug("status_code: %s", response.status_code)
@@ -255,7 +271,8 @@ def send_webhook_notification(
         level=level,
     )
 
-    # If the notification was not sent successfully, retry sending the notification with a delay and a maximum of 3 retries
+    # If sending failed (`False`), retry with a delay and a maximum of 3 retries.
+    # `None` means not sent and a retry cannot help, so it is not retried.
     if notification_sent is False:
         logger.warning(
             "Failed to send webhook notification. Check the webhook URL and try again."

@@ -6,11 +6,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import * as ApiCalls from "@/Api/ApiCalls";
+// AA Ledger
+import * as planetaryApi from "@/Api/calls/planetary";
 import PlanetModal from "@/Components/Planetary/PlanetModal";
 
-vi.mock("@/Api/ApiCalls", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/Api/ApiCalls")>();
+vi.mock("@/Api/calls/planetary", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/planetary")>();
   return { ...actual, fetchPlanetDetails: vi.fn() };
 });
 
@@ -68,7 +69,7 @@ describe("PlanetModal", () => {
 
   it("shows extractors, factories and storage of the planet", async () => {
     // Test Data
-    vi.mocked(ApiCalls.fetchPlanetDetails).mockResolvedValue(details as never);
+    vi.mocked(planetaryApi.fetchPlanetDetails).mockResolvedValue(details as never);
 
     // Test Action
     renderModal();
@@ -80,7 +81,7 @@ describe("PlanetModal", () => {
     expect(screen.getByText("Storage Facility")).toBeInTheDocument();
     expect(screen.getByText("1,500")).toBeInTheDocument();
     expect(screen.getAllByText("Aqueous Liquids")).toHaveLength(2);
-    expect(ApiCalls.fetchPlanetDetails).toHaveBeenCalledWith(1, 5);
+    expect(planetaryApi.fetchPlanetDetails).toHaveBeenCalledWith(1, 5);
   });
 
   it("does not request anything while closed", () => {
@@ -88,12 +89,12 @@ describe("PlanetModal", () => {
     renderModal(null, null);
 
     // Expected Result
-    expect(ApiCalls.fetchPlanetDetails).not.toHaveBeenCalled();
+    expect(planetaryApi.fetchPlanetDetails).not.toHaveBeenCalled();
   });
 
   it("shows the API error", async () => {
     // Test Data
-    vi.mocked(ApiCalls.fetchPlanetDetails).mockRejectedValue(new Error("Planet not found."));
+    vi.mocked(planetaryApi.fetchPlanetDetails).mockRejectedValue(new Error("Planet not found."));
 
     // Test Action
     renderModal();

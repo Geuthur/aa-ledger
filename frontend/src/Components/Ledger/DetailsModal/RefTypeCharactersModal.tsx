@@ -6,6 +6,7 @@ import { BaseModal, BaseTable, createBaseColumnHelper, formatIsk } from "aa-geut
 import type { BaseColumnDef } from "aa-geuthur-react";
 import { useTranslation } from "react-i18next";
 
+// AA Ledger
 import type { CharacterRefTypeSchema, RefTypeAmountSchema } from "@/Api/schema";
 import { amountClass } from "@/Utils/ledger";
 import { formatRefType } from "@/Utils/refTypes";
