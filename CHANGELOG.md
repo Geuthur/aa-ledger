@@ -48,6 +48,7 @@ Section Order:
 - [FIX] Security: `ledger/thirdparty/discord.py` follows the `aa-example` template again: a failed webhook notification no longer writes the webhook URL (which contains the token) to the log, also not through the exception texts of `requests` and Celery; after the last retry it ends with a warning instead of a failed task. The webhook sender is still unused in this app.
 - [FIX] The success messages of the force update actions in the admin (corporations and characters) were f-strings inside `_()` and could never be translated; they now use `_("… {count} …").format(count=count)`.
 - [FIX] React Query no longer retries 403, 404 and other 4xx answers three times, so the error shows at once instead of after about seven seconds: `Routing.tsx` uses `createQueryClient` of `aa-geuthur-react` (`^1.7.0`), which retries only network errors and 502/503/504.
+- [FIX] Discord webhook: a `ValueError` or `TypeError` of `dhooks_lite` (e.g. content over 2000 characters) is no longer retried, because it is raised before any request is sent; `RequestException` and a rejected response are still retried
 - [FIX] Security: the Discord webhook sender also catches `ValueError` and `TypeError` of `dhooks_lite` (e.g. content over 2000 characters), so a failed Celery task cannot attach the webhook URL to its log record.
 
 ### Changed

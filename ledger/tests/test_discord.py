@@ -261,7 +261,7 @@ class TestDiscordWebhookSendMessage(NoSocketsTestCase):
             self.assertIsNone(record.exc_info)
 
     @skipUnless(DHOOKS_LITE_AVAILABLE, "dhooks_lite is not installed")
-    def test_should_return_false_and_not_raise_on_too_long_content(self):
+    def test_should_return_none_and_not_raise_on_too_long_content(self):
         # dhooks_lite raises ValueError before a request is sent. Raised from a
         # Celery task, the task arguments with the webhook URL would end up in
         # the log record.
@@ -273,7 +273,7 @@ class TestDiscordWebhookSendMessage(NoSocketsTestCase):
                 embed_message=False,
             )
 
-        self.assertFalse(result)
+        self.assertIsNone(result)
         self.assertEqual(len(logs.records), 1)
         self.assertIn("ValueError", logs.records[0].getMessage())
         for record in logs.records:
@@ -282,7 +282,7 @@ class TestDiscordWebhookSendMessage(NoSocketsTestCase):
             self.assertIsNone(record.exc_info)
 
     @skipUnless(DHOOKS_LITE_AVAILABLE, "dhooks_lite is not installed")
-    def test_should_return_false_and_not_raise_on_type_error(self):
+    def test_should_return_none_and_not_raise_on_type_error(self):
         with patch("dhooks_lite.Webhook") as mock_webhook:
             mock_webhook.return_value.execute.side_effect = TypeError(
                 "embeds elements must be of type Embed"
@@ -293,7 +293,7 @@ class TestDiscordWebhookSendMessage(NoSocketsTestCase):
                     webhook_url=WEBHOOK_URL, title="Test Title", message="Test Message"
                 )
 
-        self.assertFalse(result)
+        self.assertIsNone(result)
         self.assertEqual(len(logs.records), 1)
         self.assertIn("TypeError", logs.records[0].getMessage())
         for record in logs.records:
@@ -651,6 +651,27 @@ class TestSendWebhookNotification(NoSocketsTestCase):
         for record in logs.records:
             self.assertNotIn(WEBHOOK_URL, record.getMessage())
             self.assertNotIn(WEBHOOK_URL, str(record.args))
+
+    @skipUnless(DHOOKS_LITE_AVAILABLE, "dhooks_lite is not installed")
+    @patch(MODULE_PATH + ".send_webhook_notification.retry")
+    def test_should_not_retry_or_log_webhook_url_if_content_is_too_long(
+        self, mock_retry: MagicMock
+    ):
+        # dhooks_lite raises ValueError before any request is sent, so a retry
+        # can never help.
+        with self.assertLogs(discord_module.logger.logger, level="DEBUG") as logs:
+            send_webhook_notification(
+                webhook_url=WEBHOOK_URL,
+                title="Test Title",
+                message="x" * 2001,
+                embed_message=False,
+            )
+
+        mock_retry.assert_not_called()
+        for record in logs.records:
+            self.assertNotIn(WEBHOOK_URL, record.getMessage())
+            self.assertNotIn(WEBHOOK_URL, str(record.args))
+            self.assertIsNone(record.exc_info)
 
     @patch(MODULE_PATH + "._discordwebhook_send_message", return_value=False)
     def test_should_not_raise_or_log_webhook_url_if_retries_are_exhausted(self, _):
