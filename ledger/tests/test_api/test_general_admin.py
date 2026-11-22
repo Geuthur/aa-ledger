@@ -14,6 +14,7 @@ from evesde_factory.allianceauth import EveCharacterFactory, EveCorporationInfoF
 # AA Ledger
 from ledger.api import api
 from ledger.models.characteraudit import CharacterOwner
+from ledger.models.corporationaudit import CorporationOwner
 from ledger.models.helpers.update_manager import CorporationUpdateSection
 from ledger.tests import AuthTestCase
 from ledger.tests.testdata.factory import (
@@ -31,7 +32,8 @@ class TestGeneralApi(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.manage_user = create_manage_user()
+        # The manage user has added their corporation (token with corp scopes)
+        cls.manage_user = create_manage_user(scopes=CorporationOwner.get_esi_scopes())
         cls.api = f"{reverse('ledger:index')}api"
 
     def test_get_menu_should_hide_advanced_links_without_permission(self):
@@ -374,6 +376,92 @@ class TestGeneralApi(AuthTestCase):
             o for o in response.json()["registered"] if o["owner_type"] == "alliance"
         ]
         self.assertEqual([a["id"] for a in alliances], [alliance_id])
+
+    def _create_member_of_registered_corporation(self):
+        """Corporation added by another user and a member without corp scopes."""
+        owner = CorporationOwnerFactory()
+        CorporationUpdateStatusFactory(
+            owner=owner,
+            section=CorporationUpdateSection.get_sections()[0],
+            is_success=False,
+            has_token_error=True,
+        )
+        member = UserMainFactory(
+            main_character__character=EveCharacterFactory(
+                corporation=owner.eve_corporation
+            )
+        )
+        return owner, member
+
+    def test_get_settings_owners_should_hide_corporation_not_added_by_user(self):
+        # Test Data
+        owner, member = self._create_member_of_registered_corporation()
+        self.client.force_login(member)
+
+        # Test Action
+        response = self.client.get(f"{self.api}/settings/owners/")
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        registered = response.json()["registered"]
+        self.assertFalse(
+            [o for o in registered if o["owner_type"] in ("corporation", "alliance")]
+        )
+        self.assertNotIn(
+            owner.eve_corporation.corporation_id, [o["id"] for o in registered]
+        )
+
+    def test_get_menu_should_not_count_issues_of_corporation_not_added_by_user(self):
+        # Test Data
+        _, member = self._create_member_of_registered_corporation()
+        self.client.force_login(member)
+
+        # Test Action
+        response = self.client.get(f"{self.api}/menu/")
+
+        # Expected Result
+        settings_link = next(
+            link
+            for link in response.json()["left_links"]
+            if link["link"] == "/settings/"
+        )
+        self.assertFalse(settings_link["badge"])
+        self.assertFalse(settings_link["has_errors"])
+
+    @patch("ledger.api.general.update_corporation.apply_async")
+    @patch("ledger.api.general.update_user_characters.apply_async")
+    def test_trigger_update_all_settings_owners_should_skip_corporation_not_added_by_user(
+        self, _mock_characters, mock_corporation
+    ):
+        # Test Data
+        _, member = self._create_member_of_registered_corporation()
+        self.client.force_login(member)
+
+        # Test Action
+        response = self.client.post(f"{self.api}/settings/owners/update-all/")
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        mock_corporation.assert_not_called()
+
+    @patch("ledger.api.general.update_corporation.apply_async")
+    @patch("ledger.api.general.update_user_characters.apply_async")
+    def test_trigger_update_all_settings_owners_should_queue_added_corporation(
+        self, _mock_characters, mock_corporation
+    ):
+        # Test Data
+        owner = CorporationOwnerFactory(user=self.manage_user)
+        self.client.force_login(self.manage_user)
+
+        # Test Action
+        response = self.client.post(f"{self.api}/settings/owners/update-all/")
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        mock_corporation.assert_called_once_with(
+            args=[owner.eve_corporation.corporation_id],
+            kwargs={"force_refresh": False},
+        )
 
     def test_get_settings_owner_unregistered_should_list_unregistered_corp_members(
         self,

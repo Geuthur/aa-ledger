@@ -14,7 +14,7 @@ def create_manage_own_user():
     )
 
 
-def create_manage_user():
+def create_manage_user(**kwargs):
     """User with manage corporations access (basic, advanced, corp audit admin manager, manage access)."""
     return UserMainFactory(
         permissions__=[
@@ -22,5 +22,6 @@ def create_manage_user():
             "ledger.advanced_access",
             "ledger.corp_audit_admin_manager",
             "ledger.manage_access",
-        ]
+        ],
+        **kwargs,
     )
