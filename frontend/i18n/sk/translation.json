@@ -4,6 +4,7 @@
   "Close": "Zavrieť",
   "No Data Available": "Nie sú k dispozícii žiadne údaje",
   "{{count}} Rows_one": "{{count}} riadok",
+  "{{count}} Rows_few": "{{count}} riadky",
   "{{count}} Rows_other": "{{count}} riadkov",
   "True": "Áno",
   "False": "Nie",

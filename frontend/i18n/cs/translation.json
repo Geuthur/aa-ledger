@@ -4,6 +4,7 @@
   "Close": "Zavřít",
   "No Data Available": "Žádná data nejsou k dispozici",
   "{{count}} Rows_one": "{{count}} řádek",
+  "{{count}} Rows_few": "{{count}} řádky",
   "{{count}} Rows_other": "{{count}} řádků",
   "True": "Ano",
   "False": "Ne",
