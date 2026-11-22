@@ -95,3 +95,42 @@ class TestEveOnlineHelpers(TestCase):
 
     def test_invalid_character_id_returns_empty(self):
         self.assertEqual(eveonline.get_character_portrait_url(0, 33), "")
+
+
+class TestDisplayNameHtml(TestCase):
+    def test_character_portrait_display_name_html(self):
+        url = eveimageserver.character_portrait_url(1001, 32)
+        self.assertHTMLEqual(
+            eveonline.get_character_portrait_url(
+                1001, character_name="Bob", as_html=True, display_name=True
+            ),
+            '<div class="d-flex align-items-center">'
+            '<img class="character-portrait rounded-circle me-2" '
+            f'src="{url}" alt="Bob"><span>Bob</span></div>',
+        )
+
+    def test_character_portrait_display_name_ignored_without_html(self):
+        self.assertEqual(
+            eveonline.get_character_portrait_url(
+                1001, character_name="Bob", display_name=True
+            ),
+            eveimageserver.character_portrait_url(1001, 32),
+        )
+
+    def test_character_portrait_display_name_escapes_name(self):
+        html = eveonline.get_character_portrait_url(
+            1001, character_name="<b>Bob</b>", as_html=True, display_name=True
+        )
+        self.assertNotIn("<b>", html)
+        self.assertIn("&lt;b&gt;Bob&lt;/b&gt;", html)
+
+    def test_icon_render_display_name_html_keeps_tooltip(self):
+        url = eveimageserver.type_icon_url(603, 32)
+        self.assertHTMLEqual(
+            eveonline.get_icon_render_url(
+                603, type_name="Merlin", as_html=True, display_name=True
+            ),
+            '<div class="d-flex align-items-center">'
+            '<img class="type-render rounded-circle me-2" data-bs-tooltip="aa-ledger" '
+            f'src="{url}" title="Merlin"><span>Merlin</span></div>',
+        )
