@@ -96,6 +96,7 @@ Section Order:
 - The unused HTML helpers `bootstrap_icon`, `bootstrap_text_style_class` and `description` of `UpdateStatus`; the frontend renders the update status from the API itself.
 - The unused API endpoints `character/overview/`, `planetary/overview/`, `corporation/overview/`, `alliance/overview/` and `administration/owners/{owner_type}/{owner_id}/inspect/` with their schemas and frontend calls; the overview page uses `overview/`.
 - The empty stub module `ledger/hooks.py` (only a docstring; the hooks live in `ledger/auth_hooks.py`).
+- [FIX] Unused German keys ("Fehler beim Laden", "Lädt…", "Fehler", "Kein Fetch") from the English translation file.
 
 ### Changed
 
