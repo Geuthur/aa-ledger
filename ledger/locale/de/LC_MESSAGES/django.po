@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: AA Ledger\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-11-19 16:22+0000\n"
-"PO-Revision-Date: 2026-10-25 10:29+0000\n"
+"PO-Revision-Date: 2026-11-23 12:03+0000\n"
 "Last-Translator: Geuthur <devgeuthur@gmail.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "ledger/de/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.15.1\n"
+"X-Generator: Weblate 2026.11.2\n"
 
 msgid "last update run"
 msgstr "Letztes Update ausgeführt"
@@ -39,13 +39,13 @@ msgstr "Charakter nicht gefunden."
 
 #, python-format
 msgid "Queued update for %(name)s"
-msgstr ""
+msgstr "Aktualisierung für %(name)s eingereiht"
 
 msgid "Corporation not found."
 msgstr "Corporation nicht gefunden."
 
 msgid "Invalid owner type."
-msgstr ""
+msgstr "Ungültiger Eigentümertyp."
 
 #, python-format
 msgid "%(name)s successfully deleted"
@@ -86,10 +86,10 @@ msgid "You do not have permission to view this corporation."
 msgstr "Sie haben keine Berechtigung, diese Corporation anzuzeigen."
 
 msgid "Overview"
-msgstr ""
+msgstr "Übersicht"
 
 msgid "My Characters"
-msgstr ""
+msgstr "Meine Charaktere"
 
 msgid "Settings"
 msgstr "Einstellungen"
@@ -110,22 +110,22 @@ msgid "Alliance not found."
 msgstr "Allianz wurde nicht gefunden."
 
 msgid "Update task queued for all owners."
-msgstr ""
+msgstr "Aktualisierungsaufgabe für alle Eigentümer eingereiht."
 
 msgid "Character update initiated successfully."
 msgstr "Charakter-Update erfolgreich gestartet."
 
 msgid "Corporation update initiated successfully."
-msgstr ""
+msgstr "Corporation-Aktualisierung erfolgreich gestartet."
 
 msgid "Queued Update All Characters"
-msgstr "Aktualisiere alle Charaktere wurde in Warteschlange eingereiht"
+msgstr "Aktualisierung aller Charaktere eingereiht"
 
 msgid "Queued Update for Character"
 msgstr "Update für Charakter eingereiht"
 
 msgid "Queued Update All Corporations"
-msgstr "Aktualisiere alle Corporationen wurde in Warteschlange eingereiht"
+msgstr "Aktualisierung aller Corporations eingereiht"
 
 msgid "Queued Update for Corporation"
 msgstr "Update für Corporation eingereiht"
@@ -227,25 +227,25 @@ msgid "Master Wallet"
 msgstr "Haupt Konto"
 
 msgid "Can access this app, Ledger."
-msgstr ""
+msgstr "Kann auf diese App zugreifen, Ledger."
 
 msgid "Can access Corporation and Alliance Ledger."
-msgstr ""
+msgstr "Kann auf das Corporation- und Allianz-Ledger zugreifen."
 
 msgid "Can manage Ledger."
-msgstr ""
+msgstr "Kann das Ledger verwalten."
 
 msgid "Has access to all characters for own Corp."
-msgstr ""
+msgstr "Hat Zugriff auf alle Charaktere der eigenen Corporation."
 
 msgid "Has access to all characters."
-msgstr ""
+msgstr "Hat Zugriff auf alle Charaktere."
 
 msgid "Has Access to own Corporations."
-msgstr ""
+msgstr "Hat Zugriff auf die eigenen Corporations."
 
 msgid "Has access to all Corporations."
-msgstr ""
+msgstr "Hat Zugriff auf alle Corporations."
 
 msgid "ID"
 msgstr "ID"
@@ -260,7 +260,7 @@ msgid "Disabled"
 msgstr "Deaktiviert"
 
 msgid "Token Error"
-msgstr "token Fehler"
+msgstr "Token-Fehler"
 
 msgid "Error"
 msgstr "Fehler"
