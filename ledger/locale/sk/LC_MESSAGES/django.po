@@ -6,8 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: AA Ledger\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-19 16:22+0000\n"
+"Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-"
+"ledger/\n"
+"POT-Creation-Date: 2026-11-24 13:00+0100\n"
 "PO-Revision-Date: 2026-02-05 12:07+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Slovak <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -26,7 +27,19 @@ msgstr ""
 msgid "Force update selected corporations"
 msgstr ""
 
+#, python-brace-format
+msgid ""
+"Started force update for {count} corporation(s). Updates will run in the "
+"background."
+msgstr ""
+
 msgid "Force update selected characters"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Started force update for {count} character(s). Updates will run in the "
+"background."
 msgstr ""
 
 msgid "Permission Denied."
