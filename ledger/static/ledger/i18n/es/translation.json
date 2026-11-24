@@ -27,7 +27,6 @@
   "Corporation": "Corporación",
   "Overview": "Resumen",
   "Alliance Overview": "Resumen de la alianza",
-  "Alliance": "Alianza",
   "Corporation Overview": "Resumen de la corporación",
   "All": "Todos",
   "Type": "Tipo",
@@ -36,6 +35,5 @@
   "Range…": "Rango…",
   "Clear": "Borrar",
   "Filter…": "Filtrar…",
-  "No matching options": "No hay opciones coincidentes",
-  "{{count}} unregistered_many": "{{count}} unregistered"
+  "No matching options": "No hay opciones coincidentes"
 }

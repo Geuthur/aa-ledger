@@ -26,7 +26,6 @@
   "Corporation": "Korporacja",
   "Overview": "Przegląd",
   "Alliance Overview": "Przegląd sojuszu",
-  "Alliance": "Sojusz",
   "Corporation Overview": "Przegląd korporacji",
   "All": "Wszystkie",
   "Type": "Typ",
@@ -35,7 +34,5 @@
   "Range…": "Zakres…",
   "Clear": "Wyczyść",
   "Filter…": "Filtruj…",
-  "No matching options": "Brak pasujących opcji",
-  "{{count}} unregistered_few": "{{count}} unregistered",
-  "{{count}} unregistered_many": "{{count}} unregistered"
+  "No matching options": "Brak pasujących opcji"
 }
