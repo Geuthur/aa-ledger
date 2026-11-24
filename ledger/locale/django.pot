@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-19 16:22+0000\n"
+"Project-Id-Version: AA Ledger\n"
+"Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-ledger/\n"
+"POT-Creation-Date: 2026-11-24 13:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,308 +17,436 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: ledger/admin.py:139 ledger/admin.py:283
 msgid "last update run"
 msgstr ""
 
+#: ledger/admin.py:151
 msgid "Force update selected corporations"
 msgstr ""
 
+#: ledger/admin.py:164
+#, python-brace-format
+msgid "Started force update for {count} corporation(s). Updates will run in the background."
+msgstr ""
+
+#: ledger/admin.py:295
 msgid "Force update selected characters"
 msgstr ""
 
+#: ledger/admin.py:306
+#, python-brace-format
+msgid "Started force update for {count} character(s). Updates will run in the background."
+msgstr ""
+
+#: ledger/api/administration.py:40 ledger/api/administration.py:62
+#: ledger/api/administration.py:135 ledger/api/general.py:371
+#: ledger/api/general.py:387 ledger/api/general.py:425
+#: ledger/api/general.py:506 ledger/api/general.py:520
+#: ledger/api/general.py:548 ledger/api/general.py:561
+#: ledger/api/general.py:583 ledger/api/planetary.py:134
+#: ledger/api/planetary.py:174 ledger/api/planetary.py:211
 msgid "Permission Denied."
 msgstr ""
 
+#: ledger/api/administration.py:67
 msgid "Only superusers can bypass the cache."
 msgstr ""
 
+#: ledger/api/administration.py:78 ledger/api/administration.py:145
+#: ledger/api/general.py:504 ledger/api/general.py:546
+#: ledger/api/general.py:608 ledger/api/planetary.py:132
+#: ledger/api/planetary.py:172 ledger/api/planetary.py:209
 msgid "Character not found."
 msgstr ""
 
+#: ledger/api/administration.py:89 ledger/api/administration.py:111
 #, python-format
 msgid "Queued update for %(name)s"
 msgstr ""
 
+#: ledger/api/administration.py:101 ledger/api/administration.py:161
+#: ledger/api/general.py:378 ledger/api/general.py:384
+#: ledger/api/general.py:518 ledger/api/general.py:559
+#: ledger/api/general.py:628
 msgid "Corporation not found."
 msgstr ""
 
+#: ledger/api/administration.py:115 ledger/api/administration.py:169
+#: ledger/api/general.py:453 ledger/api/general.py:528
+#: ledger/api/general.py:569
 msgid "Invalid owner type."
 msgstr ""
 
+#: ledger/api/administration.py:150 ledger/api/administration.py:166
+#: ledger/api/general.py:553 ledger/api/general.py:566
 #, python-format
 msgid "%(name)s successfully deleted"
 msgstr ""
 
+#: ledger/api/alliance.py:83 ledger/api/alliance.py:250
 msgid "Alliance not found in Ledger."
 msgstr ""
 
+#: ledger/api/alliance.py:88 ledger/api/alliance.py:255
 msgid "You do not have permission to view this alliance."
 msgstr ""
 
+#: ledger/api/auth.py:28
 msgid "Permission Denied"
 msgstr ""
 
+#: ledger/api/character.py:86 ledger/api/character.py:418
 msgid "Character not found in Ledger."
 msgstr ""
 
+#: ledger/api/character.py:91 ledger/api/character.py:423
 msgid "You do not have permission to view this character."
 msgstr ""
 
+#: ledger/api/character.py:333
 msgid "Income from"
 msgstr ""
 
+#: ledger/api/character.py:333
 msgid "Cost from"
 msgstr ""
 
+#: ledger/api/character.py:341
 #, python-format
 msgid "%(kind)s %(category)s"
 msgstr ""
 
+#: ledger/api/character.py:370
 msgid "Mining Income"
 msgstr ""
 
+#: ledger/api/corporation.py:94 ledger/api/corporation.py:479
 msgid "Corporation not found in Ledger."
 msgstr ""
 
+#: ledger/api/corporation.py:99 ledger/api/corporation.py:484
 msgid "You do not have permission to view this corporation."
 msgstr ""
 
+#: ledger/api/general.py:74
 msgid "Overview"
 msgstr ""
 
+#: ledger/api/general.py:75
 msgid "My Characters"
 msgstr ""
 
+#: ledger/api/general.py:77
 msgid "Settings"
 msgstr ""
 
+#: ledger/api/general.py:87
 msgid "Add Character"
 msgstr ""
 
+#: ledger/api/general.py:95
 msgid "Add Corporation"
 msgstr ""
 
+#: ledger/api/general.py:100
 msgid "Add Alliance"
 msgstr ""
 
+#: ledger/api/general.py:114
 msgid "Administration"
 msgstr ""
 
+#: ledger/api/general.py:415
 msgid "Alliance not found."
 msgstr ""
 
+#: ledger/api/general.py:483
 msgid "Update task queued for all owners."
 msgstr ""
 
+#: ledger/api/general.py:512
 msgid "Character update initiated successfully."
 msgstr ""
 
+#: ledger/api/general.py:525
 msgid "Corporation update initiated successfully."
 msgstr ""
 
+#: ledger/api/general.py:604
 msgid "Queued Update All Characters"
 msgstr ""
 
+#: ledger/api/general.py:617
 msgid "Queued Update for Character"
 msgstr ""
 
+#: ledger/api/general.py:624
 msgid "Queued Update All Corporations"
 msgstr ""
 
+#: ledger/api/general.py:633
 msgid "Queued Update for Corporation"
 msgstr ""
 
+#: ledger/api/helpers/planetary_helper.py:70
+#: ledger/api/helpers/planetary_helper.py:103
 msgid "No facility"
 msgstr ""
 
+#: ledger/api/overview.py:75 ledger/thirdparty/charlink_hook.py:144
 msgid "Character"
 msgstr ""
 
+#: ledger/api/overview.py:105 ledger/thirdparty/charlink_hook.py:157
 msgid "Corporation"
 msgstr ""
 
+#: ledger/api/overview.py:133
 msgid "Alliance"
 msgstr ""
 
+#: ledger/api/planetary.py:183 ledger/api/planetary.py:220
 msgid "Planet not found."
 msgstr ""
 
+#: ledger/api/planetary.py:236
 msgid "Notification toggled successfully."
 msgstr ""
 
+#: ledger/helpers/billboard.py:47 ledger/helpers/ref_type.py:184
 msgid "Bounty"
 msgstr ""
 
+#: ledger/helpers/billboard.py:48 ledger/helpers/ref_type.py:185
 msgid "ESS"
 msgstr ""
 
+#: ledger/helpers/billboard.py:49
 msgid "Mining"
 msgstr ""
 
+#: ledger/helpers/billboard.py:50
 msgid "Miscellaneous"
 msgstr ""
 
+#: ledger/helpers/billboard.py:51
 msgid "Costs"
 msgstr ""
 
+#: ledger/helpers/billboard.py:52
+#: ledger/managers/corporation_journal_manager.py:411
+#: ledger/managers/corporation_journal_manager.py:435
 msgid "Unknown"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:186
 msgid "Assets"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:187
 msgid "Contract"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:189
 msgid "Corporation Administration"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:191
 msgid "Corporation Contract"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:192
 msgid "Corporation Withdrawal"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:193
 msgid "Daily Goal Reward"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:194
 msgid "Donation"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:195
 msgid "Freelance Jobs"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:196
 msgid "Incursion"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:197
 msgid "Insurance"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:198
 msgid "LP Store"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:199
 msgid "Market"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:200
 msgid "Mission Reward"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:201
 msgid "Planetary Interaction"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:202
 msgid "Production"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:203
 msgid "Skill Training"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:204
 msgid "Structure Rental"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:205
 msgid "Traveling Fees"
 msgstr ""
 
+#: ledger/helpers/ref_type.py:206
 msgid "Undefined"
 msgstr ""
 
+#: ledger/managers/corporation_journal_manager.py:409
 msgid "Master Wallet"
 msgstr ""
 
+#: ledger/models/general.py:49
 msgid "Can access this app, Ledger."
 msgstr ""
 
+#: ledger/models/general.py:50
 msgid "Can access Corporation and Alliance Ledger."
 msgstr ""
 
+#: ledger/models/general.py:51
 msgid "Can manage Ledger."
 msgstr ""
 
+#: ledger/models/general.py:54
 msgid "Has access to all characters for own Corp."
 msgstr ""
 
+#: ledger/models/general.py:58
 msgid "Has access to all characters."
 msgstr ""
 
+#: ledger/models/general.py:62
 msgid "Has Access to own Corporations."
 msgstr ""
 
+#: ledger/models/general.py:66
 msgid "Has access to all Corporations."
 msgstr ""
 
+#: ledger/models/general.py:104
 msgid "ID"
 msgstr ""
 
+#: ledger/models/general.py:107
 msgid "Category"
 msgstr ""
 
+#: ledger/models/general.py:109
 msgid "Name"
 msgstr ""
 
+#: ledger/models/helpers/update_manager.py:68
 msgid "Disabled"
 msgstr ""
 
+#: ledger/models/helpers/update_manager.py:69
 msgid "Token Error"
 msgstr ""
 
+#: ledger/models/helpers/update_manager.py:70
 msgid "Error"
 msgstr ""
 
+#: ledger/models/helpers/update_manager.py:71
 msgid "OK"
 msgstr ""
 
+#: ledger/models/helpers/update_manager.py:72
 msgid "Incomplete"
 msgstr ""
 
+#: ledger/models/helpers/update_manager.py:73
 msgid "In Progress"
 msgstr ""
 
+#: ledger/models/helpers/update_manager.py:97
+#: ledger/models/helpers/update_manager.py:108
 msgid "Wallet Journal"
 msgstr ""
 
+#: ledger/models/helpers/update_manager.py:98
 msgid "Mining Ledger"
 msgstr ""
 
+#: ledger/models/helpers/update_manager.py:99
 msgid "Planets"
 msgstr ""
 
+#: ledger/models/helpers/update_manager.py:100
 msgid "Planets Details"
 msgstr ""
 
+#: ledger/models/helpers/update_manager.py:106
 msgid "Divisions Names"
 msgstr ""
 
+#: ledger/models/helpers/update_manager.py:107
 msgid "Divisions"
 msgstr ""
 
+#: ledger/models/planetary.py:47
 msgid "Upgrade level of the planet"
 msgstr ""
 
+#: ledger/models/planetary.py:51
 msgid "Number of pins on the planet"
 msgstr ""
 
+#: ledger/tasks.py:82
 #, python-format
 msgid "%(charname)s on %(planetname)s"
 msgstr ""
 
+#: ledger/tasks.py:97
 msgid "Planetary Extractor Heads Expired"
 msgstr ""
 
+#: ledger/views.py:56
 #, python-brace-format
 msgid "{character_name} successfully added/updated to Ledger"
 msgstr ""
 
+#: ledger/views.py:89
 #, python-brace-format
 msgid "{corporation_name} successfully added/updated to Ledger"
 msgstr ""
 
+#: ledger/views.py:105
 #, python-brace-format
 msgid "{alliance_name} is already in the Ledger System"
 msgstr ""
 
+#: ledger/views.py:131
 #, python-brace-format
 msgid "{alliance_name} successfully added to Ledger"
 msgstr ""
 
+#: ledger/views.py:136
 #, python-brace-format
 msgid "Failed to fetch Alliance data for {alliance_name}"
 msgstr ""

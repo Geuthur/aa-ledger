@@ -24,7 +24,6 @@
   "Last Page": "Ultima pagina",
   "Overview": "Panoramica",
   "Alliance Overview": "Panoramica dell'alleanza",
-  "Alliance": "Alleanza",
   "Corporation Overview": "Panoramica della corporation",
   "All": "Tutti",
   "Type": "Tipo",
@@ -33,6 +32,5 @@
   "Range…": "Intervallo…",
   "Clear": "Cancella",
   "Filter…": "Filtra…",
-  "No matching options": "Nessuna opzione corrispondente",
-  "{{count}} unregistered_many": "{{count}} unregistered"
+  "No matching options": "Nessuna opzione corrispondente"
 }
