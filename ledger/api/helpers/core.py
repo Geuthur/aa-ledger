@@ -194,32 +194,27 @@ def _build_sections(
 
 
 def get_user_added_corporation_ids(user) -> list[int]:
-    """Return list of corporation IDs the user has personally added or owns."""
+    """
+    Return list of corporation IDs the user has personally added.
+
+    A corporation counts as added by the user when the user has an ESI token
+    with the corporation audit scopes for a character in that corporation.
+    """
     if not user.is_authenticated:
         return []
 
-    # Corps where user has an ESI token with corp audit scopes
     corp_scoped_chars = (
         Token.objects.filter(user=user)
         .require_scopes(models.CorporationOwner.get_esi_scopes())
         .values_list("character_id", flat=True)
     )
-    corp_ids = set(
-        EveCharacter.objects.filter(character_id__in=corp_scoped_chars).values_list(
-            "corporation_id", flat=True
+    return list(
+        set(
+            EveCharacter.objects.filter(character_id__in=corp_scoped_chars).values_list(
+                "corporation_id", flat=True
+            )
         )
     )
-
-    # Corps where user has owned characters with tokens
-    user_token_chars = Token.objects.filter(user=user).values_list(
-        "character_id", flat=True
-    )
-    owned_corps = user.character_ownerships.filter(
-        character__character_id__in=user_token_chars
-    ).values_list("character__corporation_id", flat=True)
-    corp_ids.update(owned_corps)
-
-    return list(corp_ids)
 
 
 def get_user_issue_count(user) -> int:

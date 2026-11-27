@@ -27,7 +27,6 @@
   "Corporation": "Корпорация",
   "Overview": "Обзор",
   "Alliance Overview": "Обзор альянса",
-  "Alliance": "Альянс",
   "Corporation Overview": "Обзор корпорации",
   "All": "Все",
   "Type": "Тип",
@@ -36,7 +35,5 @@
   "Range…": "Диапазон…",
   "Clear": "Сбросить",
   "Filter…": "Фильтр…",
-  "No matching options": "Нет подходящих вариантов",
-  "{{count}} unregistered_few": "{{count}} unregistered",
-  "{{count}} unregistered_many": "{{count}} unregistered"
+  "No matching options": "Нет подходящих вариантов"
 }
